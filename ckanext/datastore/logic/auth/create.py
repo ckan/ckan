@@ -1,4 +1,7 @@
 import ckan.plugins as p
+import ckan.logic as logic
+
+_check_access = logic.check_access
 
 
 def datastore_create(context, data_dict):

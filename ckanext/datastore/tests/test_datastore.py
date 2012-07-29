@@ -3,6 +3,7 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
+import ckanext.datastore.db as db
 
 
 class TestDatastore(tests.WsgiAppCase):
@@ -92,8 +93,41 @@ class TestDatastore(tests.WsgiAppCase):
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_bad_records(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': ['bad'] # treat author as null
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
+                        [],
+                        {'book': 'warandpeace'}] # treat author as null
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
 
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -102,7 +136,8 @@ class TestDatastore(tests.WsgiAppCase):
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
-                        {'book': 'warandpeace', 'author': 'tolstoy'}]
+                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'book': 'warandpeace'}] # treat author as null
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -118,7 +153,50 @@ class TestDatastore(tests.WsgiAppCase):
         c = model.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
-        assert results.rowcount == 2
+        assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data['records'][i]['book'] == row['book']
-            assert data['records'][i]['author'] == row['author']
+            assert data['records'][i].get('book') == row['book']
+            assert (data['records'][i].get('author') == row['author'] 
+                    or data['records'][i].get('author') == json.loads(row['author']))
+
+        results = c.execute('''select * from "{0}" where _full_text @@ 'warandpeace' '''.format(resource.id))
+        assert results.rowcount == 1
+
+        results = c.execute('''select * from "{0}" where _full_text @@ 'tolstoy' '''.format(resource.id))
+        assert results.rowcount == 2
+
+    def test_guess_types(self):
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'author', 'type': 'text'},
+                       {'id': 'count'},
+                       {'id': 'book'},
+                       {'id': 'date'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'count': 1,
+                         'date': '2005-12-01', 'count2' : 2},
+                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'book': 'warandpeace'}] # treat author as null
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        c = model.Session.connection()
+        results = c.execute('''select * from "{0}" '''.format(resource.id))
+        
+        types = [db._pg_types[field[1]] for field in results.cursor.description]
+
+        assert types == [u'int4', u'tsvector', u'text', u'int4', u'text', u'timestamp', u'int4'], types
+
+        assert results.rowcount == 3
+        for i, row in enumerate(results):
+            assert data['records'][i].get('book') == row['book']
+            assert (data['records'][i].get('author') == row['author'] 
+                    or data['records'][i].get('author') == json.loads(row['author']))
+        
+
+
+

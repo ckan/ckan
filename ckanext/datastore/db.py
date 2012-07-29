@@ -1,9 +1,15 @@
 import sqlalchemy
 import ckan.plugins as p
+import json
+import datetime
 
 _pg_types = {}
 _type_names = set()
 _engines = {}
+
+_iso_formats = ['%Y-%m-%d',
+                '%Y-%m-%d %H:%M:%S',
+                '%Y-%m-%dT%H:%M:%S']
 
 
 def _is_valid_field_name(name):
@@ -23,7 +29,7 @@ def _get_engine(context, data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url)
+        engine = sqlalchemy.create_engine(connection_url, echo=True)
         _engines[connection_url] = engine
     return engine
 
@@ -55,13 +61,19 @@ def _guess_type(field):
             data_types.discard(data_type)
             if not data_types:
                 break
-
     if int in data_types:
         return 'integer'
     elif float in data_types:
         return 'numeric'
-    else:
-        return 'text'
+
+    ##try iso dates
+    for format in _iso_formats:
+        try:
+            datetime.datetime.strptime(field, format)
+            return 'timestamp'
+        except ValueError:
+            continue
+    return 'text'
 
 
 def _get_fields(context, data_dict):
@@ -72,17 +84,29 @@ def _get_fields(context, data_dict):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'name': field[0],
+                'id': field[0],
                 'type': _get_type(context, field[1])
             })
     return fields
 
+def json_get_values(obj, current_list=None):
+    if current_list is None:
+        current_list = []
+    if isinstance(obj, basestring):
+        current_list.append(obj)
+    if isinstance(obj, list):
+        for item in obj:
+            json_get_values(item, current_list)
+    if isinstance(obj, dict):
+        for item in dict.values():
+            json_get_values(item, current_list)
+    return current_list
 
 def check_fields(context, fields):
     'Check if field types are valid.'
     _cache_types(context)
     for field in fields:
-        if not field['type'] in _type_names:
+        if field.get('type') and not field['type'] in _type_names:
             raise p.toolkit.ValidationError({
                 'fields': '{0} is not a valid field type'.format(field['type'])
             })
@@ -103,19 +127,34 @@ def create_table(context, data_dict):
 
     # check first row of data for additional fields
     extra_fields = []
+    supplied_fields = data_dict.get('fields', [])
     field_ids = [field['id'] for field in data_dict.get('fields', [])]
     records = data_dict.get('records')
 
+    # if type is field is not given try and guess or throw an error
+    for field in supplied_fields:
+        if 'type' not in field:
+            if not records or field['id'] not in records[0]:
+                raise p.toolkit.ValidationError({
+                    'fields': '{} type not guessable'.format(field['id'])
+                })
+            field['type'] = _guess_type(records[0][field['id']])
+
     if records:
-        extra_field_ids = records[0].keys()
-        for field_id in extra_field_ids:
+        # check record for sanity
+        if not isinstance(records[0], dict):
+            raise p.toolkit.ValidationError({
+                'records': 'The first row is not a json object'
+            })
+        supplied_field_ids = records[0].keys()
+        for field_id in supplied_field_ids:
             if not field_id in field_ids:
                 extra_fields.append({
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
                 })
 
-    fields = datastore_fields + data_dict.get('fields', []) + extra_fields
+    fields = datastore_fields + supplied_fields + extra_fields
     sql_fields = ", ".join(['"{0}" {1}'.format(f['id'], f['type'])
                             for f in fields])
 
@@ -130,6 +169,7 @@ def create_table(context, data_dict):
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
     check_fields(context, data_dict.get('fields'))
+    fields = _get_fields(context, data_dict)
 
 
 def insert_data(context, data_dict):
@@ -138,41 +178,51 @@ def insert_data(context, data_dict):
         return
 
     fields = _get_fields(context, data_dict)
+    field_names = [field['id'] for field in fields] + ['_full_text']
+    sql_columns = ", ".join(['"%s"' % name for name in field_names])
 
-    for record in data_dict['records']:
-        # check that number of record values is correct
-        # TODO: is this necessary?
-        if not len(record.keys()) == len(fields):
-            error_msg = 'Field count ({0}) does not match table ({1})'.format(
-                len(record.keys()), len(fields)
-            )
+    rows = []
+
+    ## clean up and validate data
+    for num, record in enumerate(data_dict['records']):
+
+        # check record for sanity
+        if not isinstance(record, dict):
             raise p.toolkit.ValidationError({
-                'records': error_msg
+                'records': 'row {} is not a json object'.format(num)
+            })
+        ## check for extra fields in data
+        extra_keys = set(record.keys()) - set(field_names)
+        if extra_keys:
+            raise p.toolkit.ValidationError({
+                'records': 'row {} has extra keys "{}"'.format(
+                    num,
+                    ', '.join(list(extra_keys))
+                )
             })
 
-        sql_columns = ", ".join(['"%s"' % f['name'] for f in fields])
-        sql_values = []
-
+        full_text = []
+        row = []
         for field in fields:
-            if not field['name'] in record:
-                raise p.toolkit.ValidationError({
-                    'records': 'Field {0} not found'.format(field['name'])
-                })
+            value = record.get(field['id'])
+            if isinstance(value, (dict, list)):
+                full_text.extend(json_get_values(value))
+                value = json.dumps(value)
+            elif field['type'].lower() == 'text' and value:
+                full_text.append(value)
+            row.append(value)
 
-            if field['type'] == 'text':
-                sql_values.append("'{0}'".format(record[field['name']]))
-            else:
-                sql_values.append('{0}'.format(record[field['name']]))
+        row.append(' '.join(full_text))
+        rows.append(row)
 
-        sql_values = ", ".join(['%s' % v for v in sql_values])
+    sql_string = 'insert into "{0}" ({1}) values ({2});'.format(
+        data_dict['resource_id'],
+        sql_columns,
+        ', '.join(['%s' for field in field_names])
+    )
 
-        sql_string = 'insert into "{0}" ({1}) values ({2});'.format(
-            data_dict['resource_id'],
-            sql_columns,
-            sql_values
-        )
-
-        context['connection'].execute(sql_string)
+    
+    context['connection'].execute(sql_string, rows)
 
 
 def create(context, data_dict):
@@ -187,7 +237,7 @@ def create(context, data_dict):
     add extra information for certain columns or to explicitly
     define ordering.
 
-    eg [{"id": "dob", "label": ""Date of Birth",
+    eg [datetime.datetime.strptime(field, format){"id": "dob", "label": ""Date of Birth",
          "type": "timestamp" ,"concept": "day"},
         {"name": "some_stuff": ..].
 
