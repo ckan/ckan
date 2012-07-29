@@ -34,6 +34,12 @@ def datastore_create(context, data_dict):
 
     _get_or_bust(data_dict, 'resource_id')
 
+    #schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
+    #data, errors = _validate(data_dict, schema, context)
+    #if errors:
+    #    model.Session.rollback()
+    #    raise p.toolkit.ValidationError(errors)
+
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
     return db.create(context, data_dict)
