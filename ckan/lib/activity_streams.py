@@ -16,6 +16,10 @@ def get_snippet_actor(activity, detail):
     return h.linked_user(activity['user_id'])
 
 
+def get_snippet_user(activity, detail):
+    return h.linked_user(activity['data']['user']['name'])
+
+
 def get_snippet_dataset(activity, detail):
     data = activity['data']
     return h.dataset_link(data.get('package') or data.get('dataset'))
@@ -49,7 +53,7 @@ def get_snippet_related_type(activity, detail):
 
 activity_snippet_functions = {
     'actor': get_snippet_actor,
-    'user': get_snippet_actor,
+    'user': get_snippet_user,
     'dataset': get_snippet_dataset,
     'tag': get_snippet_tag,
     'group': get_snippet_group,
@@ -200,8 +204,8 @@ def activity_list_to_html(context, activity_stream):
         for match in matches:
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
-            activity_list.append({'msg': activity_msg,
-                                  'data': data,
-                                  'timestamp': activity['timestamp']})
+        activity_list.append({'msg': activity_msg,
+                              'data': data,
+                              'timestamp': activity['timestamp']})
     return literal(base.render('activity_streams/general.html',
         extra_vars={'activities': activity_list}))
