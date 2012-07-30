@@ -74,7 +74,8 @@ textarea {
   font-size: 18px;
 }
 
-.control-large input {
+.ie9 .control-large input {
+  height: 56px; // Fixes cropped text in IE9
 }
 
 .form-actions {
@@ -536,6 +537,9 @@ textarea {
 
 .resource-upload-field {
   position: relative;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
 }
 
 .resource-upload-field label {
@@ -543,12 +547,17 @@ textarea {
 }
 
 .resource-upload-field input {
+  .opacity(0);
   position: absolute;
   top: 0;
-  left: 0;
-  opacity: 0;
+  right: 0;
   z-index: 1;
+  margin: 0;
+  border: solid transparent;
+  border-width: 100px 0 0 200px;
   cursor: pointer;
+  direction: ltr;
+  -moz-transform: translate(-300px, 0) scale(4);
 }
 
 .resource-upload-field.loading {
