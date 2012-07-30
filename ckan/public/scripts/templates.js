@@ -152,7 +152,7 @@ CKAN.Templates.resourceDetails = ' \
 CKAN.Templates.resourceExtra = ' \
   <div class="dynamic-extra"> \
   <button class="btn btn-danger remove-resource-extra">X</button>\
-  <input type="text" placeholder="Key" class="extra-key" value="${key}" /> \
-  <input type="text" placeholder="Value" class="extra-value" value="${value}" /> \
+  <input type="text" placeholder="'+CKAN.Strings.key+'" class="extra-key" value="${key}" /> \
+  <input type="text" placeholder="'+CKAN.Strings.value+'" class="extra-value" value="${value}" /> \
   </div> \
   ';
