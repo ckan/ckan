@@ -20,7 +20,7 @@
       values=('key', 'value', true),
       error=error ) }}
     {{ form.markdown('desc', id='field-description', label=_('Markdown'), placeholder='Some nice placeholder text', error=error) }}
-    {{ form.select('year', label=_('Select'), options={2010: 2010, 2011: 2011}, selected=2011, error=error) }}
+    {{ form.select('year', label=_('Select'), options=[{'value': 2010}, {'value': 2011}], selected=2011, error=error) }}
     {{ form.checkbox('remember', label="This is my checkbox", checked=true, error=error) }}
   </form>
 </section>
