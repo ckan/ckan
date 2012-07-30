@@ -196,6 +196,8 @@ def activity_list_to_html(context, activity_stream):
         data = {}
         for match in matches:
             data[str(match)] = get_activity_snippet(match, activity, detail)
-        activity_list.append(dict(msg=activity_msg, data=data, timestamp=activity['timestamp']))
+            activity_list.append({'msg': activity_msg,
+                                  'data': data,
+                                  'timestamp': activity['timestamp']})
     return webhelpers.html.literal(base.render('activity_streams/general.html',
         extra_vars={'activities': activity_list}))
