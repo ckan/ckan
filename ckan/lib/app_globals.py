@@ -41,11 +41,20 @@ def set_main_css(css_file):
 def set_global(key, value):
     ''' helper function for getting value from database or config file '''
     model.set_system_info(key, value)
-    setattr(app_globals, mappings[key], value)
+    setattr(app_globals, get_globals_key(key), value)
     # update the config
     config[key] = value
     log.info('config `%s` set to `%s`' % (key, value))
 
+def get_globals_key(key):
+    # create our globals key
+    # these can be specified in mappings or else we remove
+    # the `ckan.` part this is to keep the existing namings
+    # set the value
+    if key in mappings:
+        return mappings[key]
+    elif key.startswith('ckan.'):
+        return key[5:]
 
 def reset():
     ''' set updatable values from config '''
@@ -58,15 +67,7 @@ def reset():
             log.info('config `%s` set to `%s` from db' % (key, value))
         else:
             value = config.get(key, default)
-        # create our globals key
-        # these can be specified in mappings or else we remove
-        # the `ckan.` part this is to keep the existing namings
-        if key in mappings:
-            key = mappings[key]
-        elif key.startswith('ckan.'):
-            key = key[5:]
-        # set the value
-        setattr(app_globals, key, value)
+        setattr(app_globals, get_globals_key(key), value)
         return value
 
     # update the config settings in auto update
@@ -86,33 +87,6 @@ class _Globals(object):
 
     ''' Globals acts as a container for objects available throughout the
     life of the application. '''
-
-    def set_main_css(self, css_file):
-        ''' Sets the main_css using debug css if needed.  The css_file
-        must be of the form file.css '''
-        assert css_file.endswith('.css')
-        if config.debug and css_file == 'base/css/main.css':
-            new_css = 'base/css/main.debug.css'
-        else:
-            new_css = css_file
-        # FIXME we should check the css file exists
-        self.main_css = str(new_css)
-        print 'using css file %s' % self.main_css
-
-    def set_global(self, key, value):
-        setattr(self, key, value)
-
-    def reset(self):
-        ''' set updatable values from config '''
-
-        self.site_title = config.get('ckan.site_title', '')
-        self.site_logo = config.get('ckan.site_logo', '')
-        self.site_url = config.get('ckan.site_url', '')
-        self.site_description = config.get('ckan.site_description', '')
-        self.site_about = config.get('ckan.site_about', '')
-
-        # cusom styling
-        self.set_main_css(config.get('ckan.main_css','/base/css/main.css'))
 
     def __init__(self):
         '''One instance of Globals is created during application

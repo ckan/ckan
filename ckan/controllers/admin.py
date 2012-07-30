@@ -1,5 +1,8 @@
+from pylons import g
+
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.lib.app_globals as app_globals
 import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
@@ -29,7 +32,6 @@ class AdminController(base.BaseController):
                                                      model.Revision))
 
     def config(self):
-        app_globals = base.pylons_globals().get('g')
         data = request.POST
         if 'save' in data:
             # update config from form
@@ -56,10 +58,10 @@ class AdminController(base.BaseController):
                   ('Fuchsia', '/base/css/fuchsia.css')]
         data = {}
 
-        data['title'] = app_globals.site_title
-        data['style'] = app_globals.main_css
-        data['tagline'] = app_globals.site_description
-        data['about'] = app_globals.site_about
+        data['title'] = g.site_title
+        data['style'] = g.main_css
+        data['tagline'] = g.site_description
+        data['about'] = g.site_about
 
         vars = {'data': data, 'errors': {}, 'styles': styles}
         return base.render('admin/config.html',
