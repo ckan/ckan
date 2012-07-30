@@ -34,16 +34,17 @@ class AdminController(base.BaseController):
         if 'save' in data:
             # update config from form
             style = data.get('style')
+            app_globals.set_global('ckan.main_css', style)
             app_globals.set_main_css(style)
 
             site_title = data.get('title')
-            app_globals.set_global('site_title', site_title)
+            app_globals.set_global('ckan.site_title', site_title)
 
             tag_line = data.get('tagline')
-            app_globals.set_global('site_description', tag_line)
+            app_globals.set_global('ckan.site_description', tag_line)
 
             about = data.get('about')
-            app_globals.set_global('site_about', about)
+            app_globals.set_global('ckan.site_about', about)
 
         if 'reset' in data:
             # reset to values in config
