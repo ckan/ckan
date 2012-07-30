@@ -8,12 +8,13 @@ __all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
           'get_system_info', 'set_system_info']
 
 system_info_table = Table('system_info', meta.metadata,
-        Column('id', types.Integer() ,  primary_key=True, nullable=False),
+        Column('id', types.Integer(),  primary_key=True, nullable=False),
         Column('key', types.Unicode(100), unique=True, nullable=False),
         Column('value', types.UnicodeText),
     )
 
 system_info_revision_table = core.make_revisioned_table(system_info_table)
+
 
 class SystemInfo(domain_object.DomainObject):
 
@@ -32,6 +33,7 @@ def get_system_info(key, default=None):
         return obj.value
     else:
         return default
+
 
 def set_system_info(key, value):
     ''' save data in the system_info table '''
