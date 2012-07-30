@@ -3,8 +3,6 @@ import pylons
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization
-import ckan.plugins as p
-import ckanext.datastore.logic.schema
 import ckanext.datastore.db as db
 
 log = logging.getLogger(__name__)
@@ -28,17 +26,11 @@ def datastore_create(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
+    _get_or_bust(context, 'model')
+    _get_or_bust(data_dict, 'resource_id')
+    # TODO: check that resource_id exists in database
 
     _check_access('datastore_create', context, data_dict)
-
-    _get_or_bust(data_dict, 'resource_id')
-
-    #schema = ckanext.datastore.logic.schema.default_datastore_create_schema()
-    #data, errors = _validate(data_dict, schema, context)
-    #if errors:
-    #    model.Session.rollback()
-    #    raise p.toolkit.ValidationError(errors)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 

@@ -118,7 +118,7 @@ class TestDatastore(tests.WsgiAppCase):
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
                         [],
-                        {'book': 'warandpeace'}] # treat author as null
+                        {'book': 'warandpeace'}]  # treat author as null
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -128,7 +128,6 @@ class TestDatastore(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
-
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -137,7 +136,7 @@ class TestDatastore(tests.WsgiAppCase):
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
-                        {'book': 'warandpeace'}] # treat author as null
+                        {'book': 'warandpeace'}]  # treat author as null
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -226,7 +225,6 @@ class TestDatastore(tests.WsgiAppCase):
         assert results.rowcount == 2
         model.Session.remove()
 
-
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
         data = {
@@ -235,10 +233,10 @@ class TestDatastore(tests.WsgiAppCase):
                        {'id': 'count'},
                        {'id': 'book'},
                        {'id': 'date'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'count': 1,
-                         'date': '2005-12-01', 'count2' : 2},
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy',
+                         'count': 1, 'date': '2005-12-01', 'count2': 2},
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
-                        {'book': 'warandpeace'}] # treat author as null
+                        {'book': 'warandpeace'}]  # treat author as null
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -251,7 +249,8 @@ class TestDatastore(tests.WsgiAppCase):
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
-        assert types == [u'int4', u'tsvector', u'text', u'int4', u'text', u'timestamp', u'int4'], types
+        assert types == [u'int4', u'tsvector', u'text', u'int4',
+                         u'text', u'timestamp', u'int4'], types
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
@@ -272,9 +271,9 @@ class TestDatastore(tests.WsgiAppCase):
                        {'id': 'extra', 'type':'text'},
                        {'id': 'date2'},
                       ],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'count': 1,
-                         'date': '2005-12-01', 'count2' : 2, 'count3': 432,
-                         'date2': '2005-12-01'}]
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy',
+                         'count': 1, 'date': '2005-12-01', 'count2': 2,
+                         'count3': 432, 'date2': '2005-12-01'}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -288,16 +287,16 @@ class TestDatastore(tests.WsgiAppCase):
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
-        assert types == [u'int4', #id
-                         u'tsvector', #fulltext
-                         u'text', #author
-                         u'int4', #count
-                         u'text', #book
-                         u'timestamp', #date
-                         u'int4', #count2
-                         u'text', #extra
-                         u'timestamp', #date2
-                         u'int4', #count3
+        assert types == [u'int4',  # id
+                         u'tsvector',  # fulltext
+                         u'text',  # author
+                         u'int4',  # count
+                         u'text',  # book
+                         u'timestamp',  # date
+                         u'int4',  # count2
+                         u'text',  # extra
+                         u'timestamp',  # date2
+                         u'int4',  # count3
                         ], types
 
         ### fields resupplied in wrong order
@@ -306,15 +305,15 @@ class TestDatastore(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': 'author', 'type': 'text'},
                        {'id': 'count'},
-                       {'id': 'date'},  ## date and book in wrong order
+                       {'id': 'date'},  # date and book in wrong order
                        {'id': 'book'},
                        {'id': 'count2'},
                        {'id': 'extra', 'type':'text'},
                        {'id': 'date2'},
                       ],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'count': 1,
-                         'date': '2005-12-01', 'count2' : 2, 'count3': 432,
-                         'date2': '2005-12-01'}]
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy',
+                         'count': 1, 'date': '2005-12-01', 'count2': 2,
+                         'count3': 432, 'date2': '2005-12-01'}]
         }
 
         postparams = '%s=1' % json.dumps(data)

@@ -89,6 +89,7 @@ def _get_fields(context, data_dict):
             })
     return fields
 
+
 def json_get_values(obj, current_list=None):
     if current_list is None:
         current_list = []
@@ -101,6 +102,7 @@ def json_get_values(obj, current_list=None):
         for item in dict.values():
             json_get_values(item, current_list)
     return current_list
+
 
 def check_fields(context, fields):
     'Check if field types are valid.'
@@ -181,7 +183,7 @@ def alter_table(context, data_dict):
         # check to see if field definition is the same or an
         # extension of current fields
         if num < len(current_fields):
-            if field['id'] <> current_fields[num]['id']:
+            if field['id'] != current_fields[num]['id']:
                 raise p.toolkit.ValidationError({
                     'fields': ('Supplied field "{}" not '
                               'present or in wrong order').format(field['id'])
@@ -210,7 +212,6 @@ def alter_table(context, data_dict):
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
                 })
-
 
     for field in new_fields:
         sql = 'alter table "{}" add "{}" {}'.format(
@@ -269,8 +270,8 @@ def insert_data(context, data_dict):
         ', '.join(['%s' for field in field_names])
     )
 
-
     context['connection'].execute(sql_string, rows)
+
 
 def delete_data(context, data_dict):
     filter = data_dict.get('filter')
@@ -316,9 +317,8 @@ def create(context, data_dict):
     add extra information for certain columns or to explicitly
     define ordering.
 
-    eg [datetime.datetime.strptime(field, format){"id": "dob", "label": ""Date of Birth",
-         "type": "timestamp" ,"concept": "day"},
-        {"name": "some_stuff": ..].
+    eg: [{"id": "dob", "type": "timestamp"},
+         {"id": "name", "type": "text"}]
 
     A header items values can not be changed after it has been defined
     nor can the ordering of them be changed. They can be extended though.
@@ -349,6 +349,7 @@ def create(context, data_dict):
         raise
     finally:
         context['connection'].close()
+
 
 def delete(context, data_dict):
     engine = _get_engine(context, data_dict)
