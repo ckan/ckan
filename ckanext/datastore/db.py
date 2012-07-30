@@ -272,6 +272,37 @@ def insert_data(context, data_dict):
 
     context['connection'].execute(sql_string, rows)
 
+def delete_data(context, data_dict):
+    filter = data_dict.get('filter')
+
+    if not isinstance(filter, dict):
+        raise p.toolkit.ValidationError({
+            'filter': 'Not a json object'}
+        )
+
+    fields = _get_fields(context, data_dict)
+    field_ids = set([field['id'] for field in fields])
+
+    where_clauses = []
+    values = []
+    for field, value in filter.iteritems():
+        if field not in field_ids:
+            raise p.toolkit.ValidationError({
+                'filter': 'field "{}" not in table'}
+            )
+        where_clauses.append('"{}" = %s'.format(field))
+        values.append(value)
+
+    where_clause = ' and '.join(where_clauses)
+
+    context['connection'].execute(
+        'delete from "{}" where {}'.format(
+            data_dict['resource_id'],
+            where_clause
+        ),
+        values
+    )
+
 
 def create(context, data_dict):
     '''
@@ -311,6 +342,35 @@ def create(context, data_dict):
         else:
             alter_table(context, data_dict)
         insert_data(context, data_dict)
+        trans.commit()
+        return data_dict
+    except:
+        trans.rollback()
+        raise
+    finally:
+        context['connection'].close()
+
+def delete(context, data_dict):
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+
+    try:
+        # check if table existes
+        trans = context['connection'].begin()
+        result = context['connection'].execute(
+            'select * from pg_tables where tablename = %s',
+             data_dict['resource_id']
+        ).fetchone()
+        if not result:
+            raise p.toolkit.ValidationError({
+                'resource_id': 'table for {0} does not exist'.format(
+                    data_dict['resource_id'])
+            })
+        if not 'filter' in data_dict:
+            context['connection'].execute('drop table "{}"'.format(data_dict))
+        else:
+            delete_data(context, data_dict)
+
         trans.commit()
         return data_dict
     except:
