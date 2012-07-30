@@ -451,8 +451,8 @@ textarea {
 
 .stages li.active:after {
   border-color: @stagesActiveTransparentBackground;
-  border-top-color: @stagesCompleteBackground;
-  border-bottom-color: @stagesCompleteBackground;
+  border-top-color: @stagesActiveBackground;
+  border-bottom-color: @stagesActiveBackground;
 }
 
 .stages li.complete:after {
@@ -471,13 +471,13 @@ textarea {
 }
 
 .stages li.active:before {
-  color: @stagesActiveTextColor;
-  background: @stagesActiveBackground;
+  color: @stagesCounterActiveTextColor;
+  background: @stagesCounterActiveBackground;
 }
 
 .stages li.complete:before {
-  color: @stagesCompleteTextColor;
-  background: @stagesCompleteBackground;
+  color: @stagesCounterCompleteTextColor;
+  background: @stagesCounterCompleteBackground;
 }
 
 // Needs to style spa, button and a elements.
