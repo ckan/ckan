@@ -16,15 +16,19 @@ class Globals(object):
     """
 
     # mappings translate between config settings and globals because our naming
-    # conventions are not defined and/or implemented
+    # conventions are not well defined and/or implemented
     mappings = {
-        'ckan.site_title': 'site_title',
-        'ckan.site_logo': 'site_logo',
-        'ckan.site_url': 'site_url',
-        'ckan.site_description': 'site_description',
-        'ckan.site_about': 'site_about',
-        'ckan.main_css': 'main_css',
+    #   'config_key': 'globals_key',
     }
+
+    # these config settings will get updated from system_info
+    auto_update = [
+        'ckan.site_title',
+        'ckan.site_logo',
+        'ckan.site_url',
+        'ckan.site_description',
+        'ckan.site_about',
+    ]
 
     def set_main_css(self, css_file):
         ''' Sets the main_css using debug css if needed.  The css_file
@@ -48,7 +52,7 @@ class Globals(object):
     def reset(self):
         ''' set updatable values from config '''
 
-        def grab(key, default):
+        def grab(key, default=''):
             value = model.get_system_info(key)
             if value:
                 # update the config
@@ -56,14 +60,20 @@ class Globals(object):
                 log.info('config `%s` set to `%s` from db' % (key, value))
             else:
                 value = config.get(key, default)
-            setattr(self, self.mappings[key], value)
+            # create our globals key
+            # these can be specified in self.mappings or else we remove
+            # the `ckan.` part this is to keep the existing namings
+            if key in self.mappings:
+                key = self.mappings[key]
+            elif key.startswith('ckan.'):
+                key = key[5:]
+            # set the value
+            setattr(self, key, value)
             return value
 
-        grab('ckan.site_title', '')
-        grab('ckan.site_logo', '')
-        grab('ckan.site_url', '')
-        grab('ckan.site_description', '')
-        grab('ckan.site_about', '')
+        # update the config settings in auto update
+        for key in self.auto_update:
+            grab(key)
 
         # cusom styling
         self.set_main_css(grab('ckan.main_css', '/base/css/main.css'))
