@@ -59,7 +59,7 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      */
     resetField: function (field) {
       function increment(index, string) {
-        return string.replace(/\d+/, function (int) { return 1 + parseInt(int, 10); });
+        return (string || '').replace(/\d+/, function (int) { return 1 + parseInt(int, 10); });
       }
 
       var input = field.find(':input');
