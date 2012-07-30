@@ -1,4 +1,5 @@
 import json
+import sqlalchemy
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -357,7 +358,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
     def test_delete_basic(self):
-        data = {'resource_id': self.data['resource_id']}
+        id = self.data['resource_id']
+        data = {'resource_id': id}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_delete', params=postparams,
@@ -365,3 +367,14 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         assert res_dict['result'] == data
+
+        c = model.Session.connection()
+
+        try:
+            # check that data was actually deleted: this should raise a
+            # ProgrammingError as the table should not exist any more
+            c.execute('select * from "{0}";'.format(id))
+            raise Exception("Data not deleted")
+        except sqlalchemy.exc.ProgrammingError as e:
+            expected_msg = 'relation "{}" does not exist'.format(id)
+            assert expected_msg in str(e)
