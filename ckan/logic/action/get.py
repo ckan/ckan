@@ -1,17 +1,14 @@
 import uuid
 import logging
 import json
-import re
 
 from pylons import config
 from pylons.i18n import _
-import webhelpers.html
 import sqlalchemy
 
 import ckan
 import ckan.authz
 import ckan.lib.dictization
-import ckan.lib.base
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization.model_dictize as model_dictize
@@ -21,7 +18,6 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
-import lib.helpers as h
 
 log = logging.getLogger('ckan.logic')
 
@@ -30,7 +26,6 @@ log = logging.getLogger('ckan.logic')
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
-_render = ckan.lib.base.render
 Authorizer = ckan.authz.Authorizer
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -1811,63 +1806,6 @@ def activity_detail_list(context, data_dict):
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
-def _activity_list_to_html(context, activity_stream):
-    ''' A generalised function to try to render all activity streams '''
-
-    # These are the activity stream messages
-    activity_info = {
-      'added tag' : _("{actor} added the tag {tag} to the dataset {dataset}"),
-      'changed group' : _("{actor} updated the group {group}"),
-      'changed package' : _("{actor} updated the dataset {dataset}"),
-      'changed package_extra' : _("{actor} changed the extra {extra} of the dataset {dataset}"),
-      'changed resource' : _("{actor} updated the resource {resource} in the dataset {dataset}"),
-      'changed user' : _("{actor} updated their profile"),
-      'deleted group' : _("{actor} deleted the group {group}"),
-      'deleted package' : _("{actor} deleted the dataset {dataset}"),
-      'deleted package_extra' : _("{actor} deleted the extra {extra} from the dataset {dataset}"),
-      'deleted resource' : _("{actor} deleted the resource {resource} from the dataset {dataset}"),
-      'new group' : _("{actor} created the group {group}"),
-      'new package' : _("{actor} created the dataset {dataset}"),
-      'new package_extra' : _("{actor} added the extra {extra} to the dataset {dataset}"),
-      'new resource' : _("{actor} added the resource {resource} to the dataset {dataset}"),
-      'new user' : _("{actor} signed up"),
-      'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
-      'deleted related item' : _("{actor} deleted the related item {related_item}"),
-      'follow dataset': _("{actor} started following {dataset}"),
-      'follow user': _("{actor} started following {user}"),
-      'new related item': _("{actor} created the link to related {related_type} {related_item}"),
-    }
-
-    activity_list = []
-    for activity in activity_stream:
-        detail = None
-        activity_type = activity['activity_type']
-        # if package changed then we may have extra details
-        if activity_type == 'changed package':
-            details = activity_detail_list(context=context,
-                data_dict={'id': activity['id']})
-            if details:
-                detail = details[0]
-                object_type = detail['object_type']
-                if object_type == 'PackageExtra':
-                    object_type = 'package_extra'
-                new_activity_type = '%s %s' % (detail['activity_type'],
-                                           object_type.lower())
-                if new_activity_type in activity_info:
-                    activity_type = new_activity_type
-
-        if not activity_info.has_key(activity_type):
-            raise NotImplementedError("No activity renderer for activity "
-                "type '%s'" % str(activity_type))
-        activity_msg = activity_info[activity_type]
-        # get the data needed by the message
-        matches = re.findall('\{([^}]*)\}', activity_msg)
-        data = {}
-        for match in matches:
-            data[str(match)] = activity_streams.get_snippet(match, activity, detail)
-        activity_list.append(dict(msg=activity_msg, data=data, timestamp=activity['timestamp']))
-    return webhelpers.html.literal(_render('activity_streams/general.html',
-        extra_vars = {'activities': activity_list}))
 
 def user_activity_list_html(context, data_dict):
     '''Return a user's public activity stream as HTML.
@@ -1882,7 +1820,7 @@ def user_activity_list_html(context, data_dict):
 
     '''
     activity_stream = user_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1897,7 +1835,7 @@ def package_activity_list_html(context, data_dict):
 
     '''
     activity_stream = package_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -1912,7 +1850,7 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -1926,7 +1864,7 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     '''
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def user_follower_count(context, data_dict):
     '''Return the number of followers of a user.
@@ -2185,7 +2123,7 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):
