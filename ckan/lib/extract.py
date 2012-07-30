@@ -19,4 +19,3 @@ def extract_ckan(fileobj, *args, **kw):
     # we've eaten the file so we need to get back to the start
     fileobj.seek(0)
     return extractor_function(fileobj, *args, **kw)
-

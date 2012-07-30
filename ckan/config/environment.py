@@ -175,7 +175,7 @@ def load_environment(global_conf, app_conf):
     search.check_solr_schema_version()
 
     config['routes.map'] = routing.make_map()
-    config['pylons.app_globals'] = app_globals.Globals()
+    config['pylons.app_globals'] = app_globals.app_globals
 
     # add helper functions
     restrict_helpers = asbool(
@@ -342,6 +342,7 @@ def load_environment(global_conf, app_conf):
 
     if not model.meta.engine:
         model.init_model(engine)
+
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)

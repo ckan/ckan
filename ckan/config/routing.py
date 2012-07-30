@@ -196,6 +196,7 @@ def make_map():
           'history_ajax',
           'followers',
           'delete',
+          'api_data',
           ]))
           )
         m.connect('/dataset/{id}.{format}', action='read')

@@ -24,6 +24,7 @@ from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
 
 from ckan.config.environment import load_environment
+import ckan.lib.app_globals as app_globals
 
 def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -53,6 +54,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     # The Pylons WSGI app
     app = PylonsApp()
+    # set pylons globals
+    app_globals.reset()
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)

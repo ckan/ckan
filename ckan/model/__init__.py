@@ -147,6 +147,13 @@ from follower import (
     UserFollowingDataset,
 )
 
+from system_info import (
+    system_info_table,
+    SystemInfo,
+    get_system_info,
+    set_system_info,
+)
+
 import ckan.migration
 
 log = logging.getLogger(__name__)

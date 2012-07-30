@@ -1,10 +1,21 @@
-<div class="modal">
+{#
+Displays information about accessing a resource via the API.
+
+datastore_root_url - The root API url.
+embedded - If true will not include the "modal" classes on the snippet.
+
+Example
+
+    {% snippet 'ajax_snippets/api_info.html', datastore_root_url=datastore_root_url, embedded=true %}
+
+#}
+<div{% if not embedded %} class="modal"{% endif %}>
   <div class="modal-header">
     <h3>
       CKAN Data API
     </h3>
   </div>
-  <div class="modal-body">
+  <div{% if not embedded %} class="modal-body"{% endif %}">
     <p><strong>Access resource data via a web API with powerful query
       support</strong>. Further information in the <a
       href="http://docs.ckan.org/en/latest/using-data-api.html" target="_blank">main
@@ -27,24 +38,24 @@
             <tbody>
               <tr>
                 <th>Base</th>
-                <td><code>{{ datastore_root }}</code></td>
+                <td><code>{{ datastore_root_url }}</code></td>
               </tr>
               <tr>
                 <th>Query</th>
                 <td>
-                  <code>{{ datastore_root }}/_search</code>
+                  <code>{{ datastore_root_url }}/_search</code>
                 </td>
               </tr>
               <tr>
                 <th>Query example</th>
                 <td>
-                  <code><a href="{{ datastore_root }}/_search?size=5&amp;pretty=true" target="_blank">{{ datastore_root }}/_search?size=5&amp;pretty=true</a></code>
+                  <code><a href="{{ datastore_root_url }}/_search?size=5&amp;pretty=true" target="_blank">{{ datastore_root_url }}/_search?size=5&amp;pretty=true</a></code>
                 </td>
               </tr>
               <tr>
                 <th>Schema (Mapping)</th>
                 <td>
-                  <code><a href="{{ datastore_root }}/_mapping" target="_blank">{{ datastore_root }}/_mapping?pretty=true</a></code>
+                  <code><a href="{{ datastore_root_url }}/_mapping" target="_blank">{{ datastore_root_url }}/_mapping?pretty=true</a></code>
                 </td>
               </tr>
             </tbody>
@@ -62,23 +73,23 @@
         <div class="accordion-inner">
           <strong>Query example (first 5 results)</strong>
           <p>
-          <code><a href="{{ datastore_root }}/_search?size=5&amp;pretty=true" target="_blank">{{ datastore_root }}/_search?size=5&amp;pretty=true</a></code>
+          <code><a href="{{ datastore_root_url }}/_search?size=5&amp;pretty=true" target="_blank">{{ datastore_root_url }}/_search?size=5&amp;pretty=true</a></code>
           </p>
 
           <strong>Query example (results with 'jones' in <code>title</code> field)</strong>
           <p>
-          <code><a href="{{ datastore_root }}/_search?q=title:jones&amp;size=5&amp;pretty=true"
-              target="_blank">{{ datastore_root }}/_search?q=title:jones&amp;size=5&amp;pretty=true</a></code>
+          <code><a href="{{ datastore_root_url }}/_search?q=title:jones&amp;size=5&amp;pretty=true"
+              target="_blank">{{ datastore_root_url }}/_search?q=title:jones&amp;size=5&amp;pretty=true</a></code>
           </p>
 
           <strong>Schema (Mapping)</strong>
           <p>
-          <code><a href="{{ datastore_root }}/_mapping" target="_blank">{{ datastore_root }}/_mapping?pretty=true</a></code>
+          <code><a href="{{ datastore_root_url }}/_mapping" target="_blank">{{ datastore_root_url }}/_mapping?pretty=true</a></code>
           </p>
 
           <strong>Endpoint (for clients)</strong>
           <p>
-          <code>{{ datastore_root }}</code>
+          <code>{{ datastore_root_url }}</code>
           </p>
         </div>
       </div>
@@ -97,7 +108,7 @@
     q: 'title:jones' // query on the title field for 'jones'
   };
   $.ajax({
-    url: '{{ datastore_root }}/_search',
+    url: '{{ datastore_root_url }}/_search',
     data: data,
     dataType: 'jsonp',
     success: function(data) {
@@ -116,7 +127,7 @@
         <div class="accordion-inner">
           <pre>
 import urllib
-url = '{{ datastore_root }}/_search?size=5&amp;q=title:jones'
+url = '{{ datastore_root_url }}/_search?size=5&amp;q=title:jones'
 fileobj = urllib.urlopen(url)
 print fileobj.read()
 </pre>

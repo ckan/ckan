@@ -41,7 +41,7 @@
       {% block title %}My Subtitle - {{ super() }}{% endblock %}
 
     #}
-    <title>{% block title %}CKAN{% endblock %}</title>
+    <title>{% block title %}{{ g.site_title }}{% endblock %}</title>
 
     {#
     The html5shim allows you to modify/override the html5 shim. This is useful
@@ -76,7 +76,7 @@
     #}
     {%- block styles %}
       <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/vendor/font-awesome/css/font-awesome-ie7.css' %}" /> <![endif]-->
-      <link rel="stylesheet" href="{% url_for_static ('/base/css/main.debug.css' if config.debug else '/base/css/main.css') %}" />
+      <link rel="stylesheet" href="{% url_for_static g.main_css %}" />
     {% endblock %}
 
     {# defined in the config.ini under "ckan.template_head_end" #}
