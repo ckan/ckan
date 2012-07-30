@@ -3,10 +3,8 @@ describe('ckan.module.CustomFieldsModule()', function () {
   var CustomFieldsModule = ckan.module.registry['custom-fields'];
 
   before(function (done) {
-    var _this = this;
-
     this.loadFixture('custom_fields.html', function (template) {
-      _this.template = template;
+      this.template = template;
       done();
     });
   });

@@ -70,19 +70,58 @@
     <script src="./spec/plugins/jquery.form-warning.spec.js"></script>
 
     <script>
-      function loadFixture(filename, context) {
+      /* Helper function for loading snippets from the ajax_snippets directory.
+       * The filename should be provided and an optional object of query
+       * string parameters. The returned snippet will be loaded into the
+       * fixture and passed to any callback.
+       *
+       * The callback shares the same scope as the rest of the suite so you
+       * can assign test variables easily. It is passed the loaded HTML string
+       * and the fixture element.
+       *
+       * filename - The snippet filename to load.
+       * params   - An optional object of query string params.
+       * callback - An optional callback to call when loaded.
+       *
+       * Example:
+       *
+       *   // To simply load a fixture.
+       *   beforeEach(function (done) {
+       *     this.loadFixture('my-snippet', done);
+       *   });
+       *
+       *   // To get the html itself.
+       *   beforeEach(function (done) {
+       *     this.loadFixture('my-snippet', function (html) {
+       *       this.template = html;
+       *       done();
+       *     });
+       *   });
+       *
+       */
+      function loadFixture(filename, params, callback) {
         var URL = 'http://localhost:5000/api/1/util/snippet/' + encodeURIComponent(filename);
+        var context = this;
 
-        return jQuery.get(URL, context).error(function () {
+        // Allow function to be called without params.
+        if (typeof params === 'function') {
+          callback = params;
+          params = {};
+        }
+
+        return jQuery.get(URL, params).error(function () {
           throw new Error('Unable to load fixture: ' + filename);
         }).pipe(function (template) {
-            jQuery('#fixture').html(template);
-            return template;
+          var fixture = jQuery('#fixture').html(template);
+          callback && callback.call(context, template, fixture);
+          return template;
         });
       }
 
       before(function () {
-        this.loadFixture = loadFixture;
+        // Assign the loadFixture helper. Callbacks will have the same scope
+        // as the before() functions.
+        this.loadFixture = jQuery.proxy(loadFixture, this);
       });
 
       beforeEach(function () {
