@@ -363,7 +363,7 @@ def delete(context, data_dict):
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
-                'resource_id': 'table for {0} does not exist'.format(
+                'resource_id': 'table for resource {0} does not exist'.format(
                     data_dict['resource_id'])
             })
         if not 'filter' in data_dict:
