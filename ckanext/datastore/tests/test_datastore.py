@@ -336,20 +336,20 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def setup(self):
         resource = model.Package.get('annakarenina').resources[0]
-        self.data = {
+        cls.data = {
             'resource_id': resource.id,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']}]
         }
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def _create(self):
         postparams = '%s=1' % json.dumps(self.data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
@@ -358,6 +358,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
     def test_delete_basic(self):
+        self._create()
         id = self.data['resource_id']
         data = {'resource_id': id}
         postparams = '%s=1' % json.dumps(data)
@@ -378,3 +379,13 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         except sqlalchemy.exc.ProgrammingError as e:
             expected_msg = 'relation "{}" does not exist'.format(id)
             assert expected_msg in str(e)
+
+        model.Session.remove()
+
+    def test_delete_invalid_resource_id(self):
+        postparams = '%s=1' % json.dumps({'resource_id': 'bad'})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth, status=404)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False

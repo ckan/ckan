@@ -1,14 +1,10 @@
 import logging
 import pylons
 import ckan.logic as logic
-import ckan.logic.action
-import ckan.lib.dictization
+import ckan.plugins as p
 import ckanext.datastore.db as db
 
 log = logging.getLogger(__name__)
-
-_validate = ckan.lib.navl.dictization_functions.validate
-_check_access = logic.check_access
 _get_or_bust = logic.get_or_bust
 
 
@@ -24,10 +20,15 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    _get_or_bust(context, 'model')
-    _get_or_bust(data_dict, 'resource_id')
+    model = _get_or_bust(context, 'model')
+    id = _get_or_bust(data_dict, 'resource_id')
 
-    _check_access('datastore_delete', context, data_dict)
+    if not model.Resource.get(id):
+        raise p.toolkit.ObjectNotFound(p.toolkit._(
+            'Resource "{}" was not found.'.format(id)
+        ))
+
+    p.toolkit.check_access('datastore_delete', context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
