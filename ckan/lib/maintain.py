@@ -68,3 +68,10 @@ def deprecate_context_item(item_name, message=''):
 
     setattr(c.__class__, item_name, property(get_item))
 
+def defer_context_item(item_name, function):
+    ''' Allows a function to be passed that will be appended to c as a property
+    so that it is only called if actually used. '''
+
+    assert hasattr(function, '__call__'), 'must pass a function'
+    setattr(c, item_name, property(function))
+
