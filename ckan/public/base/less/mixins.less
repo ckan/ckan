@@ -38,8 +38,8 @@
 }
 
 .pill {
-  background-color: #ccc;
-  color: #fff;
+  background-color: @pillBackgroundColor;
+  color: @pillTextColor;
   padding: 1px 5px 1px 8px;
   margin-right: 5px;
   .border-radius(7px);
@@ -47,7 +47,7 @@
     .hide-text; // Hide the link text
   }
   .remove:before {
-    color: white;
+    color: #fff;
     font-size: 10px; // Show the icon glyph
     line-height: 1;
   }
@@ -84,7 +84,7 @@
   font-size: 12px;
   line-height: 14 / 12em;
   padding: 7px @gutterX;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted @genericBorderColor;
   &:last-of-type {
     border-bottom: 0;
   }

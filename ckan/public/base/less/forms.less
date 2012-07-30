@@ -92,7 +92,7 @@ textarea {
   width: 50%;
   line-height: 2;
   text-align: left;
-  color: #707070;
+  color: @formInfoText;
   margin: 0;
 }
 
@@ -131,7 +131,7 @@ textarea {
   float: right;
   width: 265px;
   font-size: 11px;
-  color: #AEAEAE;
+  color: @emptyTextColor;
   line-height: 1.3;
   padding: 6px 0 6px 25px;
 }
@@ -144,7 +144,7 @@ textarea {
 }
 
 .form-horizontal .info-block a {
-  color: #AEAEAE;
+  color: @emptyTextColor;
   text-decoration: underline;
 }
 
@@ -183,7 +183,7 @@ textarea {
 }
 
 .simple-input .field-bordered {
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted @genericBorderColor;
 }
 
 .simple-input .field input {
@@ -271,18 +271,18 @@ textarea {
 
 .control-custom.disabled label,
 .control-custom.disabled input {
-  color: #aaa;
+  color: @disabledCustomInputTextColor;
   text-decoration: line-through;
   text-shadow: none;
 }
 
 .control-custom.disabled input {
   .box-shadow(none);
-  background-color: #f3f3f3;
+  background-color: @disabledCustomInputBackground;
 }
 
 .control-custom.disabled .checkbox {
-  color: #444;
+  color: @layoutTextColor;
   text-decoration: none;
 }
 
@@ -381,7 +381,7 @@ textarea {
 .stages {
   .unstyled;
   .clearfix;
-  color: #aeaeae;
+  color: @stagesTextColor;
   counter-reset: stage;
   margin: -@gutterY -@gutterX @gutterY;
   overflow: hidden;
@@ -392,7 +392,7 @@ textarea {
   line-height: 27px;
   counter-increment: stage;
   width: 33.33%;
-  background-color: #EDEDED;
+  background-color: @stagesBackground;
   float: left;
   padding: 10px 20px;
   position: relative;
@@ -408,21 +408,21 @@ textarea {
   margin-right: 5px;
   font-weight: bold;
   text-align: center;
-  color: #fff;
-  background: #aeaeae;
+  color: @stagesCounterTextColor;
+  background-color: @stagesCounterBackground;
   z-index: 1;
 }
 
 .stages li:after {
   left: 0;
-  border: solid rgba(237, 237, 237, 0);
+  border: solid @stagesTransparentBackground;
   content: " ";
   height: 0;
   width: 0;
   position: absolute;
   pointer-events: none;
-  border-top-color: #ededed;
-  border-bottom-color: #ededed;
+  border-top-color: @stagesBackground;
+  border-bottom-color: @stagesBackground;
   border-width: 29px; // Needs to be an odd number
   top: 50%;
   margin-top: -29px;
@@ -450,15 +450,15 @@ textarea {
 }
 
 .stages li.active:after {
-  border-color: rgba(140, 198, 138, 0);
-  border-top-color: #8cc68a;
-  border-bottom-color: #8cc68a;
+  border-color: @stagesActiveTransparentBackground;
+  border-top-color: @stagesCompleteBackground;
+  border-bottom-color: @stagesCompleteBackground;
 }
 
 .stages li.complete:after {
-  border-color: rgba(197, 226, 196, 0);
-  border-top-color: #C5E2C4;
-  border-bottom-color: #C5E2C4;
+  border-color: @stagesCompleteTransparentBackground;
+  border-top-color: @stagesCompleteBackground;
+  border-bottom-color: @stagesCompleteBackground;
 }
 
 .stages.stage-3 li.complete:first-child:after {
@@ -470,15 +470,14 @@ textarea {
   background: none;
 }
 
-.stages li.active:before,
-.stages li.complete:before {
-  color: #8cc68a;
-  background: #fff;
+.stages li.active:before {
+  color: @stagesActiveTextColor;
+  background: @stagesActiveBackground;
 }
 
 .stages li.complete:before {
-  color: #c5e2c4;
-  background: #eef6ed;
+  color: @stagesCompleteTextColor;
+  background: @stagesCompleteBackground;
 }
 
 // Needs to style spa, button and a elements.
@@ -499,13 +498,13 @@ textarea {
 }
 
 .stages li.active .highlight {
-  color: #fff;
-  background: #8cc68a;
+  color: @stagesActiveTextColor;
+  background: @stagesActiveBackground;
 }
 
 .stages li.complete .highlight {
-  background: #c5e2c4;
-  color: #eef6ed;
+  color: @stagesCompleteTextColor;
+  background: @stagesCompleteBackground;
 }
 
 // Errors

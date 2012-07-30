@@ -5,10 +5,13 @@
 }
 
 .site-footer,
-.site-footer a,
 .site-footer label {
   color: #fff;
-  color: rgba(255, 255, 255, 0.8);
+  color: @footerTextColor;
+}
+
+.site-footer a {
+  color: @footerLinkColor;
 }
 
 .footer-links,
@@ -28,7 +31,7 @@
 }
 
 .attribution small {
-  color: @mastheadTextColor;
+  color: @footerTextColor;
   font-size: 12px;
 }
 
