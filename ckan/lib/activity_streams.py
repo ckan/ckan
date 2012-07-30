@@ -1,12 +1,16 @@
 import re
 
 from pylons.i18n import _
-import webhelpers.html
+from webhelpers.html import literal
 
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.logic as logic
 
+
+# get_snippet functions are used to substitute placeholders in the activity
+# strings.  They need to be added to activity_snippet_functions dict to be
+# available.
 
 def get_snippet_actor(activity, detail):
     return h.linked_user(activity['user_id'])
@@ -55,112 +59,110 @@ activity_snippet_functions = {
 }
 
 
-def get_activity_snippet(name, activity, detail):
-    ''' get the snippet for the required data '''
-    return activity_snippet_functions[name](activity, detail)
+# activity_stream_string functions return a translated string for the activity
+# containing placeholders for substitution by snippets
 
-
-def get_added_tag():
+def activity_stream_string_added_tag():
     return _("{actor} added the tag {tag} to the dataset {dataset}")
 
 
-def get_changed_group():
+def activity_stream_string_changed_group():
     return _("{actor} updated the group {group}")
 
 
-def get_changed_package():
+def activity_stream_string_changed_package():
     return _("{actor} updated the dataset {dataset}")
 
 
-def get_changed_package_extra():
+def activity_stream_string_changed_package_extra():
     return _("{actor} changed the extra {extra} of the dataset {dataset}")
 
 
-def get_changed_resource():
+def activity_stream_string_changed_resource():
     return _("{actor} updated the resource {resource} in the dataset {dataset}")
 
 
-def get_changed_user():
+def activity_stream_string_changed_user():
     return _("{actor} updated their profile")
 
 
-def get_deleted_group():
+def activity_stream_string_deleted_group():
     return _("{actor} deleted the group {group}")
 
 
-def get_deleted_package():
+def activity_stream_string_deleted_package():
     return _("{actor} deleted the dataset {dataset}")
 
 
-def get_deleted_package_extra():
+def activity_stream_string_deleted_package_extra():
     return _("{actor} deleted the extra {extra} from the dataset {dataset}")
 
 
-def get_deleted_resource():
+def activity_stream_string_deleted_resource():
     return _("{actor} deleted the resource {resource} from the dataset {dataset}")
 
 
-def get_new_group():
+def activity_stream_string_new_group():
     return _("{actor} created the group {group}")
 
 
-def get_new_package():
+def activity_stream_string_new_package():
     return _("{actor} created the dataset {dataset}")
 
 
-def get_new_package_extra():
+def activity_stream_string_new_package_extra():
     return _("{actor} added the extra {extra} to the dataset {dataset}")
 
 
-def get_new_resource():
+def activity_stream_string_new_resource():
     return _("{actor} added the resource {resource} to the dataset {dataset}")
 
 
-def get_new_user():
+def activity_stream_string_new_user():
     return _("{actor} signed up")
 
 
-def get_removed_tag():
+def activity_stream_string_removed_tag():
     return _("{actor} removed the tag {tag} from the dataset {dataset}")
 
 
-def get_deleted_related_item():
+def activity_stream_string_deleted_related_item():
     return _("{actor} deleted the related item {related_item}")
 
 
-def get_follow_dataset():
+def activity_stream_string_follow_dataset():
     return _("{actor} started following {dataset}")
 
 
-def get_follow_user():
+def activity_stream_string_follow_user():
     return _("{actor} started following {user}")
 
 
-def get_new_related_item():
+def activity_stream_string_new_related_item():
     return _("{actor} created the link to related {related_type} {related_item}")
 
 
 activity_info = {
-  'added tag': get_added_tag,
-  'changed group': get_changed_group,
-  'changed package': get_changed_package,
-  'changed package_extra': get_changed_package_extra,
-  'changed resource': get_changed_resource,
-  'changed user': get_changed_user,
-  'deleted group': get_deleted_group,
-  'deleted package': get_deleted_package,
-  'deleted package_extra': get_deleted_package_extra,
-  'deleted resource': get_deleted_resource,
-  'new group': get_new_group,
-  'new package': get_new_package,
-  'new package_extra': get_new_package_extra,
-  'new resource': get_new_resource,
-  'new user': get_new_user,
-  'removed tag': get_removed_tag,
-  'deleted related item': get_deleted_related_item,
-  'follow dataset': get_follow_dataset,
-  'follow user': get_follow_user,
-  'new related item': get_new_related_item,
+  'added tag': activity_stream_string_added_tag,
+  'changed group': activity_stream_string_changed_group,
+  'changed package': activity_stream_string_changed_package,
+  'changed package_extra': activity_stream_string_changed_package_extra,
+  'changed resource': activity_stream_string_changed_resource,
+  'changed user': activity_stream_string_changed_user,
+  'deleted group': activity_stream_string_deleted_group,
+  'deleted package': activity_stream_string_deleted_package,
+  'deleted package_extra': activity_stream_string_deleted_package_extra,
+  'deleted resource': activity_stream_string_deleted_resource,
+  'new group': activity_stream_string_new_group,
+  'new package': activity_stream_string_new_package,
+  'new package_extra': activity_stream_string_new_package_extra,
+  'new resource': activity_stream_string_new_resource,
+  'new user': activity_stream_string_new_user,
+  'removed tag': activity_stream_string_removed_tag,
+  'deleted related item': activity_stream_string_deleted_related_item,
+  'follow dataset': activity_stream_string_follow_dataset,
+  'follow user': activity_stream_string_follow_user,
+  'new related item': activity_stream_string_new_related_item,
 }
 
 
@@ -195,9 +197,10 @@ def activity_list_to_html(context, activity_stream):
         matches = re.findall('\{([^}]*)\}', activity_msg)
         data = {}
         for match in matches:
-            data[str(match)] = get_activity_snippet(match, activity, detail)
+            snippet = activity_snippet_functions[match](activity, detail)
+            data[str(match)] = snippet
             activity_list.append({'msg': activity_msg,
                                   'data': data,
                                   'timestamp': activity['timestamp']})
-    return webhelpers.html.literal(base.render('activity_streams/general.html',
+    return literal(base.render('activity_streams/general.html',
         extra_vars={'activities': activity_list}))
