@@ -1,10 +1,12 @@
 """The application's Globals object"""
+import logging
 
 from paste.deploy.converters import asbool
 from pylons import config
 
 import ckan.model as model
 
+log = logging.getLogger(__name__)
 
 class Globals(object):
 
@@ -39,13 +41,23 @@ class Globals(object):
         ''' helper function for getting value from database or config file '''
         model.set_system_info(key, value)
         setattr(self, self.mappings[key], value)
+        # update the config
+        config[key] = value
+        log.info('config `%s` set to `%s`' % (key, value))
 
     def reset(self):
         ''' set updatable values from config '''
 
         def grab(key, default):
-            value = model.get_system_info(key, config.get(key, default))
+            value = model.get_system_info(key)
+            if value:
+                # update the config
+                config[key] = value
+                log.info('config `%s` set to `%s` from db' % (key, value))
+            else:
+                value = config.get(key, default)
             setattr(self, self.mappings[key], value)
+            return value
 
         grab('ckan.site_title', '')
         grab('ckan.site_logo', '')
@@ -54,8 +66,7 @@ class Globals(object):
         grab('ckan.site_about', '')
 
         # cusom styling
-        self.set_main_css(model.get_system_info('ckan.main_css',
-                config.get('ckan.main_css','/base/css/main.css')))
+        self.set_main_css(grab('ckan.main_css', '/base/css/main.css'))
 
         self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
 
