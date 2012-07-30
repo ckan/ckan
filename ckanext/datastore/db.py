@@ -118,7 +118,6 @@ def check_fields(context, fields):
 
 def create_table(context, data_dict):
     'Create table from combination of fields and first row of data.'
-    check_fields(context, data_dict.get('fields'))
 
     datastore_fields = [
         {'id': '_id', 'type': 'serial primary key'},
@@ -128,6 +127,7 @@ def create_table(context, data_dict):
     # check first row of data for additional fields
     extra_fields = []
     supplied_fields = data_dict.get('fields', [])
+    check_fields(context, supplied_fields)
     field_ids = [field['id'] for field in data_dict.get('fields', [])]
     records = data_dict.get('records')
 
@@ -168,8 +168,56 @@ def create_table(context, data_dict):
 
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
-    check_fields(context, data_dict.get('fields'))
-    fields = _get_fields(context, data_dict)
+    supplied_fields = data_dict.get('fields', [])
+    current_fields = _get_fields(context, data_dict)
+    if not supplied_fields:
+        supplied_fields = current_fields
+    check_fields(context, supplied_fields)
+    field_ids = [field['id'] for field in supplied_fields]
+    records = data_dict.get('records')
+    new_fields = []
+
+    for num, field in enumerate(supplied_fields):
+        # check to see if field definition is the same or an
+        # extension of current fields
+        if num < len(current_fields):
+            if field['id'] <> current_fields[num]['id']:
+                raise p.toolkit.ValidationError({
+                    'fields': ('Supplied field "{}" not '
+                              'present or in wrong order').format(field['id'])
+                })
+            ## no need to check type as field already defined.
+            continue
+
+        if 'type' not in field:
+            if not records or field['id'] not in records[0]:
+                raise p.toolkit.ValidationError({
+                    'fields': '{} type not guessable'.format(field['id'])
+                })
+            field['type'] = _guess_type(records[0][field['id']])
+        new_fields.append(field)
+
+    if records:
+        # check record for sanity
+        if not isinstance(records[0], dict):
+            raise p.toolkit.ValidationError({
+                'records': 'The first row is not a json object'
+            })
+        supplied_field_ids = records[0].keys()
+        for field_id in supplied_field_ids:
+            if not field_id in field_ids:
+                new_fields.append({
+                    'id': field_id,
+                    'type': _guess_type(records[0][field_id])
+                })
+
+
+    for field in new_fields:
+        sql = 'alter table "{}" add "{}" {}'.format(
+            data_dict['resource_id'],
+            field['id'],
+            field['type'])
+        context['connection'].execute(sql)
 
 
 def insert_data(context, data_dict):
@@ -221,7 +269,7 @@ def insert_data(context, data_dict):
         ', '.join(['%s' for field in field_names])
     )
 
-    
+
     context['connection'].execute(sql_string, rows)
 
 
