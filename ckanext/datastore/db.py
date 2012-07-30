@@ -368,7 +368,9 @@ def delete(context, data_dict):
                     data_dict['resource_id'])
             })
         if not 'filter' in data_dict:
-            context['connection'].execute('drop table "{}"'.format(data_dict))
+            context['connection'].execute(
+                'drop table "{}"'.format(data_dict['resource_id'])
+            )
         else:
             delete_data(context, data_dict)
 

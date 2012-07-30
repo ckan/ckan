@@ -1,6 +1,8 @@
 import ckan.plugins as p
 import ckanext.datastore.logic.action.create as action_create
+import ckanext.datastore.logic.action.delete as action_delete
 import ckanext.datastore.logic.auth.create as auth_create
+import ckanext.datastore.logic.auth.delete as auth_delete
 
 
 class DatastoreException(Exception):
@@ -22,7 +24,9 @@ class DatastorePlugin(p.SingletonPlugin):
             raise DatastoreException(error_msg)
 
     def get_actions(self):
-        return {'datastore_create': action_create.datastore_create}
+        return {'datastore_create': action_create.datastore_create,
+                'datastore_delete': action_delete.datastore_delete}
 
     def get_auth_functions(self):
-        return {'datastore_create': auth_create.datastore_create}
+        return {'datastore_create': auth_create.datastore_create,
+                'datastore_delete': auth_delete.datastore_delete}

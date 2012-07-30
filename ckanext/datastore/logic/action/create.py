@@ -34,4 +34,7 @@ def datastore_create(context, data_dict):
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
-    return db.create(context, data_dict)
+    result = db.create(context, data_dict)
+    result.pop('id')
+    result.pop('connection_url')
+    return result

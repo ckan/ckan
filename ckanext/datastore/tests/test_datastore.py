@@ -6,7 +6,7 @@ import ckan.tests as tests
 import ckanext.datastore.db as db
 
 
-class TestDatastore(tests.WsgiAppCase):
+class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
 
@@ -323,3 +323,45 @@ class TestDatastore(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+
+
+class TestDatastoreDelete(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def setup(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        self.data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
+                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']}]
+        }
+        postparams = '%s=1' % json.dumps(self.data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+    def test_delete_basic(self):
+        data = {'resource_id': self.data['resource_id']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert res_dict['result'] == data
