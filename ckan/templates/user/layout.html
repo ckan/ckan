@@ -8,12 +8,13 @@
   <py:match path="minornavigation">
     <ul class="nav nav-pills" py:choose="c.is_myself">
       <py:when test="True">
-        <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='me')}">My Profile</a></li>
+        <li class="${'active' if c.action=='dashboard' else ''}"><a href="${h.url_for(controller='user', action='dashboard')}">Dashboard</a></li>
+        <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">My Profile</a></li>
         <li class="${'active' if c.action=='edit' else ''}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
         <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
           ${h.subnav_link(
-            h.icon('authorization_group') + _('My Followers ({num_followers})').format(num_followers=c.num_followers),
+            h.icon('authorization_group') + _('My Followers ({num_followers})').format(num_followers=h.follow_count('user', c.user_dict.id)),
             controller='user',
             action='followers',
             id=c.user_dict.name)}
@@ -24,16 +25,13 @@
           <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">View Profile</a></li>
           <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
             ${h.subnav_link(
-              h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=c.num_followers),
+              h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=h.follow_count('user', c.user_dict.id)),
               controller='user',
               action='followers',
               id=c.user_dict.name)}
           </li>
           <li py:if="c.user" style="float:right;">
-            <py:choose test="c.user_dict.am_following">
-              <a py:when="True" id="user_follow_button" class="btn btn-mini" data-user-id="${c.user_dict.id}" data-state="unfollow">Unfollow</a>
-              <a py:otherwise="" id="user_follow_button" class="btn btn-mini" data-user-id="${c.user_dict.id}" data-state="follow">Follow</a>
-            </py:choose>
+            ${h.follow_button('user', c.user_dict.id)}
           </li>
         </py:if>
         <py:if test="not c.id">

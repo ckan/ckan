@@ -100,15 +100,14 @@ class TestPackageEditAuthz(TestController):
 
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
-        #admin makes visitor a reader and logged in an admin
+        #admin makes visitor an editor and logged in an admin
         form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'reader', False, True)
+        check_and_set_checkbox(form, u'visitor', u'editor', False, True)
         check_and_set_checkbox(form, u'logged_in', u'admin', False, True)
-        check_and_set_checkbox(form, u'visitor', u'editor', True, True)
-        check_and_set_checkbox(form, u'logged_in', u'editor', True, False)
+        check_and_set_checkbox(form, u'logged_in', u'reader', True, False)
 
         res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
@@ -127,17 +126,17 @@ class TestPackageEditAuthz(TestController):
         # check that the checkbox states are what we think they should be
         # and put things back how they were.
         form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
+        check_and_set_checkbox(form, u'visitor', u'reader', True, True)
         check_and_set_checkbox(form, u'logged_in', u'admin', True, False)
-        check_and_set_checkbox(form, u'visitor', u'editor', True, True)
-        check_and_set_checkbox(form, u'logged_in', u'editor', False, True)
+        check_and_set_checkbox(form, u'visitor', u'editor', True, False)
+        check_and_set_checkbox(form, u'logged_in', u'reader', False, True)
         res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
         # ensure db was changed
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
 
     def test_3_admin_changes_role(self):
@@ -156,8 +155,8 @@ class TestPackageEditAuthz(TestController):
 
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
         assert 'visitor' in res
         assert 'madeup-administrator' in res
@@ -165,13 +164,13 @@ class TestPackageEditAuthz(TestController):
 
         #admin removes visitor's only role
         form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'editor', True, False)
+        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
         res = form.submit('save', extra_environ={'REMOTE_USER': user})
 
         # ensure db was changed
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('logged_in', 'editor')])
+           ('logged_in', 'reader')])
 
         # ensure rerender of form is changed
         offset = url_for(controller='package', action='authz', id=self.pkgname)
@@ -184,7 +183,7 @@ class TestPackageEditAuthz(TestController):
 
         # check that the checkbox states are what we think they should be
         form = res.forms['theform']
-        check_and_set_checkbox(form, u'logged_in', u'editor', True, True)
+        check_and_set_checkbox(form, u'logged_in', u'reader', True, True)
         check_and_set_checkbox(form, u'madeup-administrator', u'admin', True, True)
 
         # now we should add visitor back in, let's make him a reader
@@ -208,25 +207,7 @@ class TestPackageEditAuthz(TestController):
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
            ('visitor', 'reader'),
-           ('logged_in', 'editor')])
-
-        # now change him back to being an editor
-        form = res.forms['theform']
-        check_and_set_checkbox(form, u'visitor', u'reader', True, False)
-        check_and_set_checkbox(form, u'visitor', u'editor', False, True)
-        res = form.submit('save', extra_environ={'REMOTE_USER': user})
- 
-        # check that the page contains strings for everyone
-        assert 'visitor' in res
-        assert 'madeup-administrator' in res
-        assert 'logged_in' in res
-
-        # check that the roles in the db are back to normal
-        self.assert_package_roles_to_be([
-           ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
-
+           ('logged_in', 'reader')])
 
     def test_4_admin_deletes_role(self):
         self.delete_role_as(self.admin)
@@ -246,8 +227,8 @@ class TestPackageEditAuthz(TestController):
         # check the state of the database
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
         # and that corresponding user strings are in the authz page
         assert 'visitor' in res
@@ -277,8 +258,8 @@ class TestPackageEditAuthz(TestController):
         self.assert_package_roles_to_be([
            ('madeup-authzgroup', 'admin'),
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
         # check that the checkbox states are what we think they should be
         # and change madeup-authzgroup from admin to editor
@@ -291,8 +272,8 @@ class TestPackageEditAuthz(TestController):
         self.assert_package_roles_to_be([
            ('madeup-authzgroup', 'editor'),
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
         # now remove madeup-authzgroup entirely
         form = res.forms['authzgroup_form']
@@ -303,8 +284,8 @@ class TestPackageEditAuthz(TestController):
         #check database is back to normal
         self.assert_package_roles_to_be([
            ('madeup-administrator', 'admin'),
-           ('visitor', 'editor'),
-           ('logged_in', 'editor')])
+           ('visitor', 'reader'),
+           ('logged_in', 'reader')])
 
         # and that page contains only the expected strings
         assert 'visitor' in res

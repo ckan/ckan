@@ -93,6 +93,15 @@ def related_update(context, data_dict):
     if not userobj or userobj.id != related.owner_id:
         return {'success': False, 'msg': _('Only the owner can update a related item')}
 
+    # Only sysadmins can change the featured field.
+    if ('featured' in data_dict and
+        data_dict['featured'] != related.featured and
+        not Authorizer().is_sysadmin(unicode(user))):
+
+        return {'success': False,
+                'msg': _('You must be a sysadmin to change a related item\'s '
+                         'featured field.')}
+
     return {'success': True}
 
 

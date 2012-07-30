@@ -23,6 +23,12 @@ class TestStorageAPIController:
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
+        CreateTestData.create_test_user()
+
+    @classmethod
+    def teardown_class(cls):
+        CreateTestData.delete()
+
     def test_index(self):
         url = url_for('storage_api')
         res = self.app.get(url)
@@ -31,8 +37,14 @@ class TestStorageAPIController:
 
     def test_authz(self):
         url = url_for('storage_api_auth_form', label='abc')
-        # by default anonymous users can edit and hence upload
-        res = self.app.get(url, status=[200])
+
+        # Non logged in users can not upload
+        res = self.app.get(url, status=[302,401])
+        
+        # Logged in users can upload
+        res = self.app.get(url, status=[200], extra_environ={'REMOTE_USER':'tester'})
+       
+        
         # TODO: ? test for non-authz case
         # url = url_for('storage_api_auth_form', label='abc')
         # res = self.app.get(url, status=[302,401])

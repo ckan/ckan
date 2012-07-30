@@ -204,14 +204,34 @@ def related_list(context, data_dict=None):
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    if not dataset:
-        raise NotFound
-
     _check_access('related_show',context, data_dict)
 
-    relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = []
+    if not dataset:
+        related_list = model.Session.query(model.Related)
+
+        filter_on_type = data_dict.get('type_filter', None)
+        if filter_on_type:
+            related_list = related_list.filter(model.Related.type == filter_on_type)
+
+        sort = data_dict.get('sort', None)
+        if sort:
+            sortables = {
+                'view_count_asc' : model.Related.view_count.asc,
+                'view_count_desc': model.Related.view_count.desc,
+                'created_asc' : model.Related.created.asc,
+                'created_desc': model.Related.created.desc,
+            }
+            s = sortables.get(sort, None)
+            if s:
+                related_list = related_list.order_by( s() )
+
+        if data_dict.get('featured', False):
+            related_list = related_list.filter(model.Related.featured == 1)
+    else:
+        relateds = model.Related.get_for_dataset(dataset, status='active')
+        related_items = (r.related for r in relateds)
+        related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
@@ -268,8 +288,12 @@ def group_list(context, data_dict):
     '''Return a list of the names of the site's groups.
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
-      ``'packages'`` (optional, default: ``'name'``)
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
@@ -280,14 +304,30 @@ def group_list(context, data_dict):
     :rtype: list of strings
 
     '''
+
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name';
-    order_by = data_dict.get('order_by', 'name')
-    if order_by not in set(('name', 'packages')):
-        raise logic.ParameterError('"order_by" value %r not implemented.' % order_by)
-    all_fields = data_dict.get('all_fields',None)
+
+    sort = data_dict.get('sort', 'name')
+    # order_by deprecated in ckan 1.8
+    # if it is supplied and sort isn't use order_by and raise a warning
+    order_by = data_dict.get('order_by')
+    if order_by:
+        log.warn('`order_by` deprecated please use `sort`')
+        if not data_dict.get('sort'):
+            sort = order_by
+    # if the sort is packages and no sort direction is supplied we want to do a
+    # reverse sort to maintain compatibility.
+    if sort.strip() == 'packages':
+        sort = 'packages desc'
+
+    sort_info = _unpick_search(sort,
+                               allowed_fields=['name', 'packages'],
+                               total=1)
+
+    all_fields = data_dict.get('all_fields', None)
 
     _check_access('group_list', context, data_dict)
 
@@ -297,16 +337,10 @@ def group_list(context, data_dict):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
-    if order_by == 'name':
-        sort_by, reverse = 'name', False
-
     groups = query.all()
-
-    if order_by == 'packages':
-        sort_by, reverse = 'packages', True
-
     group_list = model_dictize.group_list_dictize(groups, context,
-                                    lambda x:x[sort_by], reverse)
+                                                  lambda x:x[sort_info[0][0]],
+                                                  sort_info[0][1] == 'desc')
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -693,8 +727,7 @@ def group_show(context, data_dict):
         schema = group_plugin.db_to_form_schema()
 
     if schema:
-        package_dict, errors = _validate(group_dict, schema, context=context)
-
+        group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
 
 def group_package_show(context, data_dict):
@@ -1012,7 +1045,7 @@ def package_search(context, data_dict):
         returned datasets should begin.
     :type start: int
     :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation 
+        the `Solr Dismax Documentation
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
@@ -1040,6 +1073,8 @@ def package_search(context, data_dict):
     :param results: ordered list of datasets matching the query, where the
         ordering defined by the sort parameter used in the query.
     :type results: list of dictized datasets.
+    :param facets: DEPRECATED.  Aggregated information about facet counts.
+    :type facets: DEPRECATED dict
     :param search_facets: aggregated information about facet counts.  The outer
         dict is keyed by the facet field name (as used in the search query).
         Each entry of the outer dict is itself a dict, with a "title" key, and
@@ -1145,7 +1180,7 @@ def package_search(context, data_dict):
 
     # Transform facets into a more useful data structure.
     restructured_facets = {}
-    for key, value in search_results['facets'].items():
+    for key, value in facets.items():
         restructured_facets[key] = {
                 'title': key,
                 'items': []
@@ -1180,24 +1215,114 @@ def package_search(context, data_dict):
 
 def resource_search(context, data_dict):
     '''
+    Searches for resources satisfying a given search criteria.
 
-    :param fields:
-    :type fields:
-    :param order_by:
-    :type order_by:
-    :param offset:
-    :type offset:
-    :param limit:
-    :type limit:
+    It returns a dictionary with 2 fields: ``count`` and ``results``.  The
+    ``count`` field contains the total number of Resources found without the
+    limit or query parameters having an effect.  The ``results`` field is a
+    list of dictized Resource objects.
 
-    :returns:
-    :rtype:
+    The 'q' parameter is a required field.  It is a string of the form
+    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    each string, ``{field}`` is a field or extra field on the Resource domain
+    object.
+
+    If ``{field}`` is ``"hash"``, then an attempt is made to match the
+    `{term}` as a *prefix* of the ``Resource.hash`` field.
+
+    If ``{field}`` is an extra field, then an attempt is made to match against
+    the extra fields stored against the Resource.
+
+    Note: The search is limited to search against extra fields declared in
+    the config setting ``ckan.extra_resource_fields``.
+
+    Note: Due to a Resource's extra fields being stored as a json blob, the
+    match is made against the json string representation.  As such, false
+    positives may occur:
+
+    If the search criteria is: ::
+
+        query = "field1:term1"
+
+    Then a json blob with the string representation of: ::
+
+        {"field1": "foo", "field2": "term1"}
+
+    will match the search criteria!  This is a known short-coming of this
+    approach.
+
+    All matches are made ignoring case; and apart from the ``"hash"`` field,
+    a term matches if it is a substring of the field's value.
+
+    Finally, when specifying more than one search criteria, the criteria are
+    AND-ed together.
+
+    The ``order`` parameter is used to control the ordering of the results.
+    Currently only ordering one field is available, and in ascending order
+    only.
+
+    The ``fields`` parameter is deprecated as it is not compatible with calling
+    this action with a GET request to the action API.
+
+    The context may contain a flag, `search_query`, which if True will make
+    this action behave as if being used by the internal search api.  ie - the
+    results will not be dictized, and SearchErrors are thrown for bad search
+    queries (rather than ValidationErrors).
+
+    :param query: The search criteria.  See above for description.
+    :type query: string or list of strings of the form "{field}:{term1}"
+    :param fields: Deprecated
+    :type fields: dict of fields to search terms.
+    :param order_by: A field on the Resource model that orders the results.
+    :type order_by: string
+    :param offset: Apply an offset to the query.
+    :type offset: int
+    :param limit: Apply a limit to the query.
+    :type limit: int
+
+    :returns:  A dictionary with a ``count`` field, and a ``results`` field.
+    :rtype: dict
 
     '''
     model = context['model']
-    session = context['session']
 
-    fields = _get_or_bust(data_dict, 'fields')
+    # Allow either the `query` or `fields` parameter to be given, but not both.
+    # Once `fields` parameter is dropped, this can be made simpler.
+    # The result of all this gumpf is to populate the local `fields` variable
+    # with mappings from field names to list of search terms, or a single
+    # search-term string.
+    query = data_dict.get('query')
+    fields = data_dict.get('fields')
+
+    if query is None and fields is None:
+        raise ValidationError({'query': _('Missing value')})
+
+    elif query is not None and fields is not None:
+        raise ValidationError(
+            {'fields': _('Do not specify if using "query" parameter')})
+
+    elif query is not None:
+        if isinstance(query, basestring):
+            query = [query]
+        try:
+            fields = dict(pair.split(":", 1) for pair in query)
+        except ValueError:
+            raise ValidationError(
+                {'query': _('Must be <field>:<value> pair(s)')})
+
+    else:
+        log.warning('Use of the "fields" parameter in resource_search is '
+                            'deprecated.  Use the "query" parameter instead')
+
+        # The legacy fields paramter splits string terms.
+        # So maintain that behaviour
+        split_terms = {}
+        for field, terms in fields.items():
+            if isinstance(terms, basestring):
+                terms = terms.split()
+            split_terms[field] = terms
+        fields = split_terms
+
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
@@ -1205,16 +1330,36 @@ def resource_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Resource)
     resource_fields = model.Resource.get_columns()
-
     for field, terms in fields.items():
+
         if isinstance(terms, basestring):
-            terms = terms.split()
+            terms = [terms]
+
         if field not in resource_fields:
-            raise search.SearchError('Field "%s" not recognised in Resource search.' % field)
+            msg = _('Field "{field}" not recognised in resource_search.')\
+                    .format(field=field)
+
+            # Running in the context of the internal search api.
+            if context.get('search_query', False):
+                raise search.SearchError(msg)
+
+            # Otherwise, assume we're in the context of an external api
+            # and need to provide meaningful external error messages.
+            raise ValidationError({'query': msg})
+
         for term in terms:
+
+            # prevent pattern injection
+            term = misc.escape_sql_like_special_characters(term)
+
             model_attr = getattr(model.Resource, field)
+
+            # Treat the has field separately, see docstring.
             if field == 'hash':
                 q = q.filter(model_attr.ilike(unicode(term) + '%'))
+
+            # Resource extras are stored in a json blob.  So searching for
+            # matching fields is a bit trickier.  See the docstring.
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
 
@@ -1223,6 +1368,8 @@ def resource_search(context, data_dict):
                     model_attr.ilike(u'''%%"%s": "%%%s%%"}''' % (field, term))
                 )
                 q = q.filter(like)
+
+            # Just a regular field
             else:
                 q = q.filter(model_attr.ilike('%' + unicode(term) + '%'))
 
@@ -1242,15 +1389,24 @@ def resource_search(context, data_dict):
         else:
             results.append(result)
 
-    return {'count': count, 'results': results}
+    # If run in the context of a search query, then don't dictize the results.
+    if not context.get('search_query', False):
+        results = model_dictize.resource_list_dictize(results, context)
+
+    return {'count': count,
+            'results': results}
 
 def _tag_search(context, data_dict):
     model = context['model']
 
-    query = data_dict.get('query') or data_dict.get('q')
-    if query:
-        query = query.strip()
-    terms = [query] if query else []
+    terms = data_dict.get('query') or data_dict.get('q') or []
+    if isinstance(terms, basestring):
+        terms = [terms]
+    terms = [ t.strip() for t in terms if t.strip() ]
+
+    if 'fields' in data_dict:
+        log.warning('"fields" parameter is deprecated.  '
+                    'Use the "query" parameter instead')
 
     fields = data_dict.get('fields', {})
     offset = data_dict.get('offset')
@@ -1295,12 +1451,12 @@ def tag_search(context, data_dict):
     searched. If the ``vocabulary_id`` argument is given then only tags
     belonging to that vocabulary will be searched instead.
 
-    :param query: the string to search for
-    :type query: string
+    :param query: the string(s) to search for
+    :type query: string or list of strings
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
@@ -1336,7 +1492,7 @@ def tag_autocomplete(context, data_dict):
     :param vocabulary_id: the id or name of the tag vocabulary to search in
       (optional)
     :type vocabulary_id: string
-    :param fields:
+    :param fields: deprecated
     :type fields: dictionary
     :param limit: the maximum number of tags to return
     :type limit: int
@@ -1654,7 +1810,6 @@ def activity_detail_list(context, data_dict):
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
-
 def _activity_list_to_html(context, activity_stream):
     ''' A generalised function to try to render all activity streams '''
 
@@ -1790,6 +1945,7 @@ def user_follower_count(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: int
 
     '''
@@ -1797,7 +1953,7 @@ def user_follower_count(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
 
 def dataset_follower_count(context, data_dict):
@@ -1805,6 +1961,7 @@ def dataset_follower_count(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: int
 
     '''
@@ -1812,7 +1969,7 @@ def dataset_follower_count(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
 
 def _follower_list(context, data_dict, FollowerClass):
@@ -1825,7 +1982,7 @@ def _follower_list(context, data_dict, FollowerClass):
     users = [model.User.get(follower.follower_id) for follower in followers]
     users = [user for user in users if user is not None]
 
-    # Dictize the list of user objects.
+    # Dictize the list of User objects.
     return [model_dictize.user_dictize(user,context) for user in users]
 
 def user_follower_list(context, data_dict):
@@ -1833,6 +1990,7 @@ def user_follower_list(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1840,7 +1998,7 @@ def user_follower_list(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return _follower_list(context, data_dict,
             context['model'].UserFollowingUser)
 
@@ -1849,6 +2007,7 @@ def dataset_follower_list(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: list of dictionaries
 
     '''
@@ -1856,7 +2015,7 @@ def dataset_follower_list(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
     return _follower_list(context, data_dict,
             context['model'].UserFollowingDataset)
 
@@ -1879,6 +2038,7 @@ def am_following_user(context, data_dict):
 
     :param id: the id or name of the user
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1886,7 +2046,7 @@ def am_following_user(context, data_dict):
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingUser)
@@ -1896,6 +2056,7 @@ def am_following_dataset(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+
     :rtype: boolean
 
     '''
@@ -1903,7 +2064,164 @@ def am_following_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors, ckan.logic.action.error_summary(errors))
+        raise ValidationError(errors)
 
     return _am_following(context, data_dict,
             context['model'].UserFollowingDataset)
+
+def user_followee_count(context, data_dict):
+    '''Return the number of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+    return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
+
+def dataset_followee_count(context, data_dict):
+    '''Return the number of datasets that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+    return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
+
+def user_followee_list(context, data_dict):
+    '''Return the list of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingUser.followee_list(user_id)
+
+    # Convert the list of Follower objects to a list of User objects.
+    users = [model.User.get(followee.object_id) for followee in followees]
+    users = [user for user in users if user is not None]
+
+    # Dictize the list of User objects.
+    return [model_dictize.user_dictize(user, context) for user in users]
+
+def dataset_followee_list(context, data_dict):
+    '''Return the list of datasets that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    # Get the list of Follower objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingDataset.followee_list(user_id)
+
+    # Convert the list of Follower objects to a list of Package objects.
+    datasets = [model.Package.get(followee.object_id) for followee in followees]
+    datasets = [dataset for dataset in datasets if dataset is not None]
+
+    # Dictize the list of Package objects.
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+
+def dashboard_activity_list(context, data_dict):
+    '''Return the dashboard activity stream of the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+
+    activity_query = model.Session.query(model.Activity)
+    user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
+    dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
+
+    from_user_query = activity_query.filter(model.Activity.user_id==user_id)
+    about_user_query = activity_query.filter(model.Activity.object_id==user_id)
+    user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
+    dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
+
+    query = from_user_query.union(about_user_query).union(
+            user_followees_query).union(dataset_followees_query)
+    query = query.order_by(_desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
+def dashboard_activity_list_html(context, data_dict):
+    '''Return the dashboard activity stream of the given user as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+
+    :rtype: string
+
+    '''
+    activity_stream = dashboard_activity_list(context, data_dict)
+    return _activity_list_to_html(context, activity_stream)
+
+
+def _unpick_search(sort, allowed_fields=None, total=None):
+    ''' This is a helper function that takes a sort string
+    eg 'name asc, last_modified desc' and returns a list of
+    split field order eg [('name', 'asc'), ('last_modified', 'desc')]
+    allowed_fields can limit which field names are ok.
+    total controls how many sorts can be specifed '''
+    sorts = []
+    split_sort = sort.split(',')
+    for part in split_sort:
+        split_part = part.strip().split()
+        field = split_part[0]
+        if len(split_part) > 1:
+            order = split_part[1].lower()
+        else:
+            order = 'asc'
+        if allowed_fields:
+            if field not in allowed_fields:
+                raise logic.ParameterError('Cannot sort by field `%s`' % field)
+        if order not in ['asc', 'desc']:
+            raise logic.ParameterError('Invalid sort direction `%s`' % order)
+        sorts.append((field, order))
+    if total and len(sorts) > total:
+        raise logic.ParameterError(
+            'Too many sort criteria provided only %s allowed' % total)
+    return sorts

@@ -184,6 +184,8 @@ You can delete everything in the CKAN database, including the tables, to start f
 
 The next logical step from this point is to do a "db init" step before starting CKAN again.
 
+.. _dumping and loading:
+
 Dumping and Loading databases to/from a file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -201,6 +203,8 @@ To load it in again, you first have to clean the database of existing data (be c
 .. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
 
 The pg_dump file notes which PostgreSQL user 'owns' the data on the server. Because the PostgreSQL user (by default) is identified as the current Linux user, and this is setup to be ``ckanINSTANCE`` where ``INSTANCE`` is the name of the CKAN instance. This means if you want to restore the pg_dump as another CKAN instance name (often needed if you move it to another server) then you will need to change the database owner - see :doc:`howto-editing-database-ownership`.
+
+.. _upgrade migration:
 
 Upgrade migration
 ~~~~~~~~~~~~~~~~~
@@ -248,6 +252,7 @@ This important command gives you fine-grained control over CKAN permissions, by 
 
 The ``roles`` command has its own section: see :doc:`authorization`.
 
+.. _rebuild search index:
 
 search-index: Rebuild search index
 ----------------------------------

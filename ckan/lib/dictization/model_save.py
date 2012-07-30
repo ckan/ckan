@@ -1,10 +1,13 @@
 import datetime
 import uuid
+import logging
+
 from sqlalchemy.orm import class_mapper
+
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
 
-##package saving
+log = logging.getLogger(__name__)
 
 def resource_dict_save(res_dict, context):
     model = context["model"]
@@ -46,7 +49,7 @@ def resource_dict_save(res_dict, context):
         del obj.extras[delete_me]
 
     if context.get('pending'):
-        if session.is_modified(obj, include_collections=False):
+        if session.is_modified(obj, include_collections=False, passive=True):
             obj.state = u'pending'
     else:
         obj.state = u'active'
@@ -56,7 +59,7 @@ def resource_dict_save(res_dict, context):
 
 def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
-    if not res_dicts and allow_partial_update:
+    if res_dicts is None and allow_partial_update:
         return
 
     pending = context.get('pending')
@@ -65,7 +68,7 @@ def package_resource_list_save(res_dicts, package, context):
     old_list = package.resource_groups_all[0].resources_all[:]
 
     obj_list = []
-    for res_dict in res_dicts:
+    for res_dict in res_dicts or []:
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
@@ -84,7 +87,7 @@ def package_resource_list_save(res_dicts, package, context):
 
 def package_extras_save(extra_dicts, obj, context):
     allow_partial_update = context.get("allow_partial_update", False)
-    if not extra_dicts and allow_partial_update:
+    if extra_dicts is None and allow_partial_update:
         return
 
     model = context["model"]
@@ -95,7 +98,7 @@ def package_extras_save(extra_dicts, obj, context):
     old_extras = dict((extra.key, extra) for extra in extras_list)
 
     new_extras = {}
-    for extra_dict in extra_dicts:
+    for extra_dict in extra_dicts or []:
         if extra_dict.get("deleted"):
             continue
 
@@ -148,7 +151,7 @@ def group_extras_save(extras_dicts, context):
 
 def package_tag_list_save(tag_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
-    if not tag_dicts and allow_partial_update:
+    if tag_dicts is None and allow_partial_update:
         return
 
     model = context["model"]
@@ -166,7 +169,7 @@ def package_tag_list_save(tag_dicts, package, context):
 
     tag_name_vocab = set()
     tags = set()
-    for tag_dict in tag_dicts:
+    for tag_dict in tag_dicts or []:
         if (tag_dict.get('name'), tag_dict.get('vocabulary_id')) not in tag_name_vocab:
             tag_obj = d.table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
@@ -199,7 +202,7 @@ def package_tag_list_save(tag_dicts, package, context):
 def package_membership_list_save(group_dicts, package, context):
 
     allow_partial_update = context.get("allow_partial_update", False)
-    if not group_dicts and allow_partial_update:
+    if group_dicts is None and allow_partial_update:
         return
 
     capacity = 'public'
@@ -213,7 +216,7 @@ def package_membership_list_save(group_dicts, package, context):
                          for member in
                          members)
     groups = set()
-    for group_dict in group_dicts:
+    for group_dict in group_dicts or []:
         id = group_dict.get("id")
         name = group_dict.get("name")
         capacity = group_dict.get("capacity", "public")
@@ -252,8 +255,9 @@ def package_membership_list_save(group_dicts, package, context):
 def relationship_list_save(relationship_dicts, package, attr, context):
 
     allow_partial_update = context.get("allow_partial_update", False)
-    if not relationship_dicts and allow_partial_update:
+    if relationship_dicts is None and allow_partial_update:
         return
+
     model = context["model"]
     session = context["session"]
     pending = context.get('pending')
@@ -262,7 +266,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
     old_list = relationship_list[:]
 
     relationships = []
-    for relationship_dict in relationship_dicts:
+    for relationship_dict in relationship_dicts or []:
         obj = d.table_dict_save(relationship_dict,
                               model.PackageRelationship, context)
         relationships.append(obj)
@@ -294,20 +298,20 @@ def package_dict_save(pkg_dict, context):
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources", []), pkg, context)
-    package_tag_list_save(pkg_dict.get("tags", []), pkg, context)
-    package_membership_list_save(pkg_dict.get("groups", []), pkg, context)
+    package_resource_list_save(pkg_dict.get("resources"), pkg, context)
+    package_tag_list_save(pkg_dict.get("tags"), pkg, context)
+    package_membership_list_save(pkg_dict.get("groups"), pkg, context)
 
     # relationships are not considered 'part' of the package, so only
     # process this if the key is provided
     if 'relationships_as_subject' in pkg_dict:
-        subjects = pkg_dict.get('relationships_as_subject', [])
+        subjects = pkg_dict.get('relationships_as_subject')
         relationship_list_save(subjects, pkg, 'relationships_as_subject', context)
     if 'relationships_as_object' in pkg_dict:
-        objects = pkg_dict.get('relationships_as_object', [])
+        objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    extras = package_extras_save(pkg_dict.get("extras", []), pkg, context)
+    extras = package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 
@@ -379,9 +383,12 @@ def group_dict_save(group_dict, context):
     context['group'] = group
 
     pkgs_edited = group_member_save(context, group_dict, 'packages')
-    group_member_save(context, group_dict, 'users')
-    group_member_save(context, group_dict, 'groups')
-    group_member_save(context, group_dict, 'tags')
+    group_users_changed = group_member_save(context, group_dict, 'users')
+    group_groups_changed = group_member_save(context, group_dict, 'groups')
+    group_tags_changed = group_member_save(context, group_dict, 'tags')
+    log.debug('Group save membership changes - Packages: %r  Users: %r  '
+              'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
+              group_groups_changed, group_tags_changed)
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.

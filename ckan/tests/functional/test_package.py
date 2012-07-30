@@ -199,7 +199,7 @@ class TestPackageForm(TestPackageBase):
         assert params['log_message'] in main_res, main_res
 
     def _check_redirect(self, return_url_param, expected_redirect,
-                        pkg_name_to_edit=''):
+                        pkg_name_to_edit='',extra_environ=None):
         '''
         @param return_url_param - encoded url to be given as param - if None
                        then assume redirect is specified in pylons config
@@ -223,12 +223,12 @@ class TestPackageForm(TestPackageBase):
             if return_url_param:
                 offset_params['return_to'] = return_url_param
             offset = url_for(**offset_params)
-            res = self.app.get(offset)
+            res = self.app.get(offset, extra_environ=extra_environ)
             assert 'Datasets -' in res
             fv = res.forms['dataset-edit']
             prefix = ''
             fv[prefix + 'name'] = new_name
-            res = fv.submit('save', status=302)
+            res = fv.submit('save', status=302, extra_environ=extra_environ)
             assert not 'Error' in res, res
             redirected_to = dict(res.headers).get('Location') or dict(res.headers)['location']
             expected_redirect_url = expected_redirect.replace('<NAME>', new_name)
@@ -298,7 +298,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'russian' in res
         assert 'david' in res
         assert 'roger' in res
-        assert 'State' in res
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
         assert 'original media' in res, res
@@ -574,11 +573,12 @@ class TestEdit(TestPackageForm):
     @classmethod
     def setup_class(self):
         CreateTestData.create()
+
         self._reset_data()
 
     def setup(self):
         if not self.res:
-            self.res = self.app.get(self.offset)
+            self.res = self.app.get(self.offset,extra_environ=self.extra_environ_admin)
         model.Session.remove()
 
     @classmethod
@@ -602,6 +602,9 @@ class TestEdit(TestPackageForm):
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
         self.admin = model.User.by_name(u'testadmin')
+
+        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_russianfan = {'REMOTE_USER': 'russianfan'}
         self.res = None #get's refreshed by setup
         model.Session.remove()
 
@@ -612,7 +615,7 @@ class TestEdit(TestPackageForm):
     def test_edit_basic(self):
         # just the absolute basics
         try:
-            self.res = self.app.get(self.offset)
+            self.res = self.app.get(self.offset,extra_environ=self.extra_environ_admin)
             assert 'Edit - Datasets' in self.res, self.res
             new_name = u'new-name'
             new_title = u'New Title'
@@ -620,7 +623,7 @@ class TestEdit(TestPackageForm):
             prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] = new_title
-            res = fv.submit('save')
+            res = fv.submit('save',extra_environ=self.extra_environ_admin)
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
@@ -635,7 +638,7 @@ class TestEdit(TestPackageForm):
     def test_edit(self):
         # just the key fields
         try:
-            self.res = self.app.get(self.offset)
+            self.res = self.app.get(self.offset,extra_environ=self.extra_environ_admin)
             assert 'Edit - Datasets' in self.res, self.res
             assert self.editpkg.notes in self.res
 
@@ -653,7 +656,7 @@ class TestEdit(TestPackageForm):
             #fv[prefix + 'resources__0__url'] =  new_download_url
             fv[prefix + 'license_id'] =  newlicense_id
             fv[prefix + 'version'] = newversion
-            res = fv.submit('save')
+            res = fv.submit('save',extra_environ=self.extra_environ_admin)
             # get redirected ...
             res = res.follow()
             model.Session.remove()
@@ -673,7 +676,7 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             offset = url_for(controller='package', action='edit', id=pkg.id)
-            res = self.app.get(offset)
+            res = self.app.get(offset, extra_environ=self.extra_environ_admin)
             #assert res.body == self.res.body, self.diff_responses(res, self.res)
             assert 'Edit - Datasets' in res, res
             assert pkg.name in res
@@ -683,7 +686,7 @@ class TestEdit(TestPackageForm):
             prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] =  new_title
-            res = fv.submit('save')
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
             # get redirected ...
             res = res.follow()
             offset = url_for(controller='package', action='read', id=new_name)
@@ -710,7 +713,7 @@ class TestEdit(TestPackageForm):
         fv[prefix + 'tag_string'] = tagvalues
         exp_log_message = 'test_edit_2: making some changes'
         fv['log_message'] =  exp_log_message
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_admin)
         # get redirected ...
         res = res.follow()
         assert '%s - Datasets' % self.editpkg_name in res
@@ -720,7 +723,7 @@ class TestEdit(TestPackageForm):
         for tag in newtags:
             assert tag in outtags
         rev = model.Revision.youngest(model.Session)
-        assert rev.author == 'Unknown IP Address'
+        assert rev.author == self.admin.name
         assert rev.message == exp_log_message
 
     def test_missing_fields(self):
@@ -728,12 +731,12 @@ class TestEdit(TestPackageForm):
         # (Spammers can cause this)
         fv = self.res.forms['dataset-edit']
         del fv.fields['log_message']
-        res = fv.submit('save', status=400)
+        res = fv.submit('save', status=400, extra_environ=self.extra_environ_admin)
 
         fv = self.res.forms['dataset-edit']
         prefix = ''
         del fv.fields[prefix + 'license_id']
-        res = fv.submit('save', status=400)
+        res = fv.submit('save', status=400, extra_environ=self.extra_environ_admin)
 
     def test_redirect_after_edit_using_param(self):
         return_url = 'http://random.site.com/dataset/<NAME>?test=param'
@@ -741,13 +744,13 @@ class TestEdit(TestPackageForm):
         # 'http%3A%2F%2Frandom.site.com%2Fdataset%2F%3CNAME%3E%3Ftest%3Dparam'
         expected_redirect = return_url
         self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit=self.editpkg_name)
+                             pkg_name_to_edit=self.editpkg_name, extra_environ=self.extra_environ_admin)
 
     def test_redirect_after_edit_using_config(self):
         return_url = '' # redirect comes from test.ini setting
         expected_redirect = config['package_edit_return_url']
         self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit=self.editpkg_name)
+                             pkg_name_to_edit=self.editpkg_name, extra_environ=self.extra_environ_admin)
 
     def test_edit_all_fields(self):
         try:
@@ -905,7 +908,7 @@ class TestEdit(TestPackageForm):
         fv = self.res.forms['dataset-edit']
         prefix = ''
         fv['log_message'] = u'Free enlargements: http://drugs.com/' # spam
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_admin)
         assert 'Error' in res, res
         self.check_tag(res, '<form', 'has-errors')
         assert 'No links are allowed' in res, res
@@ -914,7 +917,7 @@ class TestEdit(TestPackageForm):
         fv = self.res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = u'a' # invalid name
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_admin)
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         # Ensure there is an error at the top of the form and by the field
@@ -926,62 +929,38 @@ class TestEdit(TestPackageForm):
         try:
             plugin = MockPackageControllerPlugin()
             plugins.load(plugin)
-            res = self.app.get(self.offset)
+            res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             new_name = u'new-name'
             new_title = u'New Title'
             fv = res.forms['dataset-edit']
             prefix = ''
             fv[prefix + 'name'] = new_name
             fv[prefix + 'title'] = new_title
-            res = fv.submit('save')
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
             # get redirected ...
             assert plugin.calls['edit'] == 1, plugin.calls
             plugins.unload(plugin)
         finally:
             self._reset_data()
 
-    def test_edit_700_groups_unauthorized(self):
-        try:
-            pkg = model.Package.by_name(u'editpkgtest')
-            grp = model.Group.by_name(u'david')
-            assert len(pkg.get_groups()) == 0
-            offset = url_for(controller='package', action='edit', id=pkg.name)
-            res = self.app.get(offset)
-            prefix = ''
-            fv = res.forms['dataset-edit']
-            name = prefix + 'groups__0__id'
-            # XXX the following assertion fails since upgrade to
-            # sqlalchemy 0.6.5; apparently outer joins are handled
-            # differently in such a way that
-            # ckan.lib.base._get_user_editable_groups (which calls
-            # ckan.authz.authorized_query) now returns groups when it
-            # shouldn't.
-            assert not name in fv.fields.keys(), fv.fields.keys()
-            res = fv.submit('save')
-            res = res.follow()
-            pkg = model.Package.by_name(u'editpkgtest')
-            assert len(pkg.get_groups()) == 0
-        finally:
-            self._reset_data()
-
     def test_edit_700_groups_add(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
-            grp = model.Group.by_name(u'david')
+            grp = model.Group.by_name(u'roger')
             assert len(pkg.get_groups()) == 0
             offset = url_for(controller='package', action='edit', id=pkg.name)
 
-            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            res = self.app.get(offset, extra_environ=self.extra_environ_admin)
             prefix = ''
             field_name = prefix + "groups__0__id"
             assert field_name in res
             fv = res.forms['dataset-edit']
             fv[prefix + 'groups__0__id'] = grp.id
-            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
             res = res.follow()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.get_groups()) == 1, pkg.get_groups()
-            assert 'david' in res, res
+            assert 'roger' in res, res
         finally:
             self._reset_data()
 
@@ -989,20 +968,20 @@ class TestEdit(TestPackageForm):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.get_groups()) == 0
-            grp = model.Group.by_name(u'david')
+            grp = model.Group.by_name(u'roger')
             model.repo.new_revision()
             model.Session.add(model.Member(table_id=pkg.id, table_name='package', group=grp))
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.get_groups()) == 1
             offset = url_for(controller='package', action='edit', id=pkg.name)
-            res = self.app.get(offset, extra_environ={'REMOTE_USER':'russianfan'})
+            res = self.app.get(offset, extra_environ=self.extra_environ_admin)
             prefix = ''
             field_name = prefix + "groups__0__id"
             fv = res.forms['dataset-edit']
             print field_name
             fv[field_name] = False
-            res = fv.submit('save', extra_environ={'REMOTE_USER':'russianfan'})
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
             model.repo.commit_and_remove()
             pkg = model.Package.by_name(u'editpkgtest')
             assert len(pkg.get_groups()) == 0
@@ -1023,7 +1002,7 @@ class TestEdit(TestPackageForm):
             fv = self.res.forms['dataset-edit']
             prefix = ''
             fv['log_message'] = u'Test log message'
-            res = fv.submit('save', status=500)
+            res = fv.submit('save', status=500, extra_environ=self.extra_environ_admin)
             assert 'Unable to update search index' in res, res
         finally:
             plugins.unload('synchronous_search')
@@ -1045,7 +1024,7 @@ class TestEdit(TestPackageForm):
 
             # edit the package
             self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
-            self.res = self.app.get(self.offset)
+            self.res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             fv = self.res.forms['dataset-edit']
             fv['title'] = u'New Title'
             res = fv.submit('save')
@@ -1063,6 +1042,11 @@ class TestNew(TestPackageForm):
     @classmethod
     def setup_class(self):
         model.repo.init_db()
+        CreateTestData.create_test_user()
+#        self.admin = model.User.by_name(u'russianfan')
+
+#        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_tester = {'REMOTE_USER': 'tester'}
 
     @classmethod
     def teardown_class(self):
@@ -1072,7 +1056,7 @@ class TestNew(TestPackageForm):
     def test_new_with_params_1(self):
         offset = url_for(controller='package', action='new',
                 url='http://xxx.org', name='xxx.org')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         form = res.forms['dataset-edit']
         assert_equal(form['url'].value, 'http://xxx.org')
         assert_equal(form['name'].value, 'xxx.org')
@@ -1082,12 +1066,12 @@ class TestNew(TestPackageForm):
         prefix = ''
         name = u'test_no_res'
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         fv = res.forms['dataset-edit']
         fv[prefix+'name'] = name
         # submit
         self.pkg_names.append(name)
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
 
         # check dataset page
         assert not 'Error' in res, res
@@ -1104,7 +1088,7 @@ class TestNew(TestPackageForm):
     def test_new(self):
         assert not model.Package.by_name(u'annakarenina')
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
@@ -1115,25 +1099,25 @@ class TestNew(TestPackageForm):
 
     def test_new_bad_name(self):
         offset = url_for(controller='package', action='new', id=None)
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = u'a' # invalid name
         self.pkg_names.append('a')
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         assert 'Error' in res, res
         assert 'Name must be at least 2 characters long' in res, res
         self._assert_form_errors(res)
 
     def test_new_no_name(self):
         offset = url_for(controller='package', action='new', id=None)
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
         # don't set a name
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         assert 'Error' in res, res
         assert 'URL: Missing value' in res, res
         self._assert_form_errors(res)
@@ -1141,7 +1125,7 @@ class TestNew(TestPackageForm):
     def test_new_bad_param(self):
         offset = url_for(controller='package', action='new', __bad_parameter='value')
         res = self.app.post(offset, {'save':'1'},
-                            status=400)
+                            status=400, extra_environ=self.extra_environ_tester)
         assert 'Integrity Error' in res.body
 
     def test_redirect_after_new_using_param(self):
@@ -1150,13 +1134,13 @@ class TestNew(TestPackageForm):
         # 'http%3A%2F%2Frandom.site.com%2Fdataset%2F%3CNAME%3E%3Ftest%3Dparam'
         expected_redirect = return_url
         self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit='')
+                             pkg_name_to_edit='', extra_environ=self.extra_environ_tester)
 
     def test_redirect_after_new_using_config(self):
         return_url = '' # redirect comes from test.ini setting
         expected_redirect = config['package_new_return_url']
         self._check_redirect(return_url, expected_redirect,
-                             pkg_name_to_edit='')
+                             pkg_name_to_edit='', extra_environ=self.extra_environ_tester)
 
     def test_new_all_fields(self):
         name = u'test_name2'
@@ -1172,7 +1156,7 @@ class TestNew(TestPackageForm):
         log_message = 'This is a comment'
         assert not model.Package.by_name(name)
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
@@ -1192,7 +1176,7 @@ class TestNew(TestPackageForm):
         # Submit
         fv = res.forms['dataset-edit']
         self.pkg_names.append(name)
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
 
         # Check dataset page
         assert not 'Error' in res, res
@@ -1217,7 +1201,7 @@ class TestNew(TestPackageForm):
 
         # for some reason environ['REMOTE_ADDR'] is undefined
         rev = model.Revision.youngest(model.Session)
-        assert rev.author == 'Unknown IP Address'
+        assert rev.author == 'tester'
         assert rev.message == log_message
         # TODO: reinstate once fixed in code
         exp_log_message = u'Creating dataset %s' % name
@@ -1230,22 +1214,22 @@ class TestNew(TestPackageForm):
         pkgtitle = u'mytesttitle'
         assert not model.Package.by_name(pkgname)
         offset = url_for(controller='package', action='new', id=None)
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = pkgname
         self.pkg_names.append(pkgname)
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         assert not 'Error' in res, res
         assert model.Package.by_name(pkgname)
         # create duplicate dataset
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         fv[prefix+'name'] = pkgname
         fv[prefix+'title'] = pkgtitle
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         assert 'Error' in res, res
         assert 'That URL is already in use.' in res, res
         self._assert_form_errors(res)
@@ -1254,17 +1238,17 @@ class TestNew(TestPackageForm):
         # A field is left out in the commit parameters.
         # (Spammers can cause this)
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res, res
         prefix = ''
         fv = res.forms['dataset-edit']
         fv[prefix + 'name'] = 'anything'
         del fv.fields['log_message']
         self.pkg_names.append('anything')
-        res = fv.submit('save', status=400)
+        res = fv.submit('save', status=400, extra_environ=self.extra_environ_tester)
 
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         assert 'Add - Datasets' in res
         fv = res.forms['dataset-edit']
         fv[prefix + 'name'] = 'anything'
@@ -1273,18 +1257,18 @@ class TestNew(TestPackageForm):
         # NOTE Missing dropdowns fields don't cause KeyError in
         # _serialized_value so don't register as an error here like
         # text field tested here.
-        res = fv.submit('save', status=400)
+        res = fv.submit('save', status=400, extra_environ=self.extra_environ_tester)
 
     def test_new_plugin_hook(self):
         plugin = MockPackageControllerPlugin()
         plugins.load(plugin)
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         new_name = u'plugged'
         fv = res.forms['dataset-edit']
         prefix = ''
         fv[prefix + 'name'] = new_name
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         # get redirected ...
         assert plugin.calls['edit'] == 0, plugin.calls
         assert plugin.calls['create'] == 1, plugin.calls
@@ -1300,7 +1284,7 @@ class TestNew(TestPackageForm):
             new_package_name = u'new-package-missing-solr'
 
             offset = url_for(controller='package', action='new')
-            res = self.app.get(offset)
+            res = self.app.get(offset, extra_environ=self.extra_environ_tester)
             fv = res.forms['dataset-edit']
             fv['name'] = new_package_name
 
@@ -1308,7 +1292,7 @@ class TestNew(TestPackageForm):
             # add it to the list to purge just in case
             self.pkg_names.append(new_package_name)
 
-            res = fv.submit('save', status=500)
+            res = fv.submit('save', status=500, extra_environ=self.extra_environ_tester)
             assert 'Unable to add package to search index' in res, res
         finally:
             plugins.unload('synchronous_search')
@@ -1316,8 +1300,9 @@ class TestNew(TestPackageForm):
 
     def test_change_locale(self):
         offset = url_for(controller='package', action='new')
-        res = self.app.get(offset)
-        res = res.click('Deutsch')
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+
+        res = self.app.get('/de/dataset/new', extra_environ=self.extra_environ_tester)
         try:
             assert 'Datensatz' in res.body, res.body
         finally:
@@ -1446,7 +1431,7 @@ class TestRevisions(TestPackageBase):
         res = form.submit()
         res = res.follow()
         main_res = self.main_div(res)
-        assert 'error' not in main_res.lower(), main_res
+        assert 'form-errors' not in main_res.lower(), main_res
         assert 'Revision Differences' in main_res, main_res
         assert self.pkg1.name in main_res, main_res
         assert '<tr><td>notes</td><td><pre>- Written by Puccini\n+ Written off</pre></td></tr>' in main_res, main_res

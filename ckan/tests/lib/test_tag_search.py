@@ -26,6 +26,11 @@ class TestTagSearch(object):
         assert 'russian' in result['results'], result
         assert 'tolstoy' in result['results'], result
 
+    def test_good_search_queries(self):
+        result = search.query_for(model.Tag).run(query=[u'ru', u's'])
+        assert result['count'] == 1, result
+        assert 'russian' in result['results'], result
+
     def test_bad_search_query(self):
         result = search.query_for(model.Tag).run(query=u'asdf')
         assert result['count'] == 0, result

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Pylons environment configuration"""
 import os
 import logging
@@ -18,9 +19,11 @@ import ckan.lib.helpers as h
 import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
+log = logging.getLogger(__name__)
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
+
 
 class _Helpers(object):
     ''' Helper object giving access to template helpers stopping
@@ -29,7 +32,7 @@ class _Helpers(object):
     not been enabled. '''
     def __init__(self, helpers, restrict=True):
         functions = {}
-        allowed = helpers.__allowed_functions__
+        allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
         self.deprecated = []
 
@@ -39,7 +42,13 @@ class _Helpers(object):
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
+            if helper in allowed:
+                allowed.remove(helper)
         self.functions = functions
+
+        if allowed:
+            raise Exception('Template helper function(s) `%s` not defined'
+                            % ', '.join(allowed))
 
         # extend helper functions with ones supplied by plugins
         extra_helpers = []
@@ -92,13 +101,16 @@ def load_environment(global_conf, app_conf):
     from pylons.wsgiapp import PylonsApp
     import pkg_resources
     find_controller_generic = PylonsApp.find_controller
+
     # This is from pylons 1.0 source, will monkey-patch into 0.9.7
     def find_controller(self, controller):
         if controller in self.controller_classes:
             return self.controller_classes[controller]
         # Check to see if its a dotted name
         if '.' in controller or ':' in controller:
-            mycontroller = pkg_resources.EntryPoint.parse('x=%s' % controller).load(False)
+            mycontroller = pkg_resources \
+                .EntryPoint \
+                .parse('x=%s' % controller).load(False)
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
@@ -120,6 +132,13 @@ def load_environment(global_conf, app_conf):
 
     # load all CKAN plugins
     p.load_all(config)
+
+    # Load the synchronous search plugin, unless already loaded or
+    # explicitly disabled
+    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
+            asbool(config.get('ckan.search.automatic_indexing', True)):
+        log.debug('Loading the synchronous search plugin')
+        p.load('synchronous_search')
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
@@ -151,11 +170,13 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'] = app_globals.Globals()
 
     # add helper functions
-    restrict_helpers = asbool(config.get('ckan.restrict_template_vars', 'true'))
+    restrict_helpers = asbool(
+        config.get('ckan.restrict_template_vars', 'true'))
     helpers = _Helpers(h, restrict_helpers)
     config['pylons.h'] = helpers
 
-    ## redo template setup to use genshi.search_path (so remove std template setup)
+    # Redo template setup to use genshi.search_path
+    # (so remove std template setup)
     template_paths = [paths['templates'][0]]
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
@@ -164,6 +185,7 @@ def load_environment(global_conf, app_conf):
 
     # Translator (i18n)
     translator = Translator(pylons.translator)
+
     def template_loaded(template):
         translator.setup(template)
 
@@ -176,24 +198,115 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
 
+    #################################################################
+    #                                                               #
+    #                   HORRIBLE GENSHI HACK                        #
+    #                                                               #
+    #################################################################
+    #                                                               #
+    # Genshi does strange things to get stuff out of the template   #
+    # variables.  This stops it from handling properties in the     #
+    # correct way as it returns the property rather than the actual #
+    # value of the property.                                        #
+    #                                                               #
+    # By overriding lookup_attr() in the LookupBase class we are    #
+    # able to get the required behaviour.  Using @property allows   #
+    # us to move functionality out of templates whilst maintaining  #
+    # backwards compatability.                                      #
+    #                                                               #
+    #################################################################
+
+    '''
+    This code is based on Genshi code
+
+    Copyright © 2006-2012 Edgewall Software
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
+    conditions are met:
+
+        Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+        Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials provided
+        with the distribution.
+
+        The name of the author may not be used to endorse or promote
+        products derived from this software without specific prior
+        written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+    IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+    IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    '''
+    from genshi.template.eval import LookupBase
+
+    @classmethod
+    def genshi_lookup_attr(cls, obj, key):
+        __traceback_hide__ = True
+        try:
+            val = getattr(obj, key)
+        except AttributeError:
+            if hasattr(obj.__class__, key):
+                raise
+            else:
+                try:
+                    val = obj[key]
+                except (KeyError, TypeError):
+                    val = cls.undefined(key, owner=obj)
+        if isinstance(val, property):
+            val = val.fget()
+        return val
+
+    setattr(LookupBase, 'lookup_attr', genshi_lookup_attr)
+    del genshi_lookup_attr
+    del LookupBase
+
+    #################################################################
+    #                                                               #
+    #                       END OF GENSHI HACK                      #
+    #                                                               #
+    #################################################################
+
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
-    warnings.filterwarnings('ignore', '^Unicode type received non-unicode bind param value', sqlalchemy.exc.SAWarning)
-    warnings.filterwarnings('ignore', "^Did not recognize type 'BIGINT' of column 'size'", sqlalchemy.exc.SAWarning)
-    warnings.filterwarnings('ignore', "^Did not recognize type 'tsvector' of column 'search_vector'", sqlalchemy.exc.SAWarning)
+    msgs = ['^Unicode type received non-unicode bind param value',
+            "^Did not recognize type 'BIGINT' of column 'size'",
+            "^Did not recognize type 'tsvector' of column 'search_vector'"
+            ]
+    for msg in msgs:
+        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
-    ckan_db = os.environ.get('CKAN_DB') 
+    ckan_db = os.environ.get('CKAN_DB')
 
     if ckan_db:
         config['sqlalchemy.url'] = ckan_db
-    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.')
+
+    # for postgresql we want to enforce utf-8
+    sqlalchemy_url = config.get('sqlalchemy.url', '')
+    if sqlalchemy_url.startswith('postgresql://'):
+        extras = {'client_encoding': 'utf8'}
+    else:
+        extras = {}
+
+    engine = sqlalchemy.engine_from_config(config, 'sqlalchemy.', **extras)
 
     if not model.meta.engine:
         model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
-

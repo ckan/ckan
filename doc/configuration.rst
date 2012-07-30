@@ -122,6 +122,19 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
+.. _config-apps-ideas:
+
+ckan.dataset.show_apps_ideas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ckan.dataset.show_apps_ideas::
+
+ ckan.dataset.show_apps_ideas = false
+
+Default value:  true
+
+When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
+
 rdf_packages
 ^^^^^^^^^^^^
 
@@ -495,6 +508,23 @@ This configures the Solr server used for search. The Solr schema found at that U
 Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
 
 Note, if you change this value, you need to rebuild the search index.
+
+.. index::
+   single: ckan.search.automatic_indexing
+
+ckan.search.automatic_indexing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.automatic_indexing = 1
+
+Make all changes immediately available via the search after editing or
+creating a dataset. Default is true. If for some reason you need the indexing
+to occur asynchronously, set this option to 0.
+
+Note, this is equivalent to explicitly load the `synchronous_search` plugin.
+
 
 simple_search
 ^^^^^^^^^^^^^

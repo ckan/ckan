@@ -38,7 +38,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
-                                   tag_not_in_vocabulary)
+                                   tag_not_in_vocabulary,
+                                   url_validator)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -49,7 +50,7 @@ def default_resource_schema():
         'revision_id': [ignore_missing, unicode],
         'resource_group_id': [ignore],
         'package_id': [ignore],
-        'url': [ignore_empty, unicode],#, URL(add_http=False)],
+        'url': [not_empty, unicode],#, URL(add_http=False)],
         'description': [ignore_missing, unicode],
         'format': [ignore_missing, unicode],
         'hash': [ignore_missing, unicode],
@@ -153,6 +154,11 @@ def default_update_package_schema():
     return schema
 
 def package_form_schema():
+    # This function is deprecated and was replaced by
+    # form_to_db_package_schema(), it remains here for backwards compatibility.
+    return form_to_db_package_schema()
+
+def form_to_db_package_schema():
 
     schema = default_package_schema()
     ##new
@@ -173,6 +179,26 @@ def package_form_schema():
     schema.pop('relationships_as_object')
     schema.pop('revision_id')
     schema.pop('relationships_as_subject')
+    return schema
+
+def db_to_form_package_schema():
+    schema = default_package_schema()
+    # Workaround a bug in CKAN's convert_from_tags() function.
+    # TODO: Fix this issue in convert_from_tags().
+    schema.update({
+        'tags': {
+            '__extras': [ckan.lib.navl.validators.keep_extras,
+                ckan.logic.converters.free_tags_only]
+            },
+        })
+    # Workaround a bug in CKAN.
+    # TODO: Fix this elsewhere so we don't need to workaround it here.
+    schema['resources'].update({
+        'created': [ckan.lib.navl.validators.ignore_missing],
+        'last_modified': [ckan.lib.navl.validators.ignore_missing],
+        'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
+    })
     return schema
 
 def default_group_schema():
@@ -227,6 +253,7 @@ def group_form_schema():
         "capacity": [ignore_missing],
         "__extras": [ignore]
     }
+    schema['display_name'] = [ignore_missing]
     return schema
 
 
@@ -242,10 +269,11 @@ def default_related_schema():
         'title': [not_empty, unicode],
         'description': [ignore_missing, unicode],
         'type': [not_empty, unicode],
-        'image_url': [ignore_missing, unicode],
-        'url': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode, url_validator],
+        'url': [ignore_missing, unicode, url_validator],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
+        'featured': [ignore_missing, int],
     }
     return schema
 

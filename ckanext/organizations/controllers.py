@@ -95,8 +95,8 @@ class OrganizationController(BaseController):
 
     def _add_users( self, group, parameters  ):
         if not group:
-            h.flash_error(_("There was a problem with your submission, \
-                             please correct it and try again"))
+            h.flash_error(_("There was a problem with your submission, "
+                             "please correct it and try again"))
             errors = {"reason": ["No reason was supplied"]}
             return self.apply(group.id, errors=errors,
                               error_summary=action.error_summary(errors))

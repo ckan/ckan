@@ -109,7 +109,7 @@ class TestAdminAuthzController(WsgiAppCase):
 
         # before we start changing things, check that the roles on the system are as expected
         assert original_user_roles == \
-            [(u'logged_in', u'editor'), (u'testsysadmin', u'admin'),  (u'visitor', u'anon_editor')] , \
+            [(u'logged_in', u'editor'), (u'testsysadmin', u'admin'),  (u'visitor', u'reader')] , \
             "original user roles not as expected " + str(original_user_roles)
 
         assert original_authzgroup_roles == [(u'anauthzgroup', u'editor')], \
@@ -160,7 +160,7 @@ class TestAdminAuthzController(WsgiAppCase):
         # change lots of things
         form = get_user_form()
         check_and_set_checkbox(form, u'visitor', u'editor', False, True)
-        check_and_set_checkbox(form, u'visitor', u'reader', False,  False)
+        check_and_set_checkbox(form, u'visitor', u'reader', True,  False)
         check_and_set_checkbox(form, u'logged_in', u'editor', True, False)
         check_and_set_checkbox(form, u'logged_in', u'reader', False, True)      
         submit(form)

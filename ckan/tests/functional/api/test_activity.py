@@ -2,9 +2,13 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
+from nose.plugins.skip import SkipTest
+
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create as _package_create, user_create, group_create
+from ckan.logic.action.create import package_create as _package_create
+from ckan.logic.action.create import user_create, group_create, follow_dataset
+from ckan.logic.action.create import follow_user
 from ckan.logic.action.update import package_update as _package_update, resource_update
 from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
@@ -96,13 +100,50 @@ class TestActivity:
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
+        self.follower = model.User.get('tester')
         self.warandpeace = model.Package.get('warandpeace')
         self.annakarenina = model.Package.get('annakarenina')
         self.app = paste.fixture.TestApp(pylonsapp)
 
+        # Make follower follow everything else.
+        params = {'id': 'testsysadmin'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_user',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'annafan'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_user',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'warandpeace'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_dataset',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+        params = {'id': 'annakarenina'}
+        extra_environ = {'Authorization': str(self.follower.apikey)}
+        response = self.app.post('/api/action/follow_dataset',
+            params=json.dumps(params), extra_environ=extra_environ).json
+        assert response['success'] is True
+
+        self.followees = \
+            [
+                self.sysadmin_user.id,
+                self.normal_user.id,
+                self.follower.id,
+                self.warandpeace.id,
+                self.annakarenina.id
+            ]
+
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
+
+    def dashboard_activity_stream(self, user_id):
+        response = self.app.get("/api/2/rest/user/%s/dashboard_activity" % user_id)
+        return json.loads(response.body)
 
     def user_activity_stream(self, user_id):
         response = self.app.get("/api/2/rest/user/%s/activity" % user_id)
@@ -145,8 +186,24 @@ class TestActivity:
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream()
 
+        details['follower dashboard activity stream'] = \
+                                self.dashboard_activity_stream(self.follower.id)
+
         details['time'] = datetime.datetime.now()
         return details
+
+    def check_dashboard(
+            self,
+            before, after, wanted_difference,
+            potential_followees):
+        difference = find_new_activities(
+                    before['follower dashboard activity stream'],
+                    after['follower dashboard activity stream'])
+        if any(potential_followee in self.followees for potential_followee in potential_followees):
+            assert difference == wanted_difference
+        else:
+            assert len(difference) == 0
+
 
     def _create_package(self, user, name=None):
         if user:
@@ -174,7 +231,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -188,6 +245,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -222,20 +281,20 @@ class TestActivity:
                 str(detail['activity_id'])
 
             if detail['object_id'] == package_created['id']:
-                assert detail['activity_type'] == "new", ( 
+                assert detail['activity_type'] == "new", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "Package", \
                     str(detail['object_type'])
 
             elif (detail['object_id'] in
                 [resource['id'] for resource in package_created['resources']]):
-                assert detail['activity_type'] == "new", ( 
+                assert detail['activity_type'] == "new", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "Resource", (
                     str(detail['object_type']))
 
             else:
-                assert detail['activity_type'] == "added", ( 
+                assert detail['activity_type'] == "added", (
                     str(detail['activity_type']))
                 assert detail['object_type'] == "tag", (
                     str(detail['object_type']))
@@ -280,7 +339,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -296,6 +355,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -322,9 +383,9 @@ class TestActivity:
             resource_ids_before]
         assert len(new_resource_ids) == 1
         new_resource_id = new_resource_ids[0]
-        assert detail['object_id'] == new_resource_id, ( 
+        assert detail['object_id'] == new_resource_id, (
             str(detail['object_id']))
-        assert detail['object_type'] == "Resource", ( 
+        assert detail['object_type'] == "Resource", (
             str(detail['object_type']))
         assert detail['activity_type'] == "new", (
             str(detail['activity_type']))
@@ -369,7 +430,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -385,6 +446,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -463,7 +526,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -479,6 +542,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -553,7 +618,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -569,6 +634,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -607,7 +674,7 @@ class TestActivity:
     def _create_activity(self, user, package, params):
         before = self.record_details(user.id, package.id)
 
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert response.json['success'] == True
@@ -618,7 +685,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -627,6 +694,8 @@ class TestActivity:
             before['package activity stream'],
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == params['object_id'], (
@@ -671,6 +740,8 @@ class TestActivity:
             after['group activity stream']) == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
 
+        self.check_dashboard(before, after, new_activities, [user.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
         assert activity['user_id'] == user.id, str(activity['user_id'])
@@ -711,6 +782,9 @@ class TestActivity:
         assert find_new_activities(before["group activity stream"],
             after['group activity stream']) == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
+
+        self.check_dashboard(before, after, new_activities, [user.id])
+
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
@@ -757,6 +831,8 @@ class TestActivity:
         assert len(new_activities) == 1, ("There should be 1 new activity in "
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
+
+        self.check_dashboard(before, after, new_activities, [user.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == user.id, str(activity['object_id'])
@@ -805,7 +881,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -821,6 +897,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -888,7 +966,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -904,6 +982,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -927,7 +1007,7 @@ class TestActivity:
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
-        assert detail['object_type'] == "Package", ( 
+        assert detail['object_type'] == "Package", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
             str(detail['activity_type']))
@@ -964,7 +1044,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -980,6 +1060,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -1032,7 +1114,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1048,6 +1130,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [self.sysadmin_user.id, package.id])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package.id, (
@@ -1068,7 +1152,7 @@ class TestActivity:
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
         assert len(details) == 1
-        detail = details[0]        
+        detail = details[0]
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
         assert detail['object_id'] == package.id, str(detail['object_id'])
@@ -1143,7 +1227,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1159,6 +1243,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id, pkg_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1218,21 +1304,25 @@ class TestActivity:
         when a package extra is changed by a user who is not logged in.
 
         """
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
-            }
-        packages_with_extras = []
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
-            if len(package_dict['extras']) > 0:
-                    packages_with_extras.append(package_dict)
-        assert len(packages_with_extras) > 0, (
-                "Need some packages with extras to test")
-        for package_dict in packages_with_extras:
-            self._update_extra(package_dict, None)
+        raise SkipTest
+
+##  TODO: remove, non logged in users can no longer edit packages
+#        context = {
+#            'model': model,
+#            'session': model.Session,
+#            'user': self.normal_user.name,
+#            'extras_as_string': True,
+#            }
+#        packages_with_extras = []
+#        for package_name in package_list(context, {}):
+#            package_dict = package_show(context, {'id': package_name})
+#            if len(package_dict['extras']) > 0:
+#                    packages_with_extras.append(package_dict)
+#        assert len(packages_with_extras) > 0, (
+#                "Need some packages with extras to test")
+#        for package_dict in packages_with_extras:
+#            self._update_extra(package_dict, None)
+#
 
     def test_01_update_package(self):
         """
@@ -1253,8 +1343,11 @@ class TestActivity:
         when packages are updated by a user who is not logged in.
 
         """
-        for package in model.Session.query(model.Package).all():
-            self._update_package(package, user=None)
+        raise SkipTest
+
+##  TODO: remove, non logged in users can no longer edit packages
+#       for package in model.Session.query(model.Package).all():
+#            self._update_package(package, user=None)
 
     def test_01_update_resource(self):
         """
@@ -1302,7 +1395,10 @@ class TestActivity:
         when a new package is created by a user who is not logged in.
 
         """
-        self._create_package(user=None, name="not_logged_in_test_package")
+        raise SkipTest
+
+##  TODO: remove, non logged in users can no longer edit packages
+#       self._create_package(user=None, name="not_logged_in_test_package")
 
     def test_add_resources(self):
         """
@@ -1323,8 +1419,11 @@ class TestActivity:
         when a resource is added to a package by a user who is not logged in.
 
         """
-        for package in model.Session.query(model.Package).all():
-            self._add_resource(package, user=None)
+        raise SkipTest
+
+##  TODO: remove, non logged in users can no longer edit packages
+#        for package in model.Session.query(model.Package).all():
+#            self._add_resource(package, user=None)
 
     def test_delete_package(self):
         """
@@ -1416,6 +1515,8 @@ class TestActivity:
         assert after['group activity stream'] == new_activities, ("The same "
             "activity should also appear in the group's activity stream.")
 
+        self.check_dashboard(before, after, new_activities, [user.id])
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group_created['id'], \
             str(activity['object_id'])
@@ -1479,7 +1580,7 @@ class TestActivity:
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
         assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" % 
+            " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
         activity = user_new_activities[0]
 
@@ -1495,6 +1596,8 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id, pkg_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1556,7 +1659,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params), status=403)
         assert response.json['success'] == False
 
@@ -1571,7 +1674,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.normal_user.apikey)},
             status=403)
@@ -1588,7 +1691,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': 'xxxxxxxxxx'},
             status=403)
@@ -1609,9 +1712,9 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        assert activity_id not in [activity['id'] for activity in 
+        assert activity_id not in [activity['id'] for activity in
                 self.user_activity_stream(user.id)]
-        assert activity_id not in [activity['id'] for activity in 
+        assert activity_id not in [activity['id'] for activity in
                 self.package_activity_stream(package.id)]
 
     def test_activity_create_with_timestamp(self):
@@ -1626,7 +1729,7 @@ class TestActivity:
             'timestamp': str(datetime.datetime.max),
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        params['timestamp'] = 'foobar' 
+        params['timestamp'] = 'foobar'
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
 
     def test_activity_create_with_revision(self):
@@ -1644,9 +1747,9 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         self._create_activity(self.sysadmin_user, self.warandpeace, params)
-        assert revision_id not in [activity['revision_id'] for activity in 
+        assert revision_id not in [activity['revision_id'] for activity in
                 self.user_activity_stream(user.id)]
-        assert revision_id not in [activity['revision_id'] for activity in 
+        assert revision_id not in [activity['revision_id'] for activity in
                 self.package_activity_stream(package.id)]
 
     def test_activity_create_user_id_missing(self):
@@ -1658,7 +1761,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1677,7 +1780,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1687,7 +1790,7 @@ class TestActivity:
                 response.json['error'][u'user_id'])
 
         params['user_id'] = None
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1706,7 +1809,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
             'activity_type': 'changed package',
         }
-        response = self.app.post('/api/action/activity_create', 
+        response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
@@ -1882,16 +1985,19 @@ class TestActivity:
         when an extra is added to a package by a user who is not logged in.
 
         """
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
-            }
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
-            self._add_extra(package_dict, None, key='not_logged_in_extra_key')
+        raise SkipTest
 
+##  TODO: remove, non logged in users can no longer edit packages
+#        context = {
+#            'model': model,
+#            'session': model.Session,
+#            'user': self.normal_user.name,
+#            'extras_as_string': True,
+#            }
+#        for package_name in package_list(context, {}):
+#            package_dict = package_show(context, {'id': package_name})
+#            self._add_extra(package_dict, None, key='not_logged_in_extra_key')
+#
     def test_delete_extras(self):
         """
         Test deleted package extra activity stream.
@@ -1924,18 +2030,125 @@ class TestActivity:
         when a package extra is deleted by a user who is not logged in.
 
         """
+        raise SkipTest
+
+##  TODO: remove, non logged in users can no longer edit packages
+#        context = {
+#            'model': model,
+#            'session': model.Session,
+#            'user': self.normal_user.name,
+#            'extras_as_string': True,
+#            }
+#        packages_with_extras = []
+#        for package_name in package_list(context, {}):
+#            package_dict = package_show(context, {'id': package_name})
+#            if len(package_dict['extras']) > 0:
+#                    packages_with_extras.append(package_dict)
+#        assert len(packages_with_extras) > 0, (
+#                "Need some packages with extras to test")
+#        for package_dict in packages_with_extras:
+#            self._delete_extra(package_dict, None)
+#
+
+    def test_follow_dataset(self):
+        user = self.normal_user
+        before = self.record_details(user.id)
         context = {
             'model': model,
             'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
+            'user': user.name,
             }
-        packages_with_extras = []
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
-            if len(package_dict['extras']) > 0:
-                    packages_with_extras.append(package_dict)
-        assert len(packages_with_extras) > 0, (
-                "Need some packages with extras to test")
-        for package_dict in packages_with_extras:
-            self._delete_extra(package_dict, None)
+        data = {'id': self.warandpeace.id}
+        follow_dataset(context, data)
+        after = self.record_details(user.id, self.warandpeace.id)
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" %
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # The same new activity should appear in the package's activity stream.
+        pkg_new_activities = after['package activity stream']
+        for activity in user_new_activities:
+            assert activity in pkg_new_activities
+
+        self.check_dashboard(before, after, user_new_activities, [user.id])
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == self.warandpeace.id, \
+            str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'follow dataset', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= \
+            after['time'], str(activity['timestamp'])
+
+        assert len(self.activity_details(activity)) == 0
+
+    def test_follow_user(self):
+        user = self.normal_user
+        before = self.record_details(user.id)
+        followee_before = self.record_details(self.sysadmin_user.id)
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user.name,
+            }
+        data = {'id': self.sysadmin_user.id}
+        follow_user(context, data)
+        after = self.record_details(user.id)
+        followee_after = self.record_details(self.sysadmin_user.id)
+
+        # Find the new activity in the user's activity stream.
+        user_new_activities = (find_new_activities(
+            before['user activity stream'], after['user activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" %
+            len(user_new_activities))
+        activity = user_new_activities[0]
+
+        # Check that the new activity appears in the user's private activity
+        # stream.
+        user_new_activities = (find_new_activities(
+            before['follower dashboard activity stream'],
+            after['follower dashboard activity stream']))
+        assert len(user_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" %
+            len(user_new_activities))
+        assert user_new_activities[0] == activity
+
+        # Check that the new activity appears in the followee's private
+        # activity stream.
+        followee_new_activities = (find_new_activities(
+            followee_before['follower dashboard activity stream'],
+            followee_after['follower dashboard activity stream']))
+        assert len(followee_new_activities) == 1, ("There should be 1 new "
+            " activity in the user's activity stream, but found %i" %
+            len(followee_new_activities))
+        assert followee_new_activities[0] == activity
+
+        # Check that the new activity has the right attributes.
+        assert activity['object_id'] == self.sysadmin_user.id, \
+            str(activity['object_id'])
+        assert activity['user_id'] == user.id, str(activity['user_id'])
+        assert activity['activity_type'] == 'follow user', \
+            str(activity['activity_type'])
+        if not activity.has_key('id'):
+            assert False, "activity object should have an id value"
+        # TODO: Test for the _correct_ revision_id value.
+        if not activity.has_key('revision_id'):
+            assert False, "activity object should have a revision_id value"
+        timestamp = datetime_from_string(activity['timestamp'])
+        assert timestamp >= before['time'] and timestamp <= \
+            after['time'], str(activity['timestamp'])
+
+        assert len(self.activity_details(activity)) == 0

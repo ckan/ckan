@@ -66,18 +66,40 @@ Please see the ElasticSearch_ documentation.
 2. Configure Nginx
 ------------------
 
-You must add to your Nginx CKAN site entry the following::
+As previously mentioned, Nginx will be used on top of CKAN to forward
+requests to Elastic Search. CKAN will still be served by Apache or the
+development server (Paster), but all requests will be forwarded to it
+by Ngnix.
 
-    location /elastic/ {
-        internal;
-        # location of elastic search
-        proxy_pass http://0.0.0.0:9200/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+This is an example of an Nginx configuration file. Note the two locations
+defined, `/` will point to the server running CKAN (Apache or Paster), and
+`/elastic/` to the Elastic Search instance::
+
+    server {
+            listen   80 default;
+            server_name  localhost;
+
+            access_log  /var/log/nginx/localhost.access.log;
+
+            location / {
+                    # location of apache or ckan under paster
+                    proxy_pass   http://127.0.0.1:8080;
+                    proxy_set_header Host $host;
+            }
+            location /elastic/ {
+                    internal;
+                    # location of elastic search
+                    proxy_pass http://:127.0.0.1:9200/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
     }
 
 .. note:: update the proxy_pass field value to point to your ElasticSearch
           instance (if it is not localhost and default port).
+
+Remember that after setting up Nginx, you need to access CKAN via its port
+(80), not the Apache or Paster (5000) one, otherwise the DataStore won't work.
 
 3. Enable datastore features in CKAN
 ------------------------------------

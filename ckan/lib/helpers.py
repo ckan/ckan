@@ -377,34 +377,6 @@ def unselected_facet_items(facet, limit=10):
             facets.append(facet_item)
     return sorted(facets, key=lambda item: item['count'], reverse=True)[:limit]
 
-@deprecated()
-def facet_items(*args, **kwargs):
-    """
-    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
-    """
-    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
-    # facet_items() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % c.__template_name)
-    return _facet_items(*args, **kwargs)
-
-
-def _facet_items(name, limit=10):
-    if not c.facets or not c.facets.get(name):
-        return []
-    facets = []
-    for k, v in c.facets.get(name).items():
-        if not len(k.strip()):
-            continue
-        if not (name, k) in request.params.items():
-            facets.append((k, v))
-    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
-
 def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
@@ -506,7 +478,7 @@ def format_icon(_format):
 
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
-        '<a href="https://gravatar.com/" target="_blank"' +
+        '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash,size,default)
         )
@@ -819,6 +791,85 @@ def convert_to_dict(object_type, objs):
         items.append(item)
     return items
 
+# these are the types of objects that can be followed
+_follow_objects = ['dataset', 'user']
+
+def follow_button(obj_type, obj_id):
+    '''Return a follow button for the given object type and id.
+
+    If the user is not logged in return an empty string instead.
+
+    :param obj_type: the type of the object to be followed when the follow
+        button is clicked, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object to be followed when the follow button
+        is clicked
+    :type obj_id: string
+
+    :returns: a follow button as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    # If the user is logged in show the follow/unfollow button
+    if c.user:
+        context = {'model' : model, 'session':model.Session, 'user':c.user}
+        action = 'am_following_%s' % obj_type
+        following = logic.get_action(action)(context, {'id': obj_id})
+        return snippet('snippets/follow_button.html',
+                       following=following,
+                       obj_id=obj_id,
+                       obj_type=obj_type)
+    return ''
+
+def follow_count(obj_type, obj_id):
+    '''Return the number of followers of an object.
+
+    :param obj_type: the type of the object, e.g. 'user' or 'dataset'
+    :type obj_type: string
+    :param obj_id: the id of the object
+    :type obj_id: string
+
+    :returns: the number of followers of the object
+    :rtype: int
+
+    '''
+    import ckan.logic as logic
+    obj_type = obj_type.lower()
+    assert obj_type in _follow_objects
+    action = '%s_follower_count' % obj_type
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action(action)(context, {'id': obj_id})
+
+def dashboard_activity_stream(user_id):
+    '''Return the dashboard activity stream of the given user.
+
+    :param user_id: the id of the user
+    :type user_id: string
+
+    :returns: an activity stream as an HTML snippet
+    :rtype: string
+
+    '''
+    import ckan.logic as logic
+    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+
+def get_request_param(parameter_name, default=None):
+    ''' This function allows templates to access query string parameters
+    from the request. This is useful for things like sort order in
+    searches. '''
+    return request.params.get(parameter_name, default)
+
+def render_markdown(data):
+    ''' returns the data as rendered markdown '''
+    # cope with data == None
+    if not data:
+        return ''
+    return literal(ckan.misc.MarkdownFormat().to_html(data))
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -838,7 +889,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_items',
            'facet_title',
          #  am_authorized, # deprecated
            'check_access',
@@ -873,7 +923,12 @@ __allowed_functions__ = [
            'activity_div',
            'lang_native_name',
            'unselected_facet_items',
-    # imported into ckan.lib.helpers
+           'follow_button',
+           'follow_count',
+           'dashboard_activity_stream',
+           'get_request_param',
+           'render_markdown',
+           # imported into ckan.lib.helpers
            'literal',
            'link_to',
            'get_available_locales',

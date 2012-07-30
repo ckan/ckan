@@ -12,27 +12,48 @@ from ckan.logic.auth.create import vocabulary_create, tag_create
 def package_create(context, data_dict=None):
     model = context['model']
     user = context['user']
-    userobj = model.User.get( user )
+    userobj = model.User.get(user)
 
-    if userobj:
+    if userobj and len(userobj.get_groups()):
         return {'success': True}
 
-    return {'success': False, 'msg': 'You must be logged in to create a package'}
+    return {'success': False,
+            'msg': _('You must be logged in and be within a group to create '
+                     'a package')}
 
 
 def related_create(context, data_dict=None):
     model = context['model']
     user = context['user']
-    userobj = model.User.get( user )
+    userobj = model.User.get(user)
 
-    if userobj:
-        return {'success': True}
+    if not userobj:
+        return {'success': False, 'msg': _('You must be logged in to add a related item')}
 
-    return {'success': False, 'msg': _('You must be logged in to add a related item')}
+    if 'dataset_id' in data_dict:
+        # If this is to be associated with a dataset then we need to make sure that
+        # the user doing so is a member of that group
+        dataset = model.Package.get(data_dict['dataset_id'])
+        if dataset and not _groups_intersect( userobj.get_groups(),
+                                              dataset.get_groups() ):
+            return {'success': False,
+                    'msg': _('You do not have permission to create an item')}
+
+    return {'success': True }
+
 
 
 def resource_create(context, data_dict):
-    return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
+    # resource_create runs through package_update, no need to
+    # check users eligibility to add resource to package here
+    model = context['model']
+    user = context['user']
+    userobj = model.User.get(user)
+
+    if userobj:
+        return {'success': True}
+    return {'success': False,
+            'msg': _('You must be logged in to create a resource')}
 
 def package_relationship_create(context, data_dict):
     """
@@ -70,7 +91,7 @@ def group_create(context, data_dict=None):
     model = context['model']
     user  = context['user']
 
-    if not user:
+    if not model.User.get(user):
         return {'success': False, 'msg': _('User is not authorized to create groups') }
 
     if Authorizer.is_sysadmin(user):

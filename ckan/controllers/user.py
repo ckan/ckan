@@ -5,6 +5,7 @@ import genshi
 from urllib import quote
 
 import ckan.misc
+import ckan.lib.i18n
 from ckan.lib.base import *
 from ckan.lib import mailer
 from ckan.authz import Authorizer
@@ -17,15 +18,16 @@ from ckan.lib.captcha import check_recaptcha, CaptchaError
 
 log = logging.getLogger(__name__)
 
+
 class UserController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
         try:
-            context = {'model':model,'user': c.user or c.author}
-            check_access('site_read',context)
+            context = {'model': model, 'user': c.user or c.author}
+            check_access('site_read', context)
         except NotAuthorized:
-            if c.action not in ('login','request_reset','perform_reset',):
+            if c.action not in ('login', 'request_reset', 'perform_reset',):
                 abort(401, _('Not authorized to see this page'))
 
     ## hooks for subclasses
@@ -46,22 +48,6 @@ class UserController(BaseController):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
-    def _setup_follow_button(self, context):
-        '''Setup some template context variables needed for the Follow/Unfollow
-        button.
-
-        '''
-
-        # If the user is logged in set the am_following variable.
-        userid = context.get('user')
-        if not userid:
-            return
-        userobj = model.User.get(userid)
-        if not userobj:
-            return
-        c.user_dict['am_following'] = get_action('am_following_user')(context,
-                {'id': c.user_dict['id']})
-
     def _setup_template_variables(self, context, data_dict):
         c.is_sysadmin = Authorizer().is_sysadmin(c.user)
         try:
@@ -72,36 +58,34 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.num_followers = get_action('user_follower_count')(context,
-                {'id':c.user_dict['id']})
-        self._setup_follow_button(context)
 
     ## end hooks
 
     def _get_repoze_handler(self, handler_name):
         '''Returns the URL that repoze.who will respond to and perform a
         login or logout.'''
-        return getattr(request.environ['repoze.who.plugins']['friendlyform'], handler_name)
-        
+        return getattr(request.environ['repoze.who.plugins']['friendlyform'],
+                       handler_name)
+
     def index(self):
         LIMIT = 20
 
         page = int(request.params.get('page', 1))
-        c.q  = request.params.get('q', '')
+        c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
         context = {'model': model,
                    'user': c.user or c.author,
                    'return_query': True}
 
-        data_dict = {'q':c.q,
-                     'order_by':c.order_by}
+        data_dict = {'q': c.q,
+                     'order_by': c.order_by}
         try:
-            check_access('user_list',context, data_dict)
+            check_access('user_list', context, data_dict)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        users_list = get_action('user_list')(context,data_dict)
+        users_list = get_action('user_list')(context, data_dict)
 
         c.page = h.Page(
             collection=users_list,
@@ -114,26 +98,34 @@ class UserController(BaseController):
 
     def read(self, id=None):
         context = {'model': model, 'session': model.Session,
-                'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id':id,
-                     'user_obj':c.userobj}
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id,
+                     'user_obj': c.userobj}
         try:
-            check_access('user_show',context, data_dict)
+            check_access('user_show', context, data_dict)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
+        context['with_related'] = True
+        try:
+            user_dict = get_action('user_show')(context,data_dict)
+        except NotFound:
+            h.redirect_to(controller='user', action='login', id=None)
 
         self._setup_template_variables(context, data_dict)
 
         c.about_formatted = self._format_about(c.user_dict['about'])
         c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id':c.user_dict['id']})
+            context, {'id': c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):
         if not c.user:
-            h.redirect_to(locale=locale, controller='user', action='login', id=None)
+            h.redirect_to(locale=locale, controller='user',
+                          action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='read', id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='dashboard',
+                      id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -148,7 +140,7 @@ class UserController(BaseController):
                    'save': 'save' in request.params}
 
         try:
-            check_access('user_create',context)
+            check_access('user_create', context)
         except NotAuthorized:
             abort(401, _('Unauthorized to create a user'))
 
@@ -190,7 +182,8 @@ class UserController(BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
         if not c.user:
-            # Redirect to a URL picked up by repoze.who which performs the login
+            # Redirect to a URL picked up by repoze.who which performs the
+            # login
             login_url = self._get_repoze_handler('login_handler_path')
             h.redirect_to('%s?login=%s&password=%s' % (
                 login_url,
@@ -199,7 +192,9 @@ class UserController(BaseController):
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
-            h.flash_success(_('User "%s" is now registered but you are still logged in as "%s" from before') % (data_dict['name'], c.user))
+            h.flash_success(_('User "%s" is now registered but you are still '
+                            'logged in as "%s" from before') %
+                            (data_dict['name'], c.user))
             return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
@@ -237,14 +232,18 @@ class UserController(BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user)) or c.user == user_obj.name):
-            abort(401, _('User %s not authorized to edit %s') % (str(c.user), id))
+        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user))
+                or c.user == user_obj.name):
+            abort(401, _('User %s not authorized to edit %s') %
+                  (str(c.user), id))
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
         self._setup_template_variables({'model': model,
-            'session': model.Session, 'user': c.user or c.author}, data_dict)
+                                        'session': model.Session,
+                                        'user': c.user or c.author},
+                                       data_dict)
 
         c.is_myself = True
         c.form = render(self.edit_user_form, extra_vars=vars)
@@ -271,12 +270,12 @@ class UserController(BaseController):
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
 
-
     def login(self):
         lang = session.pop('lang', None)
         if lang:
             session.save()
-            return h.redirect_to(locale=str(lang), controller='user', action='login')
+            return h.redirect_to(locale=str(lang), controller='user',
+                                 action='login')
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
@@ -286,7 +285,8 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
-            c.login_handler = h.url_for(self._get_repoze_handler('login_handler_path'))
+            c.login_handler = h.url_for(
+                self._get_repoze_handler('login_handler_path'))
             return render('user/login.html')
         else:
             return render('user/logout_first.html')
@@ -295,20 +295,27 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+
+        # we need to set the language explicitly here or the flash
+        # messages will not be translated.
+        ckan.lib.i18n.set_lang(lang)
+
         if c.user:
             context = {'model': model,
                        'user': c.user}
 
-            data_dict = {'id':c.user}
+            data_dict = {'id': c.user}
 
-            user_dict = get_action('user_show')(context,data_dict)
+            user_dict = get_action('user_show')(context, data_dict)
 
-            h.flash_success(_("%s is now logged in") % user_dict['display_name'])
+            h.flash_success(_("%s is now logged in") %
+                            user_dict['display_name'])
             return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
-                err += _(' (Or if using OpenID, it hasn\'t been associated with a user account.)')
+                err += _(' (Or if using OpenID, it hasn\'t been associated '
+                         'with a user account.)')
             h.flash_error(err)
             h.redirect_to(locale=lang, controller='user', action='login')
 
@@ -341,10 +348,10 @@ class UserController(BaseController):
             context = {'model': model,
                        'user': c.user}
 
-            data_dict = {'id':id}
+            data_dict = {'id': id}
             user_obj = None
             try:
-                user_dict = get_action('user_show')(context,data_dict)
+                user_dict = get_action('user_show')(context, data_dict)
                 user_obj = context['user_obj']
             except NotFound:
                 # Try searching the user
@@ -352,13 +359,14 @@ class UserController(BaseController):
                 data_dict['q'] = id
 
                 if id and len(id) > 2:
-                    user_list = get_action('user_list')(context,data_dict)
+                    user_list = get_action('user_list')(context, data_dict)
                     if len(user_list) == 1:
-                        # This is ugly, but we need the user object for the mailer,
+                        # This is ugly, but we need the user object for the
+                        # mailer,
                         # and user_list does not return them
                         del data_dict['q']
                         data_dict['id'] = user_list[0]['id']
-                        user_dict = get_action('user_show')(context,data_dict)
+                        user_dict = get_action('user_show')(context, data_dict)
                         user_obj = context['user_obj']
                     elif len(user_list) > 1:
                         h.flash_error(_('"%s" matched several users') % (id))
@@ -370,20 +378,22 @@ class UserController(BaseController):
             if user_obj:
                 try:
                     mailer.send_reset_link(user_obj)
-                    h.flash_success(_('Please check your inbox for a reset code.'))
+                    h.flash_success(_('Please check your inbox for '
+                                    'a reset code.'))
                     h.redirect_to('/')
                 except mailer.MailerException, e:
-                    h.flash_error(_('Could not send reset link: %s') % unicode(e))
+                    h.flash_error(_('Could not send reset link: %s') %
+                                  unicode(e))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user}
 
-        data_dict = {'id':id}
+        data_dict = {'id': id}
 
         try:
-            user_dict = get_action('user_show')(context,data_dict)
+            user_dict = get_action('user_show')(context, data_dict)
             user_obj = context['user_obj']
         except NotFound, e:
             abort(404, _('User not found'))
@@ -410,7 +420,7 @@ class UserController(BaseController):
             except DataError:
                 h.flash_error(_(u'Integrity Error'))
             except ValidationError, e:
-                h.flash_error(u'%r'% e.error_dict)
+                h.flash_error(u'%r' % e.error_dict)
             except ValueError, ve:
                 h.flash_error(unicode(ve))
 
@@ -422,7 +432,8 @@ class UserController(BaseController):
         try:
             html = genshi.HTML(about_formatted)
         except genshi.ParseError, e:
-            log.error('Could not print "about" field Field: %r Error: %r', about, e)
+            log.error('Could not print "about" field Field: %r Error: %r',
+                      about, e)
             html = _('Error: Could not parse About text')
         return html
 
@@ -431,16 +442,25 @@ class UserController(BaseController):
         password2 = request.params.getone('password2')
         if (password1 is not None and password1 != ''):
             if not len(password1) >= 4:
-                raise ValueError(_("Your password must be 4 characters or longer."))
+                raise ValueError(_('Your password must be 4 '
+                                 'characters or longer.'))
             elif not password1 == password2:
-                raise ValueError(_("The passwords you entered do not match."))
+                raise ValueError(_('The passwords you entered'
+                                 ' do not match.'))
             return password1
 
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
-                'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id':id, 'user_obj':c.userobj}
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
-        c.followers = get_action('user_follower_list')(context,
-                {'id':c.user_dict['id']})
+        f = get_action('user_follower_list')
+        c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
+
+    def dashboard(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        return render('user/dashboard.html')

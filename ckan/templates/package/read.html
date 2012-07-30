@@ -45,7 +45,7 @@
       ${tag_list(c.pkg_dict.get('tags', ''))}
     </li>
 
-    <li py:if="c.pkg_dict.groups" class="sidebar-section">
+    <li py:if="'groups' in c.pkg_dict" class="sidebar-section">
       <h3>Groups</h3>
       <ul class="groups">
         <li py:for="group in sorted(c.pkg_dict.groups, key=lambda g: g['title'] or g['name'])">

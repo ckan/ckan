@@ -159,7 +159,8 @@ def make_map():
 
     with SubMapper(map, controller='related') as m:
         m.connect('related_list', '/dataset/{id}/related', action='list')
-        m.connect('related_read', '/dataset/{id}/related/{related_id}', action='read')
+        m.connect('related_read', '/apps/{id}', action='read')
+        m.connect('related_dashboard', '/apps', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('/dataset', action='search')
@@ -252,6 +253,7 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('/user/dashboard', action='dashboard')
         m.connect('/user/followers/{id:.*}', action='followers')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')

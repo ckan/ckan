@@ -24,7 +24,7 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = stats synchronous_search
+ckan.plugins = stats
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -112,6 +112,11 @@ ckan.gravatar_default = identicon
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr
 
+## Automatic indexing. Make all changes immediately available via the search
+## after editing or creating a dataset. Default is true. If for some reason
+## you need the indexing to occur asynchronously, set this option to 0.
+# ckan.search.automatic_indexing = 1
+
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
 # ckan.site_id = ckan.net
@@ -141,9 +146,9 @@ ckan.dump_dir = %(here)s/dump
 ckan.backup_dir = %(here)s/backup
 
 # Default authorizations for new domain objects
-#ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
+#ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
 #ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
-#ckan.default_roles.System = {"visitor": ["anon_editor"], "logged_in": ["editor"]}
+#ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
 #ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
 
 ## Ckan public and private recaptcha keys [localhost]

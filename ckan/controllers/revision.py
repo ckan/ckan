@@ -9,22 +9,23 @@ from ckan.lib.base import *
 from ckan.lib.helpers import Page
 import ckan.authz
 
+
 class RevisionController(BaseController):
 
     def __before__(self, action, **env):
         BaseController.__before__(self, action, **env)
 
-        context = {'model':model,'user': c.user or c.author}
+        context = {'model': model, 'user': c.user or c.author}
         if c.user:
             try:
-                check_access('revision_change_state',context)
+                check_access('revision_change_state', context)
                 c.revision_change_state_allowed = True
             except NotAuthorized:
                 c.revision_change_state_allowed = False
         else:
             c.revision_change_state_allowed = False
         try:
-            check_access('site_read',context)
+            check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
@@ -53,16 +54,22 @@ class RevisionController(BaseController):
             since_when = datetime.now() + ourtimedelta
             revision_query = model.repo.history()
             revision_query = revision_query.filter(
-                    model.Revision.timestamp>=since_when).filter(
-                    model.Revision.id!=None)
+                model.Revision.timestamp >= since_when).filter(
+                    model.Revision.id != None)
             revision_query = revision_query.limit(maxresults)
             for revision in revision_query:
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
                 resource_revisions = revision_changes[model.Resource]
-                resource_group_revisions = revision_changes[model.ResourceGroup]
+                resource_group_revisions = \
+                    revision_changes[model.ResourceGroup]
                 package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
+                    if not package:
+                        # package is None sometimes - I don't know why,
+                        # but in the meantime while that is fixed,
+                        # avoid an exception here
+                        continue
                     number = len(package.all_revisions)
                     package_revision = None
                     count = 0
@@ -71,23 +78,29 @@ class RevisionController(BaseController):
                         if pr.revision.id == revision.id:
                             package_revision = pr
                             break
-                    if package_revision and package_revision.state == model.State.DELETED:
+                    if package_revision and package_revision.state == \
+                            model.State.DELETED:
                         transition = 'deleted'
                     elif package_revision and count == number:
                         transition = 'created'
                     else:
                         transition = 'updated'
                         for resource_revision in resource_revisions:
-                            if resource_revision.continuity.resource_group.package_id == package.id:
+                            if resource_revision.continuity.resource_group.\
+                                    package_id == package.id:
                                 transition += ':resources'
                                 break
-                        for resource_group_revision in resource_group_revisions:
-                            if resource_group_revision.package_id == package.id:
+                        for resource_group_revision in \
+                                resource_group_revisions:
+                            if resource_group_revision.package_id == \
+                                    package.id:
                                 transition += ':resource_group'
                                 break
                         for package_extra_revision in package_extra_revisions:
-                            if package_extra_revision.package_id == package.id:
-                                if package_extra_revision.key == 'date_updated':
+                            if package_extra_revision.package_id == \
+                                    package.id:
+                                if package_extra_revision.key == \
+                                        'date_updated':
                                     transition += ':date_updated'
                                     break
                     indication = "%s:%s" % (package.name, transition)
@@ -127,13 +140,16 @@ class RevisionController(BaseController):
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
             abort(404)
-        
-        pkgs = model.Session.query(model.PackageRevision).filter_by(revision=c.revision)
-        c.packages = [ pkg.continuity for pkg in pkgs ]
-        pkgtags = model.Session.query(model.PackageTagRevision).filter_by(revision=c.revision)
-        c.pkgtags = [ pkgtag.continuity for pkgtag in pkgtags ]
-        grps = model.Session.query(model.GroupRevision).filter_by(revision=c.revision)
-        c.groups = [ grp.continuity for grp in grps ]
+
+        pkgs = model.Session.query(model.PackageRevision).\
+            filter_by(revision=c.revision)
+        c.packages = [pkg.continuity for pkg in pkgs]
+        pkgtags = model.Session.query(model.PackageTagRevision).\
+            filter_by(revision=c.revision)
+        c.pkgtags = [pkgtag.continuity for pkgtag in pkgtags]
+        grps = model.Session.query(model.GroupRevision).\
+            filter_by(revision=c.revision)
+        c.groups = [grp.continuity for grp in grps]
         return render('revision/read.html')
 
     def diff(self, id=None):
@@ -143,7 +159,7 @@ class RevisionController(BaseController):
             request.params.getone('oldid'))
         c.revision_to = model.Session.query(model.Revision).get(
             request.params.getone('diff'))
-        
+
         c.diff_entity = request.params.get('diff_entity')
         if c.diff_entity == 'package':
             c.pkg = model.Package.by_name(id)
@@ -153,7 +169,7 @@ class RevisionController(BaseController):
             diff = c.group.diff(c.revision_to, c.revision_from)
         else:
             abort(400)
-        
+
         c.diff = diff.items()
         c.diff.sort()
         return render('revision/diff.html')
@@ -176,6 +192,4 @@ class RevisionController(BaseController):
             model.Session.commit()
             h.flash_success(_('Revision updated'))
             h.redirect_to(
-                h.url_for(controller='revision', action='read', id=id)
-                )
-
+                h.url_for(controller='revision', action='read', id=id))

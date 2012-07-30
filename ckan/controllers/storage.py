@@ -34,6 +34,8 @@ BUCKET = config.get('ckan.storage.bucket', 'default')
 key_prefix = config.get('ckan.storage.key_prefix', 'file/')
 
 _eq_re = re.compile(r"^(.*)(=[0-9]*)$")
+
+
 def fix_stupid_pylons_encoding(data):
     """
     Fix an apparent encoding problem when calling request.body
@@ -45,6 +47,7 @@ def fix_stupid_pylons_encoding(data):
     if m:
         data = m.groups()[0]
     return data
+
 
 def create_pairtree_marker(folder):
     """ Creates the pairtree marker for tests if it doesn't exist """
@@ -59,7 +62,7 @@ def create_pairtree_marker(folder):
     if os.path.exists(target):
         return
 
-    open( target, 'wb').close()
+    open(target, 'wb').close()
 
 
 def get_ofs():
@@ -67,14 +70,14 @@ def get_ofs():
     """
     storage_backend = config['ofs.impl']
     kw = {}
-    for k,v in config.items():
+    for k, v in config.items():
         if not k.startswith('ofs.') or k == 'ofs.impl':
             continue
         kw[k[4:]] = v
 
     # Make sure we have created the marker file to avoid pairtree issues
     if storage_backend == 'pairtree' and 'storage_dir' in kw:
-        create_pairtree_marker( kw['storage_dir'] )
+        create_pairtree_marker(kw['storage_dir'])
 
     ofs = get_impl(storage_backend)(**kw)
     return ofs
@@ -93,11 +96,12 @@ def authorize(method, bucket, key, user, ofs):
             abort(409)
         # now check user stuff
         username = user.name if user else ''
-        is_authorized = authz.Authorizer.is_authorized(username, 'file-upload', model.System())
+        is_authorized = authz.Authorizer.is_authorized(username,
+                                                       'file-upload',
+                                                       model.System())
         if not is_authorized:
             h.flash_error('Not authorized to upload files.')
             abort(401)
-
 
 
 class StorageController(BaseController):
@@ -110,7 +114,6 @@ class StorageController(BaseController):
         if not StorageController._ofs_impl:
             StorageController._ofs_impl = get_ofs()
         return StorageController._ofs_impl
-
 
     def upload(self):
         label = key_prefix + request.params.get('filepath', str(uuid.uuid4()))
@@ -141,19 +144,19 @@ class StorageController(BaseController):
         params['uploaded-by'] = c.userobj.name if c.userobj else ""
 
         self.ofs.put_stream(bucket_id, label, stream.file, params)
-        success_action_redirect = h.url_for('storage_upload_success', qualified=True,
-                bucket=BUCKET, label=label)
+        success_action_redirect = h.url_for('storage_upload_success',
+                                            qualified=True,
+                                            bucket=BUCKET, label=label)
         # Do not redirect here as it breaks js file uploads (get infinite loop
         # in FF and crash in Chrome)
         return self.success(label)
 
     def success(self, label=None):
-        label=request.params.get('label', label)
+        label = request.params.get('label', label)
         h.flash_success('Upload successful')
         c.file_url = h.url_for('storage_file',
-                label=label,
-                qualified=True
-                )
+                               label=label,
+                               qualified=True)
         c.upload_url = h.url_for('storage_upload')
         return render('storage/success.html')
 
@@ -169,7 +172,7 @@ class StorageController(BaseController):
                 label = label[:-1]
                 # This may be best being cached_url until we have moved it into
                 # permanent storage
-                file_url = h.url_for( 'storage_file', label=label )
+                file_url = h.url_for('storage_file', label=label)
                 h.redirect_to(file_url)
             else:
                 abort(404)
@@ -180,12 +183,11 @@ class StorageController(BaseController):
             filepath = file_url[len("file://"):]
             headers = {
                 # 'Content-Disposition':'attachment; filename="%s"' % label,
-                'Content-Type':metadata.get('_format', 'text/plain')}
+                'Content-Type': metadata.get('_format', 'text/plain')}
             fapp = FileApp(filepath, headers=None, **headers)
             return fapp(request.environ, self.start_response)
         else:
             h.redirect_to(file_url)
-
 
 
 class StorageAPIController(BaseController):
@@ -202,20 +204,18 @@ class StorageAPIController(BaseController):
     def index(self):
         info = {
             'metadata/{label}': {
-                'description': 'Get or set metadata for this item in storage',
-                },
+                'description': 'Get or set metadata for this '
+                               'item in storage', },
             'auth/request/{label}': {
-                'description': self.auth_request.__doc__,
-                },
+                'description': self.auth_request.__doc__, },
             'auth/form/{label}': {
-                'description': self.auth_form.__doc__,
-                }
-            }
+                'description': self.auth_form.__doc__, }}
         return info
 
     def set_metadata(self, label):
         bucket = BUCKET
-        if not label.startswith("/"): label = "/" + label
+        if not label.startswith("/"):
+            label = "/" + label
 
         try:
             data = fix_stupid_pylons_encoding(request.body)
@@ -262,12 +262,16 @@ class StorageAPIController(BaseController):
         if storage_backend in ['google', 's3']:
             if not label.startswith("/"):
                 label = "/" + label
-            url = "https://%s/%s%s" % (self.ofs.conn.server_name(), bucket, label)
+            url = "https://%s/%s%s" % (self.ofs.conn.server_name(),
+                                       bucket, label)
         else:
             url = h.url_for('storage_file',
-                    label=label,
-                    qualified=False
-                    )
+                            label=label,
+                            qualified=False
+                            )
+            if url.startswith('/'):
+                url = config.get('ckan.site_url','') + url
+
         if not self.ofs.exists(bucket, label):
             abort(404)
         metadata = self.ofs.get_metadata(bucket, label)
@@ -319,32 +323,30 @@ class StorageAPIController(BaseController):
         authorize(method, bucket, label, c.userobj, self.ofs)
 
         http_request = self.ofs.authenticate_request(method, bucket, label,
-                headers)
+                                                     headers)
         return {
             'host': http_request.host,
             'method': http_request.method,
             'path': http_request.path,
-            'headers': http_request.headers
-            }
+            'headers': http_request.headers}
 
     def _get_remote_form_data(self, label):
         method = 'POST'
-        content_length_range = int(
-                config.get('ckan.storage.max_content_length',
-                    50000000))
+        content_length_range = \
+            int(config.get('ckan.storage.max_content_length', 50000000))
         acl = 'public-read'
-        fields = [ {
-                'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
-                'value': c.userobj.id
-                }]
-        conditions = [ '{"%s": "%s"}' % (x['name'], x['value']) for x in
-                fields ]
+        fields = [{
+            'name': self.ofs.conn.provider.metadata_prefix + 'uploaded-by',
+            'value': c.userobj.id}]
+        conditions = ['{"%s": "%s"}' % (x['name'], x['value']) for x in
+                      fields]
         # In FF redirect to this breaks js upload as FF attempts to open file
         # (presumably because mimetype = javascript) and this stops js
-        # success_action_redirect = h.url_for('storage_api_get_metadata', qualified=True,
-        #        label=label)
-        success_action_redirect = h.url_for('storage_upload_success_empty', qualified=True,
-                label=label)
+        # success_action_redirect = h.url_for('storage_api_get_metadata',
+        # qualified=True, label=label)
+        success_action_redirect = h.url_for('storage_upload_success_empty',
+                                            qualified=True,
+                                            label=label)
         data = self.ofs.conn.build_post_form_args(
             BUCKET,
             label,
@@ -354,11 +356,11 @@ class StorageAPIController(BaseController):
             acl=acl,
             fields=fields,
             conditions=conditions
-            )
+        )
         # HACK: fix up some broken stuff from boto
         # e.g. should not have content-length-range in list of fields!
         storage_backend = config['ofs.impl']
-        for idx,field in enumerate(data['fields']):
+        for idx, field in enumerate(data['fields']):
             if storage_backend == 'google':
                 if field['name'] == 'AWSAccessKeyId':
                     field['name'] = 'GoogleAccessId'
@@ -408,4 +410,3 @@ class StorageAPIController(BaseController):
         authorize(method, bucket, label, c.userobj, self.ofs)
         data = self._get_form_data(label)
         return data
-
