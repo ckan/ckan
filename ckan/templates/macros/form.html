@@ -56,10 +56,14 @@ Example:
 Creates all the markup required for an select element. Handles matching labels to
 inputs and error messages.
 
+A field should be a dict with a "value" key and an optional "text" key which
+will be displayed to the user. We use a dict to easily allow extension in
+future should extra options be required.
+
 name        - The name of the form parameter.
 id          - The id to use on the input and label. Convention is to prefix with 'field-'.
 label       - The human readable label.
-options     - A dict of value/label pairs to be used as <options>.
+options     - A list/tuple of fields to be used as <options>.
 selected    - The value of the selected <option>.
 error       - A list of error strings for the field.
 classes     - An array of classes to apply to the control-group.
@@ -76,8 +80,8 @@ Examples:
 
   {% call block(id or name, label or name, error, classes) %}
     <select id="{{ id or name }}" name="{{ name }}" {{ attributes(attrs) }}>
-      {% for value, text in options.items() %}
-        <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ text }}</option>
+      {% for option in options %}
+        <option value="{{ option.value }}"{% if option.value == selected %} selected{% endif %}>{{ option.text or option.value }}</option>
       {% endfor %}
     </select>
   {% endcall %}
