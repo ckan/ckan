@@ -8,12 +8,11 @@ import ckan.model as model
 
 log = logging.getLogger(__name__)
 
+
 class Globals(object):
 
-    """Globals acts as a container for objects available throughout the
-    life of the application
-
-    """
+    ''' Globals acts as a container for objects available throughout the
+    life of the application. '''
 
     # mappings translate between config settings and globals because our naming
     # conventions are not well defined and/or implemented
@@ -76,20 +75,22 @@ class Globals(object):
             get_config_value(key)
 
         # cusom styling
-        self.set_main_css(get_config_value('ckan.main_css', '/base/css/main.css'))
-
-        self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
+        main_css = get_config_value('ckan.main_css', '/base/css/main.css')
+        self.set_main_css(main_css)
+        # site_url_nice
+        site_url_nice = self.site_url.replace('http://', '')
+        site_url_nice = site_url_nice.replace('www.', '')
+        self.site_url_nice = site_url_nice
 
     def __init__(self):
-        """One instance of Globals is created during application
+        '''One instance of Globals is created during application
         initialization and is available during requests via the
         'app_globals' variable
+        '''
 
-        """
-
-        self.favicon = config.get('ckan.favicon',
-                                  '/images/icons/ckan.ico')
-        self.facets = config.get('search.facets', 'groups tags res_format license').split()
+        self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
+        facets = config.get('search.facets', 'groups tags res_format license')
+        self.facets = facets.split()
 
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
@@ -98,12 +99,13 @@ class Globals(object):
         self.template_footer_end = config.get('ckan.template_footer_end', '')
 
         # hide these extras fields on package read
-        self.package_hide_extras = config.get('package_hide_extras', '').split()
+        package_hide_extras = config.get('package_hide_extras', '').split()
+        self.package_hide_extras = package_hide_extras
 
         self.openid_enabled = asbool(config.get('openid_enabled', 'true'))
 
         self.recaptcha_publickey = config.get('ckan.recaptcha.publickey', '')
         self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
 
-        self.datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
-
+        datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
+        self.datasets_per_page = datasets_per_page
