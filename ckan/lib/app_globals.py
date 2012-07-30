@@ -52,7 +52,7 @@ class Globals(object):
     def reset(self):
         ''' set updatable values from config '''
 
-        def grab(key, default=''):
+        def get_config_value(key, default=''):
             value = model.get_system_info(key)
             if value:
                 # update the config
@@ -73,10 +73,10 @@ class Globals(object):
 
         # update the config settings in auto update
         for key in self.auto_update:
-            grab(key)
+            get_config_value(key)
 
         # cusom styling
-        self.set_main_css(grab('ckan.main_css', '/base/css/main.css'))
+        self.set_main_css(get_config_value('ckan.main_css', '/base/css/main.css'))
 
         self.site_url_nice = self.site_url.replace('http://','').replace('www.','')
 
