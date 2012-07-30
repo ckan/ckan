@@ -975,7 +975,7 @@ def follow_dataset(context, data_dict):
             'activity_type': 'follow dataset',
             }
     activity_dict['data'] = {
-            'package': ckan.lib.dictization.table_dictize(
+            'dataset': ckan.lib.dictization.table_dictize(
                 model.Package.get(data_dict['id']), context),
             }
     activity_create_context = {
