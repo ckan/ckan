@@ -12,7 +12,6 @@ from pylons import config
 from pylons.i18n import _, N_
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
-from jinja2 import Environment
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -296,7 +295,7 @@ def load_environment(global_conf, app_conf):
 
 
     # Create Jinja2 environment
-    env = config['pylons.app_globals'].jinja_env = Environment(
+    env = lib.jinja_extensions.Environment(
         loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths,
                             ckan_base_path=paths['templates'][0]),
         autoescape=True,
