@@ -1831,6 +1831,10 @@ def _activity_list_to_html(context, activity_stream):
       'new resource' : _("{actor} added the resource {resource} to the dataset {dataset}"),
       'new user' : _("{actor} signed up"),
       'removed tag' : _("{actor} removed the tag {tag} from the dataset {dataset}"),
+      'deleted related item' : _("{actor} deleted the related item {related_item}"),
+      'follow dataset': _("{actor} started following {dataset}"),
+      'follow user': _("{actor} started following {user}"),
+      'new related item': _("{actor} created the link to related {related_type} {related_item}"),
     }
 
     def get_snippet(name):
@@ -1848,6 +1852,11 @@ def _activity_list_to_html(context, activity_stream):
         elif name == 'resource':
             return h.resource_link(detail['data']['resource'],
                                    activity['data']['package']['id'])
+        elif name == 'related_item':
+            return h.relate_item_link(activity['data']['related'])
+        elif name == 'related_type':
+            # FIXME this needs to be translated
+            return activity['data']['related']['type']
         else:
             raise Exception('Unknown key')
 
