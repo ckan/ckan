@@ -8,14 +8,15 @@ The front end stylesheets are written using
 Instructions for installing node can be found on the `project
 website <http://nodejs.org/>`_.
 
-On ubuntu node can be installed via:
+On ubuntu node can be installed using the following commands:
 
 ::
 
-    $ apt-get install nodejs
+    $ sudo apt-get install nodejs
+    $ sudo apt-get install npm    # node package manager
 
 LESS can then be installed via the node package manager which is bundled
-with node. ``cd`` into the ``pyenv/src/ckan`` and run:
+with node (or installed with apt). ``cd`` into the ``pyenv/src/ckan`` and run:
 
 ::
 
