@@ -30,10 +30,12 @@
           {% block toolbar %}
             <div class="toolbar">
               {% block breadcrumb %}
-                <ol class="breadcrumb">
-                  {% snippet 'snippets/home_breadcrumb_item.html' %}
-                  {% block breadcrumb_content %}{% endblock %}
-                </ol>
+                {% if self.breadcrumb_content() %}
+                  <ol class="breadcrumb">
+                    {% snippet 'snippets/home_breadcrumb_item.html' %}
+                    {% block breadcrumb_content %}{% endblock %}
+                  </ol>
+                {% endif %}
               {% endblock %}
               {% block actions %}
                 <ul class="actions pull-right">
