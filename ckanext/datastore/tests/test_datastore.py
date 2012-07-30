@@ -342,7 +342,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
-                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']}]
+                        {'book': 'warandpeace', 'author': 'tolstoy'}]
         }
 
     @classmethod
@@ -356,11 +356,10 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+        return res_dict
 
-    def test_delete_basic(self):
-        self._create()
-        id = self.data['resource_id']
-        data = {'resource_id': id}
+    def _delete(self):
+        data = {'resource_id': self.data['resource_id']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_delete', params=postparams,
@@ -368,16 +367,21 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         assert res_dict['result'] == data
+        return res_dict
 
+    def test_delete_basic(self):
+        self._create()
+        self._delete()
+        resource_id = self.data['resource_id']
         c = model.Session.connection()
 
         try:
             # check that data was actually deleted: this should raise a
             # ProgrammingError as the table should not exist any more
-            c.execute('select * from "{0}";'.format(id))
+            c.execute('select * from "{0}";'.format(resource_id))
             raise Exception("Data not deleted")
         except sqlalchemy.exc.ProgrammingError as e:
-            expected_msg = 'relation "{}" does not exist'.format(id)
+            expected_msg = 'relation "{}" does not exist'.format(resource_id)
             assert expected_msg in str(e)
 
         model.Session.remove()
@@ -389,3 +393,59 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                             extra_environ=auth, status=404)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
+
+    def test_delete_filters(self):
+        self._create()
+        resource_id = self.data['resource_id']
+
+        # try and delete just the 'warandpeace' row
+        data = {'resource_id': resource_id,
+                'filters': {'book': 'warandpeace'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        result = c.execute('select * from "{0}";'.format(resource_id))
+        results = [r for r in result]
+        assert len(results) == 1
+        assert results[0].book == 'annakarenina'
+        model.Session.remove()
+
+        # shouldn't delete anything
+        data = {'resource_id': resource_id,
+                'filters': {'book': 'annakarenina', 'author': 'bad'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        result = c.execute('select * from "{0}";'.format(resource_id))
+        results = [r for r in result]
+        assert len(results) == 1
+        assert results[0].book == 'annakarenina'
+        model.Session.remove()
+
+        # delete the 'annakarenina' row
+        data = {'resource_id': resource_id,
+                'filters': {'book': 'annakarenina', 'author': 'tolstoy'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        result = c.execute('select * from "{0}";'.format(resource_id))
+        results = [r for r in result]
+        assert len(results) == 0
+        model.Session.remove()
+
+        self._delete()

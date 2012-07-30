@@ -274,11 +274,11 @@ def insert_data(context, data_dict):
 
 
 def delete_data(context, data_dict):
-    filter = data_dict.get('filter')
+    filters = data_dict.get('filters')
 
-    if not isinstance(filter, dict):
+    if not isinstance(filters, dict):
         raise p.toolkit.ValidationError({
-            'filter': 'Not a json object'}
+            'filters': 'Not a json object'}
         )
 
     fields = _get_fields(context, data_dict)
@@ -286,10 +286,10 @@ def delete_data(context, data_dict):
 
     where_clauses = []
     values = []
-    for field, value in filter.iteritems():
+    for field, value in filters.iteritems():
         if field not in field_ids:
             raise p.toolkit.ValidationError({
-                'filter': 'field "{}" not in table'}
+                'filters': 'field "{}" not in table'}
             )
         where_clauses.append('"{}" = %s'.format(field))
         values.append(value)
@@ -367,7 +367,7 @@ def delete(context, data_dict):
                 'resource_id': 'table for resource {0} does not exist'.format(
                     data_dict['resource_id'])
             })
-        if not 'filter' in data_dict:
+        if not 'filters' in data_dict:
             context['connection'].execute(
                 'drop table "{}"'.format(data_dict['resource_id'])
             )
