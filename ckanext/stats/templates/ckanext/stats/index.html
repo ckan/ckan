@@ -1,0 +1,113 @@
+{% extends "page.html" %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-title">{{ _('Statistics') }}</h1>
+
+      <section>
+        <h3>{{ _('Total number of Datasets') }}</h3>
+        <div id="new-datasets-graph" class="graph"></div>
+      </section>
+
+      <section>
+        <h3>{{ _('Revisions to Datasets per week') }}</h3>
+        <div id="dataset-revisions-graph" class="graph"></div>
+      </section>
+
+      <section>
+        <h3>{{ _('Top Rated Datasets') }}</h3>
+        {% if c.top_rated_packages %}
+          <table class="table table-bordered table-striped">
+            <tr>
+              <th>Dataset</th>
+              <th class="average">{{ _('Average rating') }}</th>
+              <th class="metric">{{ _('Number of ratings') }}</th>
+            </tr>
+            {% for package, rating, num_ratings in c.top_rated_packages %}
+              <tr>
+                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+                <td class="average">{{ rating }}</td>
+                <td class="metric">{{ num_ratings }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p class="empty">{{ _('No ratings') }}</p>
+        {% endif %}
+      </section>
+
+      <section>
+        <h3>{{ _('Most Edited Datasets') }}</h3>
+        {% if c.most_edited_packages %}
+          <table class="table table-bordered table-striped">
+            <tr>
+              <th>{{ _('Dataset') }}</th>
+              <th class="metric">{{ _('Number of edits') }}</th>
+            </tr>
+            {% for package, edits in c.most_edited_packages %}
+              <tr py:for="package, edits in c.most_edited_packages">
+                <td>{{ h.link_to(package.title or package.name, h.url_for(controller='package', action='read', id=package.name)) }}</td>
+                <td class="metric">{{ edits }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p class="empty">{{ _('No edited datasets') }}</p>
+        {% endif %}
+      </section>
+
+      <section>
+        <h3>{{ _('Largest Groups') }}</h3>
+        {% if c.largest_groups %}
+          <table class="table table-bordered table-striped">
+            <tr>
+              <th>{{ _('Group') }}</th>
+              <th class="metric">{{ _('Number of datasets') }}</th>
+            </tr>
+            {% for group, num_packages in c.largest_groups %}
+              <tr>
+                <td>{{ h.link_to(group.title or group.name, h.url_for(controller='group', action='read', id=group.name)) }}</td>
+                <td class="metric">{{ num_packages }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p class="empty">{{ _('No groups') }}</p>
+        {% endif %}
+      </section>
+
+      <section>
+        <h3>{{ _('Top Tags') }}</h3>
+        <table class="table table-bordered table-striped">
+          {% for tag, num_packages in c.top_tags %}
+            <tr py:for="tag, num_packages in c.top_tags">
+              <td>${h.link_to(tag.name, h.url_for(controller='tag', action='read', id=tag.name))}</td><td class="metric">${num_packages}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </section>
+
+      <section>
+        <h3>{{ _('Users owning most datasets') }}</h3>
+        <table class="table table-bordered table-striped">
+          <tr py:for="user, num_packages in c.top_package_owners">
+            <td>${h.linked_user(user)}</td><td class="metric">${num_packages}</td>
+          </tr>
+        </table>
+      </section>
+    </div>
+  </article>
+
+  <div class="module module-shallow">
+    <p class="module-content">{{ _('Page last updated: {ago}').format(ago='now') }}</p>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module">
+    <h2 class="module-heading">{{ _('Statistics Menu') }}</h2>
+    <div class="module-content">
+    </div>
+  </section>
+{% endblock %}
