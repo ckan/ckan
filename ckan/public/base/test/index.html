@@ -68,6 +68,21 @@
     <script src="./spec/plugins/jquery.form-warning.spec.js"></script>
 
     <script>
+      function loadFixture(filename, context) {
+        var URL = 'http://localhost:5000/api/1/util/snippet/' + encodeURIComponent(filename);
+
+        return jQuery.get(URL, context).error(function () {
+          throw new Error('Unable to load fixture: ' + filename);
+        }).pipe(function (template) {
+            jQuery('#fixture').html(template);
+            return template;
+        });
+      }
+
+      before(function () {
+        this.loadFixture = loadFixture;
+      });
+
       beforeEach(function () {
         this.fixture = jQuery('#fixture').empty();
       });
