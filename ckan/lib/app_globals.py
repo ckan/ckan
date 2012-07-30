@@ -30,7 +30,7 @@ def set_main_css(css_file):
     ''' Sets the main_css using debug css if needed.  The css_file
     must be of the form file.css '''
     assert css_file.endswith('.css')
-    if config.debug and css_file == 'base/css/main.css':
+    if config.debug and css_file == '/base/css/main.css':
         new_css = 'base/css/main.debug.css'
     else:
         new_css = css_file
