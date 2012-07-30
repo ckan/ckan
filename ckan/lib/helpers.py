@@ -921,6 +921,7 @@ __allowed_functions__ = [
            'dataset_link',
            'resource_display_name',
            'resource_link',
+           'related_item_link',
            'tag_link',
            'group_link',
            'dump_json',

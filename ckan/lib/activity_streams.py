@@ -49,6 +49,7 @@ def get_snippet_related_type(activity, detail):
 
 activity_snippet_functions = {
     'actor': get_snippet_actor,
+    'user': get_snippet_actor,
     'dataset': get_snippet_dataset,
     'tag': get_snippet_tag,
     'group': get_snippet_group,
