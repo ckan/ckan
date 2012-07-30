@@ -20,6 +20,7 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
+import ckan.lib.activity_streams as activity_streams
 import lib.helpers as h
 
 log = logging.getLogger('ckan.logic')
@@ -1837,32 +1838,9 @@ def _activity_list_to_html(context, activity_stream):
       'new related item': _("{actor} created the link to related {related_type} {related_item}"),
     }
 
-    def get_snippet(name):
-        ''' get the snippet for the required data '''
-        if name == 'actor':
-            return h.linked_user(activity['user_id'])
-        elif name == 'dataset':
-            data = activity['data']
-            return h.dataset_link(data.get('package') or data.get('dataset'))
-        elif name == 'tag':
-            return h.tag_link(detail['data']['tag'])
-        elif name == 'group':
-            return h.group_link(activity['data']['group'])
-        elif name == 'extra':
-            return '"%s"' % detail['data']['package_extra']['key']
-        elif name == 'resource':
-            return h.resource_link(detail['data']['resource'],
-                                   activity['data']['package']['id'])
-        elif name == 'related_item':
-            return h.relate_item_link(activity['data']['related'])
-        elif name == 'related_type':
-            # FIXME this needs to be translated
-            return activity['data']['related']['type']
-        else:
-            raise Exception('Unknown key')
-
     activity_list = []
     for activity in activity_stream:
+        detail = None
         activity_type = activity['activity_type']
         # if package changed then we may have extra details
         if activity_type == 'changed package':
@@ -1886,7 +1864,7 @@ def _activity_list_to_html(context, activity_stream):
         matches = re.findall('\{([^}]*)\}', activity_msg)
         data = {}
         for match in matches:
-            data[str(match)] = get_snippet(match)
+            data[str(match)] = activity_streams.get_snippet(match, activity, detail)
         activity_list.append(dict(msg=activity_msg, data=data, timestamp=activity['timestamp']))
     return webhelpers.html.literal(_render('activity_streams/general.html',
         extra_vars = {'activities': activity_list}))
