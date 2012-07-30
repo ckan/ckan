@@ -1842,7 +1842,8 @@ def _activity_list_to_html(context, activity_stream):
         if name == 'actor':
             return h.linked_user(activity['user_id'])
         elif name == 'dataset':
-            return h.dataset_link(activity['data']['package'])
+            data = activity['data']
+            return h.dataset_link(data.get('package') or data.get('dataset'))
         elif name == 'tag':
             return h.tag_link(detail['data']['tag'])
         elif name == 'group':
