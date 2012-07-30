@@ -104,10 +104,11 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
         try:
             template_path, template_type = lib.render.template_info(template_name)
-            log.info('rendering %s [%s]' % (template_path, template_type))
         except lib.render.TemplateNotFound:
             template_type  = 'genshi'
             template_path = ''
+
+        log.debug('rendering %s [%s]' % (template_path, template_type))
 
         debug_info = {'template_name' : template_name,
                       'template_path' : template_path,
