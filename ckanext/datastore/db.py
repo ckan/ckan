@@ -294,6 +294,8 @@ def _where_from_filters(field_ids, data_dict):
         values.append(value)
 
     where_clause = ' and '.join(where_clauses)
+    if where_clause:
+        where_clause = 'where ' + where_clause
     return where_clause, values
 
 
@@ -303,7 +305,7 @@ def delete_data(context, data_dict):
     where_clause, where_values = _where_from_filters(field_ids, data_dict)
 
     context['connection'].execute(
-        'delete from "{}" where {}'.format(
+        'delete from "{}" {}'.format(
             data_dict['resource_id'],
             where_clause
         ),
@@ -331,19 +333,22 @@ def search_data(context, data_dict):
         field_ids = all_field_ids
 
     select_columns = ', '.join(field_ids)
-
     where_clause, where_values = _where_from_filters(all_field_ids, data_dict)
+    limit = data_dict.get('limit', 100)
+    offset = data_dict.get('offset', 0)
 
-    sql_string = 'select {} from "{}"'.format(
-        select_columns, data_dict['resource_id']
-    )
-
-    if where_clause:
-        sql_string += ' where {}'.format(where_clause)
-
+    sql_string = '''select {}, count(*) over() as full_count
+                    from "{}" {} limit {} offset {}'''\
+        .format(select_columns, data_dict['resource_id'], where_clause,
+                limit, offset)
     results = context['connection'].execute(sql_string, where_values)
+    results = [r for r in results]
 
-    data_dict['total'] = results.rowcount
+    if results:
+        data_dict['total'] = results[0]['full_count']
+    else:
+        data_dict['total'] = 0
+
     records = [(dict((f, r[f]) for f in field_ids)) for r in results]
     data_dict['records'] = records
 
