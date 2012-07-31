@@ -62,7 +62,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         from ckan import model
         super(Package, self).__init__(**kw)
         resource_group = model.ResourceGroup(label="default")
-        self.resource_groups.append(resource_group)
+        self.resource_groups_all.append(resource_group)
 
     @classmethod
     def search_by_name(cls, text_query):
@@ -85,82 +85,23 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return []
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return self.resource_groups_all[0].resources
-
-    def update_resources(self, res_dicts, autoflush=True):
-        '''Change this package\'s resources.
-        @param res_dicts - ordered list of dicts, each detailing a resource
-        The resource dictionaries contain 'url', 'format' etc. Optionally they
-        can also provide the 'id' of the Resource, to help matching
-        res_dicts to existing Resources. Otherwise, it searches
-        for an otherwise exactly matching Resource.
-        The caller is responsible for creating a revision and committing.'''
-        from ckan import model
-        assert isinstance(res_dicts, (list, tuple))
-        # Map the incoming res_dicts (by index) to existing resources
-        index_to_res = {}
-        # Match up the res_dicts by id
-        def get_resource_identity(resource_obj_or_dict):
-            if isinstance(resource_obj_or_dict, dict):
-                # Convert dict into a Resource object, since that ensures
-                # all columns exist when you redictize it. This object is
-                # garbage collected as it isn't added to the Session.
-                res_keys = set(resource_obj_or_dict.keys()) - \
-                           set(('id', 'position'))
-                res_dict = dict([(res_key, resource_obj_or_dict[res_key]) \
-                                 for res_key in res_keys])
-                resource = model.Resource(**res_dict)
-            else:
-                resource = resource_obj_or_dict
-            res_dict = resource.as_dict(core_columns_only=True)
-            del res_dict['created']
-            return res_dict
-        existing_res_identites = [get_resource_identity(res) \
-                                  for res in self.resources]
-        for i, res_dict in enumerate(res_dicts):
-            assert isinstance(res_dict, dict)
-            id = res_dict.get('id')
-            if id:
-                res = meta.Session.query(model.Resource).autoflush(autoflush).get(id)
-                if res:
-                    index_to_res[i] = res
-            else:
-                res_identity = get_resource_identity(res_dict)
-                try:
-                    matching_res_index = existing_res_identites.index(res_identity)
-                except ValueError:
-                    continue
-                index_to_res[i] = self.resources[matching_res_index]
-
-        # Edit resources and create the new ones
-        new_res_list = []
-
-        for i, res_dict in enumerate(res_dicts):
-            if i in index_to_res:
-                res = index_to_res[i]
-                for col in set(res_dict.keys()) - set(('id', 'position')):
-                    setattr(res, col, res_dict[col])
-            else:
-                # ignore particular keys that disrupt creation of new resource
-                for key in set(res_dict.keys()) & set(('id', 'position')):
-                    del res_dict[key]
-                res = model.Resource(**res_dict)
-                meta.Session.add(res)
-            new_res_list.append(res)
-        self.resource_groups[0].resources = new_res_list
+        return [resource for resource in 
+                self.resource_groups_all[0].resources_all
+                if resource.state <> 'deleted']
 
     def related_packages(self):
         return [self]
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
-        self.resources.append(resource.Resource(
-            resource_group_id=self.resource_groups[0].id,
+        self.resource_groups_all[0].resources_all.append(resource.Resource(
+            resource_group_id=self.resource_groups_all[0].id,
             url=url,
             format=format,
             description=description,
             hash=hash,
-            **kw))
+            **kw)
+        )
 
     def add_tag(self, tag):
         import ckan.model as model

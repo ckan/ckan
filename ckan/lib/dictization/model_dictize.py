@@ -399,6 +399,15 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
+    model = context['model']
+    session = model.Session
+
+    if context.get('with_related'):
+        related_items = session.query(model.Related).\
+                        filter(model.Related.owner_id==user.id).all()
+        result_dict['related_items'] = related_list_dictize(related_items,
+                                                            context)
+
     return result_dict
 
 def task_status_dictize(task_status, context):

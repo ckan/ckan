@@ -3,6 +3,7 @@ doc/authorization.rst.
 
 '''
 import simplejson as json
+import weakref
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from pylons import config
@@ -413,7 +414,7 @@ default_default_user_roles = {
     }
 
 global _default_user_roles_cache
-_default_user_roles_cache = {}
+_default_user_roles_cache = weakref.WeakKeyDictionary()
 
 def get_default_user_roles(_domain_object):
     # TODO: Should this func go in lib rather than model now?

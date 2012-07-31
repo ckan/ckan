@@ -318,7 +318,7 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
 
         # Add the package's activity stream (already rendered to HTML) to the
         # template context for the package/read.html template to retrieve
@@ -433,7 +433,7 @@ class PackageController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
 
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
         return render(self._history_template(c.pkg_dict.get('type',
                                                             package_type)))
 
@@ -747,7 +747,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
 
         # we have already completed stage 1
         vars['stage'] = ['active']
@@ -1162,7 +1162,7 @@ class PackageController(BaseController):
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                                     qualified=True)
 
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
 
     def resource_download(self, id, resource_id):
@@ -1199,7 +1199,7 @@ class PackageController(BaseController):
             c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
 
-            c.related_count = len(c.pkg.related)
+            c.related_count = c.pkg.related_count
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:

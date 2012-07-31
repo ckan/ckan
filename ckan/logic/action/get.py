@@ -202,14 +202,34 @@ def related_list(context, data_dict=None):
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    if not dataset:
-        raise NotFound
-
     _check_access('related_show',context, data_dict)
 
-    relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = []
+    if not dataset:
+        related_list = model.Session.query(model.Related)
+
+        filter_on_type = data_dict.get('type_filter', None)
+        if filter_on_type:
+            related_list = related_list.filter(model.Related.type == filter_on_type)
+
+        sort = data_dict.get('sort', None)
+        if sort:
+            sortables = {
+                'view_count_asc' : model.Related.view_count.asc,
+                'view_count_desc': model.Related.view_count.desc,
+                'created_asc' : model.Related.created.asc,
+                'created_desc': model.Related.created.desc,
+            }
+            s = sortables.get(sort, None)
+            if s:
+                related_list = related_list.order_by( s() )
+
+        if data_dict.get('featured', False):
+            related_list = related_list.filter(model.Related.featured == 1)
+    else:
+        relateds = model.Related.get_for_dataset(dataset, status='active')
+        related_items = (r.related for r in relateds)
+        related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
@@ -1882,6 +1902,15 @@ def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
+def _render_new_related_activity(context, activity):
+    return _render('activity_streams/new_related_item.html',
+        extra_vars = {'activity': activity,
+                      'type': activity['data']['related']['type']})
+
+def _render_deleted_related_activity(context, activity):
+    return _render('activity_streams/deleted_related_item.html',
+        extra_vars = {'activity': activity})
+
 def _render_follow_dataset_activity(context, activity):
     return _render('activity_streams/follow_dataset.html',
         extra_vars = {'activity': activity})
@@ -1901,6 +1930,8 @@ activity_renderers = {
   'new group' : _render_new_group_activity,
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
+  'new related item': _render_new_related_activity,
+  'deleted related item': _render_deleted_related_activity,
   'follow dataset': _render_follow_dataset_activity,
   'follow user': _render_follow_user_activity,
   }

@@ -1285,6 +1285,7 @@ __allowed_functions__ = [
     # imported into ckan.lib.helpers
            'get_request_param',
            'render_markdown',
+           # imported into ckan.lib.helpers
            'literal',
            'link_to',
            'get_available_locales',

@@ -106,6 +106,12 @@ class UserController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
+        context['with_related'] = True
+        try:
+            user_dict = get_action('user_show')(context,data_dict)
+        except NotFound:
+            h.redirect_to(controller='user', action='login', id=None)
+
         self._setup_template_variables(context, data_dict)
 
         c.about_formatted = self._format_about(c.user_dict['about'])
