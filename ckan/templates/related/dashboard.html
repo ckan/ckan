@@ -51,9 +51,7 @@
     </div>
 
       <ul class="related-items thumbnails">
-        {% for related in c.page.items %}
-          {{related_summary(related, false)}}
-        {% endfor %}
+        {% snippet "related/snippets/related_list.html", related_items=c.page.items %}
       </ul>
 
       {{c.page.pager()}}
