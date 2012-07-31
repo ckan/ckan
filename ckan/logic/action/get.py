@@ -2049,7 +2049,7 @@ def _follower_list(context, data_dict, FollowerClass):
     users = [user for user in users if user is not None]
 
     # Dictize the list of User objects.
-    return [model_dictize.user_dictize(user,context) for user in users]
+    return model_dictize.user_list_dictize(users, context)
 
 def user_follower_list(context, data_dict):
     '''Return the list of users that are following the given user.
@@ -2192,7 +2192,7 @@ def user_followee_list(context, data_dict):
     users = [user for user in users if user is not None]
 
     # Dictize the list of User objects.
-    return [model_dictize.user_dictize(user, context) for user in users]
+    return model_dictize.user_list_dictize(users, context)
 
 def dataset_followee_list(context, data_dict):
     '''Return the list of datasets that are followed by the given user.
