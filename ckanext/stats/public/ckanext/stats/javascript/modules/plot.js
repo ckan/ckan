@@ -1,5 +1,7 @@
 this.ckan.module('plot', function (jQuery, _) {
   return {
+    graph: null,
+    canvas: null,
     options: {
       xaxis: {},
       yaxis: {},
@@ -16,9 +18,12 @@ this.ckan.module('plot', function (jQuery, _) {
 
       this.setupCanvas();
       this.sandbox.body.on("shown", this._onShown);
+      this.data = this.parseTable(this.el);
 
-      var data = this.parseTable(this.el);
-      this.graph = jQuery.plot(this.canvas, data, this.options);
+      this.draw();
+
+      window.g = window.g || [];
+      window.g.push(this.graph);
     },
 
     teardown: function () {
@@ -28,6 +33,12 @@ this.ckan.module('plot', function (jQuery, _) {
     setupCanvas: function () {
       this.canvas = jQuery('<div class="module-plot-canvas">');
       this.el.replaceWith(this.canvas);
+    },
+
+    draw: function () {
+      if (!this.drawn && this.canvas.is(':visible')) {
+        this.graph = jQuery.plot(this.canvas, this.data, this.options);
+      }
     },
 
     parseTable: function (table) {
@@ -71,10 +82,8 @@ this.ckan.module('plot', function (jQuery, _) {
     },
 
     _onShown: function (event) {
-      if (!this._redrawn && jQuery.contains(jQuery(event.target.hash)[0], this.canvas[0])) {
-        this.graph.setupGrid();
-        this.graph.draw();
-        this.redrawn = true;
+      if (!this.drawn && jQuery.contains(jQuery(event.target.hash)[0], this.canvas[0])) {
+        this.draw();
       }
     }
   };
