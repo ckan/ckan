@@ -314,7 +314,7 @@ def _nav_link(text, controller, **kwargs):
 def _link_class(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.pop('highlight_actions',
-                                   kwargs.get('action')).split()
+                                   kwargs.get('action', '')).split(' ')
     if (c.controller == kwargs.get('controller')
                 and c.action in highlight_actions):
         active = ' active'
@@ -358,7 +358,7 @@ def _subnav_link(text, action, **kwargs):
     class_ = _link_class(kwargs)
     return link_to(
         text,
-        url_for(action=action, **kwargs),
+        url_for(**kwargs),
         class_=class_
     )
 
