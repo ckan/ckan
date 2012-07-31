@@ -23,6 +23,15 @@ def _is_valid_field_name(name):
     return True
 
 
+def _validate_int(i, field_name):
+    try:
+        int(i)
+    except ValueError:
+        raise p.toolkit.ValidationError({
+            'field_name': '{} is not an integer'.format(i)
+        })
+
+
 def _get_engine(context, data_dict):
     'Get either read or write engine.'
     connection_url = data_dict['connection_url']
@@ -340,6 +349,9 @@ def search_data(context, data_dict):
     where_clause, where_values = _where(all_field_ids, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
+
+    _validate_int(limit, 'limit')
+    _validate_int(offset, 'offset')
 
     if data_dict.get('sort'):
         sort = 'order by {}'.format(data_dict['sort'])
