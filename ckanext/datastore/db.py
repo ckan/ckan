@@ -273,8 +273,8 @@ def insert_data(context, data_dict):
     context['connection'].execute(sql_string, rows)
 
 
-def _where_from_filters(field_ids, data_dict):
-    'Return a SQL WHERE clause from data_dict filters'
+def _where(field_ids, data_dict):
+    'Return a SQL WHERE clause from data_dict filters and q'
     filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
@@ -293,6 +293,10 @@ def _where_from_filters(field_ids, data_dict):
         where_clauses.append('"{}" = %s'.format(field))
         values.append(value)
 
+    q = data_dict.get('q')
+    if q:
+        where_clauses.append('_full_text @@ to_tsquery(\'{}\')'.format(q))
+
     where_clause = ' and '.join(where_clauses)
     if where_clause:
         where_clause = 'where ' + where_clause
@@ -302,7 +306,7 @@ def _where_from_filters(field_ids, data_dict):
 def delete_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
-    where_clause, where_values = _where_from_filters(field_ids, data_dict)
+    where_clause, where_values = _where(field_ids, data_dict)
 
     context['connection'].execute(
         'delete from "{}" {}'.format(
@@ -333,7 +337,7 @@ def search_data(context, data_dict):
         field_ids = all_field_ids
 
     select_columns = ', '.join(field_ids)
-    where_clause, where_values = _where_from_filters(all_field_ids, data_dict)
+    where_clause, where_values = _where(all_field_ids, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
 

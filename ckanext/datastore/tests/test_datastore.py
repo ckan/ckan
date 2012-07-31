@@ -558,3 +558,29 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
         assert result['records'] == [{'book': 'warandpeace',
                                       'author': 'tolstoy'}]
+
+    def test_search_full_text(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': 'annakarenina'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [{'book': 'annakarenina',
+                                      'author': 'tolstoy'}]
+
+        data = {'resource_id': self.data['resource_id'],
+                'q': 'tolstoy'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == self.data['records']
