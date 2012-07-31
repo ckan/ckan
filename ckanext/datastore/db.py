@@ -273,19 +273,18 @@ def insert_data(context, data_dict):
     context['connection'].execute(sql_string, rows)
 
 
-def delete_data(context, data_dict):
-    filters = data_dict.get('filters')
+def _where_from_filters(field_ids, data_dict):
+    'Return a SQL WHERE clause from data_dict filters'
+    filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
         raise p.toolkit.ValidationError({
             'filters': 'Not a json object'}
         )
 
-    fields = _get_fields(context, data_dict)
-    field_ids = set([field['id'] for field in fields])
-
     where_clauses = []
     values = []
+
     for field, value in filters.iteritems():
         if field not in field_ids:
             raise p.toolkit.ValidationError({
@@ -295,17 +294,59 @@ def delete_data(context, data_dict):
         values.append(value)
 
     where_clause = ' and '.join(where_clauses)
+    return where_clause, values
+
+
+def delete_data(context, data_dict):
+    fields = _get_fields(context, data_dict)
+    field_ids = set([field['id'] for field in fields])
+    where_clause, where_values = _where_from_filters(field_ids, data_dict)
 
     context['connection'].execute(
         'delete from "{}" where {}'.format(
             data_dict['resource_id'],
             where_clause
         ),
-        values
+        where_values
     )
 
 
 def search_data(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_field_ids = set([field['id'] for field in all_fields])
+
+    fields = data_dict.get('fields')
+
+    if fields:
+        check_fields(context, fields)
+        field_ids = set([field['id'] for field in fields])
+
+        for field in field_ids:
+            if not field in all_field_ids:
+                raise p.toolkit.ValidationError({
+                    'fields': 'field "{}" not in table'.format(field)}
+                )
+    else:
+        fields = all_fields
+        field_ids = all_field_ids
+
+    select_columns = ', '.join(field_ids)
+
+    where_clause, where_values = _where_from_filters(all_field_ids, data_dict)
+
+    sql_string = 'select {} from "{}"'.format(
+        select_columns, data_dict['resource_id']
+    )
+
+    if where_clause:
+        sql_string += ' where {}'.format(where_clause)
+
+    results = context['connection'].execute(sql_string, where_values)
+
+    data_dict['total'] = results.rowcount
+    records = [(dict((f, r[f]) for f in field_ids)) for r in results]
+    data_dict['records'] = records
+
     return data_dict
 
 

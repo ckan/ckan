@@ -488,3 +488,44 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == len(self.data['records'])
+        assert result['records'] == self.data['records']
+
+    def test_search_invalid_field(self):
+        data = {'resource_id': self.data['resource_id'],
+                'fields': [{'id': 'bad'}]}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_search_fields(self):
+        data = {'resource_id': self.data['resource_id'],
+                'fields': [{'id': 'book'}]}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == len(self.data['records'])
+        assert result['records'] == [{'book': 'annakarenina'},
+                                     {'book': 'warandpeace'}]
+
+    def test_search_filters(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {'book': 'annakarenina'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [{'book': 'annakarenina',
+                                      'author': 'tolstoy'}]

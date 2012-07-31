@@ -85,7 +85,7 @@ def datastore_search(context, data_dict):
     :type offset: int
     :param fields: ordered list of fields to return
                    (default: all fields in original order)
-    :type fields: list of strings
+    :type fields: list of dictionaries
     :param sort: comma separated field names with ordering
                  eg: "fieldname1, fieldname2 desc"
     :type sort: string
