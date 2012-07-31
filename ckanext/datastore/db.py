@@ -304,7 +304,8 @@ def _where(field_ids, data_dict):
 
     q = data_dict.get('q')
     if q:
-        where_clauses.append('_full_text @@ to_tsquery(\'{}\')'.format(q))
+        where_clauses.append('_full_text @@ to_tsquery(%s)'.format(q))
+        values.append(q)
 
     where_clause = ' and '.join(where_clauses)
     if where_clause:
