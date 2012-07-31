@@ -449,3 +449,42 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         model.Session.remove()
 
         self._delete()
+
+
+class TestDatastoreSearch(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
+                        {'book': 'warandpeace', 'author': 'tolstoy'}]
+        }
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_search_basic(self):
+        data = {'resource_id': self.data['resource_id']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True

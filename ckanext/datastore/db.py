@@ -305,6 +305,10 @@ def delete_data(context, data_dict):
     )
 
 
+def search_data(context, data_dict):
+    return data_dict
+
+
 def create(context, data_dict):
     '''
     The first row will be used to guess types not in the fields and the
@@ -379,5 +383,25 @@ def delete(context, data_dict):
     except:
         trans.rollback()
         raise
+    finally:
+        context['connection'].close()
+
+
+def search(context, data_dict):
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+
+    try:
+        # check if table existes
+        result = context['connection'].execute(
+            'select * from pg_tables where tablename = %s',
+             data_dict['resource_id']
+        ).fetchone()
+        if not result:
+            raise p.toolkit.ValidationError({
+                'resource_id': 'table for resource {0} does not exist'.format(
+                    data_dict['resource_id'])
+            })
+        return search_data(context, data_dict)
     finally:
         context['connection'].close()

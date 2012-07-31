@@ -1,7 +1,7 @@
 import ckan.plugins as p
 
 
-def datastore_create(context, data_dict):
+def datastore_search(context, data_dict):
     data_dict['id'] = data_dict.get('resource_id')
     user = context.get('user')
 
