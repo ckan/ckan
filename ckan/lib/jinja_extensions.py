@@ -6,6 +6,7 @@ from jinja2.ext import Extension
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 from jinja2.filters import do_truncate
+from jinja2 import Environment
 
 import lib.base as base
 import lib.helpers as h
@@ -240,3 +241,38 @@ class ResourceExtension(BaseExtension):
         assert len(kwargs) == 0
         h.include_resource(args[0], **kwargs)
         return ''
+
+
+
+'''
+The following function is based on jinja2 code
+
+Provides a class that holds runtime and parsing time options.
+
+:copyright: (c) 2010 by the Jinja Team.
+:license: BSD, see LICENSE for more details.
+'''
+
+def jinja2_getattr(self, obj, attribute):
+    """Get an item or attribute of an object but prefer the attribute.
+    Unlike :meth:`getitem` the attribute *must* be a bytestring.
+
+    This is a customised version to work with properties
+    """
+    try:
+        value = getattr(obj, attribute)
+        if isinstance(value, property):
+            value = value.fget()
+        return value
+    except AttributeError:
+        pass
+    try:
+        value = obj[attribute]
+        if isinstance(value, property):
+            value = value.fget()
+        return value
+    except (TypeError, LookupError, AttributeError):
+        return self.undefined(obj=obj, name=attribute)
+
+setattr(Environment, 'get_attr', jinja2_getattr)
+del jinja2_getattr

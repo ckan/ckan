@@ -3,6 +3,8 @@
 import logging
 import re
 
+from pylons import c
+
 log = logging.getLogger(__name__)
 
 
@@ -59,12 +61,17 @@ def deprecate_context_item(item_name, message=''):
     context object.  ie - it adds a class-level attribute to the
     `pylons.util.AttribSafeContextObj` at runtime.
     '''
-    # prevent a circular import
-    from ckan.lib.base import c
 
     def get_item(self):
         log.warning('c.%s has been deprecated. %s', item_name, message)
         return getattr(c._current_obj(), item_name)
 
     setattr(c.__class__, item_name, property(get_item))
+
+def defer_context_item(item_name, function):
+    ''' Allows a function to be passed that will be appended to c as a property
+    so that it is only called if actually used. '''
+
+    assert hasattr(function, '__call__'), 'must pass a function'
+    setattr(c, item_name, property(function))
 

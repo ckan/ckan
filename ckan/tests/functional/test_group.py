@@ -59,6 +59,10 @@ class TestGroup(FunctionalTestCase):
         model.repo.rebuild_db()
 
     def test_children(self):
+        if model.engine_is_sqlite() :
+            from nose import SkipTest
+            raise SkipTest("Can't use CTE for sqlite")
+
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': []},

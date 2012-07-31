@@ -1,0 +1,13 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+${ h.activity_div(
+        template=_("{actor} created the link to related %s {object}"),
+        activity=activity,
+        actor=h.linked_user(activity.user_id),
+        object=h.link_to(activity.data.related['title'], h.url_for(controller='related', action='read', id=activity.data.related['id']))
+  ) % type}
+</html>

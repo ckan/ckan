@@ -1,0 +1,73 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  typeof="dcat:Dataset"
+  about=""
+  py:strip="">
+
+  <py:def function="body_class">no-sidebar</py:def>
+  <xi:include href="add-related.html" />
+
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])}
+  - Apps, Ideas etc</py:def>
+
+  <py:def function="page_heading" property="dc:title">
+  ${c.pkg_dict['title']} - Apps, Ideas etc
+  </py:def>
+
+  <div py:match="content">
+    ${add_related(c.pkg)}
+    <h3>Apps, Ideas etc  <i class="related-help icon-info-sign" rel="popover" data-content="These are applications, ideas, articles and visualisations that are using this dataset." data-original-title="What are apps and ideas?"></i> <a class="btn btn-small btn-primary pull-right" data-toggle="modal" href=".modal-add-related" py:if="h.check_access('related_create',{'dataset_id':c.pkg.id})"><i class="icon-plus-sign icon-white"></i> Add item</a></h3>
+    <div>
+      <div py:if="not c.pkg.related" class="span8 no-related-items">
+          There are no items here yet<span py:if="h.check_access('related_create',{'dataset_id':c.pkg.id})">, why not <a data-toggle="modal" href=".modal-add-related">add one</a>?</span>
+      </div>
+
+      <ul class="related-items thumbnails">
+        <py:for each="related in c.pkg.related">
+          ${related_summary(related, True)}
+        </py:for>
+      </ul>
+    </div>
+
+    <span class="insert-comment-thread"></span>
+  </div>
+
+  <py:def function="optional_head">
+    <script type="text/javascript" py:if="c.user">
+        function related_delete(related_id) {
+          var data = { 'id' : related_id }
+          $.ajax({
+            type: "post",
+            url: CKAN.SITE_URL + '/api/3/action/related_delete',
+            data: JSON.stringify(data),
+            success: function (data) {
+              window.location.reload();
+            },
+            error: function(err, txt, w) {
+              // This needs to be far more informative.
+              var msg = '<strong>Error:</strong> Unable to delete item';
+              $('<div class="alert alert-error" />').html(msg).hide().prependTo($('div#main')).fadeIn();
+            }
+          });
+
+        }
+    </script>
+
+      <link rel="alternate" type="application/rdf+xml" title="RDF/XML" href="${h.url(controller='package', action='read', id=c.pkg.id)}" />
+  </py:def>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="Dataset History"
+    href="${h.url(controller='package', action='history', id=c.pkg.name, format='atom', days=7)}" />
+  </py:def>
+
+  <xi:include href="../package/layout.html" />
+</html>
+
