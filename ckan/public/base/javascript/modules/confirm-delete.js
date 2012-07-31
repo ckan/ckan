@@ -54,7 +54,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
      *
      * Returns nothing.
      */
-    delete: function () {
+    performDelete: function () {
       // create a form and submit it to confirm the deletion
       var form = jQuery('<form/>', {
         action: this.el.attr('href'),
@@ -93,7 +93,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
 
     /* Event handler for the success event */
     _onConfirmSuccess: function (event) {
-      this.delete();
+      this.performDelete();
     },
 
     /* Event handler for the cancel event */

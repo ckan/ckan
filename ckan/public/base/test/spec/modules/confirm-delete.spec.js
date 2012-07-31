@@ -38,7 +38,7 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
     });
   });
 
-  describe('.delete()', function () {
+  describe('.performDelete()', function () {
     it('should submit the delete action');
   });
 
@@ -102,7 +102,7 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
 
   describe('._onConfirmSuccess()', function () {
     it('should perform the delete action', function () {
-      var target = sinon.stub(this.module, 'delete');
+      var target = sinon.stub(this.module, 'performDelete');
       this.module._onConfirmSuccess(jQuery.Event('click'));
       assert.called(target);
     });
