@@ -530,6 +530,40 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == [{'book': 'annakarenina',
                                       'author': 'tolstoy'}]
 
+    def test_search_sort(self):
+        data = {'resource_id': self.data['resource_id'],
+                'sort': 'book asc'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+
+        expected_records = [
+            {'book': 'annakarenina', 'author': 'tolstoy'},
+            {'book': 'warandpeace', 'author': 'tolstoy'}
+        ]
+        assert result['records'] == expected_records
+
+        data = {'resource_id': self.data['resource_id'],
+                'sort': 'book desc'}
+        postparams = '%s=1' % json.dumps(data)
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+
+        expected_records = [
+            {'book': 'warandpeace', 'author': 'tolstoy'},
+            {'book': 'annakarenina', 'author': 'tolstoy'}
+        ]
+        assert result['records'] == expected_records
+
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 1}
@@ -576,7 +610,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
         postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)

@@ -341,10 +341,15 @@ def search_data(context, data_dict):
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
 
+    if data_dict.get('sort'):
+        sort = 'order by {}'.format(data_dict['sort'])
+    else:
+        sort = ''
+
     sql_string = '''select {}, count(*) over() as full_count
-                    from "{}" {} limit {} offset {}'''\
+                    from "{}" {} {} limit {} offset {}'''\
         .format(select_columns, data_dict['resource_id'], where_clause,
-                limit, offset)
+                sort, limit, offset)
     results = context['connection'].execute(sql_string, where_values)
     results = [r for r in results]
 
