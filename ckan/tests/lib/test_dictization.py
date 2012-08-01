@@ -894,7 +894,6 @@ class TestBasicDictize:
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'public',
-                              'email': None,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
                               'name': u'annafan',
@@ -1088,6 +1087,7 @@ class TestBasicDictize:
         # Check sensitive data is available
         assert 'apikey' in user_dict
         assert 'reset_key' in user_dict
+        assert 'email' in user_dict
 
         # Passwords should never be available
         assert 'password' not in user_dict
@@ -1111,6 +1111,7 @@ class TestBasicDictize:
         # Check sensitive data is available
         assert 'apikey' in user_dict
         assert 'reset_key' in user_dict
+        assert 'email' in user_dict
 
         # Passwords should never be available
         assert 'password' not in user_dict
@@ -1131,9 +1132,10 @@ class TestBasicDictize:
         assert 'name' in user_dict
         assert 'about' in user_dict
 
-        # Check sensitive data is available
+        # Check sensitive data is not available
         assert 'apikey' not in user_dict
         assert 'reset_key' not in user_dict
+        assert 'email' not in user_dict
 
         # Passwords should never be available
         assert 'password' not in user_dict
@@ -1154,9 +1156,10 @@ class TestBasicDictize:
         assert 'name' in user_dict
         assert 'about' in user_dict
 
-        # Check sensitive data is available
+        # Check sensitive data is not available
         assert 'apikey' not in user_dict
         assert 'reset_key' not in user_dict
+        assert 'email' not in user_dict
 
         # Passwords should never be available
         assert 'password' not in user_dict
