@@ -75,3 +75,13 @@ def defer_context_item(item_name, function):
     assert hasattr(function, '__call__'), 'must pass a function'
     setattr(c, item_name, property(function))
 
+
+
+def timer(fn):
+    fn_name = fn.__name__
+    def wrapped(*args, **kw):
+        start = time.time()
+        result = fn(*args, **kw)
+        log.info('%s %f.4' % (fn_name, time.time() - start))
+        return result
+    return wrapped
