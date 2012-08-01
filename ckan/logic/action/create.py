@@ -684,10 +684,17 @@ def user_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
+    # Construct the user dict before changing the context.
+    #
+    # TODO: I don't know what the need for changing the context is, probably
+    # caching of the domain object.  But it doesn't seem right given that
+    # usually context['user'] contains the user who made the request.
+    user_dict = model_dictize.user_dictize(user, context)
+
     context['user'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
-    return model_dictize.user_dictize(user, context)
+    return user_dict
 
 ## Modifications for rest api
 
