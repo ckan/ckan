@@ -1,5 +1,7 @@
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
 
+import inspect
+import time
 import logging
 import re
 
@@ -76,12 +78,55 @@ def defer_context_item(item_name, function):
     setattr(c, item_name, property(function))
 
 
+def timer(params):
+    ''' Decorator function for basic performance testing. It logs the time
+    taken to call a function.  It can either be used as a basic decorator or an
+    array of parameter names can be passed. If parameter names are passed then
+    the logging will include the value of the parameter if it is passed to the
+    function. '''
 
-def timer(fn):
-    fn_name = fn.__name__
-    def wrapped(*args, **kw):
-        start = time.time()
-        result = fn(*args, **kw)
-        log.info('%s %f.4' % (fn_name, time.time() - start))
-        return result
-    return wrapped
+    if hasattr(params, '__call__'):
+        # this is being used as a simple decorator
+        fn = params
+        fn_name = '%s.%s' % (fn.__module__, fn.__name__)
+        def wrapped(*args, **kw):
+            start = time.time()
+            result = fn(*args, **kw)
+            log.info('Timer: %s %.4f' % (fn_name, time.time() - start))
+            return result
+        return wrapped
+
+    assert isinstance(params, list)
+
+    def decorator(fn):
+        # we have a list of parameter names so we want to find if the parameter
+        # is a named one and if so store its position
+        args_info = inspect.getargspec(fn)
+        params_data = []
+        for param in params:
+            if param in args_info.args:
+                params_data.append((param, args_info.args.index(param)))
+            else:
+                # it could be passed in keywords
+                params_data.append((param))
+        fn_name = '%s.%s' % (fn.__module__, fn.__name__)
+        def wrapped(*args, **kw):
+            # store parameters being used in the call that we want to record
+            params = []
+            for param in  params_data:
+                value = None
+                if param[0] in kw:
+                    value = kw[param[0]]
+                elif len(param) != 1 and len(args) >= param[1]:
+                    value = args[param[1]]
+                else:
+                    continue
+                params.append(u'%s=%r' % (param[0], value))
+            p = ', '.join(params)
+            start = time.time()
+            # call the function
+            result = fn(*args, **kw)
+            log.info('Timer: %s %.4f %s' % (fn_name, time.time() - start, p))
+            return result
+        return wrapped
+    return decorator
