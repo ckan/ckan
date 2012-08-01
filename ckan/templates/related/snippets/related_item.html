@@ -4,7 +4,15 @@
 <li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="media-image" href="{{ related.url }}">
     <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" />
-    <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type | replace('news_', '') }}{% endif %}</span>
+    <span class="banner">
+      {%- if related.type == 'application' -%}
+        app
+      {%- elif related.type == 'visualization' -%}
+        viz
+      {%- else -%}
+        {{ related.type | replace('news_', '') }}
+      {%- endif -%}
+    </span>
   </a>
   <div class="media-content">
     <h3 class="media-heading">
