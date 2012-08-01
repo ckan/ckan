@@ -4,29 +4,24 @@
 
 {% block title %}{{ _('Administration') }} - {{ super() }}{% endblock %}
 
-{% block breadcrumb_content %}
-{% endblock %}
-
 {% block primary %}
   <article class="module">
     <div class="module-content">
       <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
+
       <form method='post' action="" class="form-horizontal">
-        <div class="control-group">
-          <label for="style" class="control-label">Style</label>
-          <div class="controls">
-        <select name="style">
-          {% for style, css in styles|sort %}
-          <option value="{{ css }}" {% if css == data.style %}selected="selected"{% endif %} >{{ style }}</option>
-          {% endfor %}
-      </select>
-  </div>
-  </div>
-{{ form.input('title', id='field-title', label=_('Site Title'), placeholder=_('eg. CKAN'), value=data.title, error=errors.title) }}
-{{ form.input('tagline', id='field-tagline', label=_('Tag Line'), placeholder=_('eg. The Open Source Data Portal'), value=data.tagline, error=errors.tagline) }}
-{{ form.markdown('about', id='field-about', label=_('About Text'), placeholder=_('About contents'), value=data.about, error=errors.about) }}
-        <button type="submit" class="btn" name="reset">Reset</button>
-        <button type="submit" class="btn btn-primary" name="save">Update</button>
+        {{ form.select('style', id='field-style', label=_('Style'), options=styles, selected=data.style, error=errors.style) }}
+
+        {{ form.input('title', id='field-title', label=_('Site Title'), placeholder=_('eg. CKAN'), value=data.title, error=errors.title, classes=['control-medium']) }}
+
+        {{ form.input('tagline', id='field-tagline', label=_('Tag Line'), placeholder=_('eg. The Open Source Data Portal'), value=data.tagline, error=errors.tagline, classes=['control-medium']) }}
+
+        {{ form.markdown('about', id='field-about', label=_('About Text'), placeholder=_('About contents'), value=data.about, error=errors.about) }}
+
+        <div class="form-actions">
+          <button type="submit" class="btn" name="reset">Reset</button>
+          <button type="submit" class="btn btn-primary" name="save">Update</button>
+        </div>
       </form>
     </div>
   </article>

@@ -52,10 +52,11 @@ class AdminController(base.BaseController):
             # reset to values in config
             app_globals.reset()
 
-        styles = [('Default', '/base/css/main.css'),
-                  ('Red', '/base/css/red.css'),
-                  ('Green', '/base/css/green.css'),
-                  ('Fuchsia', '/base/css/fuchsia.css')]
+        # Styles for use in the form.select() macro.
+        styles = [{'text': 'Default', 'value': '/base/css/main.css'},
+                  {'text': 'Red', 'value': '/base/css/red.css'},
+                  {'text': 'Green', 'value': '/base/css/green.css'},
+                  {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
         data = {}
 
         data['title'] = g.site_title
