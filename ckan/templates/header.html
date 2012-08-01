@@ -4,7 +4,7 @@
   {% endif %}
   <div class="container">
     {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup{% if g.site_logo %} class="header-image"{% endif %}>
+    <hgroup class="{{ g.header_class }}">
       {% if g.site_logo %}
         <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
       {% endif %}

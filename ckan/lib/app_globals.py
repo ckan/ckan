@@ -82,6 +82,13 @@ def reset():
     site_url_nice = site_url_nice.replace('www.', '')
     app_globals.site_url_nice = site_url_nice
 
+    if app_globals.site_logo:
+        app_globals.header_class = 'header-image'
+    elif not app_globals.site_description:
+        app_globals.header_class = 'header-text-logo'
+    else:
+        app_globals.header_class = 'header-text-logo-tagline'
+
 
 class _Globals(object):
 
