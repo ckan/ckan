@@ -1,4 +1,4 @@
-@mastheadPadding: 10px;
+@mastheadPadding: 5px 10px 3px;
 
 .masthead {
   #gradient > .vertical(@mastheadBackgroundColorStart, @mastheadBackgroundColorEnd);
@@ -18,18 +18,34 @@
 .masthead hgroup,
 .masthead nav {
   .clearfix;
+  min-height: 52px;
+  position: relative;
+  display: inline-block;
 }
 
 .masthead hgroup h1,
 .masthead hgroup p {
   font-size: 34px;
-  line-height: 1.2;
-  float:left;
+  line-height: 1.5;
+  float: left;
+}
+
+.masthead hgroup h1 {
+  font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
+  letter-spacing: -2px; // Sorry world of typography.
 }
 
 .masthead hgroup p {
-  margin-left: 0.3em;
-  font-style: italic;
+  position: absolute;
+  bottom: -3px;
+  right: 0;
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.masthead hgroup a {
+  text-decoration: none;
 }
 
 .masthead .logo {
@@ -38,9 +54,7 @@
 }
 
 .masthead .logo img {
-  display: inline-block;
-  max-height: 34px;
-  width: auto;
+  display: block;
 }
 
 .ie7 .masthead .logo img {
@@ -85,7 +99,7 @@
 
 .masthead nav li a {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   padding: 4px 10px;
 }
@@ -189,7 +203,7 @@
 
 .masthead .site-search input {
   width: 190px;
-  font-size: 12px;
+  font-size: 11px;
   padding: 4px;
 }
 
@@ -206,12 +220,13 @@
 }
 
 .masthead .header-image .logo {
+  position: absolute;
+  top: 0;
+  left: 0; 
   display: block;
   width: 240px;
   height: 50px;
-  background-image: url("@{imagePath}/ckan-logo.png");
-  background-position: top left;
-  background-repeat: no-repeat;
+  text-indent: 0;
 }
 
 .masthead .debug {
