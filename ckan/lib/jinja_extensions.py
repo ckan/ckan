@@ -8,8 +8,8 @@ from jinja2.utils import open_if_exists, escape
 from jinja2.filters import do_truncate
 from jinja2 import Environment
 
-import lib.base as base
-import lib.helpers as h
+import ckan.lib.base as base
+import ckan.lib.helpers as h
 
 ### Filters
 
