@@ -11,7 +11,7 @@
     <div class="module-content">
       <h1 class="page-heading">{{ _('Login') }}</h1>
       {% block form %}
-        {% include "user/snippets/login_form.html" %}
+        {% snippet "user/snippets/login_form.html", action=c.login_handler, error_summary=error_summary %}
       {% endblock %}
     </div>
   </section>
