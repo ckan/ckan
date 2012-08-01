@@ -70,6 +70,7 @@ def deprecate_context_item(item_name, message=''):
         def __init__(self, obj):
             self._obj = obj
         def __getattribute__(self,name):
+            log.warning('c.%s has been deprecated. %s', item_name, message)
             obj = object.__getattribute__(self, '_obj')
             # hack to get the actual object when needed
             if name == '_obj':
