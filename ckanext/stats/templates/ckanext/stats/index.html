@@ -204,7 +204,7 @@
 
 {% block scripts %}
   {{ super() }}
-  <!--[if lte IE 8]><script src="{% url_for_static "ckanext/stats/vendor/excanvas.js" %}"></script><![endif]-->
-  <script src="{% url_for_static "ckanext/stats/vendor/jquery.flot.js" %}"></script>
-  <script src="{% url_for_static "ckanext/stats/javascript/modules/plot.js" %}"></script>
+  <!--[if lte IE 8]><script src="{% url_for_static "/ckanext/stats/vendor/excanvas.js" %}"></script><![endif]-->
+  <script src="{% url_for_static "/ckanext/stats/vendor/jquery.flot.js" %}"></script>
+  <script src="{% url_for_static "/ckanext/stats/javascript/modules/plot.js" %}"></script>
 {% endblock %}
