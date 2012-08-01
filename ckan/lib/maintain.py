@@ -64,13 +64,30 @@ def deprecate_context_item(item_name, message=''):
     `pylons.util.AttribSafeContextObj` at runtime.
     '''
 
-    def get_item(self):
-        log.warning('c.%s has been deprecated. %s', item_name, message)
-        return getattr(c.__ckan_deprecated__, item_name)
+    class Fake(object):
+        def __init__(self, obj):
+            self._obj = obj
+        def __getattribute__(self,name):
+            obj = object.__getattribute__(self, '_obj')
+            if name == '_obj':
+                return obj
+            return getattr(obj, name)
 
-    c.__ckan_deprecated__ = c.__ckan_deprecated__ or {}
-    c.__ckan_deprecated__[item_name] = getattr(c, item_name)
-    setattr(c, item_name, property(get_item))
+
+    # store the value in a fake object
+    setattr(c, item_name, Fake(getattr(c, item_name)))
+
+    # we need to store the origional __getattr__ and replace with our own one
+    if not hasattr(c.__class__, '__old_getattr__'):
+        def fake_attr(self, name):
+            obj = self.__class__.__dict__['__old_getattr__'](self, name)
+            if isinstance(obj, Fake):
+                return obj._obj
+            else:
+                return obj
+        get_attr =  getattr(c.__class__, '__getattr__')
+        setattr(c.__class__, '__old_getattr__', get_attr)
+        setattr(c.__class__, '__getattr__', fake_attr)
 
 def defer_context_item(item_name, function):
     ''' Allows a function to be passed that will be appended to c as a property
