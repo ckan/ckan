@@ -376,7 +376,8 @@ def user_dictize(user, context):
     requester = context['user']
 
     if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
-            requester == user.name):
+            requester == user.name or
+            context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
         result_dict.pop('apikey', None)
         result_dict.pop('reset_key', None)
