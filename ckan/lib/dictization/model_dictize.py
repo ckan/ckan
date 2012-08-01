@@ -364,6 +364,7 @@ def user_dictize(user, context):
         # If not sysadmin or the same user, strip sensible info
         result_dict.pop('apikey', None)
         result_dict.pop('reset_key', None)
+        result_dict.pop('email', None)
 
     return result_dict
 
