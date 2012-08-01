@@ -63,10 +63,13 @@ def deprecate_context_item(item_name, message=''):
     from ckan.lib.base import c
 
     class Fake(object):
+        ''' This is a fake object that calls the methods of the object
+        contained. '''
         def __init__(self, obj):
             self._obj = obj
         def __getattribute__(self,name):
             obj = object.__getattribute__(self, '_obj')
+            # hack to get the actual object when needed
             if name == '_obj':
                 return obj
             return getattr(obj, name)
