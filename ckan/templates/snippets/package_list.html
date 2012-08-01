@@ -23,7 +23,7 @@ Example:
   <ul class="{{ list_class }}">
     {% for package in packages %}
       {% set title = package.get('title') or package.get('name') %}
-      {% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
+      {% set notes = h.markdown_extract(package.get('notes'), extract_length=truncate) %}
 
       <li class="{{ item_class }} ">
       <div class="dataset-content">
