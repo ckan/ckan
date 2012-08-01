@@ -238,7 +238,7 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
-        for facet in c.facets.keys():
+        for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
         c.facet_titles = {'groups': _('Groups'),
