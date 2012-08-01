@@ -310,7 +310,9 @@ class BaseController(WSGIController):
 
     def __after__(self, action, **params):
         self._set_cors()
-        log.info('render time %.3f seconds' % (time.time() - c.__timer))
+        r_time = time.time() - c.__timer
+        url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+        log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
         response.headers['Access-Control-Allow-Origin'] = "*"
