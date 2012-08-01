@@ -8,7 +8,7 @@ label       - The human readable label.
 value       - The value of the input.
 placeholder - Some placeholder text.
 type        - The type of input eg. email, url, date (default: text).
-error       - A list of error strings for the field.
+error       - A list of error strings for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Examples:
@@ -34,7 +34,7 @@ id          - The id to use on the input and label. Convention is to prefix with
 label       - The human readable label.
 value       - The value of the input.
 checked     - If true the checkbox will be checked
-error       - An error string for the field.
+error       - An error string for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Example:
@@ -49,7 +49,7 @@ Example:
       <label class="checkbox" for="{{ id or name }}">
         <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
         {{ label or name }}
-        {% if error %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
+        {% if error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
       </label>
     </div>
   </div>
@@ -68,7 +68,7 @@ id          - The id to use on the input and label. Convention is to prefix with
 label       - The human readable label.
 options     - A list/tuple of fields to be used as <options>.
 selected    - The value of the selected <option>.
-error       - A list of error strings for the field.
+error       - A list of error strings for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Examples:
@@ -99,7 +99,7 @@ id          - The id to use on the input and label. Convention is to prefix with
 label       - The human readable label.
 value       - The value of the input.
 placeholder - Some placeholder text.
-error       - A list of error strings for the field.
+error       - A list of error strings for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Examples:
@@ -130,7 +130,7 @@ prepend     - The text that will be prepended before the input.
 value       - The value of the input.
               which will use the name key as the value.
 placeholder - Some placeholder text.
-error       - A list of error strings for the field.
+error       - A list of error strings for the field  or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Examples:
@@ -165,7 +165,7 @@ label       - The human readable label for the main label.
 values      - A tuple of values for the (key, value, delete) fields. If delete
               is truthy the checkbox will be checked.
 placeholder - A tuple of placeholder text for the (key, value) fields.
-error       - A list of error strings for the field.
+error       - A list of error strings for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 
 Examples:
@@ -204,7 +204,7 @@ will be inserted into the .controls element.
 
 for     - The id for the input that the label should match.
 label   - A human readable label.
-error   - A list of error strings for the field.
+error   - A list of error strings for the field or just true.
 classes - An array of custom classes for the outer element.
 control_classes - An array of custom classes for the .control wrapper.
 
@@ -221,7 +221,7 @@ Example:
     <label class="control-label" for="{{ for }}">{{ label or _('Custom') }}</label>
     <div class="controls{{ " " ~ control_classes | join(' ') }}">
       {{ caller() }}
-      {% if error %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
+      {% if error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
     </div>
   </div>
 {% endmacro %}
@@ -245,7 +245,7 @@ Example:
       <p>{{ _('The form contains invalid entries:') }}</p>
       <ul>
         {% for key, error in errors.items() %}
-          <li data-field-label="{{ key }}">{{ key }}: {{ error }}</li>
+          <li data-field-label="{{ key }}">{% if key %}{{ key }}: {% endif %}{{ error }}</li>
         {% endfor %}
       </ul>
     </div>
