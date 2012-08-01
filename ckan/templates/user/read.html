@@ -77,7 +77,14 @@
     </section>
     <section id="datasets" class="module-content tab-content active clearfix">
       <h2 class="tab-heading">{{ _('Datasets') }}</h2>
-      {% snippet 'snippets/package_list.html', packages=user.datasets %}
+      {% if user.datasets %}
+        {% snippet 'snippets/package_list.html', packages=user.datasets %}
+      {% else %}
+        <p class="empty">
+          {{ _('You haven\'t created any datasets.') }}
+          {% link_for _('Create one now?'), controller='package', action='new' %}.
+        </p>
+      {% endif %}
     </section>
     <section id="activity" class="module-content module-activity tab-content">
       <h2 class="tab-heading">{{ _('Activity Stream') }}</h2>
