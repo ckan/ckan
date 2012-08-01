@@ -9,7 +9,7 @@
         <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
       {% endif %}
       <h1><a href="{{ h.url('home') }}">{{ g.site_title }}</a></h1>
-      <p>{{ g.site_description }}</p>
+      {% if g.site_description %}<p>{{ g.site_description }}</p>{% endif %}
     </hgroup>
     <div class="content">
       {% if c.userobj %}
