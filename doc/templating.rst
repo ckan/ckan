@@ -128,8 +128,12 @@ Includes
 ~~~~~~~~
 
 Snippets of text that are included using ``{% include %}`` should be
-kept in a directory called *partials*. This should be kept in the same
+kept in a directory called _snippets_. This should be kept in the same
 directory as the code that uses it.
+
+Generally we use the ``{% snippet %}`` helper in all theme files unless
+the parents context must absolutely be available to the snippet. In which
+case the usage should be clearly documented.
 
 Snippets
 ~~~~~~~~
@@ -138,8 +142,8 @@ Snippets are essentially middle ground between includes and macros in
 that they are includes that allow a specific context to be provided
 (includes just receive the parent context).
 
-Ideally we should be able to remove one of these from the final release
-of the new theme.
+These should be preferred to includes at all times as they make debugging
+much easier.
 
 Macros
 ~~~~~~
@@ -260,7 +264,7 @@ url\_for\_static
 
     {% url_for_static path %}
 
-Works exactly the same as ``h.link_for()``:
+Works exactly the same as ``h.url_for_static()``:
 
 ::
 
@@ -354,33 +358,29 @@ Examples:
 ::
 
     {% import 'macros/form.html' as form %}
-    {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, error=errors.year) }}
+    {{ form.select('year', label=_('Year'), options={'value': 2010, 'value': 2011}, selected=2011, error=errors.year) }}
 
 form.markdown()
 ~~~~~~~~~~~~~~~
 
-Creates all the markup required for an input element with a prefixed
-segment. These are useful for showing url slugs and other fields where
-the input information forms only part of the saved data.
+Creates all the markup required for a Markdown textarea element. Handles
+matching labels to inputs, selected item and error messages.
 
 ::
 
     name        - The name of the form parameter.
     id          - The id to use on the input and label. Convention is to prefix with 'field-'.
     label       - The human readable label.
-    prepend     - The text that will be prepended before the input.
     value       - The value of the input.
-                  which will use the name key as the value.
     placeholder - Some placeholder text.
-    error       - A list of error strings for the field  or just true to highlight the field.
+    error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
 
 Examples:
 
 ::
-
     {% import 'macros/form.html' as form %}
-    {{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), value=data.slug, error=errors.slug) }}
+    {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 form.prepend()
 ~~~~~~~~~~~~~~
@@ -434,10 +434,9 @@ Examples:
 
     {% import 'macros/form.html' as form %}
     {{ form.custom(
-      names=('custom_key', 'custom_value', 'custom_deleted'),
-      id='field-custom',
-      label=_('Custom Field'),
-      values=(extra.key, extra.value, extra.deleted),
-      error=''
-    ) }}
-
+         names=('custom_key', 'custom_value', 'custom_deleted'),
+         id='field-custom',
+         label=_('Custom Field'),
+         values=(extra.key, extra.value, extra.deleted),
+         error='')
+    }}
