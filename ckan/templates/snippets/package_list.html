@@ -29,7 +29,7 @@ Example:
       <div class="dataset-content">
           <h3 class="dataset-heading">
             {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.get('name'))) }}
-            {% if package.state.startswith('draft') %}
+            {% if package.get(state, '').startswith('draft') %}
               [{{ _('Draft') }}]
             {% endif %}
             {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
