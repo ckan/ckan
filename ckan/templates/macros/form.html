@@ -18,8 +18,11 @@ Examples:
 
 #}
 {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={}) %}
+  {%- set extra_html = caller() if caller -%}
+
   {% call input_block(id or name, label or name, error, classes) %}
     <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
