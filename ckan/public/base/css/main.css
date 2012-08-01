@@ -6985,10 +6985,13 @@ li .icon-large:before {
   background: url("../images/ckan-logo-footer.png") no-repeat top left;
   text-indent: -900em;
 }
-.attribution .select2-drop {
+.site-footer .select2-drop {
   color: #000;
 }
-.ie .attribution .select2-container {
+.site-footer .select2-drop li {
+  width: auto;
+}
+.ie .site-footer .select2-container {
   position: relative;
   top: -20px;
 }
