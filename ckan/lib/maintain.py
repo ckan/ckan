@@ -66,9 +66,11 @@ def deprecate_context_item(item_name, message=''):
 
     def get_item(self):
         log.warning('c.%s has been deprecated. %s', item_name, message)
-        return getattr(c._current_obj(), item_name)
+        return getattr(c.__ckan_deprecated__, item_name)
 
-    setattr(c.__class__, item_name, property(get_item))
+    c.__ckan_deprecated__ = c.__ckan_deprecated__ or {}
+    c.__ckan_deprecated__[item_name] = getattr(c, item_name)
+    setattr(c, item_name, property(get_item))
 
 def defer_context_item(item_name, function):
     ''' Allows a function to be passed that will be appended to c as a property
