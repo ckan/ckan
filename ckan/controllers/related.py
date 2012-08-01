@@ -65,6 +65,13 @@ class RelatedController(base.BaseController):
 
         c.filters = dict(params_nopage)
 
+        c.type_options = self._type_options()
+        c.sort_options = ({'value': '', 'text': _('Most viewed')},
+                          {'value': 'view_count_desc', 'text': _('Most Viewed')},
+                          {'value': 'view_count_asc', 'text': _('Least Viewed')},
+                          {'value': 'created_desc', 'text': _('Newest')},
+                          {'value': 'created_asc', 'text': _('Oldest')})
+
         return base.render( "related/dashboard.html")
 
     def read(self, id):
@@ -188,13 +195,7 @@ class RelatedController(base.BaseController):
             if is_edit:
                 data = related
 
-        c.types = (
-            {"text": "Application", "value": "application"},
-            {"text": "Idea", "value": "idea"},
-            {"text": "News Article", "value": "news_article"},
-            {"text": "Paper", "value": "paper"},
-            {"text": "Visualization", "value": "visualization"}
-        )
+        c.types = self._type_options()
 
         c.pkg_id = id
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
@@ -227,3 +228,16 @@ class RelatedController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Related item not found'))
         return base.render('related/confirm_delete.html')
+
+    def _type_options(self):
+        '''
+        A tuple of options for the different related types for use in
+        the form.select() template macro.
+        '''
+        return ({"text": _("API"), "value": "api"},
+                {"text": _("Application"), "value": "application"},
+                {"text": _("Idea"), "value": "idea"},
+                {"text": _("News Article"), "value": "news_article"},
+                {"text": _("Paper"), "value": "paper"},
+                {"text": _("Post"), "value": "post"},
+                {"text": _("Visualization"), "value": "visualization"})

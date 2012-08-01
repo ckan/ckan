@@ -1,63 +1,84 @@
 {% extends "page.html" %}
 
+{% set page = c.page %}
+{% set item_count = c.page.item_count %}
+
 {% block title %}{{ _('Apps & Ideas') }} - {{ super() }}{% endblock %}
 
 {% block breadcrumb_content %}
+  <li class="active">{{ _('Apps & Ideas') }}</li>
 {% endblock %}
 
-{% block primary %}
+{% block primary_content %}
   <article class="module">
     <div class="module-content">
       <h1 class="page-heading">{{ _('Apps & Ideas') }}</h1>
-      {% if c.page.item_count %}
 
-      <h4>Showing items <strong>{{c.page.first_item}} - {{c.page.last_item}}</strong> of <strong>{{c.page.item_count}}</strong> related items found</h4>
+      {% if item_count %}
+        {% trans first=page.first_item, last=page.last_item, item_count=item_count %}
+          <p>Showing items <strong>{{ first }} - {{ item }}</strong> of <strong>{{ item_count }}</strong> related items found</p>
+        {% endtrans %}
+      {% elif c.filters.type %}
+        {% trans item_count=item_count %}
+          <p><strong>{{ item_count }}</strong> related items found</p>
+        {% endtrans %}
       {% else %}
-      <h4><strong>{{c.page.item_count}}</strong> related items found</h4>
+        <p class="empty">{{ _('There have been no apps submitted yet.') }}
       {% endif %}
 
-    <div class="well">
-        <form action="" method="get" class="form-inline">
-            <input type='hidden' name='page' value='1'/>
-
-            <label for="type">Filter by type</label>
-            <select name="type">
-                <option value="">All</option>
-                <option value="api" {% if c.filters.get('type') == 'api' %} selected="selected"{% endif %}>API</option>
-                <option value="application" {% if c.filters.get('type') == 'application' %} selected="selected"{% endif %}>Application</option>
-                <option value="idea" {% if c.filters.get('type') == 'idea' %} selected="selected"{% endif %}>Idea</option>
-                <option value="news-article" {% if c.filters.get('type') == 'news-article' %} selected="selected"{% endif %}>News Article</option>
-                <option value="paper" {% if c.filters.get('type') == 'paper' %} selected="selected"{% endif %}>Paper</option>
-                <option value="post" {% if c.filters.get('type') == 'post' %} selected="selected"{% endif %}>Post</option>
-                <option value="visualization" {% if c.filters.get('type') == 'visualization' %} selected="selected"{% endif %}>Visualization</option>
-            </select>
-
-            <label for="sort">Sort by</label>
-            <select name="sort">
-                <option value="">Default</option>
-                <option value="view_count_desc" {% if c.filters.get('sort') == 'view_count_desc' %} selected="selected"{% endif %}>Most viewed</option>
-                <option value="view_count_asc" {% if c.filters.get('sort') == 'view_count_asc' %} selected="selected"{% endif %}>Least viewed</option>
-
-                <option value="created_desc" {% if c.filters.get('sort') == 'on' %} selected="selected"{% endif %}>Newest</option>
-                <option value="created_asc" {% if c.filters.get('sort') == 'created_asc' %} selected="selected"{% endif %}>Oldest</option>
-
-            </select>
-
-
-            <label for="featured">Featured items only?</label>
-            <input type="checkbox" name="featured" {% if c.filters.get('featured') == 'on' %} checked="checked"{% endif %}></input>
-            <button class="btn btn-primary pull-right">Apply</button>
-        </form>
+      {% snippet "related/snippets/related_list.html", related_items=page.items %}
     </div>
 
-      <ul class="related-items thumbnails">
-        {% snippet "related/snippets/related_list.html", related_items=c.page.items %}
-      </ul>
-
-      {{c.page.pager()}}
-
-    </div>
+    {{ page.pager() }}
   </article>
 {% endblock %}
 
-{% block sidebar %}{% endblock %}
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _('What are applications?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        These are applications built with the datasets as well as ideas for
+        things that could be done with them.
+      {% endtrans %}
+    </div>
+  </section>
+
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _('Filter Results') }}</h2>
+    <form action="" method="get" class="module-content form-inline form-narrow">
+      <input type='hidden' name='page' value='1'/>
+
+      <div class="control-group">
+        <label for="field-type">{{ _('Filter by type') }}</label>
+        <select id="field-type" name="type">
+          <option value="">{{ _('All') }}</option>
+          {% for option in c.type_options %}
+            <option value="{{ option.value }}"{% if c.filters.type == option.value %} selected="selected"{% endif %}>{{ option.text or option.value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="field-sort">{{ _('Sort by') }}</label>
+        <select id="field-sort" name="sort">
+          <option value="">{{ _('Default') }}</option>
+          {% for option in c.sort_options %}
+            <option value="{{ option.value }}"{% if c.filters.sort == option.value %} selected="selected"{% endif %}>{{ option.text or option.value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="field-featured" class="checkbox">
+          <input type="checkbox" id="field-featured" name="featured" {% if c.filters.get('featured') == 'on' %} checked="checked"{% endif %}></input>
+          {{ _('Only show featured items') }}
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary">{{ _('Apply') }}</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}
