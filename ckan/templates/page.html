@@ -30,7 +30,7 @@
           {% block toolbar %}
             <div class="toolbar">
               {% block breadcrumb %}
-                {% if self.breadcrumb_content() %}
+                {% if self.breadcrumb_content() | trim %}
                   <ol class="breadcrumb">
                     {% snippet 'snippets/home_breadcrumb_item.html' %}
                     {% block breadcrumb_content %}{% endblock %}
