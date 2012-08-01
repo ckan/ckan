@@ -222,8 +222,7 @@ class PackageSearchIndex(SearchIndex):
         # send to solr:
         try:
             conn = make_connection()
-            conn.add_many([pkg_dict])
-            conn.commit(wait_flush=False, wait_searcher=False)
+            conn.add_many([pkg_dict], _commit=True)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
