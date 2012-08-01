@@ -1,30 +1,36 @@
 <footer class="site-footer">
   <div class="container">
-
-    <nav class="footer-links row-fluid">
-      <ul class="unstyled row-fluid">
-        {% block footer_links %}
-          <li><a href="#">Terms and Conditions</a></li>
-          <li><a href="#">Accessibility</a></li>
-          <li><a href="#">Code of conduct</a></li>
-          <li><a href="#">Moderation policy</a></li>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Contact us</a></li>
-          <li><a href="#">Consultation</a></li>
+    {% block footer_content %}
+      <nav class="footer-links row-fluid">
+        {% block footer_nav %}
+          <ul class="unstyled row-fluid">
+            {% block footer_links %}
+              <li><a href="#">Terms and Conditions</a></li>
+              <li><a href="#">Accessibility</a></li>
+              <li><a href="#">Code of conduct</a></li>
+              <li><a href="#">Moderation policy</a></li>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="#">Privacy</a></li>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Consultation</a></li>
+            {% endblock %}
+          </ul>
         {% endblock %}
-      </ul>
-    </nav>
-    <div class="attribution">
-      {% block footer_attribution %}
-        <p><strong>Powered by</strong> <a class="hide-text ckan-footer-logo" href="http://ckan.org">CKAN</a></p>
-      {% endblock %}
-      {% block footer_lang %}
-        {% snippet "snippets/language_selector.html" %}
-      {% endblock %}
-    </div>
+      </nav>
+      <div class="attribution">
+        {% block footer_attribution %}
+          <p><strong>Powered by</strong> <a class="hide-text ckan-footer-logo" href="http://ckan.org">CKAN</a></p>
+        {% endblock %}
+        {% block footer_lang %}
+          {% snippet "snippets/language_selector.html" %}
+        {% endblock %}
+      </div>
+    {% endblock %}
   </div>
-  {% if config.debug %}
-    {% include 'snippets/debug.html' %}
-  {% endif %}
+
+  {% block footer_debug %}
+    {% if config.debug %}
+      {% include 'snippets/debug.html' %}
+    {% endif %}
+  {% endblock %}
 </footer>
