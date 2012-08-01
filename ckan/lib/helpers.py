@@ -1210,6 +1210,20 @@ def render_markdown(data):
         return ''
     return literal(ckan.misc.MarkdownFormat().to_html(data))
 
+def format_resource_items(items):
+    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    output = []
+    reg_ex = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}$'
+    for key, value in items:
+        if not value or key in blacklist:
+            continue
+        if re.search(reg_ex, value):
+            value = render_datetime(date_str_to_datetime(value),
+                                    with_hours=True)
+        key = key.replace('_', ' ')
+        output.append((key, value))
+        print value, type(value)
+    return sorted(output, key=lambda x:x[0])
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1282,9 +1296,9 @@ __allowed_functions__ = [
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
-    # imported into ckan.lib.helpers
            'get_request_param',
            'render_markdown',
+           'format_resource_items',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

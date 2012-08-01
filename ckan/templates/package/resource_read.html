@@ -77,11 +77,9 @@
             </tr>
           </thead>
           <tbody>
-            {% with blacklist = ["name", "description", "url"] %}
-              {% for key,value in res.items()|sort if value and key not in blacklist %}
-                <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
-              {% endfor %}
-            {% endwith %}
+            {% for key, value in h.format_resource_items(res.items()) %}
+              <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
