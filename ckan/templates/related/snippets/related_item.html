@@ -3,7 +3,7 @@
 } %}
 <li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="media-image" href="{{ related.url }}">
-    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" />
+    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" />
     <span class="banner">
       {%- if related.type == 'application' -%}
         app

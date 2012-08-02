@@ -5,11 +5,13 @@
   <div class="container">
     {# The .header-image class hides the main text and uses image replacement for the title #}
     <hgroup class="{{ g.header_class }}">
-      {% if g.site_logo %}
-        <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
-      {% endif %}
-      <h1><a href="{{ h.url('home') }}">{{ g.site_title }}</a></h1>
-      {% if g.site_description %}<p>{{ g.site_description }}</p>{% endif %}
+      <h1>
+        {% if g.site_logo %}
+          <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
+        {% endif %}
+        <a href="{{ h.url('home') }}">{{ g.site_title }}</a>
+      </h1>
+      {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
     </hgroup>
     <div class="content">
       {% if c.userobj %}
