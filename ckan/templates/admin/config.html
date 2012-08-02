@@ -18,7 +18,7 @@
 
         {{ form.markdown('about', id='field-about', label=_('About Text'), placeholder=_('About contents'), value=data.about, error=errors.about) }}
 
-        {{ form.markdown('intro_text', id='field-about', label=_('Intro Text'), placeholder=_('Intro contents'), value=data.intro_text, error=errors.intro_text) }}
+        {{ form.markdown('intro_text', id='field-intro', label=_('Intro Text'), placeholder=_('Intro contents'), value=data.intro_text, error=errors.intro_text) }}
 
         <div class="form-actions">
           {# Update needs to come first so form submits when return is pressed #}

@@ -1,6 +1,6 @@
 <div class="container">
   <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ request.environ['CKAN_DEBUG_INFO']|length }}</a>
-  <pre id="debug" class="well" style="display:none;color:#333;margin-top:10px;">
+  <div id="debug" class="well" style="display:none;color:#333;margin-top:10px;white-space:pre;">
 <b>Debug info:</b>
 
 <b>Controller</b>: {{ c.controller }}
@@ -26,7 +26,7 @@
 {%- endif -%}
 <hr/>
 {%- endfor %}
-  </pre>
+</div>
   <script>
     (function () {
       function nextElementSibling(element) {
