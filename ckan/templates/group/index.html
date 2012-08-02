@@ -14,7 +14,16 @@
   <div class="module">
     <div class="module-content">
       <h1 class="page-heading">{{ _('Groups') }}</h1>
-      {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+      {% if c.page.items %}
+        {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+      {% else %}
+        <p class="empty">
+          {{ _('There are currently no groups for this site') }}.
+          {% if h.check_access('package_create') %}
+            {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% endif %}
+        </p>
+      {% endif %}
     </div>
     {{ c.page.pager() }}
   </div>
