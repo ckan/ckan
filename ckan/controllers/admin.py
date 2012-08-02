@@ -56,6 +56,7 @@ class AdminController(base.BaseController):
         styles = [{'text': 'Default', 'value': '/base/css/main.css'},
                   {'text': 'Red', 'value': '/base/css/red.css'},
                   {'text': 'Green', 'value': '/base/css/green.css'},
+                  {'text': 'Maroon', 'value': '/base/css/maroon.css'},
                   {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
         data = {}
 
