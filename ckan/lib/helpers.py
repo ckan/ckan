@@ -1222,7 +1222,6 @@ def format_resource_items(items):
                                     with_hours=True)
         key = key.replace('_', ' ')
         output.append((key, value))
-        print value, type(value)
     return sorted(output, key=lambda x:x[0])
 
 # these are the functions that will end up in `h` template helpers
