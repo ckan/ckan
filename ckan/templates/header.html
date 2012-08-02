@@ -34,8 +34,8 @@
       {% endif %}
       <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
         <div class="field">
-          <label for="field-user-search">{{ _('Search Users') }}</label>
-          <input id="field-user-search" name="q" placeholder="{{ _('Search') }}" />
+          <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
+          <input id="field-sitewide-search" name="q" placeholder="{{ _('Search') }}" />
           <button class="btn-search" type="submit">{{ _('Search') }}</button>
         </div>
       </form>
