@@ -46,15 +46,118 @@
   text-indent: -900em;
 }
 
-.site-footer .select2-drop {
+.lang-dropdown {
   color: #000;
 }
 
-.site-footer .select2-drop li {
+.lang-dropdown li {
   width: auto;
 }
 
-.ie .site-footer .select2-container {
+.ie .lang-dropdown {
   position: relative;
   top: -20px;
+}
+
+// Apply flags to the items in browsers that support :before
+.lang-dropdown .select2-result-label {
+  &[data-value]:before {
+    content: "";
+    display: inline-block;
+    background-image: url("@{imagePath}/flags.png");
+    width: 17px;
+    height: 11px;
+    position: relative;
+    top: 1px;
+  }
+
+  &[data-value*=en]:before {
+    background-position: 0 0;
+  }
+
+  &[data-value*=de]:before {
+    background-position: 0 -11px;
+  }
+
+  &[data-value*=fr]:before {
+    background-position: 0 -22px;
+  }
+
+  &[data-value*=it]:before {
+    background-position: 0 -33px;
+  }
+
+  &[data-value*=es]:before {
+    background-position: 0 -44px;
+  }
+
+  &[data-value*=pl]:before {
+    background-position: 0 -55px;
+  }
+
+  &[data-value*=ru]:before,
+  &[data-value*=sk]:before {
+    background-position: 0 -66px;
+  }
+
+  &[data-value*=nl]:before {
+    background-position: 0 -77px;
+  }
+
+  &[data-value*=sv]:before {
+    background-position: 0 -88px;
+  }
+
+  &[data-value*=no]:before {
+    background-position: 0 -99px;
+  }
+
+  &[data-value*=cs]:before {
+    background-position: 0 -110px;
+  }
+
+  &[data-value*=hu]:before {
+    background-position: 0 -121px;
+  }
+
+  &[data-value*=pt_BR]:before {
+    background-position: 0 -132px;
+  }
+
+  &[data-value*=fi]:before {
+    background-position: 0 -143px;
+  }
+
+  &[data-value*=bg]:before {
+    background-position: 0 -154px;
+  }
+
+  &[data-value*=ca]:before {
+    background-position: 0 -165px;
+  }
+
+  &[data-value*=sq]:before {
+    background-position: 0 -176px;
+  }
+
+  &[data-value*=sr]:before {
+    background-position: 0 -187px;
+  }
+
+  &[data-value*=sv]:before {
+    background-position: 0 -198px;
+  }
+
+  &[data-value*=lv]:before {
+    background-position: 0 -209px;
+  }
+
+  &[data-value*=zh_TW]:before {
+    background-position: 0 -198px;
+  }
+
+  &[data-value*=pt_BR]:before {
+    background-position: 0 -132px;
+  }
+
 }

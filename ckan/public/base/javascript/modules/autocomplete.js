@@ -19,6 +19,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       items: 10,
       source: null,
       interval: 1000,
+      dropdownClass: '',
+      containerClass: '',
       i18n: {
         noMatches: _('No matches found'),
         emptySearch: _('Start typing…'),
@@ -48,7 +50,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         width: 'resolve',
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort
+        formatInputTooShort: this.formatInputTooShort,
+        dropdownCssClass: this.options.dropdownClass,
+        containerCssClass: this.options.containerClass
       };
 
       // Different keys are required depending on whether the select is
@@ -144,10 +148,21 @@ this.ckan.module('autocomplete', function (jQuery, _) {
     /* Formatter for the select2 plugin that returns a string for use in the
      * results list with the current term emboldened.
      *
+     * state     - The current object that is being rendered.
+     * container - The element the content will be added to (added in 3.0)
+     * query     - The query object (added in select2 3.0).
+     *
+     *
      * Returns a text string.
      */
-    formatResult: function (state) {
-      var term = this._lastTerm || null;
+    formatResult: function (state, container, query) {
+      var term = this._lastTerm || null; // same as query.term
+
+      if (container) {
+        // Append the select id to the element for styling.
+        container.attr('data-value', state.id);
+      }
+
       return state.text.split(term).join(term && term.bold());
     },
 
