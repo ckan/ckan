@@ -46,7 +46,7 @@
       <h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>
       <div class="prose notes" property="rdfs:label">
         {% if res.description %}
-          {{ res.description }}
+          {{ h.render_markdown(res.description) }}
         {% else %}
           <p class="empty">{{ _('There is no description for this resource') }}</p>
         {% endif %}
