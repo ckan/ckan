@@ -197,16 +197,30 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.formatInitialValue()', function () {
-    it('should return an item object with id and text properties', function () {
-      var target = jQuery('<input value="test"/>');
-      assert.deepEqual(this.module.formatInitialValue(target), {id: 'test', text: 'test'});
+  describe('.formatInitialValue(element, callback)', function () {
+    beforeEach(function () {
+      this.callback = sinon.spy();
     });
 
-    it('should return an array of properties if options.tags is true', function () {
+    it('should pass an item object with id and text properties into the callback', function () {
+      var target = jQuery('<input value="test"/>');
+
+      this.module.formatInitialValue(target, this.callback);
+      assert.calledWith(this.callback, {id: 'test', text: 'test'});
+    });
+
+    it('should pass an array of properties into the callback if options.tags is true', function () {
       this.module.options.tags = true;
       var target = jQuery('<input />', {value: "test, test"});
-      assert.deepEqual(this.module.formatInitialValue(target), [{id: 'test', text: 'test'}, {id: 'test', text: 'test'}]);
+
+      this.module.formatInitialValue(target, this.callback);
+      assert.calledWith(this.callback, [{id: 'test', text: 'test'}, {id: 'test', text: 'test'}]);
+    });
+
+    it('should return the value if no callback is provided (to support select2 v2.1)', function () {
+      var target = jQuery('<input value="test"/>');
+
+      assert.deepEqual(this.module.formatInitialValue(target), {id: 'test', text: 'test'});
     });
   });
 

@@ -185,18 +185,27 @@ this.ckan.module('autocomplete', function (jQuery, _) {
 
     /* Callback function that parses the initial field value.
      *
-     * element - The initialized input element wrapped in jQuery.
+     * element  - The initialized input element wrapped in jQuery.
+     * callback - A callback to run once the formatting is complete.
      *
      * Returns a term object or an array depending on the type.
      */
-    formatInitialValue: function (element) {
+    formatInitialValue: function (element, callback) {
       var value = jQuery.trim(element.val() || '');
+      var formatted;
 
       if (this.options.tags) {
-        return jQuery.map(value.split(","), this.formatTerm);
+        formatted = jQuery.map(value.split(","), this.formatTerm);
       } else {
-        return this.formatTerm(value);
+        formatted = this.formatTerm(value);
       }
+
+      // Select2 v3.0 supports a callback for async calls.
+      if (typeof callback === 'function') {
+        callback(formatted);
+      }
+
+      return formatted;
     },
 
     /* Callback triggered when the select2 plugin needs to make a request.
