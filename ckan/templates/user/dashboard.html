@@ -9,6 +9,10 @@
   <li class="active"><a href="">{{ _('Your Dashboard') }}</a></li>
 {% endblock %}
 
+{% block actions_content %}
+  <li>{% link_for _('Your Profile'), controller='user', action='read', id=user.name, class_="btn icon-large", icon="user" %}</li>
+{% endblock %}
+
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
