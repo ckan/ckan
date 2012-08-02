@@ -49,6 +49,10 @@ class AdminController(base.BaseController):
             app_globals.set_global('ckan.site_about', about)
 
         if 'reset' in data:
+            # remove sys info items
+            for key in app_globals.auto_update:
+                app_globals.delete_global(key)
+            app_globals.delete_global('ckan.main_css')
             # reset to values in config
             app_globals.reset()
 

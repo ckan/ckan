@@ -35,6 +35,16 @@ def get_system_info(key, default=None):
         return default
 
 
+def delete_system_info(key, default=None):
+    ''' delete data from system_info table '''
+    obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+    print key
+    if obj:
+        print obj
+        meta.Session.delete(obj)
+        meta.Session.commit()
+
+
 def set_system_info(key, value):
     ''' save data in the system_info table '''
 

@@ -25,6 +25,8 @@ auto_update = [
     'ckan.site_about',
 ]
 
+# A place to store the origional config options of we override them
+_CONFIG_CACHE = {}
 
 def set_main_css(css_file):
     ''' Sets the main_css using debug css if needed.  The css_file
@@ -46,6 +48,10 @@ def set_global(key, value):
     config[key] = value
     log.info('config `%s` set to `%s`' % (key, value))
 
+def delete_global(key):
+    model.delete_system_info(key)
+    log.info('config `%s` deleted' % (key))
+
 def get_globals_key(key):
     # create our globals key
     # these can be specified in mappings or else we remove
@@ -58,15 +64,23 @@ def get_globals_key(key):
 
 def reset():
     ''' set updatable values from config '''
-
     def get_config_value(key, default=''):
         value = model.get_system_info(key)
+        # we want to store the config the first time we get here so we can
+        # reset them if needed
+        config_value = config.get(key)
+        if key not in _CONFIG_CACHE:
+            _CONFIG_CACHE[key] = config_value
         if value:
             # update the config
             config[key] = value
             log.info('config `%s` set to `%s` from db' % (key, value))
         else:
-            value = config.get(key, default)
+            value = _CONFIG_CACHE[key]
+            if value:
+                log.info('config `%s` set to `%s` from config' % (key, value))
+            else:
+                value = default
         setattr(app_globals, get_globals_key(key), value)
         return value
 

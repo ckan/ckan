@@ -152,6 +152,7 @@ from system_info import (
     SystemInfo,
     get_system_info,
     set_system_info,
+    delete_system_info,
 )
 
 import ckan.migration
