@@ -23,16 +23,20 @@
     <div class="module-content">
       {% block home_primary %}
         <header>
-          {% block home_primary_content %}
-            <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
-            <p>
-            {% block home_primary_text %}
-              {% trans %}This is a nice introductory paragraph about CKAN or the site
-              in general. We don't have any copy to go here yet but soon we will
-              {% endtrans %}
+          {% if g.site_intro_text %}
+          {{ h.render_markdown(g.site_intro_text) }}
+          {% else %}
+            {% block home_primary_content %}
+              <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
+              <p>
+              {% block home_primary_text %}
+                {% trans %}This is a nice introductory paragraph about CKAN or the site
+                in general. We don't have any copy to go here yet but soon we will
+                {% endtrans %}
+              {% endblock %}
+              </p>
             {% endblock %}
-            </p>
-          {% endblock %}
+          {% endif %}
         </header>
       {% endblock %}
 

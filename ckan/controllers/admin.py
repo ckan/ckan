@@ -48,6 +48,9 @@ class AdminController(base.BaseController):
             about = data.get('about')
             app_globals.set_global('ckan.site_about', about)
 
+            intro_text = data.get('intro_text')
+            app_globals.set_global('ckan.site_intro_text', intro_text)
+
         if 'reset' in data:
             # remove sys info items
             for key in app_globals.auto_update:
@@ -68,6 +71,7 @@ class AdminController(base.BaseController):
         data['style'] = g.main_css
         data['tagline'] = g.site_description
         data['about'] = g.site_about
+        data['intro_text'] = g.site_intro_text
 
         vars = {'data': data, 'errors': {}, 'styles': styles}
         return base.render('admin/config.html',
