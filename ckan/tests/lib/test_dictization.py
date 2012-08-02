@@ -13,6 +13,7 @@ from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
+                                                user_dictize,
                                                )
 from ckan.lib.dictization.model_save import (package_dict_save,
                                              resource_dict_save,
@@ -850,7 +851,8 @@ class TestBasicDictize:
         group = model.Session.query(model.Group).filter_by(name=u'help').one()
 
         context = {"model": model,
-                  "session": model.Session}
+                  "session": model.Session,
+                  "user": None}
 
         group_dictized = group_dictize(group, context)
 
@@ -869,13 +871,11 @@ class TestBasicDictize:
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'member',
-                              'email': None,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
                               'name': u'annafan',
                               'number_administered_packages': 1L,
-                              'number_of_edits': 0L,
-                              'reset_key': None}],
+                              'number_of_edits': 0L}],
                     'name': u'help',
                     'display_name': u'help',
                     'packages': [{'author': None,
@@ -999,3 +999,99 @@ class TestBasicDictize:
 
         # We didn't pass in any data so this should be empty.
         assert not got['data']
+
+    def test_22_user_dictize_as_sysadmin(self):
+        '''Sysadmins should be allowed to see certain sensitive data.'''
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': 'testsysadmin',
+        }
+
+        user = model.User.by_name('tester')
+
+        user_dict = user_dictize(user, context)
+
+        # Check some of the non-sensitive data
+        assert 'name' in user_dict
+        assert 'about' in user_dict
+
+        # Check sensitive data is available
+        assert 'apikey' in user_dict
+        assert 'reset_key' in user_dict
+        assert 'email' in user_dict
+
+        # Passwords should never be available
+        assert 'password' not in user_dict
+
+    def test_23_user_dictize_as_same_user(self):
+        '''User should be able to see their own sensitive data.'''
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': 'tester',
+        }
+
+        user = model.User.by_name('tester')
+
+        user_dict = user_dictize(user, context)
+
+        # Check some of the non-sensitive data
+        assert 'name' in user_dict
+        assert 'about' in user_dict
+
+        # Check sensitive data is available
+        assert 'apikey' in user_dict
+        assert 'reset_key' in user_dict
+        assert 'email' in user_dict
+
+        # Passwords should never be available
+        assert 'password' not in user_dict
+
+    def test_24_user_dictize_as_other_user(self):
+        '''User should not be able to see other's sensitive data.'''
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': 'annafan',
+        }
+
+        user = model.User.by_name('tester')
+
+        user_dict = user_dictize(user, context)
+
+        # Check some of the non-sensitive data
+        assert 'name' in user_dict
+        assert 'about' in user_dict
+
+        # Check sensitive data is not available
+        assert 'apikey' not in user_dict
+        assert 'reset_key' not in user_dict
+        assert 'email' not in user_dict
+
+        # Passwords should never be available
+        assert 'password' not in user_dict
+
+    def test_25_user_dictize_as_anonymous(self):
+        '''Anonymous should not be able to see other's sensitive data.'''
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': '',
+        }
+
+        user = model.User.by_name('tester')
+
+        user_dict = user_dictize(user, context)
+
+        # Check some of the non-sensitive data
+        assert 'name' in user_dict
+        assert 'about' in user_dict
+
+        # Check sensitive data is not available
+        assert 'apikey' not in user_dict
+        assert 'reset_key' not in user_dict
+        assert 'email' not in user_dict
+
+        # Passwords should never be available
+        assert 'password' not in user_dict
