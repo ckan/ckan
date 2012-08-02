@@ -6,6 +6,7 @@ from ckan.lib.dictization import (obj_list_dictize,
                                   obj_dict_dictize,
                                   table_dictize)
 from ckan.logic import NotFound
+import ckan.authz
 import ckan.misc
 from ckan.lib.helpers import json
 
@@ -196,7 +197,17 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    return result_dict 
+    requester = context['user']
+
+    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+            requester == user.name or
+            context.get('keep_sensitive_data', False)):
+        # If not sysadmin or the same user, strip sensible info
+        result_dict.pop('apikey', None)
+        result_dict.pop('reset_key', None)
+        result_dict.pop('email', None)
+
+    return result_dict
 
 def task_status_dictize(task_status, context):
     return table_dictize(task_status, context)

@@ -295,7 +295,6 @@ def user_list(context, data_dict):
 
     for user in query.all():
         result_dict = user_dictize(user[0], context)
-        del result_dict['apikey']
         users_list.append(result_dict)
 
     return users_list
@@ -474,7 +473,6 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     '''Shows user details'''
     model = context['model']
-    user = context['user']
 
     id = data_dict.get('id',None)
     provided_user = data_dict.get('user_obj',None)
@@ -491,11 +489,6 @@ def user_show(context, data_dict):
     check_access('user_show',context, data_dict)
 
     user_dict = user_dictize(user_obj,context)
-
-    if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
-        # If not sysadmin or the same user, strip sensible info
-        del user_dict['apikey']
-        del user_dict['reset_key']
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
