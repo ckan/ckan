@@ -45,6 +45,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      */
     setupAutoComplete: function () {
       var settings = {
+        width: 'resolve',
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
         formatInputTooShort: this.formatInputTooShort

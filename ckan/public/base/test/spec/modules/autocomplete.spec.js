@@ -57,6 +57,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
 
       assert.called(this.select2);
       assert.calledWith(this.select2, {
+        width: 'resolve',
         query: this.module._onQuery,
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
@@ -72,6 +73,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
 
       assert.called(this.select2);
       assert.calledWith(this.select2, {
+        width: 'resolve',
         tags: this.module._onQuery,
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
