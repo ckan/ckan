@@ -89,6 +89,11 @@
     {% block head_extras %}
       {{ config.get('ckan.template_head_end', '') | safe }}
     {% endblock %}
+    {%- if g.site_custom_css -%}
+    <style>
+      {{ g.site_custom_css | safe }}
+    </style>
+    {%- endif %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}

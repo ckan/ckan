@@ -24,6 +24,7 @@ auto_update = [
     'ckan.site_description',
     'ckan.site_about',
     'ckan.site_intro_text',
+    'ckan.site_custom_css',
 ]
 
 # A place to store the origional config options of we override them

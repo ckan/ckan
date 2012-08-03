@@ -119,6 +119,33 @@ Examples:
 {% endmacro %}
 
 {#
+Creates all the markup required for a plain textarea element. Handles
+matching labels to inputs, selected item and error messages.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input.
+placeholder - Some placeholder text.
+error       - A list of error strings for the field or just true to highlight the field.
+classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+  {% import 'macros/form.html' as form %}
+  {{ form.plain_textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
+
+#}
+{% macro plain_textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}) %}
+  {% set classes = (classes|list) %}
+  {% do classes.append('control-full') %}
+
+  {% call input_block(id or name, label or name, error, classes, control_classes=["editor"]) %}
+    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+  {% endcall %}
+{% endmacro %}
+
+{#
 Creates all the markup required for an input element with a prefixed segment.
 These are useful for showing url slugs and other fields where the input
 information forms only part of the saved data.
