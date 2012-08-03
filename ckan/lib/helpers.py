@@ -92,6 +92,9 @@ def url_for_static(*args, **kw):
     """Create url for static content that does not get translated
     eg css, js
     wrapper for routes.url_for"""
+    # make sure that if we specify the url that it is not unicode
+    if args:
+        args = (str(args[0]),) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
 
