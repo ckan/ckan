@@ -1474,3 +1474,99 @@ class CreateColorSchemeCommand(CkanCommand):
             f.close
             print 'Color scheme has been created.'
         print 'Make sure less is run for changes to take effect.'
+
+
+class TranslationsCommand(CkanCommand):
+    '''Translation helper functions
+
+    trans js - generate the javascript translations
+    trans mangle - mangle the zh_TW translations for testing
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from pylons import config
+        self.ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        i18n_path = os.path.join(self.ckan_path, 'i18n')
+        self.i18n_path = config.get('ckan.i18n_directory', i18n_path)
+        command = self.args[0]
+        if command == 'mangle':
+            self.mangle_po()
+        elif command == 'js':
+            self.build_js_translations()
+        else:
+            print 'command not recognised'
+
+    def build_js_translations(self):
+        import polib
+        import gettext
+        import simplejson as json
+
+        pot_path = os.path.join(self.i18n_path, 'ckan.pot')
+        po = polib.pofile(pot_path)
+        js_strings = []
+        for entry in po:
+            occurrences = entry.occurrences
+            js_use = False
+            for occurrence in occurrences:
+                if occurrence[0].endswith('.js'):
+                    js_use = True
+                    break
+            if js_use:
+                msg = entry.msgid.encode('utf-8')
+                js_strings.append(msg)
+
+        out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
+                                               'base', 'i18n'))
+        languages = []
+        for f in os.listdir(self.i18n_path):
+            if os.path.isdir(os.path.join(self.i18n_path, f)):
+                languages.append(f)
+
+        for language in languages:
+            lang = gettext.translation('ckan', self.i18n_path, [language])
+            lang.install()
+            trans_dict = {}
+            for string in js_strings:
+                trans_dict[string] = lang.gettext(string)
+            out_file = open(os.path.join(out_dir, '%s.js' % language), 'w')
+            out_file.write(json.dumps(trans_dict))
+            out_file.close()
+        print 'Generated JavaScript translations'
+
+    def mangle_po(self):
+        ''' This will mangle the zh_TW translations for translation coverage
+        testing.
+
+        NOTE: This will destroy the current translations fot zh_TW
+        '''
+        import polib
+        pot_path = os.path.join(self.i18n_path, 'ckan.pot')
+        po = polib.pofile(pot_path)
+        for entry in po:
+            msg = entry.msgid.encode('utf-8')
+            matches = re.finditer('(\[[^\]]*\]|\%\([^\)]*\)s|\%s)', msg)
+            length = len(msg)
+            position = 0
+            translation = u''
+            for match in matches:
+                translation += '-' * (match.start() - position)
+                position = match.end()
+                translation += match.group(0)
+            translation += '-' * (length - position)
+            entry.msgstr = translation
+        out_dir = os.path.join(self.i18n_path, 'zh_TW', 'LC_MESSAGES')
+        try:
+            os.makedirs(out_dir)
+        except OSError:
+            pass
+        out_po = os.path.join(out_dir, 'ckan.po')
+        out_mo = os.path.join(out_dir, 'ckan.mo')
+        po.save(out_po)
+        po.save_as_mofile(out_mo)
+        print 'zh_TW has been mangled'
