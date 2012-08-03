@@ -74,8 +74,6 @@ def reset():
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
         if value:
-            # update the config
-            config[key] = value
             log.info('config `%s` set to `%s` from db' % (key, value))
         else:
             value = _CONFIG_CACHE[key]
@@ -84,6 +82,8 @@ def reset():
             else:
                 value = default
         setattr(app_globals, get_globals_key(key), value)
+        # update the config
+        config[key] = value
         return value
 
     # update the config settings in auto update
