@@ -296,3 +296,38 @@ Example
   {{ " " }}{{ key }}{% if value != "" %}="{{ value }}"{% endif %}
   {%- endfor -%}
 {%- endmacro -%}
+
+{%- macro autoform(form_info=[], data={}, errors={}) -%}
+  {% for item in form_info %}
+    {% set name = item.name %}
+    {% set value = data.get(name) %}
+    {% set error = errors.get(name) %}
+    {% set id = 'field-%s' % name %}
+
+    {% set control = item.control or 'input' %}
+    {% set label = item.label %}
+    {% set placeholder = item.placeholder %}
+
+    {% set classes = item.classes %}
+
+    {% if control == 'input' %}
+
+        {{ input(name, id=id, label=label, placeholder=placeholder, value=value, error=error, classes=classes or ['control-medium']) }}
+
+    {% elif control == 'select' %}
+
+        {% set options = item.options %}
+        {{ select(name, id=id, label=label, options=options, selected=value, error=error) }}
+
+    {% elif control == 'markdown' %}
+
+        {{ markdown(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
+
+    {% elif control == 'plain_textarea' %}
+
+        {{ plain_textarea(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
+
+    {% endif %}
+
+  {% endfor %}
+{%- endmacro -%}
