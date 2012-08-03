@@ -693,10 +693,7 @@ def user_create(context, data_dict):
     user_dictize_context['keep_sensitive_data'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
-    # TODO: I don't know what the need for changing the context is here,
-    # probably caching of the domain object.  But it doesn't seem right given
-    # that usually context['user'] contains the user who made the request.
-    context['user'] = user
+    context['user_obj'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
     return user_dict
