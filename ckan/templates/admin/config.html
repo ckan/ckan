@@ -10,18 +10,7 @@
       <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
 
       <form method='post' action="" class="form-horizontal">
-        {{ form.select('style', id='field-style', label=_('Style'), options=styles, selected=data.style, error=errors.style) }}
-
-        {{ form.input('title', id='field-title', label=_('Site Title'), placeholder=_('eg. CKAN'), value=data.title, error=errors.title, classes=['control-medium']) }}
-
-        {{ form.input('tagline', id='field-tagline', label=_('Tag Line'), placeholder=_('eg. The Open Source Data Portal'), value=data.tagline, error=errors.tagline, classes=['control-medium']) }}
-
-        {{ form.markdown('about', id='field-about', label=_('About Text'), placeholder=_('About contents'), value=data.about, error=errors.about) }}
-
-        {{ form.markdown('intro_text', id='field-intro', label=_('Intro Text'), placeholder=_('Intro contents'), value=data.intro_text, error=errors.intro_text) }}
-
-        {{ form.plain_textarea('custom_css', id='field-intro', label=_('Custom CSS'), placeholder=_('Custom css'), value=data.custom_css, error=errors.custom_css) }}
-
+          {{ form.autoform(form_items, data, errors) }}
         <div class="form-actions">
           {# Update needs to come first so form submits when return is pressed #}
           <button type="submit" class="btn btn-primary" name="save">Update</button>

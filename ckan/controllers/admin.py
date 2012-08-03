@@ -1,4 +1,4 @@
-from pylons import g
+from pylons import config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -32,35 +32,6 @@ class AdminController(base.BaseController):
                                                      model.Revision))
 
     def config(self):
-        data = request.POST
-        if 'save' in data:
-            # update config from form
-            style = data.get('style')
-            app_globals.set_global('ckan.main_css', style)
-            app_globals.set_main_css(style)
-
-            site_title = data.get('title')
-            app_globals.set_global('ckan.site_title', site_title)
-
-            tag_line = data.get('tagline')
-            app_globals.set_global('ckan.site_description', tag_line)
-
-            about = data.get('about')
-            app_globals.set_global('ckan.site_about', about)
-
-            intro_text = data.get('intro_text')
-            app_globals.set_global('ckan.site_intro_text', intro_text)
-
-            custom_css = data.get('custom_css')
-            app_globals.set_global('ckan.site_custom_css', custom_css)
-
-        if 'reset' in data:
-            # remove sys info items
-            for key in app_globals.auto_update:
-                app_globals.delete_global(key)
-            app_globals.delete_global('ckan.main_css')
-            # reset to values in config
-            app_globals.reset()
 
         # Styles for use in the form.select() macro.
         styles = [{'text': 'Default', 'value': '/base/css/main.css'},
@@ -68,16 +39,40 @@ class AdminController(base.BaseController):
                   {'text': 'Green', 'value': '/base/css/green.css'},
                   {'text': 'Maroon', 'value': '/base/css/maroon.css'},
                   {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
+        items = [
+            {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
+            {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
+            {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
+            {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+            {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+            {'name': 'ckan.site_custom_css', 'control': 'plain_textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+        ]
+
+        data = request.POST
+        if 'save' in data:
+            # update config from form
+            for item in items:
+                name = item['name']
+                if name in data:
+                    app_globals.set_global(name, data[name])
+            app_globals.reset()
+
+        if 'reset' in data:
+            # remove sys info items
+            for item in items:
+                name = item['name']
+                app_globals.delete_global(name)
+            # reset to values in config
+            app_globals.reset()
+
+
+
         data = {}
+        for item in items:
+            name = item['name']
+            data[name] = config.get(name)
 
-        data['title'] = g.site_title
-        data['style'] = g.main_css
-        data['tagline'] = g.site_description
-        data['about'] = g.site_about
-        data['intro_text'] = g.site_intro_text
-        data['custom_css'] = g.site_custom_css
-
-        vars = {'data': data, 'errors': {}, 'styles': styles}
+        vars = {'data': data, 'errors': {}, 'form_items': items}
         return base.render('admin/config.html',
                            extra_vars = vars)
 
