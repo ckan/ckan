@@ -1548,9 +1548,12 @@ class TranslationsCommand(CkanCommand):
         import polib
         pot_path = os.path.join(self.i18n_path, 'ckan.pot')
         po = polib.pofile(pot_path)
+        # we don't want to mangle the following items in strings
+        # [1:...] %(...)s  %s  {...}
+        extract_reg_ex = '(\[\d*\:[^\]]*\]|\%\([^\)]*\)s|\%s|\{[^\}]*\})'
         for entry in po:
             msg = entry.msgid.encode('utf-8')
-            matches = re.finditer('(\[[^\]]*\]|\%\([^\)]*\)s|\%s)', msg)
+            matches = re.finditer(extract_reg_ex, msg)
             length = len(msg)
             position = 0
             translation = u''
