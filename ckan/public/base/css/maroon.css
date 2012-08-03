@@ -5625,6 +5625,10 @@ textarea {
 .dataset-heading a {
   color: #333333;
 }
+.dataset-heading .label {
+  position: relative;
+  top: -1px;
+}
 .dataset-content {
   font-size: 12px;
 }
@@ -6746,7 +6750,7 @@ li .icon-large:before {
   clear: both;
 }
 .masthead hgroup h1,
-.masthead hgroup p {
+.masthead hgroup h2 {
   font-size: 34px;
   line-height: 1.5;
   float: left;
@@ -6755,13 +6759,15 @@ li .icon-large:before {
   font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
   letter-spacing: -2px;
 }
-.masthead hgroup p {
+.masthead hgroup h2 {
   position: absolute;
   bottom: -3px;
   right: 0;
-  font-size: 15px;
   margin: 0;
+  font-size: 15px;
+  font-weight: normal;
   line-height: 1.2;
+  white-space: nowrap;
 }
 .masthead hgroup a {
   text-decoration: none;
@@ -7010,15 +7016,91 @@ li .icon-large:before {
   background: url("../images/ckan-logo-footer.png") no-repeat top left;
   text-indent: -900em;
 }
-.site-footer .select2-drop {
+.lang-dropdown {
   color: #000;
 }
-.site-footer .select2-drop li {
+.lang-dropdown li {
   width: auto;
 }
-.ie .site-footer .select2-container {
+.ie .lang-dropdown {
   position: relative;
   top: -20px;
+}
+.lang-dropdown .select2-result-label[data-value]:before {
+  content: "";
+  display: inline-block;
+  background-image: url("../images/flags.png");
+  width: 17px;
+  height: 11px;
+  position: relative;
+  top: 1px;
+}
+.lang-dropdown .select2-result-label[data-value*=en]:before {
+  background-position: 0 0;
+}
+.lang-dropdown .select2-result-label[data-value*=de]:before {
+  background-position: 0 -11px;
+}
+.lang-dropdown .select2-result-label[data-value*=fr]:before {
+  background-position: 0 -22px;
+}
+.lang-dropdown .select2-result-label[data-value*=it]:before {
+  background-position: 0 -33px;
+}
+.lang-dropdown .select2-result-label[data-value*=es]:before {
+  background-position: 0 -44px;
+}
+.lang-dropdown .select2-result-label[data-value*=pl]:before {
+  background-position: 0 -55px;
+}
+.lang-dropdown .select2-result-label[data-value*=ru]:before,
+.lang-dropdown .select2-result-label[data-value*=sk]:before {
+  background-position: 0 -66px;
+}
+.lang-dropdown .select2-result-label[data-value*=nl]:before {
+  background-position: 0 -77px;
+}
+.lang-dropdown .select2-result-label[data-value*=sv]:before {
+  background-position: 0 -88px;
+}
+.lang-dropdown .select2-result-label[data-value*=no]:before {
+  background-position: 0 -99px;
+}
+.lang-dropdown .select2-result-label[data-value*=cs]:before {
+  background-position: 0 -110px;
+}
+.lang-dropdown .select2-result-label[data-value*=hu]:before {
+  background-position: 0 -121px;
+}
+.lang-dropdown .select2-result-label[data-value*=pt_BR]:before {
+  background-position: 0 -132px;
+}
+.lang-dropdown .select2-result-label[data-value*=fi]:before {
+  background-position: 0 -143px;
+}
+.lang-dropdown .select2-result-label[data-value*=bg]:before {
+  background-position: 0 -154px;
+}
+.lang-dropdown .select2-result-label[data-value*=ca]:before {
+  background-position: 0 -165px;
+}
+.lang-dropdown .select2-result-label[data-value*=sq]:before {
+  background-position: 0 -176px;
+}
+.lang-dropdown .select2-result-label[data-value*=sr]:before {
+  background-position: 0 -187px;
+}
+.lang-dropdown .select2-result-label[data-value*=sv]:before {
+  background-position: 0 -198px;
+}
+.lang-dropdown .select2-result-label[data-value*=lv]:before {
+  background-position: 0 -209px;
+}
+.lang-dropdown .select2-result-label[data-value*=zh_TW]:before {
+  background-position: 0 -198px;
+}
+.lang-dropdown .select2-result-label[data-value*=pt_BR]:before {
+  background-position: 0 -132px;
 }
 .profile-info {
   *zoom: 1;
