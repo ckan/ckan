@@ -22,7 +22,7 @@
           </a>
           <span class="links">
             <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
-            <a class="sub" href="{{ h.url_for('/user/_logout') }}">Log out</a>
+            <a class="sub" href="{{ h.url_for('/user/_logout') }}">{{ _('Log out') }}</a>
           </span>
         </div>
       {% else %}

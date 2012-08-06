@@ -1,5 +1,5 @@
 <span class="form-select control-group control-order-by">
-  <label for="field-order-by">Order by</label>
+  <label for="field-order-by">{{ _('Order by') }}</label>
   <select id="field-order-by" name="sort">
     <option value="relevance asc"{% if sort =='relevance asc' %} selected="selected"{% endif %}>{{ _('Relevance') }}</option>
     <option value="title_string asc"{% if sort=='title_string asc' %} selected="selected"{% endif %}>{{ _('Name Ascending') }}</option>
@@ -7,5 +7,5 @@
     <option value="metadata_modified desc"{% if sort=='metadata_modified desc' %} selected="selected"{% endif %}>{{ _('Last Modified') }}</option>
     <option value="views_recent desc"{% if sort=='views_recent desc' %} selected="selected"{% endif %}>{{ _('Popular') }}</option>
   </select>
-  <button class="btn js-hide" type="submit">Go</button>
+  <button class="btn js-hide" type="submit">{{ _('Go') }}</button>
 </span>
