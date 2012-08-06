@@ -1595,7 +1595,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         pot_path = os.path.join(self.i18n_path, 'ckan.pot')
         po = polib.pofile(pot_path)
         # we don't want to mangle the following items in strings
-        # %(...)s  %s %0.3f [1:...] {...} etc
+        # %(...)s  %s %0.3f %1$s %2$0.3f [1:...] {...} etc
 
         # sprintf bit after %
         spf_reg_ex = "\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX]"
@@ -1603,7 +1603,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
                          '|\[\d*\:[^\]]*\]' + \
                          '|\{[^\}]*\}' + \
-                         '|\%(\d)*\$' + spf_reg_ex + ')'
+                         '|\%((\d)*\$)?' + spf_reg_ex + ')'
 
         for entry in po:
             msg = entry.msgid.encode('utf-8')
