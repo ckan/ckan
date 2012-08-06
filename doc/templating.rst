@@ -360,6 +360,29 @@ Examples:
     {% import 'macros/form.html' as form %}
     {{ form.select('year', label=_('Year'), options={'value': 2010, 'value': 2011}, selected=2011, error=errors.year) }}
 
+form.textarea()
+~~~~~~~~~~~~~~~
+
+Creates all the markup required for a plain textarea element. Handles
+matching labels to inputs, selected item and error messages.
+
+::
+
+    name        - The name of the form parameter.
+    id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+    label       - The human readable label.
+    value       - The value of the input.
+    placeholder - Some placeholder text.
+    error       - A list of error strings for the field or just true to highlight the field.
+    classes     - An array of classes to apply to the control-group.
+
+Examples:
+
+::
+
+    {% import 'macros/form.html' as form %}
+    {{ form.textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
+
 form.markdown()
 ~~~~~~~~~~~~~~~
 
@@ -440,3 +463,31 @@ Examples:
          values=(extra.key, extra.value, extra.deleted),
          error='')
     }}
+
+form.autoform()
+~~~~~~~~~~~~~~~
+
+Builds a form from the supplied form_info list/tuple.
+
+::
+
+    form_info - A list of dicts describing the form field to build.
+    data      - The form data object.
+    errors    - The form errors object.
+
+Example
+
+::
+
+    {% set form_info = [
+        {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
+        {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
+        {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
+        {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
+        {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+        {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+        {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+        ] %}
+
+    {% import 'macros/form.html' as form %}
+    {{ form.autoform(form_info, data, errors) }}
