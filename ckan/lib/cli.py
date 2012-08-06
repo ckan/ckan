@@ -1550,9 +1550,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             for occurrence in occurrences:
                 if occurrence[0].endswith('.js'):
                     js_use = True
-                    break
+                    continue
             if not js_use:
-                break
+                continue
             if entry.msgstr:
                 result[entry.msgid] = [None, entry.msgstr]
             elif entry.msgstr_plural:
@@ -1577,8 +1577,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 data = self.po2dict(po, l)
                 data = json.dumps(data, sort_keys=True,
                                   ensure_ascii=False, indent=2 * ' ')
-                out_file = open(os.path.join(out_dir, '%s.js' % f), 'w')
-                out_file.write(data)
+                out_file = open(os.path.join(out_dir, '%s.js' % l), 'w')
+                out_file.write(data.encode('utf-8'))
                 out_file.close()
 
         print 'Completed generating JavaScript translations'
