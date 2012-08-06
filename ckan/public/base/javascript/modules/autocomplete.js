@@ -228,7 +228,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns nothing.
      */
     _onQuery: function (options) {
-      this.lookup(options.term, options.callback);
+      if (options) {
+        this.lookup(options.term, options.callback);
+      }
     },
 
     /* Called when a key is pressed.  If the key is a comma we block it and
