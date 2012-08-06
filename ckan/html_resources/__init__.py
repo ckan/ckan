@@ -121,7 +121,7 @@ def __init__(self, library, relpath,
         if argument is None:
             continue
         elif isinstance(argument, basestring):
-            mode_resource = Resource(library, argument, bottom=bottom, renderer=renderer)
+            mode_resource = Resource(library, argument, bottom=bottom, renderer=renderer, dont_bundle=dont_bundle)
         else:
             # The dependencies of a mode resource should be the same
             # or a subset of the dependencies this mode replaces.
@@ -172,7 +172,7 @@ def create_library(name, path):
         if f.endswith('.css'):
             return path[:-4] + '.min.css'
 
-    def minify(filename, min_function):
+    def minify(filename, resource_path, min_function):
         ''' Minify file path using min_function. '''
         # if the minified file was modified after the source file we can
         # assume that it is up-to-date
@@ -187,10 +187,10 @@ def create_library(name, path):
         f.close()
         print 'minified %s' % path
 
-    def create_resource(filename, path, filepath):
+    def create_resource(path, lib_name):
         ''' create the fanstatic Resource '''
         # resource_name is name of the file without the .js/.css
-        resource_name = '.'.join(filename.split('.')[:-1])
+        rel_path, filename = os.path.split(path)
         kw = {}
         path_min = min_path(os.path.join(resource_path, filename))
         if os.path.exists(path_min):
@@ -200,12 +200,12 @@ def create_library(name, path):
             renderer = core.render_js
         if filename.endswith('.css'):
             renderer = core.render_css
-        if resource_name in depends:
+        if path in depends:
             dependencies = []
-            for dependency in depends[resource_name]:
-                dependencies.append(getattr(module, dependency))
+            for dependency in depends[path]:
+                dependencies.append(getattr(module, '%s/%s' % (lib_name, dependency)))
             kw['depends'] = dependencies
-        if resource_name in dont_bundle:
+        if path in dont_bundle:
             kw['dont_bundle'] = True
         # FIXME needs config.ini options enabled
         if False:
@@ -215,11 +215,12 @@ def create_library(name, path):
                                         condition=condition,
                                         renderer=renderer,
                                         other_browsers=other_browsers)
-
+        filename = os.path.join(rel_path, filename)
         resource = Resource(library, filename, **kw)
         # add the resource to this module
-        fanstatic_name = '%s/%s' % (filepath, resource_name)
+        fanstatic_name = '%s/%s' % (lib_name, filename)
         setattr(module, fanstatic_name, resource)
+        return resource
 
     order = []
     dont_bundle = []
@@ -248,27 +249,35 @@ def create_library(name, path):
     module = sys.modules[__name__]
 
     # process each .js/.css file found
+    file_list = []
     for dirname, dirnames, filenames in os.walk(resource_path):
-        for x in reversed(order):
-            if x in filenames:
-                filenames.remove(x)
-                filenames.insert(0, x)
         for f in filenames:
+            rel_path = dirname[len(path):]
+            if rel_path:
+                rel_path = rel_path[1:]
+            filepath = os.path.join(rel_path, f)
             if f.endswith('.js') and not f.endswith('.min.js'):
-                minify(f, jsmin)
-                create_resource(f, resource_path, path)
+                minify(f, dirname, jsmin)
+                file_list.append(filepath)
             if f.endswith('.css') and not f.endswith('.min.css'):
-                minify(f, cssmin)
-                create_resource(f, resource_path, path)
+                minify(f, dirname, cssmin)
+                file_list.append(filepath)
+
+    for x in reversed(order):
+        if x in file_list:
+            file_list.remove(x)
+            file_list.insert(0, x)
+    for f in file_list:
+        create_resource(f, name)
 
     # add groups
     for group_name in groups:
         members = []
         for member in groups[group_name]:
-            fanstatic_name = '%s/%s' % (path, member)
+            fanstatic_name = '%s/%s' % (name, member)
             members.append(getattr(module, fanstatic_name))
         group = Group(members)
-        fanstatic_name = '%s/%s' % (path, group_name)
+        fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
     # finally add the library to this module
     setattr(module, name, library)
@@ -276,10 +285,13 @@ def create_library(name, path):
     registry = get_library_registry()
     registry.add(library)
 
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'javascript'))
+create_library('base', base_path)
 
-# create our libraries here from any subdirectories
-for dirname, dirnames, filenames in os.walk(os.path.dirname(__file__)):
-    if dirname == os.path.dirname(__file__):
-        continue
-    lib_name = os.path.basename(dirname)
-    create_library(lib_name, lib_name)
+
+### create our libraries here from any subdirectories
+##for dirname, dirnames, filenames in os.walk(os.path.dirname(__file__)):
+##    if dirname == os.path.dirname(__file__):
+##        continue
+##    lib_name = os.path.basename(dirname)
+##    create_library(lib_name, lib_name)
