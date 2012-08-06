@@ -2,7 +2,7 @@
 
 {% set pkg = c.pkg_dict %}
 
-{% block title %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
 {% block breadcrumb_content %}
   {% set dataset = pkg.title or pkg.name %}

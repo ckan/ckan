@@ -3,7 +3,7 @@
 
 {% extends "package/new_resource.html" %}
 
-{% block title %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>

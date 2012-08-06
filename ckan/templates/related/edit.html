@@ -1,6 +1,6 @@
 {% extends "related/base_form_page.html" %}
 
-{% block title %}Edit related item - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit related item') }}{% endblock %}
 
 {# TODO: pass the same context in here so we can create links #}
 {% block breadcrumb_item %}{{ h.nav_link(_('Edit Related'), controller='related', action='edit', id=c.id, related_id="") }}{% endblock %}

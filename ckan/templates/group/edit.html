@@ -1,6 +1,6 @@
 {% extends "group/base_form_page.html" %}
 
-{% block title %}{{ _('Edit a Group') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Edit a Group') }}{% endblock %}
 
 {% block breadcrumb_link %}{% link_for _('Edit Group'), controller='group', action='edit', id=c.group.name %}{% endblock %}
 

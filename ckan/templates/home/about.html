@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _('About') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('About') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('About'), controller='home', action='about' %}</li>

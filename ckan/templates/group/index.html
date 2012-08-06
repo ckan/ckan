@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _('Groups of Datasets') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Groups of Datasets') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>

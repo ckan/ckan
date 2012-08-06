@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ c.group_dict.display_name }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>

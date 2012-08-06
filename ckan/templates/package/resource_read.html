@@ -3,7 +3,7 @@
 {% set pkg = c.pkg_dict %}
 {% set res = c.resource %}
 
-{% block title %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>

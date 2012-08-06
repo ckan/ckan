@@ -2,7 +2,7 @@
 
 {% set user = c.user_dict %}
 
-{% block title %}{{ user.display_name }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ user.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Users'), controller='user', action='index' %}</li>

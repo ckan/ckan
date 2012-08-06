@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ gettext('Error %(error_code)s', error_code=c.code[0]) }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ gettext('Error %(error_code)s', error_code=c.code[0]) }}{% endblock %}
 
 {% block primary_content %}
 	{{ c.content}}

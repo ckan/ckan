@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _("Search for a Dataset") }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{{ h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
