@@ -20,9 +20,27 @@
      */
     url: function (path) {
       if (!(/^https?:\/\//i).test(path)) {
-        path = this.endpoint + '/' + path.replace(/^\//, '');
+        path = this.endpoint + '/' + encodeURI(path).replace(/^\//, '');
       }
       return path;
+    },
+
+    /* Fetches the current locale translation from the API.
+     *
+     * locale - The current page locale.
+     *
+     * Examples
+     *
+     *   var locale = jQuery('html').attr('lang');
+     *   client.getLocaleData(locale, function (data) {
+     *     // Load into the localizer.
+     *   });
+     *
+     * Returns a jQuery xhr promise.
+     */
+    getLocaleData: function (locale, success, error) {
+      var url = this.url('/api/i18n/' + (locale || ''));
+      return jQuery.getJSON(url).then(success, error);
     },
 
     /* Retrieves a list of auto-completions from one of the various endpoints

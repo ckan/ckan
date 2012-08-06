@@ -39,6 +39,29 @@ describe('ckan.Client()', function () {
     });
   });
 
+  describe('.getLocaleData(locale, success, error)', function () {
+    beforeEach(function () {
+      this.fakePromise = sinon.stub(jQuery.Deferred());
+      this.fakePromise.then.returns(this.fakePromise);
+      sinon.stub(jQuery, 'getJSON').returns(this.fakePromise);
+    });
+
+    afterEach(function () {
+      jQuery.getJSON.restore();
+    });
+
+    it('should return a jQuery promise', function () {
+      var target = this.client.getLocaleData('en');
+      assert.ok(target === this.fakePromise, 'target === this.fakePromise'); 
+    });
+
+    it('should request the locale provided', function () {
+      var target = this.client.getLocaleData('en');
+      assert.called(jQuery.getJSON);
+      assert.calledWith(jQuery.getJSON, '/api/i18n/en');
+    });
+  });
+
   describe('.getCompletions(url, options, success, error)', function () {
     beforeEach(function () {
       this.fakePiped  = sinon.stub(jQuery.Deferred());
