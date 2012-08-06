@@ -133,14 +133,14 @@ classes     - An array of classes to apply to the control-group.
 Examples:
 
   {% import 'macros/form.html' as form %}
-  {{ form.plain_textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
+  {{ form.textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
-{% macro plain_textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}) %}
+{% macro textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
 
-  {% call input_block(id or name, label or name, error, classes, control_classes=["editor"]) %}
+  {% call input_block(id or name, label or name, error, classes) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
   {% endcall %}
 {% endmacro %}
@@ -297,6 +297,29 @@ Example
   {%- endfor -%}
 {%- endmacro -%}
 
+{#
+Builds a form from the supplied form_info list/tuple.
+
+form_info - A list of dicts describing the form field to build.
+data      - The form data object.
+errors    - The form errors object.
+
+Example
+
+  {% set form_info = [
+      {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
+      {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
+      {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
+      {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
+      {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+      {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+      {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+      ] %}
+
+  {% import 'macros/form.html' as form %}
+  {{ form.autoform(form_info, data, errors) }}
+
+#}
 {%- macro autoform(form_info=[], data={}, errors={}) -%}
   {% for item in form_info %}
     {% set name = item.name %}
@@ -323,9 +346,9 @@ Example
 
         {{ markdown(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
 
-    {% elif control == 'plain_textarea' %}
+    {% elif control == 'textarea' %}
 
-        {{ plain_textarea(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
+        {{ textarea(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
 
     {% endif %}
 

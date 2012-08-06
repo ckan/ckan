@@ -46,7 +46,7 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
             {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
-            {'name': 'ckan.site_custom_css', 'control': 'plain_textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+            {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
         ]
 
         data = request.POST
