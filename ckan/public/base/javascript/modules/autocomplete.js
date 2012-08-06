@@ -24,9 +24,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       i18n: {
         noMatches: _('No matches found'),
         emptySearch: _('Start typing…'),
-        inputTooShort: function (n) {
+        inputTooShort: function (data) {
           return _('Input is too short, must be at least one character')
-          .ifPlural(n, 'Input is too short, must be at least %d characters');
+          .ifPlural(data.min, 'Input is too short, must be at least %(min)d characters');
         }
       }
     },
@@ -181,7 +181,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a string.
      */
     formatInputTooShort: function (term, min) {
-      return this.i18n('inputTooShort', min);
+      return this.i18n('inputTooShort', {min: min});
     },
 
     /* Takes a string and converts it into an object used by the select2 plugin.
