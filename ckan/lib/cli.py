@@ -1550,7 +1550,7 @@ class TranslationsCommand(CkanCommand):
         po = polib.pofile(pot_path)
         # we don't want to mangle the following items in strings
         # [1:...] %(...)s  %s  {...}
-        extract_reg_ex = '(\[\d*\:[^\]]*\]|\%\([^\)]*\)s|\%s|\{[^\}]*\})'
+        extract_reg_ex = '(\[\d*\:[^\]]*\]|\%\([^\)]*\)s|\%(\d)*s|\{[^\}]*\})'
         for entry in po:
             msg = entry.msgid.encode('utf-8')
             matches = re.finditer(extract_reg_ex, msg)
