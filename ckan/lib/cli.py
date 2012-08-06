@@ -1567,20 +1567,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         import polib
         import simplejson as json
 
-        out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
-                                               'base', 'i18n'))
+        def create_js(source, lang):
+            print 'Generating', lang
+            po = polib.pofile(source)
+            data = self.po2dict(po, lang)
+            data = json.dumps(data, sort_keys=True,
+                              ensure_ascii=False, indent=2 * ' ')
+            out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
+                                                   'base', 'i18n'))
+            out_file = open(os.path.join(out_dir, '%s.js' % lang), 'w')
+            out_file.write(data.encode('utf-8'))
+            out_file.close()
+
         for l in os.listdir(self.i18n_path):
             if os.path.isdir(os.path.join(self.i18n_path, l)):
-                print 'Generating', l
                 f = os.path.join(self.i18n_path, l, 'LC_MESSAGES', 'ckan.po')
-                po = polib.pofile(f)
-                data = self.po2dict(po, l)
-                data = json.dumps(data, sort_keys=True,
-                                  ensure_ascii=False, indent=2 * ' ')
-                out_file = open(os.path.join(out_dir, '%s.js' % l), 'w')
-                out_file.write(data.encode('utf-8'))
-                out_file.close()
-
+                create_js(f, l)
         print 'Completed generating JavaScript translations'
 
     def mangle_po(self):
