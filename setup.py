@@ -57,7 +57,8 @@ setup(
             ('**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
-        ]},
+        ]
+    },
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose
