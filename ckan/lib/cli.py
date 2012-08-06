@@ -1555,7 +1555,7 @@ class TranslationsCommand(CkanCommand):
         spf_reg_ex = "\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX"
 
         extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
-                         '|\%(\d)*' + spf_reg_ex + ')'
+                         '|\%(\d)*\$' + spf_reg_ex + ')'
 
         for entry in po:
             msg = entry.msgid.encode('utf-8')
