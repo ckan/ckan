@@ -242,6 +242,29 @@ factory function and the ``this.sandbox.translate()`` object.
       }
     });
 
+String interpolation can be provided using the `sprintf formatting <http://www.diveintojavascript.com/projects/javascript-sprintf>`_.
+We always use the named arguments to keep in line with the Python translations.
+And we name the translate function passed into ``ckan.module()`` ``_``.
+
+::
+
+    ckan.module('my-module', function (jQuery, _) {
+      return {
+        initialize: function () {
+          // Keyword arguments
+          _('Hello %(name)s').fetch({name: 'Bill'}); // Hello Bill
+
+          // Multiple.
+          _("I like your %(color)s %(fruit)s.").fetch({color: 'red', fruit: 'apple');
+
+          // Plurals.
+          _("I have %(num)d apple.")
+            .ifPlural(2, "I have %(num)d apples.")
+            .fetch({num: 2, fruit: 'apple');
+        }
+      };
+    });
+
 Modules
 -------
 
@@ -321,12 +344,12 @@ String interpolation can be provided by passing extra arguments.
       return {
         options: {
           i18n: {
-            hello: _('Hello %s')
+            hello: _('Hello %(name)s')
           }
         },
         initialize: function () {
           var name = 'Dave';
-          this.i18n('hello', name); // "Hello Dave"
+          this.i18n('hello', {name: name}); // "Hello Dave"
         }
       }
     });
@@ -340,15 +363,16 @@ Jed API.
       return {
         options: {
           i18n: {
-            apples: function (n) {
-              return _('I have %d apple').isPlural(n, 'I have %d apples');
+            apples: function (params) {
+              var n = params.num;
+              return _('I have %(num)d apple').isPlural(n, 'I have %(num)d apples');
             }
           }
         },
         initialize: function () {
           var total = 1;
-          this.i18n('apples', total); // "I have 1 apple"
-          this.i18n('apples', 3);     // "I have 3 apples"
+          this.i18n('apples', {num: total}); // "I have 1 apple"
+          this.i18n('apples', {num: 3});     // "I have 3 apples"
         }
       }
     });

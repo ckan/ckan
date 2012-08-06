@@ -21,6 +21,14 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         file: 'file',
         params: []
       },
+      i18n: {
+        label: _('Upload a file'),
+        errorTitle: _('An Error Occurred'),
+        uploadSuccess: _('Resource uploaded'),
+        uploadError: _('Unable to upload file'),
+        authError: _('Unable to authenticate upload'),
+        metadataError: _('Unable to get data for uploaded file')
+      },
       template: [
         '<span class="resource-upload-field">',
         '<i class="ckan-icon ckan-icon-link-plugin"></i>',
@@ -52,7 +60,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     setupFileUpload: function () {
       var options = this.options;
 
-      this.upload.find('label').text(_('Upload a file').fetch());
+      this.upload.find('label').text(this.i18n('label'));
       this.upload.find('input[type=file]').fileupload({
         type: options.form.method,
         paramName: options.form.file,
@@ -139,7 +147,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      * Returns nothing.
      */
     notify: function (message, type) {
-      var title = _('An Error Occurred').fetch();
+      var title = this.i18n('errorTitle');
       this.sandbox.notify(title, message, type);
     },
 
@@ -183,7 +191,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      * a file.
      */
     _onUploadFail: function () {
-      this.sandbox.notify(_('Unable to upload file').fetch());
+      this.sandbox.notify(this.i18n('uploadError'));
     },
 
     /* Callback called when jQuery file upload plugin sends a file */
@@ -233,7 +241,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
 
     /* Called when the request for auth credentials fails. */
     _onAuthError: function (event, data) {
-      this.sandbox.notify(_('Unable to authenticate upload').fetch());
+      this.sandbox.notify(this.i18n('authError'));
       this._onUploadComplete();
     },
 
@@ -241,13 +249,13 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     _onMetadataSuccess: function (data, response) {
       var resource = this.sandbox.client.convertStorageMetadataToResource(response);
 
-      this.sandbox.notify(_('Resource uploaded').fetch(), '', 'success');
+      this.sandbox.notify(this.i18n('uploadSuccess'), '', 'success');
       this.sandbox.publish('resource:uploaded', resource);
     },
 
     /* Called when the request for file metadata fails */
     _onMetadataError: function () {
-      this.sandbox.notify(_('Unable to get data for uploaded file').fetch());
+      this.sandbox.notify(this.i18n('metadataError'));
       this._onUploadComplete();
     }
   };

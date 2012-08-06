@@ -59,6 +59,8 @@ describe('ckan.modules.AutocompleteModule()', function () {
       assert.calledWith(this.select2, {
         width: 'resolve',
         query: this.module._onQuery,
+        dropdownCssClass: '',
+        containerCssClass: '',
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
@@ -75,6 +77,8 @@ describe('ckan.modules.AutocompleteModule()', function () {
       assert.calledWith(this.select2, {
         width: 'resolve',
         tags: this.module._onQuery,
+        dropdownCssClass: '',
+        containerCssClass: '',
         formatResult: this.module.formatResult,
         formatNoMatches: this.module.formatNoMatches,
         formatInputTooShort: this.module.formatInputTooShort,
@@ -82,6 +86,41 @@ describe('ckan.modules.AutocompleteModule()', function () {
       });
 
       it('should watch the keydown event on the select2 input');
+
+      it('should allow a custom css class to be added to the dropdown', function () {
+        this.module.options.dropdownClass = 'tags';
+        this.module.setupAutoComplete();
+
+        assert.called(this.select2);
+        assert.calledWith(this.select2, {
+          width: 'resolve',
+          tags: this.module._onQuery,
+          dropdownCssClass: 'tags',
+          containerCssClass: '',
+          formatResult: this.module.formatResult,
+          formatNoMatches: this.module.formatNoMatches,
+          formatInputTooShort: this.module.formatInputTooShort,
+          initSelection: this.module.formatInitialValue
+        });
+      });
+
+      it('should allow a custom css class to be added to the container', function () {
+        this.module.options.containerClass = 'tags';
+        this.module.setupAutoComplete();
+
+        assert.called(this.select2);
+        assert.calledWith(this.select2, {
+          width: 'resolve',
+          tags: this.module._onQuery,
+          dropdownCssClass: '',
+          containerCssClass: 'tags',
+          formatResult: this.module.formatResult,
+          formatNoMatches: this.module.formatNoMatches,
+          formatInputTooShort: this.module.formatInputTooShort,
+          initSelection: this.module.formatInitialValue
+        });
+      });
+
     });
   });
 
