@@ -4,10 +4,10 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
     options: {
       /* Locale options can be overidden with data-module-i18n attribute */
       i18n: {
-        heading: _('Please Confirm Action').fetch(),
-        content: _('Are you sure you want to delete this item?').fetch(),
-        confirm: _('Confirm').fetch(),
-        cancel: _('Cancel').fetch()
+        heading: _('Please Confirm Action'),
+        content: _('Are you sure you want to delete this item?'),
+        confirm: _('Confirm'),
+        cancel: _('Cancel')
       },
       template: [
         '<div class="modal">',
