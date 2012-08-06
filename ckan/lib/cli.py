@@ -1596,7 +1596,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         # %(...)s  %s %0.3f [1:...] {...} etc
 
         # sprintf bit after %
-        spf_reg_ex = "\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX"
+        spf_reg_ex = "\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX]"
 
         extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
                          '|\[\d*\:[^\]]*\]' + \
@@ -1620,6 +1620,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             os.makedirs(out_dir)
         except OSError:
             pass
+        po.metadata['Plural-Forms'] = "nplurals=1; plural=0\n"
         out_po = os.path.join(out_dir, 'ckan.po')
         out_mo = os.path.join(out_dir, 'ckan.mo')
         po.save(out_po)
