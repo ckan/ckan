@@ -1,3 +1,4 @@
+import os.path
 import logging
 import cgi
 import datetime
@@ -755,3 +756,13 @@ class ApiController(base.BaseController):
         data_dict = {}
         status = get_action('status_show')(context, data_dict)
         return self._finish_ok(status)
+
+    def i18n_js_translations(self, lang):
+        ''' translation strings for front end '''
+        ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        source = os.path.abspath(os.path.join(ckan_path, 'public',
+                                    'base', 'i18n', '%s.js' % lang))
+        if not os.path.exists(source):
+            return '{}'
+        f = open(source, 'r')
+        return(f)

@@ -129,6 +129,7 @@ def make_map():
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
         m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
+        m.connect('/i18n/{lang}', action='i18n_js_translations')
 
     ###########
     ## /END API
