@@ -1,1 +1,75 @@
-{"Unable to get data for uploaded file": "------------------------------------", "There are unsaved modifications to this form": "--------------------------------------------", "Input is too short, must be at least one character": "--------------------------------------------------", "Confirm": "-------", "Edit": "----", "Are you sure you want to delete this item?": "------------------------------------------", "Start typing\u2026": "Start typing\u2026", "Failed to load data API information": "-----------------------------------", "Please Confirm Action": "---------------------", "There is no API data to load for this resource": "----------------------------------------------", "An Error Occurred": "-----------------", "Unable to authenticate upload": "-----------------------------", "Cancel": "------", "No matches found": "----------------", "Upload a file": "-------------", "Resource uploaded": "-----------------", "Unable to upload file": "---------------------"}
+{
+  "": {
+    "domain": "ckan",
+    "lang": "zh_TW",
+    "plural-forms": "nplurals=1; plural=0\n"
+  },
+  "An Error Occurred": [
+    null,
+    "-----------------"
+  ],
+  "Are you sure you want to delete this item?": [
+    null,
+    "------------------------------------------"
+  ],
+  "Cancel": [
+    null,
+    "------"
+  ],
+  "Confirm": [
+    null,
+    "-------"
+  ],
+  "Edit": [
+    null,
+    "----"
+  ],
+  "Failed to load data API information": [
+    null,
+    "-----------------------------------"
+  ],
+  "Input is too short, must be at least one character": [
+    null,
+    "--------------------------------------------------"
+  ],
+  "No matches found": [
+    null,
+    "----------------"
+  ],
+  "Please Confirm Action": [
+    null,
+    "---------------------"
+  ],
+  "Resource uploaded": [
+    null,
+    "-----------------"
+  ],
+  "Start typing…": [
+    null,
+    "---------------"
+  ],
+  "There are unsaved modifications to this form": [
+    null,
+    "--------------------------------------------"
+  ],
+  "There is no API data to load for this resource": [
+    null,
+    "----------------------------------------------"
+  ],
+  "Unable to authenticate upload": [
+    null,
+    "-----------------------------"
+  ],
+  "Unable to get data for uploaded file": [
+    null,
+    "------------------------------------"
+  ],
+  "Unable to upload file": [
+    null,
+    "---------------------"
+  ],
+  "Upload a file": [
+    null,
+    "-------------"
+  ]
+}
