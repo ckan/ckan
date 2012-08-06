@@ -7,50 +7,106 @@ import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.logic as logic
 
-
-# get_snippet functions are used to substitute placeholders in the activity
-# strings.  They need to be added to activity_snippet_functions dict to be
-# available.
+# get_snippet_*() functions replace placeholders like {user}, {dataset}, etc.
+# in activity strings with HTML representations of particular users, datasets,
+# etc.
 
 def get_snippet_actor(activity, detail):
     return h.linked_user(activity['user_id'])
 
-
 def get_snippet_user(activity, detail):
     return h.linked_user(activity['data']['user']['name'])
-
 
 def get_snippet_dataset(activity, detail):
     data = activity['data']
     return h.dataset_link(data.get('package') or data.get('dataset'))
 
-
 def get_snippet_tag(activity, detail):
     return h.tag_link(detail['data']['tag'])
-
 
 def get_snippet_group(activity, detail):
     return h.group_link(activity['data']['group'])
 
-
 def get_snippet_extra(activity, detail):
     return '"%s"' % detail['data']['package_extra']['key']
-
 
 def get_snippet_resource(activity, detail):
     return h.resource_link(detail['data']['resource'],
                            activity['data']['package']['id'])
 
-
 def get_snippet_related_item(activity, detail):
     return h.relate_item_link(activity['data']['related'])
-
 
 def get_snippet_related_type(activity, detail):
     # FIXME this needs to be translated
     return activity['data']['related']['type']
 
+# activity_stream_string_*() functions return translatable string
+# representations of activity types, the strings contain placeholders like
+# {user}, {dataset} etc. to be replaced with snippets from the get_snippet_*()
+# functions above.
 
+def activity_stream_string_added_tag():
+    return _("{actor} added the tag {tag} to the dataset {dataset}")
+
+def activity_stream_string_changed_group():
+    return _("{actor} updated the group {group}")
+
+def activity_stream_string_changed_package():
+    return _("{actor} updated the dataset {dataset}")
+
+def activity_stream_string_changed_package_extra():
+    return _("{actor} changed the extra {extra} of the dataset {dataset}")
+
+def activity_stream_string_changed_resource():
+    return _("{actor} updated the resource {resource} in the dataset {dataset}")
+
+def activity_stream_string_changed_user():
+    return _("{actor} updated their profile")
+
+def activity_stream_string_deleted_group():
+    return _("{actor} deleted the group {group}")
+
+def activity_stream_string_deleted_package():
+    return _("{actor} deleted the dataset {dataset}")
+
+def activity_stream_string_deleted_package_extra():
+    return _("{actor} deleted the extra {extra} from the dataset {dataset}")
+
+def activity_stream_string_deleted_resource():
+    return _("{actor} deleted the resource {resource} from the dataset {dataset}")
+
+def activity_stream_string_new_group():
+    return _("{actor} created the group {group}")
+
+def activity_stream_string_new_package():
+    return _("{actor} created the dataset {dataset}")
+
+def activity_stream_string_new_package_extra():
+    return _("{actor} added the extra {extra} to the dataset {dataset}")
+
+def activity_stream_string_new_resource():
+    return _("{actor} added the resource {resource} to the dataset {dataset}")
+
+def activity_stream_string_new_user():
+    return _("{actor} signed up")
+
+def activity_stream_string_removed_tag():
+    return _("{actor} removed the tag {tag} from the dataset {dataset}")
+
+def activity_stream_string_deleted_related_item():
+    return _("{actor} deleted the related item {related_item}")
+
+def activity_stream_string_follow_dataset():
+    return _("{actor} started following {dataset}")
+
+def activity_stream_string_follow_user():
+    return _("{actor} started following {user}")
+
+def activity_stream_string_new_related_item():
+    return _("{actor} created the link to related {related_type} {related_item}")
+
+# A dictionary mapping activity snippets to functions that expand the snippets.
 activity_snippet_functions = {
     'actor': get_snippet_actor,
     'user': get_snippet_user,
@@ -63,91 +119,9 @@ activity_snippet_functions = {
     'related_type': get_snippet_related_type,
 }
 
-
-# activity_stream_string functions return a translated string for the activity
-# containing placeholders for substitution by snippets
-
-def activity_stream_string_added_tag():
-    return _("{actor} added the tag {tag} to the dataset {dataset}")
-
-
-def activity_stream_string_changed_group():
-    return _("{actor} updated the group {group}")
-
-
-def activity_stream_string_changed_package():
-    return _("{actor} updated the dataset {dataset}")
-
-
-def activity_stream_string_changed_package_extra():
-    return _("{actor} changed the extra {extra} of the dataset {dataset}")
-
-
-def activity_stream_string_changed_resource():
-    return _("{actor} updated the resource {resource} in the dataset {dataset}")
-
-
-def activity_stream_string_changed_user():
-    return _("{actor} updated their profile")
-
-
-def activity_stream_string_deleted_group():
-    return _("{actor} deleted the group {group}")
-
-
-def activity_stream_string_deleted_package():
-    return _("{actor} deleted the dataset {dataset}")
-
-
-def activity_stream_string_deleted_package_extra():
-    return _("{actor} deleted the extra {extra} from the dataset {dataset}")
-
-
-def activity_stream_string_deleted_resource():
-    return _("{actor} deleted the resource {resource} from the dataset {dataset}")
-
-
-def activity_stream_string_new_group():
-    return _("{actor} created the group {group}")
-
-
-def activity_stream_string_new_package():
-    return _("{actor} created the dataset {dataset}")
-
-
-def activity_stream_string_new_package_extra():
-    return _("{actor} added the extra {extra} to the dataset {dataset}")
-
-
-def activity_stream_string_new_resource():
-    return _("{actor} added the resource {resource} to the dataset {dataset}")
-
-
-def activity_stream_string_new_user():
-    return _("{actor} signed up")
-
-
-def activity_stream_string_removed_tag():
-    return _("{actor} removed the tag {tag} from the dataset {dataset}")
-
-
-def activity_stream_string_deleted_related_item():
-    return _("{actor} deleted the related item {related_item}")
-
-
-def activity_stream_string_follow_dataset():
-    return _("{actor} started following {dataset}")
-
-
-def activity_stream_string_follow_user():
-    return _("{actor} started following {user}")
-
-
-def activity_stream_string_new_related_item():
-    return _("{actor} created the link to related {related_type} {related_item}")
-
-
-activity_info = {
+# A dictionary mapping activity types to functions that return translatable
+# string descriptions of the activity types.
+activity_stream_string_functions = {
   'added tag': activity_stream_string_added_tag,
   'changed group': activity_stream_string_changed_group,
   'changed package': activity_stream_string_changed_package,
@@ -170,35 +144,37 @@ activity_info = {
   'new related item': activity_stream_string_new_related_item,
 }
 
-
 def activity_list_to_html(context, activity_stream):
-    ''' A generalised function to try to render all activity streams '''
+    '''Return the given activity stream as a snippet of HTML.'''
 
-    # These are the activity stream messages
-
-    activity_list = []
+    activity_list = [] # These are the activity stream messages.
     for activity in activity_stream:
         detail = None
         activity_type = activity['activity_type']
-        # if package changed then we may have extra details
-        if activity_type == 'changed package':
-            details = logic.get_action('activity_detail_list')(context=context,
-                data_dict={'id': activity['id']})
-            if details:
-                detail = details[0]
-                object_type = detail['object_type']
-                if object_type == 'PackageExtra':
-                    object_type = 'package_extra'
-                new_activity_type = '%s %s' % (detail['activity_type'],
-                                           object_type.lower())
-                if new_activity_type in activity_info:
-                    activity_type = new_activity_type
 
-        if not activity_type in activity_info:
+        # If an activity has just one activity detail then render the detail
+        # instead of the activity.
+        details = logic.get_action('activity_detail_list')(context=context,
+            data_dict={'id': activity['id']})
+        if len(details) == 1:
+            detail = details[0]
+            object_type = detail['object_type']
+
+            if object_type == 'PackageExtra':
+                object_type = 'package_extra'
+
+            new_activity_type = '%s %s' % (detail['activity_type'],
+                                        object_type.lower())
+            if new_activity_type in activity_stream_string_functions:
+                activity_type = new_activity_type
+
+        if not activity_type in activity_stream_string_functions:
             raise NotImplementedError("No activity renderer for activity "
                 "type '%s'" % str(activity_type))
-        activity_msg = activity_info[activity_type]()
-        # get the data needed by the message
+
+        activity_msg = activity_stream_string_functions[activity_type]()
+
+        # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)
         data = {}
         for match in matches:
@@ -207,5 +183,5 @@ def activity_list_to_html(context, activity_stream):
         activity_list.append({'msg': activity_msg,
                               'data': data,
                               'timestamp': activity['timestamp']})
-    return literal(base.render('activity_streams/general.html',
+    return literal(base.render('activity_streams/activity_stream_item.html',
         extra_vars={'activities': activity_list}))
