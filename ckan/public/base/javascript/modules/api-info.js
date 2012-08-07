@@ -97,7 +97,7 @@ this.ckan.module('api-info', function (jQuery, _) {
      */
     loadTemplate: function () {
       if (!this.options.template) {
-        this.sandbox.notify(this.options.i18n.noTemplate);
+        this.sandbox.notify(this.i18n('noTemplate'));
         return jQuery.Deferred().reject().promise();
       }
 
@@ -125,7 +125,7 @@ this.ckan.module('api-info', function (jQuery, _) {
     /* error handler when the template fails to load */
     _onTemplateError: function () {
       this.loading(false);
-      this.sandbox.notify(this.options.i18n.loadError);
+      this.sandbox.notify(this.i18n('loadError'));
     }
   };
 });
