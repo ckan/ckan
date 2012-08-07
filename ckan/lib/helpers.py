@@ -618,7 +618,7 @@ def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
-    return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
+    return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
