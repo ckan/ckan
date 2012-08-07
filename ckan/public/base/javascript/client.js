@@ -240,8 +240,10 @@
      * Returns an object of dataset keys.
      */
     convertStorageMetadataToResource: function (meta) {
-      var modified = new Date(meta._last_modified);
-      var created = new Date(meta._creation_date);
+      // TODO: Check this is supported by IE7. U believe that the IE
+      // Date constructor chokes on hyphens and timezones.
+      var modified = new Date(this.normalizeTimestamp(meta._last_modified));
+      var created  = new Date(this.normalizeTimestamp(meta._creation_date));
 
       var createdISO  = jQuery.date.toCKANString(created);
       var modifiedISO = jQuery.date.toCKANString(modified);
@@ -271,6 +273,30 @@
         cache_url: meta._location,
         cache_url_updated: modifiedISO
       };
+    },
+
+    /* Adds a timezone to the provided timestamp if one is not present. This
+     * fixes an inconsistency between Webkit and Firefox where Firefox parses
+     * the date in the current users timezone but Webkit uses UTC.
+     *
+     * string - A timestamp string.
+     *
+     * Examples
+     *
+     *   client.normalizeTimestamp("2012-07-17T14:35:35");
+     *   // => "2012-07-17T14:35:35Z"
+     *
+     *   client.normalizeTimestamp("2012-07-17T14:35:35+0100");
+     *   // => "2012-07-17T14:35:35+0100"
+     *
+     * Returns a new timestamp with timezone.
+     */
+    normalizeTimestamp: function (string) {
+      var tz = /[+\-]\d{4}|Z/;
+      if (!tz.test(string)) {
+        string += 'Z';
+      }
+      return string;
     }
   });
 

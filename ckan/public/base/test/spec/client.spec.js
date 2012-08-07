@@ -354,4 +354,22 @@ describe('ckan.Client()', function () {
       assert.equal(target.mimetype, 'image/jpeg', 'mimetype');
     });
   });
+
+  describe('.normalizeTimestamp(timestamp)', function () {
+    it('should add a timezone to a timestamp without one', function () {
+      var target = this.client.normalizeTimestamp("2012-07-17T14:35:35");
+      assert.equal(target, "2012-07-17T14:35:35Z");
+    });
+
+    it('should not add a timezone to a timestamp with one already', function () {
+      var target = this.client.normalizeTimestamp("2012-07-17T14:35:35Z");
+      assert.equal(target, "2012-07-17T14:35:35Z", 'timestamp with Z');
+
+      target = this.client.normalizeTimestamp("2012-07-17T14:35:35+0100");
+      assert.equal(target, "2012-07-17T14:35:35+0100", 'timestamp with +0100');
+
+      target = this.client.normalizeTimestamp("2012-07-17T14:35:35-0400");
+      assert.equal(target, "2012-07-17T14:35:35-0400", 'timestamp with -0400');
+    });
+  });
 });
