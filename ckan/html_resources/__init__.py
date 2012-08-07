@@ -67,7 +67,8 @@ def __init__(self, library, relpath,
              renderer=None,
              debug=None,
              dont_bundle=False,
-             minified=None):
+             minified=None,
+             order=0):
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
     if core._resource_file_existence_checking and not os.path.exists(fullpath):
@@ -79,6 +80,7 @@ def __init__(self, library, relpath,
         self.dirname += '/'
     self.bottom = bottom
     self.dont_bundle = dont_bundle
+    self.forced_order = order
 
     self.ext = os.path.splitext(self.relpath)[1]
     if renderer is None:
@@ -183,6 +185,40 @@ def fits(self, resource):
              resource.dirname == bundle_resource.dirname))
 
 core.Bundle.fits = fits
+
+def sort_resources(resources):
+    """Sort resources for inclusion on web page.
+
+    A number of rules are followed:
+
+    * resources are always grouped per renderer (.js, .css, etc)
+    * resources that depend on other resources are sorted later
+    * resources are grouped by library, if the dependencies allow it
+    * libraries are sorted by name, if dependencies allow it
+    * resources are sorted by resource path if they both would be
+      sorted the same otherwise.
+
+    The only purpose of sorting on library is so we can
+    group resources per library, so that bundles can later be created
+    of them if bundling support is enabled.
+
+    Note this sorting algorithm guarantees a consistent ordering, no
+    matter in what order resources were needed.
+    """
+    for resource in resources:
+        resource.library.init_library_nr()
+
+    def key(resource):
+        return (
+            resource.order,
+            resource.forced_order,
+            resource.library.library_nr,
+            resource.library.name,
+            resource.dependency_nr,
+            resource.relpath)
+    return sorted(resources, key=key)
+
+core.sort_resources = sort_resources
 # Fanstatic Patch #
 
 def create_library(name, path):
