@@ -68,6 +68,7 @@ def __init__(self, library, relpath,
              debug=None,
              dont_bundle=False,
              minified=None,
+             custom_renderer_order=None,
              custom_order=0):
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
@@ -99,6 +100,8 @@ def __init__(self, library, relpath,
         self.order, _ = core.inclusion_renderers.get(
             self.ext, (sys.maxint, None))
 
+    if custom_renderer_order:
+        self.order = custom_renderer_order
     assert not isinstance(depends, basestring)
     self.depends = set()
     if depends is not None:
