@@ -141,7 +141,7 @@ class HomeController(BaseController):
             # We get all the packages or at least too many so
             # limit it to just 2
             group_dict['packages'] = group_dict['packages'][:2]
-            return {'group_dict' :group_dict}
+            return {'group_dict': group_dict}
 
         global dirty_cached_group_stuff
         if not dirty_cached_group_stuff:
