@@ -60,16 +60,20 @@ class IEConditionalRenderer(object):
 
 # Fanstatic Patch #
 # FIXME add full license info & push upstream
-def __init__(self, library, relpath,
-             depends=None,
-             supersedes=None,
-             bottom=False,
-             renderer=None,
-             debug=None,
-             dont_bundle=False,
-             minified=None,
-             custom_renderer_order=None,
-             custom_order=0):
+def __init__(self, library, relpath, **kw):
+
+    depends = kw.get('depends', None)
+    supersedes = kw.get('supersedes', None)
+    bottom = kw.get('bottom', False)
+    renderer = kw.get('renderer', None)
+    dont_bundle = kw.get('dont_bundle', False)
+    custom_renderer_order = kw.get('custom_renderer_order', None)
+    custom_order = kw.get('custom_order', 0)
+
+    # we don't want to pass these again
+    minified = kw.pop('minified', None)
+    debug = kw.pop('debug', None)
+
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
     if core._resource_file_existence_checking and not os.path.exists(fullpath):
@@ -126,7 +130,7 @@ def __init__(self, library, relpath,
         if argument is None:
             continue
         elif isinstance(argument, basestring):
-            mode_resource = Resource(library, argument, bottom=bottom, renderer=renderer, dont_bundle=dont_bundle)
+            mode_resource = Resource(library, argument, **kw)
         else:
             # The dependencies of a mode resource should be the same
             # or a subset of the dependencies this mode replaces.
