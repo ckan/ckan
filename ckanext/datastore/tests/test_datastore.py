@@ -532,7 +532,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_sort(self):
         data = {'resource_id': self.data['resource_id'],
-                'sort': 'book asc'}
+                'sort': 'book asc, author desc'}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -549,7 +549,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == expected_records
 
         data = {'resource_id': self.data['resource_id'],
-                'sort': 'book desc'}
+                'sort': ['book desc', '"author" asc']}
         postparams = '%s=1' % json.dumps(data)
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)

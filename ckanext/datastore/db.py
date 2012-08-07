@@ -2,6 +2,7 @@ import sqlalchemy
 import ckan.plugins as p
 import json
 import datetime
+import shlex
 
 _pg_types = {}
 _type_names = set()
@@ -304,13 +305,52 @@ def _where(field_ids, data_dict):
 
     q = data_dict.get('q')
     if q:
-        where_clauses.append('_full_text @@ to_tsquery(%s)'.format(q))
+        where_clauses.append('_full_text @@ to_tsquery(%s)')
         values.append(q)
 
     where_clause = ' and '.join(where_clauses)
     if where_clause:
         where_clause = 'where ' + where_clause
     return where_clause, values
+
+def _sort(context, sort, field_ids):
+
+    if not sort:
+        return ''
+
+    if isinstance(sort, basestring):
+        clauses = sort.split(',')
+    elif isinstance(sort, list):
+        clauses = sort
+    else:
+        raise p.toolkit.ValidationError({
+            'sort': 'sort is not a list or a string'
+        })
+
+    clause_parsed = []
+
+    for clause in clauses:
+        clause_parts = shlex.split(clause)
+        if len(clause_parts) == 1:
+            field, sort = clause_parts[0], 'asc'
+        elif len(clause_parts) == 2:
+            field, sort = clause_parts
+        else:
+            raise p.toolkit.ValidationError({
+                'sort': 'not valid syntax for sort clause'
+            })
+        if field not in field_ids:
+            raise p.toolkit.ValidationError({
+                'sort': 'field {} not it table'.format(field)
+            })
+        if sort.lower() not in ('asc', 'desc'):
+            raise p.toolkit.ValidationError({
+                'sort': 'sorting can only be asc or desc'
+            })
+        clause_parsed.append('"{}" {}'.format(field, sort))
+
+    if clause_parsed:
+        return "order by " + ", ".join(clause_parsed)
 
 
 def delete_data(context, data_dict):
@@ -354,10 +394,7 @@ def search_data(context, data_dict):
     _validate_int(limit, 'limit')
     _validate_int(offset, 'offset')
 
-    if data_dict.get('sort'):
-        sort = 'order by {}'.format(data_dict['sort'])
-    else:
-        sort = ''
+    sort = _sort(context, data_dict.get('sort'), field_ids)
 
     sql_string = '''select {}, count(*) over() as full_count
                     from "{}" {} {} limit {} offset {}'''\
