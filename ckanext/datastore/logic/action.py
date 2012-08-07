@@ -114,6 +114,6 @@ def datastore_search(context, data_dict):
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
     result = db.search(context, data_dict)
-    result.pop('id')
+    result.pop('id', None)
     result.pop('connection_url')
     return result
