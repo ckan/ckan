@@ -692,10 +692,19 @@ def user_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    context['user'] = user
+    # A new context is required for dictizing the newly constructed user in
+    # order that all the new user's data is returned, in particular, the
+    # api_key.
+    #
+    # The context is copied so as not to clobber the caller's context dict.
+    user_dictize_context = context.copy()
+    user_dictize_context['keep_sensitive_data'] = True
+    user_dict = model_dictize.user_dictize(user, user_dictize_context)
+
+    context['user_obj'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
-    return model_dictize.user_dictize(user, context)
+    return user_dict
 
 ## Modifications for rest api
 
