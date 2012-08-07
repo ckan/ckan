@@ -214,7 +214,8 @@ def package_update(context, data_dict):
     :type id: string
 
     :returns: the updated dataset (if 'return_package_dict' is True in the
-              context, which is the default. Otherwise returns None)
+              context, which is the default. Otherwise returns just the
+              dataset id)
     :rtype: dictionary
 
     '''
@@ -277,7 +278,10 @@ def package_update(context, data_dict):
 
     return_package_dict = context.get('return_package_dict',True)
 
-    return _get_action('package_show')(context, data_dict) if return_package_dict else None
+    output = _get_action('package_show')(context, {'id': data_dict['id']}) \
+            if return_package_dict else data_dict['id']
+
+    return output
 
 def package_update_validate(context, data_dict):
     model = context['model']
