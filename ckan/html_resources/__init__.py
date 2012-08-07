@@ -68,7 +68,7 @@ def __init__(self, library, relpath,
              debug=None,
              dont_bundle=False,
              minified=None,
-             order=0):
+             custom_order=0):
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
     if core._resource_file_existence_checking and not os.path.exists(fullpath):
@@ -80,7 +80,7 @@ def __init__(self, library, relpath,
         self.dirname += '/'
     self.bottom = bottom
     self.dont_bundle = dont_bundle
-    self.forced_order = order
+    self.custom_order = custom_order
 
     self.ext = os.path.splitext(self.relpath)[1]
     if renderer is None:
@@ -211,7 +211,7 @@ def sort_resources(resources):
     def key(resource):
         return (
             resource.order,
-            resource.forced_order,
+            resource.custom_order,
             resource.library.library_nr,
             resource.library.name,
             resource.dependency_nr,
