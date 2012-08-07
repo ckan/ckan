@@ -1220,6 +1220,7 @@ def format_resource_items(items):
     for key, value in items:
         if not value or key in blacklist:
             continue
+        value = unicode(value)
         if re.search(reg_ex, value):
             value = render_datetime(date_str_to_datetime(value),
                                     with_hours=True)
