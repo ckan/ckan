@@ -157,8 +157,33 @@ def __init__(self, library, relpath,
     self.library.register(self)
 
 core.Resource.__init__ = __init__
-# Fanstatic Patch #
 
+def render(self, library_url):
+
+
+    paths = [resource.relpath for resource in self._resources]
+    # URL may become too long:
+    # http://www.boutell.com/newfaq/misc/urllength.html
+    relpath = ''.join([core.BUNDLE_PREFIX, ';'.join(paths)])
+
+    return self.renderer('%s/%s' % (library_url, relpath))
+
+core.Bundle.render = render
+def fits(self, resource):
+    if resource.dont_bundle:
+        return False
+    # an empty resource fits anything
+    if not self._resources:
+        return True
+    # a resource fits if it's like the resources already inside
+    bundle_resource = self._resources[0]
+    return (resource.library is bundle_resource.library and
+            resource.renderer is bundle_resource.renderer and
+            (resource.ext == '.js' or
+             resource.dirname == bundle_resource.dirname))
+
+core.Bundle.fits = fits
+# Fanstatic Patch #
 
 def create_library(name, path):
     ''' Creates a fanstatic library `name` with the contents of a
