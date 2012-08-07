@@ -248,7 +248,7 @@ def create_library(name, path):
         f.close()
         print 'minified %s' % path
 
-    def create_resource(path, lib_name):
+    def create_resource(path, lib_name, count):
         ''' create the fanstatic Resource '''
         # resource_name is name of the file without the .js/.css
         rel_path, filename = os.path.split(path)
@@ -268,6 +268,7 @@ def create_library(name, path):
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
+        kw['order'] = count
         # FIXME needs config.ini options enabled
         if False:
             other_browsers = False
@@ -328,8 +329,10 @@ def create_library(name, path):
         if x in file_list:
             file_list.remove(x)
             file_list.insert(0, x)
+    count = 0
     for f in file_list:
-        create_resource(f, name)
+        create_resource(f, name, count)
+        count += 1
 
     # add groups
     for group_name in groups:
