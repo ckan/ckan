@@ -38,7 +38,7 @@ extras
             {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
-                  <span>{{ label }}{{ count }}</span>
+                  <span>{{ label }} {{ count }}</span>
                 </a>
               </li>
           {% endfor %}
