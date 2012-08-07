@@ -260,6 +260,7 @@ def create_library(name, path):
         # resource_name is name of the file without the .js/.css
         rel_path, filename = os.path.split(path)
         kw = {}
+        filename = os.path.join(rel_path, filename)
         path_min = min_path(os.path.join(resource_path, filename))
         if os.path.exists(path_min):
             kw['minified'] = min_path(filename)
@@ -284,7 +285,6 @@ def create_library(name, path):
                                         condition=condition,
                                         renderer=renderer,
                                         other_browsers=other_browsers)
-        filename = os.path.join(rel_path, filename)
         resource = Resource(library, filename, **kw)
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, filename)
