@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckan 1.9a\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-08-06 12:54+0100\n"
+"POT-Creation-Date: 2012-08-06 15:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Generated-By: Babel 0.9.4\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "\n"
 
@@ -119,7 +119,7 @@ msgstr "--------------"
 msgid "Action not implemented."
 msgstr "-----------------------"
 
-#: ckan/controllers/api.py:59 ckan/controllers/authorization_group.py:23
+#: ckan/controllers/api.py:60 ckan/controllers/authorization_group.py:23
 #: ckan/controllers/group.py:86 ckan/controllers/home.py:26
 #: ckan/controllers/package.py:127 ckan/controllers/related.py:86
 #: ckan/controllers/related.py:113 ckan/controllers/revision.py:30
@@ -129,11 +129,11 @@ msgstr "-----------------------"
 msgid "Not authorized to see this page"
 msgstr "-------------------------------"
 
-#: ckan/controllers/api.py:117 ckan/controllers/api.py:193
+#: ckan/controllers/api.py:118 ckan/controllers/api.py:194
 msgid "Access denied"
 msgstr "-------------"
 
-#: ckan/controllers/api.py:121 ckan/controllers/api.py:198
+#: ckan/controllers/api.py:122 ckan/controllers/api.py:199
 #: ckan/lib/base.py:579 ckan/logic/validators.py:61
 #: ckan/logic/validators.py:72 ckan/logic/validators.py:87
 #: ckan/logic/validators.py:101 ckan/logic/validators.py:112
@@ -142,28 +142,28 @@ msgstr "-------------"
 msgid "Not found"
 msgstr "---------"
 
-#: ckan/controllers/api.py:127
+#: ckan/controllers/api.py:128
 msgid "Bad request"
 msgstr "-----------"
 
-#: ckan/controllers/api.py:161
+#: ckan/controllers/api.py:162
 #, python-format
 msgid "Action name not known: %s"
 msgstr "-------------------------"
 
-#: ckan/controllers/api.py:174 ckan/controllers/api.py:333
-#: ckan/controllers/api.py:392
+#: ckan/controllers/api.py:175 ckan/controllers/api.py:334
+#: ckan/controllers/api.py:393
 #, python-format
 msgid "JSON Error: %s"
 msgstr "--------------"
 
-#: ckan/controllers/api.py:179
+#: ckan/controllers/api.py:180
 #, python-format
 msgid "Bad request data: %s"
 msgstr "--------------------"
 
-#: ckan/controllers/api.py:189 ckan/controllers/api.py:361
-#: ckan/controllers/api.py:413 ckan/controllers/group.py:328
+#: ckan/controllers/api.py:190 ckan/controllers/api.py:362
+#: ckan/controllers/api.py:414 ckan/controllers/group.py:328
 #: ckan/controllers/group.py:360 ckan/controllers/package.py:910
 #: ckan/controllers/package.py:962 ckan/controllers/related.py:190
 #: ckan/controllers/user.py:173 ckan/controllers/user.py:265
@@ -171,76 +171,76 @@ msgstr "--------------------"
 msgid "Integrity Error"
 msgstr "---------------"
 
-#: ckan/controllers/api.py:213
+#: ckan/controllers/api.py:214
 msgid "Parameter Error"
 msgstr "---------------"
 
-#: ckan/controllers/api.py:267 ckan/logic/action/get.py:1653
+#: ckan/controllers/api.py:268 ckan/logic/action/get.py:1653
 #, python-format
 msgid "Cannot list entity of this type: %s"
 msgstr "-----------------------------------"
 
-#: ckan/controllers/api.py:298
+#: ckan/controllers/api.py:299
 #, python-format
 msgid "Cannot read entity of this type: %s"
 msgstr "-----------------------------------"
 
-#: ckan/controllers/api.py:338
+#: ckan/controllers/api.py:339
 #, python-format
 msgid "Cannot create new entity of this type: %s %s"
 msgstr "--------------------------------------------"
 
-#: ckan/controllers/api.py:367
+#: ckan/controllers/api.py:368
 msgid "Unable to add package to search index"
 msgstr "-------------------------------------"
 
-#: ckan/controllers/api.py:397
+#: ckan/controllers/api.py:398
 #, python-format
 msgid "Cannot update entity of this type: %s"
 msgstr "-------------------------------------"
 
-#: ckan/controllers/api.py:417
+#: ckan/controllers/api.py:418
 msgid "Unable to update search index"
 msgstr "-----------------------------"
 
-#: ckan/controllers/api.py:441
+#: ckan/controllers/api.py:442
 #, python-format
 msgid "Cannot delete entity of this type: %s %s"
 msgstr "----------------------------------------"
 
-#: ckan/controllers/api.py:464
+#: ckan/controllers/api.py:465
 msgid "No revision specified"
 msgstr "---------------------"
 
-#: ckan/controllers/api.py:468
+#: ckan/controllers/api.py:469
 #, python-format
 msgid "There is no revision with id: %s"
 msgstr "--------------------------------"
 
-#: ckan/controllers/api.py:478
+#: ckan/controllers/api.py:479
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
 msgstr "----------------------------------------------------------------"
 
-#: ckan/controllers/api.py:488
+#: ckan/controllers/api.py:489
 #, python-format
 msgid "Could not read parameters: %r"
 msgstr "-----------------------------"
 
-#: ckan/controllers/api.py:539
+#: ckan/controllers/api.py:540
 #, python-format
 msgid "Bad search option: %s"
 msgstr "---------------------"
 
-#: ckan/controllers/api.py:542
+#: ckan/controllers/api.py:543
 #, python-format
 msgid "Unknown register: %s"
 msgstr "--------------------"
 
-#: ckan/controllers/api.py:550
+#: ckan/controllers/api.py:551
 msgid "Malformed qjson value"
 msgstr "---------------------"
 
-#: ckan/controllers/api.py:560
+#: ckan/controllers/api.py:561
 msgid "Request params must be in form of a json encoded dictionary."
 msgstr "------------------------------------------------------------"
 
@@ -1913,34 +1913,34 @@ msgstr "-------"
 msgid "Cancel"
 msgstr "------"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:55
+#: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/templates_legacy/package/new_package_form.html:153
 #: ckanext/organizations/templates/organization_package_form.html:161
 #: ckanext/publisher_form/templates/dataset_form.html:118
 msgid "Upload a file"
 msgstr "-------------"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:142
+#: ckan/public/base/javascript/modules/resource-upload-field.js:26
 msgid "An Error Occurred"
 msgstr "-----------------"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:186
-msgid "Unable to upload file"
-msgstr "---------------------"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:236
-msgid "Unable to authenticate upload"
-msgstr "-----------------------------"
-
-#: ckan/public/base/javascript/modules/resource-upload-field.js:244
+#: ckan/public/base/javascript/modules/resource-upload-field.js:27
 msgid "Resource uploaded"
 msgstr "-----------------"
 
-#: ckan/public/base/javascript/modules/resource-upload-field.js:250
+#: ckan/public/base/javascript/modules/resource-upload-field.js:28
+msgid "Unable to upload file"
+msgstr "---------------------"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:29
+msgid "Unable to authenticate upload"
+msgstr "-----------------------------"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:30
 msgid "Unable to get data for uploaded file"
 msgstr "------------------------------------"
 
-#: ckan/public/base/javascript/modules/slug-preview.js:53
+#: ckan/public/base/javascript/modules/slug-preview.js:32
 #: ckan/templates/group/read.html:13 ckan/templates/package/read.html:18
 #: ckan/templates/package/resource_read.html:18
 #: ckan/templates/related/snippets/related_item.html:30
@@ -1961,6 +1961,38 @@ msgstr "----"
 #, python-format
 msgid "Error %(error_code)s"
 msgstr "------%(error_code)s"
+
+#: ckan/templates/footer.html:8
+msgid "Terms and Conditions"
+msgstr "--------------------"
+
+#: ckan/templates/footer.html:9
+msgid "Accessibility"
+msgstr "-------------"
+
+#: ckan/templates/footer.html:10
+msgid "Code of conduct"
+msgstr "---------------"
+
+#: ckan/templates/footer.html:11
+msgid "Moderation policy"
+msgstr "-----------------"
+
+#: ckan/templates/footer.html:12
+msgid "FAQ"
+msgstr "---"
+
+#: ckan/templates/footer.html:13
+msgid "Privacy"
+msgstr "-------"
+
+#: ckan/templates/footer.html:14
+msgid "Contact us"
+msgstr "----------"
+
+#: ckan/templates/footer.html:15
+msgid "Consultation"
+msgstr "------------"
 
 #: ckan/templates/footer.html:22
 msgid ""
@@ -5644,7 +5676,6 @@ msgid "Add A Publisher"
 msgstr "---------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:25
-#: ckanext/stats/templates/ckanext/stats/index.html:193
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
 msgid "Total number of Datasets"
 msgstr "------------------------"
@@ -5655,21 +5686,20 @@ msgid "Date"
 msgstr "----"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
-msgid "Total Datasets"
+msgid "Total datasets"
 msgstr "--------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:48
 #: ckanext/stats/templates/ckanext/stats/index.html:194
-#: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
-msgid "Revisions to Datasets per week"
-msgstr "------------------------------"
+msgid "Dataset Revisions per Week"
+msgstr "--------------------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:56
-msgid "All package revisions"
+msgid "All dataset revisions"
 msgstr "---------------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:57
-msgid "New Datasets"
+msgid "New datasets"
 msgstr "------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:73
@@ -5735,13 +5765,24 @@ msgstr "------------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:167
 #: ckanext/stats/templates/ckanext/stats/index.html:199
-#: ckanext/stats/templates_legacy/ckanext/stats/index.html:95
-msgid "Users owning most datasets"
+msgid "Users Owning Most Datasets"
 msgstr "--------------------------"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:190
 msgid "Statistics Menu"
 msgstr "---------------"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:193
+msgid "Total Number of Datasets"
+msgstr "------------------------"
+
+#: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
+msgid "Revisions to Datasets per week"
+msgstr "------------------------------"
+
+#: ckanext/stats/templates_legacy/ckanext/stats/index.html:95
+msgid "Users owning most datasets"
+msgstr "--------------------------"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:102
 msgid "Page last updated:"

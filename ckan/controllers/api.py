@@ -762,6 +762,7 @@ class ApiController(base.BaseController):
         ckan_path = os.path.join(os.path.dirname(__file__), '..')
         source = os.path.abspath(os.path.join(ckan_path, 'public',
                                     'base', 'i18n', '%s.js' % lang))
+        response.headers['Content-Type'] = CONTENT_TYPES['json']
         if not os.path.exists(source):
             return '{}'
         f = open(source, 'r')

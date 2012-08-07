@@ -29,6 +29,7 @@ this.ckan.module('slug-preview-slug', function (jQuery, _) {
       prefix: '',
       placeholder: '<slug>',
       i18n: {
+        url:  _('URL'),
         edit: _('Edit')
       }
     },
@@ -53,6 +54,7 @@ this.ckan.module('slug-preview-slug', function (jQuery, _) {
           prefix: options.prefix,
           placeholder: options.placeholder,
           i18n: {
+            'URL': this.i18n('url'),
             'Edit': this.i18n('edit')
           }
         });

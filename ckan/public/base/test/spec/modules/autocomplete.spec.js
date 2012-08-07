@@ -272,6 +272,12 @@ describe('ckan.modules.AutocompleteModule()', function () {
       assert.called(target);
       assert.calledWith(target, 'term', 'callback');
     });
+
+    it('should do nothing if there is no options object', function () {
+      var target = sinon.stub(this.module, 'lookup');
+      this.module._onQuery();
+      assert.notCalled(target);
+    });
   });
 
   describe('._onKeydown(event)', function () {

@@ -17,8 +17,8 @@ this.ckan.module('api-info', function (jQuery, _) {
     options: {
       template: null,
       i18n: {
-        noTemplate: _('There is no API data to load for this resource').fetch(),
-        loadError: _('Failed to load data API information').fetch()
+        noTemplate: _('There is no API data to load for this resource'),
+        loadError: _('Failed to load data API information')
       }
     },
 

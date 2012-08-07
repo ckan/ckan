@@ -20,7 +20,7 @@
 
   {% if res.url %}
     <li>
-      <a class="btn resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+      <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
         {% if res.resource_type in ('listing', 'service') %}
           {{ _('View') }}
         {% elif  res.resource_type == 'api' %}
