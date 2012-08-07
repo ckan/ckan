@@ -99,7 +99,8 @@ def package_create(context, data_dict):
     :type groups: list of dictionaries
 
     :returns: the newly created dataset (if 'return_package_dict' is True in the
-              context, which is the default. Otherwise returns None)
+              context, which is the default. Otherwise returns just the dataset
+              id)
     :rtype: dictionary
 
     '''
@@ -166,7 +167,10 @@ def package_create(context, data_dict):
 
     return_package_dict = context.get('return_package_dict',True)
 
-    return _get_action('package_show')(context, {'id':context['id']}) if return_package_dict else None
+    output = _get_action('package_show')(context, {'id':context['id']}) \
+            if return_package_dict else context['id']
+
+    return output
 
 def package_create_validate(context, data_dict):
     model = context['model']
