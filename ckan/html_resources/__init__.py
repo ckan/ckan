@@ -275,7 +275,7 @@ def create_library(name, path):
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
-        kw['order'] = count
+        kw['custom_order'] = count
         # FIXME needs config.ini options enabled
         if False:
             other_browsers = False
