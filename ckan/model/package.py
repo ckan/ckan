@@ -218,7 +218,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         #tracking
         import ckan.model as model
         tracking = model.TrackingSummary.get_for_package(self.id)
-        _dict['tracking_summary'] = tracking
+        _dict['tracking_summary_total'] = tracking['total']
+        _dict['tracking_summary_recent'] = tracking['recent']
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):

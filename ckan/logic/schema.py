@@ -133,7 +133,10 @@ def default_package_schema():
             'name': [ignore_missing, unicode],
             'title': [ignore_missing, unicode],
             '__extras': [ignore],
-        }
+        },
+        'tracking_summary_total': [ignore_missing],
+        'tracking_summary_recent': [ignore_missing],
+        'isopen': [ignore_missing],
     }
     return schema
 

@@ -113,9 +113,12 @@ class TestBasicDictize:
                      {'name': u'tolstoy', 'display_name': u'tolstoy',
                          'state': u'active'}],
             'title': u'A Novel By Tolstoy',
-            'tracking_summary': {'total': 0, 'recent': 0},
+            'tracking_summary_total': 0,
+            'tracking_summary_recent': 0,
             'url': u'http://www.annakarenina.com',
-            'version': u'0.7a'}
+            'version': u'0.7a',
+            'isopen': True,
+            }
 
 
     @classmethod

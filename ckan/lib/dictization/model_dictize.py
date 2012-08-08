@@ -206,7 +206,8 @@ def package_dictize(pkg, context):
     result_dict["extras"] = extras_list_dictize(result, context)
     #tracking
     tracking = model.TrackingSummary.get_for_package(pkg.id)
-    result_dict['tracking_summary'] = tracking
+    result_dict['tracking_summary_total'] = tracking['total']
+    result_dict['tracking_summary_recent'] = tracking['recent']
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
