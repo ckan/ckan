@@ -1,5 +1,6 @@
 import sqlalchemy
 import ckan.plugins as p
+import psycopg2.extras
 import json
 import datetime
 import shlex
@@ -53,6 +54,15 @@ def _cache_types(context):
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
+        if '_json' not in _type_names:
+            connection.execute('create type "_json" as (json text, extra text)')
+            _pg_types.clear()
+            ## redo cache types with json now availiable.
+            return _cache_types(context)
+
+        psycopg2.extras.register_composite('_json', connection.connection,
+                                           True)
+
 
 
 def _get_type(context, oid):
@@ -64,6 +74,8 @@ def _guess_type(field):
     'Simple guess type of field, only allowed are integer, numeric and text'
     data_types = set([int, float])
 
+    if isinstance(field, (dict, list)):
+        return '_json'
     for data_type in list(data_types):
         try:
             data_type(field)
@@ -109,14 +121,13 @@ def json_get_values(obj, current_list=None):
         for item in obj:
             json_get_values(item, current_list)
     if isinstance(obj, dict):
-        for item in dict.values():
+        for item in obj.values():
             json_get_values(item, current_list)
     return current_list
 
 
 def check_fields(context, fields):
     'Check if field types are valid.'
-    _cache_types(context)
     for field in fields:
         if field.get('type') and not field['type'] in _type_names:
             raise p.toolkit.ValidationError({
@@ -127,6 +138,16 @@ def check_fields(context, fields):
                 'fields': '{0} is not a valid field name'.format(field['id'])
             })
 
+def convert(data, type):
+    if data is None:
+        return None
+    if type == '_json':
+        return json.loads(data[0])
+    if isinstance(data, datetime.datetime):
+        return data.isoformat()
+    if isinstance(data, (int, float)):
+        return data
+    return unicode(data)
 
 def create_table(context, data_dict):
     'Create table from combination of fields and first row of data.'
@@ -237,11 +258,11 @@ def insert_data(context, data_dict):
         return
 
     fields = _get_fields(context, data_dict)
-    field_names = [field['id'] for field in fields] + ['_full_text']
-    sql_columns = ", ".join(['"%s"' % name for name in field_names])
+    field_names = [field['id'] for field in fields]
+    sql_columns = ", ".join(['"%s"' % name for name in field_names] 
+                            + ['_full_text'])
 
     rows = []
-
     ## clean up and validate data
     for num, record in enumerate(data_dict['records']):
 
@@ -255,7 +276,7 @@ def insert_data(context, data_dict):
         if extra_keys:
             raise p.toolkit.ValidationError({
                 'records': 'row {} has extra keys "{}"'.format(
-                    num,
+                    num + 1,
                     ', '.join(list(extra_keys))
                 )
             })
@@ -264,9 +285,10 @@ def insert_data(context, data_dict):
         row = []
         for field in fields:
             value = record.get(field['id'])
-            if isinstance(value, (dict, list)):
+            if field['type'].lower() == '_json' and value:
                 full_text.extend(json_get_values(value))
-                value = json.dumps(value)
+                ## a tuple with an empty second value
+                value = (json.dumps(value), '')
             elif field['type'].lower() == 'text' and value:
                 full_text.append(value)
             row.append(value)
@@ -277,7 +299,7 @@ def insert_data(context, data_dict):
     sql_string = 'insert into "{0}" ({1}) values ({2});'.format(
         data_dict['resource_id'],
         sql_columns,
-        ', '.join(['%s' for field in field_names])
+        ', '.join(['%s' for field in field_names + ['_full_text']])
     )
 
     context['connection'].execute(sql_string, rows)
@@ -369,13 +391,13 @@ def delete_data(context, data_dict):
 
 def search_data(context, data_dict):
     all_fields = _get_fields(context, data_dict)
-    all_field_ids = set([field['id'] for field in all_fields])
+    all_field_ids = [field['id'] for field in all_fields]
+    all_field_ids.insert(0,'_id')
 
     fields = data_dict.get('fields')
 
     if fields:
-        check_fields(context, fields)
-        field_ids = set([field['id'] for field in fields])
+        field_ids = fields
 
         for field in field_ids:
             if not field in all_field_ids:
@@ -383,7 +405,6 @@ def search_data(context, data_dict):
                     'fields': 'field "{}" not in table'.format(field)}
                 )
     else:
-        fields = all_fields
         field_ids = all_field_ids
 
     select_columns = ', '.join(field_ids)
@@ -396,23 +417,34 @@ def search_data(context, data_dict):
 
     sort = _sort(context, data_dict.get('sort'), field_ids)
 
-    sql_string = '''select {}, count(*) over() as full_count
+    sql_string = '''select {}, count(*) over() as "_full_count"
                     from "{}" {} {} limit {} offset {}'''\
         .format(select_columns, data_dict['resource_id'], where_clause,
                 sort, limit, offset)
     results = context['connection'].execute(sql_string, where_values)
-    results = [r for r in results]
 
-    if results:
-        data_dict['total'] = results[0]['full_count']
-    else:
-        data_dict['total'] = 0
+    result_fields = []
+    for field in results.cursor.description:
+        result_fields.append({
+            'id': field[0],
+            'type': _get_type(context, field[1])
+        })
+    result_fields.pop() # remove _full_count
 
-    records = [(dict((f, r[f]) for f in field_ids)) for r in results]
+    data_dict['total'] = 0
+
+    records = []
+    for row in results:
+        converted_row = {}
+        if not data_dict['total']:
+            data_dict['total'] = row['_full_count']
+        for field in result_fields:
+            converted_row[field['id']] = convert(row[field['id']],
+                                                 field['type'])
+        records.append(converted_row)
     data_dict['records'] = records
-
+    data_dict['fields'] = result_fields
     return data_dict
-
 
 def create(context, data_dict):
     '''
@@ -437,6 +469,7 @@ def create(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    _cache_types(context)
 
     # close connection at all cost.
     try:
@@ -463,6 +496,7 @@ def create(context, data_dict):
 def delete(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    _cache_types(context)
 
     try:
         # check if table existes
@@ -495,6 +529,7 @@ def delete(context, data_dict):
 def search(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    _cache_types(context)
 
     try:
         # check if table existes

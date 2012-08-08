@@ -134,9 +134,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data = {
             'resource_id': resource.id,
             'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
+                       {'id': 'author', 'type': '_json'}],
+            'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
                         {'book': 'warandpeace'}]  # treat author as null
         }
         postparams = '%s=1' % json.dumps(data)
@@ -156,8 +157,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert results.rowcount == 3
         for i, row in enumerate(results):
             assert data['records'][i].get('book') == row['book']
-            assert (data['records'][i].get('author') == row['author']
-                    or data['records'][i].get('author') == json.loads(row['author']))
+            assert data['records'][i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ 'warandpeace' '''.format(resource.id))
         assert results.rowcount == 1
@@ -169,7 +169,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         #######  insert again simple
         data2 = {
             'resource_id': resource.id,
-            'records': [{'book': 'hagji murat', 'author': 'tolstoy'}]
+            'records': [{'book': 'hagji murat', 'author': ['tolstoy']}]
         }
 
         postparams = '%s=1' % json.dumps(data2)
@@ -188,8 +188,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         all_data = data['records'] + data2['records']
         for i, row in enumerate(results):
             assert all_data[i].get('book') == row['book']
-            assert (all_data[i].get('author') == row['author']
-                    or all_data[i].get('author') == json.loads(row['author']))
+            assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ 'tolstoy' '''.format(resource.id))
         assert results.rowcount == 3
@@ -199,7 +198,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data3 = {
             'resource_id': resource.id,
             'records': [{'book': 'crime and punsihment',
-                         'author': 'dostoevsky', 'rating': 'good'}]
+                         'author': ['dostoevsky'], 'rating': 'good'}]
         }
 
         postparams = '%s=1' % json.dumps(data3)
@@ -216,11 +215,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert results.rowcount == 5
 
         all_data = data['records'] + data2['records'] + data3['records']
-        print all_data
         for i, row in enumerate(results):
             assert all_data[i].get('book') == row['book'], (i, all_data[i].get('book'), row['book'])
-            assert (all_data[i].get('author') == row['author']
-                    or all_data[i].get('author') == json.loads(row['author']))
+            assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ 'dostoevsky' '''.format(resource.id))
         assert results.rowcount == 2
@@ -230,7 +227,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[1]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'author', 'type': 'text'},
+            'fields': [{'id': 'author', 'type': '_json'},
                        {'id': 'count'},
                        {'id': 'book'},
                        {'id': 'date'}],
@@ -250,14 +247,13 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
-        assert types == [u'int4', u'tsvector', u'text', u'int4',
+        assert types == [u'int4', u'tsvector', u'_json', u'int4',
                          u'text', u'timestamp', u'int4'], types
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
             assert data['records'][i].get('book') == row['book']
-            assert (data['records'][i].get('author') == row['author']
-                    or data['records'][i].get('author') == json.loads(row['author']))
+            assert data['records'][i].get('author') == (json.loads(row['author'][0]) if row['author'] else None) 
         model.Session.remove()
 
         ### extend types
@@ -274,7 +270,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                       ],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy',
                          'count': 1, 'date': '2005-12-01', 'count2': 2,
-                         'count3': 432, 'date2': '2005-12-01'}]
+                         'nested': [1,2], 'date2': '2005-12-01'}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -290,14 +286,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert types == [u'int4',  # id
                          u'tsvector',  # fulltext
-                         u'text',  # author
+                         u'_json',  # author
                          u'int4',  # count
                          u'text',  # book
                          u'timestamp',  # date
                          u'int4',  # count2
                          u'text',  # extra
                          u'timestamp',  # date2
-                         u'int4',  # count3
+                         u'_json',  # count3
                         ], types
 
         ### fields resupplied in wrong order
@@ -466,8 +462,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
-                        {'book': 'warandpeace', 'author': 'tolstoy'}]
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        {'book': 'warandpeace', 'author': 'tolstoy', 'nested': {'a':'b'}}
+                       ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
@@ -475,6 +472,14 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+
+        cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
+                                u'_id': 1,
+                                u'nested': [u'b', {u'moo': u'moo'}], u'book': u'annakarenina', u'author': u'tolstoy'},
+                                {u'published': None,
+                                 u'_id': 2,
+                                 u'nested': {u'a': u'b'}, u'book': u'warandpeace', u'author': u'tolstoy'}]
+
 
     @classmethod
     def teardown_class(cls):
@@ -490,7 +495,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == self.data['records']
+        assert result['records'] == self.expected_records
 
     def test_search_invalid_field(self):
         data = {'resource_id': self.data['resource_id'],
@@ -504,7 +509,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_fields(self):
         data = {'resource_id': self.data['resource_id'],
-                'fields': [{'id': 'book'}]}
+                'fields': ['book']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -514,7 +519,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
         assert result['records'] == [{'book': 'annakarenina'},
-                                     {'book': 'warandpeace'}]
+                                     {'book': 'warandpeace'}], result['records']
 
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
@@ -527,8 +532,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [{'book': 'annakarenina',
-                                      'author': 'tolstoy'}]
+        assert result['records'] == [self.expected_records[0]]
 
     def test_search_sort(self):
         data = {'resource_id': self.data['resource_id'],
@@ -542,11 +546,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 2
 
-        expected_records = [
-            {'book': 'annakarenina', 'author': 'tolstoy'},
-            {'book': 'warandpeace', 'author': 'tolstoy'}
-        ]
-        assert result['records'] == expected_records
+        assert result['records'] == self.expected_records, result['records']
 
         data = {'resource_id': self.data['resource_id'],
                 'sort': ['book desc', '"author" asc']}
@@ -558,11 +558,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 2
 
-        expected_records = [
-            {'book': 'warandpeace', 'author': 'tolstoy'},
-            {'book': 'annakarenina', 'author': 'tolstoy'}
-        ]
-        assert result['records'] == expected_records
+        assert result['records'] == self.expected_records[::-1]
 
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
@@ -575,8 +571,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 2
-        assert result['records'] == [{'book': 'annakarenina',
-                                      'author': 'tolstoy'}]
+        assert result['records'] == [self.expected_records[0]]
 
     def test_search_invalid_limit(self):
         data = {'resource_id': self.data['resource_id'],
@@ -600,8 +595,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 2
-        assert result['records'] == [{'book': 'warandpeace',
-                                      'author': 'tolstoy'}]
+        assert result['records'] == [self.expected_records[1]]
 
     def test_search_invalid_offset(self):
         data = {'resource_id': self.data['resource_id'],
@@ -624,8 +618,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [{'book': 'annakarenina',
-                                      'author': 'tolstoy'}]
+        assert result['records'] == [self.expected_records[0]]
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -636,4 +629,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 2
-        assert result['records'] == self.data['records']
+        assert result['records'] == self.expected_records, result['records']
+
+        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'book'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+
