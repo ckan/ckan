@@ -211,6 +211,9 @@ class GroupController(BaseController):
 
             c.search_facets = query['search_facets']
             c.page.items = query['results']
+
+            c.sort_by_selected = sort_by
+
         except SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
