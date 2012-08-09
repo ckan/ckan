@@ -7016,76 +7016,79 @@ li .icon-large:before {
   content: "";
   display: inline-block;
   background-image: url("../images/flags.png");
+  background-repeat: no-repeat;
+  background-position: 0 11px;
   width: 17px;
   height: 11px;
   position: relative;
   top: 1px;
 }
-.lang-dropdown .select2-result-label[data-value*=en]:before {
+.lang-dropdown .select2-result-label[data-value*="/en/"]:before {
   background-position: 0 0;
 }
-.lang-dropdown .select2-result-label[data-value*=de]:before {
+.lang-dropdown .select2-result-label[data-value*="/de/"]:before {
   background-position: 0 -11px;
 }
-.lang-dropdown .select2-result-label[data-value*=fr]:before {
+.lang-dropdown .select2-result-label[data-value*="/fr/"]:before {
   background-position: 0 -22px;
 }
-.lang-dropdown .select2-result-label[data-value*=it]:before {
+.lang-dropdown .select2-result-label[data-value*="/it/"]:before {
   background-position: 0 -33px;
 }
-.lang-dropdown .select2-result-label[data-value*=es]:before {
+.lang-dropdown .select2-result-label[data-value*="/es/"]:before {
   background-position: 0 -44px;
 }
-.lang-dropdown .select2-result-label[data-value*=pl]:before {
+.lang-dropdown .select2-result-label[data-value*="/pl/"]:before {
   background-position: 0 -55px;
 }
-.lang-dropdown .select2-result-label[data-value*=ru]:before,
-.lang-dropdown .select2-result-label[data-value*=sk]:before {
+.lang-dropdown .select2-result-label[data-value*="/ru/"]:before {
   background-position: 0 -66px;
 }
-.lang-dropdown .select2-result-label[data-value*=nl]:before {
+.lang-dropdown .select2-result-label[data-value*="/nl/"]:before {
   background-position: 0 -77px;
 }
-.lang-dropdown .select2-result-label[data-value*=sv]:before {
+.lang-dropdown .select2-result-label[data-value*="/sv/"]:before {
   background-position: 0 -88px;
 }
-.lang-dropdown .select2-result-label[data-value*=no]:before {
+.lang-dropdown .select2-result-label[data-value*="/no/"]:before {
   background-position: 0 -99px;
 }
-.lang-dropdown .select2-result-label[data-value*=cs]:before {
+.lang-dropdown .select2-result-label[data-value*="/cs/"]:before,
+.lang-dropdown .select2-result-label[data-value*="/cs_CZ/"]:before {
   background-position: 0 -110px;
 }
-.lang-dropdown .select2-result-label[data-value*=hu]:before {
+.lang-dropdown .select2-result-label[data-value*="/hu/"]:before {
   background-position: 0 -121px;
 }
-.lang-dropdown .select2-result-label[data-value*=pt_BR]:before {
+.lang-dropdown .select2-result-label[data-value*="/pt_BR/"]:before {
   background-position: 0 -132px;
 }
-.lang-dropdown .select2-result-label[data-value*=fi]:before {
+.lang-dropdown .select2-result-label[data-value*="/fi/"]:before {
   background-position: 0 -143px;
 }
-.lang-dropdown .select2-result-label[data-value*=bg]:before {
+.lang-dropdown .select2-result-label[data-value*="/bg/"]:before {
   background-position: 0 -154px;
 }
-.lang-dropdown .select2-result-label[data-value*=ca]:before {
+.lang-dropdown .select2-result-label[data-value*="/ca/"]:before {
   background-position: 0 -165px;
 }
-.lang-dropdown .select2-result-label[data-value*=sq]:before {
+.lang-dropdown .select2-result-label[data-value*="/sq/"]:before {
   background-position: 0 -176px;
 }
-.lang-dropdown .select2-result-label[data-value*=sr]:before {
+.lang-dropdown .select2-result-label[data-value*="/sr/"]:before,
+.lang-dropdown .select2-result-label[data-value*="/sr_Latn/"]:before {
   background-position: 0 -187px;
 }
-.lang-dropdown .select2-result-label[data-value*=sv]:before {
+.lang-dropdown .select2-result-label[data-value*="/zh_TW/"]:before {
   background-position: 0 -198px;
 }
-.lang-dropdown .select2-result-label[data-value*=lv]:before {
+.lang-dropdown .select2-result-label[data-value*="/lv/"]:before {
   background-position: 0 -209px;
 }
-.lang-dropdown .select2-result-label[data-value*=zh_TW]:before {
-  background-position: 0 -198px;
+.lang-dropdown .select2-result-label[data-value*="/sk/"]:before {
+  background-position: 0 -220px;
 }
-.lang-dropdown .select2-result-label[data-value*=pt_BR]:before {
+.lang-dropdown .select2-result-label[data-value*="/pt_BR/"]:before {
   background-position: 0 -132px;
 }
 .profile-info {

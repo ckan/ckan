@@ -65,6 +65,8 @@
     content: "";
     display: inline-block;
     background-image: url("@{imagePath}/flags.png");
+    background-repeat: no-repeat;
+    background-position: 0 11px;
     width: 17px;
     height: 11px;
     position: relative;
@@ -95,8 +97,7 @@
     background-position: 0 -55px;
   }
 
-  &[data-value*="/ru/"]:before,
-  &[data-value*="/sk/"]:before {
+  &[data-value*="/ru/"]:before {
     background-position: 0 -66px;
   }
 
@@ -112,7 +113,8 @@
     background-position: 0 -99px;
   }
 
-  &[data-value*="/cs/"]:before {
+  &[data-value*="/cs/"]:before,
+  &[data-value*="/cs_CZ/"]:before {
     background-position: 0 -110px;
   }
 
@@ -140,11 +142,12 @@
     background-position: 0 -176px;
   }
 
-  &[data-value*="/sr/"]:before {
+  &[data-value*="/sr/"]:before,
+  &[data-value*="/sr_Latn/"]:before {
     background-position: 0 -187px;
   }
 
-  &[data-value*="/sv/"]:before {
+  &[data-value*="/zh_TW/"]:before {
     background-position: 0 -198px;
   }
 
@@ -152,8 +155,8 @@
     background-position: 0 -209px;
   }
 
-  &[data-value*="/zh_TW/"]:before {
-    background-position: 0 -198px;
+  &[data-value*="/sk/"]:before {
+    background-position: 0 -220px;
   }
 
   &[data-value*="/pt_BR/"]:before {
