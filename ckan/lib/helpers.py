@@ -39,6 +39,7 @@ from pylons.i18n import _, ungettext
 import html_resources
 from lib.maintain import deprecated
 import ckan.model as model
+import ckan.lib.formatters as formatters
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1213,19 +1214,33 @@ def render_markdown(data):
         return ''
     return literal(ckan.misc.MarkdownFormat().to_html(data))
 
+
 def format_resource_items(items):
+    ''' Take a resource item list and format nicely with blacklisting etc. '''
     blacklist = ['name', 'description', 'url', 'tracking_summary']
     output = []
-    reg_ex = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}$'
+    # regular expressions for detecting types in strings
+    reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
+    reg_ex_number = '^-?\d{1,}\.?\d*$'  # int/float
     for key, value in items:
         if not value or key in blacklist:
             continue
-        if isinstance(value, basestring) and re.search(reg_ex, value):
-            value = render_datetime(date_str_to_datetime(value),
-                                    with_hours=True)
+        # size is treated specially as we want to show in MiB etc
+        if key == 'size':
+            value = formatters.localised_filesize(int(value))
+        elif isinstance(value, basestring):
+            # check if strings are actually datetime/number etc
+            if re.search(reg_ex_datetime, value):
+                datetime_ = date_str_to_datetime(value)
+                value = formatters.localised_nice_date(datetime_)
+            elif re.search(reg_ex_number, value):
+                value = formatters.localised_number(float(value))
+        elif isinstance(value, int) or isinstance(value, float):
+            value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x:x[0])
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
