@@ -9,7 +9,7 @@
   <article class="module">
     <div class="module-content">
       <h1 class="page-heading">{{ _('Current Sysadmins') }}</h1>
-      <p>{% trans url=h.url_for(controller='admin', action='authz') %}You can change sysadmins on the <a href="{{ url }}">authorization page</a>.{% trans %}</p>
+      <p>{% set url=h.url_for(controller='admin', action='authz') %}{% trans %}You can change sysadmins on the <a href="{{ url }}">authorization page</a>.{% endtrans %}</p>
       <ul>
         {% for user in c.sysadmins %}
           <li py:for="user in c.sysadmins">
