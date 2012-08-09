@@ -21,7 +21,7 @@
       </a>
     </h3>
     {% if related.description %}
-      <p>{{ h.truncate(related.description, length=80, whole_word=True) }}</p>
+      <div class="prose">{{ h.render_markdown(related.description) }}</div>
     {% else %}
       <p class="empty">{{ _('This item has no description') }}</p>
     {% endif %}
