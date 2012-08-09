@@ -40,12 +40,25 @@ class CkanExtend(Extension):
 
     tags = set(['ckan_extends'])
 
+    def __init__(self, environment):
+        Extension.__init__(self, environment)
+        self.searchpath = environment.loader.searchpath[:]
+
     def parse(self, parser):
         # if the template name has a * as the first char it will only be
         # looked for in the ckan base templates
         node = nodes.Extends(lineno=next(parser.stream).lineno)
         node.template = parser.parse_expression()
-        node.template.value = '*' + node.template.value
+        template_path = parser.filename
+        # find where in the search path this template is from
+        index = 0
+        for searchpath in self.searchpath:
+            if template_path.startswith(searchpath):
+                break
+            index += 1
+        # provide our magic format
+        # format is *<search path parent index>*<template name>
+        node.template.value = '*' + str(index) + '*' + node.template.value
         return node
 
 
@@ -94,21 +107,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =====================================================================
     '''
 
-    def __init__(self, searchpath, ckan_base_path, encoding='utf-8'):
-        # ckan changes: we accept and store the ckan_base_path
-        if isinstance(searchpath, basestring):
-            searchpath = [searchpath]
-        self.searchpath = list(searchpath)
-        self.ckan_base_path = ckan_base_path
-        self.encoding = encoding
-
     def get_source(self, environment, template):
         # if the template name starts with * then this should be
-        # treated as a ckan base template. otherwise we check all the
-        # template paths.
+        # treated specially.
+        # format is *<search path parent index>*<template name>
+        # so we only search from then downwards.  This allows recursive
+        # ckan_extends tags
         if template.startswith('*'):
-            template = template[1:]
-            searchpaths = [self.ckan_base_path]
+            parts = template.split('*')
+            template = parts[2]
+            searchpaths = self.searchpath[int(parts[1]) + 1:]
         else:
             searchpaths = self.searchpath
         # end of ckan changes
