@@ -1,4 +1,4 @@
-{% set current_url = request.environ.CKAN_CURRENT_URL %}
+{% set current_url = request.environ.CKAN_CURRENT_URL_RAW %}
 {% set current_lang = request.environ.CKAN_LANG %}
 <form class="form-inline form-select lang-select" action="{% url_for controller='util', action='redirect' %}" data-module="select-switch" method="POST">
   <label for="field-lang-select">{{ _('Language') }}</label>
