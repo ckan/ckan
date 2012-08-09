@@ -95,6 +95,7 @@ ol.media-grid {
 
 .media-overlay {
   position: relative;
+  min-height: 35px; // Min height for the heading.
 }
 
 .media-overlay .media-heading {
@@ -108,6 +109,13 @@ ol.media-grid {
   background-color: rgba(0, 0, 0, 0.8);
   font-size: 13px;
   color: #fff;
+  z-index: 1;
+}
+
+.media-overlay .media-image {
+  float: none;
+  display: block;
+  margin-right: 0;
 }
 
 // Banner

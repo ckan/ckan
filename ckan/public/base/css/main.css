@@ -4809,6 +4809,7 @@ ol.media-grid:after {
 }
 .media-overlay {
   position: relative;
+  min-height: 35px;
 }
 .media-overlay .media-heading {
   position: absolute;
@@ -4821,6 +4822,12 @@ ol.media-grid:after {
   background-color: rgba(0, 0, 0, 0.8);
   font-size: 13px;
   color: #fff;
+  z-index: 1;
+}
+.media-overlay .media-image {
+  float: none;
+  display: block;
+  margin-right: 0;
 }
 .banner {
   -webkit-transform: rotate(45deg);
@@ -7001,6 +7008,23 @@ li .icon-large:before {
   margin-top: 2px;
   background: url("../images/ckan-logo-footer.png") no-repeat top left;
   text-indent: -900em;
+}
+.lang-select {
+  *zoom: 1;
+}
+.lang-select:before,
+.lang-select:after {
+  display: table;
+  content: "";
+}
+.lang-select:after {
+  clear: both;
+}
+.lang-select label,
+.lang-select select,
+.lang-select .lang-container {
+  float: left;
+  margin-top: 0;
 }
 .lang-dropdown {
   color: #000;
