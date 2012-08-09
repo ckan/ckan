@@ -220,6 +220,9 @@ class GroupController(BaseController):
                 limit = int(request.params.get('_%s_limit' % facet, 10))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
+
+            c.sort_by_selected = sort_by
+
         except SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
