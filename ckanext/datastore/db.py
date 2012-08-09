@@ -9,10 +9,15 @@ _pg_types = {}
 _type_names = set()
 _engines = {}
 
-_iso_formats = ['%Y-%m-%d',
+_date_formats = ['%Y-%m-%d',
                 '%Y-%m-%d %H:%M:%S',
-                '%Y-%m-%dT%H:%M:%S']
-
+                '%Y-%m-%dT%H:%M:%S',
+                '%Y-%m-%dT%H:%M:%SZ',
+                '%d/%m/%Y',
+                '%m/%d/%Y',
+                '%d-%m-%Y',
+                '%m-%d-%Y',
+                ]
 
 def _is_valid_field_name(name):
     '''
@@ -73,9 +78,12 @@ def _get_type(context, oid):
 def _guess_type(field):
     'Simple guess type of field, only allowed are integer, numeric and text'
     data_types = set([int, float])
-
     if isinstance(field, (dict, list)):
         return '_json'
+    if isinstance(field, int):
+        return 'int'
+    if isinstance(field, float):
+        return 'float'
     for data_type in list(data_types):
         try:
             data_type(field)
@@ -89,7 +97,7 @@ def _guess_type(field):
         return 'numeric'
 
     ##try iso dates
-    for format in _iso_formats:
+    for format in _date_formats:
         try:
             datetime.datetime.strptime(field, format)
             return 'timestamp'
@@ -259,7 +267,7 @@ def insert_data(context, data_dict):
 
     fields = _get_fields(context, data_dict)
     field_names = [field['id'] for field in fields]
-    sql_columns = ", ".join(['"%s"' % name for name in field_names] 
+    sql_columns = ", ".join(['"%s"' % name for name in field_names]
                             + ['_full_text'])
 
     rows = []
@@ -407,7 +415,8 @@ def search_data(context, data_dict):
     else:
         field_ids = all_field_ids
 
-    select_columns = ', '.join(field_ids)
+    select_columns = ', '.join(['"{}"'.format(field_id)
+                                for field_id in field_ids])
     where_clause, where_values = _where(all_field_ids, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)

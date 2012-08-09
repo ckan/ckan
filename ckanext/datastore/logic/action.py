@@ -70,6 +70,7 @@ def datastore_delete(context, data_dict):
     return result
 
 
+@logic.side_effect_free
 def datastore_search(context, data_dict):
     '''Search a datastore table.
 
