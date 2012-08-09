@@ -4799,6 +4799,14 @@ ol.media-grid:after {
 .media-item .media-content {
   min-height: 63px;
 }
+.related-item.expanded {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 2;
+}
 .media-wide {
   padding: 0;
 }

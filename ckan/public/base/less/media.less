@@ -83,6 +83,17 @@ ol.media-grid {
   min-height: 63px;
 }
 
+// This allows the truncated text on an item to expand over the element
+// below it by applying a negative margin in JavaScript.
+.related-item.expanded {
+  .border-radius(4px);
+  background-color: @moduleBackgroundColor;
+  background-color: @moduleExpandedBackgroundColor;
+  z-index: 2;
+}
+
+// Wide media elements
+
 .media-wide {
   padding: 0;
 }
