@@ -80,14 +80,14 @@ def localised_nice_date(datetime_):
             if seconds < 60:
                 return _('Just now')
             else:
-                return ungettext('{mins} minute ago}', '{mins} minutes ago',
+                return ungettext('{mins} minute ago', '{mins} minutes ago',
                                  seconds / 60).format(mins=seconds / 60)
         else:
-            return ungettext('{hours} hour ago}', '{hours} hours ago',
+            return ungettext('{hours} hour ago', '{hours} hours ago',
                              seconds / 3600).format(hours=seconds / 3600)
     # more than one day
     if days < 31:
-        return ungettext('{days} day ago}', '{days} days ago',
+        return ungettext('{days} day ago', '{days} days ago',
                          days).format(days=days)
     # actual date
     month = datetime_.month
