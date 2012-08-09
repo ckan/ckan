@@ -36,7 +36,8 @@ def truncate(value, length=255, killwords=None, end='...'):
 
 class CkanExtend(Extension):
     ''' Custom {% ckan_extends <template> %} tag that allows templates
-    to inherit from the ckan base template of the same name. '''
+    to inherit from the ckan template futher down the template search path
+    if no template provided we assume the same template name. '''
 
     tags = set(['ckan_extends'])
 
@@ -45,10 +46,7 @@ class CkanExtend(Extension):
         self.searchpath = environment.loader.searchpath[:]
 
     def parse(self, parser):
-        # if the template name has a * as the first char it will only be
-        # looked for in the ckan base templates
-        node = nodes.Extends(lineno=next(parser.stream).lineno)
-        node.template = parser.parse_expression()
+        lineno = next(parser.stream).lineno
         template_path = parser.filename
         # find where in the search path this template is from
         index = 0
@@ -56,6 +54,13 @@ class CkanExtend(Extension):
             if template_path.startswith(searchpath):
                 break
             index += 1
+        # parse the file to extend or assume same name
+        if parser.stream.current.type != 'block_end':
+            node = nodes.Extends(lineno)
+            node.template = parser.parse_expression()
+        else:
+            node = nodes.Extends(lineno)
+            node.template = nodes.Const(parser.filename[len(searchpath) + 1:])
         # provide our magic format
         # format is *<search path parent index>*<template name>
         node.template.value = '*' + str(index) + '*' + node.template.value
