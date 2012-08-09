@@ -208,6 +208,7 @@ class I18nMiddleware(object):
                 qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
+                environ['CKAN_CURRENT_URL_RAW'] = path_info
                 environ['CKAN_CURRENT_URL'] = path_info
 
         return self.app(environ, start_response)
