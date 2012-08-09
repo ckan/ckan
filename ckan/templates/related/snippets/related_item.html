@@ -1,7 +1,19 @@
+{#
+Displays a single related item.
+
+related - The related item dict.
+pkg_id  - The id of the owner package. If present the edit button will be
+          displayed.
+
+Example:
+
+
+
+#}
 {% set placeholder_map = {
 'application':'/base/images/placeholder-application.png'
 } %}
-<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
+<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}" data-module="related-item">
   <a class="media-image" href="{{ related.url }}">
     <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" />
     <span class="banner">
@@ -27,7 +39,7 @@
     {% endif %}
     <a class="btn btn-small btn-primary" href="{{ related.url }}" target="_blank">{{ _('Go to {type}').format(type=related.type|replace('_', ' ')|title) }}</a>
     {% if pkg_id %}
-    {{ h.nav_link(_('Edit'), controller='related', action='edit', id=pkg_id, related_id=related.id, class_='btn btn-small') }}
+      {{ h.nav_link(_('Edit'), controller='related', action='edit', id=pkg_id, related_id=related.id, class_='btn btn-small') }}
     {% endif %}
   </div>
 </li>
