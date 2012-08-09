@@ -93,7 +93,7 @@ def localised_nice_date(datetime_):
     month = datetime_.month
     day = datetime_.day
     year = datetime_.year
-    month_name = MONTH_FUNCTIONS[month]()
+    month_name = MONTH_FUNCTIONS[month - 1]()
     return _('{month} {day}, {year}').format(month=month_name, day=day,
                                              year=year)
 
