@@ -144,6 +144,9 @@ activity_stream_string_functions = {
   'new related item': activity_stream_string_new_related_item,
 }
 
+# A list of activity types that may have details
+activity_stream_actions_with_detail = ['changed package']
+
 def activity_list_to_html(context, activity_stream):
     '''Return the given activity stream as a snippet of HTML.'''
 
@@ -151,22 +154,23 @@ def activity_list_to_html(context, activity_stream):
     for activity in activity_stream:
         detail = None
         activity_type = activity['activity_type']
+        # Some activity types may have details.
+        if activity_type in activity_stream_actions_with_detail:
+            details = logic.get_action('activity_detail_list')(context=context,
+                data_dict={'id': activity['id']})
+            # If an activity has just one activity detail then render the
+            # detail instead of the activity.
+            if len(details) == 1:
+                detail = details[0]
+                object_type = detail['object_type']
 
-        # If an activity has just one activity detail then render the detail
-        # instead of the activity.
-        details = logic.get_action('activity_detail_list')(context=context,
-            data_dict={'id': activity['id']})
-        if len(details) == 1:
-            detail = details[0]
-            object_type = detail['object_type']
+                if object_type == 'PackageExtra':
+                    object_type = 'package_extra'
 
-            if object_type == 'PackageExtra':
-                object_type = 'package_extra'
-
-            new_activity_type = '%s %s' % (detail['activity_type'],
-                                        object_type.lower())
-            if new_activity_type in activity_stream_string_functions:
-                activity_type = new_activity_type
+                new_activity_type = '%s %s' % (detail['activity_type'],
+                                            object_type.lower())
+                if new_activity_type in activity_stream_string_functions:
+                    activity_type = new_activity_type
 
         if not activity_type in activity_stream_string_functions:
             raise NotImplementedError("No activity renderer for activity "
