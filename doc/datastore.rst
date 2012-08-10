@@ -33,7 +33,8 @@ queries over the spreadsheet contents.
 The DataStore Data API
 ======================
 
-The DataStore's Data API, which derives from the underlying data-table, is RESTful and JSON-based with extensive query capabilities.
+The DataStore's Data API, which derives from the underlying data-table, 
+is RESTful and JSON-based with extensive query capabilities.
 
 Each resource in a CKAN instance has an associated DataStore 'table'. This
 table will be accessible via a web interface at::
@@ -45,28 +46,26 @@ For a detailed tutorial on using this API see :doc:`using-data-api`.
 Installation and Configuration
 ==============================
 
-The DataStore in previous lives required a custom setup of ElasticSearch and Nginx, but that is no more, as it can use any relational database management system (PostgreSQL for example).
+The DataStore in previous lives required a custom setup of ElasticSearch and Nginx, 
+but that is no more, as it can use any relational database management system 
+(PostgreSQL for example).
 
 To enable datastore features in CKAN
 ------------------------------------
 
-In your config file...
-
-Enable the ckan datastore::
-
- ckan.datastore.enabled = 1
- 
-Ensure that the datastore extension is enabled::
+In your config file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
  
-Ensure that the ckan.datastore_write_url variable is set::
+Also ensure that the ckan.datastore_write_url variable is set::
 
  ckan.datastore_write_url = postgresql://ckanuser:pass@localhost/ckantest
  
 To test you can create a new datastore, so on linux command line do::
 
- curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d "{\"resource_id\": \"{PRE-EXISTING-RESOURCE-ID}\", \"fields\": [ {\"id\": \"a\"}, {\"id\": \"b\"} ], \"records\": [ { \"a\": 1, \"b\": \"xyz\"}, {\"a\": 2, \"b\": \"zzz\"} ]}"
+ curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d "
+    {\"resource_id\": \"{RESOURCE-ID}\", \"fields\": [ {\"id\": \"a\"}, {\"id\": \"b\"} ], 
+    \"records\": [ { \"a\": 1, \"b\": \"xyz\"}, {\"a\": 2, \"b\": \"zzz\"} ]}"
 
 
 
