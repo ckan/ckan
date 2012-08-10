@@ -1,4 +1,5 @@
 from os import path
+import logging
 
 from jinja2 import nodes
 from jinja2 import loaders
@@ -11,6 +12,8 @@ from jinja2 import Environment
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 
+
+log = logging.getLogger(__name__)
 ### Filters
 
 def empty_and_escape(value):
@@ -47,6 +50,7 @@ class CkanExtend(Extension):
 
     def parse(self, parser):
         lineno = next(parser.stream).lineno
+        node = nodes.Extends(lineno)
         template_path = parser.filename
         # find where in the search path this template is from
         index = 0
@@ -54,16 +58,25 @@ class CkanExtend(Extension):
             if template_path.startswith(searchpath):
                 break
             index += 1
-        # parse the file to extend or assume same name
+
+        # get filename from full path
+        filename = template_path[len(searchpath) + 1:]
+
+        # Providing template path violently deprecated
         if parser.stream.current.type != 'block_end':
-            node = nodes.Extends(lineno)
-            node.template = parser.parse_expression()
-        else:
-            node = nodes.Extends(lineno)
-            node.template = nodes.Const(parser.filename[len(searchpath) + 1:])
+            provided_template = parser.parse_expression().value
+            if provided_template != filename:
+                raise Exception('ckan_extends tag wrong path %s in %s'
+                                % (provided_template, template_path))
+            else:
+                log.critical('Remove path from ckan_extend tag in %s'
+                             % template_path)
+
         # provide our magic format
         # format is *<search path parent index>*<template name>
-        node.template.value = '*' + str(index) + '*' + node.template.value
+        magic_filename = '*' + str(index) + '*' + filename
+        # set template
+        node.template = nodes.Const(magic_filename)
         return node
 
 
