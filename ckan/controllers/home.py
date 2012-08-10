@@ -121,15 +121,15 @@ class HomeController(BaseController):
                     return None
                 return group.type
 
-            def _form_to_db_schema(group_type=None):
+            def db_to_form_schema(group_type=None):
                 from ckan.lib.plugins import lookup_group_plugin
-                return lookup_group_plugin(group_type).form_to_db_schema()
+                return lookup_group_plugin(group_type).db_to_form_schema()
 
             group_type = _get_group_type(id.split('@')[0])
             context = {'model': model, 'session': model.Session,
                        'ignore_auth': True,
                        'user': c.user or c.author,
-                       'schema': _form_to_db_schema(group_type=group_type),
+                       'schema': db_to_form_schema(group_type=group_type),
                        'for_view': True}
             data_dict = {'id': id}
 
