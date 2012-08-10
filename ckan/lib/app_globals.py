@@ -116,7 +116,9 @@ class _Globals(object):
         initialization and is available during requests via the
         'app_globals' variable
         '''
+        self._init()
 
+    def _init(self):
         self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
         facets = config.get('search.facets', 'groups tags res_format license')
         self.facets = facets.split()

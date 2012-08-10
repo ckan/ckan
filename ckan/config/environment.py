@@ -175,6 +175,8 @@ def load_environment(global_conf, app_conf):
 
     config['routes.map'] = routing.make_map()
     config['pylons.app_globals'] = app_globals.app_globals
+    # initialise the globals
+    config['pylons.app_globals']._init()
 
     # add helper functions
     restrict_helpers = asbool(
