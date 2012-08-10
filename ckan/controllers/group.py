@@ -34,7 +34,7 @@ class GroupController(BaseController):
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return lookup_group_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).db_to_form_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return lookup_group_plugin(group_type).\
@@ -100,7 +100,7 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=group_type),
+                   'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
