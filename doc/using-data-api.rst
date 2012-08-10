@@ -24,6 +24,33 @@ There are several endpoints into the DataStore API, they are:
 * datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
 * datastore_delete: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
 
+Before going into detail about the API and the examples, it is useful to create a resource first so that you can store data against it in the Datastore. This can be done either through the CKAN Graphical User Interface.
+
+Using the data API, we need to send JSON with this structure::
+
+  { 
+    id: Uuid, 
+    name: Name-String, 
+    title: String, 
+    version: String, 
+    url: String, 
+    resources: [ { url: String, format: String, description: String, hash: String }, ...], 
+    author: String, 
+    author_email: String, 
+    maintainer: String, 
+    maintainer_email: String, 
+    license_id: String, 
+    tags: Tag-List, 
+    notes: String, 
+    extras: { Name-String: String, ... } 
+ }
+
+To the following endpoint:
+
+* Dataset Model Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/rest/dataset``
+
+More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`
+
 API Reference
 -------------
 
@@ -96,6 +123,8 @@ you you can just open the relevant urls in your browser::
 Javascript
 ~~~~~~~~~~
 
+Coming soon...
+
 ..
     A simple ajax (JSONP) request to the data API using jQuery::
 
@@ -131,48 +160,44 @@ Javascript
 Python
 ~~~~~~
 
-..
-    note:: You can also use the `DataStore Python client library`_.
+Using the Python Requests_ library we can create a datastore like this::
 
-    _DataStore Python client library: http://github.com/okfn/datastore-client
+ #! /usr/bin/env python
+ 
+ import requests
+ import json 
+ 
+ auth_key = '<your-api-key>' 
+ 
+ url = "http://127.0.0.1:5000/api/3/action/" # An example "action" endpoint
+ 
+ datastore_structure = {
+                         'resource_id': '<existing-resource-id>', 
+                         'fields': [ {"id": "a"}, {"id": "b"} ], 
+                         "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]
+                       }
+ headers = {'content-type': 'application/json', 'Authorization': auth_key}
+ r = requests.post(url + 'datastore_create', data=json.dumps(datastore_structure), headers=headers)
+ print "done, and now for a quick search\n"
 
-    ::
+ datastore_structure = {
+                         'resource_id': '<existing-resource-id>'
+                       }
+ headers = {'content-type': 'application/json', 'Authorization': auth_key}
+ r = requests.post(url + 'datastore_search', data=json.dumps(datastore_structure), headers=headers) 
+ 
+ print r.text
+ 
+ print "done\n"
 
-      import urllib2
-      import json
 
-      # =================================
-      # Store data in the DataStore table
+Python urllib2 version Coming soon...
 
-      url = '{{endpoint}}'
-      data = {
-          'title': 'jones',
-          'amount': 5.7
-          }
-      # have to send the data as JSON
-      data = json.dumps(data)
-      # need to add your API key (and have authorization to write to this endpoint)
-      headers = {'Authorization': 'YOUR-API-KEY'}
 
-      req = urllib2.Request(url, data, headers)
-      out = urllib2.urlopen(req)
-      print out.read()
-
-      # =========================
-      # Query the DataStore table
-
-      url = '{{endpoint}}/_search?q=title:jones&size=5'
-      req = urllib2.Request(url)
-      out = urllib2.urlopen(req)
-      data = out.read()
-      print data
-      # returned data is JSON
-      data = json.loads(data)
-      # total number of results
-      print data['hits']['total']
-
+.. _Requests: http://docs.python-requests.org/
 
 PHP
 ~~~~~~
 
+Coming soon...
 
