@@ -523,11 +523,17 @@ def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def get_facet_title(name):
+
+    # if this is set in the config use this
+    config_title = config.get('search.facets.%s.title' % name)
+    if config_title:
+        return config_title
+
     facet_titles = {'groups' : _('Groups'),
                   'tags' : _('Tags'),
                   'res_format' : _('Formats'),
                   'license' : _('Licence'), }
-    return facet_titles.get(name, name)
+    return facet_titles.get(name, name.capitalize())
 
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
