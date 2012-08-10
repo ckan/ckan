@@ -913,7 +913,7 @@ def resource_link(resource_dict, package_id):
     return link_to(text, url)
 
 def related_item_link(related_item_dict):
-    text = related_item_dict.title
+    text = related_item_dict.get('title', '')
     url = url_for(controller='related',
         action='read',
         id=related_item_dict['id'])
