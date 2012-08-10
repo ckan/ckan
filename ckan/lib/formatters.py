@@ -60,9 +60,9 @@ def _month_dec():
     return _('December')
 
 
-# MONTH_FUNCTIONS provides an easy way to get a localised month via
-# MONTH_FUNCTIONS[month]() where months are zero based ie jan = 0, dec = 11
-MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
+# _MONTH_FUNCTIONS provides an easy way to get a localised month via
+# _MONTH_FUNCTIONS[month]() where months are zero based ie jan = 0, dec = 11
+_MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
                    _month_may, _month_june, _month_july, _month_aug,
                    _month_sept, _month_oct, _month_nov, _month_dec]
 
@@ -93,7 +93,7 @@ def localised_nice_date(datetime_):
     month = datetime_.month
     day = datetime_.day
     year = datetime_.year
-    month_name = MONTH_FUNCTIONS[month - 1]()
+    month_name = _MONTH_FUNCTIONS[month - 1]()
     return _('{month} {day}, {year}').format(month=month_name, day=day,
                                              year=year)
 
