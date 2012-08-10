@@ -12,59 +12,59 @@ import ckan.lib.i18n as i18n
 #                                                #
 ##################################################
 
-def month_jan():
+def _month_jan():
     return _('January')
 
 
-def month_feb():
+def _month_feb():
     return _('February')
 
 
-def month_mar():
+def _month_mar():
     return _('March')
 
 
-def month_apr():
+def _month_apr():
     return _('April')
 
 
-def month_may():
+def _month_may():
     return _('May')
 
 
-def month_june():
+def _month_june():
     return _('June')
 
 
-def month_july():
+def _month_july():
     return _('July')
 
 
-def month_aug():
+def _month_aug():
     return _('August')
 
 
-def month_sept():
+def _month_sept():
     return _('September')
 
 
-def month_oct():
+def _month_oct():
     return _('October')
 
 
-def month_nov():
+def _month_nov():
     return _('November')
 
 
-def month_dec():
+def _month_dec():
     return _('December')
 
 
 # MONTH_FUNCTIONS provides an easy way to get a localised month via
 # MONTH_FUNCTIONS[month]() where months are zero based ie jan = 0, dec = 11
-MONTH_FUNCTIONS = [month_jan, month_feb, month_mar, month_apr,
-                   month_may, month_june, month_july, month_aug,
-                   month_sept, month_oct, month_nov, month_dec]
+MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
+                   _month_may, _month_june, _month_july, _month_aug,
+                   _month_sept, _month_oct, _month_nov, _month_dec]
 
 
 def localised_nice_date(datetime_):
