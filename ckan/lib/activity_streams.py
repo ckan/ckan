@@ -183,5 +183,5 @@ def activity_list_to_html(context, activity_stream):
         activity_list.append({'msg': activity_msg,
                               'data': data,
                               'timestamp': activity['timestamp']})
-    return literal(base.render('activity_streams/activity_stream_item.html',
+    return literal(base.render('activity_streams/activity_stream_items.html',
         extra_vars={'activities': activity_list}))
