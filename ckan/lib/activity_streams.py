@@ -35,7 +35,7 @@ def get_snippet_resource(activity, detail):
                            activity['data']['package']['id'])
 
 def get_snippet_related_item(activity, detail):
-    return h.relate_item_link(activity['data']['related'])
+    return h.related_item_link(activity['data']['related'])
 
 def get_snippet_related_type(activity, detail):
     # FIXME this needs to be translated
