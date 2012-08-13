@@ -69,8 +69,7 @@ you you can just open the relevant urls in your browser::
     \"records\": [ { \"a\": 1, \"b\": \"xyz\"}, {\"a\": 2, \"b\": \"zzz\"} ]}"
 
   #This queries a datastore
-  curl -X POST {ENDPOINT:datastore_search} -H "Authorization: {YOUR-API-KEY}" -d "
-    {\"resource_id\": \"{RESOURCE-ID}\" }"
+  curl {ENDPOINT:datastore_search}?resource_id={RESOURCE-ID} -H "Authorization: {YOUR-API-KEY}"
 
 .. _cURL: http://curl.haxx.se/
 
@@ -114,6 +113,47 @@ Coming soon...
 Python
 ~~~~~~
 
+A Python URLLib2 datastore_create and datastore_search would look like::
+
+ #! /usr/bin/env python
+ import urllib
+ import urllib2
+ import json
+
+ auth_key = '{YOUR-AUTH-KEY}'
+
+ # In python using urllib2 for datastore_create it is...
+
+ url = "http://127.0.0.1:5000/api/3/action/"
+
+ datastore_structure = {
+                        'resource_id': '{RESOURCE-ID}', 
+                        'fields': [ {"id": "a"}, {"id": "b"} ], 
+                        "records": [ { "a": 12, "b": "abc"}, {"a": 2, "b": "zzz"} ]
+                      }
+ headers = {'content-type': 'application/json', 'Authorization': auth_key}
+
+
+
+ req = urllib2.Request(url + 'datastore_create', data=json.dumps(datastore_structure), headers=headers)
+ response = urllib2.urlopen(req)
+
+
+ # in python for datastore_search using urllib2....
+
+ datastore_structure = {
+                        'resource_id': '{RESOURCE-ID}'
+                      }
+
+ url_values = urllib.urlencode(datastore_structure)
+ req = urllib2.Request(url + 'datastore_search?' + url_values, headers=headers)
+ response = urllib2.urlopen(req)
+
+ print response.read()
+
+ print "done\n"
+
+
 Using the Python Requests_ library we can create a datastore like this::
 
  #! /usr/bin/env python
@@ -143,9 +183,6 @@ Using the Python Requests_ library we can create a datastore like this::
  print r.text
  
  print "done\n"
-
-
-Python urllib2 version Coming soon...
 
 
 .. _Requests: http://docs.python-requests.org/
