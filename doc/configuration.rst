@@ -122,6 +122,19 @@ This sets a space-separated list of extra field key values which will not be sho
 .. index::
    single: rdf_packages
 
+.. _config-apps-ideas:
+
+ckan.dataset.show_apps_ideas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ckan.dataset.show_apps_ideas::
+
+ ckan.dataset.show_apps_ideas = false
+
+Default value:  true
+
+When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
+
 rdf_packages
 ^^^^^^^^^^^^
 

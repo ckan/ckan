@@ -202,14 +202,34 @@ def related_list(context, data_dict=None):
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    if not dataset:
-        raise NotFound
-
     _check_access('related_show',context, data_dict)
 
-    relateds = model.Related.get_for_dataset(dataset, status='active')
-    related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = []
+    if not dataset:
+        related_list = model.Session.query(model.Related)
+
+        filter_on_type = data_dict.get('type_filter', None)
+        if filter_on_type:
+            related_list = related_list.filter(model.Related.type == filter_on_type)
+
+        sort = data_dict.get('sort', None)
+        if sort:
+            sortables = {
+                'view_count_asc' : model.Related.view_count.asc,
+                'view_count_desc': model.Related.view_count.desc,
+                'created_asc' : model.Related.created.asc,
+                'created_desc': model.Related.created.desc,
+            }
+            s = sortables.get(sort, None)
+            if s:
+                related_list = related_list.order_by( s() )
+
+        if data_dict.get('featured', False):
+            related_list = related_list.filter(model.Related.featured == 1)
+    else:
+        relateds = model.Related.get_for_dataset(dataset, status='active')
+        related_items = (r.related for r in relateds)
+        related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
@@ -502,7 +522,6 @@ def user_list(context, data_dict):
 
     for user in query.all():
         result_dict = model_dictize.user_dictize(user[0], context)
-        del result_dict['apikey']
         users_list.append(result_dict)
 
     return users_list
@@ -798,7 +817,6 @@ def user_show(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     id = data_dict.get('id',None)
     provided_user = data_dict.get('user_obj',None)
@@ -815,11 +833,6 @@ def user_show(context, data_dict):
     _check_access('user_show',context, data_dict)
 
     user_dict = model_dictize.user_dictize(user_obj,context)
-
-    if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
-        # If not sysadmin or the same user, strip sensible info
-        del user_dict['apikey']
-        del user_dict['reset_key']
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
@@ -1882,6 +1895,15 @@ def _render_deleted_group_activity(context, activity):
     return _render('activity_streams/deleted_group.html',
         extra_vars = {'activity': activity})
 
+def _render_new_related_activity(context, activity):
+    return _render('activity_streams/new_related_item.html',
+        extra_vars = {'activity': activity,
+                      'type': activity['data']['related']['type']})
+
+def _render_deleted_related_activity(context, activity):
+    return _render('activity_streams/deleted_related_item.html',
+        extra_vars = {'activity': activity})
+
 def _render_follow_dataset_activity(context, activity):
     return _render('activity_streams/follow_dataset.html',
         extra_vars = {'activity': activity})
@@ -1901,6 +1923,8 @@ activity_renderers = {
   'new group' : _render_new_group_activity,
   'changed group' : _render_changed_group_activity,
   'deleted group' : _render_deleted_group_activity,
+  'new related item': _render_new_related_activity,
+  'deleted related item': _render_deleted_related_activity,
   'follow dataset': _render_follow_dataset_activity,
   'follow user': _render_follow_user_activity,
   }
@@ -2018,7 +2042,7 @@ def _follower_list(context, data_dict, FollowerClass):
     users = [user for user in users if user is not None]
 
     # Dictize the list of User objects.
-    return [model_dictize.user_dictize(user,context) for user in users]
+    return model_dictize.user_list_dictize(users, context)
 
 def user_follower_list(context, data_dict):
     '''Return the list of users that are following the given user.
@@ -2161,7 +2185,7 @@ def user_followee_list(context, data_dict):
     users = [user for user in users if user is not None]
 
     # Dictize the list of User objects.
-    return [model_dictize.user_dictize(user, context) for user in users]
+    return model_dictize.user_list_dictize(users, context)
 
 def dataset_followee_list(context, data_dict):
     '''Return the list of datasets that are followed by the given user.

@@ -27,10 +27,20 @@ def related_create(context, data_dict=None):
     user = context['user']
     userobj = model.User.get(user)
 
-    if userobj:
-        return {'success': True}
+    if not userobj:
+        return {'success': False, 'msg': _('You must be logged in to add a related item')}
 
-    return {'success': False, 'msg': _('You must be logged in to add a related item')}
+    if 'dataset_id' in data_dict:
+        # If this is to be associated with a dataset then we need to make sure that
+        # the user doing so is a member of that group
+        dataset = model.Package.get(data_dict['dataset_id'])
+        if dataset and not _groups_intersect( userobj.get_groups(),
+                                              dataset.get_groups() ):
+            return {'success': False,
+                    'msg': _('You do not have permission to create an item')}
+
+    return {'success': True }
+
 
 
 def resource_create(context, data_dict):

@@ -285,7 +285,7 @@ class DefaultDatasetForm(object):
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
         if c.pkg:
-            c.related_count = len(c.pkg.related)
+            c.related_count = c.pkg.related_count
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
@@ -349,9 +349,6 @@ class DefaultGroupForm(object):
     def group_form(self):
         return 'group/new_group_form.html'
 
-    def form_to_db_schema(self):
-        return logic.schema.group_form_schema()
-
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
         purpose eg via the web interface or via the api or creation vs
@@ -366,11 +363,20 @@ class DefaultGroupForm(object):
 
         if options.get('api'):
             if options.get('type') == 'create':
-                return logic.schema.default_group_schema()
+                return self.form_to_db_schema_api_create()
             else:
-                return logic.schema.default_update_group_schema()
+                return self.form_to_db_schema_api_update()
         else:
-            return logic.schema.group_form_schema()
+            return self.form_to_db_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_group_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_group_schema()
+
+    def form_to_db_schema(self):
+        return logic.schema.group_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database

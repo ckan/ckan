@@ -18,11 +18,21 @@ def package_create(context, data_dict=None):
     return {'success': True}
 
 def related_create(context, data_dict=None):
+    '''Users must be logged-in to create related items.
+
+    To create a featured item the user must be a sysadmin.
+    '''
     model = context['model']
     user = context['user']
     userobj = model.User.get( user )
 
     if userobj:
+        if (data_dict.get('featured', 0) != 0 and
+            not Authorizer().is_sysadmin(unicode(user))):
+
+            return {'success': False,
+                    'msg': _('You must be a sysadmin to create a featured '
+                             'related item')}
         return {'success': True}
 
     return {'success': False, 'msg': _('You must be logged in to add a related item')}
