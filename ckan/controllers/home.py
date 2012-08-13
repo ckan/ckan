@@ -143,15 +143,24 @@ class HomeController(BaseController):
             group_dict['packages'] = group_dict['packages'][:2]
             return {'group_dict' :group_dict}
 
-        global dirty_cached_group_stuff
-        if not dirty_cached_group_stuff:
+        #global dirty_cached_group_stuff
+        #if not dirty_cached_group_stuff:
             # ARON
             # uncomment the first for testing
             # the second for demo - different data
             #dirty_cached_group_stuff = [get_group('access-to-medicines'), get_group('archaeology')]
-            dirty_cached_group_stuff = [get_group('data-explorer'), get_group('geo-examples')]
+        #    dirty_cached_group_stuff = [get_group('data-explorer'), get_group('geo-examples')]
 
-        c.group_package_stuff = dirty_cached_group_stuff
+        # c.groups is from the solr query above
+        if len(c.groups) == 1:
+            c.group_package_stuff = [get_group(c.groups[0]['name']),
+                                     {'group_dict' :{}}]
+        elif len(c.groups) == 2:
+            c.group_package_stuff = [get_group(c.groups[0]['name']),
+                                     get_group(c.groups[1]['name'])]
+        else:
+            c.group_package_stuff = [{'group_dict' :{}}, {'group_dict' :{}}]
+
         # END OF DIRTYNESS
 
         return render('home/index.html', cache_force=True)
