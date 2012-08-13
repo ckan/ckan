@@ -179,10 +179,10 @@ ckan\_extends
 
 ::
 
-    {% ckan_extends [template_name] %}
+    {% ckan_extends %}
 
-This works just like ``{% extend %}`` but should be used in extensions
-to pull in the template from CKAN core for customisation.
+This works in a very similar way to ``{% extend %}`` however it will
+load the next template up in the load path with the same name.
 
 For example if you wish to remove the breadcrumb from the user profile
 page in your own site. You would locate the template you wish to
@@ -203,7 +203,7 @@ In this new file you would pull in the core template using
 
 ::
 
-    {% ckan_extends "user/read.html" %}
+    {% ckan_extends %}
 
 This will now render the current user/read page but we can override any
 portion that we wish to change. In this case the ``breadcrumb`` block.
@@ -214,6 +214,9 @@ portion that we wish to change. In this case the ``breadcrumb`` block.
 
     {# Remove the breadcrumb #}
     {% block breadcrumb %}{% endblock %}
+
+This function works recursively and so is ideal for extensions that wish to
+add a small snippet of functionality to the page.
 
 snippet
 ~~~~~~~
