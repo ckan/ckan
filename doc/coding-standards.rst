@@ -851,12 +851,73 @@ this file.
 Documentation
 -------------
 
-*TODO*
+For documentation we use a simple markup format to document all methods. The
+documentation should provide enough information to show the reader what the
+method does, arguments it accepts and a general example of usage. Also
+for API's and third party libraries, providing links to external documentation
+is encouraged.
+
+The formatting is as follows::
+
+    /* My method description. Should describe what the method does and where
+     * it should be used.
+     *
+     * param1 - The method params, one per line (default: null)
+     * param2 - A default can be provided in brackets at the end.
+     *
+     * Example
+     *
+     *   // Indented two spaces. Should give a common example of use.
+     *   client.getTemplate('index.html', {limit: 1}, function (html) {
+     *     module.el.html(html);
+     *   });
+     * 
+     * Returns describes what the object returns.
+     */
+
+For example::
+
+    /* Loads an HTML template from the CKAN snippet API endpoint. Template
+     * variables can be passed through the API using the params object.
+     *
+     * Optional success and error callbacks can be provided or these can
+     * be attached using the returns jQuery promise object.
+     *
+     * filename - The filename of the template to load.
+     * params   - An optional object containing key/value arguments to be
+     *            passed into the template.
+     * success  - An optional success callback to be called on load. This will
+     *            recieve the HTML string as the first argument.
+     * error    - An optional error callback to be called if the request fails.
+     *
+     * Example
+     *
+     *   client.getTemplate('index.html', {limit: 1}, function (html) {
+     *     module.el.html(html);
+     *   });
+     * 
+     * Returns a jqXHR promise object that can be used to attach callbacks.
+     */
 
 Testing
 -------
 
-*TODO*
+For unit testing we use the following libraries.
+
+-  `Mocha`_: As a BDD unit testing framework.
+-  `Sinon`_: Provides spies, stubs and mocks for methods and functions.
+-  `Chai`_: Provides common assertions.
+
+.. _Mocha: http://visionmedia.github.com/mocha/
+.. _Sinon: http://chaijs.com/
+.. _Chai: http://sinonjs.org/docs/
+
+Tests are run from the test/index.html directory. We use the BDD interface
+(``describe()``, ``it()`` etc.) provided by mocha and the assert interface
+provided by chai.
+
+Generally we try and have the core functionality of all libraries and modules
+unit tested.
 
 Best Practices
 --------------
@@ -947,20 +1008,36 @@ alternatives to ``.bind()``, ``.unbind()``, ``.delegate()`` and
 .. _.on(): http://api.jquery.com/on/
 .. _.off(): http://api.jquery.com/off/
 
-Closures
-````````
-
-*TODO*
-
 Templating
 ``````````
 
-*TODO*
+Small templates that will not require customisation by the instance can be
+placed inline. If you need to create multi-line templates use an array rather
+than escaping newlines within a string::
 
-Resources
----------
+    var template = [
+      '<li>',
+      '<span></span>',
+      '</li>'
+    ].join('');
 
-*TODO*
+Always localise text strings within your templates. If you are including them
+inline this can always be done with jQuery::
+
+    jQuery(template).find('span').text(_('This is my text string'));
+
+Larger templates can be loaded in using the CKAN snippet API. Modules get
+access to this functionality via the ``sandbox.client`` object::
+
+    initialize: function () {
+      var el = this.el;
+      this.sandbox.client.getTemplate('dataset.html', function (html) {
+        el.html(html);
+      });
+    }
+
+The primary benefits of this is that the localisation can be done by the server
+and it keeps the JavaScript modules free from large strings.
 
 HTML Coding Standards
 =====================
