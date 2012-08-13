@@ -257,6 +257,9 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
+    // Start caching all calls to .publish() until all modules are loaded.
+    ckan.pubsub.enqueue();
+
     jQuery('[data-module]', document.body).each(function (index, element) {
       var names = jQuery.trim(this.getAttribute(MODULE_PREFIX)).split(' ');
 
@@ -268,6 +271,9 @@ this.ckan = this.ckan || {};
         }
       });
     });
+
+    // Now trigger all .publish() calls so that all modules receive them.
+    ckan.pubsub.dequeue();
 
     return module;
   };
