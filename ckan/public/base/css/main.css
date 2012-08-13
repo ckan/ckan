@@ -6769,12 +6769,16 @@ li .icon-large:before {
 .masthead hgroup h2 {
   position: absolute;
   bottom: -3px;
-  right: 0;
+  left: 0;
   margin: 0;
   font-size: 15px;
   font-weight: normal;
   line-height: 1.2;
   white-space: nowrap;
+}
+.masthead .tagline-right h2 {
+  left: auto;
+  right: 0;
 }
 .masthead hgroup a {
   text-decoration: none;
