@@ -94,3 +94,51 @@ How It Works (Technically)
 3. (Assuming OK) CKAN hands (internally) to the database querying system which handles the
    request 
 
+.. _datastoreapiref:
+
+API Reference
+-------------
+
+datastore_create
+~~~~~~~~~~~~~~~~
+
+The datastore_create API endpoint allows a user to post JSON data to 
+be stored against a resource, the JSON must be in the following form::
+
+ {
+    resource_id: resource_id, # the data is going to be stored against.
+    fields: [], # a list of dictionaries of fields/columns and their extra metadata.
+    records: [], # a list of dictionaries of the data eg  [{"dob": "2005", "some_stuff": ['a', b']}, ..]
+ }
+
+
+datastore_search
+~~~~~~~~~~~~~~~~
+
+The datastore_search API endpoint allows a user to search data at a resource, 
+the JSON for searching must be in the following form::
+
+ {
+     resource_id: # the resource id to be searched against
+     filters : # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}  
+        # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
+     q: # full text query
+     limit: # limit the amount of rows to size defaults to 20
+     offset: # offset the amount of rows
+     fields:  # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
+     sort: 
+ }
+
+datastore_delete
+~~~~~~~~~~~~~~~~
+
+The datastore_delete API endpoint allows a user to delete from a resource, 
+the JSON for searching must be in the following form::
+
+ {
+    resource_id: resource_id # the data that is going to be deleted.
+    filters: # dictionary of matching conditions to delete
+       		# e.g  {'key1': 'a. 'key2': 'b'}  
+       		# this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
+ }
+
