@@ -1,3 +1,16 @@
+Front-end Documenation
+======================
+
+The following is an index of other front-end CKAN documentation.
+
+-  `Templating`_: A guide to the Jinja templating system.
+-  `Extension Templating`_: A quick guide to templating extensions.
+-  `CKAN Modules`_: A tutorial on building a CKAN JavaScript module.
+
+.. _Templating: ./templating.rst
+.. _Extension Templating: ./extension-templating.rst
+.. _CKAN Modules: ./javascript-module-tutorial.rst
+
 Install front end dependencies
 ==============================
 
@@ -16,7 +29,8 @@ On ubuntu node can be installed using the following commands:
     $ sudo apt-get install npm    # node package manager
 
 LESS can then be installed via the node package manager which is bundled
-with node (or installed with apt). ``cd`` into the ``pyenv/src/ckan`` and run:
+with node (or installed with apt as it is not bundled with node on Ubuntu).
+``cd`` into the ``pyenv/src/ckan`` and run:
 
 ::
 
@@ -414,3 +428,60 @@ The libraries used for the tests are as follows.
 -  `Sinon <http://sinonjs.org>`_: A stubbing library, can stub objects,
    timers and ajax requests.
 
+Each file has a description block for it's top level object and then within
+that a nested description for each method that is to be tested::
+
+    describe('ckan.module.MyModule()', function () {
+      describe('.initialize()', function () {
+        it('should do something...', function () {
+          // assertions.
+        });
+      });
+
+      describe('.myMethod(arg1, arg2, arg3)', function () {
+      });
+    });
+
+The ```.beforeEach()``` and ```.afterEach()``` callbacks can be used to setup
+objects for testing (all blocks share the same scope so test variables can
+be attached)::
+
+    describe('ckan.module.MyModule()', function () {
+      // Pull the class out of the registry.
+      var MyModule = ckan.module.registry['my-module'];
+
+      beforeEach(function () {
+        // Create a test element.
+        this.el = jQuery('<div />');
+
+        // Create a test sandbox.
+        this.sandbox = ckan.sandbox();
+
+        // Create a test module.
+        this.module = new MyModule(this.el, {}, this.sandbox);
+      });
+
+      afterEach(function () {
+        // Clean up.
+        this.module.teardown();
+      });
+    });
+
+Templates can also be loaded using the ``.loadFixtures()`` method that is
+available in all test contexts. Tests can be made asynchronous by setting a
+``done`` argument in the callback (Mocha checks the arity of the functions)::
+
+    describe('ckan.module.MyModule()', function () {
+
+      before(function (done) {
+        // Load the template once.
+        this.loadFixture('my-template.html', function (html) {
+          this.template = html;
+          done();
+        });
+      });
+
+      beforeEach(function () {
+        // Assign the template to the module each time.
+        this.el = this.fixture.html(this.template).children();
+      });
