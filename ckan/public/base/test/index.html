@@ -103,7 +103,6 @@
        *
        */
       function loadFixture(filename, params, callback) {
-        var URL = 'http://localhost:5000/api/1/util/snippet/' + encodeURIComponent(filename);
         var context = this;
 
         // Allow function to be called without params.
@@ -112,7 +111,7 @@
           params = {};
         }
 
-        return jQuery.get(URL, params).error(function () {
+        return (new ckan.Client()).getTemplate(filename, params).error(function () {
           throw new Error('Unable to load fixture: ' + filename);
         }).pipe(function (template) {
           var fixture = jQuery('#fixture').html(template);
