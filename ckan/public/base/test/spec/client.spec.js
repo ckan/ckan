@@ -39,6 +39,36 @@ describe('ckan.Client()', function () {
     });
   });
 
+  describe('.getTemplate(filename, params, success, error)', function () {
+    beforeEach(function () {
+      this.fakePromise = sinon.stub(jQuery.Deferred());
+      this.fakePromise.then.returns(this.fakePromise);
+      sinon.stub(jQuery, 'get').returns(this.fakePromise);
+    });
+
+    afterEach(function () {
+      jQuery.get.restore();
+    });
+
+    it('should return a jQuery promise', function () {
+      var target = this.client.getTemplate('test.html');
+      assert.ok(target === this.fakePromise, 'target === this.fakePromise'); 
+    });
+
+    it('should request the template file', function () {
+      var target = this.client.getTemplate('test.html');
+      assert.called(jQuery.get);
+      assert.calledWith(jQuery.get, '/api/1/util/snippet/test.html', {});
+    });
+
+    it('should request the template file with any provided params', function () {
+      var options = {limit: 5, page: 2};
+      var target = this.client.getTemplate('test.html', options);
+      assert.called(jQuery.get);
+      assert.calledWith(jQuery.get, '/api/1/util/snippet/test.html', options);
+    });
+  });
+
   describe('.getLocaleData(locale, success, error)', function () {
     beforeEach(function () {
       this.fakePromise = sinon.stub(jQuery.Deferred());
