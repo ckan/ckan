@@ -1,11 +1,11 @@
-this.ckan.module('confirm-delete', function (jQuery, _) {
+this.ckan.module('confirm-action', function (jQuery, _) {
   return {
     /* An object of module options */
     options: {
       /* Locale options can be overidden with data-module-i18n attribute */
       i18n: {
         heading: _('Please Confirm Action'),
-        content: _('Are you sure you want to delete this item?'),
+        content: _('Are you sure you want to perform this action?'),
         confirm: _('Confirm'),
         cancel: _('Cancel')
       },
@@ -35,7 +35,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
     },
 
     /* Presents the user with a confirm dialogue to ensure that they wish to
-     * delete the current item.
+     * continue with the current action.
      *
      * Examples
      *
@@ -50,11 +50,11 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
       this.modal.modal('show');
     },
 
-    /* Performs the delete action for the current item.
+    /* Performs the action for the current item.
      *
      * Returns nothing.
      */
-    performDelete: function () {
+    performAction: function () {
       // create a form and submit it to confirm the deletion
       var form = jQuery('<form/>', {
         action: this.el.attr('href'),
@@ -91,7 +91,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
 
     /* Event handler for the success event */
     _onConfirmSuccess: function (event) {
-      this.performDelete();
+      this.performAction();
     },
 
     /* Event handler for the cancel event */

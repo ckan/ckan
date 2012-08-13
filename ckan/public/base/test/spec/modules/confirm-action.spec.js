@@ -1,6 +1,6 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.module.ConfirmDeleteModule()', function () {
-  var ConfirmDeleteModule = ckan.module.registry['confirm-delete'];
+describe('ckan.module.ConfirmActionModule()', function () {
+  var ConfirmActionModule = ckan.module.registry['confirm-action'];
 
   beforeEach(function () {
     jQuery.fn.modal = sinon.spy();
@@ -8,7 +8,7 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
     this.el = document.createElement('button');
     this.sandbox = ckan.sandbox();
     this.sandbox.body = this.fixture;
-    this.module = new ConfirmDeleteModule(this.el, {}, this.sandbox);
+    this.module = new ConfirmActionModule(this.el, {}, this.sandbox);
   });
 
   afterEach(function () {
@@ -38,8 +38,8 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
     });
   });
 
-  describe('.performDelete()', function () {
-    it('should submit the delete action');
+  describe('.performAction()', function () {
+    it('should submit the action');
   });
 
   describe('.createModal()', function () {
@@ -101,8 +101,8 @@ describe('ckan.module.ConfirmDeleteModule()', function () {
   });
 
   describe('._onConfirmSuccess()', function () {
-    it('should perform the delete action', function () {
-      var target = sinon.stub(this.module, 'performDelete');
+    it('should perform the action', function () {
+      var target = sinon.stub(this.module, 'performAction');
       this.module._onConfirmSuccess(jQuery.Event('click'));
       assert.called(target);
     });
