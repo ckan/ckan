@@ -3,12 +3,16 @@ Front-end Documenation
 
 The following is an index of other front-end CKAN documentation.
 
+-  `Coding Standards`_: The CKAN project coding standards.
 -  `Templating`_: A guide to the Jinja templating system.
 -  `Extension Templating`_: A quick guide to templating extensions.
+-  `Basic Template Tutorial`_: A quick guide to creating a page.
 -  `CKAN Modules`_: A tutorial on building a CKAN JavaScript module.
 
+.. _Coding Standards: ./coding-standards.rst
 .. _Templating: ./templating.rst
 .. _Extension Templating: ./extension-templating.rst
+.. _Basic Template Tutorial: ./template-tutorial.rst
 .. _CKAN Modules: ./javascript-module-tutorial.rst
 
 Install front end dependencies
