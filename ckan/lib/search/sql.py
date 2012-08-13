@@ -1,4 +1,4 @@
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from ckan.lib.search.query import SearchQuery
 import ckan.model as model
 
@@ -17,7 +17,7 @@ class PackageSearchQuery(SearchQuery):
         # no support for faceting atm
         self.facets = {}
         limit = min(1000, int(query.get('rows', 10)))
-        
+
         q = query.get('q')
         ourq = model.Session.query(model.Package.id).filter_by(state='active')
 
@@ -34,7 +34,7 @@ class PackageSearchQuery(SearchQuery):
                 ourq = ourq.filter(subq)
         self.count = ourq.count()
         ourq = ourq.limit(limit)
-        self.results = [r[0] for r in ourq.all()]
+        self.results = [{'id': r[0]} for r in ourq.all()]
 
         return {'results': self.results, 'count': self.count}
 
