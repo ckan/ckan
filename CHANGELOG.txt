@@ -30,6 +30,7 @@ v1.8
   available by `setting ckan.restrict_template_vars = false` in your
   .ini config file. Only restricted functions will be allowed in
   future versions of CKAN.
+* [#2842] Allow sort ordering of dataset listings on group pages
 
 API changes and deprecation:
 * [#2313] Deprecated functions related to the old faceting data structure have

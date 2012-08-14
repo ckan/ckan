@@ -125,19 +125,20 @@
   </py:def>
 
 
-  <py:def function="related_summary(related)">
+  <py:def function="related_summary(related, allow_delete)">
   <li id="related-item-${related.id}" class="span3">
       <div class="thumbnail">
-        <button py:if="c.user and (c.userobj.id == related.owner_id or h.check_access('package_update',{'id':c.pkg.id}))" class="close" onclick="related_delete('${related.id}');">×</button>
-        <a href="${related.url}" class="image">
+        <button py:if="allow_delete and h.check_access('related_delete',{'id': '%s' % related.id})" class="close" data-action="delete" data-related-id="${related.id}">×</button>
+        <a href="${h.url_for('related_read', id=related.id)}" class="image">
           <img src="${related.image_url}" width="210" py:if="related.image_url" />
           <img src="/images/photo-placeholder.png" width="210" py:if="not related.image_url" />
         </a>
+        <span style="display:none;">${related.view_count}</span>
         <div class="caption">
           <h5 class="heading" title="${related.title}">${h.markdown_extract(related.title, extract_length=30)}</h5>
           <div class="description" data-truncate="55" py:if="related.description">${h.markdown_extract(related.description, extract_length=1000)}</div>
           <i class="empty" py:if="not related.description">No description for this item</i>
-          <p class="read-more"><a href="${related.url}">View this related item</a></p>
+          <p class="read-more"><a href="${h.url_for('related_read', id=related.id)}">View this ${related.type}</a></p>
         </div>
       </div>
     </li>

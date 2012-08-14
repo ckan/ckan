@@ -38,7 +38,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
-                                   tag_not_in_vocabulary)
+                                   tag_not_in_vocabulary,
+                                   url_validator)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -194,6 +195,7 @@ def db_to_form_package_schema():
     # TODO: Fix this elsewhere so we don't need to workaround it here.
     schema['resources'].update({
         'created': [ckan.lib.navl.validators.ignore_missing],
+        'position': [not_empty],
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
@@ -268,10 +270,11 @@ def default_related_schema():
         'title': [not_empty, unicode],
         'description': [ignore_missing, unicode],
         'type': [not_empty, unicode],
-        'image_url': [ignore_missing, unicode],
-        'url': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode, url_validator],
+        'url': [ignore_missing, unicode, url_validator],
         'owner_id': [not_empty, unicode],
         'created': [ignore],
+        'featured': [ignore_missing, int],
     }
     return schema
 

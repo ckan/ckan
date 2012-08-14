@@ -2,6 +2,7 @@ import datetime
 from pylons import config
 from sqlalchemy.sql import select
 import datetime
+import ckan.authz
 import ckan.model
 import ckan.misc
 import ckan.logic as logic
@@ -351,7 +352,6 @@ def user_list_dictize(obj_list, context,
 
     for obj in obj_list:
         user_dict = user_dictize(obj, context)
-        user_dict.pop('apikey')
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
@@ -372,6 +372,25 @@ def user_dictize(user, context):
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
+
+    requester = context['user']
+
+    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+            requester == user.name or
+            context.get('keep_sensitive_data', False)):
+        # If not sysadmin or the same user, strip sensible info
+        result_dict.pop('apikey', None)
+        result_dict.pop('reset_key', None)
+        result_dict.pop('email', None)
+
+    model = context['model']
+    session = model.Session
+
+    if context.get('with_related'):
+        related_items = session.query(model.Related).\
+                        filter(model.Related.owner_id==user.id).all()
+        result_dict['related_items'] = related_list_dictize(related_items,
+                                                            context)
 
     return result_dict
 

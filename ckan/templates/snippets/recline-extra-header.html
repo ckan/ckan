@@ -6,14 +6,13 @@
   py:strip=""
   >
 
+  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/slickgrid/2.0.1/slick.grid.css')}" />
   <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/leaflet/0.3.1/leaflet.css')}" />
   <!--[if lte IE 8]>
   <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/leaflet/0.3.1/leaflet.ie.css')}" />
   <![endif]-->
-  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
-  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph.css')}" />
-  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/map.css')}" />
-  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/grid.css')}" />
+  <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/recline.css')}" />
+
   <style type="text/css">
     .recline-query-editor form, .recline-query-editor .text-query {
       height: 28px;
@@ -22,6 +21,15 @@
     .recline-query-editor .pagination ul {
       margin: 0;
       padding: 0;
+    }
+
+    .recline-slickgrid {
+      height: 550px;
+    }
+
+    .slick-header-column {
+      border-top: 0 !important;
+      border-bottom: 0 !important;
     }
 
     /* needed for Chrome but not FF */

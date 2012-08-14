@@ -4,6 +4,7 @@ import datetime
 from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 
+import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema
@@ -122,6 +123,7 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
+    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
@@ -132,7 +134,7 @@ def related_update(context, data_dict):
 
     if not related:
         logging.error('Could not find related ' + id)
-        raise NotFound(_('Related was not found.'))
+        raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
     data, errors = _validate(data_dict, schema, context)
@@ -412,6 +414,14 @@ def group_update(context, data_dict):
         schema = group_plugin.form_to_db_schema()
 
     _check_access('group_update', context, data_dict)
+
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',

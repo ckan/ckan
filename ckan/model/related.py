@@ -1,7 +1,8 @@
 import datetime
 
+import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy import types, Column, Table, ForeignKey, and_
+from sqlalchemy import types, Column, Table, ForeignKey, and_, func
 
 import meta
 import domain_object
@@ -11,16 +12,18 @@ import package as _package
 __all__ = ['Related', 'RelatedDataset', 'related_dataset_table',
            'related_table']
 
-related_table = Table('related',meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('type', types.UnicodeText, default=u'idea'),
-        Column('title', types.UnicodeText),
-        Column('description', types.UnicodeText),
-        Column('image_url', types.UnicodeText),
-        Column('url', types.UnicodeText),
-        Column('created', types.DateTime, default=datetime.datetime.now),
-        Column('owner_id', types.UnicodeText),
-        )
+related_table = sa.Table('related',meta.metadata,
+        sa.Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+        sa.Column('type', types.UnicodeText, default=u'idea'),
+        sa.Column('title', types.UnicodeText),
+        sa.Column('description', types.UnicodeText),
+        sa.Column('image_url', types.UnicodeText),
+        sa.Column('url', types.UnicodeText),
+        sa.Column('created', types.DateTime, default=datetime.datetime.now),
+        sa.Column('owner_id', types.UnicodeText),
+        sa.Column('view_count', types.Integer, default=0),
+        sa.Column('featured', types.Integer, default=0)
+)
 
 related_dataset_table = Table('related_dataset', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -74,3 +77,17 @@ meta.mapper(Related, related_table, properties={
     secondaryjoin=and_(related_dataset_table.c.dataset_id==_package.Package.id,
                           RelatedDataset.status=='active'))
 })
+
+def _related_count(dataset):
+    """
+    Returns the *number* of (active) related items for the given dataset.
+    """
+    return meta.Session.query(func.count(RelatedDataset.id)).\
+                        filter(RelatedDataset.dataset_id==dataset.id).\
+                        filter(RelatedDataset.status=='active').\
+                        scalar()
+
+if hasattr(_package.Package, 'related_count'):
+    raise Exception, 'Unable to attach `related_count` to Package class.'
+
+_package.Package.related_count = property(_related_count)

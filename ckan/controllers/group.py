@@ -34,7 +34,7 @@ class GroupController(BaseController):
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return lookup_group_plugin(group_type).form_to_db_schema()
+        return lookup_group_plugin(group_type).db_to_form_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return lookup_group_plugin(group_type).\
@@ -100,8 +100,8 @@ class GroupController(BaseController):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(group_type=group_type),
-                   'for_view': True}
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
@@ -139,6 +139,7 @@ class GroupController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
+        sort_by = request.params.get('sort', None)
 
         def search_url(params):
             url = h.url_for(controller='group', action='read',
@@ -170,7 +171,7 @@ class GroupController(BaseController):
             c.fields = []
             search_extras = {}
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if not param in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -188,6 +189,7 @@ class GroupController(BaseController):
                 'fq': fq,
                 'facet.field': g.facets,
                 'rows': limit,
+                'sort': sort_by,
                 'start': (page - 1) * limit,
                 'extras': search_extras
             }
@@ -209,6 +211,9 @@ class GroupController(BaseController):
 
             c.search_facets = query['search_facets']
             c.page.items = query['results']
+
+            c.sort_by_selected = sort_by
+
         except SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
