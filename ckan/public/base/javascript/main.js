@@ -18,25 +18,23 @@ this.ckan = this.ckan || {};
    * Returns nothing.
    */
   ckan.initialize = function () {
-    jQuery.when.apply(jQuery, ckan.queue).done(function () {
-      var body = jQuery('body');
-      var locale = jQuery('html').attr('lang');
-      var location = window.location;
-      var root = location.protocol + '//' + location.host;
+    var body = jQuery('body');
+    var locale = jQuery('html').attr('lang');
+    var location = window.location;
+    var root = location.protocol + '//' + location.host;
 
-      function getRootFromData(key) {
-        return (body.data(key) || root).replace(/\/$/, '');
-      }
+    function getRootFromData(key) {
+      return (body.data(key) || root).replace(/\/$/, '');
+    }
 
-      ckan.SITE_ROOT   = getRootFromData('siteRoot');
-      ckan.LOCALE_ROOT = getRootFromData('localeRoot');
-      ckan.API_ROOT    = getRootFromData('apiRoot');
+    ckan.SITE_ROOT   = getRootFromData('siteRoot');
+    ckan.LOCALE_ROOT = getRootFromData('localeRoot');
+    ckan.API_ROOT    = getRootFromData('apiRoot');
 
-      // Load the localisations before instantiating the modules.
-      ckan.sandbox().client.getLocaleData(locale).done(function (data) {
-        ckan.i18n.load(data);
-        ckan.module.initialize();
-      });
+    // Load the localisations before instantiating the modules.
+    ckan.sandbox().client.getLocaleData(locale).done(function (data) {
+      ckan.i18n.load(data);
+      ckan.module.initialize();
     });
   };
 
