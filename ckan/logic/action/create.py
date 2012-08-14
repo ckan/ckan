@@ -98,7 +98,8 @@ def package_create(context, data_dict):
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
 
-    :returns: the newly created dataset
+    :returns: the newly created dataset (unless 'return_id_only' is set to True
+              in the context, in which case just the dataset id will be returned)
     :rtype: dictionary
 
     '''
@@ -162,7 +163,13 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return _get_action('package_show')(context, {'id':context['id']})
+
+    return_id_only = context.get('return_id_only', False)
+
+    output = context['id'] if return_id_only \
+            else _get_action('package_show')(context, {'id':context['id']})
+
+    return output
 
 def package_create_validate(context, data_dict):
     model = context['model']
