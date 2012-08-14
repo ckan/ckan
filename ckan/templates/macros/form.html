@@ -296,6 +296,7 @@ Renders an info box with a description. This will usually be used with in a
 call block when creating an input element.
 
 text    - The text to include in the box.
+inline  - If true displays the info box inline with the input.
 classes - A list of classes to add to the info box.
 
 Example
@@ -306,9 +307,9 @@ Example
   {% endcall %}
 
 #}
-{% macro info(text='', classes=[]) %}
+{% macro info(text='', inline=false, classes=[]) %}
   {%- if text -%}
-    <div class="info-block icon-large icon-info-sign{{ " " ~ classes | join(' ') }}">{{ text }}</div>
+    <div class="info-block{{ ' info-inline' if inline }} icon-large icon-info-sign{{ " " ~ classes | join(' ') }}">{{ text }}</div>
   {%- endif -%}
 {% endmacro %}
 
