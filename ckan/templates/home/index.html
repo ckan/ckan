@@ -80,7 +80,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="row">
+  <div class="group-listing">
     {% for group in c.group_package_stuff %}
       {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
     {% endfor %}
