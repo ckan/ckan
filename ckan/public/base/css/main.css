@@ -4706,6 +4706,9 @@ ul.icons li .icon-large:before {
   overflow: hidden;
   position: relative;
 }
+.module-item.first {
+  clear: left;
+}
 .group .content img {
   margin: 0 -5px 5px;
   max-width: initial;
@@ -4713,6 +4716,12 @@ ul.icons li .icon-large:before {
 .group .content h3 {
   font-size: 14px;
   line-height: 1.3;
+}
+.group-listing {
+  margin-left: -20px;
+}
+.ie .group-listing {
+  margin-left: -24px;
 }
 .media {
   position: relative;
