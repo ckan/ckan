@@ -44,6 +44,7 @@ Example:
 
 #}
 {% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[], attrs={}) %}
+  {%- set extra_html = caller() if caller -%}
   <div class="control-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
     <div class="controls">
       <label class="checkbox" for="{{ id or name }}">
@@ -51,6 +52,7 @@ Example:
         {{ label or name }}
         {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
       </label>
+      {{ extra_html }}
     </div>
   </div>
 {% endmacro %}
@@ -81,12 +83,14 @@ Examples:
   {% set classes = (classes|list) %}
   {% do classes.append('control-select') %}
 
+  {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes) %}
     <select id="{{ id or name }}" name="{{ name }}" {{ attributes(attrs) }}>
       {% for option in options %}
         <option value="{{ option.value }}"{% if option.value == selected %} selected{% endif %}>{{ option.text or option.value }}</option>
       {% endfor %}
     </select>
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
@@ -112,9 +116,11 @@ Examples:
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
 
+  {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, control_classes=["editor"]) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
     <span class="info-block">{% trans %}You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here{% endtrans %}</span>
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
@@ -140,8 +146,10 @@ Examples:
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
 
+  {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
@@ -170,12 +178,14 @@ Examples:
   {# We manually append the error here as it needs to be inside the .input-prepend block #}
   {% set classes = (classes|list) %}
   {% do classes.append('error') if error %}
+  {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error='', classes=classes) %}
     <div class="input-prepend">
       {% if prepend %}<span class="add-on">{{ prepend }}</span>{%- endif -%}
       <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
       {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
     </div>
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
@@ -207,9 +217,10 @@ Examples:
   ) }}
 #}
 {% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[], attrs={}) %}
-  {% set classes = (classes|list) %}
-  {% set label_id = (id or names[0]) ~ "-key" %}
-  {% do classes.append('control-custom') %}
+  {%- set classes = (classes|list) -%}
+  {%- set label_id = (id or names[0]) ~ "-key" -%}
+  {%- set extra_html = caller() if caller -%}
+  {%- do classes.append('control-custom') -%}
 
   {% call input_block(label_id, label or name, error, classes, control_classes=["editor"]) %}
     <div class="input-prepend" {{ attributes(attrs) }}>
@@ -221,6 +232,7 @@ Examples:
         </label>
       {% endif %}
     </div>
+    {{ extra_html }}
   {% endcall %}
 {% endmacro %}
 
@@ -316,62 +328,4 @@ Example
   {%- for key, value in attrs.items() -%}
   {{ " " }}{{ key }}{% if value != "" %}="{{ value }}"{% endif %}
   {%- endfor -%}
-{%- endmacro -%}
-
-{#
-Builds a form from the supplied form_info list/tuple.
-
-form_info - A list of dicts describing the form field to build.
-data      - The form data object.
-errors    - The form errors object.
-
-Example
-
-  {% set form_info = [
-      {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
-      {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
-      {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
-      {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
-      {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
-      {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
-      {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
-      ] %}
-
-  {% import 'macros/form.html' as form %}
-  {{ form.autoform(form_info, data, errors) }}
-
-#}
-{%- macro autoform(form_info=[], data={}, errors={}) -%}
-  {% for item in form_info %}
-    {% set name = item.name %}
-    {% set value = data.get(name) %}
-    {% set error = errors.get(name) %}
-    {% set id = 'field-%s' % name %}
-
-    {% set control = item.control or 'input' %}
-    {% set label = item.label %}
-    {% set placeholder = item.placeholder %}
-
-    {% set classes = item.classes %}
-
-    {% if control == 'input' %}
-
-        {{ input(name, id=id, label=label, placeholder=placeholder, value=value, error=error, classes=classes or ['control-medium']) }}
-
-    {% elif control == 'select' %}
-
-        {% set options = item.options %}
-        {{ select(name, id=id, label=label, options=options, selected=value, error=error) }}
-
-    {% elif control == 'markdown' %}
-
-        {{ markdown(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
-
-    {% elif control == 'textarea' %}
-
-        {{ textarea(name, id=id, label=label, placeholder=placeholder, value=value, error=error) }}
-
-    {% endif %}
-
-  {% endfor %}
 {%- endmacro -%}
