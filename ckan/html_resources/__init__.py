@@ -1,5 +1,5 @@
 ''' This file creates fanstatic resources from the sub directories. The
-directory can contain a config.ini to specify how the resources should
+directory can contain a resource.config to specify how the resources should
 be treated. minified copies of the resources are created if the resource
 has a later modification time than existing minified versions.
 
@@ -7,7 +7,7 @@ NOTE :currently each library requires its entry point adding to the main
 ckan setup.py file.
 
 
-config.ini (example)
+resource.config (example)
 ==========
 # all resources are named without their file extension
 [main]
@@ -230,7 +230,7 @@ core.sort_resources = sort_resources
 
 def create_library(name, path):
     ''' Creates a fanstatic library `name` with the contents of a
-    directory `path` using config.ini if found. Files are minified
+    directory `path` using resource.config if found. Files are minified
     if needed. '''
 
     def min_path(path):
@@ -277,7 +277,7 @@ def create_library(name, path):
         if path in dont_bundle:
             kw['dont_bundle'] = True
         kw['custom_order'] = count
-        # FIXME needs config.ini options enabled
+        # FIXME needs resource.config options enabled
         if False:
             other_browsers = False
             condition = ''
@@ -296,10 +296,10 @@ def create_library(name, path):
     depends = {}
     groups = {}
 
-    # parse the config.ini file if it exists
+    # parse the resource.config file if it exists
     resource_path = os.path.dirname(__file__)
     resource_path = os.path.join(resource_path, path)
-    config_path = os.path.join(resource_path, 'config.ini')
+    config_path = os.path.join(resource_path, 'resource.config')
     if os.path.exists(config_path):
         config = ConfigParser.RawConfigParser()
         config.read(config_path)
