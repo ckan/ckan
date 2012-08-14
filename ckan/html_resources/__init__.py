@@ -218,9 +218,9 @@ def sort_resources(resources):
     def key(resource):
         return (
             resource.order,
-            resource.custom_order,
             resource.library.library_nr,
             resource.library.name,
+            resource.custom_order,
             resource.dependency_nr,
             resource.relpath)
     return sorted(resources, key=key)
