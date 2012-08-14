@@ -332,6 +332,12 @@ def create_library(name, path):
                 minify(f, dirname, cssmin)
                 file_list.append(filepath)
 
+    # if groups are defined make sure the order supplied there is honored
+    for group in groups:
+        for resource in groups[group]:
+            if resource not in order:
+                order.append(resource)
+
     for x in reversed(order):
         if x in file_list:
             file_list.remove(x)
