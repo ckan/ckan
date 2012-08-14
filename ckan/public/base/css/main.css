@@ -4609,6 +4609,12 @@ ul.icons li .icon-large:before {
 .module-content > :last-child {
   margin-bottom: 0;
 }
+.module-border-top {
+  border-top: 1px dotted #cccccc;
+}
+.module-border-bottom {
+  border-bottom: 1px dotted #cccccc;
+}
 .module-footer {
   padding: 7px 25px 7px;
   border-top: 1px dotted #cccccc;
@@ -5009,6 +5015,9 @@ ol.media-grid:after {
 }
 .js .js-hide {
   display: none;
+}
+.js .js-hide.active {
+  display: block;
 }
 .btn,
 label {
