@@ -136,30 +136,43 @@ class HomeController(BaseController):
             try:
                 group_dict = ckan.logic.get_action('group_show')(context, data_dict)
             except ckan.logic.NotFound:
-                return {'group_dict' :{}}
+                return None
 
-            # We get all the packages or at least too many so
-            # limit it to just 2
-            group_dict['packages'] = group_dict['packages'][:2]
             return {'group_dict' :group_dict}
 
-        #global dirty_cached_group_stuff
-        #if not dirty_cached_group_stuff:
-            # ARON
-            # uncomment the first for testing
-            # the second for demo - different data
-            #dirty_cached_group_stuff = [get_group('access-to-medicines'), get_group('archaeology')]
-        #    dirty_cached_group_stuff = [get_group('data-explorer'), get_group('geo-examples')]
+        global dirty_cached_group_stuff
+        if not dirty_cached_group_stuff:
+            groups_data = []
+            groups = config.get('demo.featured_groups', '').split()
 
-        # c.groups is from the solr query above
-        if len(c.groups) == 1:
-            c.group_package_stuff = [get_group(c.groups[0]['name']),
-                                     {'group_dict' :{}}]
-        elif len(c.groups) == 2:
-            c.group_package_stuff = [get_group(c.groups[0]['name']),
-                                     get_group(c.groups[1]['name'])]
-        else:
-            c.group_package_stuff = [{'group_dict' :{}}, {'group_dict' :{}}]
+            for group_name in groups:
+                group = get_group(group_name)
+                if group:
+                    groups_data.append(group)
+                if len(groups_data) == 2:
+                    break
+
+            # c.groups is from the solr query above
+            if len(groups_data) < 2 and len(c.groups) > 0:
+                group = get_group(c.groups[0]['name'])
+                if group:
+                    groups_data.append(group)
+            if len(groups_data) < 2 and len(c.groups) > 1:
+                group = get_group(c.groups[1]['name'])
+                if group:
+                    groups_data.append(group)
+            # We get all the packages or at least too many so
+            # limit it to just 2
+            for group in groups_data:
+                group['group_dict']['packages'] = group['group_dict']['packages'][:2]
+            #now add blanks so we have two
+            while len(groups_data) < 2:
+                groups_data.append({'group_dict' :{}})
+            # cache for later use
+            dirty_cached_group_stuff = groups_data
+
+
+        c.group_package_stuff = dirty_cached_group_stuff
 
         # END OF DIRTYNESS
 
