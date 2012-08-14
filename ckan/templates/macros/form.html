@@ -280,6 +280,27 @@ Example:
 {% endmacro %}
 
 {#
+Renders an info box with a description. This will usually be used with in a
+call block when creating an input element.
+
+text    - The text to include in the box.
+classes - A list of classes to add to the info box.
+
+Example
+
+  {% import 'macros/form.html' as form %}
+  {% call form.input('name') %}
+    {{ form.info(_('My useful help text')) }}
+  {% endcall %}
+
+#}
+{% macro info(text='', classes=[]) %}
+  {%- if text -%}
+    <div class="info-block icon-large icon-info-sign{{ " " ~ classes | join(' ') }}">{{ text }}</div>
+  {%- endif -%}
+{% endmacro %}
+
+{#
 Builds a space seperated list of html attributes from a dict of key/value pairs.
 Generally only used internally by macros.
 
