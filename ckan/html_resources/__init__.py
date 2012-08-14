@@ -288,6 +288,7 @@ def create_library(name, path):
         resource = Resource(library, filename, **kw)
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, filename)
+        print 'create resource %s' % fanstatic_name
         setattr(module, fanstatic_name, resource)
         return resource
 
@@ -365,6 +366,8 @@ def create_library(name, path):
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'javascript'))
 create_library('base', base_path)
 
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'vendor'))
+create_library('vendor', base_path)
 
 ### create our libraries here from any subdirectories
 ##for dirname, dirnames, filenames in os.walk(os.path.dirname(__file__)):

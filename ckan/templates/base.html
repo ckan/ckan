@@ -55,7 +55,8 @@
     #}
     {%- block html5shim -%}
       {# Temporary link until we get resource helper working #}
-      <!--[if lte IE 8]><script src="{% url_for_static '/base/vendor/html5.js' %}"></script><![endif]-->
+      {#      <!--[if lte IE 8]><script src="{% url_for_static '/base/vendor/html5.js' %}"></script><![endif]--> #}
+      {% resource 'vendor/html5.js' %}
     {%- endblock -%}
 
     {#
