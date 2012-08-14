@@ -10,10 +10,6 @@ Introduction
 
 The DataStore API allows tabular data to be stored inside CKAN quickly and easily. It is accessible through an interface accessible over HTTP and can be interacted with using JSON (the JavaScript Object Notation).
 
-.. raw:: html
-
-   <iframe src="https://docs.google.com/presentation/embed?id=1UhEqvEPoL_VWO5okYiEPfZTLcLYWqtvRRmB1NBsWXY8&#038;start=false&#038;loop=false&#038;delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-
 
 Quickstart
 ==========
@@ -49,7 +45,7 @@ To the following endpoint:
 
 * Dataset Model Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/rest/dataset``
 
-More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`. More information about the Datastore API can be found on the :ref:`datastore page <datastoreapiref>`.
+More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`. More information about the Datastore API can be found on the :doc:`datastore page <datastore>`.
 
 
 Examples
