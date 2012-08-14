@@ -276,10 +276,10 @@ def package_update(context, data_dict):
 
     log.debug('Updated object %s' % str(pkg.name))
 
-    return_package_dict = context.get('return_package_dict',True)
+    return_id_only = context.get('return_id_only', False)
 
-    output = _get_action('package_show')(context, {'id': data_dict['id']}) \
-            if return_package_dict else data_dict['id']
+    output = data_dict['id'] if return_id_only \
+            else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
 
