@@ -37,9 +37,6 @@ The DataStore in previous lives required a custom setup of ElasticSearch and Ngi
 but that is no more, as it can use any relational database management system 
 (PostgreSQL for example).
 
-To enable datastore features in CKAN
-------------------------------------
-
 In your config file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
