@@ -28,12 +28,15 @@ test3 = test2 test1
 '''
 import os.path
 import sys
+import logging
 import ConfigParser
 
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
 from ckan.include.rjsmin import jsmin
 from ckan.include.rcssmin import cssmin
+
+log = logging.getLogger(__name__)
 
 # TODO
 # loop through dirs to setup
@@ -253,7 +256,7 @@ def create_library(name, path):
         f = open(path_min, 'w')
         f.write(min_function(source))
         f.close()
-        print 'minified %s' % path
+        log.info('minified %s' % path)
 
     def create_resource(path, lib_name, count):
         ''' create the fanstatic Resource '''
@@ -288,7 +291,7 @@ def create_library(name, path):
         resource = Resource(library, filename, **kw)
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, filename)
-        print 'create resource %s' % fanstatic_name
+        log.info('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
 
