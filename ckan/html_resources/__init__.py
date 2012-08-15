@@ -281,9 +281,9 @@ def create_library(name, path):
             kw['dont_bundle'] = True
         kw['custom_order'] = count
         # FIXME needs resource.config options enabled
-        if False:
-            other_browsers = False
-            condition = ''
+        if path in IE_conditionals:
+            other_browsers = ('others' in IE_conditionals[path])
+            condition = IE_conditionals[path][0]
             kw['renderer'] = IEConditionalRenderer(
                                         condition=condition,
                                         renderer=renderer,
@@ -299,6 +299,7 @@ def create_library(name, path):
     dont_bundle = []
     depends = {}
     groups = {}
+    IE_conditionals = {}
 
     # parse the resource.config file if it exists
     resource_path = os.path.dirname(__file__)
@@ -317,6 +318,14 @@ def create_library(name, path):
         if config.has_section('groups'):
             items = config.items('groups')
             groups = dict((n, v.split()) for (n, v) in items)
+        if config.has_section('IE conditional'):
+            items = config.items('IE conditional')
+            for (n, v) in items:
+                files = v.split()
+                for f in files:
+                    if f not in IE_conditionals:
+                        IE_conditionals[f] = []
+                    IE_conditionals[f].append(n)
 
     library = Library(name, path)
     module = sys.modules[__name__]
