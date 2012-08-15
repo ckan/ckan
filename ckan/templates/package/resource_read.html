@@ -130,6 +130,7 @@
 
 {% block scripts %}
   {{ super() }}
+  {#
   <script src="{% url_for_static '/base/datapreview/vendor/underscore/1.1.6/underscore.js' %}"></script>
   <script src="{% url_for_static '/base/datapreview/vendor/backbone/0.5.1/backbone.js' %}"></script>
   <script src="{% url_for_static '/base/datapreview/vendor/mustache/0.5.0-dev/mustache.js' %}"></script>
@@ -145,7 +146,8 @@
 
   <script src="{% url_for_static '/base/datapreview/vendor/recline/recline.js' %}"></script>
   <script src="{% url_for_static '/base/datapreview/datapreview.js' %}"></script>
-
+  #}
+  {% resource 'datapreview/datapreview' %}
   <script>
     var preload_resource = {{ h.literal(c.resource_json) }};
     var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
