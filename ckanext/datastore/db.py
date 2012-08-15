@@ -478,12 +478,15 @@ def create(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    timeout = context.get('query_timeout', 60000)
     _cache_types(context)
 
     # close connection at all cost.
     try:
         # check if table already existes
         trans = context['connection'].begin()
+        context['connection'].execute(
+            'set local statement_timeout to {}'.format(timeout))
         result = context['connection'].execute(
             'select * from pg_tables where tablename = %s',
              data_dict['resource_id']
@@ -495,8 +498,11 @@ def create(context, data_dict):
         insert_data(context, data_dict)
         trans.commit()
         return data_dict
-    except:
-        trans.rollback()
+    except Exception, e:
+        if 'due to statement timeout' in str(e):
+            raise p.toolkit.ValidationError({
+                'query': 'Query took too long'
+            })
         raise
     finally:
         context['connection'].close()
@@ -528,7 +534,7 @@ def delete(context, data_dict):
 
         trans.commit()
         return data_dict
-    except:
+    except Exception, e:
         trans.rollback()
         raise
     finally:
@@ -538,10 +544,13 @@ def delete(context, data_dict):
 def search(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    timeout = context.get('query_timeout', 60000)
     _cache_types(context)
 
     try:
         # check if table existes
+        context['connection'].execute(
+            'set local statement_timeout to {}'.format(timeout))
         result = context['connection'].execute(
             'select * from pg_tables where tablename = %s',
              data_dict['resource_id']
@@ -552,5 +561,11 @@ def search(context, data_dict):
                     data_dict['resource_id'])
             })
         return search_data(context, data_dict)
+    except Exception, e:
+        if 'due to statement timeout' in str(e):
+            raise p.toolkit.ValidationError({
+                'query': 'Search took too long'
+            })
+        raise
     finally:
         context['connection'].close()
