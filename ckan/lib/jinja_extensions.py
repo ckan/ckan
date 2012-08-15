@@ -1,4 +1,5 @@
 from os import path
+import logging
 
 from jinja2 import nodes
 from jinja2 import loaders
@@ -11,6 +12,8 @@ from jinja2 import Environment
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 
+
+log = logging.getLogger(__name__)
 ### Filters
 
 def empty_and_escape(value):
@@ -36,16 +39,44 @@ def truncate(value, length=255, killwords=None, end='...'):
 
 class CkanExtend(Extension):
     ''' Custom {% ckan_extends <template> %} tag that allows templates
-    to inherit from the ckan base template of the same name. '''
+    to inherit from the ckan template futher down the template search path
+    if no template provided we assume the same template name. '''
 
     tags = set(['ckan_extends'])
 
+    def __init__(self, environment):
+        Extension.__init__(self, environment)
+        self.searchpath = environment.loader.searchpath[:]
+
     def parse(self, parser):
-        # if the template name has a * as the first char it will only be
-        # looked for in the ckan base templates
-        node = nodes.Extends(lineno=next(parser.stream).lineno)
-        node.template = parser.parse_expression()
-        node.template.value = '*' + node.template.value
+        lineno = next(parser.stream).lineno
+        node = nodes.Extends(lineno)
+        template_path = parser.filename
+        # find where in the search path this template is from
+        index = 0
+        for searchpath in self.searchpath:
+            if template_path.startswith(searchpath):
+                break
+            index += 1
+
+        # get filename from full path
+        filename = template_path[len(searchpath) + 1:]
+
+        # Providing template path violently deprecated
+        if parser.stream.current.type != 'block_end':
+            provided_template = parser.parse_expression().value
+            if provided_template != filename:
+                raise Exception('ckan_extends tag wrong path %s in %s'
+                                % (provided_template, template_path))
+            else:
+                log.critical('Remove path from ckan_extend tag in %s'
+                             % template_path)
+
+        # provide our magic format
+        # format is *<search path parent index>*<template name>
+        magic_filename = '*' + str(index) + '*' + filename
+        # set template
+        node.template = nodes.Const(magic_filename)
         return node
 
 
@@ -94,21 +125,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =====================================================================
     '''
 
-    def __init__(self, searchpath, ckan_base_path, encoding='utf-8'):
-        # ckan changes: we accept and store the ckan_base_path
-        if isinstance(searchpath, basestring):
-            searchpath = [searchpath]
-        self.searchpath = list(searchpath)
-        self.ckan_base_path = ckan_base_path
-        self.encoding = encoding
-
     def get_source(self, environment, template):
         # if the template name starts with * then this should be
-        # treated as a ckan base template. otherwise we check all the
-        # template paths.
+        # treated specially.
+        # format is *<search path parent index>*<template name>
+        # so we only search from then downwards.  This allows recursive
+        # ckan_extends tags
         if template.startswith('*'):
-            template = template[1:]
-            searchpaths = [self.ckan_base_path]
+            parts = template.split('*')
+            template = parts[2]
+            searchpaths = self.searchpath[int(parts[1]) + 1:]
         else:
             searchpaths = self.searchpath
         # end of ckan changes

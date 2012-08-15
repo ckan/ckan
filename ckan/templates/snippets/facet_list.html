@@ -38,7 +38,7 @@ extras
             {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
-                  <span>{{ label }}{{ count }}</span>
+                  <span>{{ label }} {{ count }}</span>
                 </a>
               </li>
           {% endfor %}
@@ -48,7 +48,7 @@ extras
         {% if h.get_param_int('_%s_limit' % name) %}
           <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">{{ _('Show More {facet}').format(facet=h.get_facet_title(name)) }}</a>
         {% else %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">{{ _('Show Only Popular {facet}').format(h.get_facet_title(name)) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=h.get_facet_title(name)) }}</a>
         {% endif %}
       </p>
     {% else %}

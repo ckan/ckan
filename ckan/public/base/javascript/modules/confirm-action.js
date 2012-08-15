@@ -1,11 +1,11 @@
-this.ckan.module('confirm-delete', function (jQuery, _) {
+this.ckan.module('confirm-action', function (jQuery, _) {
   return {
     /* An object of module options */
     options: {
       /* Locale options can be overidden with data-module-i18n attribute */
       i18n: {
         heading: _('Please Confirm Action'),
-        content: _('Are you sure you want to delete this item?'),
+        content: _('Are you sure you want to perform this action?'),
         confirm: _('Confirm'),
         cancel: _('Cancel')
       },
@@ -35,7 +35,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
     },
 
     /* Presents the user with a confirm dialogue to ensure that they wish to
-     * delete the current item.
+     * continue with the current action.
      *
      * Examples
      *
@@ -48,13 +48,16 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
     confirm: function () {
       this.sandbox.body.append(this.createModal());
       this.modal.modal('show');
+
+      // Center the modal in the middle of the screen.
+      this.modal.css('margin-top', this.modal.height() * -0.5);
     },
 
-    /* Performs the delete action for the current item.
+    /* Performs the action for the current item.
      *
      * Returns nothing.
      */
-    performDelete: function () {
+    performAction: function () {
       // create a form and submit it to confirm the deletion
       var form = jQuery('<form/>', {
         action: this.el.attr('href'),
@@ -69,18 +72,16 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
      * Returns the newly created element.
      */
     createModal: function () {
-      var i18n = this.options.i18n;
-
       if (!this.modal) {
         var element = this.modal = jQuery(this.options.template);
         element.on('click', '.btn-primary', this._onConfirmSuccess);
         element.on('click', '.btn-cancel', this._onConfirmCancel);
         element.modal({show: false});
 
-        element.find('h3').text(i18n.heading);
-        element.find('.modal-body').text(i18n.content);
-        element.find('.btn-primary').text(i18n.confirm);
-        element.find('.btn-cancel').text(i18n.cancel);
+        element.find('h3').text(this.i18n('heading'));
+        element.find('.modal-body').text(this.i18n('content'));
+        element.find('.btn-primary').text(this.i18n('confirm'));
+        element.find('.btn-cancel').text(this.i18n('cancel'));
       }
       return this.modal;
     },
@@ -93,7 +94,7 @@ this.ckan.module('confirm-delete', function (jQuery, _) {
 
     /* Event handler for the success event */
     _onConfirmSuccess: function (event) {
-      this.performDelete();
+      this.performAction();
     },
 
     /* Event handler for the cancel event */

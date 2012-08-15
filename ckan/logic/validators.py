@@ -153,9 +153,11 @@ def activity_type_exists(activity_type):
     """Raises Invalid if there is no registered activity renderer for the
     given activity_type. Otherwise returns the given activity_type.
 
+    This just uses object_id_validators as a lookup.
+    very safe.
+
     """
-    from ckan.logic.action.get import activity_renderers
-    if activity_renderers.has_key(activity_type):
+    if object_id_validators.has_key(activity_type):
         return activity_type
     else:
         raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))

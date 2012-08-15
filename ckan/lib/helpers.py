@@ -39,6 +39,7 @@ from pylons.i18n import _, ungettext
 import html_resources
 from lib.maintain import deprecated
 import ckan.model as model
+import ckan.lib.formatters as formatters
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -522,11 +523,17 @@ def facet_title(name):
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def get_facet_title(name):
+
+    # if this is set in the config use this
+    config_title = config.get('search.facets.%s.title' % name)
+    if config_title:
+        return config_title
+
     facet_titles = {'groups' : _('Groups'),
                   'tags' : _('Tags'),
                   'res_format' : _('Formats'),
                   'license' : _('Licence'), }
-    return facet_titles.get(name, name)
+    return facet_titles.get(name, name.capitalize())
 
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
@@ -592,7 +599,7 @@ def linked_user(user, maxlength=0):
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + link_to(displayname,
+        return _icon + u' ' + link_to(displayname,
                        url_for(controller='user', action='read', id=_name))
 
 def linked_authorization_group(authgroup, maxlength=0):
@@ -618,7 +625,7 @@ def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
-    return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
+    return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
@@ -903,6 +910,13 @@ def resource_link(resource_dict, package_id):
         action='resource_read',
         id=package_id,
         resource_id=resource_dict['id'])
+    return link_to(text, url)
+
+def related_item_link(related_item_dict):
+    text = related_item_dict.get('title', '')
+    url = url_for(controller='related',
+        action='read',
+        id=related_item_dict['id'])
     return link_to(text, url)
 
 def tag_link(tag):
@@ -1213,19 +1227,33 @@ def render_markdown(data):
         return ''
     return literal(ckan.misc.MarkdownFormat().to_html(data))
 
+
 def format_resource_items(items):
+    ''' Take a resource item list and format nicely with blacklisting etc. '''
     blacklist = ['name', 'description', 'url', 'tracking_summary']
     output = []
-    reg_ex = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}$'
+    # regular expressions for detecting types in strings
+    reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
+    reg_ex_number = '^-?\d{1,}\.?\d*$'  # int/float
     for key, value in items:
         if not value or key in blacklist:
             continue
-        if re.search(reg_ex, value):
-            value = render_datetime(date_str_to_datetime(value),
-                                    with_hours=True)
+        # size is treated specially as we want to show in MiB etc
+        if key == 'size':
+            value = formatters.localised_filesize(int(value))
+        elif isinstance(value, basestring):
+            # check if strings are actually datetime/number etc
+            if re.search(reg_ex_datetime, value):
+                datetime_ = date_str_to_datetime(value)
+                value = formatters.localised_nice_date(datetime_)
+            elif re.search(reg_ex_number, value):
+                value = formatters.localised_number(float(value))
+        elif isinstance(value, int) or isinstance(value, float):
+            value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x:x[0])
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1270,6 +1298,7 @@ __allowed_functions__ = [
            'dataset_link',
            'resource_display_name',
            'resource_link',
+           'related_item_link',
            'tag_link',
            'group_link',
            'dump_json',

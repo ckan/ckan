@@ -46,21 +46,24 @@
     <script src="../javascript/modules/autocomplete.js"></script>
     <script src="../javascript/modules/resource-form.js"></script>
     <script src="../javascript/modules/resource-upload-field.js"></script>
-    <script src="../javascript/modules/confirm-delete.js"></script>
+    <script src="../javascript/modules/confirm-action.js"></script>
     <script src="../javascript/modules/custom-fields.js"></script>
+    <script src="../javascript/modules/related-item.js"></script>
 
     <!-- Suite -->
     <script src="./spec/ckan.spec.js"></script>
     <script src="./spec/module.spec.js"></script>
     <script src="./spec/sandbox.spec.js"></script>
     <script src="./spec/client.spec.js"></script>
+    <script src="./spec/pubsub.spec.js"></script>
     <script src="./spec/notify.spec.js"></script>
     <script src="./spec/modules/resource-form.spec.js"></script>
     <script src="./spec/modules/resource-upload-field.spec.js"></script>
-    <script src="./spec/modules/confirm-delete.spec.js"></script>
+    <script src="./spec/modules/confirm-action.spec.js"></script>
     <script src="./spec/modules/basic-form.spec.js"></script>
     <script src="./spec/modules/autocomplete.spec.js"></script>
     <script src="./spec/modules/custom-fields.spec.js"></script>
+    <script src="./spec/modules/related-item.spec.js"></script>
     <script src="./spec/plugins/jquery.inherit.spec.js"></script>
     <script src="./spec/plugins/jquery.proxy-all.spec.js"></script>
     <script src="./spec/plugins/jquery.url-helpers.spec.js"></script>
@@ -100,7 +103,6 @@
        *
        */
       function loadFixture(filename, params, callback) {
-        var URL = 'http://localhost:5000/api/1/util/snippet/' + encodeURIComponent(filename);
         var context = this;
 
         // Allow function to be called without params.
@@ -109,7 +111,7 @@
           params = {};
         }
 
-        return jQuery.get(URL, params).error(function () {
+        return (new ckan.Client()).getTemplate(filename, params).error(function () {
           throw new Error('Unable to load fixture: ' + filename);
         }).pipe(function (template) {
           var fixture = jQuery('#fixture').html(template);

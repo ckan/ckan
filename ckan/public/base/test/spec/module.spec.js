@@ -87,6 +87,36 @@ describe('ckan.module(id, properties|callback)', function () {
       assert.calledWith(this.target, this.test1, this.element4[0]);
       assert.calledWith(this.target, this.test2, this.element4[0]);
     });
+
+    it('should defer all published events untill all modules have loaded', function () {
+      var pubsub    = ckan.pubsub;
+      var callbacks = [];
+
+      // Ensure each module is loaded. Three in total.
+      ckan.module.registry = {
+        test1: function () {},
+        test2: function () {}
+      };
+
+      // Call a function to publish and subscribe to an event on each instance.
+      this.target.restore();
+      this.target = sinon.stub(ckan.module, 'createInstance', function () {
+        var callback = sinon.spy();
+
+        pubsub.publish('test');
+        pubsub.subscribe('test', callback);
+
+        callbacks.push(callback);
+      });
+
+      ckan.module.initialize();
+
+      // Ensure that all subscriptions received all messages.
+      assert.ok(callbacks.length, 'no callbacks were created');
+      jQuery.each(callbacks, function () {
+        assert.calledThrice(this);
+      });
+    });
   });
 
   describe('.createInstance(Module, element)', function () {

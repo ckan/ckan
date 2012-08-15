@@ -175,6 +175,8 @@ def load_environment(global_conf, app_conf):
 
     config['routes.map'] = routing.make_map()
     config['pylons.app_globals'] = app_globals.app_globals
+    # initialise the globals
+    config['pylons.app_globals']._init()
 
     # add helper functions
     restrict_helpers = asbool(
@@ -296,8 +298,7 @@ def load_environment(global_conf, app_conf):
 
     # Create Jinja2 environment
     env = lib.jinja_extensions.Environment(
-        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths,
-                            ckan_base_path=paths['templates'][0]),
+        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
         extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_extensions.SnippetExtension,

@@ -74,11 +74,11 @@ def reset():
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
         if value:
-            log.info('config `%s` set to `%s` from db' % (key, value))
+            log.debug('config `%s` set to `%s` from db' % (key, value))
         else:
             value = _CONFIG_CACHE[key]
             if value:
-                log.info('config `%s` set to `%s` from config' % (key, value))
+                log.debug('config `%s` set to `%s` from config' % (key, value))
             else:
                 value = default
         setattr(app_globals, get_globals_key(key), value)
@@ -116,7 +116,9 @@ class _Globals(object):
         initialization and is available during requests via the
         'app_globals' variable
         '''
+        self._init()
 
+    def _init(self):
         self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
         facets = config.get('search.facets', 'groups tags res_format license')
         self.facets = facets.split()

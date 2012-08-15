@@ -1,7 +1,22 @@
+{#
+Renders a list of related item elements
+
+related_items - A list of related items.
+pkg_id - A package id for the items used to determine if the edit button
+         should be displayed.
+first  - True if the first item in a row.
+last   - True if the last item in a row.
+
+Example:
+
+
+  {% snippet "related/snippets/related_list.html", related_items=c.pkg.related, pkg_id=c.pkg.name %}
+
+#}
 <ul class="media-grid">
   {% for related in related_items %}
     {% set first = loop.index0 % 3 == 0 %}
     {% set last  = loop.index0 % 3 == 2 %}
-    {% include "related/snippets/related_item.html" %}
+    {% snippet "related/snippets/related_item.html", pkg_id=pkg_id, related=related, first=first, last=last %}
   {% endfor %}
 </ul>

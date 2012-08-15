@@ -201,10 +201,10 @@ class I18nMiddleware(object):
             path_info = '/'.join(urllib.quote(pce,'') for pce in path_info.split('/'))
 
             qs = environ.get('QUERY_STRING')
-            # sort out weird encodings
-            qs = urllib.quote(qs, '')
 
             if qs:
+                # sort out weird encodings
+                #qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info

@@ -1,4 +1,4 @@
-{% import 'macros/form.html' as form %}
+{% import 'macros/autoform.html' as autoform %}
 
 {% extends "page.html" %}
 
@@ -10,7 +10,7 @@
       <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
 
       <form method='post' action="" class="form-horizontal">
-          {{ form.autoform(form_items, data, errors) }}
+          {{ autoform.generate(form_items, data, errors) }}
         <div class="form-actions">
           {# Update needs to come first so form submits when return is pressed #}
           <button type="submit" class="btn btn-primary" name="save">Update</button>

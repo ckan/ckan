@@ -415,6 +415,14 @@ def group_update(context, data_dict):
 
     _check_access('group_update', context, data_dict)
 
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
+
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'),

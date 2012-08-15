@@ -57,6 +57,14 @@
   margin-bottom: 0;
 }
 
+.module-border-top {
+  border-top: 1px dotted @genericBorderColor;
+}
+
+.module-border-bottom {
+  border-bottom: 1px dotted @genericBorderColor;
+}
+
 .module-footer {
   padding: 7px @gutterX 7px;
   border-top: 1px dotted @genericBorderColor;
@@ -162,6 +170,10 @@
   position: relative;
 }
 
+.module-item.first {
+  clear: left;
+}
+
 // GROUP
 
 .group .content img {
@@ -172,4 +184,12 @@
 .group .content h3 {
   font-size: 14px;
   line-height: 1.3;
+}
+
+.group-listing {
+  margin-left: -20px; // Same as .row
+}
+
+.ie .group-listing {
+  margin-left: -24px; // Include border around items.
 }
