@@ -275,7 +275,11 @@ def create_library(name, path):
         if path in depends:
             dependencies = []
             for dependency in depends[path]:
-                dependencies.append(getattr(module, '%s/%s' % (lib_name, dependency)))
+                try:
+                    res = getattr(module, '%s/%s' % (name, dependency))
+                except AttributeError:
+                    res = getattr(module, '%s' % dependency)
+                dependencies.append(res)
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
@@ -327,6 +331,16 @@ def create_library(name, path):
                         IE_conditionals[f] = []
                     IE_conditionals[f].append(n)
 
+
+    for group in groups:
+        if group in depends:
+            for resource in groups[group]:
+                if resource not in depends:
+                    depends[resource] = []
+                for dep in depends[group]:
+                    if dep not in depends[resource]:
+                        depends[resource].append(dep)
+
     library = Library(name, path)
     module = sys.modules[__name__]
 
@@ -366,6 +380,13 @@ def create_library(name, path):
         for member in groups[group_name]:
             fanstatic_name = '%s/%s' % (name, member)
             members.append(getattr(module, fanstatic_name))
+        if group_name in depends:
+            for dependency in depends[group_name]:
+                try:
+                    res = getattr(module, '%s/%s' % (name, dependency))
+                except AttributeError:
+                    res = getattr(module, '%s' % dependency)
+                members = [res] + members #.append(res)
         group = Group(members)
         fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
