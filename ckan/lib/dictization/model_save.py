@@ -382,21 +382,22 @@ def group_dict_save(group_dict, context):
 
     context['group'] = group
 
-    pkgs_edited = group_member_save(context, group_dict, 'packages')
-    group_users_changed = group_member_save(context, group_dict, 'users')
-    group_groups_changed = group_member_save(context, group_dict, 'groups')
-    group_tags_changed = group_member_save(context, group_dict, 'tags')
-    log.debug('Group save membership changes - Packages: %r  Users: %r  '
-              'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
-              group_groups_changed, group_tags_changed)
+    if group_dict.get('packages', None) or not allow_partial_update:
+        pkgs_edited = group_member_save(context, group_dict, 'packages')
+        group_users_changed = group_member_save(context, group_dict, 'users')
+        group_groups_changed = group_member_save(context, group_dict, 'groups')
+        group_tags_changed = group_member_save(context, group_dict, 'tags')
+        log.debug('Group save membership changes - Packages: %r  Users: %r  '
+                'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
+                group_groups_changed, group_tags_changed)
 
-    # We will get a list of packages that we have either added or
-    # removed from the group, and trigger a re-index.
-    package_ids = pkgs_edited['removed']
-    package_ids.extend( pkgs_edited['added'] )
-    if package_ids:
-        session.commit()
-        map( rebuild, package_ids )
+        # We will get a list of packages that we have either added or
+        # removed from the group, and trigger a re-index.
+        package_ids = pkgs_edited['removed']
+        package_ids.extend( pkgs_edited['added'] )
+        if package_ids:
+            session.commit()
+            map( rebuild, package_ids )
 
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
