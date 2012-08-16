@@ -221,6 +221,11 @@ def create_library(name, path, depend_base=True):
         create_resource(f, name, count)
         count += 1
 
+    #inline scripts
+    for inline in inline_scripts:
+        create_resource(inline, name, count, inline=inline_scripts[inline].strip())
+        count += 1
+
     # add groups
     for group_name in groups:
         members = []
@@ -237,11 +242,6 @@ def create_library(name, path, depend_base=True):
         group = Group(members)
         fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
-
-    #inline scripts
-    for inline in inline_scripts:
-        create_resource(inline, name, count, inline=inline_scripts[inline].strip())
-        count += 1
 
     # finally add the library to this module
     setattr(module, name, library)
