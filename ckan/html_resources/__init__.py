@@ -47,13 +47,12 @@ class IEConditionalRenderer(object):
     def __init__(self, condition, renderer, other_browsers=False):
         self.condition = condition
         self.renderer = renderer
-        self.other_browsers = other_browsers
         if other_browsers:
-            self.other_browsers_start= '<!-->'
-            self.other_browsers_end= '<!--'
+            self.other_browsers_start = '<!-->'
+            self.other_browsers_end = '<!--'
         else:
-            self.other_browsers_start= ''
-            self.other_browsers_end= ''
+            self.other_browsers_start = ''
+            self.other_browsers_end = ''
 
     def __call__(self, url):
         return '<!--[if %s]>%s%s%s<![endif]-->' % (self.condition,
