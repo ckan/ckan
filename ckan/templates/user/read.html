@@ -28,8 +28,8 @@
         <span class="media-image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
         <div class="description">
           <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
-          {% if user.about_formatted %}
-            {{ user.about_formatted }}
+          {% if c.about_formatted %}
+            {{ c.about_formatted }}
           {% else %}
             <p class="empty">
               {% if c.is_myself %}
