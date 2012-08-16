@@ -139,6 +139,7 @@ class GroupController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
+        sort_by = request.params.get('sort', None)
 
         def search_url(params):
             url = h.url_for(controller='group', action='read',
@@ -170,7 +171,7 @@ class GroupController(BaseController):
             c.fields = []
             search_extras = {}
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if not param in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -188,6 +189,7 @@ class GroupController(BaseController):
                 'fq': fq,
                 'facet.field': g.facets,
                 'rows': limit,
+                'sort': sort_by,
                 'start': (page - 1) * limit,
                 'extras': search_extras
             }
@@ -209,6 +211,9 @@ class GroupController(BaseController):
 
             c.search_facets = query['search_facets']
             c.page.items = query['results']
+
+            c.sort_by_selected = sort_by
+
         except SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True

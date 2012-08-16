@@ -277,7 +277,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
+      search-index [-i] [-o] [-r] [-e] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
       search-index check                                     - checks for datasets not indexed
       search-index show {dataset-name}                       - shows index of a dataset
       search-index clear [dataset-name]                      - clears the search index for the provided dataset or for the whole ckan instance
@@ -301,6 +301,13 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
             action='store_true', default=False, help='Refresh current index (does not clear the existing one)')
 
+        self.parser.add_option('-e', '--commit-each', dest='commit_each',
+            action='store_true', default=False, help=
+'''Perform a commit after indexing each dataset. This ensures that changes are
+immediately available on the search, but slows significantly the process.
+Default is false.'''
+                    )
+
     def command(self):
         self._load_config()
 
@@ -322,14 +329,22 @@ class SearchIndexCommand(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def rebuild(self):
-        from ckan.lib.search import rebuild
+        from ckan.lib.search import rebuild, commit
+
+        # BY default we don't commit after each request to Solr, as it is
+        # a really heavy operation and slows things a lot
 
         if len(self.args) > 1:
             rebuild(self.args[1])
         else:
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
-                    refresh=self.options.refresh)
+                    refresh=self.options.refresh,
+                    defer_commit=(not self.options.commit_each))
+
+        if not self.options.commit_each:
+            commit()
+
     def check(self):
         from ckan.lib.search import check
 

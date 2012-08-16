@@ -118,7 +118,7 @@ html_theme_options = {
     }
 
 html_sidebars = {
-    '**':  ['globaltoc.html']
+    '**':  ['localtoc.html', 'globaltoc.html']
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name

@@ -8,7 +8,7 @@ import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
 
 import extension
-import ckan.lib.activity
+import ckan.lib.activity_streams_session_extension as activity
 
 __all__ = ['Session', 'engine_is_sqlite']
 
@@ -133,7 +133,7 @@ Session = orm.scoped_session(orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               ckan.lib.activity.DatasetActivitySessionExtension()],
+               activity.DatasetActivitySessionExtension()],
 ))
 
 create_local_session = orm.sessionmaker(
@@ -143,7 +143,7 @@ create_local_session = orm.sessionmaker(
     extension=[CkanCacheExtension(),
                CkanSessionExtension(),
                extension.PluginSessionExtension(),
-               ckan.lib.activity.DatasetActivitySessionExtension()],
+               activity.DatasetActivitySessionExtension()],
 )
 
 #mapper = Session.mapper
