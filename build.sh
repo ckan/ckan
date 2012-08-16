@@ -38,7 +38,7 @@ NAME="James Gardner"
 # Clean the build environment
 echo "Cleaning the environment ..."
 rm -r ${CKAN_PATH}/dist/
-rm -rf ${CKAN_PATH}/build/env/src
+rm -rf ${CKAN_PATH}/build/buildkit/env/src
 mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
