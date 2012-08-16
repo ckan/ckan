@@ -269,8 +269,9 @@ def create_library(name, path):
         if os.path.exists(path_min):
             kw['minified'] = min_path(filename)
         if filename.endswith('.js'):
-            kw['bottom'] = True
             renderer = core.render_js
+            if path not in force_top:
+                kw['bottom'] = True
         if filename.endswith('.css'):
             renderer = core.render_css
         if path in depends:
@@ -302,6 +303,7 @@ def create_library(name, path):
 
     order = []
     dont_bundle = []
+    force_top = []
     depends = {}
     groups = {}
     IE_conditionals = {}
@@ -317,6 +319,8 @@ def create_library(name, path):
             order = config.get('main', 'order').split()
         if config.has_option('main', 'dont_bundle'):
             dont_bundle = config.get('main', 'dont_bundle').split()
+        if config.has_option('main', 'force_top'):
+            force_top = config.get('main', 'force_top').split()
         if config.has_section('depends'):
             items = config.items('depends')
             depends = dict((n, v.split()) for (n, v) in items)
