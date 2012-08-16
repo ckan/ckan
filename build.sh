@@ -43,18 +43,16 @@ mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
 # In lieu of a requires directory, copy the pip-requirements into
-# requires/lucid_conflict.  This ensures that all requirements
+# requires/lucid_missing.  This ensures that all requirements
 # are installed as src.
 mkdir "${CKAN_PATH}/requires"
-cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_conflict.txt"
+cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_missing.txt"
 
 echo "Building the packages ..."
 # Create the python-ckan debian package
 buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --delete "solrpy" \
                     --distro-dep "python-solr" \
-                    --delete "licenses" \
-                    --distro-dep "python-licenses" \
                     --delete "repoze.who-friendlyform" \
                     --rename "repoze.who.plugins.openid -> repoze.who-plugins" \
                     --rename "babel -> pybabel" \
@@ -85,10 +83,6 @@ sed -e "s,solrpy,solr," -i ${CKAN_PATH}/build/buildkit/env/build/solr/setup.py
 buildkit pkg python -p $DEPS_PACKAGE_VERSION --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" --debian-dir ${CKAN_PATH}/build/buildkit/env/build/solr/
 cp ${CKAN_PATH}/build/buildkit/env/build/solr/dist/buildkit/*.deb ${CKAN_PATH}/dist/buildkit/
 
-# Build python-licenses
-${CKAN_PATH}/build/buildkit/env/bin/pip install --download-cache ${CKAN_PATH}/build/buildkit/env/cache --no-install --upgrade "licenses==0.6.1" 
-buildkit pkg python --deb -p $DEPS_PACKAGE_VERSION --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" ${CKAN_PATH}/build/buildkit/env/build/licenses
-cp ${CKAN_PATH}/build/buildkit/env/build/licenses/dist/buildkit/*.deb ${CKAN_PATH}/dist/buildkit/
 echo "done."
 
 # Add the .debs to the repository and the export the latest files for upload
