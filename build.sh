@@ -31,9 +31,6 @@ DEPS_PACKAGE_VERSION=$2
 # If you don't run this command from the CKAN source directory, specify the 
 # path to CKAN here
 CKAN_PATH=$PWD
-# You'll need to create the repo if it doesn't exist:
-# sudo -u buildkit buildkit repo clone base_lucid ckan-1.5.1
-REPO_NAME="ckan-1.5.1"
 PIP_DOWNLOAD_CACHE=${CKAN_PATH}/build/env/cache
 EMAIL=packaging@okfn.org
 NAME="James Gardner"
