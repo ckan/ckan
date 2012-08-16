@@ -187,7 +187,7 @@ class StorageController(BaseController):
             fapp = FileApp(filepath, headers=None, **headers)
             return fapp(request.environ, self.start_response)
         else:
-            h.redirect_to(file_url)
+            h.redirect_to(file_url.encode('ascii','ignore'))
 
 
 class StorageAPIController(BaseController):
