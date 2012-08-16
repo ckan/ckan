@@ -47,7 +47,7 @@ log = logging.getLogger(__name__)
 # warn on no entry point provided for fanstatic
 
 
-def create_library(name, path):
+def create_library(name, path, depend_base=True):
     ''' Creates a fanstatic library `name` with the contents of a
     directory `path` using resource.config if found. Files are minified
     if needed. '''
@@ -93,14 +93,18 @@ def create_library(name, path):
                 renderer = core.render_css
         else:
             kw['fake_resource'] = True
+        dependencies = []
         if path in depends:
-            dependencies = []
             for dependency in depends[path]:
                 try:
                     res = getattr(module, '%s/%s' % (name, dependency))
                 except AttributeError:
                     res = getattr(module, '%s' % dependency)
                 dependencies.append(res)
+        if depend_base:
+            dependencies.append(getattr(module, 'base/main'))
+
+        if dependencies:
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
@@ -246,17 +250,10 @@ def create_library(name, path):
     registry.add(library)
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'vendor'))
-create_library('vendor', base_path)
+create_library('vendor', base_path, depend_base=False)
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'datapreview'))
-create_library('datapreview', base_path)
+create_library('datapreview', base_path, depend_base=False)
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'javascript'))
-create_library('base', base_path)
-
-### create our libraries here from any subdirectories
-##for dirname, dirnames, filenames in os.walk(os.path.dirname(__file__)):
-##    if dirname == os.path.dirname(__file__):
-##        continue
-##    lib_name = os.path.basename(dirname)
-##    create_library(lib_name, lib_name)
+create_library('base', base_path, depend_base=False)
