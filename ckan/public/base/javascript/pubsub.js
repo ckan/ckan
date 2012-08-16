@@ -9,7 +9,17 @@ this.ckan = this.ckan || {};
  * and as such uses a pubsub.events object to manage handlers.
  */
 (function (ckan, $) {
+  // NOTE: These methods all use pubsub internally to refer to themself rather
+  // than "this", this is to ensure access to the events object. However they
+  // all return "this" so they retain the chain of the parent object.
+  // eg. pubsub.publish() returns pubsub and sandbox.publish() returns sandbox.
   var pubsub = {
+    /* An empty jQuery object to use for event management. */
+    events: $({}),
+
+    /* An array for holding queued items. Queue is disabled when null */
+    queue: null,
+
     /* Publishes an event to all modules. Can be used to notify other modules
      * that an area of the site has changed.
      *
@@ -20,7 +30,11 @@ this.ckan = this.ckan || {};
      * Returns the sandbox object.
      */
     publish: function (topic /* arguments */) {
-      pubsub.events.triggerHandler(topic, [].slice.call(arguments, 1));
+      if (pubsub.queue) {
+        pubsub.queue.push([].slice.call(arguments));
+      } else {
+        pubsub.events.triggerHandler(topic, [].slice.call(arguments, 1));
+      }
       return this;
     },
 
@@ -34,7 +48,7 @@ this.ckan = this.ckan || {};
      */
     subscribe: function (topic, callback) {
       if ($.isPlainObject(topic)) {
-        $.each(topic, $.proxy(this.subscribe, this));
+        $.each(topic, $.proxy(pubsub.subscribe, this));
         return this;
       }
 
@@ -61,13 +75,57 @@ this.ckan = this.ckan || {};
      * Returns the sandbox object.
      */
     unsubscribe: function (topic, callback) {
-      pubsub.events.off(this.el, arguments);
+      pubsub.events.off(topic, arguments);
+      return this;
+    },
+
+    /* Starts caching all published events. After this is called no
+     * subscriptions will be called until .dequeue() is called. This is useful
+     * for deferring events until the page has loaded.
+     *
+     * Examples
+     *
+     *   pubsub.enqueue();
+     *   jQuery.ready(pubsub.dequeue);
+     *
+     * Returns itself.
+     */
+    enqueue: function () {
+      if (!pubsub.queue) {
+        pubsub.queue = [];
+      }
+      return this;
+    },
+
+    /* Loops through each item in the queue and publishes it.
+     *
+     * Examples
+     *
+     *   if (allModulesLoaded) {
+     *     pubsub.dequeue();
+     *   }
+     *
+     * Returns itself.
+     */
+    dequeue: function () {
+      if (pubsub.queue) {
+        var queue = pubsub.queue;
+        var index = 0;
+        var length = queue.length;
+
+        // We set the queue to null here to prevent events published within the
+        // following loop to be added to the queue. This reduces the chances
+        // of an infinite loop but does mean that events may be called out of
+        // order.
+        pubsub.queue = null;
+
+        for (;index < length; index += 1) {
+          pubsub.publish.apply(pubsub, queue[index]);
+        }
+      }
       return this;
     }
   };
-
-  // An empty jQuery object to use for event management.
-  pubsub.events = $({});
 
   ckan.pubsub = pubsub;
 

@@ -1,10 +1,30 @@
+{#
+Displays a single related item.
+
+related - The related item dict.
+pkg_id  - The id of the owner package. If present the edit button will be
+          displayed.
+
+Example:
+
+
+
+#}
 {% set placeholder_map = {
 'application':'/base/images/placeholder-application.png'
 } %}
-<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
+<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}" data-module="related-item">
   <a class="media-image" href="{{ related.url }}">
-    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" />
-    <span class="banner">{% if related.type == 'application' %}app{% else %}{{ related.type | replace('news_', '') }}{% endif %}</span>
+    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" />
+    <span class="banner">
+      {%- if related.type == 'application' -%}
+        app
+      {%- elif related.type == 'visualization' -%}
+        viz
+      {%- else -%}
+        {{ related.type | replace('news_', '') }}
+      {%- endif -%}
+    </span>
   </a>
   <div class="media-content">
     <h3 class="media-heading">
@@ -13,11 +33,13 @@
       </a>
     </h3>
     {% if related.description %}
-      <p>{{ h.truncate(related.description, length=80, whole_word=True) }}</p>
+      <div class="prose">{{ h.render_markdown(related.description) }}</div>
     {% else %}
       <p class="empty">{{ _('This item has no description') }}</p>
     {% endif %}
     <a class="btn btn-small btn-primary" href="{{ related.url }}" target="_blank">{{ _('Go to {type}').format(type=related.type|replace('_', ' ')|title) }}</a>
-    {{ h.nav_link(_('Edit'), controller='related', action='edit', id=c.pkg.name, related_id=related.id, class_='btn btn-small') }}
+    {% if pkg_id %}
+      {{ h.nav_link(_('Edit'), controller='related', action='edit', id=pkg_id, related_id=related.id, class_='btn btn-small') }}
+    {% endif %}
   </div>
 </li>

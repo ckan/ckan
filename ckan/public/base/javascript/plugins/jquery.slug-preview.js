@@ -37,6 +37,7 @@
         value.text(val);
       }
 
+      preview.find('strong').text(options.i18n['URL'] + ':');
       preview.find('.slug-preview-prefix').text(options.prefix);
       preview.find('button').text(options.i18n['Edit']).click(function (event) {
         event.preventDefault();
@@ -61,11 +62,12 @@
     prefix: '',
     placeholder: '',
     i18n: {
+      'URL': 'URL',
       'Edit': 'Edit'
     },
     template: [
       '<div class="slug-preview">',
-      '<strong>URL:</strong>',
+      '<strong></strong>',
       '<span class="slug-preview-prefix"></span><span class="slug-preview-value"></span>',
       '<button class="btn btn-small"></button>',
       '</div>'

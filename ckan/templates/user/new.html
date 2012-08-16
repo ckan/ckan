@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _('Register') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Register') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{{ h.nav_link(_('Registration'), controller='user', action='register') }}</li>

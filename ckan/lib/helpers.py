@@ -39,6 +39,7 @@ from pylons.i18n import _, ungettext
 import html_resources
 from lib.maintain import deprecated
 import ckan.model as model
+import ckan.lib.formatters as formatters
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -92,6 +93,9 @@ def url_for_static(*args, **kw):
     """Create url for static content that does not get translated
     eg css, js
     wrapper for routes.url_for"""
+    # make sure that if we specify the url that it is not unicode
+    if args:
+        args = (str(args[0]),) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
 
@@ -294,26 +298,33 @@ def _nav_link(text, controller, **kwargs):
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
+    kwargs['controller'] = controller
     if kwargs.get('inner_span'):
         text = literal('<span>') + text + literal('</span>')
-    highlight_actions = kwargs.pop("highlight_actions",
-                                   kwargs["action"]).split()
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    active =(' active' if
-            c.controller == controller and c.action in highlight_actions
-            else '')
-    class_ = kwargs.pop('class_', '') + active
+    class_ = _link_class(kwargs)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
-            url_for(controller=controller, **kwargs),
+            url_for(**kwargs),
             class_=class_
         )
     else:
         link = ''
     return link
+
+def _link_class(kwargs):
+    ''' creates classes for the link_to calls '''
+    highlight_actions = kwargs.pop('highlight_actions',
+                                   kwargs.get('action', '')).split(' ')
+    if (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions):
+        active = ' active'
+    else:
+        active = ''
+    return kwargs.pop('class_', '') + active
 
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
@@ -328,14 +339,11 @@ def nav_named_link(*args, **kwargs):
     return _nav_named_link(*args, **kwargs)
 
 def _nav_named_link(text, name, **kwargs):
-    highlight_actions = kwargs.pop('highlight_actions','').split()
-    controller = kwargs.get('controller')
+    class_ = _link_class(kwargs)
     return link_to(
         text,
         url_for(name, **kwargs),
-        class_=('active' if
-                c.action in highlight_actions and c.controller == controller
-                else '')
+        class_=class_
     )
 
 def subnav_link(*args, **kwargs):
@@ -350,10 +358,12 @@ def subnav_link(*args, **kwargs):
     return _subnav_link(*args, **kwargs)
 
 def _subnav_link(text, action, **kwargs):
+    kwargs['action'] = action
+    class_ = _link_class(kwargs)
     return link_to(
         text,
-        url_for(action=action, **kwargs),
-        class_=('active' if c.action == action else '')
+        url_for(**kwargs),
+        class_=class_
     )
 
 def subnav_named_route(*args, **kwargs):
@@ -370,10 +380,13 @@ def subnav_named_route(*args, **kwargs):
 
 def _subnav_named_route(text, routename, **kwargs):
     """ Generate a subnav element based on a named route """
+    # FIXME this is the same as _nav_named_link
+    # they should be combined
+    class_ = _link_class(kwargs)
     return link_to(
         text,
         url_for(str(routename), **kwargs),
-        class_=('active' if c.action == kwargs['action'] else '')
+        class_=class_
     )
 
 def build_nav_main(*args):
@@ -505,44 +518,22 @@ def unselected_facet_items(facet, limit=10):
     else:
         return facets
 
-@deprecated()
-def facet_items(*args, **kwargs):
-    """
-    DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
-    """
-    _log.warning('Deprecated function: ckan.lib.helpers:facet_items().  Will be removed in v1.8')
-    # facet_items() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 0 and 'name' in kwargs) or (len(args) > 1 and 'limit' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _facet_items(*args[1:], **kwargs)
-        raise Exception('facet_items() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _facet_items(*args, **kwargs)
-
-
-def _facet_items(name, limit=10):
-    if not c.facets or not c.facets.get(name):
-        return []
-    facets = []
-    for k, v in c.facets.get(name).items():
-        if not len(k.strip()):
-            continue
-        if not (name, k) in request.params.items():
-            facets.append((k, v))
-    return sorted(facets, key=lambda (k, v): v, reverse=True)[:limit]
-
 def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
 def get_facet_title(name):
+
+    # if this is set in the config use this
+    config_title = config.get('search.facets.%s.title' % name)
+    if config_title:
+        return config_title
+
     facet_titles = {'groups' : _('Groups'),
                   'tags' : _('Tags'),
                   'res_format' : _('Formats'),
                   'license' : _('Licence'), }
-    return facet_titles.get(name, name)
+    return facet_titles.get(name, name.capitalize())
 
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
@@ -608,7 +599,7 @@ def linked_user(user, maxlength=0):
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + link_to(displayname,
+        return _icon + u' ' + link_to(displayname,
                        url_for(controller='user', action='read', id=_name))
 
 def linked_authorization_group(authgroup, maxlength=0):
@@ -634,7 +625,7 @@ def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
-    return unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True))
+    return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
@@ -919,6 +910,13 @@ def resource_link(resource_dict, package_id):
         action='resource_read',
         id=package_id,
         resource_id=resource_dict['id'])
+    return link_to(text, url)
+
+def related_item_link(related_item_dict):
+    text = related_item_dict.get('title', '')
+    url = url_for(controller='related',
+        action='read',
+        id=related_item_dict['id'])
     return link_to(text, url)
 
 def tag_link(tag):
@@ -1216,6 +1214,46 @@ def get_pkg_dict_extra(pkg_dict, key, default=None):
 
     return default
 
+def get_request_param(parameter_name, default=None):
+    ''' This function allows templates to access query string parameters
+    from the request. This is useful for things like sort order in
+    searches. '''
+    return request.params.get(parameter_name, default)
+
+def render_markdown(data):
+    ''' returns the data as rendered markdown '''
+    # cope with data == None
+    if not data:
+        return ''
+    return literal(ckan.misc.MarkdownFormat().to_html(data))
+
+
+def format_resource_items(items):
+    ''' Take a resource item list and format nicely with blacklisting etc. '''
+    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    output = []
+    # regular expressions for detecting types in strings
+    reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
+    reg_ex_number = '^-?\d{1,}\.?\d*$'  # int/float
+    for key, value in items:
+        if not value or key in blacklist:
+            continue
+        # size is treated specially as we want to show in MiB etc
+        if key == 'size':
+            value = formatters.localised_filesize(int(value))
+        elif isinstance(value, basestring):
+            # check if strings are actually datetime/number etc
+            if re.search(reg_ex_datetime, value):
+                datetime_ = date_str_to_datetime(value)
+                value = formatters.localised_nice_date(datetime_)
+            elif re.search(reg_ex_number, value):
+                value = formatters.localised_number(float(value))
+        elif isinstance(value, int) or isinstance(value, float):
+            value = formatters.localised_number(value)
+        key = key.replace('_', ' ')
+        output.append((key, value))
+    return sorted(output, key=lambda x:x[0])
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1235,7 +1273,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_items',
            'facet_title',
          #  am_authorized, # deprecated
            'check_access',
@@ -1261,6 +1298,7 @@ __allowed_functions__ = [
            'dataset_link',
            'resource_display_name',
            'resource_link',
+           'related_item_link',
            'tag_link',
            'group_link',
            'dump_json',
@@ -1289,7 +1327,10 @@ __allowed_functions__ = [
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
-    # imported into ckan.lib.helpers
+           'get_request_param',
+           'render_markdown',
+           'format_resource_items',
+           # imported into ckan.lib.helpers
            'literal',
            'link_to',
            'get_available_locales',

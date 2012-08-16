@@ -2,7 +2,7 @@
 
 {% set pkg = c.pkg_dict %}
 
-{% block title %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
 {% block breadcrumb_content %}
   {% set dataset = pkg.title or pkg.name %}
@@ -23,67 +23,70 @@
 {% endblock %}
 
 {% block primary_content %}
-  {% if c.pkg_revision_id %}
-    <div class="module info">
-      <p class="module-content">
-        {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-        {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
+  {% block package_revision_info %}
+    {% if c.pkg_revision_id %}
+      <div class="module info">
+        <p class="module-content">
+          {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
+          {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
 
-        {% if c.pkg_revision_not_latest %}
-          {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
-        {% else %}
-          {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
-        {% endif %}
+          {% if c.pkg_revision_not_latest %}
+            {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
+          {% else %}
+            {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
+          {% endif %}
+        </div>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
+  {% endblock %}
 
   <article class="module prose">
-    <section class="module-content">
-      <h1>{{ pkg.title or pkg.name }}
-        {% if pkg.state.startswith('draft') %}
-          [{{ _('Draft') }}]
+    {% block package_description %}
+      <section class="module-content">
+        <h1>{{ pkg.title or pkg.name }}
+          {% if pkg.state.startswith('draft') %}
+            [{{ _('Draft') }}]
+          {% endif %}
+        </h1>
+        {% if c.pkg_notes_formatted %}
+          <div class="notes embedded-content">
+            {{ c.pkg_notes_formatted }}
+          </div>
         {% endif %}
-      </h1>
-      {% if c.pkg_notes_formatted %}
-        <div class="notes embedded-content">
-          {{ c.pkg_notes_formatted }}
-        </div>
-      {% endif %}
-      <span class="insert-comment-thread"></span>
-    </section>
+        <span class="insert-comment-thread"></span>
+      </section>
+    {% endblock %}
 
-    <section id="dataset-resources" class="resources module-content">
-      <h3>Data and Resources</h3>
-      {% if pkg.resources %}
-        <ul class="resource-list">
-          {% for res in pkg.resources %}
-            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=res %}
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>
-          {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
-          This dataset has no data{#, <a href="{{ url }}">why not add some?</a>#}
-          {% endtrans %}
-      </p>
-      {% endif %}
-    </section>
+    {% block package_resources %}
+      {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+    {% endblock %}
 
-    {% snippet "package/snippets/tags.html", tags=pkg.tags %}
+    {% block package_tags %}
+      {% snippet "package/snippets/tags.html", tags=pkg.tags %}
+    {% endblock %}
 
-    {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
+    {% block package_additional_info %}
+      {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
+    {% endblock %}
   </article>
 {% endblock %}
 
 {% block secondary_content %}
-  {% for group in pkg.groups %}
-    {% snippet "snippets/group.html", group=group, truncate=70 %}
-  {% endfor %}
+  {% block package_groups %}
+    {% for group in pkg.groups %}
+      {% snippet "snippets/group.html", group=group, truncate=70 %}
+    {% endfor %}
+  {% endblock %}
 
-  {% snippet "snippets/social.html" %}
+  {% block package_social %}
+    {% snippet "snippets/social.html" %}
+  {% endblock %}
 
-  {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
+  {% block package_related %}
+    {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
+  {% endblock %}
 
-  {% snippet "snippets/license.html", pkg_dict=pkg %}
+  {% block package_license %}
+    {% snippet "snippets/license.html", pkg_dict=pkg %}
+  {% endblock %}
 {% endblock %}

@@ -35,6 +35,7 @@ setup(
     message_extractors = {
         'ckan': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'ckan', None),
             ('templates_legacy/**.html', 'ckan', None),
@@ -56,7 +57,8 @@ setup(
             ('**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
-        ]},
+        ]
+    },
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose
@@ -85,6 +87,7 @@ setup(
     profile = ckan.lib.cli:Profile
     color = ckan.lib.cli:CreateColorSchemeCommand
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
+    trans = ckan.lib.cli:TranslationsCommand
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command

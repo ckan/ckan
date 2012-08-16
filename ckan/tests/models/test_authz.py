@@ -189,11 +189,13 @@ class TestDefaultPackageUserRoles(object):
 
     def test_logged_in(self):
         roles = self.authorizer.get_roles(self.logged_in.name, self.pkg)
-        assert model.Role.EDITOR in roles, roles
+        assert model.Role.READER in roles,roles
+        assert not model.Role.EDITOR in roles
 
     def test_visitor(self):
         roles = self.authorizer.get_roles(self.visitor.name, self.pkg)
-        assert model.Role.EDITOR in roles, roles
+        assert model.Role.READER in roles,roles
+        assert not model.Role.EDITOR in roles
 
 
 class TestUsage(object):
@@ -386,9 +388,10 @@ class TestMigrate:
         warauthor1 = model.User.by_name(u'warauthor1')
         warauthor2 = model.User.by_name(u'warauthor2')
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        assert model.user_has_role(visitor, model.Role.EDITOR, anna)
-        assert model.user_has_role(visitor, model.Role.EDITOR, war)
+        assert not model.user_has_role(visitor, model.Role.EDITOR, anna)
+        assert not model.user_has_role(visitor, model.Role.EDITOR, war)
         assert not model.user_has_role(warauthor1, model.Role.ADMIN, war)
+        assert not model.user_has_role(warauthor2, model.Role.ADMIN, war)
         assert model.user_has_role(warauthor1, model.Role.ADMIN, anna)
         assert model.user_has_role(warauthor2, model.Role.ADMIN, anna)
 
@@ -470,7 +473,7 @@ class TestUseCasePermissions:
                                              domain_object=self.anna)
 
     def test_02_visitor_edits(self):
-        assert self.authorizer.is_authorized(username=self.visitor.name,
+        assert not self.authorizer.is_authorized(username=self.visitor.name,
                                              action=model.Action.EDIT,
                                              domain_object=self.anna)
 
@@ -480,11 +483,16 @@ class TestUseCasePermissions:
                                              domain_object=self.anna)
 
     def test_04a_logged_in_edits(self):
-        assert self.authorizer.is_authorized(username=self.logged_in.name,
+        assert not self.authorizer.is_authorized(username=self.logged_in.name,
                                              action=model.Action.EDIT,
                                              domain_object=self.anna)
 
-    def test_04b_anyone_logged_in_edits(self):
+    def test_04b_creator_edits(self):
+        assert self.authorizer.is_authorized(username=self.annakarenina_creator.name,
+                                             action=model.Action.EDIT,
+                                             domain_object=self.anna)
+
+    def test_04c_anyone_logged_in_edits(self):
         assert self.authorizer.is_authorized(username=self.john.name,
                                              action=model.Action.EDIT,
                                              domain_object=self.restricted)

@@ -1,0 +1,52 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+>
+<div class="modal-add-related modal fade in" style="display: none"
+  py:def="add_related(dataset)">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3 class="heading">Add item</h3>
+  </div>
+  <div class="modal-body">
+    <form id="form-add-related" action="" method="POST" class="well">
+      <div class="control-group">
+        <input id="related-dataset" type="hidden" name="dataset_id" value="${c.pkg.id}"/>
+        <label for="related-title">Title <span class="required">(required)</span></label>
+        <input id="related-title" name="title" class="span6" placeholder='${_("Please add the title for the item")}'/>
+      </div>
+      <div class="control-group">
+        <label for="related-type">Type of item</label>
+        <select id="related-type" name="type" class="span6 chzn-select">
+          <option value="api">API</option>
+          <option value="application">Application</option>
+          <option value="idea">Idea</option>
+          <option value="news-article">News Article</option>
+          <option value="paper">Paper</option>
+          <option value="post">Post</option>
+          <option value="visualization">Visualization</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="related-description">Description</label>
+        <textarea id="related-description" name="description" class="input-xlarge span6" rows="4" placeholder='${_("Please describe the item")}'></textarea>
+      </div>
+      <div class="control-group">
+        <label for="related-url">URL <span class="required">(required)</span></label>
+        <input id="related-url" name="url" type="url" class="span6" placeholder='${_("Please add a url")}'/>
+      </div>
+      <div class="control-group">
+        <label for="related-image-url">Image URL</label>
+        <input id="related-image-url" name="image_url" type="url" class="span6" placeholder='${_("Please add a link to the image")}'/>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+</html>

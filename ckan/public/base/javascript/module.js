@@ -124,17 +124,17 @@ this.ckan = this.ckan || {};
      *     options: {
      *       saved: _('Saved!'), // A translation object.
      *       loading: 'Loading', // A plain string (not a good idea).
-     *       itemCount: function (items) {
+     *       itemCount: function (data) {
      *         // A function can be used to provide more complex translations
      *         // where the arguments may affect the outcome.
-     *         return _('There is one item').isPlural(items, 'There are %d items')
+     *         return _('There is one item').isPlural(data.items, 'There are %(items)d items')
      *       }
      *     },
      *     example: function () {
-     *       this.i18n('saved');        // 'Saved!'
-     *       this.i18n('loading');      // 'Loading'
-     *       this.i18n('itemCount', 1); // 'There is one item'
-     *       this.i18n('itemCount', 3); // 'There are 3 items'
+     *       this.i18n('saved');                 // 'Saved!'
+     *       this.i18n('loading');               // 'Loading'
+     *       this.i18n('itemCount', {items: 1}); // 'There is one item'
+     *       this.i18n('itemCount', {items: 3}); // 'There are 3 items'
      *     }
      *
      *  Returns the translated string or the key if not found.
@@ -257,6 +257,9 @@ this.ckan = this.ckan || {};
   module.initialize = function () {
     var registry = module.registry;
 
+    // Start caching all calls to .publish() until all modules are loaded.
+    ckan.pubsub.enqueue();
+
     jQuery('[data-module]', document.body).each(function (index, element) {
       var names = jQuery.trim(this.getAttribute(MODULE_PREFIX)).split(' ');
 
@@ -268,6 +271,9 @@ this.ckan = this.ckan || {};
         }
       });
     });
+
+    // Now trigger all .publish() calls so that all modules receive them.
+    ckan.pubsub.dequeue();
 
     return module;
   };

@@ -15,6 +15,7 @@ from ckan.lib.base import (request,
                            model,
                            abort, h, g, c)
 from ckan.lib.base import response, redirect, gettext
+import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.lib.helpers import json
@@ -93,6 +94,13 @@ class PackageController(BaseController):
             Guess the type of package from the URL handling the case
             where there is a prefix on the URL (such as /data/package)
         """
+
+        # Special case: if the rot URL '/' has been redirected to the package
+        # controller (e.g. by an IRoutes extension) then there's nothing to do
+        # here.
+        if request.path == '/':
+            return 'dataset'
+
         parts = [x for x in request.path.split('/') if x]
 
         idx = -1
@@ -230,7 +238,7 @@ class PackageController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
-        for facet in c.facets.keys():
+        for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
         c.facet_titles = {'groups': _('Groups'),
@@ -238,6 +246,9 @@ class PackageController(BaseController):
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
 
+        maintain.deprecate_context_item(
+          'facets',
+          'Use `c.search_facets` instead.')
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):
@@ -307,7 +318,7 @@ class PackageController(BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
 
         # Add the package's activity stream (already rendered to HTML) to the
         # template context for the package/read.html template to retrieve
@@ -422,7 +433,7 @@ class PackageController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
 
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
         return render(self._history_template(c.pkg_dict.get('type',
                                                             package_type)))
 
@@ -736,7 +747,7 @@ class PackageController(BaseController):
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
 
         # we have already completed stage 1
         vars['stage'] = ['active']
@@ -898,7 +909,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to add package to search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except Exception:  # We don't like bare excepts
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to add package to search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -946,7 +961,11 @@ class PackageController(BaseController):
         except DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
-            abort(500, _(u'Unable to update search index.'))
+            try:
+                exc_str = unicode(repr(e.args))
+            except Exception:  # We don't like bare excepts
+                exc_str = unicode(str(e))
+            abort(500, _(u'Unable to update search index.') + exc_str)
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -1143,7 +1162,7 @@ class PackageController(BaseController):
         c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
                                     qualified=True)
 
-        c.related_count = len(c.pkg.related)
+        c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
 
     def resource_download(self, id, resource_id):
@@ -1166,6 +1185,10 @@ class PackageController(BaseController):
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
+    def api_data(self, id=None):
+        url = h.url_for('datastore_read', id=id, qualified=True)
+        return render('package/resource_api_data.html', {'datastore_root_url': url})
+
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -1176,7 +1199,7 @@ class PackageController(BaseController):
             c.followers = get_action('dataset_follower_list')(context,
                     {'id': c.pkg_dict['id']})
 
-            c.related_count = len(c.pkg.related)
+            c.related_count = c.pkg.related_count
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:

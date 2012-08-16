@@ -1,0 +1,24 @@
+{% import 'macros/autoform.html' as autoform %}
+
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Administration') }}{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
+
+      <form method='post' action="" class="form-horizontal">
+          {{ autoform.generate(form_items, data, errors) }}
+        <div class="form-actions">
+          {# Update needs to come first so form submits when return is pressed #}
+          <button type="submit" class="btn btn-primary" name="save">Update</button>
+          <button type="submit" class="btn" name="reset">Reset</button>
+        </div>
+      </form>
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

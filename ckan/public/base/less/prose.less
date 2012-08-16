@@ -8,3 +8,63 @@
     margin-bottom: 10px;
   }
 }
+
+.table-chunky td,
+.table-chunky th {
+  padding: 12px 15px;
+  font-size: 12px;
+}
+
+.table-chunky thead th,
+.table-chunky thead td {
+  color: @chunkyTableHeaderTextColor;
+  background-color: @chunkyTableHeaderBackgroundColor;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.table-striped {
+  tbody {
+    tr:nth-child(odd) td,
+    tr:nth-child(odd) th {
+      background-color: transparent;
+    }
+    tr:nth-child(even) td,
+    tr:nth-child(even) th {
+      background-color: @chunkyTableStripeBackgroundColor;
+    }
+  }
+}
+
+// Oh boy.
+.table-chunky.table-bordered {
+  @radius: 2px;
+  .border-radius(@radius);
+  // For first th or td in the first row in the first thead or tbody
+  thead:first-child tr:first-child th:first-child,
+  tbody:first-child tr:first-child td:first-child {
+    -webkit-border-top-left-radius: @radius;
+        -moz-border-radius-topleft: @radius;
+            border-top-left-radius: @radius;
+  }
+  thead:first-child tr:first-child th:last-child,
+  tbody:first-child tr:first-child td:last-child {
+    -webkit-border-top-right-radius: @radius;
+        -moz-border-radius-topright: @radius;
+            border-top-right-radius: @radius;
+  }
+  // For first th or td in the first row in the first thead or tbody
+  thead:last-child tr:last-child th:first-child,
+  tbody:last-child tr:last-child td:first-child {
+    .border-radius(0 0 0 @radius);
+    -webkit-border-bottom-left-radius: @radius;
+        -moz-border-radius-bottomleft: @radius;
+            border-bottom-left-radius: @radius;
+  }
+  thead:last-child tr:last-child th:last-child,
+  tbody:last-child tr:last-child td:last-child {
+    -webkit-border-bottom-right-radius: @radius;
+        -moz-border-radius-bottomright: @radius;
+            border-bottom-right-radius: @radius;
+  }
+}

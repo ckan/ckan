@@ -65,8 +65,13 @@
 
 .activity {
   padding: 15px 12px;
-  border-bottom: 1px solid #CCC;
+  border-bottom: 1px solid @genericBorderColor;
   margin: 0 -12px;
+}
+
+.activity:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .activity .actor img {

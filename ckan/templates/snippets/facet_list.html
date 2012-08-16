@@ -28,7 +28,7 @@ extras
 #}
 {% with items = items or h.get_facet_items_dict(name) %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">Clear All</a></h2>
+    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">{{ _('Clear All') }}</a></h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
@@ -38,18 +38,18 @@ extras
             {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
-                  <span>{{ label }}{{ count }}</span>
+                  <span>{{ label }} {{ count }}</span>
                 </a>
               </li>
           {% endfor %}
         </ul>
       </nav>
       <p class="module-footer">
-          {% if h.get_param_int('_%s_limit' % name) %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">Show More {{ h.get_facet_title(name) }}</a>
-          {% else %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">Show Only Popular {{ h.get_facet_title(name) }}</a>
-          {% endif %}
+        {% if h.get_param_int('_%s_limit' % name) %}
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">{{ _('Show More {facet}').format(facet=h.get_facet_title(name)) }}</a>
+        {% else %}
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=h.get_facet_title(name)) }}</a>
+        {% endif %}
       </p>
     {% else %}
       <p class="module-content empty">{{ _('There are no filters for this search') }}</p>

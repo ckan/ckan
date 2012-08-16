@@ -4,6 +4,7 @@ from pylons.i18n import set_lang
 import sqlalchemy.exc
 
 import ckan.logic
+import ckan.lib.maintain as maintain
 from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
@@ -54,7 +55,14 @@ class HomeController(BaseController):
             c.search_facets = query['search_facets']
             c.package_count = query['count']
             c.datasets = query['results']
+
             c.facets = query['facets']
+            maintain.deprecate_context_item(
+              'facets',
+              'Use `c.search_facets` instead.')
+
+            c.search_facets = query['search_facets']
+
             c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
@@ -63,8 +71,9 @@ class HomeController(BaseController):
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
-            if 'groups' in c.facets:
-                data_dict['groups'] = c.facets['groups'].keys()
+            if 'groups' in c.search_facets:
+                data_dict['groups'] = [ item['name'] for item in
+                    c.search_facets['groups']['items'] ]
             c.groups = ckan.logic.get_action('group_list')(context, data_dict)
         except SearchError, se:
             c.package_count = 0
@@ -95,9 +104,10 @@ class HomeController(BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        c.recently_changed_packages_activity_stream = \
-            ckan.logic.action.get.recently_changed_packages_activity_list_html(
-                context, {})
+        @property
+        def recently_changed_packages_activity_stream():
+            return ckan.logic.action.get.recently_changed_packages_activity_list_html(context, {})
+        c.recently_changed_packages_activity_stream = recently_changed_packages_activity_stream
 
         # START OF DIRTYNESS
         def get_group(id):
@@ -111,37 +121,59 @@ class HomeController(BaseController):
                     return None
                 return group.type
 
-            def _form_to_db_schema(group_type=None):
+            def db_to_form_schema(group_type=None):
                 from ckan.lib.plugins import lookup_group_plugin
-                return lookup_group_plugin(group_type).form_to_db_schema()
+                return lookup_group_plugin(group_type).db_to_form_schema()
 
             group_type = _get_group_type(id.split('@')[0])
             context = {'model': model, 'session': model.Session,
                        'ignore_auth': True,
                        'user': c.user or c.author,
-                       'schema': _form_to_db_schema(group_type=group_type),
+                       'schema': db_to_form_schema(group_type=group_type),
                        'for_view': True}
             data_dict = {'id': id}
 
             try:
                 group_dict = ckan.logic.get_action('group_show')(context, data_dict)
             except ckan.logic.NotFound:
-                return {'group_dict' :{}}
+                return None
 
-            # We get all the packages or at least too many so
-            # limit it to just 2
-            group_dict['packages'] = group_dict['packages'][:2]
             return {'group_dict' :group_dict}
 
         global dirty_cached_group_stuff
         if not dirty_cached_group_stuff:
-            # ARON
-            # uncomment the first for testing
-            # the second for demo - different data
-            #dirty_cached_group_stuff = [get_group('access-to-medicines'), get_group('archaeology')]
-            dirty_cached_group_stuff = [get_group('data-explorer'), get_group('geo-examples')]
+            groups_data = []
+            groups = config.get('demo.featured_groups', '').split()
+
+            for group_name in groups:
+                group = get_group(group_name)
+                if group:
+                    groups_data.append(group)
+                if len(groups_data) == 2:
+                    break
+
+            # c.groups is from the solr query above
+            if len(groups_data) < 2 and len(c.groups) > 0:
+                group = get_group(c.groups[0]['name'])
+                if group:
+                    groups_data.append(group)
+            if len(groups_data) < 2 and len(c.groups) > 1:
+                group = get_group(c.groups[1]['name'])
+                if group:
+                    groups_data.append(group)
+            # We get all the packages or at least too many so
+            # limit it to just 2
+            for group in groups_data:
+                group['group_dict']['packages'] = group['group_dict']['packages'][:2]
+            #now add blanks so we have two
+            while len(groups_data) < 2:
+                groups_data.append({'group_dict' :{}})
+            # cache for later use
+            dirty_cached_group_stuff = groups_data
+
 
         c.group_package_stuff = dirty_cached_group_stuff
+
         # END OF DIRTYNESS
 
         return render('home/index.html', cache_force=True)

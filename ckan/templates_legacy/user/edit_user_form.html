@@ -1,6 +1,6 @@
-<form 
-  id="user-edit" 
-  action="" 
+<form
+  id="user-edit"
+  action=""
   method="post"
   class="form-horizontal ${'has-errors' if errors else ''}"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
@@ -63,6 +63,7 @@
       <label for="name" class="control-label">Username</label>
       <div class="controls">
         <input type="text" name="name" value="${data.get('name','')}" />
+        <p>Changing your username will log you out, and require you to log back in with the new username</p>
       </div>
     </div>
   </fieldset>

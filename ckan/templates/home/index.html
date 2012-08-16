@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _("Welcome") }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _("Welcome") }}{% endblock %}
 
 {% block maintag %}{% endblock %}
 
@@ -23,16 +23,20 @@
     <div class="module-content">
       {% block home_primary %}
         <header>
-          {% block home_primary_content %}
-            <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
-            <p>
-            {% block home_primary_text %}
-              {% trans %}This is a nice introductory paragraph about CKAN or the site
-              in general. We don't have any copy to go here yet but soon we will
-              {% endtrans %}
+          {% if g.site_intro_text %}
+          {{ h.render_markdown(g.site_intro_text) }}
+          {% else %}
+            {% block home_primary_content %}
+              <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
+              <p>
+              {% block home_primary_text %}
+                {% trans %}This is a nice introductory paragraph about CKAN or the site
+                in general. We don't have any copy to go here yet but soon we will
+                {% endtrans %}
+              {% endblock %}
+              </p>
             {% endblock %}
-            </p>
-          {% endblock %}
+          {% endif %}
         </header>
       {% endblock %}
 
@@ -40,8 +44,8 @@
         <section class="featured media-overlay">
           <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
           {% block home_image_content %}
-            <a class="image" href="#">
-              <img src="http://placehold.it/420x220" width="420" height="220" />
+            <a class="media-image" href="#">
+              <img src="http://placehold.it/420x220" alt="Placeholder" width="420" height="220" />
             </a>
           {% endblock %}
         </section>
@@ -56,7 +60,7 @@
             <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
               <h3 class="heading">{{ _("Search Your Data") }}</h3>
               <span class="control-group search-giant">
-                <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" results="0" placeholder="{{ _('eg. Gold Prices') }}" />
+                <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
                 <button type="submit" value="{{ _('Search') }}">Submit</button>
               </span>
             </form>
@@ -76,7 +80,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="row">
+  <div class="group-listing">
     {% for group in c.group_package_stuff %}
       {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
     {% endfor %}

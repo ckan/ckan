@@ -31,12 +31,134 @@ import sys
 import ConfigParser
 
 from fanstatic import Library, Resource, Group, get_library_registry
+import fanstatic.core as core
 from ckan.include.rjsmin import jsmin
 from ckan.include.rcssmin import cssmin
 
 # TODO
 # loop through dirs to setup
 # warn on no entry point provided for fanstatic
+
+class IEConditionalRenderer(object):
+    ''' Allows for IE conditionals. '''
+    def __init__(self, condition, renderer, other_browsers=False):
+        self.condition = condition
+        self.renderer = renderer
+        self.other_browsers = other_browsers
+        if other_browsers:
+            self.other_browsers_start= '<!-->'
+            self.other_browsers_end= '<!--'
+        else:
+            self.other_browsers_start= ''
+            self.other_browsers_end= ''
+
+    def __call__(self, url):
+        return '<!--[if %s]>%s%s%s<![endif]-->' % (self.condition,
+                                                   self.other_browsers_start,
+                                                   self.renderer(url),
+                                                   self.other_browsers_end)
+
+# Fanstatic Patch #
+# FIXME add full license info & push upstream
+def __init__(self, library, relpath,
+             depends=None,
+             supersedes=None,
+             bottom=False,
+             renderer=None,
+             debug=None,
+             dont_bundle=False,
+             minified=None):
+    self.library = library
+    fullpath = os.path.normpath(os.path.join(library.path, relpath))
+    if core._resource_file_existence_checking and not os.path.exists(fullpath):
+        raise core.UnknownResourceError("Resource file does not exist: %s" %
+                                   fullpath)
+    self.relpath = relpath
+    self.dirname, self.filename = os.path.split(relpath)
+    if self.dirname and not self.dirname.endswith('/'):
+        self.dirname += '/'
+    self.bottom = bottom
+    self.dont_bundle = dont_bundle
+
+    self.ext = os.path.splitext(self.relpath)[1]
+    if renderer is None:
+        # No custom, ad-hoc renderer for this Resource, so lookup
+        # the default renderer by resource filename extension.
+        if self.ext not in core.inclusion_renderers:
+            raise core.UnknownResourceExtensionError(
+                "Unknown resource extension %s for resource: %s" %
+                (self.ext, repr(self)))
+        self.order, self.renderer = core.inclusion_renderers[self.ext]
+    else:
+        # Use the custom renderer.
+        self.renderer = renderer
+        # If we do not know about the filename extension inclusion
+        # order, we render the resource after all others.
+        self.order, _ = core.inclusion_renderers.get(
+            self.ext, (sys.maxint, None))
+
+    assert not isinstance(depends, basestring)
+    self.depends = set()
+    if depends is not None:
+        # Normalize groups into the underlying resources...
+        depends = core.normalize_groups(depends)
+        # ...before updating the set of dependencies of this resource.
+        self.depends.update(depends)
+
+    self.resources = set([self])
+    for depend in self.depends:
+        self.resources.update(depend.resources)
+
+    # Check for library dependency cycles.
+    self.library.check_dependency_cycle(self)
+
+    # generate an internal number for sorting the resource
+    # on dependency within the library
+    self.init_dependency_nr()
+
+    self.modes = {}
+    for mode_name, argument in [(core.DEBUG, debug), (core.MINIFIED, minified)]:
+        if argument is None:
+            continue
+        elif isinstance(argument, basestring):
+            mode_resource = Resource(library, argument, bottom=bottom, renderer=renderer)
+        else:
+            # The dependencies of a mode resource should be the same
+            # or a subset of the dependencies this mode replaces.
+            if len(argument.depends - self.depends) > 0:
+                raise core.ModeResourceDependencyError
+            mode_resource = argument
+
+        mode_resource.dependency_nr = self.dependency_nr
+        self.modes[mode_name] = mode_resource
+
+    assert not isinstance(supersedes, basestring)
+    self.supersedes = supersedes or []
+
+    self.rollups = []
+    # create a reference to the superseder in the superseded resource
+    for resource in self.supersedes:
+        resource.rollups.append(self)
+    # also create a reference to the superseding mode in the superseded
+    # mode
+    # XXX what if mode is full-fledged resource which lists
+    # supersedes itself?
+    for mode_name, mode in self.modes.items():
+        for resource in self.supersedes:
+            superseded_mode = resource.mode(mode_name)
+            # if there is no such mode, let's skip it
+            if superseded_mode is resource:
+                continue
+            mode.supersedes.append(superseded_mode)
+            superseded_mode.rollups.append(mode)
+
+
+    # Register ourself with the Library.
+    self.library.register(self)
+
+core.Resource.__init__ = __init__
+# Fanstatic Patch #
+
 
 def create_library(name, path):
     ''' Creates a fanstatic library `name` with the contents of a
@@ -75,6 +197,9 @@ def create_library(name, path):
             kw['minified'] = min_path(filename)
         if filename.endswith('.js'):
             kw['bottom'] = True
+            renderer = core.render_js
+        if filename.endswith('.css'):
+            renderer = core.render_css
         if resource_name in depends:
             dependencies = []
             for dependency in depends[resource_name]:
@@ -82,6 +207,14 @@ def create_library(name, path):
             kw['depends'] = dependencies
         if resource_name in dont_bundle:
             kw['dont_bundle'] = True
+        # FIXME needs config.ini options enabled
+        if False:
+            other_browsers = False
+            condition = ''
+            kw['renderer'] = IEConditionalRenderer(
+                                        condition=condition,
+                                        renderer=renderer,
+                                        other_browsers=other_browsers)
 
         resource = Resource(library, filename, **kw)
         # add the resource to this module

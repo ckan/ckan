@@ -19,12 +19,14 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       items: 10,
       source: null,
       interval: 1000,
+      dropdownClass: '',
+      containerClass: '',
       i18n: {
         noMatches: _('No matches found'),
         emptySearch: _('Start typing…'),
-        inputTooShort: function (n) {
+        inputTooShort: function (data) {
           return _('Input is too short, must be at least one character')
-          .ifPlural(n, 'Input is too short, must be at least %d characters');
+          .ifPlural(data.min, 'Input is too short, must be at least %(min)d characters');
         }
       }
     },
@@ -45,9 +47,12 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      */
     setupAutoComplete: function () {
       var settings = {
+        width: 'resolve',
         formatResult: this.formatResult,
         formatNoMatches: this.formatNoMatches,
-        formatInputTooShort: this.formatInputTooShort
+        formatInputTooShort: this.formatInputTooShort,
+        dropdownCssClass: this.options.dropdownClass,
+        containerCssClass: this.options.containerClass
       };
 
       // Different keys are required depending on whether the select is
@@ -143,10 +148,21 @@ this.ckan.module('autocomplete', function (jQuery, _) {
     /* Formatter for the select2 plugin that returns a string for use in the
      * results list with the current term emboldened.
      *
+     * state     - The current object that is being rendered.
+     * container - The element the content will be added to (added in 3.0)
+     * query     - The query object (added in select2 3.0).
+     *
+     *
      * Returns a text string.
      */
-    formatResult: function (state) {
-      var term = this._lastTerm || null;
+    formatResult: function (state, container, query) {
+      var term = this._lastTerm || null; // same as query.term
+
+      if (container) {
+        // Append the select id to the element for styling.
+        container.attr('data-value', state.id);
+      }
+
       return state.text.split(term).join(term && term.bold());
     },
 
@@ -165,7 +181,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns a string.
      */
     formatInputTooShort: function (term, min) {
-      return this.i18n('inputTooShort', min);
+      return this.i18n('inputTooShort', {min: min});
     },
 
     /* Takes a string and converts it into an object used by the select2 plugin.
@@ -184,18 +200,27 @@ this.ckan.module('autocomplete', function (jQuery, _) {
 
     /* Callback function that parses the initial field value.
      *
-     * element - The initialized input element wrapped in jQuery.
+     * element  - The initialized input element wrapped in jQuery.
+     * callback - A callback to run once the formatting is complete.
      *
      * Returns a term object or an array depending on the type.
      */
-    formatInitialValue: function (element) {
+    formatInitialValue: function (element, callback) {
       var value = jQuery.trim(element.val() || '');
+      var formatted;
 
       if (this.options.tags) {
-        return jQuery.map(value.split(","), this.formatTerm);
+        formatted = jQuery.map(value.split(","), this.formatTerm);
       } else {
-        return this.formatTerm(value);
+        formatted = this.formatTerm(value);
       }
+
+      // Select2 v3.0 supports a callback for async calls.
+      if (typeof callback === 'function') {
+        callback(formatted);
+      }
+
+      return formatted;
     },
 
     /* Callback triggered when the select2 plugin needs to make a request.
@@ -203,7 +228,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
      * Returns nothing.
      */
     _onQuery: function (options) {
-      this.lookup(options.term, options.callback);
+      if (options) {
+        this.lookup(options.term, options.callback);
+      }
     },
 
     /* Called when a key is pressed.  If the key is a comma we block it and

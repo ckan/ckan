@@ -129,6 +129,7 @@ def make_map():
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
         m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
+        m.connect('/i18n/{lang}', action='i18n_js_translations')
 
     ###########
     ## /END API
@@ -165,6 +166,8 @@ def make_map():
         m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
                   action='delete')
         m.connect('related_list', '/dataset/{id}/related', action='list')
+        m.connect('related_read', '/apps/{id}', action='read')
+        m.connect('related_dashboard', '/apps', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('/dataset', action='search')
@@ -196,6 +199,7 @@ def make_map():
           'history_ajax',
           'followers',
           'delete',
+          'api_data',
           ]))
           )
         m.connect('/dataset/{id}.{format}', action='read')
@@ -326,8 +330,8 @@ def make_map():
     with SubMapper(map, controller='util') as m:
         m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
         m.connect('/util/redirect', action='redirect')
-        m.connect('/test/primer', action='primer')
-        m.connect('/test/markup', action='markup')
+        m.connect('/testing/primer', action='primer')
+        m.connect('/testing/markup', action='markup')
 
     for plugin in routing_plugins:
         map = plugin.after_map(map)

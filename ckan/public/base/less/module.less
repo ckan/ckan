@@ -11,7 +11,7 @@
 }
 
 .ie .module {
-  border: 1px solid #ccc;
+  border: 1px solid @genericBorderColor;
 }
 
 .module-heading {
@@ -33,8 +33,7 @@
 
 .module-heading .action {
   float: right;
-  color: #8c8c8c;
-  color: rgba(51, 51, 51, 0.7);
+  color: @moduleHeadingActionTextColor;
   font-size: 11px;
   text-decoration: underline;
 }
@@ -58,14 +57,22 @@
   margin-bottom: 0;
 }
 
+.module-border-top {
+  border-top: 1px dotted @genericBorderColor;
+}
+
+.module-border-bottom {
+  border-bottom: 1px dotted @genericBorderColor;
+}
+
 .module-footer {
   padding: 7px @gutterX 7px;
-  border-top: 1px dotted #ccc;
+  border-top: 1px dotted @genericBorderColor;
 }
 
 .module .read-more {
   font-weight: bold;
-  color: #000;
+  color: @layoutBoldColor;
 }
 
 .module .pagination {
@@ -163,6 +170,10 @@
   position: relative;
 }
 
+.module-item.first {
+  clear: left;
+}
+
 // GROUP
 
 .group .content img {
@@ -173,4 +184,12 @@
 .group .content h3 {
   font-size: 14px;
   line-height: 1.3;
+}
+
+.group-listing {
+  margin-left: -20px; // Same as .row
+}
+
+.ie .group-listing {
+  margin-left: -24px; // Include border around items.
 }

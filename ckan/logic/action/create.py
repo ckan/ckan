@@ -1,6 +1,7 @@
 import logging
 from pylons.i18n import _
 
+import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -126,6 +127,9 @@ def package_create(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
+              errors, context.get('user'),
+              data.get('name'), data_dict)
 
     if errors:
         model.Session.rollback()
@@ -169,7 +173,6 @@ def package_create_validate(context, data_dict):
     _check_access('package_create',context,data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -268,8 +271,11 @@ def related_create(context, data_dict):
 
     '''
     model = context['model']
+    session = context['session']
     user = context['user']
     userobj = model.User.get(user)
+
+    _check_access('related_create', context, data_dict)
 
     data_dict["owner_id"] = userobj.id
     data, errors = _validate(data_dict,
@@ -288,10 +294,30 @@ def related_create(context, data_dict):
         dataset.related.append( related )
         model.repo.commit_and_remove()
 
+    session.flush()
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': related.id,
+            'activity_type': 'new related item',
+            }
+    activity_dict['data'] = {
+            'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    session.commit()
+
     context["related"] = related
     context["id"] = related.id
     log.debug('Created object %s' % str(related.title))
-    return model_dictize.related_dictize(related, context)
+    return related_dict
 
 
 def package_relationship_create(context, data_dict):
@@ -332,7 +358,6 @@ def package_relationship_create(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -478,7 +503,8 @@ def group_create(context, data_dict):
     _check_access('group_create', context, data_dict)
 
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin()
+    group_plugin = lib_plugins.lookup_group_plugin(
+            group_type=data_dict.get('type'))
     try:
         schema = group_plugin.form_to_db_schema_options({'type':'create',
                                                'api':'api_version' in context,
@@ -486,7 +512,17 @@ def group_create(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
+
     data, errors = _validate(data_dict, schema, context)
+    log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'), data_dict.get('name'), data_dict)
 
     if errors:
         session.rollback()
@@ -507,6 +543,8 @@ def group_create(context, data_dict):
         if parent_group:
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
@@ -654,10 +692,19 @@ def user_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    context['user'] = user
+    # A new context is required for dictizing the newly constructed user in
+    # order that all the new user's data is returned, in particular, the
+    # api_key.
+    #
+    # The context is copied so as not to clobber the caller's context dict.
+    user_dictize_context = context.copy()
+    user_dictize_context['keep_sensitive_data'] = True
+    user_dict = model_dictize.user_dictize(user, user_dictize_context)
+
+    context['user_obj'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
-    return model_dictize.user_dictize(user, context)
+    return user_dict
 
 ## Modifications for rest api
 

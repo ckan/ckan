@@ -45,7 +45,7 @@
 }
 
 .ie .media-image {
-  border: 1px solid #ccc;
+  border: 1px solid @genericBorderColor;
 }
 
 .media-vertical .media-image,
@@ -83,6 +83,17 @@ ol.media-grid {
   min-height: 63px;
 }
 
+// This allows the truncated text on an item to expand over the element
+// below it by applying a negative margin in JavaScript.
+.related-item.expanded {
+  .border-radius(4px);
+  background-color: @moduleBackgroundColor;
+  background-color: @moduleExpandedBackgroundColor;
+  z-index: 2;
+}
+
+// Wide media elements
+
 .media-wide {
   padding: 0;
 }
@@ -95,6 +106,7 @@ ol.media-grid {
 
 .media-overlay {
   position: relative;
+  min-height: 35px; // Min height for the heading.
 }
 
 .media-overlay .media-heading {
@@ -108,6 +120,13 @@ ol.media-grid {
   background-color: rgba(0, 0, 0, 0.8);
   font-size: 13px;
   color: #fff;
+  z-index: 1;
+}
+
+.media-overlay .media-image {
+  float: none;
+  display: block;
+  margin-right: 0;
 }
 
 // Banner
@@ -119,8 +138,8 @@ ol.media-grid {
   top: 15px;
   right: -35px;
   width: 80px;
-  background: #707070;
-  color: #fff;
+  color: @bannerTextColor;
+  background: @bannerBackgroundColor;
   padding: 1px 20px;
   font-size: 11px;
   text-align: center;

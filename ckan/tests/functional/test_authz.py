@@ -342,7 +342,7 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
 
     def test_visitor_creates(self):
-        self._test_can('create', self.visitor, [], interfaces=['wui'], entity_types=['dataset'])
+        self._test_cant('create', self.visitor, [], interfaces=['wui'], entity_types=['dataset'])
         self._test_cant('create', self.visitor, [], interfaces=['wui'], entity_types=['group']) # need to be sysadmin
         self._test_cant('create', self.visitor, [], interfaces=['rest'])
 

@@ -30,13 +30,21 @@ table {
   table-layout: fixed;
 }
 
+thead th {
+  vertical-align: top;
+}
+
 td, th {
   word-wrap: break-word;
 }
 
+table .metric {
+  width: 140px;
+}
+
 code {
   padding: 2px 2px;
-  color: #000;
+  color: @codeTextColor;
   font-weight: bold;
   border: none;
   background: none;
@@ -78,7 +86,7 @@ iframe {
 }
 
 .empty {
-  color: #aeaeae;
+  color: @emptyTextColor;
   font-style: italic;
 }
 

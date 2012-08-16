@@ -4,10 +4,15 @@
   {% endif %}
   <div class="container">
     {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup class="header-image">
-      <a class="logo" href="{{ h.url('home') }}"><img width="64" src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
-      <h1><a href="{{ h.url('home') }}">{{ g.site_title }}</a></h1>
-      <p>{{ g.site_description }}</p>
+    <hgroup class="{{ g.header_class }}">
+      {% if g.site_logo %}
+        <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
+      {% else %}
+        <h1>
+          <a href="{{ h.url('home') }}">{{ g.site_title }}</a>
+        </h1>
+        {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
+      {% endif %}
     </hgroup>
     <div class="content">
       {% if c.userobj %}
@@ -17,7 +22,7 @@
           </a>
           <span class="links">
             <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
-            <a class="sub" href="{{ h.url_for('/user/_logout') }}">Log out</a>
+            <a class="sub" href="{{ h.url_for('/user/_logout') }}">{{ _('Log out') }}</a>
           </span>
         </div>
       {% else %}
@@ -30,8 +35,8 @@
       {% endif %}
       <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
         <div class="field">
-          <label for="field-user-search">{{ _('Search Users') }}</label>
-          <input id="field-user-search" name="q" placeholder="{{ _('Search') }}" />
+          <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
+          <input id="field-sitewide-search" name="q" placeholder="{{ _('Search') }}" />
           <button class="btn-search" type="submit">{{ _('Search') }}</button>
         </div>
       </form>

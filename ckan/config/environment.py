@@ -12,7 +12,6 @@ from pylons import config
 from pylons.i18n import _, N_
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
-from jinja2 import Environment
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -36,7 +35,7 @@ class _Helpers(object):
     not been enabled. '''
     def __init__(self, helpers, restrict=True):
         functions = {}
-        allowed = helpers.__allowed_functions__
+        allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
         self.deprecated = []
 
@@ -46,7 +45,13 @@ class _Helpers(object):
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
+            if helper in allowed:
+                allowed.remove(helper)
         self.functions = functions
+
+        if allowed:
+            raise Exception('Template helper function(s) `%s` not defined'
+                            % ', '.join(allowed))
 
         # extend helper functions with ones supplied by plugins
         extra_helpers = []
@@ -133,7 +138,7 @@ def load_environment(global_conf, app_conf):
 
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins') and \
+    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
             asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
@@ -169,7 +174,9 @@ def load_environment(global_conf, app_conf):
     search.check_solr_schema_version()
 
     config['routes.map'] = routing.make_map()
-    config['pylons.app_globals'] = app_globals.Globals()
+    config['pylons.app_globals'] = app_globals.app_globals
+    # initialise the globals
+    config['pylons.app_globals']._init()
 
     # add helper functions
     restrict_helpers = asbool(
@@ -290,9 +297,8 @@ def load_environment(global_conf, app_conf):
 
 
     # Create Jinja2 environment
-    env = config['pylons.app_globals'].jinja_env = Environment(
-        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths,
-                            ckan_base_path=paths['templates'][0]),
+    env = lib.jinja_extensions.Environment(
+        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
         extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_extensions.SnippetExtension,
@@ -336,6 +342,7 @@ def load_environment(global_conf, app_conf):
 
     if not model.meta.engine:
         model.init_model(engine)
+
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)

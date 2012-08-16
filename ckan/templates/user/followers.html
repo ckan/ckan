@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block title %}{{ _('Followers') }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Followers') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{{ h.nav_link(_('Home'), controller='user', action='me') }}</li>

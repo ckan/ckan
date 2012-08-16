@@ -4,6 +4,7 @@ import datetime
 from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 
+import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema
@@ -122,6 +123,7 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
+    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
@@ -132,11 +134,10 @@ def related_update(context, data_dict):
 
     if not related:
         logging.error('Could not find related ' + id)
-        raise NotFound(_('Related was not found.'))
+        raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -179,7 +180,6 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -249,6 +249,10 @@ def package_update(context, data_dict):
             package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
+    log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
+              errors, context.get('user'),
+              context.get('package').name if context.get('package') else '',
+              data)
 
     if errors:
         model.Session.rollback()
@@ -267,6 +271,8 @@ def package_update(context, data_dict):
         item.edit(pkg)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    log.debug('Updated object %s' % str(pkg.name))
     return _get_action('package_show')(context, data_dict)
 
 def package_update_validate(context, data_dict):
@@ -296,8 +302,6 @@ def package_update_validate(context, data_dict):
     _check_access('package_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -358,7 +362,6 @@ def package_relationship_update(context, data_dict):
         return NotFound('Object package %r was not found.' % id2)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -412,7 +415,20 @@ def group_update(context, data_dict):
 
     _check_access('group_update', context, data_dict)
 
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
+
     data, errors = _validate(data_dict, schema, context)
+    log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'),
+              context.get('group').name if context.get('group') else '',
+              data_dict)
+
     if errors:
         session.rollback()
         raise ValidationError(errors)
@@ -434,10 +450,15 @@ def group_update(context, data_dict):
             current = session.query(model.Member).\
                filter(model.Member.table_id == group.id).\
                filter(model.Member.table_name == "group").all()
+            if current:
+                log.debug('Parents of group %s deleted: %r', group.name,
+                          [membership.group.name for membership in current])
             for c in current:
                 session.delete(c)
             member = model.Member(group=parent_group, table_id=group.id, table_name='group')
             session.add(member)
+            log.debug('Group %s is made child of group %s',
+                      group.name, parent_group.name)
 
 
     for item in plugins.PluginImplementations(plugins.IGroupController):
@@ -580,7 +601,6 @@ def task_status_update(context, data_dict):
     _check_access('task_status_update', context, data_dict)
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         session.rollback()
         raise ValidationError(errors)
@@ -641,7 +661,6 @@ def term_translation_update(context, data_dict):
               'lang_code': [validators.not_empty, unicode]}
 
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -782,7 +801,6 @@ def vocabulary_update(context, data_dict):
 
     schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
-
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)

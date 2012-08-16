@@ -65,6 +65,11 @@ class RevisionController(BaseController):
                     revision_changes[model.ResourceGroup]
                 package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
+                    if not package:
+                        # package is None sometimes - I don't know why,
+                        # but in the meantime while that is fixed,
+                        # avoid an exception here
+                        continue
                     number = len(package.all_revisions)
                     package_revision = None
                     count = 0

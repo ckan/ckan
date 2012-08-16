@@ -1,4 +1,8 @@
-from ckan.lib.base import *
+from pylons import config
+
+import ckan.lib.base as base
+import ckan.lib.helpers as h
+import ckan.lib.app_globals as app_globals
 import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
@@ -8,26 +12,76 @@ roles = Role.get_all()
 role_tuples = [(x, x) for x in roles]
 
 
+c = base.c
+request = base.request
+_ = base._
+
 def get_sysadmins():
     q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
     return [uor.user for uor in q.all() if uor.user]
 
 
-class AdminController(BaseController):
+class AdminController(base.BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
         if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
-            abort(401, _('Need to be system administrator to administer'))
+            base.abort(401, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = (
             c.user and self.authorizer.is_authorized(c.user,
                                                      model.Action.CHANGE_STATE,
                                                      model.Revision))
 
+    def config(self):
+
+        # Styles for use in the form.select() macro.
+        styles = [{'text': 'Default', 'value': '/base/css/main.css'},
+                  {'text': 'Red', 'value': '/base/css/red.css'},
+                  {'text': 'Green', 'value': '/base/css/green.css'},
+                  {'text': 'Maroon', 'value': '/base/css/maroon.css'},
+                  {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
+        items = [
+            {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
+            {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
+            {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
+            {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
+            {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+            {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+            {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+        ]
+
+        data = request.POST
+        if 'save' in data:
+            # update config from form
+            for item in items:
+                name = item['name']
+                if name in data:
+                    app_globals.set_global(name, data[name])
+            app_globals.reset()
+
+        if 'reset' in data:
+            # remove sys info items
+            for item in items:
+                name = item['name']
+                app_globals.delete_global(name)
+            # reset to values in config
+            app_globals.reset()
+
+
+
+        data = {}
+        for item in items:
+            name = item['name']
+            data[name] = config.get(name)
+
+        vars = {'data': data, 'errors': {}, 'form_items': items}
+        return base.render('admin/config.html',
+                           extra_vars = vars)
+
     def index(self):
         #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
 
-        return render('admin/index.html')
+        return base.render('admin/index.html')
 
     def authz(self):
         def action_save_form(users_or_authz_groups):
@@ -251,7 +305,7 @@ class AdminController(BaseController):
         count = model.Session.query(model.AuthorizationGroup).count()
         c.are_any_authz_groups = bool(count)
 
-        return render('admin/authz.html')
+        return base.render('admin/authz.html')
 
     def trash(self):
         c.deleted_revisions = model.Session.query(
@@ -260,7 +314,7 @@ class AdminController(BaseController):
             model.Package).filter_by(state=model.State.DELETED)
         if not request.params or (len(request.params) == 1 and '__no_cache__'
                                   in request.params):
-            return render('admin/trash.html')
+            return base.render('admin/trash.html')
         else:
             # NB: we repeat retrieval of of revisions
             # this is obviously inefficient (but probably not *that* bad)

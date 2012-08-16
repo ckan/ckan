@@ -6,16 +6,36 @@ this.ckan = this.ckan || {};
   ckan.DEVELOPMENT = 'development';
   ckan.TESTING = 'testing';
 
+  /* Initialises the CKAN JavaScript setting up environment variables and
+   * loading localisations etc. Should be called once the page is ready.
+   *
+   * Examples
+   *
+   *   jQuery(function () {
+   *     ckan.initialize();
+   *   });
+   *
+   * Returns nothing.
+   */
   ckan.initialize = function () {
     var body = jQuery('body');
-    var trailingSlash = /\/$/;
+    var locale = jQuery('html').attr('lang');
     var location = window.location;
-    var root = location.protocol + location.host;
+    var root = location.protocol + '//' + location.host;
 
-    this.SITE_ROOT   = (body.data('siteRoot') || root).replace(trailingSlash, '');
-    this.LOCALE_ROOT = (body.data('localeRoot') || root).replace(trailingSlash, '');
+    function getRootFromData(key) {
+      return (body.data(key) || root).replace(/\/$/, '');
+    }
 
-    this.module.initialize();
+    ckan.SITE_ROOT   = getRootFromData('siteRoot');
+    ckan.LOCALE_ROOT = getRootFromData('localeRoot');
+    ckan.API_ROOT    = getRootFromData('apiRoot');
+
+    // Load the localisations before instantiating the modules.
+    ckan.sandbox().client.getLocaleData(locale).done(function (data) {
+      ckan.i18n.load(data);
+      ckan.module.initialize();
+    });
   };
 
   /* Returns a full url for the current site with the provided path appended.

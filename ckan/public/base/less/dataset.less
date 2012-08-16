@@ -1,5 +1,5 @@
 .dataset-item {
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted @genericBorderColor;
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
@@ -16,7 +16,12 @@
 }
 
 .dataset-heading a {
-  color: #333;
+  color: @listingHeadingTextColor;
+}
+
+.dataset-heading .label {
+  position: relative;
+  top: -1px;
 }
 
 .dataset-content {
@@ -34,7 +39,7 @@
 }
 
 .dataset-resources li a {
-  background-color: #aaa;
+  background-color: @resourceFormatBackground;
 }
 
 .dataset-heading .popular {
@@ -44,14 +49,14 @@
 .results {
   margin-bottom: 20px;
   padding-bottom: 25px;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted @genericBorderColor;
 }
 
 .results strong {
   display: block;
   font-size: 24px;
   line-height: 1.3;
-  color: #000;
+  color: @layoutBoldColor;
   margin-bottom: 10px;
 }
 
@@ -65,9 +70,8 @@
   white-space: pre;
 }
 
-
 .filter-list {
-  color: #aaa;
+  color: @layoutTextColor;
   font-weight: bold;
 }
 
@@ -75,7 +79,7 @@
   margin-top: 10px;
   font-size: 18px;
   font-weight: normal;
-  color: #000;
+  color: @layoutBoldColor;
 }
 
 .dataset-search {
@@ -137,7 +141,7 @@
 }
 
 .resource-item .heading {
-  color: #000;
+  color: @layoutBoldColor;
   font-size: 14px;
   font-weight: bold;
 }

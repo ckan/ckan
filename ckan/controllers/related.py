@@ -6,8 +6,12 @@ import ckan.lib.navl.dictization_functions as df
 
 import pylons.i18n as i18n
 
-c = base.c
 _ = i18n._
+import urllib
+
+c = base.c
+abort = base.abort
+_get_action=logic.get_action
 
 
 class RelatedController(base.BaseController):
@@ -18,8 +22,85 @@ class RelatedController(base.BaseController):
     def edit(self, id, related_id):
         return self._edit_or_new(id, related_id, True)
 
-    def list(self, id):
+    def dashboard(self):
+        """ List all related items regardless of dataset """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'for_view': True}
+        data_dict = {
+            'type_filter': base.request.params.get('type', ''),
+            'sort': base.request.params.get('sort', ''),
+            'featured': base.request.params.get('featured', '')
+        }
 
+        params_nopage = [(k, v) for k,v in base.request.params.items()
+                         if k != 'page']
+        try:
+            page = int(base.request.params.get('page', 1))
+        except ValueError, e:
+            abort(400, ('"page" parameter must be an integer'))
+
+        # Update ordering in the context
+        query = logic.get_action('related_list')(context,data_dict)
+
+        def search_url(params):
+            url = h.url_for(controller='related', action='dashboard')
+            params = [(k, v.encode('utf-8')
+                      if isinstance(v, basestring) else str(v))
+                      for k, v in params]
+            return url + u'?' + urllib.urlencode(params)
+
+        def pager_url(q=None, page=None):
+            params = list(params_nopage)
+            params.append(('page', page))
+            return search_url(params)
+
+
+        c.page = h.Page(
+            collection=query.all(),
+            page=page,
+            url=pager_url,
+            item_count=query.count(),
+            items_per_page=8
+        )
+
+        c.filters = dict(params_nopage)
+
+        c.type_options = self._type_options()
+        c.sort_options = ({'value': '', 'text': _('Most viewed')},
+                          {'value': 'view_count_desc', 'text': _('Most Viewed')},
+                          {'value': 'view_count_asc', 'text': _('Least Viewed')},
+                          {'value': 'created_desc', 'text': _('Newest')},
+                          {'value': 'created_asc', 'text': _('Oldest')})
+
+        return base.render( "related/dashboard.html")
+
+    def read(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            logic.check_access('related_show', context, data_dict)
+        except logic.NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
+        related = model.Session.query(model.Related).\
+                    filter(model.Related.id == id).first()
+        if not related:
+            abort(404, _('The requested related item was not found'))
+
+        related.view_count = model.Related.view_count + 1
+
+        model.Session.add(related)
+        model.Session.commit()
+
+        base.redirect(related.url)
+
+
+    def list(self, id):
+        """ List all related items for a specific dataset """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'for_view': True}
@@ -41,7 +122,6 @@ class RelatedController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
-        c.related_count = len(c.pkg.related)
         c.action = 'related'
         return base.render("package/related_list.html")
 
@@ -116,13 +196,8 @@ class RelatedController(base.BaseController):
             if is_edit:
                 data = related
 
-        c.types = {
-            "application": "Application",
-            "idea": "Idea",
-            "news_article": "News Article",
-            "paper": "Paper",
-            "visualization": "Visualization"
-        }
+        c.types = self._type_options()
+
         c.pkg_id = id
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         c.form = base.render("related/edit_form.html", extra_vars=vars)
@@ -154,3 +229,16 @@ class RelatedController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Related item not found'))
         return base.render('related/confirm_delete.html')
+
+    def _type_options(self):
+        '''
+        A tuple of options for the different related types for use in
+        the form.select() template macro.
+        '''
+        return ({"text": _("API"), "value": "api"},
+                {"text": _("Application"), "value": "application"},
+                {"text": _("Idea"), "value": "idea"},
+                {"text": _("News Article"), "value": "news_article"},
+                {"text": _("Paper"), "value": "paper"},
+                {"text": _("Post"), "value": "post"},
+                {"text": _("Visualization"), "value": "visualization"})

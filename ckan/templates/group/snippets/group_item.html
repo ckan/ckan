@@ -17,7 +17,7 @@ Example:
 #}
 {% set url = h.url_for(group.type ~ '_read', action='read', id=group.name) %}
 <li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
-  <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" /></a>
+  <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" alt="{{ group.name }}" /></a>
   <div class="media-content">
     <h3 class="media-heading">
       <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}">

@@ -1,10 +1,77 @@
 (function (ckan, jQuery) {
 
-  function Client() {
+  function Client(options) {
+    this.endpoint = options && options.endpoint || '';
     jQuery.proxyAll(this, /parse/);
   }
 
   jQuery.extend(Client.prototype, {
+
+    /* Creates an API url from the path provided. If a fully qualified url
+     * is provided then this function just returns the input.
+     *
+     * path - A path to add the API domain to.
+     *
+     * Examples
+     *
+     *   client.url('/datasets'); // http://api.example.com/datasets
+     *
+     * Returns an url string.
+     */
+    url: function (path) {
+      if (!(/^https?:\/\//i).test(path)) {
+        path = this.endpoint + '/' + encodeURI(path).replace(/^\//, '');
+      }
+      return path;
+    },
+
+    /* Requests a block of HTML from the snippet API endpoint. Optional
+     * parameters can also be provided to the template via the params
+     * object.
+     *
+     * filename - The filename of the snippet to load including extension.
+     * params   - Optional query string parameters.
+     * success  - A callback to be called on success. Receives the html string.
+     * error    - A callback to be called on error.
+     *
+     * Examples
+     *
+     *   client.getTemplate('dataset-list.html', {limit: 5}, function (html) {
+     *     // Do something with the html.
+     *   });
+     *
+     * Returns a jqXHR promise object.
+     */
+    getTemplate: function (filename, params, success, error) {
+      var url = this.url('/api/1/util/snippet/' + encodeURIComponent(filename));
+
+      // Allow function to be called without params argument.
+      if (typeof params === 'function') {
+        error   = success;
+        success = params;
+        params  = {};
+      }
+
+      return jQuery.get(url, params || {}).then(success, error);
+    },
+
+    /* Fetches the current locale translation from the API.
+     *
+     * locale - The current page locale.
+     *
+     * Examples
+     *
+     *   var locale = jQuery('html').attr('lang');
+     *   client.getLocaleData(locale, function (data) {
+     *     // Load into the localizer.
+     *   });
+     *
+     * Returns a jQuery xhr promise.
+     */
+    getLocaleData: function (locale, success, error) {
+      var url = this.url('/api/i18n/' + (locale || ''));
+      return jQuery.getJSON(url).then(success, error);
+    },
 
     /* Retrieves a list of auto-completions from one of the various endpoints
      * and normalises the results into an array of tags.
@@ -31,7 +98,7 @@
       }
 
       var formatter = options && options.format || this.parseCompletions;
-      var request = jQuery.ajax({url: url});
+      var request = jQuery.ajax({url: this.url(url)});
 
       return request.pipe(formatter).promise(request).then(success, error);
     },
@@ -40,7 +107,9 @@
      * the data into an array of strings. This also will remove duplicates
      * from the results (this is case insensitive).
      *
-     * data - The parsed JSON response from the server.
+     * data    - The parsed JSON response from the server.
+     * options - An object of options for the method.
+     *           objects: If true returns an object of results.
      *
      * Examples
      *
@@ -50,7 +119,13 @@
      *
      * Returns the parsed object.
      */
-    parseCompletions: function (data) {
+    parseCompletions: function (data, options) {
+      if (typeof data === 'string') {
+        // Package completions are returned as a crazy string. So we handle
+        // them separately.
+        return this.parsePackageCompletions(data, options);
+      }
+
       var map = {};
       var raw = data.ResultSet && data.ResultSet.Result || {};
 
@@ -59,10 +134,11 @@
         item = jQuery.trim(item);
 
         var lowercased = item.toLowerCase();
+        var returnObject = options && options.objects === true;
 
         if (lowercased && !map[lowercased]) {
           map[lowercased] = 1;
-          return item;
+          return returnObject ? {id: item, text: item} : item;
         }
 
         return null;
@@ -90,13 +166,29 @@
      * Returns an object of item objects.
      */
     parseCompletionsForPlugin: function (data) {
-      var items = this.parseCompletions(data);
+      return {
+        results: this.parseCompletions(data, {objects: true})
+      };
+    },
 
-      items = jQuery.map(items, function (item) {
-        return {id: item, text: item};
+    /* Parses the string returned by the package autocomplete endpoint which
+     * is a newline separated list of packages. Each package consists of
+     * a name and an id separated by a pipe (|) character.
+     *
+     * string - The string returned by the API.
+     *
+     * Returns an array of parsed packages.
+     */
+    parsePackageCompletions: function (string, options) {
+      var packages = jQuery.trim(string).split('\n');
+      var parsed = [];
+
+      return jQuery.map(packages, function (pkg) {
+        var parts = pkg.split('|');
+        var id    = jQuery.trim(parts.pop() || '');
+        var text  = jQuery.trim(parts.join('|') || '');
+        return options && options.objects === true ? {id: id, text: text} : id;
       });
-
-      return {results: items};
     },
 
     /* Requests config options for a file upload.
@@ -129,7 +221,7 @@
       }
 
       return jQuery.ajax({
-        url: '/api/storage/auth/form/' + key,
+        url: this.url('/api/storage/auth/form/' + key),
         success: success,
         error: error
       });
@@ -157,7 +249,7 @@
       }
 
       return jQuery.ajax({
-        url: '/api/storage/metadata/' + key,
+        url: this.url('/api/storage/metadata/' + key),
         success: success,
         error: error
       });
@@ -178,8 +270,10 @@
      * Returns an object of dataset keys.
      */
     convertStorageMetadataToResource: function (meta) {
-      var modified = new Date(meta._last_modified);
-      var created = new Date(meta._creation_date);
+      // TODO: Check this is supported by IE7. U believe that the IE
+      // Date constructor chokes on hyphens and timezones.
+      var modified = new Date(this.normalizeTimestamp(meta._last_modified));
+      var created  = new Date(this.normalizeTimestamp(meta._creation_date));
 
       var createdISO  = jQuery.date.toCKANString(created);
       var modifiedISO = jQuery.date.toCKANString(modified);
@@ -209,11 +303,35 @@
         cache_url: meta._location,
         cache_url_updated: modifiedISO
       };
+    },
+
+    /* Adds a timezone to the provided timestamp if one is not present. This
+     * fixes an inconsistency between Webkit and Firefox where Firefox parses
+     * the date in the current users timezone but Webkit uses UTC.
+     *
+     * string - A timestamp string.
+     *
+     * Examples
+     *
+     *   client.normalizeTimestamp("2012-07-17T14:35:35");
+     *   // => "2012-07-17T14:35:35Z"
+     *
+     *   client.normalizeTimestamp("2012-07-17T14:35:35+0100");
+     *   // => "2012-07-17T14:35:35+0100"
+     *
+     * Returns a new timestamp with timezone.
+     */
+    normalizeTimestamp: function (string) {
+      var tz = /[+\-]\d{4}|Z/;
+      if (!tz.test(string)) {
+        string += 'Z';
+      }
+      return string;
     }
   });
 
   ckan.sandbox.setup(function (instance) {
-    instance.client = new Client();
+    instance.client = new Client({endpoint: ckan.API_ROOT});
   });
 
   ckan.Client = Client;

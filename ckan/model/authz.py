@@ -3,6 +3,7 @@ doc/authorization.rst.
 
 '''
 import simplejson as json
+import weakref
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from pylons import config
@@ -406,14 +407,14 @@ def give_all_packages_default_user_roles():
 
 # default user roles - used when the config doesn\'t specify them
 default_default_user_roles = {
-    'Package': {"visitor": ["editor"], "logged_in": ["editor"]},
+    'Package': {"visitor": ["reader"], "logged_in": ["reader"]},
     'Group': {"visitor": ["reader"], "logged_in": ["reader"]},
-    'System': {"visitor": ["anon_editor"], "logged_in": ["editor"]},
+    'System': {"visitor": ["reader"], "logged_in": ["editor"]},
     'AuthorizationGroup': {"visitor": ["reader"], "logged_in": ["reader"]},
     }
 
 global _default_user_roles_cache
-_default_user_roles_cache = {}
+_default_user_roles_cache = weakref.WeakKeyDictionary()
 
 def get_default_user_roles(_domain_object):
     # TODO: Should this func go in lib rather than model now?
