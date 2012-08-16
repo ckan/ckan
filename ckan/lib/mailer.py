@@ -95,6 +95,8 @@ def send_reset_link(user):
     mail_user(user, _('Reset your password'), body)
 
 def verify_reset_link(user, key):
+    if not key:
+        return False
     if not user.reset_key or len(user.reset_key) < 5:
         return False
     return key.strip() == user.reset_key
