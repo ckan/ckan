@@ -50,16 +50,6 @@
     </title>
 
     {#
-    The html5shim allows you to modify/override the html5 shim. This is useful
-    for modifying it's behaviour or removing it completely.
-    #}
-    {%- block html5shim -%}
-      {# Temporary link until we get resource helper working #}
-      {#      <!--[if lte IE 8]><script src="{% url_for_static '/base/vendor/html5.js' %}"></script><![endif]--> #}
-      {% resource 'vendor/html5.js' %}
-    {%- endblock -%}
-
-    {#
     The links block allows you to add additonal content before the stylesheets
     such as rss feeds and favicons in the same way as the meta block.
     #}
