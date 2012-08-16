@@ -59,6 +59,34 @@ class IEConditionalRenderer(object):
                                                    self.other_browsers_start,
                                                    self.renderer(url),
                                                    self.other_browsers_end)
+class InlineJSRenderer(object):
+    ''' Allows for in-line js via fanstatic. '''
+    def __init__(self, script=None, renderer=None, condition=None, other_browsers=False):
+        self.script = script
+        self.other_browsers = other_browsers
+        self.renderer = renderer
+        start= ''
+        end= ''
+        # IE conditionals
+        if condition:
+            start = '<!--[if %s]>' % condition
+            end = '<![endif]-->'
+            if other_browsers:
+                start += '<!-->'
+                end = '<!--' + end
+        self.start = start
+        self.end = end
+
+    def __call__(self, url):
+        if self.script:
+            return '%s<script>%s</script>%s' % (self.start,
+                               self.script,
+                               self.end)
+        return '%s%s%s' % (self.start,
+                           self.renderer(url),
+                           self.end)
+def render_js(url):
+    return '<script type="text/javascript" src="%s"></script>' % (url,)
 
 # Fanstatic Patch #
 # FIXME add full license info & push upstream
@@ -78,7 +106,8 @@ def __init__(self, library, relpath, **kw):
 
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
-    if core._resource_file_existence_checking and not os.path.exists(fullpath):
+    if core._resource_file_existence_checking and not os.path.exists(fullpath) \
+                                    and not kw.get('fake_resource', False):
         raise core.UnknownResourceError("Resource file does not exist: %s" %
                                    fullpath)
     self.relpath = relpath
@@ -258,21 +287,25 @@ def create_library(name, path):
         f.close()
         log.info('minified %s' % path)
 
-    def create_resource(path, lib_name, count):
+    def create_resource(path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''
-        # resource_name is name of the file without the .js/.css
-        rel_path, filename = os.path.split(path)
+        renderer = None
         kw = {}
-        filename = os.path.join(rel_path, filename)
-        path_min = min_path(os.path.join(resource_path, filename))
-        if os.path.exists(path_min):
-            kw['minified'] = min_path(filename)
-        if filename.endswith('.js'):
-            renderer = core.render_js
-            if path not in force_top:
-                kw['bottom'] = True
-        if filename.endswith('.css'):
-            renderer = core.render_css
+        if not inline:
+            # resource_name is name of the file without the .js/.css
+            rel_path, filename = os.path.split(path)
+            filename = os.path.join(rel_path, filename)
+            path_min = min_path(os.path.join(resource_path, filename))
+            if os.path.exists(path_min):
+                kw['minified'] = min_path(filename)
+            if filename.endswith('.js'):
+                renderer = core.render_js
+                if path not in force_top:
+                    kw['bottom'] = True
+            if filename.endswith('.css'):
+                renderer = core.render_css
+        else:
+            kw['fake_resource'] = True
         if path in depends:
             dependencies = []
             for dependency in depends[path]:
@@ -287,17 +320,26 @@ def create_library(name, path):
         if path in custom_render_order:
             kw['custom_renderer_order'] = custom_render_order[path]
         kw['custom_order'] = count
-        # FIXME needs resource.config options enabled
+        # IE conditionals
+        condition = None
+        other_browsers = False
         if path in IE_conditionals:
             other_browsers = ('others' in IE_conditionals[path])
             condition = IE_conditionals[path][0]
+        if inline:
+            kw['renderer'] = InlineJSRenderer(
+                                        condition=condition,
+                                        script=inline,
+                                        renderer=renderer,
+                                        other_browsers=other_browsers)
+        elif condition:
             kw['renderer'] = IEConditionalRenderer(
                                         condition=condition,
                                         renderer=renderer,
                                         other_browsers=other_browsers)
-        resource = Resource(library, filename, **kw)
+        resource = Resource(library, path, **kw)
         # add the resource to this module
-        fanstatic_name = '%s/%s' % (lib_name, filename)
+        fanstatic_name = '%s/%s' % (lib_name, path)
         log.info('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
@@ -309,6 +351,7 @@ def create_library(name, path):
     groups = {}
     IE_conditionals = {}
     custom_render_order = {}
+    inline_scripts = {}
 
     # parse the resource.config file if it exists
     resource_path = os.path.dirname(__file__)
@@ -332,6 +375,9 @@ def create_library(name, path):
         if config.has_section('custom render order'):
             items = config.items('custom render order')
             custom_render_order = dict((n, int(v)) for (n, v) in items)
+        if config.has_section('inline scripts'):
+            items = config.items('inline scripts')
+            inline_scripts = dict((n, v) for (n, v) in items)
         if config.has_section('IE conditional'):
             items = config.items('IE conditional')
             for (n, v) in items:
@@ -400,6 +446,12 @@ def create_library(name, path):
         group = Group(members)
         fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
+
+    #inline scripts
+    for inline in inline_scripts:
+        create_resource(inline, name, count, inline=inline_scripts[inline].strip())
+        count += 1
+
     # finally add the library to this module
     setattr(module, name, library)
     # add to fanstatic
