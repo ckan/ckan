@@ -1,14 +1,5 @@
 {% extends "page.html" %}
 
-{%- block html5shim -%}
-  {#
-    Hellish hack to get excanvas to work in IE8. We disable html5shiv from
-    overriding the createElement() method on this page.
-    See: http://stackoverflow.com/questions/10208062/using-flot-with-bootstrap-ie8-incompatibility
-  #}
-  <!--[if lte IE 8 ]><script>var html5 = {shivMethods: false};</script><![endif]-->
-  {{ super() }}
-{%- endblock -%}
 
 {% block styles %}
   {{ super() }}
@@ -208,4 +199,10 @@
   <script src="{% url_for_static "/ckanext/stats/vendor/jquery.flot.js" %}"></script>
   <script src="{% url_for_static "/ckanext/stats/javascript/modules/plot.js" %}"></script>
   <script src="{% url_for_static "/ckanext/stats/javascript/modules/stats-nav.js" %}"></script>
+{#
+Hellish hack to get excanvas to work in IE8. We disable html5shiv from
+overriding the createElement() method on this page.
+See: http://stackoverflow.com/questions/10208062/using-flot-with-bootstrap-ie8-incompatibility
+#}
+{% resource "vendor/block_html5_shim" %}
 {% endblock %}
