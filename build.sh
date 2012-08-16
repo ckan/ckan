@@ -81,7 +81,8 @@ buildkit pkg nonpython -p $CKAN_PACKAGE_VERSION \
                        ${CKAN_PATH}/ckan_deb
 
 # Build python-solr
-${CKAN_PATH}/build/buildkit/env/bin/pip install --download-cache ${CKAN_PATH}/build/buildkit/env/cache --no-install --upgrade "solrpy==0.9.4"
+SOLR_VERSION=`egrep '^solrpy' "${CKAN_PATH}/pip-requirements.txt"`
+${CKAN_PATH}/build/buildkit/env/bin/pip install --download-cache ${CKAN_PATH}/build/buildkit/env/cache --no-install --upgrade $SOLR_VERSION
 mv ${CKAN_PATH}/build/buildkit/env/build/solrpy ${CKAN_PATH}/build/buildkit/env/build/solr
 # We need to rename the package here
 sed -e "s,solrpy,solr," -i ${CKAN_PATH}/build/buildkit/env/build/solr/setup.py
