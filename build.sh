@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This is a script which uses BuildKit 0.2.0 to automatically package CKAN and
-# its dependencies for use as Debian packages on Ubuntu 10.04.
+# its dependencies for use as Debian packages on Ubuntu 12.04 and 10.04.
 #
 # See the BuildKit documentation or look at the help to see what these commands
 # do. eg:
@@ -45,12 +45,33 @@ rm -rf ${CKAN_PATH}/build/env/src
 mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
-echo "Buildling the packages ..."
+echo "Building the packages ..."
 # Create the python-ckan debian package
-buildkit pkg python -p $CKAN_PACKAGE_VERSION --delete "solrpy" --distro-dep "python-solr" --delete "licenses" --distro-dep "python-licenses" --delete "repoze.who-friendlyform" --rename "repoze.who.plugins.openid -> repoze.who-plugins" --rename "babel -> pybabel" --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" --deps --exclude=test/generate_package --conflict-module "sqlalchemy-migrate -> migrate" --conflict-module "sqlalchemy -> lib/sqlalchemy" --debian-dir --url http://ckan.org ${CKAN_PATH}
+buildkit pkg python -p $CKAN_PACKAGE_VERSION \
+                    --delete "solrpy" \
+                    --distro-dep "python-solr" \
+                    --delete "licenses" \
+                    --distro-dep "python-licenses" \
+                    --delete "repoze.who-friendlyform" \
+                    --rename "repoze.who.plugins.openid -> repoze.who-plugins" \
+                    --rename "babel -> pybabel" \
+                    --author-email="$EMAIL" \
+                    --author-name="$NAME" \
+                    --packager-email="$EMAIL" \
+                    --packager-name="$NAME" \
+                    --deps \
+                    --exclude=test/generate_package \
+                    --conflict-module "sqlalchemy-migrate -> migrate" \
+                    --conflict-module "sqlalchemy -> lib/sqlalchemy" \
+                    --debian-dir \
+                    --url http://ckan.org \
+                    ${CKAN_PATH}
 
 # Creates the ckan debian package (of which python-ckan is a dependency)
-buildkit pkg nonpython -p $CKAN_PACKAGE_VERSION --deb --output-dir ${CKAN_PATH}/dist/buildkit ${CKAN_PATH}/ckan_deb
+buildkit pkg nonpython -p $CKAN_PACKAGE_VERSION \
+                       --deb \
+                       --output-dir ${CKAN_PATH}/dist/buildkit \
+                       ${CKAN_PATH}/ckan_deb
 
 # Build python-solr
 ${CKAN_PATH}/build/buildkit/env/bin/pip install --download-cache ${CKAN_PATH}/build/buildkit/env/cache --no-install --upgrade "solrpy==0.9.4"
