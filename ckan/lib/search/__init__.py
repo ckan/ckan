@@ -1,5 +1,6 @@
 import logging
 from pylons import config, c
+from paste.deploy.converters import asbool
 
 from ckan import model
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
@@ -27,7 +28,7 @@ def text_traceback():
         ).strip()
     return res
 
-SIMPLE_SEARCH = config.get('ckan.simple_search', False)
+SIMPLE_SEARCH = asbool(config.get('ckan.simple_search', False))
 
 SUPPORTED_SCHEMA_VERSIONS = ['1.4']
 
@@ -131,7 +132,7 @@ class SynchronousSearchPlugin(SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
+def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False):
     '''
         Rebuilds the search index.
 
@@ -175,12 +176,13 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
 
         for pkg_id in package_ids:
             try:
-                package_index.insert_dict(
+                package_index.update_dict(
                     get_action('package_show')(
                         {'model': model, 'ignore_auth': True,
                          'validate': False},
                         {'id': pkg_id}
-                    )
+                    ),
+                    defer_commit
                 )
             except Exception, e:
                 log.error('Error while indexing dataset %s: %s' %
@@ -194,6 +196,11 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False):
     model.Session.commit()
     log.info('Finished rebuilding search index.')
 
+
+def commit():
+    package_index = index_for(model.Package)
+    package_index.commit()
+    log.info('Commited pending changes on the search index')
 
 def check():
     from ckan import model

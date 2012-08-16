@@ -213,7 +213,9 @@ def package_update(context, data_dict):
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset
+    :returns: the updated dataset (if 'return_package_dict' is True in the
+              context, which is the default. Otherwise returns just the
+              dataset id)
     :rtype: dictionary
 
     '''
@@ -273,7 +275,13 @@ def package_update(context, data_dict):
         model.repo.commit()
 
     log.debug('Updated object %s' % str(pkg.name))
-    return _get_action('package_show')(context, data_dict)
+
+    return_id_only = context.get('return_id_only', False)
+
+    output = data_dict['id'] if return_id_only \
+            else _get_action('package_show')(context, {'id': data_dict['id']})
+
+    return output
 
 def package_update_validate(context, data_dict):
     model = context['model']
@@ -414,6 +422,14 @@ def group_update(context, data_dict):
         schema = group_plugin.form_to_db_schema()
 
     _check_access('group_update', context, data_dict)
+
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',

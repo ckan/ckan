@@ -98,7 +98,8 @@ def package_create(context, data_dict):
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
 
-    :returns: the newly created dataset
+    :returns: the newly created dataset (unless 'return_id_only' is set to True
+              in the context, in which case just the dataset id will be returned)
     :rtype: dictionary
 
     '''
@@ -162,7 +163,13 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
-    return _get_action('package_show')(context, {'id':context['id']})
+
+    return_id_only = context.get('return_id_only', False)
+
+    output = context['id'] if return_id_only \
+            else _get_action('package_show')(context, {'id':context['id']})
+
+    return output
 
 def package_create_validate(context, data_dict):
     model = context['model']
@@ -512,6 +519,14 @@ def group_create(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
+    if 'api_version' not in context:
+        # old plugins do not support passing the schema so we need
+        # to ensure they still work
+        try:
+            group_plugin.check_data_dict(data_dict, schema)
+        except TypeError:
+            group_plugin.check_data_dict(data_dict)
+
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
@@ -684,10 +699,19 @@ def user_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    context['user'] = user
+    # A new context is required for dictizing the newly constructed user in
+    # order that all the new user's data is returned, in particular, the
+    # api_key.
+    #
+    # The context is copied so as not to clobber the caller's context dict.
+    user_dictize_context = context.copy()
+    user_dictize_context['keep_sensitive_data'] = True
+    user_dict = model_dictize.user_dictize(user, user_dictize_context)
+
+    context['user_obj'] = user
     context['id'] = user.id
     log.debug('Created user %s' % str(user.name))
-    return model_dictize.user_dictize(user, context)
+    return user_dict
 
 ## Modifications for rest api
 
