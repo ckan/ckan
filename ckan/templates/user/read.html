@@ -12,8 +12,9 @@
 {% endblock %}
 
 {% block actions_content %}
-  {% if c.is_myself %}
-    <li>{% link_for _('Dashboard'), controller='user', action='dashboard', class_='btn', icon='dashboard' %}</li>
+{% if c.is_myself %}
+{# FIXME dashboard disabled #}
+  {#    <li>{% link_for _('Dashboard'), controller='user', action='dashboard', class_='btn', icon='dashboard' %}</li>  #}
   {% endif %}
   {% if h.check_access('user_update', user) %}
     <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
