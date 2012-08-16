@@ -12,9 +12,6 @@
 
   {# Allows custom attributes to be added to the <head> tag #}
   <head{% block headtag %}{% endblock %}>
-    {# Append a .js class to the html element #}
-    <script>document.getElementsByTagName('html')[0].className += ' js';</script>
-
     {#
     Add custom meta tags to the page. Call super() to get the default tags
     such as charset, viewport and generator.
