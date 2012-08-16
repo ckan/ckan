@@ -225,6 +225,7 @@ def sort_resources(resources):
             resource.library.name,
             resource.custom_order,
             resource.dependency_nr,
+            resource.renderer,
             resource.relpath)
     return sorted(resources, key=key)
 
