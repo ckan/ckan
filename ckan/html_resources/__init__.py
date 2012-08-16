@@ -135,7 +135,7 @@ def __init__(self, library, relpath, **kw):
         self.order, _ = core.inclusion_renderers.get(
             self.ext, (sys.maxint, None))
 
-    if custom_renderer_order:
+    if custom_renderer_order is not None:
         self.order = custom_renderer_order
     assert not isinstance(depends, basestring)
     self.depends = set()
