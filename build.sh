@@ -42,6 +42,12 @@ rm -rf ${CKAN_PATH}/build/env/src
 mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
+# In lieu of a requires directory, copy the pip-requirements into
+# requires/lucid_conflict.  This ensures that all requirements
+# are installed as src.
+mkdir "${CKAN_PATH}/requires"
+cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_conflict.txt"
+
 echo "Building the packages ..."
 # Create the python-ckan debian package
 buildkit pkg python -p $CKAN_PACKAGE_VERSION \
