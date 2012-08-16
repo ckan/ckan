@@ -43,10 +43,11 @@ mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
 # In lieu of a requires directory, copy the pip-requirements into
-# requires/lucid_missing.  This ensures that all requirements
-# are installed as src.
+# requires/lucid_conflict.  This ensures that the required packages
+# are installed in a way so as not to clobber any existing
+# system-wide dependencies.
 mkdir "${CKAN_PATH}/requires"
-cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_missing.txt"
+cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_conflict.txt"
 
 echo "Building the packages ..."
 # Create the python-ckan debian package
@@ -64,6 +65,12 @@ buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --exclude=test/generate_package \
                     --conflict-module "sqlalchemy-migrate -> migrate" \
                     --conflict-module "sqlalchemy -> lib/sqlalchemy" \
+                    --conflict-module "pyutilib.component.core -> pyutilib" \
+                    --conflict-module "solrpy -> solr" \
+                    --conflict-module "zope.interface -> src/zope" \
+                    --conflict-module "repoze.who -> repoze" \
+                    --conflict-module "repoze.who-friendlyform -> repoze" \
+                    --conflict-module "repoze.who.plugins.openid -> repoze" \
                     --debian-dir \
                     --url http://ckan.org \
                     ${CKAN_PATH}
