@@ -285,6 +285,8 @@ def create_library(name, path):
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
+        if path in custom_render_order:
+            kw['custom_renderer_order'] = custom_render_order[path]
         kw['custom_order'] = count
         # FIXME needs resource.config options enabled
         if path in IE_conditionals:
@@ -307,6 +309,7 @@ def create_library(name, path):
     depends = {}
     groups = {}
     IE_conditionals = {}
+    custom_render_order = {}
 
     # parse the resource.config file if it exists
     resource_path = os.path.dirname(__file__)
@@ -327,6 +330,9 @@ def create_library(name, path):
         if config.has_section('groups'):
             items = config.items('groups')
             groups = dict((n, v.split()) for (n, v) in items)
+        if config.has_section('custom render order'):
+            items = config.items('custom render order')
+            custom_render_order = dict((n, int(v)) for (n, v) in items)
         if config.has_section('IE conditional'):
             items = config.items('IE conditional')
             for (n, v) in items:
