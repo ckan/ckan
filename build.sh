@@ -69,6 +69,7 @@ buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --conflict-module "repoze.who -> repoze" \
                     --conflict-module "repoze.who-friendlyform -> repoze" \
                     --conflict-module "repoze.who.plugins.openid -> repoze" \
+                    --conflict-module "psycopg2 -> psycopg" \
                     --debian-dir \
                     --url http://ckan.org \
                     ${CKAN_PATH}
