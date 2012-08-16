@@ -54,6 +54,8 @@ echo "Building the packages ..."
 buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --delete "solrpy" \
                     --distro-dep "python-solr" \
+                    --distro-dep "libc6" \
+                    --distro-dep "libpq5" \
                     --delete "repoze.who-friendlyform" \
                     --author-email="$EMAIL" \
                     --author-name="$NAME" \
