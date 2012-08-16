@@ -10,6 +10,7 @@ _ = i18n._
 import urllib
 
 c = base.c
+abort = base.abort
 _get_action=logic.get_action
 
 
