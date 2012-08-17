@@ -10,6 +10,7 @@
 <!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
 
+{% resource g.main_css[6:] %}
   {# Allows custom attributes to be added to the <head> tag #}
   <head{% block headtag %}{% endblock %}>
     {#
@@ -69,8 +70,6 @@
       {% endblock %}
     #}
     {%- block styles %}
-      <!--[if IE 7]> <link rel="stylesheet" href="{% url_for_static '/base/vendor/font-awesome/css/font-awesome-ie7.css' %}" /> <![endif]-->
-      <link rel="stylesheet" href="{% url_for_static g.main_css %}" />
     {% endblock %}
 
     {# defined in the config.ini under "ckan.template_head_end" #}
