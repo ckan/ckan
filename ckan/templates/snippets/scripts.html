@@ -29,3 +29,6 @@
 <script src="{% url_for_static '/base/javascript/modules/autocomplete.js' %}"></script>
 <script src="{% url_for_static '/base/javascript/modules/custom-fields.js' %}"></script>
 <script src="{% url_for_static '/base/javascript/modules/related-item.js' %}"></script>
+{% if config.get('ckan.tracking_enabled', 'false') %}
+  {% snippet 'snippets/internal_tracking.html' %}
+{% endif %}
