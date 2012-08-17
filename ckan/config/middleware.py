@@ -69,7 +69,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     #app = QueueLogMiddleware(app)
     
     # Fanstatic
-    if not asbool(config.get('debug', False)):
+    if asbool(config.get('debug', False)):
         fanstatic_config = {
             'versioning' : True,
             'recompute_hashes' : True,
