@@ -1493,7 +1493,13 @@ CKAN.DataPreview = function ($, my) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     // Restore the Dataset from the given reclineState.
-    var dataset = recline.Model.Dataset.restore(reclineState);
+    var datasetInfo = _.extend({
+        url: reclineState.url,
+        backend: reclineState.backend
+      },
+      reclineState.dataset
+    );
+    var dataset = new recline.Model.Dataset(datasetInfo);
 
     // Only create the view defined in reclineState.currentView.
     // TODO: tidy this up.
