@@ -72,7 +72,7 @@ def create_library(name, path, depend_base=True):
         f = open(path_min, 'w')
         f.write(min_function(source))
         f.close()
-        log.info('minified %s' % path)
+        log.debug('minified %s' % path)
 
     def create_resource(path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''
@@ -131,7 +131,7 @@ def create_library(name, path, depend_base=True):
         resource = Resource(library, path, **kw)
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, path)
-        log.info('create resource %s' % fanstatic_name)
+        log.debug('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
 

@@ -1113,7 +1113,6 @@ def remove_url_param(key, value=None, replace=None, controller=None,
                                    action=action, extras=extras)
 
 def include_resource(resource):
-    print '###', resource
     r = getattr(fanstatic_resources, resource)
     r.need()
 
