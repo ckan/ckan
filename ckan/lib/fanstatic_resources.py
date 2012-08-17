@@ -249,11 +249,12 @@ def create_library(name, path, depend_base=True):
     registry = get_library_registry()
     registry.add(library)
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'vendor'))
-create_library('vendor', base_path, depend_base=False)
+base_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '..', 'public', 'base'))
+create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'datapreview'))
-create_library('datapreview', base_path, depend_base=False)
+create_library('datapreview', os.path.join(base_path, 'datapreview'), depend_base=False)
 
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'public', 'base', 'javascript'))
-create_library('base', base_path, depend_base=False)
+create_library('base', os.path.join(base_path, 'javascript'), depend_base=False)
+
+create_library('css', os.path.join(base_path, 'css'), depend_base=False)
