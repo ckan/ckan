@@ -1181,36 +1181,6 @@ my.Dataset = Backbone.Model.extend({
 });
 
 
-// ### Dataset.restore
-//
-// Restore a Dataset instance from a serialized state. Serialized state for a
-// Dataset is an Object like:
-// 
-// <pre>
-// {
-//   backend: {backend type - i.e. value of dataset.backend.__type__}
-//   dataset: {dataset info needed for loading -- result of dataset.toJSON() would be sufficient but can be simpler }
-//   // convenience - if url provided and dataste not this be used as dataset url
-//   url: {dataset url}
-//   ...
-// }
-my.Dataset.restore = function(state) {
-  var dataset = null;
-  // hack-y - restoring a memory dataset does not mean much ...
-  if (state.backend === 'memory') {
-    var datasetInfo = {
-      records: [{stub: 'this is a stub dataset because we do not restore memory datasets'}]
-    };
-  } else {
-    var datasetInfo = {
-      url: state.url,
-      backend: state.backend
-    };
-  }
-  dataset = new recline.Model.Dataset(datasetInfo);
-  return dataset;
-};
-
 // ## <a id="record">A Record</a>
 // 
 // A single record (or row) in the dataset
@@ -3055,6 +3025,7 @@ my.MultiView = Backbone.View.extend({
         'view-graph': graphState,
         backend: this.model.backend.__type__,
         url: this.model.get('url'),
+        dataset: this.model.toJSON(),
         currentView: null,
         readOnly: false
       },
@@ -3147,15 +3118,30 @@ my.MultiView = Backbone.View.extend({
 // ### MultiView.restore
 //
 // Restore a MultiView instance from a serialized state including the associated dataset
+//
+// This inverts the state serialization process in Multiview
 my.MultiView.restore = function(state) {
-  var dataset = recline.Model.Dataset.restore(state);
+  // hack-y - restoring a memory dataset does not mean much ... (but useful for testing!)
+  if (state.backend === 'memory') {
+    var datasetInfo = {
+      backend: 'memory',
+      records: [{stub: 'this is a stub dataset because we do not restore memory datasets'}]
+    };
+  } else {
+    var datasetInfo = _.extend({
+        url: state.url,
+        backend: state.backend
+      },
+      state.dataset
+    );
+  }
+  var dataset = new recline.Model.Dataset(datasetInfo);
   var explorer = new my.MultiView({
     model: dataset,
     state: state
   });
   return explorer;
 }
-
 
 // ## Miscellaneous Utilities
 var urlPathRegex = /^([^?]+)(\?.*)?/;
