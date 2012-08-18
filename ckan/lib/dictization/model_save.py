@@ -319,10 +319,13 @@ def group_member_save(context, group_dict, member_table_name):
     model = context["model"]
     session = context["session"]
     group = context['group']
-    entity_list = group_dict.get(member_table_name, [])
+    entity_list = group_dict.get(member_table_name, None)
 
-    if entity_list == [] and context.get('allow_partial_update', False):
-        return {'added': [], 'removed': []}
+    if entity_list is None:
+        if context.get('allow_partial_update', False):
+            return {'added': [], 'removed': []}
+        else:
+            entity_list = []
 
     entities = {}
     Member = model.Member
