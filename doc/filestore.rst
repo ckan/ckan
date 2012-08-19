@@ -36,6 +36,9 @@ after the ``[app:main]`` line::
    # directory on disk for data storage (should be empty)
    ofs.storage_dir = /my/path/to/storage/root/directory
 
+You must also set ``ckan.site_url`` to your CKAN instance's base URL, e.g.
+``http://scotdata.ckan.net``.
+
 Cloud Storage
 -------------
 
