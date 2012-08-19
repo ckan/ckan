@@ -24,6 +24,8 @@ line in your CKAN config file::
 Local File Storage
 ------------------
 
+The Recline Data Explorer (see :ref:`data-viewer`) does not work with local file storage.
+
 Important: you must install pairtree library for local storage to function::
           
     pip install pairtree
