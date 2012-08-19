@@ -201,6 +201,8 @@ ckan.feeds.author_link =
 # CKAN allows users to upload files directly to file storage either on the local
 # file system or to online ‘cloud’ storage like Amazon S3 or Google Storage.
 #
+# If you are using local file storage, remember to set ckan.site_url.
+#
 # To enable cloud storage (Google or S3), first run: pip install boto
 #
 # @see http://docs.ckan.org/en/latest/filestore.html
