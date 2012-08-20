@@ -127,6 +127,9 @@ language.
 Includes
 ~~~~~~~~
 
+.. Note::
+    Includes should be avoided as they are not portable use {% snippet %} tags whenever possible.
+
 Snippets of text that are included using ``{% include %}`` should be
 kept in a directory called _snippets_. This should be kept in the same
 directory as the code that uses it.
@@ -137,6 +140,9 @@ case the usage should be clearly documented.
 
 Snippets
 ~~~~~~~~
+
+.. Note::
+    {% snippet %} tags should be used in favour of h.snippet()
 
 Snippets are essentially middle ground between includes and macros in
 that they are includes that allow a specific context to be provided
@@ -210,13 +216,16 @@ portion that we wish to change. In this case the ``breadcrumb`` block.
 
 ::
 
-    {% ckan_extends "user/read.html" %}
+    {% ckan_extends %}
 
     {# Remove the breadcrumb #}
     {% block breadcrumb %}{% endblock %}
 
 This function works recursively and so is ideal for extensions that wish to
 add a small snippet of functionality to the page.
+
+.. Note::
+    {% ckan_extend %} only extends templates of the same name.
 
 snippet
 ~~~~~~~
@@ -474,9 +483,10 @@ Builds a form from the supplied form_info list/tuple.
 
 ::
 
-    form_info - A list of dicts describing the form field to build.
-    data      - The form data object.
-    errors    - The form errors object.
+    form_info       - A list of dicts describing the form field to build.
+    data            - The form data object.
+    errors          - The form errors object.
+    error_summary   - The form errors object.
 
 Example
 

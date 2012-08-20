@@ -28,6 +28,7 @@ import ckan.authz as authz
 from ckan.lib import i18n
 import lib.render
 import ckan.lib.helpers as h
+import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -204,6 +205,7 @@ class BaseController(WSGIController):
     def __before__(self, action, **params):
         c.__timer = time.time()
         c.__version__ = ckan.__version__
+        app_globals.app_globals._check_uptodate()
         self._identify_user()
         i18n.handle_request(request, c)
 
