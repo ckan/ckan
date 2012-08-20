@@ -59,9 +59,9 @@ def create_library(name, path, depend_base=True):
 
     def min_path(path):
         ''' return the .min filename eg moo.js -> moo.min.js '''
-        if f.endswith('.js'):
+        if path.endswith('.js'):
             return path[:-3] + '.min.js'
-        if f.endswith('.css'):
+        if path.endswith('.css'):
             return path[:-4] + '.min.css'
 
     def minify(filename, resource_path, min_function):
@@ -136,6 +136,12 @@ def create_library(name, path, depend_base=True):
         setattr(module, fanstatic_name, resource)
         return resource
 
+    resource_path = os.path.join(os.path.dirname(__file__), path)
+    library = Library(name, path)
+    module = sys.modules[__name__]
+
+
+    # config options
     order = []
     dont_bundle = []
     force_top = []
@@ -146,18 +152,18 @@ def create_library(name, path, depend_base=True):
     inline_scripts = {}
 
     # parse the resource.config file if it exists
-    resource_path = os.path.dirname(__file__)
-    resource_path = os.path.join(resource_path, path)
     config_path = os.path.join(resource_path, 'resource.config')
     if os.path.exists(config_path):
         config = ConfigParser.RawConfigParser()
         config.read(config_path)
+
         if config.has_option('main', 'order'):
             order = config.get('main', 'order').split()
         if config.has_option('main', 'dont_bundle'):
             dont_bundle = config.get('main', 'dont_bundle').split()
         if config.has_option('main', 'force_top'):
             force_top = config.get('main', 'force_top').split()
+
         if config.has_section('depends'):
             items = config.items('depends')
             depends = dict((n, v.split()) for (n, v) in items)
@@ -180,6 +186,7 @@ def create_library(name, path, depend_base=True):
                     IE_conditionals[f].append(n)
 
 
+    # add dependencies for resources in groups
     for group in groups:
         if group in depends:
             for resource in groups[group]:
@@ -189,11 +196,8 @@ def create_library(name, path, depend_base=True):
                     if dep not in depends[resource]:
                         depends[resource].append(dep)
 
-    library = Library(name, path)
-    module = sys.modules[__name__]
-
     # process each .js/.css file found
-    file_list = []
+    resource_list = []
     for dirname, dirnames, filenames in os.walk(resource_path):
         for f in filenames:
             rel_path = dirname[len(path):]
@@ -202,10 +206,10 @@ def create_library(name, path, depend_base=True):
             filepath = os.path.join(rel_path, f)
             if f.endswith('.js') and not f.endswith('.min.js'):
                 minify(f, dirname, jsmin)
-                file_list.append(filepath)
+                resource_list.append(filepath)
             if f.endswith('.css') and not f.endswith('.min.css'):
                 minify(f, dirname, cssmin)
-                file_list.append(filepath)
+                resource_list.append(filepath)
 
     # if groups are defined make sure the order supplied there is honored
     for group in groups:
@@ -219,18 +223,24 @@ def create_library(name, path, depend_base=True):
                             order.append(dep)
                 order.append(resource)
 
-    for x in reversed(order):
-        if x in file_list:
-            file_list.remove(x)
-            file_list.insert(0, x)
-    count = 0
-    for f in file_list:
-        create_resource(f, name, count)
-        count += 1
-
-    #inline scripts
+    # add inline scripts
     for inline in inline_scripts:
-        create_resource(inline, name, count, inline=inline_scripts[inline].strip())
+        resource_list.append(inline)
+
+    # order resource_list so that resources are created in the correct order
+    for resource_name in reversed(order):
+        if resource_name in resource_list:
+            resource_list.remove(resource_name)
+            resource_list.insert(0, resource_name)
+
+    # create the resources and keep them ordered as we define them.
+    count = 0
+    for resource_name in resource_list:
+        if resource_name in inline_scripts:
+            inline = inline_scripts[resource_name].strip()
+        else:
+            inline = None
+        create_resource(resource_name, name, count, inline=inline)
         count += 1
 
     # add groups
@@ -239,10 +249,6 @@ def create_library(name, path, depend_base=True):
         for member in groups[group_name]:
             fanstatic_name = '%s/%s' % (name, member)
             members.append(getattr(module, fanstatic_name))
-        if group_name in depends:
-            # add dependencies for each resource in the group
-            for dependency in depends[group_name]:
-                members = [get_resource(name, dependency)] + members
         group = Group(members)
         fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
