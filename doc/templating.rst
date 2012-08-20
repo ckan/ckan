@@ -127,7 +127,7 @@ language.
 Includes
 ~~~~~~~~
 
-.. Note:
+.. Note::
     Includes should be avoided as they are not portable use {% snippet %} tags whenever possible.
 
 Snippets of text that are included using ``{% include %}`` should be
@@ -141,7 +141,7 @@ case the usage should be clearly documented.
 Snippets
 ~~~~~~~~
 
-.. Note:
+.. Note::
     {% snippet %} tags should be used in favour of h.snippet()
 
 Snippets are essentially middle ground between includes and macros in
@@ -224,7 +224,7 @@ portion that we wish to change. In this case the ``breadcrumb`` block.
 This function works recursively and so is ideal for extensions that wish to
 add a small snippet of functionality to the page.
 
-.. Note:
+.. Note::
     {% ckan_extend %} only extends templates of the same name.
 
 snippet
