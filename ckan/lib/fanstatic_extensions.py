@@ -5,6 +5,7 @@ from fanstatic import Resource
 
 import fanstatic.core as core
 
+
 class IEConditionalRenderer(object):
     ''' Allows for IE conditionals. '''
     def __init__(self, condition, renderer, other_browsers=False):
@@ -22,14 +23,17 @@ class IEConditionalRenderer(object):
                                                    self.other_browsers_start,
                                                    self.renderer(url),
                                                    self.other_browsers_end)
+
+
 class InlineJSRenderer(object):
     ''' Allows for in-line js via fanstatic. '''
-    def __init__(self, script=None, renderer=None, condition=None, other_browsers=False):
+    def __init__(self, script=None, renderer=None, condition=None,
+                 other_browsers=False):
         self.script = script
         self.other_browsers = other_browsers
         self.renderer = renderer
-        start= ''
-        end= ''
+        start = ''
+        end = ''
         # IE conditionals
         if condition:
             start = '<!--[if %s]>' % condition
@@ -48,8 +52,11 @@ class InlineJSRenderer(object):
         return '%s%s%s' % (self.start,
                            self.renderer(url),
                            self.end)
+
+
 def render_js(url):
     return '<script type="text/javascript" src="%s"></script>' % (url,)
+
 
 # Fanstatic Patch #
 # FIXME add full license info & push upstream
@@ -69,7 +76,8 @@ def __init__(self, library, relpath, **kw):
 
     self.library = library
     fullpath = os.path.normpath(os.path.join(library.path, relpath))
-    if core._resource_file_existence_checking and not os.path.exists(fullpath) \
+    if core._resource_file_existence_checking \
+                                    and not os.path.exists(fullpath) \
                                     and not kw.get('fake_resource', False):
         raise core.UnknownResourceError("Resource file does not exist: %s" %
                                    fullpath)
@@ -120,7 +128,8 @@ def __init__(self, library, relpath, **kw):
     self.init_dependency_nr()
 
     self.modes = {}
-    for mode_name, argument in [(core.DEBUG, debug), (core.MINIFIED, minified)]:
+    for mode_name, argument in [(core.DEBUG, debug),
+                                (core.MINIFIED, minified)]:
         if argument is None:
             continue
         elif isinstance(argument, basestring):
@@ -155,14 +164,13 @@ def __init__(self, library, relpath, **kw):
             mode.supersedes.append(superseded_mode)
             superseded_mode.rollups.append(mode)
 
-
     # Register ourself with the Library.
     self.library.register(self)
 
 core.Resource.__init__ = __init__
 
-def render(self, library_url):
 
+def render(self, library_url):
 
     paths = [resource.relpath for resource in self._resources]
     # URL may become too long:
@@ -172,6 +180,8 @@ def render(self, library_url):
     return self.renderer('%s/%s' % (library_url, relpath))
 
 core.Bundle.render = render
+
+
 def fits(self, resource):
     if resource.dont_bundle:
         return False
@@ -186,6 +196,7 @@ def fits(self, resource):
              resource.dirname == bundle_resource.dirname))
 
 core.Bundle.fits = fits
+
 
 def sort_resources(resources):
     """Sort resources for inclusion on web page.

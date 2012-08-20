@@ -140,7 +140,6 @@ def create_library(name, path, depend_base=True):
     library = Library(name, path)
     module = sys.modules[__name__]
 
-
     # config options
     order = []
     dont_bundle = []
@@ -184,7 +183,6 @@ def create_library(name, path, depend_base=True):
                     if f not in IE_conditionals:
                         IE_conditionals[f] = []
                     IE_conditionals[f].append(n)
-
 
     # add dependencies for resources in groups
     for group in groups:
@@ -261,10 +259,13 @@ def create_library(name, path, depend_base=True):
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'public', 'base'))
+
 create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
-create_library('datapreview', os.path.join(base_path, 'datapreview'), depend_base=False)
+create_library('datapreview', os.path.join(base_path, 'datapreview'),
+               depend_base=False)
 
-create_library('base', os.path.join(base_path, 'javascript'), depend_base=False)
+create_library('base', os.path.join(base_path, 'javascript'),
+               depend_base=False)
 
 create_library('css', os.path.join(base_path, 'css'), depend_base=False)
