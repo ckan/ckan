@@ -48,7 +48,7 @@ echo "done."
 # are installed in a way so as not to clobber any existing
 # system-wide dependencies.
 mkdir "${CKAN_PATH}/requires"
-cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/lucid_conflict.txt"
+cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/${UBUNTU_RELEASE}_conflict.txt"
 
 echo "Building the packages ..."
 # Create the python-ckan debian package
