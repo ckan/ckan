@@ -7,15 +7,15 @@ Resources
 
 Resources are .css and .js files that may be included in an html page.
 Resources are included in the page by using the
-`{% resource [full resource name] %}` tag. Resources are grouped into libraries
+``{% resource [full resource name] %}`` tag. Resources are grouped into libraries
 and the  full resource name consists of <library name>/<resource name>.  It is
 important to note that these resources will be added to the page as defined by
-the resources not in the location of the `{% resource %}` tag.  Duplicate
+the resources not in the location of the ``{% resource %}`` tag.  Duplicate
 resources will not be added and any dependencies will be included as well as
 the resources adding in the correct order (see below for details).
 
 Libraries can be added to Ckan from extensions using the toolkit helper
-function `add_resource(path, name)` where path is the path to the resource
+function ``add_resource(path, name)`` where path is the path to the resource
 directory relative to the file calling the function and name is the name of the
 library.  Resources will the be created for the library for any .js and .css
 files found in the directory or it's subfolders. The resource name being the
@@ -40,7 +40,9 @@ Here is an example file.  The general layout of the file and allowed syntax is
 the same as for the .ini config file.
 
 ::
+
     [main]
+
     dont_bundle = jquery.js
 
     force_top = html5.js
@@ -113,7 +115,7 @@ should not generally be needed but is available if there are problems.
 ~~~~~~~~~~~~~~~~
 
 This allows IE conditionals to be wrapped around resources eg
-`<!--[if IE lte 8]--><script src="my_script.js"></script><![end if]-->`
+``<!--[if IE lte 8]--><script src="my_script.js"></script><![end if]-->``
 
 The condition is supplied followed by a list of resources that need that condition.
 
