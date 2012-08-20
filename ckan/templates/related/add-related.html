@@ -16,7 +16,7 @@
       <div class="control-group">
         <input id="related-dataset" type="hidden" name="dataset_id" value="${c.pkg.id}"/>
         <label for="related-title">Title <span class="required">(required)</span></label>
-        <input id="related-title" name="title" class="span6" placeholder="Please add the title for the item"/>
+        <input id="related-title" name="title" class="span6" placeholder='${_("Please add the title for the item")}'/>
       </div>
       <div class="control-group">
         <label for="related-type">Type of item</label>
@@ -32,15 +32,15 @@
       </div>
       <div class="control-group">
         <label for="related-description">Description</label>
-        <textarea id="related-description" name="description" class="input-xlarge span6" rows="4" placeholder="Please describe the item"></textarea>
+        <textarea id="related-description" name="description" class="input-xlarge span6" rows="4" placeholder='${_("Please describe the item")}'></textarea>
       </div>
       <div class="control-group">
         <label for="related-url">URL <span class="required">(required)</span></label>
-        <input id="related-url" name="url" type="url" class="span6" placeholder="Please add a url"/>
+        <input id="related-url" name="url" type="url" class="span6" placeholder='${_("Please add a url")}'/>
       </div>
       <div class="control-group">
         <label for="related-image-url">Image URL</label>
-        <input id="related-image-url" name="image_url" type="url" class="span6" placeholder="Please add a link to the image"/>
+        <input id="related-image-url" name="image_url" type="url" class="span6" placeholder='${_("Please add a link to the image")}'/>
       </div>
       <div>
         <button type="submit" class="btn btn-primary">Submit</button>

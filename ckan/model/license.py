@@ -153,7 +153,11 @@ class DefaultLicense(dict):
     def __getitem__(self, key):
         ''' behave like a dict but get from attributes '''
         if key in self.keys:
-            return unicode(getattr(self, key))
+            value = getattr(self, key)
+            if isinstance(value, str):
+                return unicode(value)
+            else:
+                return value
         else:
             raise KeyError()
 
