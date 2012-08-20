@@ -25,8 +25,8 @@
                 <dcat:accessURL rdf:resource="${ rsc_dict['url'] }"/>
                     <dct:format py:if="rsc_dict.get('format')">
                         <dct:IMT>
-                            <rdf:value>rsc_dict.get('format')</rdf:value>
-                            <rdfs:label>rsc_dict.get('format')</rdfs:label>
+                            <rdf:value>${rsc_dict.get('format')}</rdf:value>
+                            <rdfs:label>${rsc_dict.get('format')}</rdfs:label>
                         </dct:IMT>
                     </dct:format>
                <dct:title py:if="rsc_dict.get('name')">${rsc_dict.get('name')}</dct:title>
