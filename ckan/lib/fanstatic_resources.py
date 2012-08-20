@@ -1,31 +1,3 @@
-''' This file creates fanstatic resources from the sub directories. The
-directory can contain a resource.config to specify how the resources should
-be treated. minified copies of the resources are created if the resource
-has a later modification time than existing minified versions.
-
-NOTE :currently each library requires its entry point adding to the main
-ckan setup.py file.
-
-
-resource.config (example)
-==========
-# all resources are named without their file extension
-[main]
-# dont_bundle prevents the resources from being bundled
-dont_bundle = test1
-# order can be used to prevent dependency errors to ensure that the
-# needed resources are created first
-order = test1 test2
-[depends]
-# resource dependencies can be specified here by listing dependent
-# resources
-test2 = test1
-[groups]
-# a group containing several resources can be specified here
-test3 = test2 test1
-
-
-'''
 import os.path
 import sys
 import logging
