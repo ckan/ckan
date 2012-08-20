@@ -1,0 +1,157 @@
+Resources
+=========
+
+.. Note::
+    Resources are only supported in the new Jinja2 style templates in Ckan 2.0
+    and above.
+
+Resources are .css and .js files that may be included in an html page.
+Resources are included in the page by using the
+`{% resource [full resource name] %}` tag. Resources are grouped into libraries
+and the  full resource name consists of <library name>/<resource name>.  It is
+important to note that these resources will be added to the page as defined by
+the resources not in the location of the `{% resource %}` tag.  Duplicate
+resources will not be added and any dependencies will be included as well as
+the resources adding in the correct order (see below for details).
+
+Libraries can be added to Ckan from extensions using the toolkit helper
+function `add_resource(path, name)` where path is the path to the resource
+directory relative to the file calling the function and name is the name of the
+library.  Resources will the be created for the library for any .js and .css
+files found in the directory or it's subfolders. The resource name being the
+name of the file including any path needed to get to it from the resource
+directory.  For greater control of the creation a resource.config file can be
+created and placed in the resource directory (see below for details).
+
+In debug mode resources are served un minified and unbundled (each resource is
+served separately). In non-debug mode the files are served minified and bundled
+(where allowed).
+
+.. Note::
+    .js and .css resources must be supplied as un-minified files.  Minified
+    files will be created.  It is advised to include a .gitignore file to
+    prevent minified files being added to the repository.
+
+resource.config
+---------------
+
+This file is used to define the resources in a directory and is sub folders.
+Here is an example file.  The general layout of the file and allowed syntax is
+the same as for the .ini config file.
+
+::
+    [main]
+    dont_bundle = jquery.js
+
+    force_top = html5.js
+
+    order = jquery.js jed.js
+
+    [IE conditional]
+
+    lte IE 8 = html5.js block_html5_shim
+    IE 7 = font-awesome/css/font-awesome-ie7.css
+    others = html5.js
+
+    [custom render order]
+
+    block_html5_shim = 1
+    html5.js = 2
+    select2/select2.css = 9
+
+    [inline scripts]
+
+    block_html5_shim =
+        var html5 = {shivMethods: false};
+
+    [depends]
+
+    vendor = jquery.js
+
+    [groups]
+
+    vendor =
+        jed.js
+        html5.js
+        select2/select2.js
+        select2/select2.css
+        bootstrap/js/bootstrap-transition.js
+        bootstrap/js/bootstrap-modal.js
+        bootstrap/js/bootstrap-alert.js
+        bootstrap/js/bootstrap-tab.js
+        bootstrap/js/bootstrap-button.js
+        font-awesome/css/font-awesome-ie7.css
+
+
+[main]
+~~~~~~
+
+This can contain the following values
+
+force_top
+~~~~~~~~~
+
+The resources listed will be placed in the head of the page.  This is only relevant
+to .js files which will by default will be added to the bottom of the page.
+
+dont_bundle
+~~~~~~~~~~~
+
+Bundeling resources causes them to be served to the browser as a single
+resource to prevent multiple requests to the server.  The resources listed will
+not be bundled.  By default items will be bundled where possible.  Note that
+.css files can only be bundled if they are in the same directory.
+
+order
+~~~~~
+
+This is used to make sure that resources are created in the order specified.  It
+should not generally be needed but is available if there are problems.
+
+
+[IE conditional]
+~~~~~~~~~~~~~~~~
+
+This allows IE conditionals to be wrapped around resources eg
+`<!--[if IE lte 8]--><script src="my_script.js"></script><![end if]-->`
+
+The condition is supplied followed by a list of resources that need that condition.
+
+others
+~~~~~~
+
+This is a special condition that means that the resource will also be available
+for none IE browsers.
+
+[custom render order]
+~~~~~~~~~~~~~~~~~~~~~
+
+By default resources have a render order this is 10 for .css and 20 for .js
+resources.  Sometimes we need to add resources before or after they would be
+included an example being the html5shim.js that needs including before .css
+resources.  By providing a custom render order for the resource it's placement
+can be altered.  Lower numbered resources are rendered earlier.  Note that
+resources rendered in the head will still be placed before ones rendered in the
+body.
+
+[inline scripts]
+~~~~~~~~~~~~~~~~
+
+It is possible to define inline scripts in the resource.config file this can be
+helpful in some situations but is probably best avoided if possible.
+
+[depends]
+~~~~~~~~~
+
+Some times one resource depends on another eg many scripts need jquery.js
+included in the page before them. External resource libraries will
+automatically depend on the core ckan JavaScript modules so do not need to
+specify this.
+
+[groups]
+~~~~~~~~
+
+Groups of resources can be specified this allows the group to be included by
+just using it's name rather than having to specify each resource individuality
+when requesting them.  Groups can be referred to in many places in the
+resource.config file eg. [depends]
