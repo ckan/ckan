@@ -74,12 +74,14 @@ buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --conflict-module "psycopg2 -> psycopg" \
                     --debian-dir \
                     --url http://ckan.org \
+                    --ubuntu-release "lucid" \
                     ${CKAN_PATH}
 
 # Creates the ckan debian package (of which python-ckan is a dependency)
 buildkit pkg nonpython -p $CKAN_PACKAGE_VERSION \
                        --deb \
                        --output-dir ${CKAN_PATH}/dist/buildkit \
+                       --ubuntu-release "lucid" \
                        ${CKAN_PATH}/ckan_deb
 
 # Build python-solr
@@ -89,7 +91,15 @@ mv ${CKAN_PATH}/build/buildkit/env/build/solrpy ${CKAN_PATH}/build/buildkit/env/
 # We need to rename the package here
 sed -e "s,solrpy,solr," -i ${CKAN_PATH}/build/buildkit/env/build/solr/setup.py
 # We need to specify an author explicitly since it is missing we'll use the CKAN one
-buildkit pkg python -p $DEPS_PACKAGE_VERSION --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" --debian-dir ${CKAN_PATH}/build/buildkit/env/build/solr/
+buildkit pkg python -p $DEPS_PACKAGE_VERSION \
+                    --author-email="$EMAIL" \
+                    --author-name="$NAME" \
+                    --packager-email="$EMAIL" \
+                    --packager-name="$NAME" \
+                    --debian-dir \
+                    --ubuntu-release "lucid" \
+                    ${CKAN_PATH}/build/buildkit/env/build/solr/
+
 cp ${CKAN_PATH}/build/buildkit/env/build/solr/dist/buildkit/*.deb ${CKAN_PATH}/dist/buildkit/
 
 echo "done."
