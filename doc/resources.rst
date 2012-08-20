@@ -23,11 +23,11 @@ name of the file including any path needed to get to it from the resource
 directory.  For greater control of the creation a resource.config file can be
 created and placed in the resource directory (see below for details).
 
-In debug mode resources are served un minified and unbundled (each resource is
+In debug mode resources are served un-minified and unbundled (each resource is
 served separately). In non-debug mode the files are served minified and bundled
 (where allowed).
 
-.. Note::
+.. Important::
     .js and .css resources must be supplied as un-minified files.  Minified
     files will be created.  It is advised to include a .gitignore file to
     prevent minified files being added to the repository.
@@ -41,12 +41,12 @@ the same as for the .ini config file.
 
 ::
 
+    # Example resource.config file
+
     [main]
 
     dont_bundle = jquery.js
-
     force_top = html5.js
-
     order = jquery.js jed.js
 
     [IE conditional]
@@ -90,22 +90,19 @@ the same as for the .ini config file.
 
 This can contain the following values
 
-force_top
-~~~~~~~~~
+**force_top**
 
 The resources listed will be placed in the head of the page.  This is only relevant
 to .js files which will by default will be added to the bottom of the page.
 
-dont_bundle
-~~~~~~~~~~~
+**dont_bundle**
 
 Bundeling resources causes them to be served to the browser as a single
 resource to prevent multiple requests to the server.  The resources listed will
 not be bundled.  By default items will be bundled where possible.  Note that
 .css files can only be bundled if they are in the same directory.
 
-order
-~~~~~
+**order**
 
 This is used to make sure that resources are created in the order specified.  It
 should not generally be needed but is available if there are problems.
@@ -114,13 +111,13 @@ should not generally be needed but is available if there are problems.
 [IE conditional]
 ~~~~~~~~~~~~~~~~
 
-This allows IE conditionals to be wrapped around resources eg
-``<!--[if IE lte 8]--><script src="my_script.js"></script><![end if]-->``
+This allows IE conditionals to be wrapped around resources
+
+eg ``<!--[if IE lte 8]--><script src="my_script.js"></script><![end if]-->``
 
 The condition is supplied followed by a list of resources that need that condition.
 
-others
-~~~~~~
+**others**
 
 This is a special condition that means that the resource will also be available
 for none IE browsers.
@@ -155,5 +152,11 @@ specify this.
 
 Groups of resources can be specified this allows the group to be included by
 just using it's name rather than having to specify each resource individuality
-when requesting them.  Groups can be referred to in many places in the
+when requesting them.  The order that items are added to a group will be used
+to order the resources when added to the page but other factors such as
+dependencies, custom render order and resource type can affect the final order
+used.
+
+
+Groups can be referred to in many places in the
 resource.config file eg. [depends]
