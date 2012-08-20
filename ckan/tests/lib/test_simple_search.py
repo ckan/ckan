@@ -22,7 +22,7 @@ class TestSimpleSearch:
     def test_run_query_basic(self):
         res = PackageSearchQuery().run({'q':'annakarenina'})
         anna = model.Package.by_name(u'annakarenina')
-        assert_equal(res, {'results': [anna.id], 'count': 1})
+        assert_equal(res, {'results': [{'id': anna.id}], 'count': 1})
 
     def test_run_query_home(self):
         # This is the query from the CKAN home page
