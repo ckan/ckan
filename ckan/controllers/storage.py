@@ -270,7 +270,7 @@ class StorageAPIController(BaseController):
                             qualified=False
                             )
             if url.startswith('/'):
-                url = config.get('ckan.site_url','').rstrip('/') + '/' + url
+                url = config.get('ckan.site_url','').rstrip('/') + url
 
         if not self.ofs.exists(bucket, label):
             abort(404)
