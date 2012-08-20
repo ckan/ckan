@@ -43,6 +43,7 @@ package_table = Table('package', meta.metadata,
         Column('notes', types.UnicodeText),
         Column('license_id', types.UnicodeText),
         Column('type', types.UnicodeText),
+        Column('public', types.Integer, default=1)
 )
 
 
@@ -85,7 +86,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return []
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
+        return [resource for resource in
                 self.resource_groups_all[0].resources_all
                 if resource.state <> 'deleted']
 
