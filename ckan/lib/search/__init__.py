@@ -233,7 +233,7 @@ def clear(package_reference=None):
         log.debug("Clearing search index for dataset %s..." %
                   package_reference)
         package_index.delete_package({'id': package_reference})
-    else:
+    elif not SIMPLE_SEARCH:
         log.debug("Clearing search index...")
         package_index.clear()
 
