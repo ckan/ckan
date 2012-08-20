@@ -28,6 +28,7 @@
 
 CKAN_PACKAGE_VERSION=$1
 DEPS_PACKAGE_VERSION=$2
+UBUNTU_RELEASE=$3
 # If you don't run this command from the CKAN source directory, specify the 
 # path to CKAN here
 CKAN_PATH=$PWD
@@ -74,14 +75,14 @@ buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --conflict-module "psycopg2 -> psycopg" \
                     --debian-dir \
                     --url http://ckan.org \
-                    --ubuntu-release "lucid" \
+                    --ubuntu-release "$UBUNTU_RELEASE" \
                     ${CKAN_PATH}
 
 # Creates the ckan debian package (of which python-ckan is a dependency)
 buildkit pkg nonpython -p $CKAN_PACKAGE_VERSION \
                        --deb \
                        --output-dir ${CKAN_PATH}/dist/buildkit \
-                       --ubuntu-release "lucid" \
+                       --ubuntu-release "$UBUNTU_RELEASE" \
                        ${CKAN_PATH}/ckan_deb
 
 # Build python-solr
@@ -97,7 +98,7 @@ buildkit pkg python -p $DEPS_PACKAGE_VERSION \
                     --packager-email="$EMAIL" \
                     --packager-name="$NAME" \
                     --debian-dir \
-                    --ubuntu-release "lucid" \
+                    --ubuntu-release "$UBUNTU_RELEASE" \
                     ${CKAN_PATH}/build/buildkit/env/build/solr/
 
 cp ${CKAN_PATH}/build/buildkit/env/build/solr/dist/buildkit/*.deb ${CKAN_PATH}/dist/buildkit/
