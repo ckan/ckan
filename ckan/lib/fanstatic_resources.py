@@ -34,17 +34,13 @@ import ConfigParser
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
 
-# This import patches fanstatic
+# This imports patches fanstatic
 import ckan.lib.fanstatic_extensions as fanstatic_extensions
 
 from ckan.include.rjsmin import jsmin
 from ckan.include.rcssmin import cssmin
 
 log = logging.getLogger(__name__)
-
-# TODO
-# loop through dirs to setup
-# warn on no entry point provided for fanstatic
 
 
 def create_library(name, path, depend_base=True):
