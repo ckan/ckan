@@ -48,6 +48,15 @@ def create_library(name, path, depend_base=True):
     directory `path` using resource.config if found. Files are minified
     if needed. '''
 
+    def get_resource(lib_name, resource_name):
+        ''' Attempt to get the resource from the current lib or if not try
+        assume it is a fully qualified resource name. '''
+        try:
+            res = getattr(module, '%s/%s' % (lib_name, resource_name))
+        except AttributeError:
+            res = getattr(module, '%s' % resource_name)
+        return res
+
     def min_path(path):
         ''' return the .min filename eg moo.js -> moo.min.js '''
         if f.endswith('.js'):
@@ -92,11 +101,7 @@ def create_library(name, path, depend_base=True):
         dependencies = []
         if path in depends:
             for dependency in depends[path]:
-                try:
-                    res = getattr(module, '%s/%s' % (name, dependency))
-                except AttributeError:
-                    res = getattr(module, '%s' % dependency)
-                dependencies.append(res)
+                dependencies.append(get_resource(name, dependency))
         if depend_base:
             dependencies.append(getattr(module, 'base/main'))
 
@@ -235,12 +240,9 @@ def create_library(name, path, depend_base=True):
             fanstatic_name = '%s/%s' % (name, member)
             members.append(getattr(module, fanstatic_name))
         if group_name in depends:
+            # add dependencies for each resource in the group
             for dependency in depends[group_name]:
-                try:
-                    res = getattr(module, '%s/%s' % (name, dependency))
-                except AttributeError:
-                    res = getattr(module, '%s' % dependency)
-                members = [res] + members #.append(res)
+                members = [get_resource(name, dependency)] + members
         group = Group(members)
         fanstatic_name = '%s/%s' % (name, group_name)
         setattr(module, fanstatic_name, group)
