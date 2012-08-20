@@ -965,6 +965,15 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          key='randomness') # i.e. incorrect
         res = self.app.get(offset, status=403) # error
 
+    def test_perform_reset_user_password_link_key_missing(self):
+        CreateTestData.create_user(name='jack', password='test1')
+        user = model.User.by_name(u'jack')
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id)  # not, no key specified
+        res = self.app.get(offset, status=403) # error
+
+
     def test_perform_reset_user_password_link_user_incorrect(self):
         # Make up a key - i.e. trying to hack this
         user = model.User.by_name(u'jack')
