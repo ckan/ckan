@@ -323,7 +323,7 @@ def related_create(context, data_dict):
 
     context["related"] = related
     context["id"] = related.id
-    log.debug('Created object %s' % str(related.title))
+    log.debug('Created object %s' % related.title)
     return related_dict
 
 
