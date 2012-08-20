@@ -210,6 +210,12 @@ def create_library(name, path, depend_base=True):
     for group in groups:
         for resource in groups[group]:
             if resource not in order:
+                # make sure any dependencies are met when we get to creating
+                # the resource
+                if resource in depends:
+                    for dep in depends[resource]:
+                        if dep not in order:
+                            order.append(dep)
                 order.append(resource)
 
     for x in reversed(order):
