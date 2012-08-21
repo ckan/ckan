@@ -15,3 +15,4 @@ Pylons==0.9.7
 repoze.who==1.0.19
 repoze.who.plugins.openid==0.5.3
 repoze.who-friendlyform==1.0.8
+babel==0.9.6
