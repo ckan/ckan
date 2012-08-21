@@ -48,7 +48,6 @@ echo "Building the packages ..."
 buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --delete "solrpy" \
                     --distro-dep "python-solr" \
-                    --rename "babel -> pybabel" \
                     --author-email="$EMAIL" \
                     --author-name="$NAME" \
                     --packager-email="$EMAIL" \
