@@ -946,7 +946,7 @@ def follow_user(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following user {object}'.format(
+    log.debug(u'User {follower} started following user {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_user_dictize(follower, context)
@@ -1014,7 +1014,7 @@ def follow_dataset(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('User {follower} started following dataset {object}'.format(
+    log.debug(u'User {follower} started following dataset {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
