@@ -111,15 +111,19 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             template_path = ''
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
-
-        debug_info = {'template_name' : template_name,
-                      'template_path' : template_path,
-                      'template_type' : template_type,
-                      'vars' : globs,
-                      'renderer' : renderer,}
-        if 'CKAN_DEBUG_INFO' not in request.environ:
-            request.environ['CKAN_DEBUG_INFO'] = []
-        request.environ['CKAN_DEBUG_INFO'].append(debug_info)
+        if config.get('debug'):
+            context_vars = globs.get('c')
+            if context_vars:
+                context_vars = dir(context_vars)
+            debug_info = {'template_name' : template_name,
+                          'template_path' : template_path,
+                          'template_type' : template_type,
+                          'vars' : globs,
+                          'c_vars': context_vars,
+                          'renderer' : renderer,}
+            if 'CKAN_DEBUG_INFO' not in request.environ:
+                request.environ['CKAN_DEBUG_INFO'] = []
+            request.environ['CKAN_DEBUG_INFO'].append(debug_info)
 
         # Jinja2 templates
         if template_type == 'jinja2':
