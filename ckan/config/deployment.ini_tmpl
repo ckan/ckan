@@ -162,7 +162,7 @@ ckan.locale_default = en
 # (those with 100% first, then those with >=80%, then >=50%, then <50%) and
 # within these groups roughly sorted by number of worldwide native speakers
 # according to Wikipedia.
-ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
+ckan.locale_order = en es pt_BR ja fr it ko_KR cs_CZ ca fi el sv sr sr@latin no sk ru de pl nl bg hu sa sl lv
 ckan.locales_filtered_out = 
 
 ## Atom Feeds

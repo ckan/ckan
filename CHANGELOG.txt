@@ -31,6 +31,7 @@ v1.8
   .ini config file. Only restricted functions will be allowed in
   future versions of CKAN.
 * [#2842] Allow sort ordering of dataset listings on group pages
+* CKAN is now available in Korean!
 
 API changes and deprecation:
 * [#2313] Deprecated functions related to the old faceting data structure have
