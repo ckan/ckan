@@ -274,7 +274,6 @@ def insert_data(context, data_dict):
     ## clean up and validate data
 
     for num, record in enumerate(data_dict['records']):
-
         # check record for sanity
         if not isinstance(record, dict):
             raise p.toolkit.ValidationError({
