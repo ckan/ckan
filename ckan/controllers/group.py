@@ -52,6 +52,9 @@ class GroupController(BaseController):
     def _history_template(self, group_type):
         return lookup_group_plugin(group_type).history_template()
 
+    def _edit_template(self, group_type):
+        return lookup_group_plugin(group_type).edit_template()
+
     ## end hooks
 
     def _guess_group_type(self, expecting_name=False):
@@ -291,7 +294,7 @@ class GroupController(BaseController):
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
-        return render('group/edit.html')
+        return render(self._edit_template(c.group.type))
 
     def _get_group_type(self, id):
         """
