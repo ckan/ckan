@@ -304,10 +304,10 @@ def insert_data(context, data_dict):
         row.append(' '.join(full_text))
         rows.append(row)
 
-    sql_string = u'insert into "{0}" ({1}) values ({2});'.format(
+    sql_string = u'insert into "{0}" ({1}) values ({2}, to_tsvector(%s));'.format(
         data_dict['resource_id'],
         sql_columns,
-        ', '.join(['%s' for field in field_names + ['_full_text']])
+        ', '.join(['%s' for field in field_names])
     )
 
     context['connection'].execute(sql_string, rows)

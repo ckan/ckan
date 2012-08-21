@@ -160,10 +160,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert data['records'][i].get('book') == row['book']
             assert data['records'][i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
-        results = c.execute('''select * from "{0}" where _full_text @@ 'warandpeace' '''.format(resource.id))
-        assert results.rowcount == 1
+        results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('warandpeace') '''.format(resource.id))
+        assert results.rowcount == 1, results.rowcount
 
-        results = c.execute('''select * from "{0}" where _full_text @@ 'tolstoy' '''.format(resource.id))
+        results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('tolstoy') '''.format(resource.id))
         assert results.rowcount == 2
         model.Session.remove()
 
@@ -220,7 +220,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert all_data[i].get('book') == row['book'], (i, all_data[i].get('book'), row['book'])
             assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
-        results = c.execute('''select * from "{0}" where _full_text @@ 'dostoevsky' '''.format(resource.id))
+        results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') '''.format(resource.id))
         assert results.rowcount == 2
         model.Session.remove()
 
@@ -634,4 +634,59 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == self.expected_records, result['records']
 
         assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+
+
+class TestDatastoreFullTextSearch(tests.WsgiAppCase):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = dict(
+            resource_id = resource.id,
+            fields = [
+              {'id': 'id'},
+              {'id': 'date', 'type':'date'},
+              {'id': 'x'},
+              {'id': 'y'},
+              {'id': 'z'},
+              {'id': 'country'},
+              {'id': 'title'},
+              {'id': 'lat'},
+              {'id': 'lon'}
+            ],
+            records = [
+              {'id': 0, 'date': '2011-01-01', 'x': 1, 'y': 2, 'z': 3, 'country': 'DE', 'title': 'first', 'lat':52.56, 'lon':13.40},
+              {'id': 1, 'date': '2011-02-02', 'x': 2, 'y': 4, 'z': 24, 'country': 'UK', 'title': 'second', 'lat':54.97, 'lon':-1.60},
+              {'id': 2, 'date': '2011-03-03', 'x': 3, 'y': 6, 'z': 9, 'country': 'US', 'title': 'third', 'lat':40.00, 'lon':-75.5},
+              {'id': 3, 'date': '2011-04-04', 'x': 4, 'y': 8, 'z': 6, 'country': 'UK', 'title': 'fourth', 'lat':57.27, 'lon':-6.20},
+              {'id': 4, 'date': '2011-05-04', 'x': 5, 'y': 10, 'z': 15, 'country': 'UK', 'title': 'fifth', 'lat':51.58, 'lon':0},
+              {'id': 5, 'date': '2011-06-02', 'x': 6, 'y': 12, 'z': 18, 'country': 'DE', 'title': 'sixth', 'lat':51.04, 'lon':7.9}
+            ]
+        )
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_search_full_text(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': 'DE'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        import pprint
+
+        assert res_dict['result']['total'] == 2,  pprint.pformat(res_dict)
+
 
