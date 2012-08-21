@@ -35,7 +35,7 @@ def _validate_int(i, field_name):
         int(i)
     except ValueError:
         raise p.toolkit.ValidationError({
-            'field_name': '{} is not an integer'.format(i)
+            'field_name': ['{} is not an integer'.format(i)]
         })
 
 
@@ -67,7 +67,6 @@ def _cache_types(context):
 
         psycopg2.extras.register_composite('_json', connection.connection,
                                            True)
-
 
 
 def _get_type(context, oid):
@@ -139,11 +138,11 @@ def check_fields(context, fields):
     for field in fields:
         if field.get('type') and not field['type'] in _type_names:
             raise p.toolkit.ValidationError({
-                'fields': '{0} is not a valid field type'.format(field['type'])
+                'fields': ['{0} is not a valid field type'.format(field['type'])]
             })
         elif not _is_valid_field_name(field['id']):
             raise p.toolkit.ValidationError({
-                'fields': '{0} is not a valid field name'.format(field['id'])
+                'fields': ['{0} is not a valid field name'.format(field['id'])]
             })
 
 def convert(data, type):
@@ -177,7 +176,7 @@ def create_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise p.toolkit.ValidationError({
-                    'fields': '{} type not guessable'.format(field['id'])
+                    'fields': ['{} type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
 
@@ -185,7 +184,7 @@ def create_table(context, data_dict):
         # check record for sanity
         if not isinstance(records[0], dict):
             raise p.toolkit.ValidationError({
-                'records': 'The first row is not a json object'
+                'records': ['The first row is not a json object']
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
@@ -224,8 +223,8 @@ def alter_table(context, data_dict):
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:
                 raise p.toolkit.ValidationError({
-                    'fields': ('Supplied field "{}" not '
-                              'present or in wrong order').format(field['id'])
+                    'fields': [('Supplied field "{}" not '
+                              'present or in wrong order').format(field['id'])]
                 })
             ## no need to check type as field already defined.
             continue
@@ -233,7 +232,7 @@ def alter_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise p.toolkit.ValidationError({
-                    'fields': '{} type not guessable'.format(field['id'])
+                    'fields': ['{} type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
         new_fields.append(field)
@@ -242,7 +241,7 @@ def alter_table(context, data_dict):
         # check record for sanity
         if not isinstance(records[0], dict):
             raise p.toolkit.ValidationError({
-                'records': 'The first row is not a json object'
+                'records': ['The first row is not a json object']
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
@@ -277,17 +276,17 @@ def insert_data(context, data_dict):
         # check record for sanity
         if not isinstance(record, dict):
             raise p.toolkit.ValidationError({
-                'records': u'row {} is not a json object'.format(num)
+                'records': [u'row {} is not a json object'.format(num)]
             })
         ## check for extra fields in data
         extra_keys = set(record.keys()) - set(field_names)
 
         if extra_keys:
             raise p.toolkit.ValidationError({
-                'records': u'row {} has extra keys "{}"'.format(
+                'records': [u'row {} has extra keys "{}"'.format(
                     num + 1,
-                    u', '.join(list(extra_keys))
-                )
+                    ', '.join(list(extra_keys))
+                )]
             })
 
         full_text = []
@@ -320,7 +319,7 @@ def _where(field_ids, data_dict):
 
     if not isinstance(filters, dict):
         raise p.toolkit.ValidationError({
-            'filters': 'Not a json object'}
+            'filters': ['Not a json object']}
         )
 
     where_clauses = []
@@ -329,7 +328,7 @@ def _where(field_ids, data_dict):
     for field, value in filters.iteritems():
         if field not in field_ids:
             raise p.toolkit.ValidationError({
-                'filters': 'field "{}" not in table'}
+                'filters': ['field "{}" not in table']}
             )
         where_clauses.append(u'"{}" = %s'.format(field))
         values.append(value)
@@ -355,7 +354,7 @@ def _sort(context, sort, field_ids):
         clauses = sort
     else:
         raise p.toolkit.ValidationError({
-            'sort': 'sort is not a list or a string'
+            'sort': ['sort is not a list or a string']
         })
 
     clause_parsed = []
@@ -369,18 +368,18 @@ def _sort(context, sort, field_ids):
             field, sort = clause_parts
         else:
             raise p.toolkit.ValidationError({
-                'sort': 'not valid syntax for sort clause'
+                'sort': ['not valid syntax for sort clause']
             })
         field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
 
         if field not in field_ids:
             raise p.toolkit.ValidationError({
-                'sort': u'field {} not it table'.format(
-                    unicode(field, 'utf-8'))
+                'sort': [u'field {} not it table'.format(
+                    unicode(field, 'utf-8'))]
             })
         if sort.lower() not in ('asc', 'desc'):
             raise p.toolkit.ValidationError({
-                'sort': 'sorting can only be asc or desc'
+                'sort': ['sorting can only be asc or desc']
             })
         clause_parsed.append(u'"{}" {}'.format(
             field, sort)
@@ -417,7 +416,7 @@ def search_data(context, data_dict):
         for field in field_ids:
             if not field in all_field_ids:
                 raise p.toolkit.ValidationError({
-                    'fields': u'field "{}" not in table'.format(field)}
+                    'fields': [u'field "{}" not in table'.format(field)]}
                 )
     else:
         field_ids = all_field_ids
@@ -508,7 +507,7 @@ def create(context, data_dict):
     except Exception, e:
         if 'due to statement timeout' in str(e):
             raise p.toolkit.ValidationError({
-                'query': 'Query took too long'
+                'query': ['Query took too long']
             })
         raise
     finally:
@@ -529,8 +528,8 @@ def delete(context, data_dict):
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
-                'resource_id': u'table for resource {0} does not exist'.format(
-                    data_dict['resource_id'])
+                'resource_id': [u'table for resource {0} does not exist'.format(
+                    data_dict['resource_id'])]
             })
         if not 'filters' in data_dict:
             context['connection'].execute(
@@ -564,14 +563,14 @@ def search(context, data_dict):
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
-                'resource_id': u'table for resource {0} does not exist'.format(
-                    data_dict['resource_id'])
+                'resource_id': [u'table for resource {0} does not exist'.format(
+                    data_dict['resource_id'])]
             })
         return search_data(context, data_dict)
     except Exception, e:
         if 'due to statement timeout' in str(e):
             raise p.toolkit.ValidationError({
-                'query': 'Search took too long'
+                'query': ['Search took too long']
             })
         raise
     finally:

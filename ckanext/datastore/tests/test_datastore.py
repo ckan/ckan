@@ -46,7 +46,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'b\xfck', 'type': 'INVALID'},
+            'fields': [{'id': 'book', 'type': 'INVALID'},
                        {'id': 'author', 'type': 'INVALID'}]
         }
         postparams = '%s=1' % json.dumps(data)
