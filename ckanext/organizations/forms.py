@@ -102,6 +102,13 @@ class OrganizationForm(SingletonPlugin):
         """
         return 'organization_history.html'
 
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'organization_edit.html'
+
     def group_form(self):
         """
         Returns a string representing the location of the template to be

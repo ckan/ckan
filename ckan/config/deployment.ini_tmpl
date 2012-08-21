@@ -158,10 +158,12 @@ ckan.backup_dir = %(here)s/backup
 # Locale/languages
 ckan.locale_default = en
 #ckan.locales_offered = 
-# Default order is roughly by number of people speaking it in Europe:
-# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
-ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr sr_Latn
-ckan.locales_filtered_out = el ro lt sl
+# Languages are grouped by percentage of strings in CKAN 1.8 translated
+# (those with 100% first, then those with >=80%, then >=50%, then <50%) and
+# within these groups roughly sorted by number of worldwide native speakers
+# according to Wikipedia.
+ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
+ckan.locales_filtered_out = 
 
 ## Atom Feeds
 #

@@ -1,26 +1,24 @@
-# Serbian translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # <mirko.spasic@pupin.rs>, 2011, 2012.
-# <mirko.spasic@pupin.rs>, 2012.
 # Sean Hammond <sean.hammond@okfn.org>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-07-31 12:17+0100\n"
-"PO-Revision-Date: 2012-06-22 13:33+0000\n"
-"Last-Translator: mirkospasic <mirko.spasic@pupin.rs>\n"
-"Language-Team: Serbian "
-"(http://www.transifex.com/projects/p/ckan/language/sr/)\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"PO-Revision-Date: 2012-07-31 12:04+0000\n"
+"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"Language-Team: Serbian (http://www.transifex.com/projects/p/ckan/language/sr/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: sr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: ckan/new_authz.py:19
 #, python-format
@@ -56,9 +54,7 @@ msgstr "Додата група ауторизација"
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Немогуће одбацивање пакета %s јер придружена верзија %s садржи пакете "
-"који се не могу обрисати %s"
+msgstr "Немогуће одбацивање пакета %s јер придружена верзија %s садржи пакете који се не могу обрисати %s"
 
 #: ckan/controllers/admin.py:311
 #, python-format
@@ -87,12 +83,12 @@ msgstr "Немате овлашћења да бисте видели ову ст
 msgid "Access denied"
 msgstr "Приступ одбијен"
 
-#: ckan/controllers/api.py:121 ckan/controllers/api.py:192 ckan/lib/base.py:540
-#: ckan/logic/validators.py:61 ckan/logic/validators.py:72
-#: ckan/logic/validators.py:87 ckan/logic/validators.py:101
-#: ckan/logic/validators.py:112 ckan/logic/validators.py:125
-#: ckan/logic/validators.py:139 ckan/logic/validators.py:161
-#: ckan/logic/action/create.py:613
+#: ckan/controllers/api.py:121 ckan/controllers/api.py:192
+#: ckan/lib/base.py:540 ckan/logic/validators.py:61
+#: ckan/logic/validators.py:72 ckan/logic/validators.py:87
+#: ckan/logic/validators.py:101 ckan/logic/validators.py:112
+#: ckan/logic/validators.py:125 ckan/logic/validators.py:139
+#: ckan/logic/validators.py:161 ckan/logic/action/create.py:613
 msgid "Not found"
 msgstr "Није пронађено"
 
@@ -277,17 +273,15 @@ msgstr "Сајт је тренутно недоступан. База није �
 
 #: ckan/controllers/home.py:83
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
 msgstr ""
 
 #: ckan/controllers/home.py:86
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
-"Молимо Вас, <a href=\"%s\">ажурирајте Ваш профил</a> и додајте своју "
-"емаил адресу."
+msgstr "Молимо Вас, <a href=\"%s\">ажурирајте Ваш профил</a> и додајте своју емаил адресу."
 
 #: ckan/controllers/home.py:88
 #, python-format
@@ -297,9 +291,7 @@ msgstr "%s користни Вашу емаил адресу, ако желит�
 #: ckan/controllers/home.py:92
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
-"Молимо Вас, <a href=\"%s\">ажурирајте Ваш профил</a> и додајте своје пуно"
-" име."
+msgstr "Молимо Вас, <a href=\"%s\">ажурирајте Ваш профил</a> и додајте своје пуно име."
 
 #: ckan/controllers/package.py:289 ckan/controllers/package.py:291
 #: ckan/controllers/package.py:293
@@ -402,9 +394,7 @@ msgstr "Лоше попуњена капча. Молимо Вас покушај
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
-"Корисник \"%s\" је сада регистрован, али сте и далје улоговани као \"%s\""
-" од раније"
+msgstr "Корисник \"%s\" је сада регистрован, али сте и далје улоговани као \"%s\" од раније"
 
 #: ckan/controllers/user.py:210
 msgid "No user specified"
@@ -436,9 +426,7 @@ msgstr "Логовање није успело. Погрешно корисни�
 
 #: ckan/controllers/user.py:317
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-msgstr ""
-"(Или ако користите ОпенИД, он није придружен ни једном корисничком "
-"налогу.)"
+msgstr "(Или ако користите ОпенИД, он није придружен ни једном корисничком налогу.)"
 
 #: ckan/controllers/user.py:372
 #, python-format
@@ -496,9 +484,7 @@ msgstr "<strong>Јединствен идентифкиатор</strong> гру�
 #: ckanext/organizations/templates/organization_package_form.html:55
 #: ckanext/publisher_form/templates/dataset_form.html:48
 msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
-"2 или више карактера, велика слова нису дозвољена, употребљавати само "
-"'a-z0-9' и '-_'"
+msgstr "2 или више карактера, велика слова нису дозвољена, употребљавати само 'a-z0-9' и '-_'"
 
 #: ckan/forms/authorization_group.py:55 ckan/forms/group.py:63
 msgid "Details"
@@ -520,9 +506,7 @@ msgstr "Име мора бити најмање %s карактера дугач
 msgid ""
 "Name must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Име мора бити написано малим словима, бројевима, (ASCII карактери) или "
-"неким од ових симбола: -_"
+msgstr "Име мора бити написано малим словима, бројевима, (ASCII карактери) или неким од ових симбола: -_"
 
 #: ckan/forms/common.py:41
 msgid "Dataset name already exists in database"
@@ -584,9 +568,7 @@ msgstr "Група"
 msgid ""
 "Can't derived new group selection from serialized value structured like "
 "this: %s"
-msgstr ""
-"Немогуће извести нову селекцију групе из серијализоване вредности "
-"структуриране на следећи начин: %s"
+msgstr "Немогуће извести нову селекцију групе из серијализоване вредности структуриране на следећи начин: %s"
 
 #: ckan/forms/common.py:906
 msgid "other - please specify"
@@ -616,11 +598,9 @@ msgstr "Краћи описни назив скупа података."
 
 #: ckan/forms/package.py:35
 msgid ""
-"It should not be a description though - save that for the Notes field. Do"
-" not give a trailing full stop."
-msgstr ""
-"Ово не би требало да буде опис, мада - сачувајте га у пољу Белешке. "
-"Немојте стављати тачку на крају."
+"It should not be a description though - save that for the Notes field. Do "
+"not give a trailing full stop."
+msgstr "Ово не би требало да буде опис, мада - сачувајте га у пољу Белешке. Немојте стављати тачку на крају."
 
 #: ckan/forms/package.py:39
 msgid "A unique identifier for the package."
@@ -628,13 +608,10 @@ msgstr "Јединствени идентификатор пакета."
 
 #: ckan/forms/package.py:40
 msgid ""
-"It should be broadly humanly readable, in the spirit of Semantic Web "
-"URIs. Only use an acronym if it is widely recognised. Renaming is "
-"possible but discouraged."
-msgstr ""
-"Требало би да буде јако разумљиво за човека, у духу URI-ја Семантичког "
-"веба. Користити скраћенице само ако су широко прихваћене. Преименовање је"
-" могуће, али није пожељно."
+"It should be broadly humanly readable, in the spirit of Semantic Web URIs. "
+"Only use an acronym if it is widely recognised. Renaming is possible but "
+"discouraged."
+msgstr "Требало би да буде јако разумљиво за човека, у духу URI-ја Семантичког веба. Користити скраћенице само ако су широко прихваћене. Преименовање је могуће, али није пожељно."
 
 #: ckan/forms/package.py:45 ckan/templates/package/new_package_form.html:227
 #: ckanext/organizations/templates/organization_package_form.html:235
@@ -658,21 +635,17 @@ msgstr "нпр: http://www.example.com/growth-figures.html"
 #: ckanext/organizations/templates/organization_package_form.html:205
 #: ckanext/publisher_form/templates/dataset_form.html:166
 msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
-msgstr ""
-"Име главне контакт особе, за питања о овом конкретном скупу података, "
-"користећи е-маил адресу у следећем пољу."
+"The name of the main contact, for enquiries about this particular dataset, "
+"using the e-mail address in the following field."
+msgstr "Име главне контакт особе, за питања о овом конкретном скупу података, користећи е-маил адресу у следећем пољу."
 
 #: ckan/forms/package.py:59 ckan/templates/package/new_package_form.html:212
 #: ckanext/organizations/templates/organization_package_form.html:220
 #: ckanext/publisher_form/templates/dataset_form.html:173
 msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
-msgstr ""
-"Ако постоји још једна важна контакт особа (поред лица у Аутор пољу), онда"
-" детаље навести овде."
+"If there is another important contact person (in addition to the person in "
+"the Author field) then provide details here."
+msgstr "Ако постоји још једна важна контакт особа (поред лица у Аутор пољу), онда детаље навести овде."
 
 #: ckan/forms/package.py:63 ckan/templates/package/resource_read.html:106
 msgid "Licence"
@@ -683,8 +656,9 @@ msgstr "Лиценца"
 msgid "The licence under which the dataset is released."
 msgstr "Лиценца под којом је скуп података објављен."
 
-#: ckan/forms/package.py:68 ckan/forms/package.py:112 ckan/logic/__init__.py:87
-#: ckan/templates/layout_base.html:165 ckan/templates/group/read.html:28
+#: ckan/forms/package.py:68 ckan/forms/package.py:112
+#: ckan/logic/__init__.py:87 ckan/templates/layout_base.html:165
+#: ckan/templates/group/read.html:28
 #: ckan/templates/package/new_package_form.html:122
 #: ckan/templates/package/read.html:44 ckan/templates/package/search.html:24
 #: ckan/templates/tag/index.html:6 ckan/templates/tag/index.html:9
@@ -698,12 +672,9 @@ msgstr "Тагови"
 #: ckan/forms/package.py:69
 #, python-format
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see <a href=\"%s\">this wiki page</a>."
-msgstr ""
-"Запетама раздвојени појмови који могу линковати овај скуп података ка "
-"сличнима. За више информација о конвенцијама, погледајте <a "
-"href=\"%s\">ову вики страницу</a>."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see <a href=\"%s\">this wiki page</a>."
+msgstr "Запетама раздвојени појмови који могу линковати овај скуп података ка сличнима. За више информација о конвенцијама, погледајте <a href=\"%s\">ову вики страницу</a>."
 
 #: ckan/forms/package.py:70 ckan/templates/package/new_package_form.html:127
 #: ckanext/organizations/templates/organization_package_form.html:135
@@ -717,39 +688,24 @@ msgstr "Датотеке које садрже податке или адрес�
 
 #: ckan/forms/package.py:75
 msgid ""
-"<br />These can be repeated as required. For example if the data is being"
-" supplied in multiple formats, or split into different areas or time "
-"periods, each file is a different 'resource' which should be described "
-"differently. They will all appear on the dataset page on CKAN "
-"together.<br /><br /> <b>URL:</b> This is the Internet link directly to "
-"the data - by selecting this link in a web browser, the user will "
-"immediately download the full data set. Note that datasets are not hosted"
-" on this site, but by the publisher of the data. Alternatively the URL "
-"can point to an API server such as a SPARQL endpoint or JSON-P "
-"service.<br /> <b>Format:</b> This should give the file format in which "
-"the data is supplied. <br /><b>Description</b> Any information you want "
-"to add to describe the resource.<br />"
-msgstr ""
-"<br />Ови се могу понављати по потреби. На пример, ако сy подаци доступни"
-" у више формата, или подељени по различитим областима, или временским "
-"периодима, сваки фајл је различит 'ресурс' који би требало да буде "
-"другачије описан. Сви они ће се појавити на страници скупа података на "
-"CKAN-у заједно. <br /><br /> <b>УРЛ:</b> Ово је Интернет линк директно ка"
-" подацима - кликом на овај линк у веб претраживачу, корисник ће одмах "
-"преузети целокупан скуп података. Имајте на уму да скупови података се не"
-" чувају на овом серверу, већ на серверу издавача података. Алтернативно "
-"УРЛ адреса може да укаже на АПИ сервера, као што је SPARQL приступна "
-"тачке или JSON-P сервис. <br /> <b>Формат:</b> Ово треба да да формат "
-"датотеке у којој су подаци доступни. <br /> <b>Опис</b> Било која "
-"информација коју желите да додате за опис ресурса.<br />"
+"<br />These can be repeated as required. For example if the data is being "
+"supplied in multiple formats, or split into different areas or time periods,"
+" each file is a different 'resource' which should be described differently. "
+"They will all appear on the dataset page on CKAN together.<br /><br /> "
+"<b>URL:</b> This is the Internet link directly to the data - by selecting "
+"this link in a web browser, the user will immediately download the full data"
+" set. Note that datasets are not hosted on this site, but by the publisher "
+"of the data. Alternatively the URL can point to an API server such as a "
+"SPARQL endpoint or JSON-P service.<br /> <b>Format:</b> This should give the"
+" file format in which the data is supplied. <br /><b>Description</b> Any "
+"information you want to add to describe the resource.<br />"
+msgstr "<br />Ови се могу понављати по потреби. На пример, ако сy подаци доступни у више формата, или подељени по различитим областима, или временским периодима, сваки фајл је различит 'ресурс' који би требало да буде другачије описан. Сви они ће се појавити на страници скупа података на CKAN-у заједно. <br /><br /> <b>УРЛ:</b> Ово је Интернет линк директно ка подацима - кликом на овај линк у веб претраживачу, корисник ће одмах преузети целокупан скуп података. Имајте на уму да скупови података се не чувају на овом серверу, већ на серверу издавача података. Алтернативно УРЛ адреса може да укаже на АПИ сервера, као што је SPARQL приступна тачке или JSON-P сервис. <br /> <b>Формат:</b> Ово треба да да формат датотеке у којој су подаци доступни. <br /> <b>Опис</b> Било која информација коју желите да додате за опис ресурса.<br />"
 
 #: ckan/forms/package.py:76
 msgid ""
 "Format choices: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Other as "
 "appropriate"
-msgstr ""
-"Избор формата: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Други "
-"прикладни формати"
+msgstr "Избор формата: CSV | RDF | XML | XBRL | SDMX | HTML+RDFa | Други прикладни формати"
 
 #: ckan/forms/package.py:80 ckan/forms/package.py:111
 msgid "Notes"
@@ -761,14 +717,10 @@ msgstr "Главни опис скупа података"
 
 #: ckan/forms/package.py:82
 msgid ""
-"It is often displayed with the package title. In particular, it should "
-"start with a short sentence that describes the data set succinctly, "
-"because the first few words alone may be used in some views of the data "
-"sets."
-msgstr ""
-"Често се приказује са именом пакета. Конкретно, треба да почне са кратком"
-" реченицом која сажето описује скуп података, јер првих неколико речи "
-"могу да се користе у неким приказима скупова података."
+"It is often displayed with the package title. In particular, it should start"
+" with a short sentence that describes the data set succinctly, because the "
+"first few words alone may be used in some views of the data sets."
+msgstr "Често се приказује са именом пакета. Конкретно, треба да почне са кратком реченицом која сажето описује скуп података, јер првих неколико речи могу да се користе у неким приказима скупова података."
 
 #: ckan/forms/package.py:83
 #, python-format
@@ -779,8 +731,9 @@ msgstr "Овде можете користити %sMarkdown форматирањ
 msgid "Basic information"
 msgstr "Основне информације"
 
-#: ckan/forms/package.py:96 ckan/forms/package.py:111 ckan/logic/__init__.py:81
-#: ckan/logic/action/__init__.py:58 ckan/templates/package/layout.html:19
+#: ckan/forms/package.py:96 ckan/forms/package.py:111
+#: ckan/logic/__init__.py:81 ckan/logic/action/__init__.py:58
+#: ckan/templates/package/layout.html:19
 #: ckan/templates/package/read_core.html:26
 msgid "Resources"
 msgstr "Ресурси"
@@ -934,10 +887,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   %(reset_link)s\n"
-msgstr ""
-"Тражили сте да Ваша лозинка са сајта %(site_title)s буде ресетована.\n"
-"Кликните на следећи линк да бисте потврдили овај захтев:\n"
-"%(reset_link)s\n"
+msgstr "Тражили сте да Ваша лозинка са сајта %(site_title)s буде ресетована.\nКликните на следећи линк да бисте потврдили овај захтев:\n%(reset_link)s\n"
 
 #: ckan/lib/mailer.py:95 ckan/templates/user/perform_reset.html:6
 #: ckan/templates/user/perform_reset.html:14
@@ -1052,9 +1002,7 @@ msgstr "Име може бити дуго највише %i карактера"
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"УРЛ адреса мора бити састављена самo од малих алфанумеричких (ASCII) "
-"карактера и ових симбола: -_"
+msgstr "УРЛ адреса мора бити састављена самo од малих алфанумеричких (ASCII) карактера и ових симбола: -_"
 
 #: ckan/logic/validators.py:237
 msgid "That URL is already in use."
@@ -1083,9 +1031,7 @@ msgstr "Дужина тага \"%s\" је вeћа од максималне (%i)
 #: ckan/logic/validators.py:302
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Таг \"%s\" мора бити састављен од алфанумеричких карактера или симбола: "
-"-_."
+msgstr "Таг \"%s\" мора бити састављен од алфанумеричких карактера или симбола: -_."
 
 #: ckan/logic/validators.py:310
 #, python-format
@@ -1112,9 +1058,7 @@ msgstr "Лозинке које сте унели се не поклапају"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Мењања није дозвољено, јер изгледа непожељно. Избегавајте линкове у Вашем"
-" опису."
+msgstr "Мењања није дозвољено, јер изгледа непожељно. Избегавајте линкове у Вашем опису."
 
 #: ckan/logic/validators.py:457
 msgid "That vocabulary name is already in use."
@@ -1123,9 +1067,7 @@ msgstr "То име речника је већ употребљено."
 #: ckan/logic/validators.py:463
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-"Немогуће је променити вредност кључа са %s на %s. Овај кључ је само за "
-"читање"
+msgstr "Немогуће је променити вредност кључа са %s на %s. Овај кључ је само за читање"
 
 #: ckan/logic/validators.py:472
 msgid "Tag vocabulary was not found."
@@ -1352,9 +1294,7 @@ msgstr "Корисник %s није овлашћен да чита пакет %
 
 #: ckan/logic/auth/get.py:110 ckan/logic/auth/update.py:39
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
-"Нема пронађених пакетa за овај ресурс, не може да провери аут (лош "
-"превод)."
+msgstr "Нема пронађених пакетa за овај ресурс, не може да провери аут (лош превод)."
 
 #: ckan/logic/auth/get.py:116 ckan/logic/auth/publisher/get.py:115
 #, python-format
@@ -1716,9 +1656,7 @@ msgstr "Без оцене још увек"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    оцени сада"
+msgstr "–\n    оцени сада"
 
 #: ckan/templates/_util.html:217 ckan/templates/_util.html:273
 msgid "User Group"
@@ -1766,9 +1704,7 @@ msgstr "Додај групу"
 msgid ""
 "You have unsaved changes. Make sure to click 'Save Changes' below before "
 "leaving this page."
-msgstr ""
-"Имате несачуване измене. Обавезно кликните испод на 'Saчувај измене', пре"
-" него сто напустите страницу."
+msgstr "Имате несачуване измене. Обавезно кликните испод на 'Saчувај измене', пре него сто напустите страницу."
 
 #: ckan/templates/js_strings.html:16
 msgid "Loading..."
@@ -1788,9 +1724,7 @@ msgstr "Преглед није доступан за овај тип подат
 
 #: ckan/templates/js_strings.html:16
 msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-msgstr ""
-"Неуспело добијање акретидације за простор за смештање података. Допремање"
-" података се не може наставити"
+msgstr "Неуспело добијање акретидације за простор за смештање података. Допремање података се не може наставити"
 
 #: ckan/templates/js_strings.html:16
 msgid "Checking upload permissions ..."
@@ -1811,7 +1745,8 @@ msgstr "Фајл са подацима"
 msgid "API"
 msgstr "API"
 
-#: ckan/templates/js_strings.html:16 ckan/templates/related/add-related.html:30
+#: ckan/templates/js_strings.html:16
+#: ckan/templates/related/add-related.html:30
 #: ckan/templates/related/dashboard.html:40
 msgid "Visualization"
 msgstr "Визуализација"
@@ -1945,10 +1880,9 @@ msgstr "Можете користити %aMarkdown форматирање%b ов
 
 #: ckan/templates/js_strings.html:16
 #, python-format
-msgid "Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
-msgstr ""
-"Датуми су у %aISO формату%b — нпр. %c2012-12-25%d или "
-"%c2010-05-31T14:30%d."
+msgid ""
+"Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
+msgstr "Датуми су у %aISO формату%b — нпр. %c2012-12-25%d или %c2010-05-31T14:30%d."
 
 #: ckan/templates/js_strings.html:16
 msgid "Data File (Uploaded)"
@@ -2291,8 +2225,7 @@ msgstr "Ауторизација:"
 #: ckan/templates/authorization_group/new.html:10
 #: ckan/templates/authorization_group/read.html:11
 msgid ""
-"Warning: Authorization groups are deprecated and no longer supported. "
-"They will be removed\n"
+"Warning: Authorization groups are deprecated and no longer supported. They will be removed\n"
 "        completely on the next CKAN release."
 msgstr ""
 
@@ -2353,17 +2286,10 @@ msgstr "Преглед"
 
 #: ckan/templates/authorization_group/layout.html:28
 msgid ""
-"Instead of specifying the privileges of specific users on a dataset or "
-"group,\n"
-"          you can also specify a set of users that will share the same "
-"rights. To do that, an    \n"
-"          [1:authorization group] can be set-up and users can be added to"
-" it."
-msgstr ""
-"Уместо навођења привилегија појединачним корисницима на скупу података "
-"или групи, можете одредити скуп корисника који ће делити иста права. Да "
-"би то постигли, [1: група ауторизација] може се подесити и корисници се "
-"могу додати у њу."
+"Instead of specifying the privileges of specific users on a dataset or group,\n"
+"          you can also specify a set of users that will share the same rights. To do that, an    \n"
+"          [1:authorization group] can be set-up and users can be added to it."
+msgstr "Уместо навођења привилегија појединачним корисницима на скупу података или групи, можете одредити скуп корисника који ће делити иста права. Да би то постигли, [1: група ауторизација] може се подесити и корисници се могу додати у њу."
 
 #: ckan/templates/authorization_group/layout.html:32
 msgid "To create a new authorization group, please first [1:login]."
@@ -2465,15 +2391,11 @@ msgstr "Шта су Групе?"
 
 #: ckan/templates/group/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove datasets from it."
-msgstr ""
-"Док су тагови одлични у одржавању скупова података заједно, постоје "
-"прилике када желите да ограничите кориснике у изменама колекције. [1: "
-"Група] може да се подеси да одређује који корисници имају дозволу да "
-"додају или уклањају скупове података из ње."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. A [1:group] can "
+"be set-up to specify which users have permission to add or remove datasets "
+"from it."
+msgstr "Док су тагови одлични у одржавању скупова података заједно, постоје прилике када желите да ограничите кориснике у изменама колекције. [1: Група] може да се подеси да одређује који корисници имају дозволу да додају или уклањају скупове података из ње."
 
 #: ckan/templates/group/layout.html:13 ckan/templates/package/layout.html:38
 #: ckanext/organizations/templates/organization_layout.html:19
@@ -2643,40 +2565,27 @@ msgstr "Статус:"
 #: ckanext/publisher_form/templates/publisher_read.html:61
 #, python-format
 msgid "[1:You searched for \"%(query)s\". ]%(number_of_results)s datasets found."
-msgstr ""
-"[1:Тражили сте \"%(query)s\". ] Пронађено скупова података: "
-"%(number_of_results)s."
+msgstr "[1:Тражили сте \"%(query)s\". ] Пронађено скупова података: %(number_of_results)s."
 
 #: ckan/templates/home/about.html:14
 msgid ""
 "What was the [1:average price] of a house in the UK in 1935? When will "
-"India's projected population [2:overtake] that of China? Where can you "
-"see [3:publicly-funded art] in Seattle? Data to answer many, many "
-"questions like these is out there on the Internet somewhere - but it is "
-"not always easy to find."
-msgstr ""
-"Која је била [1:просечна цена] куће у Србији 1935. године? Када ће "
-"популација Индије [2:престићи] кинеску? Где можете видети [3:јавно "
-"финансирану уметност] у Сијетлу? Подаци који представљају одговоре на ова"
-" и на многа слична питања налазе се негде на интернету - али их није увек"
-" лако наћи."
+"India's projected population [2:overtake] that of China? Where can you see "
+"[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
+" these is out there on the Internet somewhere - but it is not always easy to"
+" find."
+msgstr "Која је била [1:просечна цена] куће у Србији 1935. године? Када ће популација Индије [2:престићи] кинеску? Где можете видети [3:јавно финансирану уметност] у Сијетлу? Подаци који представљају одговоре на ова и на многа слична питања налазе се негде на интернету - али их није увек лако наћи."
 
 #: ckan/templates/home/about.html:16
 #, python-format
 msgid ""
-"%(site_title)s is a community-run catalogue of useful sets of data on the"
-" Internet. You can collect links here to data from around the web for "
-"yourself and others to use, or search for data that others have "
-"collected. Depending on the type of data (and its conditions of use), "
-"%(site_title)s may also be able to store a copy of the data or host it in"
-" a database, and provide some basic visualisation tools."
-msgstr ""
-"%(site_title)s је каталог корисних скупова података на Интернету. Овде "
-"можете чувати линкове ка подацима било где на Вебу да би их и Ви и други "
-"користили, као и претраживати податке који су други сачували. У "
-"зависности од типа података (и услова њиховог коришћења), %(site_title)s "
-"може такође и чувати копију података или је похранити у бази података, "
-"али сервис обезбеђује и неке основне алате за приказ података."
+"%(site_title)s is a community-run catalogue of useful sets of data on the "
+"Internet. You can collect links here to data from around the web for "
+"yourself and others to use, or search for data that others have collected. "
+"Depending on the type of data (and its conditions of use), %(site_title)s "
+"may also be able to store a copy of the data or host it in a database, and "
+"provide some basic visualisation tools."
+msgstr "%(site_title)s је каталог корисних скупова података на Интернету. Овде можете чувати линкове ка подацима било где на Вебу да би их и Ви и други користили, као и претраживати податке који су други сачували. У зависности од типа података (и услова њиховог коришћења), %(site_title)s може такође и чувати копију података или је похранити у бази података, али сервис обезбеђује и неке основне алате за приказ података."
 
 #: ckan/templates/home/about.html:23
 msgid "How it works"
@@ -2685,38 +2594,24 @@ msgstr "Како функционише"
 #: ckan/templates/home/about.html:25
 msgid ""
 "This site is running a powerful piece of open-source data cataloguing "
-"software called [1:CKAN], written and maintained by the [2:Open Knowledge"
-" Foundation]. Each 'dataset' record on CKAN contains a description of the"
-" data and other useful information, such as what formats it is available "
-"in, who owns it and whether it is freely available, and what subject "
-"areas the data is about. Other users can improve or add to this "
-"information (CKAN keeps a fully versioned history)."
-msgstr ""
-"Овај сајт је покренут софтвером за каталогизирање јавних података, званим"
-" [1:CKAN], направљеним и одржаваним од стране [2:Open Knowledge "
-"Foundation]. Сваки 'скуп података' сачуван на CKAN-у садржи опис података"
-" и корисне информације, као што су: у којим фоматима су доступни подаци, "
-"чији су, да ли су слобнодно доступни, и којој области припадају. Други "
-"корисници могу унапредити ове податке, и додавати им нове (CKAN чува "
-"потпуну историју промена)."
+"software called [1:CKAN], written and maintained by the [2:Open Knowledge "
+"Foundation]. Each 'dataset' record on CKAN contains a description of the "
+"data and other useful information, such as what formats it is available in, "
+"who owns it and whether it is freely available, and what subject areas the "
+"data is about. Other users can improve or add to this information (CKAN "
+"keeps a fully versioned history)."
+msgstr "Овај сајт је покренут софтвером за каталогизирање јавних података, званим [1:CKAN], направљеним и одржаваним од стране [2:Open Knowledge Foundation]. Сваки 'скуп података' сачуван на CKAN-у садржи опис података и корисне информације, као што су: у којим фоматима су доступни подаци, чији су, да ли су слобнодно доступни, и којој области припадају. Други корисници могу унапредити ове податке, и додавати им нове (CKAN чува потпуну историју промена)."
 
 #: ckan/templates/home/about.html:27
 msgid ""
-"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub]"
-" is an openly editable open data catalogue, in the style of Wikipedia. "
-"The UK Government uses CKAN to run [2:data.gov.uk], which currently lists"
-" 8,000 government datasets. Official public data from most European "
-"countries is listed in a CKAN catalogue at [3:publicdata.eu]. There is a "
-"comprehensive list of catalogues like these around the world at "
-"[4:datacatalogs.org], which is itself powered by CKAN."
-msgstr ""
-"CKAN покреће велики број каталога података на Интернету. [1:The Data Hub]"
-" је јавни каталог јавних података, у смислу Викитепије. Британска влада "
-"користи CKAN за покретање [2:data.gov.uk], који тренутно броји 8000 "
-"владиних скупова података. Званично јавни подаци из већине европских "
-"земаља се налазе на [3:publicdata.eu]. Постоји свеобухватна листа ових и "
-"сличних каталога на [4:datacatalogs.org], који је такође покренут "
-"CKAN-ом."
+"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub] is"
+" an openly editable open data catalogue, in the style of Wikipedia. The UK "
+"Government uses CKAN to run [2:data.gov.uk], which currently lists 8,000 "
+"government datasets. Official public data from most European countries is "
+"listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
+"list of catalogues like these around the world at [4:datacatalogs.org], "
+"which is itself powered by CKAN."
+msgstr "CKAN покреће велики број каталога података на Интернету. [1:The Data Hub] је јавни каталог јавних података, у смислу Викитепије. Британска влада користи CKAN за покретање [2:data.gov.uk], који тренутно броји 8000 владиних скупова података. Званично јавни подаци из већине европских земаља се налазе на [3:publicdata.eu]. Постоји свеобухватна листа ових и сличних каталога на [4:datacatalogs.org], који је такође покренут CKAN-ом."
 
 #: ckan/templates/home/about.html:30
 msgid "Open data and the Open Knowledge Foundation"
@@ -2726,27 +2621,22 @@ msgstr "Јавни подаци и Фондација доступног зна�
 #, python-format
 msgid ""
 "Most of the data indexed at %(site_title)s is openly licensed, meaning "
-"anyone is free to use or re-use it however they like. Perhaps someone "
-"will take that nice dataset of a city's public art that you found, and "
-"add it to a tourist map - or even make a neat app for your phone that'll "
-"help you find artworks when you visit the city. Open data means more "
-"enterprise, collaborative science and transparent government. You can "
-"read more about open data in the [1:Open Data Handbook]."
+"anyone is free to use or re-use it however they like. Perhaps someone will "
+"take that nice dataset of a city's public art that you found, and add it to "
+"a tourist map - or even make a neat app for your phone that'll help you find"
+" artworks when you visit the city. Open data means more enterprise, "
+"collaborative science and transparent government. You can read more about "
+"open data in the [1:Open Data Handbook]."
 msgstr ""
 
 #: ckan/templates/home/about.html:34
 msgid ""
-"The [1:Open Knowledge Foundation] is a non-profit organisation "
-"[2:promoting] open knowledge: writing and improving CKAN is one of the "
-"ways we do that. If you want to get involved with its design or code, "
-"join the discussion or development [3:mailing lists], or take a look at "
-"the [4:OKFN] site to find out about our other projects."
-msgstr ""
-"[1:Open Knowledge Foundation] је непрофитна организација која "
-"[2:промовише] јавно знање: писање и побољшање CKAN-а је један од начина "
-"на који то радимо. Ако желите да будете укључени у његов дизајн и развој,"
-" придружите се дискусионој или развојној [3:мејлинг листи], или "
-"погледајте сајт [4:OKFN]-a да се информишете о нашим другим пројектима."
+"The [1:Open Knowledge Foundation] is a non-profit organisation [2:promoting]"
+" open knowledge: writing and improving CKAN is one of the ways we do that. "
+"If you want to get involved with its design or code, join the discussion or "
+"development [3:mailing lists], or take a look at the [4:OKFN] site to find "
+"out about our other projects."
+msgstr "[1:Open Knowledge Foundation] је непрофитна организација која [2:промовише] јавно знање: писање и побољшање CKAN-а је један од начина на који то радимо. Ако желите да будете укључени у његов дизајн и развој, придружите се дискусионој или развојној [3:мејлинг листи], или погледајте сајт [4:OKFN]-a да се информишете о нашим другим пројектима."
 
 #: ckan/templates/home/index.html:9
 msgid "Welcome"
@@ -2772,9 +2662,7 @@ msgstr "скуп(ов)а података"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr ""
-"које можете \n"
-"            прегледати, учити о њима и преузети."
+msgstr "које можете \n            прегледати, учити о њима и преузети."
 
 #: ckan/templates/home/index.html:32
 msgid "Share data"
@@ -2828,7 +2716,8 @@ msgstr "има"
 msgid "datasets."
 msgstr "скуп(ов)а података."
 
-#: ckan/templates/package/comments.html:5 ckan/templates/package/history.html:6
+#: ckan/templates/package/comments.html:5
+#: ckan/templates/package/history.html:6
 msgid "- Datasets - History"
 msgstr "- Скупови података - Историја"
 
@@ -2878,12 +2767,9 @@ msgstr "пре снимања (отвара се у новом прозору)."
 #: ckanext/publisher_form/templates/dataset_form.html:246
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
-"contributions under the [2:Open Database License]. Please [3:refrain] "
-"from editing this page if you are [4:not] happy to do this."
-msgstr ""
-"[1:Важно:] Слањем садржаја, слажете се да доприноси буду објављени под "
-"[2:Open Database License]. Молим Вас, [3:уздржите се] од мењања ове "
-"странице ако [4: нисте] задовољни тиме."
+"contributions under the [2:Open Database License]. Please [3:refrain] from "
+"editing this page if you are [4:not] happy to do this."
+msgstr "[1:Важно:] Слањем садржаја, слажете се да доприноси буду објављени под [2:Open Database License]. Молим Вас, [3:уздржите се] од мењања ове странице ако [4: нисте] задовољни тиме."
 
 #: ckan/templates/package/editresources.html:6
 msgid "- Edit Resources - Datasets"
@@ -3001,12 +2887,9 @@ msgstr "Додај: "
 #: ckanext/organizations/templates/organization_package_form.html:134
 #: ckanext/publisher_form/templates/dataset_form.html:157
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see [1:this wiki page]."
-msgstr ""
-"Запетама раздвојени појмови који могу линковати овај скуп података ка "
-"сличнима. За више информација о конвенцијама, погледајте [1:ову вики "
-"страницу]."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see [1:this wiki page]."
+msgstr "Запетама раздвојени појмови који могу линковати овај скуп података ка сличнима. За више информација о конвенцијама, погледајте [1:ову вики страницу]."
 
 #: ckan/templates/package/new_package_form.html:134
 #: ckanext/organizations/templates/organization_package_form.html:142
@@ -3016,11 +2899,8 @@ msgstr "Додај ресурсе"
 #: ckan/templates/package/new_package_form.html:136
 #: ckanext/organizations/templates/organization_package_form.html:144
 msgid ""
-"Upload or link data files, APIs and other materials related to your "
-"dataset."
-msgstr ""
-"Пошаљите или линкујте фајлове са подацима, АПИ-je или друге материјале у "
-"вези са Вашим скупом података."
+"Upload or link data files, APIs and other materials related to your dataset."
+msgstr "Пошаљите или линкујте фајлове са подацима, АПИ-je или друге материјале у вези са Вашим скупом података."
 
 #: ckan/templates/package/new_package_form.html:143
 #: ckanext/organizations/templates/organization_package_form.html:151
@@ -3069,12 +2949,9 @@ msgstr "нпр. 1.2.0"
 #: ckan/templates/package/new_package_form.html:234
 #: ckanext/organizations/templates/organization_package_form.html:242
 msgid ""
-"Adding custom fields to the dataset such as \"location:uk\" can help "
-"users find it in the search engine. This data will also appear under"
-msgstr ""
-"Додавање прилагођених поља скупу података као што су \"локација:ср\" могу"
-" помоћи корисницима да га нађу приликом претраге. Ови подаци ће се такође"
-" појавити испод"
+"Adding custom fields to the dataset such as \"location:uk\" can help users "
+"find it in the search engine. This data will also appear under"
+msgstr "Додавање прилагођених поља скупу података као што су \"локација:ср\" могу помоћи корисницима да га нађу приликом претраге. Ови подаци ће се такође појавити испод"
 
 #: ckan/templates/package/new_package_form.html:234
 #: ckan/templates/package/read_core.html:49
@@ -3122,18 +2999,15 @@ msgstr "Укратко опишите промене које сте напра�
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr ""
-"Пошто нисте пријављени, за идентификацију ће се користити Ваша IP-адреса."
-"\n"
-"[1: Кликните овде да бисте се пријавили] пре снимања (отвара се у новом "
-"прозору)."
+msgstr "Пошто нисте пријављени, за идентификацију ће се користити Ваша IP-адреса.\n[1: Кликните овде да бисте се пријавили] пре снимања (отвара се у новом прозору)."
 
 #: ckan/templates/package/new_package_form.html:309
 msgid "Important:"
 msgstr "Важно:"
 
 #: ckan/templates/package/new_package_form.html:309
-msgid "By submitting content, you agree to release your contributions under the"
+msgid ""
+"By submitting content, you agree to release your contributions under the"
 msgstr "Слањем садржаја, слажете се да оставите овај допринос под"
 
 #: ckan/templates/package/new_package_form.html:309
@@ -3244,9 +3118,7 @@ msgstr "Оригинални извор"
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr ""
-"[1:Страница скупа података] на \n"
-"            [2:%(harvest_catalogue_name)s]"
+msgstr "[1:Страница скупа података] на \n            [2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates/package/resource_embedded_dataviewer.html:87
 #: ckan/templates/package/resource_read.html:58
@@ -3268,9 +3140,7 @@ msgstr "АПИ података"
 
 #: ckan/templates/package/resource_read.html:87
 msgid "Data API is unavailable for this resource as DataStore is disabled"
-msgstr ""
-"АПИ података није на располагању за овај ресурс јер је DataStore "
-"онемогућен"
+msgstr "АПИ података није на располагању за овај ресурс јер је DataStore онемогућен"
 
 #: ckan/templates/package/resource_read.html:100
 msgid "Last updated"
@@ -3337,9 +3207,7 @@ msgstr "копију"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr ""
-"[1:Дошло је до грешке приликом претраге.] \n"
-"            Молимо Вас, покушајте поново."
+msgstr "[1:Дошло је до грешке приликом претраге.] \n            Молимо Вас, покушајте поново."
 
 #: ckan/templates/package/search.html:54
 #, python-format
@@ -3525,9 +3393,7 @@ msgstr "Историја верзија"
 msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
-msgstr ""
-"Листа најновијих измена на систему, са најновијим променама\n"
-"     прво наведеним."
+msgstr "Листа најновијих измена на систему, са најновијим променама\n     прво наведеним."
 
 #: ckan/templates/revision/read.html:6
 msgid "Revision:"
@@ -3566,9 +3432,7 @@ msgstr "Скуп података -"
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Таг -"
+msgstr ",\n      Таг -"
 
 #: ckan/templates/snippets/data-viewer-embed-dialog.html:13
 msgid "Embed Data Viewer"
@@ -3607,10 +3471,7 @@ msgstr "Ентитет"
 msgid ""
 "This upload form is valid for a limited time (usually 1h or so). If the\n"
 "    form expires please reload the page."
-msgstr ""
-"Ова форма ѕа допремање је валидна ограничено време (обично 1 сат или "
-"слично). Ако\n"
-"    форма истекне, учитајте поново страницу."
+msgstr "Ова форма ѕа допремање је валидна ограничено време (обично 1 сат или слично). Ако\n    форма истекне, учитајте поново страницу."
 
 #: ckan/templates/storage/index.html:33
 msgid "File:"
@@ -3742,8 +3603,8 @@ msgstr "Корисничко име"
 
 #: ckan/templates/user/edit_user_form.html:66
 msgid ""
-"Changing your username will log you out, and require you to log back in "
-"with the new username"
+"Changing your username will log you out, and require you to log back in with"
+" the new username"
 msgstr ""
 
 #: ckan/templates/user/followers.html:6
@@ -3837,11 +3698,9 @@ msgstr "Пријавите се користећи Open ID"
 
 #: ckan/templates/user/login.html:62
 msgid ""
-"NB: To set-up your OpenID for this site, you first need to [1:Register] "
-"and then edit your Profile to provide your OpenID."
-msgstr ""
-"Напомена: Да бисте подесили свој ОпенИД за овај сајт, прво морате да се "
-"[1: Региструјте] а затим уредите свој профил да обезбедите свој ОпенИД."
+"NB: To set-up your OpenID for this site, you first need to [1:Register] and "
+"then edit your Profile to provide your OpenID."
+msgstr "Напомена: Да бисте подесили свој ОпенИД за овај сајт, прво морате да се [1: Региструјте] а затим уредите свој профил да обезбедите свој ОпенИД."
 
 #: ckan/templates/user/login.html:64
 msgid "Please click your account provider:"
@@ -3860,18 +3719,9 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
 "          about OpenID] and [2:how to get an\n"
-"          OpenID enabled account]. Probably the simplest way is sign up "
-"with a\n"
+"          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID је сервис који омогућава да се пријавите, на много различитих "
-"сајтова\n"
-"          користећи један идентитет. Сазнајте [1:више\n"
-"          о OpenID] и [2:како\n"
-"          активирати OpenID налог]. Вероватно најједноставнији начин је "
-"регистровати се са\n"
-"          слободног OpenID провајдера, као што је "
-"[3:https://www.myopenid.com/]."
+msgstr "OpenID је сервис који омогућава да се пријавите, на много различитих сајтова\n          користећи један идентитет. Сазнајте [1:више\n          о OpenID] и [2:како\n          активирати OpenID налог]. Вероватно најједноставнији начин је регистровати се са\n          слободног OpenID провајдера, као што је [3:https://www.myopenid.com/]."
 
 #: ckan/templates/user/login.html:83
 msgid "Sign in with OpenID"
@@ -4001,7 +3851,8 @@ msgid "Your application has been submitted"
 msgstr ""
 
 #: ckanext/organizations/controllers.py:98
-msgid "There was a problem with your submission, please correct it and try again"
+msgid ""
+"There was a problem with your submission, please correct it and try again"
 msgstr ""
 
 #: ckanext/organizations/forms.py:29
@@ -4023,8 +3874,8 @@ msgstr ""
 
 #: ckanext/organizations/templates/organization_apply_form.html:37
 msgid ""
-"Please explain to the owner your reasons for wishing to become an editor "
-"of this organization"
+"Please explain to the owner your reasons for wishing to become an editor of "
+"this organization"
 msgstr ""
 
 #: ckanext/organizations/templates/organization_apply_form.html:44
@@ -4067,10 +3918,10 @@ msgstr ""
 
 #: ckanext/organizations/templates/organization_index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. An "
-"[1:organization] can be set-up to specify which users have permission to "
-"add or remove datasets from it."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. An "
+"[1:organization] can be set-up to specify which users have permission to add"
+" or remove datasets from it."
 msgstr ""
 
 #: ckanext/organizations/templates/organization_layout.html:28
@@ -4151,12 +4002,12 @@ msgstr ""
 msgid ""
 "\"\n"
 "\n"
-"Please contact the user to verify and then if you would like to add this "
-"user you can do so by visiting"
+"Please contact the user to verify and then if you would like to add this user you can do so by visiting"
 msgstr ""
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:9
-msgid "If you do not wish to add this user you can safely disregard this email."
+msgid ""
+"If you do not wish to add this user you can safely disregard this email."
 msgstr ""
 
 #: ckanext/publisher_form/templates/dataset_form.html:53
@@ -4206,10 +4057,10 @@ msgstr ""
 
 #: ckanext/publisher_form/templates/publisher_index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:publisher] can be set-up to specify which users have permission to add"
-" or remove datasets from it."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. A [1:publisher] "
+"can be set-up to specify which users have permission to add or remove "
+"datasets from it."
 msgstr ""
 
 #: ckanext/publisher_form/templates/publisher_layout.html:41
@@ -4236,11 +4087,9 @@ msgstr ""
 #: ckanext/stats/public/ckanext/stats/demo.html:13
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"Изаберите атрибут скупа података и сазнајте која категорија у тој области"
-" има највише скупова података. Нпр тагови, групе, лиценце, земља."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "Изаберите атрибут скупа података и сазнајте која категорија у тој области има највише скупова података. Нпр тагови, групе, лиценце, земља."
 
 #: ckanext/stats/public/ckanext/stats/demo.html:15
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:20
@@ -4302,99 +4151,3 @@ msgstr "Контролна табла - Статистика"
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:17
 msgid "Dataset Leaderboard"
 msgstr "Контролна табла скупова података"
-
-#~ msgid "Missing search term ('since_id=UUID' or 'since_time=TIMESTAMP')"
-#~ msgstr ""
-#~ "Није наведен појам претраге ('since_id=UUID'"
-#~ " или 'since_time=TIMESTAMP')"
-
-#~ msgid ""
-#~ "Please <a href=\"%s\">update your profile</a>"
-#~ " and add your email address and "
-#~ "your full name. "
-#~ msgstr ""
-#~ "Молимо Вас, <a href=\"%s\">ажурирајте Ваш "
-#~ "профил</a> и додајте своју емаил адресу"
-#~ " и пуно име."
-
-#~ msgid "Related was not found."
-#~ msgstr "Ништа сродно није пронађно."
-
-#~ msgid "View this related item"
-#~ msgstr "Погледај сродну ставку"
-
-#~ msgid "(facet_item['count'])"
-#~ msgstr "(facet_item['count'])"
-
-#~ msgid "Should a %aDataStore table and Data API%b be enabled for this resource?"
-#~ msgstr ""
-#~ "Да ли ће %aDataStore табела и АПИ"
-#~ " података%b бити омогућени за овај "
-#~ "ресурс?"
-
-#~ msgid ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Manual]."
-#~ msgstr ""
-#~ "Већина података индексираних на %(site_title)s"
-#~ " је под јавним лиценцама, што значи"
-#~ " да је било ко слободан да их"
-#~ " користи на било који начин. Можда"
-#~ " ће неко узети тај користан скуп "
-#~ "података о уметности у граду који "
-#~ "сте Ви нашли, и ставити га у "
-#~ "туристичку мапу града - или чак "
-#~ "направити дивну апликацију за Ваш "
-#~ "телефон која ће Вам користити да "
-#~ "нађете нека уметничка дела када сте "
-#~ "у посети неком граду. Јавни подаци "
-#~ "поспешују интердисциплинарну науку и "
-#~ "транспарентност владе. Можете прочитати више"
-#~ " о јавним подацима у [1:Приручнику о"
-#~ " јавним подацима]."
-
-#~ msgid ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "        to find other people interested in your data."
-#~ msgstr ""
-#~ "Додајте сопствене скупове података да "
-#~ "бисте их делили са другима и да"
-#~ " бисте пронашли друге људе који су"
-#~ " заинтересовани за Ваше податке."
-
-#~ msgid ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "        these resources:"
-#~ msgstr "Сазнајте више о раду са јавним подацима истражујући ове ресурсе:"
-
-#~ msgid "Open Data Manual"
-#~ msgstr "Упутство о Јавним подацима"
-
-#~ msgid "RDF/Turtle"
-#~ msgstr "RDF/Turtle"
-
-#~ msgid "- Related"
-#~ msgstr "- Сродно"
-
-#~ msgid "Related items"
-#~ msgstr "Сродни "
-
-#~ msgid "Add related item"
-#~ msgstr "Додај сродне ставке"
-
-#~ msgid "There are no related items here yet"
-#~ msgstr "Нема сродних ставки још увек"
-

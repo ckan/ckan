@@ -7,7 +7,7 @@ from sqlalchemy.util import OrderedDict
 import meta
 import core
 
-__all__ = ['DomainObject']
+__all__ = ['DomainObject', 'DomainObjectOperation']
 
 class Enum(set):
     '''Simple enumeration

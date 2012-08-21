@@ -62,9 +62,29 @@ def deprecate_context_item(item_name, message=''):
     # prevent a circular import
     from ckan.lib.base import c
 
-    def get_item(self):
-        log.warning('c.%s has been deprecated. %s', item_name, message)
-        return getattr(c._current_obj(), item_name)
 
-    setattr(c.__class__, item_name, property(get_item))
+    # we need to store the origional __getattr__ and replace with our own one
+    if not hasattr(c.__class__, '__old_getattr__'):
+        def custom__getattr__(self, name):
+            # get the origional __getattr__ so we can access things
+            __old_getattr__ = self.__class__.__dict__['__old_getattr__']
+            # see if we have a __depricated_properties__ for this name and
+            # if so log a warning
+            try:
+                depricated = __old_getattr__(self, '__depricated_properties__')
+                if name in depricated:
+                    log.warn(depricated[name])
+            except AttributeError:
+                pass
+            # return the requested value
+            return __old_getattr__(self, name)
 
+        # get store the old __getattr__ method and then replace it
+        __old_getattr__ =  getattr(c.__class__, '__getattr__')
+        setattr(c.__class__, '__old_getattr__', __old_getattr__)
+        setattr(c.__class__, '__getattr__', custom__getattr__)
+
+    # if c.__depricated_properties__ is not set it returns ''
+    if not c.__depricated_properties__:
+        c.__depricated_properties__ = {}
+    c.__depricated_properties__[item_name] = message
