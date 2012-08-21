@@ -12,9 +12,9 @@
       <form method='post' action="" class="form-horizontal">
           {{ autoform.generate(form_items, data, errors) }}
         <div class="form-actions">
-          {# Update needs to come first so form submits when return is pressed #}
-          <button type="submit" class="btn btn-primary" name="save">Update</button>
-          <button type="submit" class="btn" name="reset">Reset</button>
+          {% set locale = h.dump_json({'content': _('Are you sure you want to reset the config?')}) %}
+            <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
+            <button type="submit" class="btn btn-primary" name="save">{{ _('Update') }}</button>
         </div>
       </form>
     </div>
