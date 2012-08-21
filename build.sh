@@ -43,21 +43,14 @@ rm -rf ${CKAN_PATH}/build/buildkit/env/src
 mkdir -p ${CKAN_PATH}/dist/buildkit
 echo "done."
 
-# In lieu of a requires directory, copy the pip-requirements into
-# requires/lucid_conflict.  This ensures that the required packages
-# are installed in a way so as not to clobber any existing
-# system-wide dependencies.
-mkdir "${CKAN_PATH}/requires"
-cp "${CKAN_PATH}/pip-requirements.txt" "${CKAN_PATH}/requires/${UBUNTU_RELEASE}_conflict.txt"
-
 echo "Building the packages ..."
 # Create the python-ckan debian package
 buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --delete "solrpy" \
                     --distro-dep "python-solr" \
-                    --distro-dep "libc6" \
-                    --distro-dep "libpq5" \
                     --delete "repoze.who-friendlyform" \
+                    --rename "repoze.who.plugins.openid -> repoze.who-plugins" \
+                    --rename "babel -> pybabel" \
                     --author-email="$EMAIL" \
                     --author-name="$NAME" \
                     --packager-email="$EMAIL" \
