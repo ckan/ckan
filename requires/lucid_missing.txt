@@ -6,8 +6,6 @@
 -e git+https://github.com/okfn/vdm.git@vdm-0.11#egg=vdm
 
 # Packages already on pypi.python.org
-pyutilib.component.core==4.5.3
-
 solrpy==0.9.5
 formalchemy==1.4.2
 pairtree==0.7.1-T
