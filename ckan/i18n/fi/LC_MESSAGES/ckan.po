@@ -6,6 +6,7 @@
 # <amercadero@gmail.com>, 2012.
 # henkka <henri.ahti@gmail.com>, 2011.
 # <henri.ahti@gmail.com>, 2012.
+#   <henri.ahti@gmail.com>, 2012.
 # <internet@davidread.org>, 2011.
 # <jaakko.louhio@floapps.com>, 2012.
 # okfn <sysadmin@okfn.org>, 2011.
@@ -15,8 +16,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-07-31 12:17+0100\n"
-"PO-Revision-Date: 2012-07-31 12:03+0000\n"
-"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"PO-Revision-Date: 2012-08-20 10:54+0000\n"
+"Last-Translator: henkka <henri.ahti@gmail.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/projects/p/ckan/language/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -173,7 +174,7 @@ msgstr "Revisiota tällä tunnisteella ei löydy: %s"
 
 #: ckan/controllers/api.py:472
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
+msgstr "Puuttuva hakutermi ('since_id=UUID' or  'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:482
 #, python-format
@@ -281,7 +282,7 @@ msgid ""
 "Please <a href=\"{link}\">update your profile</a> and add your email address"
 " and your full name. {site} uses your email address if you need to reset "
 "your password."
-msgstr ""
+msgstr "Ole hyvä <a href=\"{link}\">ja päivitä profiilisi</a> ja lisää sähköpostiosoitteest ja koko nimesi. {site} käyttää sähköpostiosoitettasi jos sinulle täytyy lähettää salasanan resetointi."
 
 #: ckan/controllers/home.py:86
 #, python-format
@@ -344,11 +345,11 @@ msgstr "Ei voitu päivittää hakuindeksiä"
 
 #: ckan/controllers/package.py:814
 msgid "No download is available"
-msgstr ""
+msgstr "Ei ladattavaa saatavilla"
 
 #: ckan/controllers/related.py:75
 msgid "The requested related item was not found"
-msgstr ""
+msgstr "Pyydettyä kohdetta ei löytynyt"
 
 #: ckan/controllers/revision.py:41
 msgid "CKAN Repository Revision History"
@@ -1094,7 +1095,7 @@ msgstr "Avainsana %s sisältyy jo sanastoon %s"
 
 #: ckan/logic/validators.py:527
 msgid "Please provide a valid URL"
-msgstr ""
+msgstr "Ole hyvä ja anna validi URL"
 
 #: ckan/logic/action/create.py:143 ckan/logic/action/create.py:529
 #, python-format
@@ -1130,11 +1131,11 @@ msgstr "Luokitus pitää olla väliltä %i ja %i."
 
 #: ckan/logic/action/create.py:893
 msgid "You cannot follow yourself"
-msgstr ""
+msgstr "Et voi seurata itseäsi"
 
 #: ckan/logic/action/create.py:898 ckan/logic/action/create.py:965
 msgid "You are already following {id}"
-msgstr ""
+msgstr "Seuraat jo tätä: {id}"
 
 #: ckan/logic/action/delete.py:40
 #, python-format
@@ -1164,23 +1165,23 @@ msgstr "Ei löytynyt avainsanaa %s"
 
 #: ckan/logic/action/delete.py:308
 msgid "Could not find follower {follower} -> {object}"
-msgstr ""
+msgstr "Ei löydetty seuraajaa {follower} -> {object}"
 
 #: ckan/logic/action/get.py:1300
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "Älä määrittele jos käytät \"query\" parametria"
 
 #: ckan/logic/action/get.py:1309
 msgid "Must be <field>:<value> pair(s)"
-msgstr ""
+msgstr "Täytyy olla <field>:<value> pari(eja)"
 
 #: ckan/logic/action/get.py:1337
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "Kentää \"{field}\" ei tunnistettu toiminnossa resource_search."
 
 #: ckan/logic/action/update.py:137
 msgid "Item was not found."
-msgstr ""
+msgstr "Kohteita ei löytynyt."
 
 #: ckan/logic/action/update.py:178
 msgid "Resource was not found."
@@ -1217,7 +1218,7 @@ msgstr "Käyttäjällä %s ei ole oikeuksia muokata näitä ryhmiä"
 
 #: ckan/logic/auth/create.py:34
 msgid "You must be a sysadmin to create a featured related item"
-msgstr ""
+msgstr "Sinun täytyy olla sysadmin luodaksesi tämän"
 
 #: ckan/logic/auth/create.py:38 ckan/logic/auth/publisher/create.py:31
 msgid "You must be logged in to add a related item"
@@ -1225,7 +1226,7 @@ msgstr "Sinun täytyy olla kirjautunut lisätäksesi liittyvä asia"
 
 #: ckan/logic/auth/create.py:50 ckan/logic/auth/publisher/create.py:56
 msgid "You must be logged in to create a resource"
-msgstr ""
+msgstr "Sinun pitää olla kirjautunut luodaksesi resurssin"
 
 #: ckan/logic/auth/create.py:66 ckan/logic/auth/publisher/create.py:81
 #, python-format
@@ -1344,7 +1345,7 @@ msgstr "Vain omistaja voi päivittää liittyvän asian"
 
 #: ckan/logic/auth/update.py:102
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr ""
+msgstr "Sinun täytyy olla sysadmin muuttaaksesi tämän kenttää"
 
 #: ckan/logic/auth/update.py:115
 #, python-format
@@ -1391,11 +1392,11 @@ msgstr "Ryhmän muokkaukseen tarvitaan voimassoleva API avain"
 
 #: ckan/logic/auth/publisher/create.py:21
 msgid "You must be logged in and be within a group to create a package"
-msgstr ""
+msgstr "Sinun täytyy olla kirjautunut ja kuulua ryhmään luodaksesi paketti"
 
 #: ckan/logic/auth/publisher/create.py:40
 msgid "You do not have permission to create an item"
-msgstr ""
+msgstr "Sinulla ei ole oikeuksia luoda kohdetta"
 
 #: ckan/logic/auth/publisher/create.py:73
 msgid "Two package IDs are required"
@@ -1473,31 +1474,31 @@ msgstr "Lisenssiä ei määritelty"
 
 #: ckan/model/license.py:183
 msgid "Open Data Commons Public Domain Dedication and Licence (PDDL)"
-msgstr ""
+msgstr "Open Data Commons Public Domain Dedication and Licence (PDDL)"
 
 #: ckan/model/license.py:193
 msgid "Open Data Commons Open Database License (ODbL)"
-msgstr ""
+msgstr "Open Data Commons Open Database License (ODbL)"
 
 #: ckan/model/license.py:203
 msgid "Open Data Commons Attribution License"
-msgstr ""
+msgstr "Open Data Commons Attribution License"
 
 #: ckan/model/license.py:214
 msgid "Creative Commons CCZero"
-msgstr ""
+msgstr "Creative Commons CCZero"
 
 #: ckan/model/license.py:223
 msgid "Creative Commons Attribution"
-msgstr ""
+msgstr "Creative Commons Attribution"
 
 #: ckan/model/license.py:233
 msgid "Creative Commons Attribution Share-Alike"
-msgstr ""
+msgstr "Creative Commons Attribution Share-Alike"
 
 #: ckan/model/license.py:242
 msgid "GNU Free Documentation License"
-msgstr ""
+msgstr "GNU Free Documentation License"
 
 #: ckan/model/license.py:252
 msgid "Other (Open)"
@@ -1513,11 +1514,11 @@ msgstr "Muu (Attribution)"
 
 #: ckan/model/license.py:282
 msgid "UK Open Government Licence (OGL)"
-msgstr ""
+msgstr "UK Open Government Licence (OGL)"
 
 #: ckan/model/license.py:290
 msgid "Creative Commons Non-Commercial (Any)"
-msgstr ""
+msgstr "Creative Commons Non-Commercial (Any)"
 
 #: ckan/model/license.py:298
 msgid "Other (Non-Commercial)"
@@ -1651,7 +1652,7 @@ msgstr "Tällä asialla ei ole kuvausta"
 
 #: ckan/templates/_util.html:141
 msgid "View this"
-msgstr ""
+msgstr "Näytä tämä"
 
 #: ckan/templates/_util.html:163
 msgid "no ratings yet"
@@ -1868,7 +1869,7 @@ msgstr "Lisää lisäkenttä"
 
 #: ckan/templates/js_strings.html:16
 msgid "Key"
-msgstr ""
+msgstr "Avain"
 
 #: ckan/templates/js_strings.html:16 ckan/templates/package/read_core.html:58
 #: ckan/templates/package/resource_read.html:162
@@ -1896,24 +1897,24 @@ msgstr "Datatiedosto (Tallennettu)"
 #: ckan/templates/js_strings.html:16
 #: ckan/templates/snippets/follow_button.html:9
 msgid "Follow"
-msgstr ""
+msgstr "Seuraa"
 
 #: ckan/templates/js_strings.html:16
 #: ckan/templates/snippets/follow_button.html:8
 msgid "Unfollow"
-msgstr ""
+msgstr "Lopeta seuraaminen"
 
 #: ckan/templates/js_strings.html:16
 msgid "Could not load preview"
-msgstr ""
+msgstr "Esikatselua ei pystytty lataamaan"
 
 #: ckan/templates/js_strings.html:16
 msgid "DataProxy returned an error"
-msgstr ""
+msgstr "Dataproxy palautti virheen"
 
 #: ckan/templates/js_strings.html:16
 msgid "DataStore returned an error"
-msgstr ""
+msgstr "Dataproxy palautti virheen"
 
 #: ckan/templates/layout_base.html:56 ckan/templates/user/logout.html:7
 msgid "Logout"
@@ -2080,7 +2081,7 @@ msgstr "{actor} poisti lisäkentän {object} tietoaineistosta {target}"
 
 #: ckan/templates/activity_streams/deleted_related_item.html:8
 msgid "{actor} deleted the related item {object}"
-msgstr ""
+msgstr "{actor} poisti kohteen {object}"
 
 #: ckan/templates/activity_streams/deleted_resource.html:8
 msgid "{actor} deleted the resource {object} from the dataset {target}"
@@ -2089,7 +2090,7 @@ msgstr "{actor} poisti resurssin {object} tietoaineistosta {target}"
 #: ckan/templates/activity_streams/follow_dataset.html:8
 #: ckan/templates/activity_streams/follow_user.html:8
 msgid "{actor} started following {object}"
-msgstr ""
+msgstr "{actor} aloitti seuraamaan kohdetta {object}"
 
 #: ckan/templates/activity_streams/new_group.html:8
 msgid "{actor} created the group {object}"
@@ -2106,7 +2107,7 @@ msgstr "{actor} lisäsi lisäkentän {object} tietoaineistoon {target}"
 #: ckan/templates/activity_streams/new_related_item.html:7
 #, python-format
 msgid "{actor} created the link to related %s {object}"
-msgstr ""
+msgstr "{actor} loi linkin %s {object}"
 
 #: ckan/templates/activity_streams/new_resource.html:8
 msgid "{actor} added the resource {object} to the dataset {target}"
@@ -2232,7 +2233,7 @@ msgstr "Valtuutus:"
 msgid ""
 "Warning: Authorization groups are deprecated and no longer supported. They will be removed\n"
 "        completely on the next CKAN release."
-msgstr ""
+msgstr "Varoitus: Autorisointi ryhmät eivät ole enää tuettu. Ne poistetaan kokonaan seuraavassa CKAN julkaisussa."
 
 #: ckan/templates/authorization_group/authz.html:19
 #: ckan/templates/authorization_group/authz.html:37
@@ -2557,7 +2558,7 @@ msgstr "Pääkäyttäjät"
 #: ckan/templates/group/read.html:29 ckan/templates/package/search.html:25
 #: ckanext/publisher_form/templates/publisher_read.html:34
 msgid "Resource Formats"
-msgstr ""
+msgstr "Resurssien tyypit"
 
 #: ckan/templates/group/read.html:33
 #: ckanext/organizations/templates/organization_read.html:56
@@ -2632,7 +2633,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Handbook]."
-msgstr ""
+msgstr "Suurin osa datasta indeksoituna sivulla %(site_title)s on avoimesti lisensoitu, tarkoittaen että kuka vaan voi vapaasti käyttää tai uudelleen käyttää mihin haluavat. Ehkä joku ottaa löytämäsi tietoaineiston kaupungin julkisesta taiteesta, lisää siihen turistikartan - tai tekee ehkä hienon sovelluksen joka auttaa ihmisiä löytymään kaupungista taidekohteita.  Avoin data auttaa viemään eteenpäin yrittämistä, tieteellistä toimintaa ja läpinäkyvämpää julkishallintoa. Voit lukea enemmän avoimesta datasta täältä [1:Open Data Handbook]."
 
 #: ckan/templates/home/about.html:34
 msgid ""
@@ -2677,7 +2678,7 @@ msgstr "Jaa tietoaineisto"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "          to find other people interested in your data."
-msgstr ""
+msgstr "Lisää oma tietoaineistosi jakaaksesi muiden kanssa ja\n          löydä muita ihmisiä jotka ovat kiinnostuneita datastasi."
 
 #: ckan/templates/home/index.html:38
 msgid "Create a dataset »"
@@ -2695,7 +2696,7 @@ msgstr "Työskentele yhdessä"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
+msgstr "Löydät lisää tietoa avoimen datan parissa työskentelystä \n         näistä lähteistä:"
 
 #: ckan/templates/home/index.html:54
 msgid "GetTheData.org"
@@ -2707,7 +2708,7 @@ msgstr "DataPatterns.org"
 
 #: ckan/templates/home/index.html:56
 msgid "Open Data Handbook"
-msgstr ""
+msgstr "Open Data Handbook"
 
 #: ckan/templates/home/index.html:64
 msgid "Who else is here?"
@@ -2786,11 +2787,11 @@ msgstr "Muokkaa aineistolinkkejä:"
 
 #: ckan/templates/package/followers.html:6
 msgid "- Datasets - Followers"
-msgstr ""
+msgstr "- Tietoaineistot - Seuraajat"
 
 #: ckan/templates/package/followers.html:7
 msgid "Followers:"
-msgstr ""
+msgstr "Seuraajat:"
 
 #: ckan/templates/package/followers.html:8
 #: ckan/templates/related/dashboard.html:14
@@ -2801,7 +2802,7 @@ msgstr "no-sidebar"
 
 #: ckan/templates/package/followers.html:11 ckan/templates/user/read.html:65
 msgid "Followers"
-msgstr ""
+msgstr "Seuraajat"
 
 #: ckan/templates/package/form_extra_fields.html:12
 #: ckanext/publisher_form/templates/dataset_form.html:199
@@ -2836,11 +2837,11 @@ msgstr "Lisää / Muokkaa aineistolinkkejä"
 #: ckan/templates/package/layout.html:37
 #: ckan/templates/related/related_list.html:26
 msgid "Apps, Ideas etc"
-msgstr ""
+msgstr "Sovellukset, ideat jne."
 
 #: ckan/templates/package/layout.html:40 ckan/templates/user/layout.html:27
 msgid "Followers ({num_followers})"
-msgstr ""
+msgstr "Seuraajia ({num_followers})"
 
 #: ckan/templates/package/layout.html:53
 msgid "Settings"
@@ -3230,133 +3231,133 @@ msgstr "Haku..."
 #: ckan/templates/related/add-related.html:12
 #: ckan/templates/related/related_list.html:26
 msgid "Add item"
-msgstr ""
+msgstr "Lisää kohde"
 
 #: ckan/templates/related/add-related.html:18
 #: ckan/templates/related/add-related.html:38
 msgid "(required)"
-msgstr ""
+msgstr "(tarvitaan)"
 
 #: ckan/templates/related/add-related.html:19
 msgid "Please add the title for the item"
-msgstr ""
+msgstr "Ole hyvä ja lisää otsikko kohteelle"
 
 #: ckan/templates/related/add-related.html:22
 msgid "Type of item"
-msgstr ""
+msgstr "Kohteen tyyppi"
 
 #: ckan/templates/related/add-related.html:25
 #: ckan/templates/related/dashboard.html:35
 msgid "Application"
-msgstr ""
+msgstr "Sovellus"
 
 #: ckan/templates/related/add-related.html:26
 #: ckan/templates/related/dashboard.html:36
 msgid "Idea"
-msgstr ""
+msgstr "Idea"
 
 #: ckan/templates/related/add-related.html:27
 #: ckan/templates/related/dashboard.html:37
 msgid "News Article"
-msgstr ""
+msgstr "Uutisartikkeli"
 
 #: ckan/templates/related/add-related.html:28
 #: ckan/templates/related/dashboard.html:38
 msgid "Paper"
-msgstr ""
+msgstr "Artikkeli"
 
 #: ckan/templates/related/add-related.html:29
 #: ckan/templates/related/dashboard.html:39
 msgid "Post"
-msgstr ""
+msgstr "Kirjoitus"
 
 #: ckan/templates/related/add-related.html:35
 msgid "Please describe the item"
-msgstr ""
+msgstr "Ole hyvä ja kuvaa kohteen tyyppi"
 
 #: ckan/templates/related/add-related.html:39
 msgid "Please add a url"
-msgstr ""
+msgstr "Ole hyvä ja lisää URL"
 
 #: ckan/templates/related/add-related.html:42
 msgid "Image URL"
-msgstr ""
+msgstr "Kuvan URL"
 
 #: ckan/templates/related/add-related.html:43
 msgid "Please add a link to the image"
-msgstr ""
+msgstr "Ole hyvä ja lisää linkki kuvaan"
 
 #: ckan/templates/related/add-related.html:46
 msgid "Submit"
-msgstr ""
+msgstr "Lähetä"
 
 #: ckan/templates/related/dashboard.html:17
 #: ckan/templates/related/dashboard.html:19
 msgid "Apps & Ideas"
-msgstr ""
+msgstr "Sovellukset & Ideat"
 
 #: ckan/templates/related/dashboard.html:24
 msgid "Showing items"
-msgstr ""
+msgstr "Näytetään kohteita"
 
 #: ckan/templates/related/dashboard.html:24
 msgid "of"
-msgstr ""
+msgstr "joista"
 
 #: ckan/templates/related/dashboard.html:24
 #: ckan/templates/related/dashboard.html:25
 msgid "related items found"
-msgstr ""
+msgstr "näihin liittyvät kohteet"
 
 #: ckan/templates/related/dashboard.html:31
 msgid "Filter by type"
-msgstr ""
+msgstr "Suodata tyypin mukaan"
 
 #: ckan/templates/related/dashboard.html:33
 msgid "All"
-msgstr ""
+msgstr "Kaikki"
 
 #: ckan/templates/related/dashboard.html:43
 msgid "Sort by"
-msgstr ""
+msgstr "Suodata"
 
 #: ckan/templates/related/dashboard.html:45
 msgid "Default"
-msgstr ""
+msgstr "Oletus"
 
 #: ckan/templates/related/dashboard.html:46
 msgid "Most viewed"
-msgstr ""
+msgstr "Eniten katsottu"
 
 #: ckan/templates/related/dashboard.html:47
 msgid "Least viewed"
-msgstr ""
+msgstr "Vähiten katsottu"
 
 #: ckan/templates/related/dashboard.html:49
 msgid "Newest"
-msgstr ""
+msgstr "Uusin"
 
 #: ckan/templates/related/dashboard.html:50
 msgid "Oldest"
-msgstr ""
+msgstr "Vanhin"
 
 #: ckan/templates/related/dashboard.html:55
 msgid "Featured items only?"
-msgstr ""
+msgstr "Näkyville nostetut kohteet ainoastaan?"
 
 #: ckan/templates/related/dashboard.html:57
 #: ckanext/organizations/templates/organization_apply.html:5
 msgid "Apply"
-msgstr ""
+msgstr "Tallenna muutokset"
 
 #: ckan/templates/related/related_list.html:17
 #: ckan/templates/related/related_list.html:21
 msgid "- Apps, Ideas etc"
-msgstr ""
+msgstr "- Sovellukset, Ideat etc"
 
 #: ckan/templates/related/related_list.html:28
 msgid "There are no items here yet"
-msgstr ""
+msgstr "Täällä ei ole vielä kohteita"
 
 #: ckan/templates/related/related_list.html:29
 msgid ", why not"
@@ -3529,36 +3530,36 @@ msgstr "%(count)s tietoaineistoa avainsanalla [1:%(tagname)s]:"
 
 #: ckan/templates/user/dashboard.html:6
 msgid "- Dashboard - User"
-msgstr ""
+msgstr "- Yhteenveto - Käyttäjä"
 
 #: ckan/templates/user/dashboard.html:17
 msgid "What's going on?"
-msgstr ""
+msgstr "Mitä tapahtuu?"
 
 #: ckan/templates/user/dashboard.html:25
 msgid "Nothing new on CKAN?"
-msgstr ""
+msgstr "Mitä uutta CKAN:issa?"
 
 #: ckan/templates/user/dashboard.html:26
 msgid "So, why don't you ..."
-msgstr ""
+msgstr "Joten, mitä jos ..."
 
 #: ckan/templates/user/dashboard.html:28
 #: ckanext/publisher_form/templates/publisher_form.html:150
 msgid "Add a new dataset"
-msgstr ""
+msgstr "Lisää uusi tietoaineisto"
 
 #: ckan/templates/user/dashboard.html:29
 msgid "Follow another user"
-msgstr ""
+msgstr "Seuraa toista käyttäjää"
 
 #: ckan/templates/user/dashboard.html:30
 msgid "Create a group or a tag"
-msgstr ""
+msgstr "Luo ryhmä tai avainsana"
 
 #: ckan/templates/user/dashboard.html:31
 msgid "Or simply browse the repository"
-msgstr ""
+msgstr "Tai vain selaile tietoaineistoja"
 
 #: ckan/templates/user/edit.html:6
 msgid "- Edit - User"
@@ -3610,19 +3611,19 @@ msgstr "Käyttäjätunnus"
 msgid ""
 "Changing your username will log you out, and require you to log back in with"
 " the new username"
-msgstr ""
+msgstr "Muuttamalla käyttäjätunnustasi kirjaudut automaattisesti ulos ja sinun pitää kirjautua uudelleen takaisin uudella käyttäjätunnuksella"
 
 #: ckan/templates/user/followers.html:6
 msgid "- Followers - User"
-msgstr ""
+msgstr "- Seuraajat - Käyttäjä"
 
 #: ckan/templates/user/followers.html:8
 msgid "'s Followers"
-msgstr ""
+msgstr "käyttäjän seuraajat"
 
 #: ckan/templates/user/layout.html:11
 msgid "Dashboard"
-msgstr ""
+msgstr "Yhteenveto"
 
 #: ckan/templates/user/layout.html:12
 msgid "My Profile"
@@ -3638,7 +3639,7 @@ msgstr "Kirjaudu ulos"
 
 #: ckan/templates/user/layout.html:16
 msgid "My Followers ({num_followers})"
-msgstr ""
+msgstr "Seuraajani ({num_followers})"
 
 #: ckan/templates/user/layout.html:25
 msgid "View Profile"
@@ -3650,7 +3651,7 @@ msgstr "Rekisteröi käyttäjätili"
 
 #: ckan/templates/user/list.html:11
 msgid "Search Users"
-msgstr ""
+msgstr "Etsi käyttäjiä"
 
 #: ckan/templates/user/list.html:16
 #, python-format
@@ -3687,7 +3688,7 @@ msgstr "Salasana:"
 
 #: ckan/templates/user/login.html:41
 msgid "Remember me:"
-msgstr ""
+msgstr "Muista minut:"
 
 #: ckan/templates/user/login.html:49
 msgid "Sign In"
@@ -3844,82 +3845,82 @@ msgstr "Käyttäjänimi:"
 msgid ""
 "There was a problem with your submission,                              "
 "please correct it and try again"
-msgstr ""
+msgstr "Lähetyksessäsi oli ongelmia,                              ole hyvä ja korjaa ja yritä uudelleen"
 
 #: ckanext/organizations/controllers.py:44
 #: ckanext/organizations/controllers.py:64
 msgid "There is a problem with the system configuration"
-msgstr ""
+msgstr "Järjestelmän konfiguraatiossa on ongelma"
 
 #: ckanext/organizations/controllers.py:69
 msgid "Your application has been submitted"
-msgstr ""
+msgstr "Sovelluksesi on lähetetty"
 
 #: ckanext/organizations/controllers.py:98
 msgid ""
 "There was a problem with your submission, please correct it and try again"
-msgstr ""
+msgstr "Lähetyksessäsi oli ongelmia,                              ole hyvä ja korjaa ja yritä uudelleen"
 
 #: ckanext/organizations/forms.py:29
 msgid "Please choose an organization to add the dataset to"
-msgstr ""
+msgstr "Ole hyvä ja valitse organisaatio lisätäksesi siihen tietoaineiston"
 
 #: ckanext/organizations/templates/organization_apply.html:6
 msgid "Apply for membership"
-msgstr ""
+msgstr "Hae jäsenyyttä"
 
 #: ckanext/organizations/templates/organization_apply_form.html:21
 #: ckanext/organizations/templates/organization_package_form.html:99
 msgid "Organization"
-msgstr ""
+msgstr "Organisaatio"
 
 #: ckanext/organizations/templates/organization_apply_form.html:33
 msgid "Reason"
-msgstr ""
+msgstr "Syy"
 
 #: ckanext/organizations/templates/organization_apply_form.html:37
 msgid ""
 "Please explain to the owner your reasons for wishing to become an editor of "
 "this organization"
-msgstr ""
+msgstr "Ole hyvä ja selitä tietoaineiston omistajalle syyt miksi haluaisit saada Editor-oikeudet tähän organisaatioon"
 
 #: ckanext/organizations/templates/organization_apply_form.html:44
 msgid "Send request"
-msgstr ""
+msgstr "Lähetä pyyntö"
 
 #: ckanext/organizations/templates/organization_form.html:50
 msgid "The URL for the image that is associated with this organization."
-msgstr ""
+msgstr "URL osoite tämän organisaation kuvaan"
 
 #: ckanext/organizations/templates/organization_form.html:65
 msgid "Parent Organization"
-msgstr ""
+msgstr "Ylempi organisaatio"
 
 #: ckanext/organizations/templates/organization_form.html:70
 msgid "No parent organization"
-msgstr ""
+msgstr "Ei ylempää organisaatiota"
 
 #: ckanext/organizations/templates/organization_form.html:134
 msgid "Manage users"
-msgstr ""
+msgstr "Hallitse käyttäjiä"
 
 #: ckanext/organizations/templates/organization_form.html:146
 #: ckanext/publisher_form/templates/publisher_form.html:118
 msgid "There are no users currently in this publisher."
-msgstr ""
+msgstr "Tälle julkaisijalla ei ole vielä käyttäjiä"
 
 #: ckanext/organizations/templates/organization_history.html:54
 msgid "Organization History"
-msgstr ""
+msgstr "Organisaation historia"
 
 #: ckanext/organizations/templates/organization_index.html:6
 #: ckanext/organizations/templates/organization_index.html:7
 msgid "Organizations"
-msgstr ""
+msgstr "Organisaatiot"
 
 #: ckanext/organizations/templates/organization_index.html:11
 msgid "What Are Organizations?"
-msgstr ""
+msgstr "Mitä ovat organisaatiot?"
 
 #: ckanext/organizations/templates/organization_index.html:12
 msgid ""
@@ -3927,71 +3928,71 @@ msgid ""
 "when you want to restrict users from editing a collection. An "
 "[1:organization] can be set-up to specify which users have permission to add"
 " or remove datasets from it."
-msgstr ""
+msgstr "Vaikka avainsanat ovat käteviä tietoaineistojen liittämiseen toisiinsa, tulee eteen tilanteita jossa halutaan rajoittaa käyttäjiä jotka voivat muokata tietoaineisto kokoelmaa. [1:organization] voidaan luoda ja sillä määritellään millä käyttäjillä on oikeus lisätä ja poistaa tietoaineistoja siitä."
 
 #: ckanext/organizations/templates/organization_layout.html:28
 msgid "Join"
-msgstr ""
+msgstr "Liity"
 
 #: ckanext/organizations/templates/organization_layout.html:34
 msgid "List Organizations"
-msgstr ""
+msgstr "Listaa organisaatiot"
 
 #: ckanext/organizations/templates/organization_layout.html:37
 msgid "Add an Organization"
-msgstr ""
+msgstr "Lisää organisaatio"
 
 #: ckanext/organizations/templates/organization_new.html:5
 #: ckanext/organizations/templates/organization_new.html:6
 msgid "Add an organization"
-msgstr ""
+msgstr "Lisää organisaatio"
 
 #: ckanext/organizations/templates/organization_package_form.html:115
 msgid "Public"
-msgstr ""
+msgstr "Julkinen"
 
 #: ckanext/organizations/templates/organization_package_form.html:119
 msgid "Private"
-msgstr ""
+msgstr "Yksityinen"
 
 #: ckanext/organizations/templates/organization_package_form.html:125
 msgid "Cannot add to any organizations. Please join an organization"
-msgstr ""
+msgstr "Ei voida liittää mihinkään organisaatioon. Ole hyvä ja liity organisaatioon."
 
 #: ckanext/organizations/templates/organization_users.html:5
 #: ckanext/organizations/templates/organization_users.html:6
 msgid "Users:"
-msgstr ""
+msgstr "Käyttäjät:"
 
 #: ckanext/organizations/templates/organization_users_form.html:26
 #: ckanext/publisher_form/templates/publisher_form.html:113
 msgid "Admin"
-msgstr ""
+msgstr "Ylläpitäjä - Admin"
 
 #: ckanext/organizations/templates/organization_users_form.html:27
 #: ckanext/publisher_form/templates/publisher_form.html:114
 msgid "Editor"
-msgstr ""
+msgstr "Muokkaaja - Editor"
 
 #: ckanext/organizations/templates/organization_users_form.html:34
 msgid "There are no users currently in this organization."
-msgstr ""
+msgstr "Tässä organisaatiossa ei ole käyttäjiä"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:1
 msgid ""
 "Dear administrator,\n"
 "\n"
 "A request has been made for membership of your organization"
-msgstr ""
+msgstr "Hyvä ylläpitäjä,\n\nPyyntö liittyä jäseneksi organisaatioosi on tehty"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 msgid "by"
-msgstr ""
+msgstr "tämän tahon toimesta:"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #, python-format
 msgid "{% if requester.fullname %}("
-msgstr ""
+msgstr "{% if requester.fullname %}("
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #, python-format
@@ -4001,64 +4002,64 @@ msgid ""
 "The reason given for the request was:\n"
 "\n"
 "\""
-msgstr ""
+msgstr "){% end %}\n\nSyy liittymisen pyynnöksi oli seuraava:\n\n\""
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:7
 msgid ""
 "\"\n"
 "\n"
 "Please contact the user to verify and then if you would like to add this user you can do so by visiting"
-msgstr ""
+msgstr "\"\n\nOle hyvä ja ota yhteyttä tahoon varmistaaksesi sen ja sen jälkeen jos haluat voit lisätä tämän tahon käymällä täällä"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:9
 msgid ""
 "If you do not wish to add this user you can safely disregard this email."
-msgstr ""
+msgstr "Jos et halua lisätä tätä tahoa/käyttäjää niin voit hyvin ohittaa tämän sähköpostin."
 
 #: ckanext/publisher_form/templates/dataset_form.html:53
 msgid "Publisher"
-msgstr ""
+msgstr "Julkaisija"
 
 #: ckanext/publisher_form/templates/dataset_form.html:100
 msgid "Resources: the files and APIs associated with this dataset"
-msgstr ""
+msgstr "Resurssit: tiedostot ja APIt jotka liitetty tähän tietoaineistoon"
 
 #: ckanext/publisher_form/templates/dataset_form.html:115
 msgid "Add a resource:"
-msgstr ""
+msgstr "Lisää resurssi:"
 
 #: ckanext/publisher_form/templates/publisher_form.html:21
 msgid "Publisher name"
-msgstr ""
+msgstr "Julkaisijan nimi"
 
 #: ckanext/publisher_form/templates/publisher_form.html:31
 msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
+msgstr "2+ merkkiä, pienet kirjaimet, käyttäen vain 'a-z0-9' and '-_'"
 
 #: ckanext/publisher_form/templates/publisher_form.html:34
 msgid "Publisher Description"
-msgstr ""
+msgstr "Julkaisijan kuvaus"
 
 #: ckanext/publisher_form/templates/publisher_form.html:46
 msgid "Parent publisher"
-msgstr ""
+msgstr "Ylemmän tason julkaisija"
 
 #: ckanext/publisher_form/templates/publisher_form.html:53
 msgid "No parent publisher"
-msgstr ""
+msgstr "Ei ylemmän tason julkaisijaa"
 
 #: ckanext/publisher_form/templates/publisher_form.html:141
 msgid "There are no datasets currently in this publisher."
-msgstr ""
+msgstr "Tällä julkaisijalla ei ole tietoaineistoja"
 
 #: ckanext/publisher_form/templates/publisher_index.html:6
 #: ckanext/publisher_form/templates/publisher_index.html:7
 msgid "Publishers of Datasets"
-msgstr ""
+msgstr "Tietoaineistojen julkaisijat"
 
 #: ckanext/publisher_form/templates/publisher_index.html:11
 msgid "What Are Publishers?"
-msgstr ""
+msgstr "Mitä ovat julkaisijat?"
 
 #: ckanext/publisher_form/templates/publisher_index.html:12
 msgid ""
@@ -4066,28 +4067,28 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:publisher] "
 "can be set-up to specify which users have permission to add or remove "
 "datasets from it."
-msgstr ""
+msgstr "Vaikka avainsanat ovat käteviä tietoaineistojen liittämiseen toisiinsa, tulee eteen tilanteita jossa halutaan rajoittaa käyttäjiä jotka voivat muokata tietoaineisto kokoelmaa. [1:publisher] voidaan luoda ja sillä määritellään millä käyttäjillä on oikeus lisätä ja poistaa tietoaineistoja siitä."
 
 #: ckanext/publisher_form/templates/publisher_layout.html:41
 msgid "List Publishers"
-msgstr ""
+msgstr "Listaa julkaisijat"
 
 #: ckanext/publisher_form/templates/publisher_layout.html:43
 msgid "Add a Publisher"
-msgstr ""
+msgstr "Lisää julkaisija"
 
 #: ckanext/publisher_form/templates/publisher_layout.html:44
 msgid "Login to Add a Publisher"
-msgstr ""
+msgstr "Kirjaudu lisätäksesi julkaisija"
 
 #: ckanext/publisher_form/templates/publisher_new.html:5
 #: ckanext/publisher_form/templates/publisher_new.html:6
 msgid "Add A Publisher"
-msgstr ""
+msgstr "Lisää julkaisija"
 
 #: ckanext/stats/public/ckanext/stats/demo.html:12
 msgid "CKAN Dataset Leaderboard"
-msgstr ""
+msgstr "CKAN tietoaineistojen johtolista"
 
 #: ckanext/stats/public/ckanext/stats/demo.html:13
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:18

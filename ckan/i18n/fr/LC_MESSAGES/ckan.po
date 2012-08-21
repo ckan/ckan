@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-07-31 12:17+0100\n"
-"PO-Revision-Date: 2012-08-06 19:58+0000\n"
+"PO-Revision-Date: 2012-08-17 09:54+0000\n"
 "Last-Translator: keronos <aka.keronos@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/ckan/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -172,7 +172,7 @@ msgstr "La révision avec l'identifiant %s n'existe pas"
 
 #: ckan/controllers/api.py:472
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
+msgstr "Terme de recherche manquant ( ('since_id=UUID' ou  'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:482
 #, python-format
@@ -1163,11 +1163,11 @@ msgstr "Impossible de trouver le tag \"%s\""
 
 #: ckan/logic/action/delete.py:308
 msgid "Could not find follower {follower} -> {object}"
-msgstr ""
+msgstr "Impossible de trouver l'abonné {follower} -> {object}"
 
 #: ckan/logic/action/get.py:1300
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "Ne sélectinnez pas cette option si vous utilisez le paramètre \"requête\""
 
 #: ckan/logic/action/get.py:1309
 msgid "Must be <field>:<value> pair(s)"
@@ -1175,11 +1175,11 @@ msgstr "Paire(s) de <field>:<value> obligatoire"
 
 #: ckan/logic/action/get.py:1337
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "Le champ \"{field}\" n'est pas reconnu dans resource_search."
 
 #: ckan/logic/action/update.py:137
 msgid "Item was not found."
-msgstr ""
+msgstr "L'objet n'a pas été trouvé."
 
 #: ckan/logic/action/update.py:178
 msgid "Resource was not found."
@@ -1216,7 +1216,7 @@ msgstr "L'utilisateur %s n'est pas autorisé à modifier ces groupes"
 
 #: ckan/logic/auth/create.py:34
 msgid "You must be a sysadmin to create a featured related item"
-msgstr ""
+msgstr "Vous devez être un administrateur pour créer une page de présentation d'un obbjet lié"
 
 #: ckan/logic/auth/create.py:38 ckan/logic/auth/publisher/create.py:31
 msgid "You must be logged in to add a related item"
@@ -1390,7 +1390,7 @@ msgstr "Une clé d'API valide est nécessaire pour modifier un groupe"
 
 #: ckan/logic/auth/publisher/create.py:21
 msgid "You must be logged in and be within a group to create a package"
-msgstr ""
+msgstr "Vous devez être identifié et faire partie d'un groupe pour créer un jeu de données"
 
 #: ckan/logic/auth/publisher/create.py:40
 msgid "You do not have permission to create an item"
@@ -2231,7 +2231,7 @@ msgstr "Autorisation:"
 msgid ""
 "Warning: Authorization groups are deprecated and no longer supported. They will be removed\n"
 "        completely on the next CKAN release."
-msgstr ""
+msgstr "Attention: les groupes d'autorisation sont obsolètes et ne sont plus maintenus. Ils seront complètement supprimés de la prochaine version de CKAN."
 
 #: ckan/templates/authorization_group/authz.html:19
 #: ckan/templates/authorization_group/authz.html:37
@@ -2631,7 +2631,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Handbook]."
-msgstr ""
+msgstr "La plupart des données indexées sur %(site_title)s sont couvertes par une licence ouverte, ce qui signifie que chacun est libre de les utiliser et de les ré-utiliser de la manière dont il le souhaite. peut-être que quelqu'un va prendre ce jeu de données d'oeuvres d'art municipales que vous avez trouvé ou produit et l'ajouter à une carte touristique, voire construire une application sympa qui vous aidera à trouver des oeuvres d'art lorsque vous visitez la ville. L'ouverture des données signifie plus d'innovation, de science collaborative et de gouvernement ouvert. Vous pouvez en lire plus à propos de ce mouvement dans le [1:Open Data Handbook]."
 
 #: ckan/templates/home/about.html:34
 msgid ""
@@ -2694,7 +2694,7 @@ msgstr "Collaborer"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
+msgstr "Apprenez-en plus sur la manière de travailler avec l'open data en explorant  \n          ces ressources:"
 
 #: ckan/templates/home/index.html:54
 msgid "GetTheData.org"
@@ -2789,7 +2789,7 @@ msgstr "- Jeux de données - Suiveurs"
 
 #: ckan/templates/package/followers.html:7
 msgid "Followers:"
-msgstr ""
+msgstr "Abonnés:"
 
 #: ckan/templates/package/followers.html:8
 #: ckan/templates/related/dashboard.html:14
@@ -2800,7 +2800,7 @@ msgstr "no-sidebar"
 
 #: ckan/templates/package/followers.html:11 ckan/templates/user/read.html:65
 msgid "Followers"
-msgstr ""
+msgstr "Abonnés"
 
 #: ckan/templates/package/form_extra_fields.html:12
 #: ckanext/publisher_form/templates/dataset_form.html:199
@@ -2835,11 +2835,11 @@ msgstr "Ajouter/mettre à jour les ressources"
 #: ckan/templates/package/layout.html:37
 #: ckan/templates/related/related_list.html:26
 msgid "Apps, Ideas etc"
-msgstr ""
+msgstr "Applications, Idées, etc"
 
 #: ckan/templates/package/layout.html:40 ckan/templates/user/layout.html:27
 msgid "Followers ({num_followers})"
-msgstr ""
+msgstr "Abonnés ({num_followers})"
 
 #: ckan/templates/package/layout.html:53
 msgid "Settings"
@@ -3351,11 +3351,11 @@ msgstr "Appliquer"
 #: ckan/templates/related/related_list.html:17
 #: ckan/templates/related/related_list.html:21
 msgid "- Apps, Ideas etc"
-msgstr ""
+msgstr "- Applications, Idées, etc"
 
 #: ckan/templates/related/related_list.html:28
 msgid "There are no items here yet"
-msgstr ""
+msgstr "Il n'y a pas encore d'objet ici"
 
 #: ckan/templates/related/related_list.html:29
 msgid ", why not"
@@ -3528,15 +3528,15 @@ msgstr "Il y a %(count)s jeux de données taggés avec [1:%(tagname)s]:"
 
 #: ckan/templates/user/dashboard.html:6
 msgid "- Dashboard - User"
-msgstr ""
+msgstr "- Tableau de bord - Utilisateur"
 
 #: ckan/templates/user/dashboard.html:17
 msgid "What's going on?"
-msgstr ""
+msgstr "Quoi de neuf?"
 
 #: ckan/templates/user/dashboard.html:25
 msgid "Nothing new on CKAN?"
-msgstr ""
+msgstr "Rien de neuf sur CKAN?"
 
 #: ckan/templates/user/dashboard.html:26
 msgid "So, why don't you ..."
@@ -3613,11 +3613,11 @@ msgstr "Changer votre nom d'utilisateur vous oblige à vous déconnecter du site
 
 #: ckan/templates/user/followers.html:6
 msgid "- Followers - User"
-msgstr ""
+msgstr "- Abonnés - Utilisateur"
 
 #: ckan/templates/user/followers.html:8
 msgid "'s Followers"
-msgstr ""
+msgstr "'s abonnés"
 
 #: ckan/templates/user/layout.html:11
 msgid "Dashboard"
@@ -3848,7 +3848,7 @@ msgstr "Il a eu un problème avec votre soumission,                             
 #: ckanext/organizations/controllers.py:44
 #: ckanext/organizations/controllers.py:64
 msgid "There is a problem with the system configuration"
-msgstr ""
+msgstr "Il y a un problème avec la configuration système"
 
 #: ckanext/organizations/controllers.py:69
 msgid "Your application has been submitted"
@@ -3861,20 +3861,20 @@ msgstr "Il a eu un problème avec votre soumission, merci de corriger et d'essay
 
 #: ckanext/organizations/forms.py:29
 msgid "Please choose an organization to add the dataset to"
-msgstr ""
+msgstr "Merci de choisir une organisation à laquelle lier ce jeu de donnée"
 
 #: ckanext/organizations/templates/organization_apply.html:6
 msgid "Apply for membership"
-msgstr ""
+msgstr "Faire une demande pour devenir membre"
 
 #: ckanext/organizations/templates/organization_apply_form.html:21
 #: ckanext/organizations/templates/organization_package_form.html:99
 msgid "Organization"
-msgstr ""
+msgstr "Organisation"
 
 #: ckanext/organizations/templates/organization_apply_form.html:33
 msgid "Reason"
-msgstr ""
+msgstr "Raison"
 
 #: ckanext/organizations/templates/organization_apply_form.html:37
 msgid ""
@@ -3884,41 +3884,41 @@ msgstr "Merci d'expliquer au propriétaire les raisons pour lesquelles vous souh
 
 #: ckanext/organizations/templates/organization_apply_form.html:44
 msgid "Send request"
-msgstr ""
+msgstr "Envoyez votre demande"
 
 #: ckanext/organizations/templates/organization_form.html:50
 msgid "The URL for the image that is associated with this organization."
-msgstr ""
+msgstr "L'URL de l'image associée à l'organisation."
 
 #: ckanext/organizations/templates/organization_form.html:65
 msgid "Parent Organization"
-msgstr ""
+msgstr "Organisation parente"
 
 #: ckanext/organizations/templates/organization_form.html:70
 msgid "No parent organization"
-msgstr ""
+msgstr "Pas d'organisation parente"
 
 #: ckanext/organizations/templates/organization_form.html:134
 msgid "Manage users"
-msgstr ""
+msgstr "Gérer les utilisateurs"
 
 #: ckanext/organizations/templates/organization_form.html:146
 #: ckanext/publisher_form/templates/publisher_form.html:118
 msgid "There are no users currently in this publisher."
-msgstr ""
+msgstr "Il n'y a actuellement pas d'utilisateurs pour ce diffuseur."
 
 #: ckanext/organizations/templates/organization_history.html:54
 msgid "Organization History"
-msgstr ""
+msgstr "Historique de l'organisation"
 
 #: ckanext/organizations/templates/organization_index.html:6
 #: ckanext/organizations/templates/organization_index.html:7
 msgid "Organizations"
-msgstr ""
+msgstr "Organisations"
 
 #: ckanext/organizations/templates/organization_index.html:11
 msgid "What Are Organizations?"
-msgstr ""
+msgstr "Que sont les Organisations?"
 
 #: ckanext/organizations/templates/organization_index.html:12
 msgid ""
@@ -3926,55 +3926,55 @@ msgid ""
 "when you want to restrict users from editing a collection. An "
 "[1:organization] can be set-up to specify which users have permission to add"
 " or remove datasets from it."
-msgstr ""
+msgstr "Alors que les tags sont très utiles pour regrouper des jeux de données, il y a des occasions où vous souhaitez empêcher les utilisateurs d'éditer certains jeu de données. Une [1:organization] peut être créée pour définir quels sont les utilisateurs qui ont la permission d'y ajouter ou d'y supprimer des jeux de données."
 
 #: ckanext/organizations/templates/organization_layout.html:28
 msgid "Join"
-msgstr ""
+msgstr "Rejoindre"
 
 #: ckanext/organizations/templates/organization_layout.html:34
 msgid "List Organizations"
-msgstr ""
+msgstr "Lister les organisations"
 
 #: ckanext/organizations/templates/organization_layout.html:37
 msgid "Add an Organization"
-msgstr ""
+msgstr "Ajouter une organisation"
 
 #: ckanext/organizations/templates/organization_new.html:5
 #: ckanext/organizations/templates/organization_new.html:6
 msgid "Add an organization"
-msgstr ""
+msgstr "Ajouter une organisation"
 
 #: ckanext/organizations/templates/organization_package_form.html:115
 msgid "Public"
-msgstr ""
+msgstr "Publique"
 
 #: ckanext/organizations/templates/organization_package_form.html:119
 msgid "Private"
-msgstr ""
+msgstr "Privée"
 
 #: ckanext/organizations/templates/organization_package_form.html:125
 msgid "Cannot add to any organizations. Please join an organization"
-msgstr ""
+msgstr "Impossible d'ajouter à une organisation. Merci de rejoindre d'abord une organisation"
 
 #: ckanext/organizations/templates/organization_users.html:5
 #: ckanext/organizations/templates/organization_users.html:6
 msgid "Users:"
-msgstr ""
+msgstr "Utilisateurs:"
 
 #: ckanext/organizations/templates/organization_users_form.html:26
 #: ckanext/publisher_form/templates/publisher_form.html:113
 msgid "Admin"
-msgstr ""
+msgstr "Administrateur"
 
 #: ckanext/organizations/templates/organization_users_form.html:27
 #: ckanext/publisher_form/templates/publisher_form.html:114
 msgid "Editor"
-msgstr ""
+msgstr "Éditeur"
 
 #: ckanext/organizations/templates/organization_users_form.html:34
 msgid "There are no users currently in this organization."
-msgstr ""
+msgstr "Il n'y a actuellement aucun utilisateur au sein de cette organisation."
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:1
 msgid ""
@@ -3985,12 +3985,12 @@ msgstr "Cher administrateur,\n\nUne requête a été faite pour devenir membre d
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 msgid "by"
-msgstr ""
+msgstr "par"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #, python-format
 msgid "{% if requester.fullname %}("
-msgstr ""
+msgstr "{% if requester.fullname %}("
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #, python-format
@@ -4000,14 +4000,14 @@ msgid ""
 "The reason given for the request was:\n"
 "\n"
 "\""
-msgstr ""
+msgstr "){% end %}\n\nLa raison invoquée pour la demande soumise est:\n\n\""
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:7
 msgid ""
 "\"\n"
 "\n"
 "Please contact the user to verify and then if you would like to add this user you can do so by visiting"
-msgstr ""
+msgstr "\"\n\nMerci de contacter l'utilisateur pour vérifier et alors si vous souhaitez l'ajouter vous pouvez le faire en vous rendant ici"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:9
 msgid ""
@@ -4016,48 +4016,48 @@ msgstr "Si vous ne souhaitez pas ajouter cet utilisateur vous pouvez ignorer ce 
 
 #: ckanext/publisher_form/templates/dataset_form.html:53
 msgid "Publisher"
-msgstr ""
+msgstr "Diffuseur"
 
 #: ckanext/publisher_form/templates/dataset_form.html:100
 msgid "Resources: the files and APIs associated with this dataset"
-msgstr ""
+msgstr "Ressources: les fichiers et les API associées avec ce jeu de données"
 
 #: ckanext/publisher_form/templates/dataset_form.html:115
 msgid "Add a resource:"
-msgstr ""
+msgstr "Ajouter une ressource:"
 
 #: ckanext/publisher_form/templates/publisher_form.html:21
 msgid "Publisher name"
-msgstr ""
+msgstr "Nom du diffuseur"
 
 #: ckanext/publisher_form/templates/publisher_form.html:31
 msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
-msgstr ""
+msgstr "au mois 2 caractères, minuscule, utilisez uniquement les caractères non accentués 'a-z0-9' et '-_'"
 
 #: ckanext/publisher_form/templates/publisher_form.html:34
 msgid "Publisher Description"
-msgstr ""
+msgstr "Description du diffuseur"
 
 #: ckanext/publisher_form/templates/publisher_form.html:46
 msgid "Parent publisher"
-msgstr ""
+msgstr "Diffuseur parent"
 
 #: ckanext/publisher_form/templates/publisher_form.html:53
 msgid "No parent publisher"
-msgstr ""
+msgstr "pas de diffuseur parent"
 
 #: ckanext/publisher_form/templates/publisher_form.html:141
 msgid "There are no datasets currently in this publisher."
-msgstr ""
+msgstr "Il n'y a actuellement aucun jeu de données pour ce diffuseur."
 
 #: ckanext/publisher_form/templates/publisher_index.html:6
 #: ckanext/publisher_form/templates/publisher_index.html:7
 msgid "Publishers of Datasets"
-msgstr ""
+msgstr "Diffuseur des jeux de données"
 
 #: ckanext/publisher_form/templates/publisher_index.html:11
 msgid "What Are Publishers?"
-msgstr ""
+msgstr "Que sont les diffuseurs?"
 
 #: ckanext/publisher_form/templates/publisher_index.html:12
 msgid ""
@@ -4065,28 +4065,28 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:publisher] "
 "can be set-up to specify which users have permission to add or remove "
 "datasets from it."
-msgstr ""
+msgstr "Alors que les tags sont pratiques pour lier ensemble des jeux de données, il y a des cas où vous suhaitez restreindre le nombre d'utilisateurs habilités à éditer une collection de jeu de données. Un [1:publisher] peut être créé pour spécifier quels utilisateurs ont la permission d'ajouter ou de supprimer des jeux de données à cette collection."
 
 #: ckanext/publisher_form/templates/publisher_layout.html:41
 msgid "List Publishers"
-msgstr ""
+msgstr "Liste des diffuseurs"
 
 #: ckanext/publisher_form/templates/publisher_layout.html:43
 msgid "Add a Publisher"
-msgstr ""
+msgstr "Ajouter un diffuseur"
 
 #: ckanext/publisher_form/templates/publisher_layout.html:44
 msgid "Login to Add a Publisher"
-msgstr ""
+msgstr "S'identifier pour ajouter un diffuseur"
 
 #: ckanext/publisher_form/templates/publisher_new.html:5
 #: ckanext/publisher_form/templates/publisher_new.html:6
 msgid "Add A Publisher"
-msgstr ""
+msgstr "Ajouter un diffuseur"
 
 #: ckanext/stats/public/ckanext/stats/demo.html:12
 msgid "CKAN Dataset Leaderboard"
-msgstr ""
+msgstr "Classement des jeux de données de CKAN"
 
 #: ckanext/stats/public/ckanext/stats/demo.html:13
 #: ckanext/stats/templates/ckanext/stats/leaderboard.html:18
