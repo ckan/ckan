@@ -1,3 +1,4 @@
+
 import json
 import sqlalchemy
 import ckan.plugins as p
@@ -45,7 +46,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'INVALID'},
+            'fields': [{'id': 'b\xfck', 'type': 'INVALID'},
                        {'id': 'author', 'type': 'INVALID'}]
         }
         postparams = '%s=1' % json.dumps(data)
@@ -460,10 +461,11 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy', 'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
-                        {'book': 'warandpeace', 'author': 'tolstoy', 'nested': {'a':'b'}}
+            'fields': [{'id': u'b\xfck', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'published'}],
+            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy', 'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy', 'nested': {'a':'b'}}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -475,10 +477,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
                                 u'_id': 1,
-                                u'nested': [u'b', {u'moo': u'moo'}], u'book': u'annakarenina', u'author': u'tolstoy'},
+                                u'nested': [u'b', {u'moo': u'moo'}], u'b\xfck': u'annakarenina', u'author': u'tolstoy'},
                                 {u'published': None,
                                  u'_id': 2,
-                                 u'nested': {u'a': u'b'}, u'book': u'warandpeace', u'author': u'tolstoy'}]
+                                 u'nested': {u'a': u'b'}, u'b\xfck': u'warandpeace', u'author': u'tolstoy'}]
 
 
     @classmethod
@@ -509,7 +511,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_fields(self):
         data = {'resource_id': self.data['resource_id'],
-                'fields': ['book']}
+                'fields': [u'b\xfck']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -518,12 +520,12 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == [{'book': 'annakarenina'},
-                                     {'book': 'warandpeace'}], result['records']
+        assert result['records'] == [{u'b\xfck': 'annakarenina'},
+                                     {u'b\xfck': 'warandpeace'}], result['records']
 
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
-                'filters': {'book': 'annakarenina'}}
+                'filters': {u'b\xfck': 'annakarenina'}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -536,7 +538,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_sort(self):
         data = {'resource_id': self.data['resource_id'],
-                'sort': 'book asc, author desc'}
+                'sort': u'b\xfck asc, author desc'}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -549,7 +551,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == self.expected_records, result['records']
 
         data = {'resource_id': self.data['resource_id'],
-                'sort': ['book desc', '"author" asc']}
+                'sort': [u'b\xfck desc', '"author" asc']}
         postparams = '%s=1' % json.dumps(data)
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
@@ -631,5 +633,5 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
         assert result['records'] == self.expected_records, result['records']
 
-        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'book'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
 
