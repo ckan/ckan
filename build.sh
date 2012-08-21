@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This is a script which uses BuildKit 0.2.0 to automatically package CKAN and
-# its dependencies for use as Debian packages on Ubuntu 12.04 and 10.04.
+# its dependencies for use as Debian packages on Ubuntu 10.04.
 #
 # See the BuildKit documentation or look at the help to see what these commands
 # do. eg:
