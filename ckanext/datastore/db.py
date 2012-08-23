@@ -45,7 +45,7 @@ def _get_engine(context, data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url, echo=True)
+        engine = sqlalchemy.create_engine(connection_url)
         _engines[connection_url] = engine
     return engine
 
