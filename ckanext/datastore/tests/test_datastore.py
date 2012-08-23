@@ -575,6 +575,33 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
         assert result['records'] == [self.expected_records[0]]
 
+
+        data = {'resource_id': self.data['resource_id'],
+                'limit': 0}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == []
+
+        #filter returns no results with 0 limit
+        data = {'resource_id': self.data['resource_id'],
+                'limit': 0,
+                'filters': {u'b\xfck': 'annakar'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 0
+        assert result['records'] == []
+
     def test_search_invalid_limit(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 'bad'}

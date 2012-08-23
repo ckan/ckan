@@ -794,6 +794,21 @@ class PackageController(BaseController):
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
 
+    def data_preview(self, resource_id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.resource_json = json.dumps(c.resource)
+            c.pkg_dict = c.package
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        return render('package/datapreview.html')
+
     def resource_download(self, id, resource_id):
         """
         Provides a direct download by redirecting the user to the url stored
