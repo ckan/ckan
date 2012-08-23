@@ -11,10 +11,10 @@ import ckanext.datastore.db as db
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
+    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -141,6 +141,15 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                         {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
                         {'book': 'warandpeace'}]  # treat author as null
         }
+        ### Firstly test to see if resource things it has datastore table
+        postparams = '%s=1' % json.dumps({'id': resource.id})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/resource_show', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['datastore_active'] == False
+
+
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
@@ -166,6 +175,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('tolstoy') '''.format(resource.id))
         assert results.rowcount == 2
         model.Session.remove()
+
+        # check to test to see if resource now has a datastore table
+        postparams = '%s=1' % json.dumps({'id': resource.id})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/resource_show', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['datastore_active'] == True
 
         #######  insert again simple
         data2 = {
