@@ -194,9 +194,6 @@ def make_map():
           )
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
-
-        m.connect('/datapreview/{resource_id}', action='data_preview')
-
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
