@@ -45,7 +45,7 @@ def _get_engine(context, data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url)
+        engine = sqlalchemy.create_engine(connection_url, echo=True)
         _engines[connection_url] = engine
     return engine
 
@@ -429,13 +429,6 @@ def search_data(context, data_dict):
 
     _validate_int(limit, 'limit')
     _validate_int(offset, 'offset')
-    #convert to ints so that return dict looks correct
-    data_dict['limit'] = int(limit)
-    data_dict['offset'] = int(offset)
-
-    ##pretend there is a limit so we get a count
-    if limit == 0:
-        limit = 1
 
     sort = _sort(context, data_dict.get('sort'), field_ids)
 
@@ -460,9 +453,6 @@ def search_data(context, data_dict):
         converted_row = {}
         if not data_dict['total']:
             data_dict['total'] = row['_full_count']
-            # we have the total now so we do not need any records
-            if data_dict['limit'] == 0:
-                break
         for field in result_fields:
             converted_row[field['id']] = convert(row[field['id']],
                                                  field['type'])
