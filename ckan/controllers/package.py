@@ -795,6 +795,9 @@ class PackageController(BaseController):
         return render('package/resource_read.html')
 
     def data_preview(self, resource_id):
+        """
+        Embeded page for a resource data-preview. 
+        """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
@@ -807,6 +810,8 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
+
+        c.embedded = True
         return render('package/datapreview.html')
 
     def resource_download(self, id, resource_id):
