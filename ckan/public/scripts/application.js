@@ -46,9 +46,10 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
 
-    var isEmbededDataviewer = $('body.package.resource_embedded_dataviewer').length > 0;
+    var isEmbededDataviewer = $('#ckanext-datapreview-iframe').length > 0;
     if (isEmbededDataviewer) {
-      CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
+      //CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
+      CKAN.DataPreview.setupEmbedDialog()
     }
 
     if ($(document.body).hasClass('search')) {
@@ -1556,6 +1557,54 @@ CKAN.DataPreview = function ($, my) {
     queryString += items.join('&');
     return embedPath + queryString;
   };
+
+  // **Public: Displays the embed button and sets up the modal dialog for embedding
+  my.setupEmbedDialog = function() {
+    // -----------------------------
+    // Setup the Embed modal dialog.
+    // -----------------------------
+
+    // embedLink holds the url to the embeddable view of the current DataExplorer state.
+    var embedLink = $('.embedLink');
+
+    // embedIframeText contains the '<iframe>' construction, which sources
+    // the above link.
+    var embedIframeText = $('.embedIframeText');
+
+    // iframeWidth and iframeHeight control the width and height parameters
+    // used to construct the iframe, and are also used in the link.
+    var iframeWidth = $('.iframe-width');
+    var iframeHeight = $('.iframe-height');
+
+    // Update the embedLink and embedIframeText to contain the updated link
+    // and update width and height parameters.
+    function updateLink() {
+      var link = embedPath;
+      var width = iframeWidth.val();
+      var height = iframeHeight.val();
+      link += '?width='+width+'&height='+height;
+
+      // Escape '"' characters in {{link}} in order not to prematurely close
+      // the src attribute value.
+      embedIframeText.val($.mustache('<iframe frameBorder="0" width="{{width}}" height="{{height}}" src="{{link}}"></iframe>',
+                                     {
+                                       link: link.replace(/"/g, '&quot;'),
+                                       width: width,
+                                       height: height
+                                     }));
+      embedLink.attr('href', link);
+    }
+
+    iframeWidth.change(updateLink);
+    iframeHeight.change(updateLink);
+
+    // Initial population of embedLink and embedIframeText
+    updateLink();
+
+    // Finally, since we have a DataExplorer, we can show the embed button.
+    $('.preview-header .btn').show();
+
+  }
 
   // **Public: Loads a data preview**
   //
