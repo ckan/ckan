@@ -152,7 +152,9 @@
         <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
         <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
       </div>
-      <iframe src="${h.url_for(controller='package', action='data_preview', resource_id=c.resource.id, qualified=True)}" frameborder="0" id="ckanext-datapreview-iframe" class="auto-height" scrolling="no"></iframe>
+      <iframe src="${h.url_for(controller='package', action='data_preview', resource_id=c.resource.id, qualified=True)}" frameborder="0" id="ckanext-datapreview-iframe" scrolling="auto">
+        <p>Your browser does not support iframes.</p>
+      </iframe>
     </div>
 
     <br/>
@@ -188,10 +190,16 @@
         var iframe = $('#ckanext-datapreview-iframe');
 
         iframe.load(function() {
-          recalibrate();
-          iframe.contents().find('body').resize(function() {
+          // set size manually if it is on a different domain
+          try {
             recalibrate();
-          });
+            iframe.contents().find('body').resize(function() {
+              recalibrate();
+            });
+          } catch(err) {
+            console.log('set size manually');
+            iframe.animate({height: 600}, 600);
+          }
         });
 
         var resizeTimer;

@@ -1748,6 +1748,12 @@ CKAN.DataPreview = function ($, my) {
     }
     else if (resourceData.formatNormalized in {'html':'', 'htm':''}
         ||  resourceData.url.substring(0,23)=='http://docs.google.com/') {
+      
+      // we are already in an iframe
+      if (top !== self) {
+        window.location.replace(resourceData.url);
+      }
+
       // we displays a fullscreen dialog with the url in an iframe.
       my.$dialog.empty();
       var el = $('<iframe></iframe>');
@@ -1759,6 +1765,12 @@ CKAN.DataPreview = function ($, my) {
     // images
     else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''}
         ||  resourceData.resource_type=='image') {
+      
+      // we are already in an iframe
+      if (top !== self) {
+        window.location.replace(resourceData.url);
+      }
+
       // we displays a fullscreen dialog with the url in an iframe.
       my.$dialog.empty();
       var el = $('<img />');
