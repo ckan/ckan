@@ -776,7 +776,8 @@ class PackageController(BaseController):
             # required for nav menu
             c.pkg = context['package']
             c.pkg_dict = c.package
-            c.resource_embed_url = self._get_embed_url(c.resource)
+            c.embed = {}
+            c.embed['direct'], c.embed['type'], c.embed['resource_url'] = self._get_embed_url(c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
@@ -795,13 +796,19 @@ class PackageController(BaseController):
         return render('package/resource_read.html')
 
     def _get_embed_url(self, resource):
+        '''
+        Returns tuple with a link to an embed resource, a type and a bool that indicates 
+        whether the resource can be embedded directly
+        '''
         if resource['format'] in ['csv','xls','tsv']:
-            return h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)
+            return False, None, h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)
         elif resource['format'] in ['rdf+xml','owl+xml','xml','n3','n-triples','turtle','plain','atom','tsv','rss','txt']:
             # dataproxy
-            return resource['url']
-        elif resource['format'] in ['html', 'htm', 'png', 'jpg', 'gif']:
-            return resource['url']
+            return False, None, resource['url']
+        elif resource['format'] in ['html', 'htm']:
+            return False, None, resource['url']
+        elif resource['format'] in ['png', 'jpg', 'gif']:
+            return True, 'image', resource['url']
         # default
         else:
             return h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)

@@ -50,6 +50,12 @@
         width: 100%;
       }
 
+      .direct-embed {
+        max-height: 600px;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
     </style>
     <script type="text/javascript">
       var embedPath = "${h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True)}";
@@ -152,9 +158,15 @@
         <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
         <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
       </div>
-      <iframe src="${c.resource_embed_url}" frameborder="0" id="ckanext-datapreview-iframe" scrolling="auto">
-        <p>Your browser does not support iframes.</p>
-      </iframe>
+
+      <div id="embed-resource-preview">
+        <iframe py:if="not c.embed.direct" src="${c.embed.resource_url}" frameborder="0" id="ckanext-datapreview-iframe" scrolling="auto">
+          <p>Your browser does not support iframes.</p>
+        </iframe>
+        <div py:if="c.embed.direct" class="direct-embed">
+          <img src="${c.embed.resource_url}"></img>
+        </div>
+      </div>
     </div>
 
     <br/>
