@@ -775,8 +775,8 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = context['package']
-            c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
+            c.resource_embed_url = self._get_embed_url(c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
@@ -793,6 +793,15 @@ class PackageController(BaseController):
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
+
+    def _get_embed_url(self, resource):
+        if resource['format'] in ['csv','xls','tsv']:
+            return h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)
+        elif resource['format'] in ['rdf+xml','owl+xml','xml','n3','n-triples','turtle','plain','atom','tsv','rss','txt']:
+            # dataproxy
+            return resource['url']
+        elif resource['format'] in ['html', 'htm', 'png', 'jpg', 'gif']:
+            return resource['url']
 
     def data_preview(self, resource_id):
         """
