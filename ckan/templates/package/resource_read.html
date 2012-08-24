@@ -50,7 +50,6 @@
         width: 100%;
       }
 
-
     </style>
     <script type="text/javascript">
       var embedPath = "${h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True)}";
@@ -182,14 +181,24 @@
 
   <py:def function="optional_footer">
     <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.iframe.autoheight/jquery.iframe-auto-height.js')}"></script>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.resize/jquery.ba-resize.js')}"></script>
+
     <script>
-      $(document).ready(function () {
-        $('iframe.auto-height').iframeAutoHeight({
-          minHeight: 240, 
-          debug: false,
-          animate: true
-        });  
+      $(function() {
+        var iframe = $('#ckanext-datapreview-iframe');
+
+        iframe.load(function() {
+          recalibrate();
+          iframe.contents().find('body').resize(function() {
+            recalibrate();
+          });
+        });
+
+        var recalibrate = function() {
+          offset = 0;
+          var height = iframe.contents().height();
+          iframe.animate({height: height+offset}, 300);
+        }
       });
     </script>
   </py:def>
