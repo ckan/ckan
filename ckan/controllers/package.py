@@ -802,6 +802,9 @@ class PackageController(BaseController):
             return resource['url']
         elif resource['format'] in ['html', 'htm', 'png', 'jpg', 'gif']:
             return resource['url']
+        # default
+        else:
+            return h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)
 
     def data_preview(self, resource_id):
         """

@@ -59,8 +59,8 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
   // 
   // @param {String} s The string to convert
   // @param {Object} options Options for loading CSV including
-  // 	@param {Boolean} [trim=false] If set to True leading and trailing whitespace is stripped off of each non-quoted field as it is imported
-  //	@param {String} [separator=','] Separator for CSV file
+  //  @param {Boolean} [trim=false] If set to True leading and trailing whitespace is stripped off of each non-quoted field as it is imported
+  //  @param {String} [separator=','] Separator for CSV file
   // Heavily based on uselesscode's JS CSV parser (MIT Licensed):
   // http://www.uselesscode.org/javascript/csv/
   my.parseCSV= function(s, options) {
@@ -106,7 +106,7 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
 
       // If we are at a EOF or EOR
       if (inQuote === false && (cur === separator || cur === "\n")) {
-	field = processField(field);
+  field = processField(field);
         // Add the current field to the current row
         row.push(field);
         // If this is EOR append row to output and flush row
@@ -209,7 +209,7 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
       dataType: 'jsonp'
     });
     var dfd = $.Deferred();
-    _wrapInTimeout(jqxhr).done(function(results) {
+    _wrapTimeout(jqxhr).done(function(results) {
       if (results.error) {
         dfd.reject(results.error);
       }
@@ -226,12 +226,12 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
     return dfd.promise();
   };
 
-  // ## _wrapInTimeout
+  // ## _wrapTimeout
   // 
   // Convenience method providing a crude way to catch backend errors on JSONP calls.
   // Many of backends use JSONP and so will not get error messages and this is
   // a crude way to catch those errors.
-  var _wrapInTimeout = function(ourFunction) {
+  var _wrapTimeout = function(ourFunction) {
     var dfd = $.Deferred();
     var timer = setTimeout(function() {
       dfd.reject({
@@ -3295,7 +3295,7 @@ my.SlickGrid = Backbone.View.extend({
     var options = {
       enableCellNavigation: true,
       enableColumnReorder: true,
-      explicitInitialization: true,
+      explicititialization: true,
       syncColumnCellResize: true,
       forceFitColumns: this.state.get('fitColumns')
     };
@@ -3566,10 +3566,10 @@ my.Timeline = Backbone.View.extend({
     var self = this;
     this.el = $(this.el);
     this.timeline = new VMM.Timeline();
-    this._timelineIsInitialized = false;
+    this._timelineIseitialized = false;
     this.bind('view:show', function() {
       // only call _initTimeline once view in DOM as Timeline uses $ internally to look up element
-      if (self._timelineIsInitialized === false) {
+      if (self._timelineIseitialized === false) {
         self._initTimeline();
       }
     });
@@ -3611,11 +3611,11 @@ my.Timeline = Backbone.View.extend({
     var config = {};
     var data = this._timelineJSON();
     this.timeline.init(data, this.elementId, config);
-    this._timelineIsInitialized = true
+    this._timelineIseitialized = true
   },
 
   reloadData: function() {
-    if (this._timelineIsInitialized) {
+    if (this._timelineIseitialized) {
       var data = this._timelineJSON();
       this.timeline.reload(data);
     }
