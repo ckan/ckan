@@ -215,6 +215,11 @@
           var height = iframe.contents().height();
           iframe.animate({height: height+offset}, height);
         }
+
+        // message from iframe
+        iframe_message = function(message) {
+          console.log(message);
+        }
       });
     </script>
   </py:def>

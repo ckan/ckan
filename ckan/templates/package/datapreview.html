@@ -57,4 +57,10 @@
   <xi:include href="../snippets/recline-extra-footer.html" />
 
   <script type="text/javascript" src="${h.url_for_static('/scripts/application.js?lang=${c.locale}')}"></script>
+  <script>
+    $(function() {
+      // you can send notifications about status changes to the parent
+      window.parent.iframe_message('foo');
+    });
+  </script>
 </html>
