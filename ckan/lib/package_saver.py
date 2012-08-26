@@ -34,12 +34,16 @@ class PackageSaver(object):
                 if url else _("No web page given")
         if pkg.get('author_email', False):
             c.pkg_author_link = cls._person_email_link(pkg.get('author', ''), pkg.get('author_email', ''), "Author")
+        elif pkg.get('author', False):
+            c.pkg_author_link = pkg.get('author', '')
         else:
             c.pkg_author_link = _("Author not given")
         maintainer = pkg.get('maintainer', '')
         maintainer_email = pkg.get('maintainer_email', '')
         if maintainer_email:
             c.pkg_maintainer_link = cls._person_email_link(maintainer, maintainer_email, "Maintainer")
+        elif maintainer:
+            c.pkg_maintainer_link = maintainer
         else:
             c.pkg_maintainer_link = _("Maintainer not given")
         c.package_relationships = context['package'].get_relationships_printable()
