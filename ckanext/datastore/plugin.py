@@ -60,7 +60,8 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_actions(self):
         return {'datastore_create': action.datastore_create,
                 'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search}
+                'datastore_search': action.datastore_search,
+                'data_search_sql': action.data_search_sql}
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,

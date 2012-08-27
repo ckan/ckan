@@ -118,3 +118,32 @@ def datastore_search(context, data_dict):
     result.pop('id', None)
     result.pop('connection_url')
     return result
+
+@logic.side_effect_free
+def data_search_sql(context, data_dict):
+    '''Execute SQL-Queries on the datastore.
+
+    :param sql: a single sql select statement
+
+    :returns: a dictionary containing the search parameters and the
+              search results.
+              keys: fields: same as datastore_create accepts
+                    offset: query offset value
+                    limit: query limit value
+                    filters: query filters
+                    total: number of total matching records
+                    records: list of matching results
+    :rtype: dictionary
+
+    '''
+    model = _get_or_bust(context, 'model')
+    sql = _get_or_bust(data_dict, 'sql')
+
+    p.toolkit.check_access('datastore_search', context, data_dict)
+
+    data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
+
+    result = db.search_sql(context, data_dict)
+    result.pop('id', None)
+    result.pop('connection_url')
+    return result
