@@ -405,7 +405,7 @@ def delete_data(context, data_dict):
 
 def search_data(context, data_dict):
     all_fields = _get_fields(context, data_dict)
-    all_field_ids = [field['id'] for field in all_fields]
+    all_field_ids = map(lambda x: x['id'], all_fields)
     all_field_ids.insert(0,'_id')
 
     fields = data_dict.get('fields')
@@ -437,21 +437,22 @@ def search_data(context, data_dict):
         .format(select_columns, data_dict['resource_id'], where_clause,
                 sort, limit, offset)
     results = context['connection'].execute(sql_string, where_values)
+    return format_results(context, results, data_dict)
 
+def format_results(context, results, data_dict):
     result_fields = []
     for field in results.cursor.description:
         result_fields.append({
             'id': field[0].decode('utf-8'),
             'type': _get_type(context, field[1])
         })
-    result_fields.pop() # remove _full_count
-
-    data_dict['total'] = 0
+    if len(result_fields) and result_fields[-1]['id'] == '_full_count':
+        result_fields.pop() # remove _full_count
 
     records = []
     for row in results:
         converted_row = {}
-        if not data_dict['total']:
+        if '_full_count' in row:
             data_dict['total'] = row['_full_count']
         for field in result_fields:
             converted_row[field['id']] = convert(row[field['id']],
@@ -554,7 +555,7 @@ def search(context, data_dict):
     _cache_types(context)
 
     try:
-        # check if table existes
+        # check if table exists
         context['connection'].execute(
             u'set local statement_timeout to {}'.format(timeout))
         result = context['connection'].execute(
@@ -567,6 +568,30 @@ def search(context, data_dict):
                     data_dict['resource_id'])]
             })
         return search_data(context, data_dict)
+    except Exception, e:
+        if 'due to statement timeout' in str(e):
+            raise p.toolkit.ValidationError({
+                'query': ['Search took too long']
+            })
+        raise
+    finally:
+        context['connection'].close()
+
+
+def search_sql(context, data_dict):
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    timeout = context.get('query_timeout', 60000)
+    _cache_types(context)
+
+    try:
+        context['connection'].execute(
+            u'set local statement_timeout to {}'.format(timeout))
+        results = context['connection'].execute(
+            data_dict['sql']
+        )
+        return format_results(context, results, data_dict)
+
     except Exception, e:
         if 'due to statement timeout' in str(e):
             raise p.toolkit.ValidationError({
