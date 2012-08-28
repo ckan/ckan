@@ -36,7 +36,7 @@ class TestCreation(object):
                                user=mradmin
                                )
         model.Session.add(pr)
-        test0 = model.Package.by_name(u'test0')        
+        test0 = model.Package.by_name(u'test0')
         prs = model.Session.query(model.PackageRole).filter_by(
             role=model.Role.ADMIN,
             package=test0, user=mradmin)
@@ -105,7 +105,7 @@ class TestCreation(object):
 
         pr = model.Session.query(model.GroupRole).filter_by(role=model.Role.ADMIN,
                                                group=war)
-                                               
+
         assert len(pr.all()) == 1, pr.all()
 
 
@@ -121,12 +121,12 @@ class TestDefaultRoles(object):
         model.Session.remove()
         model.repo.rebuild_db()
         model.Session.remove()
-        
+
     def is_allowed(self, role, action):
         action_query = model.Session.query(model.RoleAction).filter_by(role=role,
                                                         action=action)
         return action_query.count() > 0
-        
+
     def test_read(self):
         assert self.is_allowed(model.Role.READER, model.Action.READ)
         assert self.is_allowed(model.Role.ANON_EDITOR, model.Action.READ)
@@ -216,8 +216,7 @@ class TestUsage(object):
         mreditor = model.User(name=u'mreditor')
         mrreader = model.User(name=u'mrreader')
         tester = model.User(name=u'tester')
-        anauthzgroup = model.AuthorizationGroup(name=u'anauthzgroup')
-        for obj in [anna, war, mradmin, mreditor, mrreader, tester, anauthzgroup]:
+        for obj in [anna, war, mradmin, mreditor, mrreader, tester]:
             model.Session.add(obj)
         model.repo.commit_and_remove()
 
@@ -276,7 +275,7 @@ class TestUsage(object):
         assert len(ra.all()) == 1, ra.all()
 
         assert self.authorizer.get_roles(self.mradmin.name, self.anna)
-        
+
         assert self.authorizer.is_authorized(username=self.mradmin.name,
                                              action=model.Action.EDIT,
                                              domain_object=self.anna)
@@ -304,7 +303,7 @@ class TestUsage(object):
             return [x.role \
              for x in model.Session.query(model.PackageRole).all() \
              if x.user and x.user.name=='tester' and x.package.name==u'warandpeace']
-          
+
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
         model.add_user_to_role(tester, model.Role.ADMIN, war)
         model.repo.commit_and_remove()
@@ -317,29 +316,6 @@ class TestUsage(object):
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
         model.remove_user_from_role(tester, model.Role.ADMIN, war)
         assert len(tester_roles()) == 0, "wrong number of roles for tester"
-
-    def test_4_add_twice_remove_twice_for_authzgroups(self):
-        aag = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        war = model.Package.by_name(u'warandpeace')
-
-        def aag_roles():
-            return [x.role \
-             for x in model.Session.query(model.PackageRole).all() \
-             if x.authorized_group and x.authorized_group.name=='anauthzgroup' and x.package.name==u'warandpeace']
-          
-        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
-        model.add_authorization_group_to_role(aag, model.Role.ADMIN, war)
-        model.repo.commit_and_remove()
-        assert len(aag_roles()) == 1, "wrong number of roles for anauthzgroup"
-        model.add_authorization_group_to_role(aag, model.Role.ADMIN, war)
-        model.repo.commit_and_remove()
-
-        assert len(aag_roles()) == 1, "wrong number of roles for anauthzgroup"
-        model.remove_authorization_group_from_role(aag, model.Role.ADMIN, war)
-        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
-        model.remove_authorization_group_from_role(aag, model.Role.ADMIN, war)
-        assert len(aag_roles()) == 0, "wrong number of roles for anauthzgroup"
-
 
 
 
@@ -369,13 +345,13 @@ class TestMigrate:
 
         # make changes
         anna = model.Package.by_name(u'annakarenina')
-        rev = model.repo.new_revision() 
+        rev = model.repo.new_revision()
         rev.author = u'warauthor1'
         anna.title = u'title1'
         model.repo.commit_and_remove()
 
         anna = model.Package.by_name(u'annakarenina')
-        rev = model.repo.new_revision() 
+        rev = model.repo.new_revision()
         rev.author = u'warauthor2'
         anna.title = u'title2'
         model.repo.commit_and_remove()
@@ -409,7 +385,7 @@ class TestUseCasePermissions:
 
         john = model.User(name=u'john')
         model.Session.add(john)
-        
+
         # setup annakarenina with default roles
         anna = model.Package.by_name(u'annakarenina')
         model.clear_user_roles(anna)
@@ -552,5 +528,5 @@ class TestUseCasePermissions:
                                                  action=model.Action.READ,
                                                  domain_object=self.vrestricted), self.authorizer.get_domain_object_roles_printable(self.vrestricted)
 
-        
+
 

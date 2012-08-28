@@ -28,7 +28,7 @@ def upgrade(migrate_engine):
         Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=False)
         )
 
-    # make user nullable: 
+    # make user nullable:
     user_object_role_table = Table('user_object_role', metadata,
         Column('id', UnicodeText, primary_key=True, default=make_uuid),
         Column('user_id', UnicodeText, ForeignKey('user.id'), nullable=True),
@@ -40,11 +40,11 @@ def upgrade(migrate_engine):
         Column('user_object_role_id', UnicodeText, ForeignKey('user_object_role.id'), primary_key=True),
         Column('authorization_group_id', UnicodeText, ForeignKey('authorization_group.id')),
         )
-    
+
     authorization_group_table.create()
     authorization_group_user_table.create()
     authorization_group_role_table.create()
-    authorization_group_id = Column('authorized_group_id', UnicodeText, 
+    authorization_group_id = Column('authorized_group_id', UnicodeText,
                                     ForeignKey('authorization_group.id'), nullable=True)
     authorization_group_id.create(user_object_role_table)
 

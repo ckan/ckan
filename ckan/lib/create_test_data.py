@@ -8,7 +8,7 @@ import authztool
 log = logging.getLogger(__name__)
 
 class CreateTestData(object):
-    # keep track of the objects created by this class so that 
+    # keep track of the objects created by this class so that
     # tests can easy call delete() method to delete them all again.
     pkg_names = []
     tag_names = []
@@ -488,28 +488,6 @@ left arrow <
 
         model.repo.commit_and_remove()
 
-        # Create a couple of authorization groups
-        for ag_name in [u'anauthzgroup', u'anotherauthzgroup']:
-            ag=model.AuthorizationGroup.by_name(ag_name)
-            if not ag: #may already exist, if not create
-                ag=model.AuthorizationGroup(name=ag_name)
-                model.Session.add(ag)
-
-        model.repo.commit_and_remove()
-
-        # and give them a range of roles on various things
-        ag = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        aag = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
-        pkg = model.Package.by_name(u'warandpeace')
-        g = model.Group.by_name('david')
-
-        model.add_authorization_group_to_role(ag, u'editor', model.System())
-        model.add_authorization_group_to_role(ag, u'reader', pkg)
-        model.add_authorization_group_to_role(ag, u'admin', aag)
-        model.add_authorization_group_to_role(aag, u'editor', ag)
-        model.add_authorization_group_to_role(ag, u'editor', g)
-
-        model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere
     @classmethod
@@ -556,7 +534,7 @@ left arrow <
             authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
                                                       except_on_error=True,
                                                       do_commit=False)
-        model.repo.commit_and_remove()    
+        model.repo.commit_and_remove()
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
@@ -673,7 +651,7 @@ left arrow <
         model.Package.get('annakarenina').add_tag(sonata_tag)
 
         model.Session.commit()
-    
+
 
 
 search_items = [{'name':'gils',

@@ -375,11 +375,6 @@ class IAuthorizer(Interface):
     """
     Allow customisation of default Authorization implementation
     """
-    def get_authorization_groups(self, username):
-        """
-        Called by Authorizer to extend the list of groups to which a
-        user belongs.  Should return a list of AuthorizationGroups.
-        """
 
     def get_roles(self, username, domain_obj):
         """
