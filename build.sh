@@ -50,7 +50,7 @@ buildkit pkg python -p $CKAN_PACKAGE_VERSION \
                     --distro-dep "python-solr" \
                     --delete "repoze.who-friendlyform" \
                     --rename "repoze.who.plugins.openid -> repoze.who-plugins" \
-                    --rename "babel -> pybabel"
+                    --rename "babel -> pybabel" \
                     --author-email="$EMAIL" \
                     --author-name="$NAME" \
                     --packager-email="$EMAIL" \
