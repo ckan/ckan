@@ -88,15 +88,10 @@ def create_library(name, path, depend_base=True):
         if path in IE_conditionals:
             other_browsers = ('others' in IE_conditionals[path])
             condition = IE_conditionals[path][0]
-        if inline:
+        if inline or condition:
             kw['renderer'] = fanstatic_extensions.CkanCustomRenderer(
                                         condition=condition,
                                         script=inline,
-                                        renderer=renderer,
-                                        other_browsers=other_browsers)
-        elif condition:
-            kw['renderer'] = fanstatic_extensions.CkanCustomRenderer(
-                                        condition=condition,
                                         renderer=renderer,
                                         other_browsers=other_browsers)
         resource = Resource(library, path, **kw)
