@@ -265,7 +265,7 @@ class PackageController(BaseController):
                 ctype, format, loader = "text/html; charset=utf-8", "html", \
                     MarkupTemplate
         else:
-            ctype, extension, loader = self._content_type_from_accept()
+            ctype, format, loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
