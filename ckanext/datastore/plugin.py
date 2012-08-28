@@ -18,6 +18,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IAuthFunctions)
 
     def configure(self, config):
+        self.config = config
         # check for ckan.datastore_write_url
         if (not 'ckan.datastore_write_url' in config):
             error_msg = 'ckan.datastore_write_url not found in config'
@@ -27,9 +28,12 @@ class DatastorePlugin(p.SingletonPlugin):
         ## to resource dict.  Not using IAction extension as this prevents other plugins
         ## from having a custom resource_read.
 
+        # TODO: check correct pg settings
+
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
 
+        # TODO: move to package.py or better: have a think about it
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
                 context,
@@ -58,10 +62,12 @@ class DatastorePlugin(p.SingletonPlugin):
 
 
     def get_actions(self):
-        return {'datastore_create': action.datastore_create,
+        available_actions = {'datastore_create': action.datastore_create,
                 'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search,
-                'data_search_sql': action.data_search_sql}
+                'datastore_search': action.datastore_search}
+        if 'ckan.datastore_read_url' in self.config:
+            available_actions['data_search_sql'] = action.data_search_sql
+        return available_actions
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
