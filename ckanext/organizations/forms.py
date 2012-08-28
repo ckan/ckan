@@ -8,6 +8,8 @@ from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
 from ckan.lib.navl.dictization_functions import DataError
+import ckan.plugins as p
+
 from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer, IRoutes
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
@@ -64,12 +66,11 @@ class OrganizationForm(SingletonPlugin):
         This IConfigurer implementation causes CKAN to look in the
         ```templates``` directory when looking for the group_form()
         """
-        here = os.path.dirname(__file__)
-        rootdir = os.path.dirname(os.path.dirname(here))
-        template_dir = os.path.join(rootdir, 'ckanext',
-                                    'organizations', 'templates')
-        config['extra_template_paths'] = ','.\
-            join([template_dir, config.get('extra_template_paths', '')])
+        templates = 'templates'
+        if p.toolkit.asbool(config.get('ckan.legacy_templates', False)):
+                templates = 'templates_legacy'
+        p.toolkit.add_template_directory(config, templates)
+        p.toolkit.add_public_directory(config, 'public')
 
         # Override /group/* as the default groups urls
         config['ckan.default.group_type'] = 'organization'
