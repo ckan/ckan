@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-07-31 12:17+0100\n"
-"PO-Revision-Date: 2012-08-17 09:54+0000\n"
+"PO-Revision-Date: 2012-08-22 07:52+0000\n"
 "Last-Translator: keronos <aka.keronos@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/ckan/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -2368,7 +2368,7 @@ msgstr "Révision"
 #: ckan/templates/snippets/revision_list.html:11
 #: ckanext/organizations/templates/organization_history.html:32
 msgid "Timestamp"
-msgstr "Timestamp"
+msgstr "horodatage"
 
 #: ckan/templates/group/history.html:32 ckan/templates/package/history.html:25
 #: ckan/templates/snippets/revision_list.html:11
@@ -2666,7 +2666,7 @@ msgstr "jeux de données"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr "Que vous pouvez \n            parcourir, apprendre de et télécharger."
+msgstr "Que vous pouvez \n            parcourir, découvrir en détail et télécharger ."
 
 #: ckan/templates/home/index.html:32
 msgid "Share data"
@@ -2877,7 +2877,7 @@ msgstr "Page d'accueil"
 msgid ""
 "(Don't worry if you don't know which license the data has been released "
 "under)."
-msgstr "(Ne vous en faites pas si vous le savez pas sous quelle licence la donnée a été publiée)"
+msgstr "(Ne vous en faites pas si vous ne savez pas sous quelle licence la donnée a été publiée)"
 
 #: ckan/templates/package/new_package_form.html:96
 msgid "Member of:"
@@ -2962,7 +2962,7 @@ msgstr "Ajouter des champs spécifiques au jeu de données comme \"localisation:
 #: ckan/templates/package/resource_read.html:157
 #: ckanext/organizations/templates/organization_package_form.html:242
 msgid "Additional Information"
-msgstr "Information additionnelle"
+msgstr "Informations additionnelles"
 
 #: ckan/templates/package/new_package_form.html:234
 #: ckanext/organizations/templates/organization_package_form.html:242
@@ -3189,7 +3189,7 @@ msgstr "Autre accès"
 
 #: ckan/templates/package/search.html:35
 msgid "You can also access this registry using the"
-msgstr "Vous pouvez également accéder à ce catalogue en utilisant le"
+msgstr "Vous pouvez également accéder à ce catalogue en utilisant l'"
 
 #: ckan/templates/package/search.html:37
 msgid "(see"
@@ -3414,7 +3414,7 @@ msgstr "Restaurer"
 
 #: ckan/templates/revision/read.html:39
 msgid "Timestamp:"
-msgstr "Timestamp :"
+msgstr "Horodatage :"
 
 #: ckan/templates/revision/read.html:41
 msgid "Log Message:"
@@ -3641,7 +3641,7 @@ msgstr "Mes suiveurs ({num_followers})"
 
 #: ckan/templates/user/layout.html:25
 msgid "View Profile"
-msgstr "Voir le profile"
+msgstr "Voir le profil"
 
 #: ckan/templates/user/layout.html:39
 msgid "Register Account"
@@ -3753,7 +3753,7 @@ msgstr "identifié dans"
 
 #: ckan/templates/user/logout_first.html:12
 msgid "is currently logged in"
-msgstr "est actuellement identifié dans"
+msgstr "est actuellement identifié"
 
 #: ckan/templates/user/logout_first.html:15
 msgid "To register or log in as another user, you need to"

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2012-07-31 12:17+0100\n"
-"PO-Revision-Date: 2012-08-21 11:18+0000\n"
+"PO-Revision-Date: 2012-08-23 11:03+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
 "Language-Team: Korean (Korea) (http://www.transifex.com/projects/p/ckan/language/ko_KR/)\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: ckan/new_authz.py:19
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr "권한 부여 기능을 찾을 수 없습니다:  %s"
+msgstr "권한 기능을 찾을 수 없습니다:  %s"
 
 #: ckan/controllers/admin.py:20
 msgid "Need to be system administrator to administer"
@@ -257,7 +257,7 @@ msgstr "비교를 위해 두 개의 수정안을 선택하세 "
 
 #: ckan/controllers/group.py:416
 msgid "CKAN Group Revision History"
-msgstr "CKAN 그룹 수 이력 "
+msgstr "CKAN 그룹 수정 이력 "
 
 #: ckan/controllers/group.py:419
 msgid "Recent changes to CKAN Group: "
@@ -418,7 +418,7 @@ msgstr "프로파일 업데이트됨"
 #: ckan/controllers/user.py:311
 #, python-format
 msgid "%s is now logged in"
-msgstr "%s는 현재 로그인 되어 있습니다"
+msgstr "%s은 지금 로그인되었습니다"
 
 #: ckan/controllers/user.py:315
 msgid "Login failed. Bad username or password."
@@ -725,7 +725,7 @@ msgstr "이 설명은 패키지 제목에 표시될 수 있습니다. 특히, �
 #: ckan/forms/package.py:83
 #, python-format
 msgid "You can use %sMarkdown formatting%s here."
-msgstr "%sMarkdown formatting%s을 이곳에 사용할 수 있습니다. "
+msgstr "%sMarkdown formatting%s"
 
 #: ckan/forms/package.py:94
 msgid "Basic information"
@@ -1672,7 +1672,7 @@ msgstr "검토중..."
 
 #: ckan/templates/js_strings.html:16
 msgid "Type at least two characters..."
-msgstr "마지막 두 글자를 입력하세요"
+msgstr "적어도 두 글자 이상을 입력하세요"
 
 #: ckan/templates/js_strings.html:16
 msgid "This is the current URL."
@@ -2395,7 +2395,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr "태그는 데이터셋을 수집하는데 좋을 수 있지만, 컬렉션을 편집하는 사용자를 제약할 필요가 있다. [1:group] 은 사용자가 해당 데이터의 추가와 제거하기 위한 허가를 ㅁ명시하기 위해 설정할 수 있다."
+msgstr "태그는 데이터셋을 함께 수집하는데 좋지만, 컬렉션을 편집하는데 있어 사용자들을 제한시키는 것이 필요할 수 있습니다. [1:그룹]은 사용자가 데이터의 추가 및 제거할 수 있는 권한을 지정할 수 있습니다."
 
 #: ckan/templates/group/layout.html:13 ckan/templates/package/layout.html:38
 #: ckanext/organizations/templates/organization_layout.html:19
@@ -2415,7 +2415,7 @@ msgstr "현존하는 데이터셋"
 
 #: ckan/templates/group/layout.html:32
 msgid "List Groups"
-msgstr "그룹의 리스트"
+msgstr "그룹 목록"
 
 #: ckan/templates/group/layout.html:35
 msgid "Add a Group"
@@ -2423,7 +2423,7 @@ msgstr "그룹 추가하기"
 
 #: ckan/templates/group/layout.html:38
 msgid "Login to Add a Group"
-msgstr "그룹을 추가하기 위해 로그인하기"
+msgstr "그룹 추가를 위해 로그인하기"
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new.html:6
 msgid "Add A Group"
@@ -2471,7 +2471,7 @@ msgstr "경고: URL이 너무 깁니다. 조금 짧은 것으로 변경을 고�
 #: ckanext/publisher_form/templates/dataset_form.html:88
 #: ckanext/publisher_form/templates/publisher_form.html:40
 msgid "Start with a summary sentence ..."
-msgstr "요약 문을 시작하세요 ..."
+msgstr "요약문장을 시작하세요 ..."
 
 #: ckan/templates/group/new_group_form.html:47
 #: ckanext/organizations/templates/organization_form.html:47
@@ -2574,7 +2574,7 @@ msgid ""
 "[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
 " these is out there on the Internet somewhere - but it is not always easy to"
 " find."
-msgstr "1935년 영국 집값[1:average price] 은 얼마인가? 언제쯤 인도의 공식 인구가 중국을  [2:overtake] 할 것인가? 시애틀에서 [3:publicly-funded art] 를 볼 수 있는 곳은? 이와 같은 질문에 답을 제공할 수 있는 데이터는 인터넷 어딘가에 존재하지만, 항상 쉽게 찾을 수 있는 것은 아니다."
+msgstr "1935년, 영국에 있었던 집의 [1:평균 가격]은 얼마였을까요? 언제쯤 인도의 공식 인구가 중국을 [2:넘을]까요? 시애틀에서 [3:공립 예술] 작품을 볼 수 있는 곳은 어디일까요? 이런 질문에 답을 줄 수 있는 데이터는 인터넷 어딘가에 있지만, 항상 쉽게 찾을 수 있진 않습니다."
 
 #: ckan/templates/home/about.html:16
 #, python-format
@@ -2585,7 +2585,7 @@ msgid ""
 "Depending on the type of data (and its conditions of use), %(site_title)s "
 "may also be able to store a copy of the data or host it in a database, and "
 "provide some basic visualisation tools."
-msgstr "%(site_title)s는 인터넷에 있는 유용한 데이터 집합을 커뮤니티의 참여를 통해 만든 목록이다. 웹에 있는 데이터의 링크를 수집하고 다른 사람이 사용할 수 있으며, 다른 사람이 수집한 데이터를 검색할 수도 있다. 데이터의 형식 (사용 조건)에 의존적일 수 있지만, %(site_title)s는 데이터의 복사본을 저장하거나, 데이터베이스를 호스트해 주며, 기본적인 시각화 도구들을 제공한다."
+msgstr "%(site_title)s는 인터넷에 있는 유용한 데이터 집합을 커뮤니티의 참여를 통해 만드는 목록입니다. 자신을 위해 웹에 있는 데이터를 수집하여 링크를 제공할 수 있으며, 이런 데이터를 다른 사람이 사용할 수 있습니다. 또한 다른 사람들이 수집한 데이터를 검색할 수도 있습니다. 데이터의 형식 (사용 조건)에 따라 다를 수 있지만, %(site_title)s는 데이터의 복사본을 저장하거나, 데이터베이스를 호스트해 줄 수 있으며, 기본적인 시각화 도구를 제공합니다."
 
 #: ckan/templates/home/about.html:23
 msgid "How it works"
@@ -2600,7 +2600,7 @@ msgid ""
 "who owns it and whether it is freely available, and what subject areas the "
 "data is about. Other users can improve or add to this information (CKAN "
 "keeps a fully versioned history)."
-msgstr "이 사이트는 강력한 오픈 소스 데이터 목록 소프트웨어인 [1:CKAN]을 사용하며, [2:Open Knowledge Foundation]에 의해 개발 및 운영되고 있다. CKAN에 있는 개별  '데이터셋'은 사용할 수 있는 포맷의 종류, 소유자, 자유롭게 사용할 수 있는 조건, 데이터의 주제 영역 등의 데이터에 대한 설명을 포함하며 추가적인 유용한 정보도 제공한다. 다른 사용자들도 이 정보를 개선하거나 추가할 수 있다  (CKAN은 완전하게 데이터의 버전 이력을 유지한다)."
+msgstr "이 사이트는 강력한 오픈 소스 데이터 목록 소프트웨어인 [1:CKAN]을 기반으로 하며, [2:Open Knowledge Foundation]에 의해 개발 및 운영됩니다. CKAN에 있는 개별 '데이터셋'은 사용할 수 있는 포맷의 종류, 소유자, 자유롭게 사용할 수 있는 조건, 데이터의 주제 영역 등의 데이터에 대한 유용한 정보를 제공합니다. 다른 사용자도 데이터에 대한 정보를 개선하거나 추가할 수 있습니다 (CKAN은 데이터의 버전 이력을 완벽히 유지합니다)."
 
 #: ckan/templates/home/about.html:27
 msgid ""
@@ -2611,7 +2611,7 @@ msgid ""
 "listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
 "list of catalogues like these around the world at [4:datacatalogs.org], "
 "which is itself powered by CKAN."
-msgstr "CKAN은 인터넷에서 운영되는 다수의 데이터 목록의 바탕이 되고 있다. [1:The Data Hub] 는 위키피디아 스타일의 오픈 데이터 목록으로 공개적으로 편집이 가능하다. 영국 정부는 CKAN을 이용하여 [2:data.gov.uk]를 운영하고 있으며, 현재 8,000개의 정부 데이터셋이 서비스되고 있다. 대부분의 유럽 국가들에서 수집된 공식적인 공공 데이터는  [3:publicdata.eu]에 CKAN 목록으로 존재한다. 뿐만 아니라 전세계에 있는 포괄적인 목록 리스트인 [4:datacatalogs.org]도  CKAN에 의해 운영된다."
+msgstr "CKAN은 인터넷에서 있는 다수의 데이터 목록을 지원하고 있습니다. [1:The Data Hub]는 위키피디아 스타일의 오픈 데이터 목록으로 공개적으로 편집이 가능합니다. 영국 정부는 CKAN을 이용하여 [2:data.gov.uk]를 운영하고 있으며, 현재 8,000개의 정부 데이터셋이 서비스되고 있습니다. [3:publicdata.eu]는 대부분의 유럽 국가에서 수집된 공식적인 공공 데이터의 목록을 CKAN을 통해 제공합니다. 뿐만 아니라 전세계의 포괄적인 목록 리스트인 [4:datacatalogs.org]도 CKAN에 의해 운영되고 있습니다."
 
 #: ckan/templates/home/about.html:30
 msgid "Open data and the Open Knowledge Foundation"
@@ -2627,7 +2627,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Handbook]."
-msgstr "%(site_title)s에 인덱스된 대부분의 데이터는 공개적으로 허가된 것으로 누구나 자유롭게 사용 또는 재사용이 가능하다. 어떤 사용자는 당신이 찾은 도시의 공공 예술 작품에 대한 좋은 데이터를 관광지도에 추가할 수 있고 - 심지어 당신이 도시를 방문할 때 예술작품을 찾을 수 있도록 휴대폰에서 사용할 수 있는 근사한 앱을 만들 수도 있다. 오픈 데이터는 더 기업적이며, 협력적인 학문과 투명한 정부를 의미한다. 오픈데이터에 대한 자세한 정보는 [1:Open Data Handbook]에서 읽을 수 있다."
+msgstr "%(site_title)s에 인덱스된 대부분의 데이터는 공개적으로 허가된 것으로 누구나 자유롭게 사용 또는 재사용이 가능합니다. 어떤 사용자는 당신이 찾은 양질의 도시의 공공 예술 작품과 관련된 데이터를 관광지도에 추가할 수 있고 - 심지어 당신이 어떤 도시를 방문할 때 예술작품을 찾을 수 있도록 휴대폰에서 사용할 수 있는 근사한 앱을 만들 수도 있습니다. 오픈 데이터는 더 기업적이며, 협력적인 학문과 투명한 정부를 의미합니다. 오픈데이터에 대한 자세한 정보는 [1:Open Data Handbook]에서 찾을 수 있습니다."
 
 #: ckan/templates/home/about.html:34
 msgid ""
@@ -2636,7 +2636,7 @@ msgid ""
 "If you want to get involved with its design or code, join the discussion or "
 "development [3:mailing lists], or take a look at the [4:OKFN] site to find "
 "out about our other projects."
-msgstr "[1:Open Knowledge Foundation]은 비영리 기업으로 열린 지식을 [2:promoting] 시킨다: CKAN을 개발하고 향상시키는 것이 그 중 하나이다. CKAN의 설계 및 코드에 참여하기 원하면 토론 또는 개발 [3:mailing lists]에 가입하거나 [4:OKFN] 사이트의 프로젝트를 보기 바란다."
+msgstr "[1:Open Knowledge Foundation]은 열린 지식을 [2:장려하는] 비영리 기업입니다: CKAN을 개발하고 향상시키는 것이 그 중 하나입니다. CKAN의 설계 및 코드에 참여하기 원하면 토론 또는 개발 [3:메일링 리스트]에 가입하거나 [4:OKFN] 사이트의 프로젝트를 참고하시기 바랍니다."
 
 #: ckan/templates/home/index.html:9
 msgid "Welcome"
@@ -2873,7 +2873,7 @@ msgstr "홈페이지"
 msgid ""
 "(Don't worry if you don't know which license the data has been released "
 "under)."
-msgstr "(어떤 라이센스를 데이터 배포에 적용할지 모를 경우 걱정하지 마세요)"
+msgstr "(어떤 라이센스를 데이터 배포에 적용할지 모른다 해도 걱정하지 마세요)"
 
 #: ckan/templates/package/new_package_form.html:96
 msgid "Member of:"
@@ -3181,11 +3181,11 @@ msgstr "지금 등록하기"
 
 #: ckan/templates/package/search.html:29
 msgid "Other access"
-msgstr "다른 접근"
+msgstr "다른 접근 방법"
 
 #: ckan/templates/package/search.html:35
 msgid "You can also access this registry using the"
-msgstr "를 이용하여 이 레지스트리에 접근할 수 있습니다."
+msgstr "를 이용하여 이 목록에 접근할 수 있습니다."
 
 #: ckan/templates/package/search.html:37
 msgid "(see"
@@ -3197,7 +3197,7 @@ msgstr "또는 다운로드하세요"
 
 #: ckan/templates/package/search.html:39
 msgid "full"
-msgstr "완전한"
+msgstr "전체"
 
 #: ckan/templates/package/search.html:39
 msgid "dump"
@@ -3461,7 +3461,7 @@ msgstr "높이:"
 #: ckan/templates/snippets/package_list.html:39
 #: ckanext/publisher_form/templates/publisher_read.html:88
 msgid "Not Openly Licensed"
-msgstr "공개적으로 허가되지 않음"
+msgstr "공개적인 라이센스 없음"
 
 #: ckan/templates/snippets/revision_list.html:11
 msgid "Entity"
@@ -3528,7 +3528,7 @@ msgstr "- 대시보드 - 사용자"
 
 #: ckan/templates/user/dashboard.html:17
 msgid "What's going on?"
-msgstr "무슨 일이죠?"
+msgstr "어떤 일이 일어나고 있을까요?"
 
 #: ckan/templates/user/dashboard.html:25
 msgid "Nothing new on CKAN?"
@@ -3621,7 +3621,7 @@ msgstr "대시보드"
 
 #: ckan/templates/user/layout.html:12
 msgid "My Profile"
-msgstr "나의 프로파일"
+msgstr "내 프로파일"
 
 #: ckan/templates/user/layout.html:13
 msgid "Edit Profile"
@@ -3821,7 +3821,7 @@ msgstr "편집"
 
 #: ckan/templates/user/read.html:84
 msgid "Public Activity"
-msgstr "공개 활동"
+msgstr "공개적인 활동"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Reset password"
