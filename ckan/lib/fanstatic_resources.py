@@ -68,22 +68,20 @@ def create_library(name, path, depend_base=True):
                     kw['bottom'] = True
             if filename.endswith('.css'):
                 renderer = core.render_css
+            core.set_resource_file_existence_checking(True)
         else:
-            kw['fake_resource'] = True
+            # This doesn't exist so stop fanstatic checking the filesystem
+            core.set_resource_file_existence_checking(False)
         dependencies = []
         if path in depends:
             for dependency in depends[path]:
                 dependencies.append(get_resource(name, dependency))
         if depend_base:
             dependencies.append(getattr(module, 'base/main'))
-
         if dependencies:
             kw['depends'] = dependencies
         if path in dont_bundle:
             kw['dont_bundle'] = True
-        if path in custom_render_order:
-            kw['custom_renderer_order'] = custom_render_order[path]
-        kw['custom_order'] = count
         # IE conditionals
         condition = None
         other_browsers = False
@@ -102,6 +100,20 @@ def create_library(name, path, depend_base=True):
                                         renderer=renderer,
                                         other_browsers=other_browsers)
         resource = Resource(library, path, **kw)
+
+        # Add our customised ordering
+        if path in custom_render_order:
+            resource.order = custom_render_order[path]
+        resource.custom_order = count
+        # Update the attributes of the minified version of the resource to
+        # that of the parents as fanstatic does not pass these on.
+        update_attributes = ['custom_order', 'order', 'bottom', 'depends',
+                             'dont_bundle', 'renderer']
+        if 'minified' in resource.modes:
+            min_res = resource.modes['minified']
+            for attribute in update_attributes:
+                setattr(min_res, attribute, getattr(resource, attribute))
+
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, path)
         log.debug('create resource %s' % fanstatic_name)
