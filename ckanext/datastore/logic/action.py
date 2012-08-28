@@ -136,7 +136,8 @@ def data_search_sql(context, data_dict):
 
     if not db.is_single_statement(sql):
         raise p.toolkit.ValidationError({
-            'query': ['Is not a single statement']
+            'query': ['Query is not a single statement or contains semicolons.'],
+            'hint': ['If you want to use semicolons, use character encoding (; equals chr(59)) and string concatenation (||). ']
         })
 
     p.toolkit.check_access('datastore_search', context, data_dict)
