@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.exc import ProgrammingError
 import ckan.plugins as p
 import psycopg2.extras
 import json
@@ -592,6 +593,15 @@ def search_sql(context, data_dict):
         )
         return format_results(context, results, data_dict)
 
+    except ProgrammingError, e:
+        raise p.toolkit.ValidationError({
+         'query': [str(e)],
+         'info': {
+            'statement': [e.statement],
+            'params': [e.params],
+            'orig': [str(e.orig)]
+         }
+        })
     except Exception, e:
         if 'due to statement timeout' in str(e):
             raise p.toolkit.ValidationError({
