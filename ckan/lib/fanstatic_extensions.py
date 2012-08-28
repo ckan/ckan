@@ -1,8 +1,3 @@
-import os.path
-import sys
-
-from fanstatic import Resource
-
 import fanstatic.core as core
 
 
