@@ -9,7 +9,6 @@ sqlalchemy-migrate==0.7.2
 sqlalchemy==0.7.8
 webhelpers==1.3
 
-babel==0.9.6
 tempita==0.5.1
 zope.interface==4.0.1
 routes==1.13
