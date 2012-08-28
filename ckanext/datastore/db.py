@@ -464,7 +464,7 @@ def format_results(context, results, data_dict):
     return data_dict
 
 def is_single_statement(sql):
-    return True
+    return not ';' in sql.strip(';')
 
 def create(context, data_dict):
     '''

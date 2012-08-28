@@ -707,3 +707,56 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         assert res_dict['result']['total'] == 2,  pprint.pformat(res_dict)
 
 
+class TestDatastoreSQL(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = {
+            'resource_id': resource.id,
+            'fields': [{'id': u'b\xfck', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'published'}],
+            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy', 'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy', 'nested': {'a':'b'}}
+                       ]
+        }
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
+                                u'_id': 1,
+                                u'nested': [u'b', {u'moo': u'moo'}], u'b\xfck': u'annakarenina', u'author': u'tolstoy'},
+                                {u'published': None,
+                                 u'_id': 2,
+                                 u'nested': {u'a': u'b'}, u'b\xfck': u'warandpeace', u'author': u'tolstoy'}]
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_is_single_statement(self):
+        singles = ['SELECT * FROM footable', 
+            'SELECT * FROM "bartable"',
+            'SELECT * FROM "bartable";',
+            "select 'foo'||chr(59)||'bar'"]
+
+        for single in singles:
+            assert db.is_single_statement(single) is True
+
+        multiples = ['SELECT * FROM abc; SET LOCAL statement_timeout to'
+            'SET LOCAL statement_timeout to; SELECT * FROM abc',
+            'SELECT * FROM "foo"; SELECT * FROM "abc"']
+
+        for multiple in multiples:
+            assert db.is_single_statement(multiple) is False
