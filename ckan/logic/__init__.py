@@ -73,7 +73,7 @@ class ValidationError(ParameterError):
             def prettify(field_name):
                 field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',
                                     field_name.replace('_', ' ').capitalize())
-                return field_name.replace('_', ' ')
+                return _(field_name.replace('_', ' '))
 
             summary = {}
             for key, error in error_dict.iteritems():
@@ -86,7 +86,7 @@ class ValidationError(ParameterError):
                 elif key == 'tags':
                     summary[_('Tags')] = error[0]
                 else:
-                    summary[prettify(key)] = error[0]
+                    summary[_(prettify(key))] = error[0]
             return summary
 
         if self._error_summary:
