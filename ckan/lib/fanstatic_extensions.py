@@ -36,14 +36,26 @@ class CkanCustomRenderer(object):
 
 
 def render_js(url):
-    return '<script type="text/javascript" src="%s"></script>' % (url,)
+    return '<script src="%s"></script>' % (url,)
 
+#    __  __             _                ____       _       _
+#   |  \/  | ___  _ __ | | _____ _   _  |  _ \ __ _| |_ ___| |__
+#   | |\/| |/ _ \| '_ \| |/ / _ \ | | | | |_) / _` | __/ __| '_ \
+#   | |  | | (_) | | | |   <  __/ |_| | |  __/ (_| | || (__| | | |
+#   |_|  |_|\___/|_| |_|_|\_\___|\__, | |_|   \__,_|\__\___|_| |_|
+#                                |___/
 
 def render(self, library_url):
 
     paths = [resource.relpath for resource in self._resources]
-    # URL may become too long:
-    # http://www.boutell.com/newfaq/misc/urllength.html
+
+    # MONKEY PATCH
+    # We have changed the relpath to just use the bundle path as we don't
+    # care about the dir name of the resource as that is now part of the
+    # resource name.  We need this so that we can actually get to all the
+    # resources regardless of the actual directory they are in.
+
+    # relpath = ''.join([self.dirname, BUNDLE_PREFIX, ';'.join(paths)])
     relpath = ''.join([core.BUNDLE_PREFIX, ';'.join(paths)])
 
     return self.renderer('%s/%s' % (library_url, relpath))
@@ -61,6 +73,11 @@ def fits(self, resource):
     bundle_resource = self._resources[0]
     return (resource.library is bundle_resource.library and
             resource.renderer is bundle_resource.renderer and
+
+            # MONKEY PATCH
+            # We allow .js files to be bundled even if they are in different
+            # directories as the directory location doesn't actually matter
+            # to javascript files just css files.
             (resource.ext == '.js' or
              resource.dirname == bundle_resource.dirname))
 
@@ -94,11 +111,9 @@ def sort_resources(resources):
             resource.order,
             resource.library.library_nr,
             resource.library.name,
-            resource.custom_order,
+            resource.custom_order,  # Added in MONKEY PATCH
             resource.dependency_nr,
-            resource.renderer,
             resource.relpath)
     return sorted(resources, key=key)
 
 core.sort_resources = sort_resources
-# Fanstatic Patch #
