@@ -18,7 +18,7 @@
 this.ckan.module('select-switch', {
 
   options: {
-    target: 'select',
+    target: 'select'
   },
 
   initialize: function () {
