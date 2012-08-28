@@ -463,6 +463,9 @@ def format_results(context, results, data_dict):
     data_dict['fields'] = result_fields
     return data_dict
 
+def is_single_statement(sql):
+    return True
+
 def create(context, data_dict):
     '''
     The first row will be used to guess types not in the fields and the

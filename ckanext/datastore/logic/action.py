@@ -134,6 +134,11 @@ def data_search_sql(context, data_dict):
     model = _get_or_bust(context, 'model')
     sql = _get_or_bust(data_dict, 'sql')
 
+    if not db.is_single_statement(sql):
+        raise p.toolkit.ValidationError({
+            'query': ['Is not a single statement']
+        })
+
     p.toolkit.check_access('datastore_search', context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
