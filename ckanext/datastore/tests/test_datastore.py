@@ -734,12 +734,18 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
-                                u'_id': 1,
-                                u'nested': [u'b', {u'moo': u'moo'}], u'b\xfck': u'annakarenina', u'author': u'tolstoy'},
-                                {u'published': None,
-                                 u'_id': 2,
-                                 u'nested': {u'a': u'b'}, u'b\xfck': u'warandpeace', u'author': u'tolstoy'}]
+        cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
+                                  u'_id': 1,
+                                  u'author': u'tolstoy',
+                                  u'b\xfck': u'annakarenina',
+                                  u'nested': [u'b', {u'moo': u'moo'}],
+                                  u'published': u'2005-03-01T00:00:00'},
+                                 {u'_full_text': u"'b':3 'tolstoy':2 'warandpeac':1",
+                                  u'_id': 2,
+                                  u'author': u'tolstoy',
+                                  u'b\xfck': u'warandpeace',
+                                  u'nested': {u'a': u'b'},
+                                  u'published': None}]
 
     @classmethod
     def teardown_class(cls):
@@ -760,3 +766,17 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
         for multiple in multiples:
             assert db.is_single_statement(multiple) is False
+
+    def test_search_basic(self):
+        query = 'SELECT * FROM "{}"'.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/data_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        import pprint
+        pprint.pprint(result['records'])
+        assert result['records'] == self.expected_records
