@@ -6,27 +6,8 @@ from fanstatic import Resource
 import fanstatic.core as core
 
 
-class IEConditionalRenderer(object):
-    ''' Allows for IE conditionals. '''
-    def __init__(self, condition, renderer, other_browsers=False):
-        self.condition = condition
-        self.renderer = renderer
-        if other_browsers:
-            self.other_browsers_start = '<!-->'
-            self.other_browsers_end = '<!--'
-        else:
-            self.other_browsers_start = ''
-            self.other_browsers_end = ''
-
-    def __call__(self, url):
-        return '<!--[if %s]>%s%s%s<![endif]-->' % (self.condition,
-                                                   self.other_browsers_start,
-                                                   self.renderer(url),
-                                                   self.other_browsers_end)
-
-
-class InlineJSRenderer(object):
-    ''' Allows for in-line js via fanstatic. '''
+class CkanCustomRenderer(object):
+    ''' Allows for in-line js and IE conditionals via fanstatic. '''
     def __init__(self, script=None, renderer=None, condition=None,
                  other_browsers=False):
         self.script = script
