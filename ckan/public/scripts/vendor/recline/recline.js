@@ -1,5 +1,105 @@
 this.recline = this.recline || {};
 this.recline.Backend = this.recline.Backend || {};
+this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
+
+(function($, my) {
+  // ## CKAN Backend
+  //
+  // This provides connection to the CKAN DataStore (v2)
+  //
+  // General notes
+  // 
+  // * Every dataset must have an id equal to its resource id on the CKAN instance
+  // * You should set the CKAN API endpoint for requests by setting API_ENDPOINT value on this module (recline.Backend.Ckan.API_ENDPOINT)
+
+  my.__type__ = 'ckan';
+
+  // Default CKAN API endpoint used for requests (you can change this but it will affect every request!)
+  my.API_ENDPOINT = 'http://datahub.io/api';
+
+  // ### fetch
+  my.fetch = function(dataset) {
+    var wrapper = my.DataStore();
+    var dfd = $.Deferred();
+    var jqxhr = wrapper.search({resource_id: dataset.id, limit: 0});
+    jqxhr.done(function(results) {
+      // map ckan types to our usual types ...
+      var fields = _.map(results.result.fields, function(field) {
+        field.type = field.type in CKAN_TYPES_MAP ? CKAN_TYPES_MAP[field.type] : field.type;
+        return field;
+      });
+      var out = {
+        fields: fields,
+        useMemoryStore: false
+      };
+      dfd.resolve(out);  
+    });
+    return dfd.promise();
+  };
+
+  // only put in the module namespace so we can access for tests!
+  my._normalizeQuery = function(queryObj, dataset) {
+    var actualQuery = {
+      resource_id: dataset.id,
+      q: queryObj.q,
+      limit: queryObj.size || 10,
+      offset: queryObj.from || 0
+    };
+    if (queryObj.sort && queryObj.sort.length > 0) {
+      var _tmp = _.map(queryObj.sort, function(sortObj) {
+        return sortObj.field + ' ' + (sortObj.order || '');
+      });
+      actualQuery.sort = _tmp.join(',');
+    }
+    return actualQuery;
+  }
+
+  my.query = function(queryObj, dataset) {
+    var actualQuery = my._normalizeQuery(queryObj, dataset);
+    var wrapper = my.DataStore();
+    var dfd = $.Deferred();
+    var jqxhr = wrapper.search(actualQuery);
+    jqxhr.done(function(results) {
+      var out = {
+        total: results.result.total,
+        hits: results.result.records,
+      };
+      dfd.resolve(out);  
+    });
+    return dfd.promise();
+  };
+
+  // ### DataStore
+  //
+  // Simple wrapper around the CKAN DataStore API
+  //
+  // @param endpoint: CKAN api endpoint (e.g. http://datahub.io/api)
+  my.DataStore = function(endpoint) { 
+    var that = {
+      endpoint: endpoint || my.API_ENDPOINT
+    };
+    that.search = function(data) {
+      var searchUrl = that.endpoint + '/3/action/datastore_search';
+      var jqxhr = $.ajax({
+        url: searchUrl,
+        data: data,
+        dataType: 'json'
+      });
+      return jqxhr;
+    }
+
+    return that;
+  }
+
+  var CKAN_TYPES_MAP = {
+    'int4': 'integer',
+    'float8': 'float',
+    'text': 'string'
+  };
+
+}(jQuery, this.recline.Backend.Ckan));
+this.recline = this.recline || {};
+this.recline.Backend = this.recline.Backend || {};
 this.recline.Backend.CSV = this.recline.Backend.CSV || {};
 
 (function(my) {
@@ -145,6 +245,69 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
     field = processField(field);
     row.push(field);
     out.push(row);
+
+    return out;
+  };
+
+  // Converts an array of arrays into a Comma Separated Values string.
+  // Each array becomes a line in the CSV.
+  //
+  // Nulls are converted to empty fields and integers or floats are converted to non-quoted numbers.
+  //
+  // @return The array serialized as a CSV
+  // @type String
+  // 
+  // @param {Array} a The array of arrays to convert
+  // @param {Object} options Options for loading CSV including
+  //	@param {String} [separator=','] Separator for CSV file
+  // Heavily based on uselesscode's JS CSV parser (MIT Licensed):
+  // http://www.uselesscode.org/javascript/csv/
+  my.serializeCSV= function(a, options) {
+    var options = options || {};
+    var separator = options.separator || ',';
+    var delimiter = options.delimiter || '"';
+
+    var cur = '', // The character we are currently processing.
+      field = '', // Buffer for building up the current field
+      row = '',
+      out = '',
+      i,
+      j,
+      processField;
+
+    processField = function (field) {
+      if (field === null) {
+        // If field is null set to empty string
+        field = '';
+      } else if (typeof field === "string" && rxNeedsQuoting.test(field)) {
+        // Convert string to delimited string
+        field = delimiter + field + delimiter;
+      } else if (typeof field === "number") {
+        // Convert number to string
+        field = field.toString(10);
+      }
+
+      return field;
+    };
+
+    for (i = 0; i < a.length; i += 1) {
+      cur = a[i];
+
+      for (j = 0; j < cur.length; j += 1) {
+        field = processField(cur[j]);
+        // If this is EOR append row to output and flush row
+        if (j === (cur.length - 1)) {
+          row += field;
+          out += row + "\n";
+          row = '';
+        } else {
+          // Add the current field to the current row
+          row += field + separator;
+        }
+        // Flush the field buffer
+        field = '';
+      }
+    }
 
     return out;
   };
@@ -372,6 +535,19 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
       return out;
     },
 
+    // convert from Recline sort structure to ES form
+    // http://www.elasticsearch.org/guide/reference/api/search/sort.html
+    this._normalizeSort = function(sort) {
+      var out = _.map(sort, function(sortObj) {
+        var _tmp = {};
+        var _tmp2 = _.clone(sortObj);
+        delete _tmp2['field'];
+        _tmp[sortObj.field] = _tmp2;
+        return _tmp;
+      });
+      return out;
+    },
+
     this._convertFilter = function(filter) {
       var out = {};
       out[filter.type] = {}
@@ -390,10 +566,12 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     // @return deferred supporting promise API
     this.query = function(queryObj) {
       var esQuery = (queryObj && queryObj.toJSON) ? queryObj.toJSON() : _.extend({}, queryObj);
-      var queryNormalized = this._normalizeQuery(queryObj);
+      esQuery.query = this._normalizeQuery(queryObj);
       delete esQuery.q;
       delete esQuery.filters;
-      esQuery.query = queryNormalized;
+      if (esQuery.sort && esQuery.sort.length > 0) {
+        esQuery.sort = this._normalizeSort(esQuery.sort);
+      }
       var data = {source: JSON.stringify(esQuery)};
       var url = this.endpoint + '/_search';
       var jqxhr = makeRequest({
@@ -549,19 +727,43 @@ this.recline.Backend.GDocs = this.recline.Backend.GDocs || {};
   // * fields: array of Field objects
   // * records: array of objects for each row
   my.fetch = function(dataset) {
-    var dfd = $.Deferred(); 
-    var url = my.getSpreadsheetAPIUrl(dataset.url);
-    $.getJSON(url, function(d) {
-      result = my.parseData(d);
-      var fields = _.map(result.fields, function(fieldId) {
-        return {id: fieldId};
+    var dfd  = $.Deferred(); 
+    var urls = my.getGDocsAPIUrls(dataset.url);
+
+    // TODO cover it with tests
+    // get the spreadsheet title
+    (function () {
+      var titleDfd = $.Deferred();
+
+      $.getJSON(urls.spreadsheet, function (d) {
+          titleDfd.resolve({
+              spreadsheetTitle: d.feed.title.$t
+          });
       });
-      dfd.resolve({
-        records: result.records,
-        fields: fields,
-        useMemoryStore: true
+
+      return titleDfd.promise();
+    }()).then(function (response) {
+
+      // get the actual worksheet data
+      $.getJSON(urls.worksheet, function(d) {
+        var result = my.parseData(d);
+        var fields = _.map(result.fields, function(fieldId) {
+          return {id: fieldId};
+        });
+
+        dfd.resolve({
+          metadata: {
+              title: response.spreadsheetTitle +" :: "+ result.worksheetTitle,
+              spreadsheetTitle: response.spreadsheetTitle,
+              worksheetTitle  : result.worksheetTitle
+          },
+          records       : result.records,
+          fields        : fields,
+          useMemoryStore: true
+        });
       });
     });
+
     return dfd.promise();
   };
 
@@ -575,71 +777,86 @@ this.recline.Backend.GDocs = this.recline.Backend.GDocs || {};
   // :return: tabular data object (hash with keys: field and data).
   // 
   // Issues: seems google docs return columns in rows in random order and not even sure whether consistent across rows.
-  my.parseData = function(gdocsSpreadsheet) {
-    var options = {};
-    if (arguments.length > 1) {
-      options = arguments[1];
-    }
+  my.parseData = function(gdocsSpreadsheet, options) {
+    var options  = options || {};
+    var colTypes = options.colTypes || {};
     var results = {
-      fields: [],
+      fields : [],
       records: []
     };
-    // default is no special info on type of columns
-    var colTypes = {};
-    if (options.colTypes) {
-      colTypes = options.colTypes;
-    }
-    if (gdocsSpreadsheet.feed.entry.length > 0) {
-      for (var k in gdocsSpreadsheet.feed.entry[0]) {
-        if (k.substr(0, 3) == 'gsx') {
-          var col = k.substr(4);
-          results.fields.push(col);
-        }
+    var entries = gdocsSpreadsheet.feed.entry || [];
+    var key;
+    var colName;
+    // percentage values (e.g. 23.3%)
+    var rep = /^([\d\.\-]+)\%$/;
+
+    for(key in entries[0]) {
+      // it's barely possible it has inherited keys starting with 'gsx$'
+      if(/^gsx/.test(key)) {
+        colName = key.substr(4);
+        results.fields.push(colName);
       }
     }
 
     // converts non numberical values that should be numerical (22.3%[string] -> 0.223[float])
-    var rep = /^([\d\.\-]+)\%$/;
-    results.records = _.map(gdocsSpreadsheet.feed.entry, function(entry) {
+    results.records = _.map(entries, function(entry) {
       var row = {};
+
       _.each(results.fields, function(col) {
         var _keyname = 'gsx$' + col;
-        var value = entry[_keyname]['$t'];
+        var value = entry[_keyname].$t;
+        var num;
+ 
+        // TODO cover this part of code with test
+        // TODO use the regexp only once
         // if labelled as % and value contains %, convert
-        if (colTypes[col] == 'percent') {
-          if (rep.test(value)) {
-            var value2 = rep.exec(value);
-            var value3 = parseFloat(value2);
-            value = value3 / 100;
-          }
+        if(colTypes[col] === 'percent' && rep.test(value)) {
+          num   = rep.exec(value)[1];
+          value = parseFloat(num) / 100;
         }
+
         row[col] = value;
       });
+
       return row;
     });
+
+    results.worksheetTitle = gdocsSpreadsheet.feed.title.$t;
     return results;
   };
 
   // Convenience function to get GDocs JSON API Url from standard URL
-  my.getSpreadsheetAPIUrl = function(url) {
-    if (url.indexOf('feeds/list') != -1) {
-      return url;
-    } else {
-      // https://docs.google.com/spreadsheet/ccc?key=XXXX#gid=0
-      var regex = /.*spreadsheet\/ccc?.*key=([^#?&+]+).*/;
-      var matches = url.match(regex);
-      if (matches) {
-        var key = matches[1];
-        var worksheet = 1;
-        var out = 'https://spreadsheets.google.com/feeds/list/' + key + '/' + worksheet + '/public/values?alt=json';
-        return out;
-      } else {
-        alert('Failed to extract gdocs key from ' + url);
-      }
+  my.getGDocsAPIUrls = function(url) {
+    // https://docs.google.com/spreadsheet/ccc?key=XXXX#gid=YYY
+    var regex = /.*spreadsheet\/ccc?.*key=([^#?&+]+).*gid=([\d]+).*/;
+    var matches = url.match(regex);
+    var key;
+    var worksheet;
+    var urls;
+    
+    if(!!matches) {
+        key = matches[1];
+        // the gid in url is 0-based and feed url is 1-based
+        worksheet = parseInt(matches[2]) + 1;
+        urls = {
+          worksheet  : 'https://spreadsheets.google.com/feeds/list/'+ key +'/'+ worksheet +'/public/values?alt=json',
+          spreadsheet: 'https://spreadsheets.google.com/feeds/worksheets/'+ key +'/public/basic?alt=json'
+        }
     }
+    else {
+        // we assume that it's one of the feeds urls
+        key = url.split('/')[5];
+        // by default then, take first worksheet
+        worksheet = 1;
+        urls = {
+          worksheet  : 'https://spreadsheets.google.com/feeds/list/'+ key +'/'+ worksheet +'/public/values?alt=json',
+          spreadsheet: 'https://spreadsheets.google.com/feeds/worksheets/'+ key +'/public/basic?alt=json'
+        }            
+    }
+
+    return urls;
   };
 }(jQuery, this.recline.Backend.GDocs));
-
 this.recline = this.recline || {};
 this.recline.Backend = this.recline.Backend || {};
 this.recline.Backend.Memory = this.recline.Backend.Memory || {};
@@ -705,16 +922,19 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
       var numRows = queryObj.size || this.data.length;
       var start = queryObj.from || 0;
       var results = this.data;
+      
       results = this._applyFilters(results, queryObj);
       results = this._applyFreeTextQuery(results, queryObj);
-      // not complete sorting!
+
+      // TODO: this is not complete sorting!
+      // What's wrong is we sort on the *last* entry in the sort list if there are multiple sort criteria
       _.each(queryObj.sort, function(sortObj) {
-        var fieldName = _.keys(sortObj)[0];
+        var fieldName = sortObj.field;
         results = _.sortBy(results, function(doc) {
           var _out = doc[fieldName];
           return _out;
         });
-        if (sortObj[fieldName].order == 'desc') {
+        if (sortObj.order == 'desc') {
           results.reverse();
         }
       });
@@ -730,15 +950,51 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
 
     // in place filtering
     this._applyFilters = function(results, queryObj) {
-      _.each(queryObj.filters, function(filter) {
-        // if a term filter ...
-        if (filter.type === 'term') {
-          results = _.filter(results, function(doc) {
-            return (doc[filter.field] == filter.term);
-          });
-        }
+      var filters = queryObj.filters;
+      // register filters
+      var filterFunctions = {
+        term         : term,
+        range        : range,
+        geo_distance : geo_distance
+      };
+      var dataParsers = {
+        number : function (e) { return parseFloat(e, 10); },
+        string : function (e) { return e.toString() },
+        date   : function (e) { return new Date(e).valueOf() }
+      };
+
+      // filter records
+      return _.filter(results, function (record) {
+        var passes = _.map(filters, function (filter) {
+          return filterFunctions[filter.type](record, filter);
+        });
+
+        // return only these records that pass all filters
+        return _.all(passes, _.identity);
       });
-      return results;
+
+      // filters definitions
+
+      function term(record, filter) {
+        var parse = dataParsers[filter.fieldType];
+        var value = parse(record[filter.field]);
+        var term  = parse(filter.term);
+
+        return (value === term);
+      }
+
+      function range(record, filter) {
+        var parse = dataParsers[filter.fieldType];
+        var value = parse(record[filter.field]);
+        var start = parse(filter.start);
+        var stop  = parse(filter.stop);
+
+        return (value >= start && value <= stop);
+      }
+
+      function geo_distance() {
+        // TODO code here
+      }
     };
 
     // we OR across fields but AND across terms in query string
@@ -810,7 +1066,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
     };
 
     this.transform = function(editFunc) {
-      var toUpdate = costco.mapDocs(this.data, editFunc);
+      var toUpdate = recline.Data.Transform.mapDocs(this.data, editFunc);
       // TODO: very inefficient -- could probably just walk the documents and updates in tandem and update
       _.each(toUpdate.updates, function(record, idx) {
         self.data[idx] = record;
@@ -820,74 +1076,73 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
   };
 
 }(jQuery, this.recline.Backend.Memory));
+this.recline = this.recline || {};
+this.recline.Data = this.recline.Data || {};
+
+(function(my) {
 // adapted from https://github.com/harthur/costco. heather rules
 
-var costco = function() {
-  
-  function evalFunction(funcString) {
-    try {
-      eval("var editFunc = " + funcString);
-    } catch(e) {
-      return {errorMessage: e+""};
-    }
-    return editFunc;
-  }
-  
-  function previewTransform(docs, editFunc, currentColumn) {
-    var preview = [];
-    var updated = mapDocs($.extend(true, {}, docs), editFunc);
-    for (var i = 0; i < updated.docs.length; i++) {      
-      var before = docs[i]
-        , after = updated.docs[i]
-        ;
-      if (!after) after = {};
-      if (currentColumn) {
-        preview.push({before: before[currentColumn], after: after[currentColumn]});      
-      } else {
-        preview.push({before: before, after: after});      
-      }
-    }
-    return preview;
-  }
+my.Transform = {};
 
-  function mapDocs(docs, editFunc) {
-    var edited = []
-      , deleted = []
-      , failed = []
-      ;
-    
-    var updatedDocs = _.map(docs, function(doc) {
-      try {
-        var updated = editFunc(_.clone(doc));
-      } catch(e) {
-        failed.push(doc);
-        return;
-      }
-      if(updated === null) {
-        updated = {_deleted: true};
-        edited.push(updated);
-        deleted.push(doc);
-      }
-      else if(updated && !_.isEqual(updated, doc)) {
-        edited.push(updated);
-      }
-      return updated;      
-    });
-    
-    return {
-      updates: edited, 
-      docs: updatedDocs, 
-      deletes: deleted, 
-      failed: failed
-    };
+my.Transform.evalFunction = function(funcString) {
+  try {
+    eval("var editFunc = " + funcString);
+  } catch(e) {
+    return {errorMessage: e+""};
   }
+  return editFunc;
+};
+
+my.Transform.previewTransform = function(docs, editFunc, currentColumn) {
+  var preview = [];
+  var updated = my.Transform.mapDocs($.extend(true, {}, docs), editFunc);
+  for (var i = 0; i < updated.docs.length; i++) {      
+    var before = docs[i]
+      , after = updated.docs[i]
+      ;
+    if (!after) after = {};
+    if (currentColumn) {
+      preview.push({before: before[currentColumn], after: after[currentColumn]});      
+    } else {
+      preview.push({before: before, after: after});      
+    }
+  }
+  return preview;
+};
+
+my.Transform.mapDocs = function(docs, editFunc) {
+  var edited = []
+    , deleted = []
+    , failed = []
+    ;
+  
+  var updatedDocs = _.map(docs, function(doc) {
+    try {
+      var updated = editFunc(_.clone(doc));
+    } catch(e) {
+      failed.push(doc);
+      return;
+    }
+    if(updated === null) {
+      updated = {_deleted: true};
+      edited.push(updated);
+      deleted.push(doc);
+    }
+    else if(updated && !_.isEqual(updated, doc)) {
+      edited.push(updated);
+    }
+    return updated;      
+  });
   
   return {
-    evalFunction: evalFunction,
-    previewTransform: previewTransform,
-    mapDocs: mapDocs
+    updates: edited, 
+    docs: updatedDocs, 
+    deletes: deleted, 
+    failed: failed
   };
-}();
+};
+
+}(this.recline.Data))
 // # Recline Backbone Models
 this.recline = this.recline || {};
 this.recline.Model = this.recline.Model || {};
@@ -1181,36 +1436,6 @@ my.Dataset = Backbone.Model.extend({
 });
 
 
-// ### Dataset.restore
-//
-// Restore a Dataset instance from a serialized state. Serialized state for a
-// Dataset is an Object like:
-// 
-// <pre>
-// {
-//   backend: {backend type - i.e. value of dataset.backend.__type__}
-//   dataset: {dataset info needed for loading -- result of dataset.toJSON() would be sufficient but can be simpler }
-//   // convenience - if url provided and dataste not this be used as dataset url
-//   url: {dataset url}
-//   ...
-// }
-my.Dataset.restore = function(state) {
-  var dataset = null;
-  // hack-y - restoring a memory dataset does not mean much ...
-  if (state.backend === 'memory') {
-    var datasetInfo = {
-      records: [{stub: 'this is a stub dataset because we do not restore memory datasets'}]
-    };
-  } else {
-    var datasetInfo = {
-      url: state.url,
-      backend: state.backend
-    };
-  }
-  dataset = new recline.Model.Dataset(datasetInfo);
-  return dataset;
-};
-
 // ## <a id="record">A Record</a>
 // 
 // A single record (or row) in the dataset
@@ -1385,10 +1610,17 @@ my.Query = Backbone.Model.extend({
   _filterTemplates: {
     term: {
       type: 'term',
+      // TODO do we need this attribute here?
       field: '',
       term: ''
     },
+    range: {
+      type: 'range',
+      start: '',
+      stop: ''
+    },
     geo_distance: {
+      type: 'geo_distance',
       distance: 10,
       unit: 'km',
       point: {
@@ -1406,7 +1638,8 @@ my.Query = Backbone.Model.extend({
     // crude deep copy
     var ourfilter = JSON.parse(JSON.stringify(filter));
     // not full specified so use template and over-write
-    if (_.keys(filter).length <= 2) {
+    // 3 as for 'type', 'field' and 'fieldType'
+    if (_.keys(filter).length <= 3) {
       ourfilter = _.extend(this._filterTemplates[filter.type], ourfilter);
     }
     var filters = this.get('filters');
@@ -1518,22 +1751,22 @@ this.recline.View = this.recline.View || {};
 // NB: should *not* provide an el argument to the view but must let the view
 // generate the element itself (you can then append view.el to the DOM.
 my.Graph = Backbone.View.extend({
-  tagName:  "div",
-  className: "recline-graph",
-
   template: ' \
-  <div class="panel graph"> \
-    <div class="js-temp-notice alert alert-block"> \
-      <h3 class="alert-heading">Hey there!</h3> \
-      <p>There\'s no graph here yet because we don\'t know what fields you\'d like to see plotted.</p> \
-      <p>Please tell us by <strong>using the menu on the right</strong> and a graph will automatically appear.</p> \
+    <div class="recline-graph"> \
+      <div class="panel graph" style="display: block;"> \
+        <div class="js-temp-notice alert alert-block"> \
+          <h3 class="alert-heading">Hey there!</h3> \
+          <p>There\'s no graph here yet because we don\'t know what fields you\'d like to see plotted.</p> \
+          <p>Please tell us by <strong>using the menu on the right</strong> and a graph will automatically appear.</p> \
+        </div> \
+      </div> \
     </div> \
-  </div> \
-</div> \
 ',
 
   initialize: function(options) {
     var self = this;
+    this.graphColors = ["#edc240", "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed"];
+
     this.el = $(this.el);
     _.bindAll(this, 'render', 'redraw');
     this.needToRedraw = false;
@@ -1542,12 +1775,6 @@ my.Graph = Backbone.View.extend({
     this.model.fields.bind('add', this.render);
     this.model.records.bind('add', this.redraw);
     this.model.records.bind('reset', this.redraw);
-    // because we cannot redraw when hidden we may need when becoming visible
-    this.bind('view:show', function() {
-      if (this.needToRedraw) {
-        self.redraw();
-      }
-    });
     var stateData = _.extend({
         group: null,
         // so that at least one series chooser box shows up
@@ -1566,7 +1793,6 @@ my.Graph = Backbone.View.extend({
       self.redraw();
     });
     this.elSidebar = this.editor.el;
-    this.render();
   },
 
   render: function() {
@@ -1590,14 +1816,21 @@ my.Graph = Backbone.View.extend({
       this.needToRedraw = true;
       return;
     }
+
     // check we have something to plot
     if (this.state.get('group') && this.state.get('series')) {
       // faff around with width because flot draws axes *outside* of the element width which means graph can get push down as it hits element next to it
       this.$graph.width(this.el.width() - 20);
       var series = this.createSeries();
       var options = this.getGraphOptions(this.state.attributes.graphType);
-      this.plot = $.plot(this.$graph, series, options);
-      this.setupTooltips();
+      this.plot = Flotr.draw(this.$graph.get(0), series, options);
+    }
+  },
+
+  show: function() {
+    // because we cannot redraw when hidden we may need to when becoming visible
+    if (this.needToRedraw) {
+      this.redraw();
     }
   },
 
@@ -1610,138 +1843,142 @@ my.Graph = Backbone.View.extend({
   // @param typeId graphType id (lines, lines-and-points etc)
   getGraphOptions: function(typeId) { 
     var self = this;
-    // special tickformatter to show labels rather than numbers
-    // TODO: we should really use tickFormatter and 1 interval ticks if (and
-    // only if) x-axis values are non-numeric
-    // However, that is non-trivial to work out from a dataset (datasets may
-    // have no field type info). Thus at present we only do this for bars.
-    var tickFormatter = function (val) {
-      if (self.model.records.models[val]) {
-        var out = self.model.records.models[val].get(self.state.attributes.group);
-        // if the value was in fact a number we want that not the 
-        if (typeof(out) == 'number') {
-          return val;
-        } else {
-          return out;
-        }
-      }
-      return val;
+
+    var tickFormatter = function (x) {
+      return getFormattedX(x);
     };
-
-    var xaxis = {};
-    // check for time series on x-axis
-    if (this.model.fields.get(this.state.get('group')).get('type') === 'date') {
-      xaxis.mode = 'time';
-      xaxis.timeformat = '%y-%b';
-    }
-    var optionsPerGraphType = { 
-      lines: {
-        series: { 
-          lines: { show: true }
-        },
-        xaxis: xaxis
-      },
-      points: {
-        series: {
-          points: { show: true }
-        },
-        xaxis: xaxis,
-        grid: { hoverable: true, clickable: true }
-      },
-      'lines-and-points': {
-        series: {
-          points: { show: true },
-          lines: { show: true }
-        },
-        xaxis: xaxis,
-        grid: { hoverable: true, clickable: true }
-      },
-      bars: {
-        series: {
-          lines: {show: false},
-          bars: {
-            show: true,
-            barWidth: 1,
-            align: "center",
-            fill: true,
-            horizontal: true
-          }
-        },
-        grid: { hoverable: true, clickable: true },
-        yaxis: {
-          tickSize: 1,
-          tickLength: 1,
-          tickFormatter: tickFormatter,
-          min: -0.5,
-          max: self.model.records.length - 0.5
-        }
-      }
-    };
-    return optionsPerGraphType[typeId];
-  },
-
-  setupTooltips: function() {
-    var self = this;
-    function showTooltip(x, y, contents) {
-      $('<div id="flot-tooltip">' + contents + '</div>').css( {
-        position: 'absolute',
-        display: 'none',
-        top: y + 5,
-        left: x + 5,
-        border: '1px solid #fdd',
-        padding: '2px',
-        'background-color': '#fee',
-        opacity: 0.80
-      }).appendTo("body").fadeIn(200);
-    }
-
-    var previousPoint = null;
-    this.$graph.bind("plothover", function (event, pos, item) {
-      if (item) {
-        if (previousPoint != item.datapoint) {
-          previousPoint = item.datapoint;
-          
-          $("#flot-tooltip").remove();
-          var x = item.datapoint[0];
-          var y = item.datapoint[1];
+    
+    var trackFormatter = function (obj) {
+          var x = obj.x;
+          var y = obj.y;
           // it's horizontal so we have to flip
           if (self.state.attributes.graphType === 'bars') {
             var _tmp = x;
             x = y;
             y = _tmp;
           }
-          // convert back from 'index' value on x-axis (e.g. in cases where non-number values)
-          if (self.model.records.models[x]) {
-            x = self.model.records.models[x].get(self.state.attributes.group);
-          } else {
-            x = x.toFixed(2);
-          }
-          y = y.toFixed(2);
-
-          // is it time series
-          var xfield = self.model.fields.get(self.state.attributes.group);
-          var isDateTime = xfield.get('type') === 'date';
-          if (isDateTime) {
-            x = new Date(parseInt(x)).toLocaleDateString();
-          }
           
+          x = getFormattedX(x);
+
           var content = _.template('<%= group %> = <%= x %>, <%= series %> = <%= y %>', {
             group: self.state.attributes.group,
             x: x,
-            series: item.series.label,
+            series: obj.series.label,
             y: y
           });
-          showTooltip(item.pageX, item.pageY, content);
+        
+        return content;
+    };
+    
+    var getFormattedX = function (x) {
+      var xfield = self.model.fields.get(self.state.attributes.group);
+
+      // time series
+      var isDateTime = xfield.get('type') === 'date';
+
+      if (self.model.records.models[parseInt(x)]) {
+        x = self.model.records.models[parseInt(x)].get(self.state.attributes.group);
+        if (isDateTime) {
+          x = new Date(x).toLocaleDateString();
         }
+      } else if (isDateTime) {
+        x = new Date(parseInt(x)).toLocaleDateString();
       }
-      else {
-        $("#flot-tooltip").remove();
-        previousPoint = null;            
-      }
-    });
+      return x;    
+    }
+    
+    var xaxis = {};
+    xaxis.tickFormatter = tickFormatter;
+
+    var yaxis = {};
+    yaxis.autoscale = true;
+    yaxis.autoscaleMargin = 0.02;
+    
+    var mouse = {};
+    mouse.track = true;
+    mouse.relative = true;
+    mouse.trackFormatter = trackFormatter;
+    
+    var legend = {};
+    legend.position = 'ne';
+    
+    // mouse.lineColor is set in createSeries
+    var optionsPerGraphType = { 
+      lines: {
+        legend: legend,
+        colors: this.graphColors,
+        lines: { show: true },
+        xaxis: xaxis,
+        yaxis: yaxis,
+        mouse: mouse
+      },
+      points: {
+        legend: legend,
+        colors: this.graphColors,
+        points: { show: true, hitRadius: 5 },
+        xaxis: xaxis,
+        yaxis: yaxis,
+        mouse: mouse,
+        grid: { hoverable: true, clickable: true }
+      },
+      'lines-and-points': {
+        legend: legend,
+        colors: this.graphColors,
+        points: { show: true, hitRadius: 5 },
+        lines: { show: true },
+        xaxis: xaxis,
+        yaxis: yaxis,
+        mouse: mouse,
+        grid: { hoverable: true, clickable: true }
+      },
+      bars: {
+        legend: legend,
+        colors: this.graphColors,
+        lines: { show: false },
+        xaxis: yaxis,
+        yaxis: xaxis,
+        mouse: { 
+            track: true,
+            relative: true,
+            trackFormatter: trackFormatter,
+            fillColor: '#FFFFFF',
+            fillOpacity: 0.3,
+            position: 'e'
+        },
+        bars: {
+            show: true,
+            horizontal: true,
+            shadowSize: 0,
+            barWidth: 0.8         
+        },
+      },
+      columns: {
+        legend: legend,
+        colors: this.graphColors,
+        lines: { show: false },
+        xaxis: xaxis,
+        yaxis: yaxis,
+        mouse: { 
+            track: true,
+            relative: true,
+            trackFormatter: trackFormatter,
+            fillColor: '#FFFFFF',
+            fillOpacity: 0.3,
+            position: 'n'
+        },
+        bars: {
+            show: true,
+            horizontal: false,
+            shadowSize: 0,
+            barWidth: 0.8         
+        },
+      },
+      grid: { hoverable: true, clickable: true },
+    };
+    return optionsPerGraphType[typeId];
   },
 
-  createSeries: function () {
+  createSeries: function() {
     var self = this;
     var series = [];
     _.each(this.state.attributes.series, function(field) {
@@ -1749,19 +1986,30 @@ my.Graph = Backbone.View.extend({
       _.each(self.model.records.models, function(doc, index) {
         var xfield = self.model.fields.get(self.state.attributes.group);
         var x = doc.getFieldValue(xfield);
+
         // time series
         var isDateTime = xfield.get('type') === 'date';
+        
         if (isDateTime) {
-          x = moment(x).toDate();
-        }
-        var yfield = self.model.fields.get(field);
-        var y = doc.getFieldValue(yfield);
-        if (typeof x === 'string') {
+          // datetime
+          if (self.state.attributes.graphType != 'bars' && self.state.attributes.graphType != 'columns') {
+            // not bar or column
+            x = new Date(x).getTime();
+          } else {
+            // bar or column
+            x = index;
+          }
+        } else if (typeof x === 'string') {
+          // string
           x = parseFloat(x);
           if (isNaN(x)) {
             x = index;
           }
         }
+
+        var yfield = self.model.fields.get(field);
+        var y = doc.getFieldValue(yfield);
+        
         // horizontal bar chart
         if (self.state.attributes.graphType == 'bars') {
           points.push([y, x]);
@@ -1769,7 +2017,7 @@ my.Graph = Backbone.View.extend({
           points.push([x, y]);
         }
       });
-      series.push({data: points, label: field});
+      series.push({data: points, label: field, mouse:{lineColor: self.graphColors[series.length]}});
     });
     return series;
   }
@@ -1788,6 +2036,7 @@ my.GraphControls = Backbone.View.extend({
           <option value="lines">Lines</option> \
           <option value="points">Points</option> \
           <option value="bars">Bars</option> \
+          <option value="columns">Columns</option> \
           </select> \
         </div> \
         <label>Group Column (x-axis)</label> \
@@ -2222,11 +2471,10 @@ this.recline.View = this.recline.View || {};
 //   }
 // </pre>
 my.Map = Backbone.View.extend({
-  tagName:  'div',
-  className: 'recline-map',
-
   template: ' \
-    <div class="panel map"></div> \
+    <div class="recline-map"> \
+      <div class="panel map"></div> \
+    </div> \
 ',
 
   // These are the default (case-insensitive) names of field that are used if found.
@@ -2238,6 +2486,18 @@ my.Map = Backbone.View.extend({
   initialize: function(options) {
     var self = this;
     this.el = $(this.el);
+    this.visible = true;
+    this.mapReady = false;
+
+    var stateData = _.extend({
+        geomField: null,
+        lonField: null,
+        latField: null,
+        autoZoom: true
+      },
+      options.state
+    );
+    this.state = new recline.Model.ObjectState(stateData);
 
     // Listen to changes in the fields
     this.model.fields.bind('change', function() {
@@ -2254,31 +2514,6 @@ my.Map = Backbone.View.extend({
     this.model.records.bind('remove', function(doc){self.redraw('remove',doc)});
     this.model.records.bind('reset', function(){self.redraw('reset')});
 
-    this.bind('view:show',function(){
-      // If the div was hidden, Leaflet needs to recalculate some sizes
-      // to display properly
-      if (self.map){
-        self.map.invalidateSize();
-        if (self._zoomPending && self.state.get('autoZoom')) {
-          self._zoomToFeatures();
-          self._zoomPending = false;
-        }
-      }
-      self.visible = true;
-    });
-    this.bind('view:hide',function(){
-      self.visible = false;
-    });
-
-    var stateData = _.extend({
-        geomField: null,
-        lonField: null,
-        latField: null,
-        autoZoom: true
-      },
-      options.state
-    );
-    this.state = new recline.Model.ObjectState(stateData);
     this.menu = new my.MapMenu({
       model: this.model,
       state: this.state.toJSON()
@@ -2288,10 +2523,6 @@ my.Map = Backbone.View.extend({
       self.redraw();
     });
     this.elSidebar = this.menu.el;
-
-    this.mapReady = false;
-    this.render();
-    this.redraw();
   },
 
   // ### Public: Adds the necessary elements to the page.
@@ -2303,6 +2534,7 @@ my.Map = Backbone.View.extend({
     htmls = Mustache.render(this.template, this.model.toTemplateJSON());
     $(this.el).html(htmls);
     this.$map = this.el.find('.panel.map');
+    this.redraw();
     return this;
   },
 
@@ -2342,6 +2574,23 @@ my.Map = Backbone.View.extend({
         }
       }
     }
+  },
+
+  show: function() {
+    // If the div was hidden, Leaflet needs to recalculate some sizes
+    // to display properly
+    if (this.map){
+      this.map.invalidateSize();
+      if (this._zoomPending && this.state.get('autoZoom')) {
+        this._zoomToFeatures();
+        this._zoomPending = false;
+      }
+    }
+    this.visible = true;
+  },
+
+  hide: function() {
+    this.visible = false;
   },
 
   _geomReady: function() {
@@ -2802,6 +3051,30 @@ this.recline.View = this.recline.View || {};
 // ];
 // </pre>
 //
+// **sidebarViews**: (optional) the sidebar views (Filters, Fields) for
+// MultiView to show. This is an array of view hashes. If not provided
+// initialize with (recline.View.)FilterEditor and Fields views (with obvious 
+// id and labels!).
+//
+// <pre>
+// var sidebarViews = [
+//   {
+//     id: 'filterEditor', // used for routing
+//     label: 'Filters', // used for view switcher
+//     view: new recline.View.FielterEditor({
+//       model: dataset
+//     })
+//   },
+//   {
+//     id: 'fieldsView',
+//     label: 'Fields',
+//     view: new recline.View.Fields({
+//       model: dataset
+//     })
+//   }
+// ];
+// </pre>
+//
 // **state**: standard state config for this view. This state is slightly
 //  special as it includes config of many of the subviews.
 //
@@ -2859,6 +3132,7 @@ my.MultiView = Backbone.View.extend({
     var self = this;
     this.el = $(this.el);
     this._setupState(options.state);
+
     // Hash of 'page' views (i.e. those for whole page) keyed by page name
     if (options.views) {
       this.pageViews = options.views;
@@ -2895,6 +3169,24 @@ my.MultiView = Backbone.View.extend({
         id: 'transform',
         label: 'Transform',
         view: new my.Transform({
+          model: this.model
+        })
+      }];
+    }
+    // Hashes of sidebar elements
+    if(options.sidebarViews) {
+      this.sidebarViews = options.sidebarViews;
+    } else {
+      this.sidebarViews = [{
+        id: 'filterEditor',
+        label: 'Filters',
+        view: new my.FilterEditor({
+          model: this.model
+        })
+      }, {
+        id: 'fieldsView',
+        label: 'Fields',
+        view: new my.Fields({
           model: this.model
         })
       }];
@@ -2964,10 +3256,16 @@ my.MultiView = Backbone.View.extend({
 
     // the main views
     _.each(this.pageViews, function(view, pageName) {
+      view.view.render();
       $dataViewContainer.append(view.view.el);
       if (view.view.elSidebar) {
         $dataSidebar.append(view.view.elSidebar);
       }
+    });
+
+    _.each(this.sidebarViews, function(view) {
+      this['$'+view.id] = view.view.el;
+      $dataSidebar.append(view.view.el);
     });
 
     var pager = new recline.View.Pager({
@@ -2980,17 +3278,6 @@ my.MultiView = Backbone.View.extend({
     });
     this.el.find('.query-editor-here').append(queryEditor.el);
 
-    var filterEditor = new recline.View.FilterEditor({
-      model: this.model
-    });
-    this.$filterEditor = filterEditor.el;
-    $dataSidebar.append(filterEditor.el);
-
-    var fieldsView = new recline.View.Fields({
-      model: this.model
-    });
-    this.$fieldsView = fieldsView.el;
-    $dataSidebar.append(fieldsView.el);
   },
 
   updateNav: function(pageName) {
@@ -3004,13 +3291,17 @@ my.MultiView = Backbone.View.extend({
         if (view.view.elSidebar) {
           view.view.elSidebar.show();
         }
-        view.view.trigger('view:show');
+        if (view.view.show) {
+          view.view.show();
+        }
       } else {
         view.view.el.hide();
         if (view.view.elSidebar) {
           view.view.elSidebar.hide();
         }
-        view.view.trigger('view:hide');
+        if (view.view.hide) {
+          view.view.hide();
+        }
       }
     });
   },
@@ -3055,6 +3346,7 @@ my.MultiView = Backbone.View.extend({
         'view-graph': graphState,
         backend: this.model.backend.__type__,
         url: this.model.get('url'),
+        dataset: this.model.toJSON(),
         currentView: null,
         readOnly: false
       },
@@ -3147,15 +3439,30 @@ my.MultiView = Backbone.View.extend({
 // ### MultiView.restore
 //
 // Restore a MultiView instance from a serialized state including the associated dataset
+//
+// This inverts the state serialization process in Multiview
 my.MultiView.restore = function(state) {
-  var dataset = recline.Model.Dataset.restore(state);
+  // hack-y - restoring a memory dataset does not mean much ... (but useful for testing!)
+  if (state.backend === 'memory') {
+    var datasetInfo = {
+      backend: 'memory',
+      records: [{stub: 'this is a stub dataset because we do not restore memory datasets'}]
+    };
+  } else {
+    var datasetInfo = _.extend({
+        url: state.url,
+        backend: state.backend
+      },
+      state.dataset
+    );
+  }
+  var dataset = new recline.Model.Dataset(datasetInfo);
   var explorer = new my.MultiView({
     model: dataset,
     state: state
   });
   return explorer;
 }
-
 
 // ## Miscellaneous Utilities
 var urlPathRegex = /^([^?]+)(\?.*)?/;
@@ -3246,9 +3553,6 @@ this.recline.View = this.recline.View || {};
 //
 // NB: you need an explicit height on the element for slickgrid to work
 my.SlickGrid = Backbone.View.extend({
-  tagName:  "div",
-  className: "recline-slickgrid",
-
   initialize: function(modelEtc) {
     var self = this;
     this.el = $(this.el);
@@ -3267,23 +3571,6 @@ my.SlickGrid = Backbone.View.extend({
       }, modelEtc.state
     );
     this.state = new recline.Model.ObjectState(state);
-
-    this.bind('view:show',function(){
-      // If the div is hidden, SlickGrid will calculate wrongly some
-      // sizes so we must render it explicitly when the view is visible
-      if (!self.rendered){
-        if (!self.grid){
-          self.render();
-        }
-        self.grid.init();
-        self.rendered = true;
-      }
-      self.visible = true;
-    });
-    this.bind('view:hide',function(){
-      self.visible = false;
-    });
-
   },
 
   events: {
@@ -3371,15 +3658,17 @@ my.SlickGrid = Backbone.View.extend({
     // Column sorting
     var sortInfo = this.model.queryState.get('sort');
     if (sortInfo){
-      var column = _.keys(sortInfo[0])[0];
-      var sortAsc = !(sortInfo[0][column].order == 'desc');
+      var column = sortInfo[0].field;
+      var sortAsc = !(sortInfo[0].order == 'desc');
       this.grid.setSortColumn(column, sortAsc);
     }
 
     this.grid.onSort.subscribe(function(e, args){
       var order = (args.sortAsc) ? 'asc':'desc';
-      var sort = [{}];
-      sort[0][args.sortCol.field] = {order: order};
+      var sort = [{
+        field: args.sortCol.field,
+        order: order
+      }];
       self.model.query({sort: sort});
     });
 
@@ -3411,7 +3700,24 @@ my.SlickGrid = Backbone.View.extend({
     }
 
     return this;
- }
+ },
+
+  show: function() {
+    // If the div is hidden, SlickGrid will calculate wrongly some
+    // sizes so we must render it explicitly when the view is visible
+    if (!this.rendered){
+      if (!this.grid){
+        this.render();
+      }
+      this.grid.init();
+      this.rendered = true;
+    }
+    this.visible = true;
+  },
+
+  hide: function() {
+    this.visible = false;
+  }
 });
 
 })(jQuery, recline.View);
@@ -3548,8 +3854,6 @@ if (typeof VMM !== 'undefined') {
 //
 // Timeline view using http://timeline.verite.co/
 my.Timeline = Backbone.View.extend({
-  tagName:  'div',
-
   template: ' \
     <div class="recline-timeline"> \
       <div id="vmm-timeline-id"></div> \
@@ -3567,12 +3871,6 @@ my.Timeline = Backbone.View.extend({
     this.el = $(this.el);
     this.timeline = new VMM.Timeline();
     this._timelineIsInitialized = false;
-    this.bind('view:show', function() {
-      // only call _initTimeline once view in DOM as Timeline uses $ internally to look up element
-      if (self._timelineIsInitialized === false) {
-        self._initTimeline();
-      }
-    });
     this.model.fields.bind('reset', function() {
       self._setupTemporalField();
     });
@@ -3587,7 +3885,12 @@ my.Timeline = Backbone.View.extend({
     );
     this.state = new recline.Model.ObjectState(stateData);
     this._setupTemporalField();
-    this.render();
+  },
+
+  render: function() {
+    var tmplData = {};
+    var htmls = Mustache.render(this.template, tmplData);
+    this.el.html(htmls);
     // can only call _initTimeline once view in DOM as Timeline uses $
     // internally to look up element
     if ($(this.elementId).length > 0) {
@@ -3595,10 +3898,11 @@ my.Timeline = Backbone.View.extend({
     }
   },
 
-  render: function() {
-    var tmplData = {};
-    var htmls = Mustache.render(this.template, tmplData);
-    this.el.html(htmls);
+  show: function() {
+    // only call _initTimeline once view in DOM as Timeline uses $ internally to look up element
+    if (this._timelineIsInitialized === false) {
+      this._initTimeline();
+    }
   },
 
   _initTimeline: function() {
@@ -3724,21 +4028,22 @@ this.recline.View = this.recline.View || {};
 //
 // View (Dialog) for doing data transformations
 my.Transform = Backbone.View.extend({
-  className: 'recline-transform',
   template: ' \
-    <div class="script"> \
-      <h2> \
-        Transform Script \
-        <button class="okButton btn btn-primary">Run on all records</button> \
-      </h2> \
-      <textarea class="expression-preview-code"></textarea> \
-    </div> \
-    <div class="expression-preview-parsing-status"> \
-      No syntax error. \
-    </div> \
-    <div class="preview"> \
-      <h3>Preview</h3> \
-      <div class="expression-preview-container"></div> \
+    <div class="recline-transform"> \
+      <div class="script"> \
+        <h2> \
+          Transform Script \
+          <button class="okButton btn btn-primary">Run on all records</button> \
+        </h2> \
+        <textarea class="expression-preview-code"></textarea> \
+      </div> \
+      <div class="expression-preview-parsing-status"> \
+        No syntax error. \
+      </div> \
+      <div class="preview"> \
+        <h3>Preview</h3> \
+        <div class="expression-preview-container"></div> \
+      </div> \
     </div> \
   ',
 
@@ -3749,7 +4054,6 @@ my.Transform = Backbone.View.extend({
 
   initialize: function(options) {
     this.el = $(this.el);
-    this.render();
   },
 
   render: function() {
@@ -3770,7 +4074,7 @@ my.Transform = Backbone.View.extend({
   onSubmit: function(e) {
     var self = this;
     var funcText = this.el.find('.expression-preview-code').val();
-    var editFunc = costco.evalFunction(funcText);
+    var editFunc = recline.Data.Transform.evalFunction(funcText);
     if (editFunc.errorMessage) {
       this.trigger('recline:flash', {message: "Error with function! " + editFunc.errorMessage});
       return;
@@ -3810,13 +4114,13 @@ my.Transform = Backbone.View.extend({
     // if you don't setTimeout it won't grab the latest character if you call e.target.value
     window.setTimeout( function() {
       var errors = self.el.find('.expression-preview-parsing-status');
-      var editFunc = costco.evalFunction(e.target.value);
+      var editFunc = recline.Data.Transform.evalFunction(e.target.value);
       if (!editFunc.errorMessage) {
         errors.text('No syntax error.');
         var docs = self.model.records.map(function(doc) {
           return doc.toJSON();
         });
-        var previewData = costco.previewTransform(docs, editFunc);
+        var previewData = recline.Data.Transform.previewTransform(docs, editFunc);
         var $el = self.el.find('.expression-preview-container');
         var fields = self.model.fields.toJSON();
         var rows = _.map(previewData.slice(0,4), function(row) {
@@ -4057,6 +4361,7 @@ my.FilterEditor = Backbone.View.extend({
           <label>Filter type</label> \
           <select class="filterType"> \
             <option value="term">Term (text)</option> \
+            <option value="range">Range</option> \
             <option value="geo_distance">Geo distance</option> \
           </select> \
           <label>Field</label> \
@@ -4087,6 +4392,20 @@ my.FilterEditor = Backbone.View.extend({
             <a class="js-remove-filter" href="#" title="Remove this filter">&times;</a> \
           </legend> \
           <input type="text" value="{{term}}" name="term" data-filter-field="{{field}}" data-filter-id="{{id}}" data-filter-type="{{type}}" /> \
+        </fieldset> \
+      </div> \
+    ',
+    range: ' \
+      <div class="filter-{{type}} filter"> \
+        <fieldset> \
+          <legend> \
+            {{field}} <small>{{type}}</small> \
+            <a class="js-remove-filter" href="#" title="Remove this filter">&times;</a> \
+          </legend> \
+          <label class="control-label" for="">From</label> \
+          <input type="text" value="{{start}}" name="start" data-filter-field="{{field}}" data-filter-id="{{id}}" data-filter-type="{{type}}" /> \
+          <label class="control-label" for="">To</label> \
+          <input type="text" value="{{stop}}" name="stop" data-filter-field="{{field}}" data-filter-id="{{id}}" data-filter-type="{{type}}" /> \
         </fieldset> \
       </div> \
     ',
@@ -4147,8 +4466,9 @@ my.FilterEditor = Backbone.View.extend({
     var $target = $(e.target);
     $target.hide();
     var filterType = $target.find('select.filterType').val();
-    var field = $target.find('select.fields').val();
-    this.model.queryState.addFilter({type: filterType, field: field});
+    var field      = $target.find('select.fields').val();
+    var fieldType  = this.model.fields.find(function (e) { return e.get('id') === field }).get('type');
+    this.model.queryState.addFilter({type: filterType, field: field, fieldType: fieldType});
     // trigger render explicitly as queryState change will not be triggered (as blank value for filter)
     this.render();
   },
@@ -4165,19 +4485,27 @@ my.FilterEditor = Backbone.View.extend({
     var $form = $(e.target);
     _.each($form.find('input'), function(input) {
       var $input = $(input);
-      var filterType = $input.attr('data-filter-type');
-      var fieldId = $input.attr('data-filter-field');
+      var filterType  = $input.attr('data-filter-type');
+      var fieldId     = $input.attr('data-filter-field');
       var filterIndex = parseInt($input.attr('data-filter-id'));
-      var name = $input.attr('name');
-      var value = $input.val();
-      if (filterType === 'term') {
-        filters[filterIndex].term = value;
-      } else if (filterType === 'geo_distance') {
-        if (name === 'distance') {
-          filters[filterIndex].distance = parseFloat(value);
-        } else {
-          filters[filterIndex].point[name] = parseFloat(value);
-        }
+      var name        = $input.attr('name');
+      var value       = $input.val();
+
+      switch (filterType) {
+        case 'term':
+          filters[filterIndex].term = value;
+          break;
+        case 'range':
+          filters[filterIndex][name] = value;
+          break;
+        case 'geo_distance':
+          if(name === 'distance') {
+            filters[filterIndex].distance = parseFloat(value);
+          }
+          else {
+            filters[filterIndex].point[name] = parseFloat(value);
+          }
+          break;
       }
     });
     self.model.queryState.set({filters: filters});
