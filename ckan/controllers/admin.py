@@ -31,8 +31,7 @@ class AdminController(base.BaseController):
                                                      model.Action.CHANGE_STATE,
                                                      model.Revision))
 
-    def config(self):
-
+    def _get_config_form_items(self):
         # Styles for use in the form.select() macro.
         styles = [{'text': 'Default', 'value': '/base/css/main.css'},
                   {'text': 'Red', 'value': '/base/css/red.css'},
@@ -48,7 +47,26 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
             {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
         ]
+        return items
 
+    def reset_config(self):
+        if 'cancel' in request.params:
+            h.redirect_to(controller='admin', action='config')
+
+        if request.method == 'POST':
+            # remove sys info items
+            for item in self._get_config_form_items():
+                name = item['name']
+                app_globals.delete_global(name)
+            # reset to values in config
+            app_globals.reset()
+            h.redirect_to(controller='admin', action='config')
+
+        return base.render('admin/confirm_reset.html')
+
+    def config(self):
+
+        items = self._get_config_form_items()
         data = request.POST
         if 'save' in data:
             # update config from form
@@ -57,16 +75,7 @@ class AdminController(base.BaseController):
                 if name in data:
                     app_globals.set_global(name, data[name])
             app_globals.reset()
-
-        if 'reset' in data:
-            # remove sys info items
-            for item in items:
-                name = item['name']
-                app_globals.delete_global(name)
-            # reset to values in config
-            app_globals.reset()
-
-
+            h.redirect_to(controller='admin', action='config')
 
         data = {}
         for item in items:

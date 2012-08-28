@@ -1,6 +1,8 @@
 ''' The application's Globals object '''
 
 import logging
+import time
+from threading import Lock
 
 from paste.deploy.converters import asbool
 from pylons import config
@@ -46,6 +48,7 @@ def set_global(key, value):
     ''' helper function for getting value from database or config file '''
     model.set_system_info(key, value)
     setattr(app_globals, get_globals_key(key), value)
+    model.set_system_info('ckan.config_update', str(time.time()))
     # update the config
     config[key] = value
     log.info('config `%s` set to `%s`' % (key, value))
@@ -73,7 +76,7 @@ def reset():
         config_value = config.get(key)
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
-        if value:
+        if value is not None:
             log.debug('config `%s` set to `%s` from db' % (key, value))
         else:
             value = _CONFIG_CACHE[key]
@@ -106,6 +109,8 @@ def reset():
         app_globals.header_class = 'header-text-logo-tagline'
 
 
+
+
 class _Globals(object):
 
     ''' Globals acts as a container for objects available throughout the
@@ -117,6 +122,18 @@ class _Globals(object):
         'app_globals' variable
         '''
         self._init()
+        self._config_update = None
+        self._mutex = Lock()
+
+    def _check_uptodate(self):
+        ''' check the config is uptodate needed when several instances are
+        running '''
+        value = model.get_system_info('ckan.config_update')
+        if self._config_update != value:
+            if self._mutex.acquire(False):
+                reset()
+                self._config_update = value
+                self._mutex.release()
 
     def _init(self):
         self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')

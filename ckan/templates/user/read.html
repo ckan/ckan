@@ -84,10 +84,18 @@
       {% if user.datasets %}
         {% snippet 'snippets/package_list.html', packages=user.datasets %}
       {% else %}
-        <p class="empty">
-          {{ _('You haven\'t created any datasets.') }}
-          {% link_for _('Create one now?'), controller='package', action='new' %}.
-        </p>
+
+        {% if c.is_myself %}
+          <p class="empty">
+            {{ _('You haven\'t created any datasets.') }}
+            {% link_for _('Create one now?'), controller='package', action='new' %}.
+          </p>
+        {% else %}
+          <p class="empty">
+            {{ _('User hasn\'t created any datasets.') }}
+          </p>
+        {% endif %}
+
       {% endif %}
     </section>
     <section id="activity" class="module-content module-activity tab-content">

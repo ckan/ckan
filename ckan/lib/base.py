@@ -28,6 +28,7 @@ import ckan.authz as authz
 from ckan.lib import i18n
 import lib.render
 import ckan.lib.helpers as h
+import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -110,15 +111,19 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             template_path = ''
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
-
-        debug_info = {'template_name' : template_name,
-                      'template_path' : template_path,
-                      'template_type' : template_type,
-                      'vars' : globs,
-                      'renderer' : renderer,}
-        if 'CKAN_DEBUG_INFO' not in request.environ:
-            request.environ['CKAN_DEBUG_INFO'] = []
-        request.environ['CKAN_DEBUG_INFO'].append(debug_info)
+        if config.get('debug'):
+            context_vars = globs.get('c')
+            if context_vars:
+                context_vars = dir(context_vars)
+            debug_info = {'template_name' : template_name,
+                          'template_path' : template_path,
+                          'template_type' : template_type,
+                          'vars' : globs,
+                          'c_vars': context_vars,
+                          'renderer' : renderer,}
+            if 'CKAN_DEBUG_INFO' not in request.environ:
+                request.environ['CKAN_DEBUG_INFO'] = []
+            request.environ['CKAN_DEBUG_INFO'].append(debug_info)
 
         # Jinja2 templates
         if template_type == 'jinja2':
@@ -204,6 +209,7 @@ class BaseController(WSGIController):
     def __before__(self, action, **params):
         c.__timer = time.time()
         c.__version__ = ckan.__version__
+        app_globals.app_globals._check_uptodate()
         self._identify_user()
         i18n.handle_request(request, c)
 
