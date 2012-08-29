@@ -69,6 +69,14 @@ textarea {
   width: 100%;
 }
 
+.ie7 .control-full {
+  input,
+  select,
+  textarea {
+    width: 95%;
+  }
+}
+
 .control-medium input,
 .control-medium select,
 .control-medium textarea {
@@ -537,6 +545,24 @@ textarea {
 .stages li.complete .highlight {
   color: @stagesCompleteTextColor;
   background: @stagesCompleteBackground;
+}
+
+.ie7 .stages {
+  overflow: hidden;
+  background-color: @stagesBackground;
+  li {
+    height: 30px;
+    width: 27%;
+    button,
+    span {
+      display: block;
+      height: 30px;
+      padding-left: 20px;
+    }
+    button {
+      height: 50px;
+    }
+  }
 }
 
 // Errors
