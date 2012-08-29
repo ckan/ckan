@@ -37,7 +37,10 @@ class DatastorePlugin(p.SingletonPlugin):
 
         if not config['debug']:
             self._check_separate_db()
-            self._check_read_permissions()    
+            if 'ckan.datastore_read_url' in config:
+                self._check_read_permissions()
+
+        self._create_alias_table()
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
@@ -74,9 +77,9 @@ class DatastorePlugin(p.SingletonPlugin):
         Make sure the datastore is on a separate db. Otherwise one could access
         all internal tables via the api. 
         '''
-        ckan_url = pylons.config['sqlalchemy.url']
-        write_url = pylons.config['ckan.datastore_write_url']
-        read_url = pylons.config['ckan.datastore_read_url']
+        ckan_url = self.config['sqlalchemy.url']
+        write_url = self.config['ckan.datastore_write_url']
+        read_url = self.config['ckan.datastore_read_url']
         if  write_url == read_url:
             raise Exception("The write and read-only database connection url are the same.")
 
@@ -91,20 +94,20 @@ class DatastorePlugin(p.SingletonPlugin):
         Check whether the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
-        write_url = pylons.config['ckan.datastore_write_url']
-        read_url = pylons.config['ckan.datastore_read_url']
+        write_url = self.config['ckan.datastore_write_url']
+        read_url = self.config['ckan.datastore_read_url']
 
         write_connection = db._get_engine(None, 
             {'connection_url': write_url}).connect()
-        write_connection.execute("CREATE TABLE public.foo (id INTEGER NOT NULL, name VARCHAR)")
+        write_connection.execute(u"CREATE TABLE public.foo (id INTEGER NOT NULL, name VARCHAR)")
 
         read_connection = db._get_engine(None, 
             {'connection_url': read_url}).connect()
         read_trans = read_connection.begin()
 
         statements = [
-            "CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)", 
-            "INSERT INTO public.foo VALUES (1, 'okfn')"
+            u"CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)", 
+            u"INSERT INTO public.foo VALUES (1, 'okfn')"
         ]
 
         try:
@@ -125,6 +128,12 @@ class DatastorePlugin(p.SingletonPlugin):
             raise
         finally:
             write_connection.execute("DROP TABLE foo")
+
+    def _create_alias_table(self):
+        create_alias_table_sql = u'create table if not exists alias_mapping (relation oid, alias oid)'
+        connection = db._get_engine(None,
+            {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
+        connection.execute(create_alias_table_sql)
 
     def get_actions(self):
         available_actions = {'datastore_create': action.datastore_create,
