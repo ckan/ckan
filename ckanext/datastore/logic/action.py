@@ -126,7 +126,7 @@ def data_search_sql(context, data_dict):
     :param sql: a single sql select statement
 
     :returns: a dictionary containing the search results.
-              keys: fields: same as datastore_create accepts
+              keys: fields: columns for results
                     records: results from the query
     :rtype: dictionary
 

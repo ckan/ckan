@@ -37,7 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         if not config['debug']:
             self._check_separate_db()
-        self._check_read_permissions()    
+            self._check_read_permissions()    
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')

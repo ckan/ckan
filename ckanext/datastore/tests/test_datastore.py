@@ -746,6 +746,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                   u'b\xfck': u'warandpeace',
                                   u'nested': {u'a': u'b'},
                                   u'published': None}]
+        cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
     @classmethod
     def teardown_class(cls):
@@ -777,6 +778,20 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        import pprint
-        pprint.pprint(result['records'])
         assert result['records'] == self.expected_records
+
+    def test_self_join(self):
+        query = 'SELECT a._id as first, b._id as second \
+                FROM "{0}" AS a, \
+                    "{0}" AS b \
+                WHERE a.author = b.author \
+                LIMIT 2'.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/data_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['records'] == self.expected_join_results
