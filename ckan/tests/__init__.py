@@ -93,7 +93,7 @@ class CommonFixtureMethods(BaseCase):
 
     @classmethod
     def create_user(cls, **kwds):
-        user = model.User(name=kwds['name'])             
+        user = model.User(name=kwds['name'])
         model.Session.add(user)
         model.Session.commit()
         model.Session.remove()
@@ -189,8 +189,8 @@ class CheckMethods(BaseCase):
 
     def assert_isinstance(self, value, check):
         assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
-    
-    def assert_raises(self, exception_class, callable, *args, **kwds): 
+
+    def assert_raises(self, exception_class, callable, *args, **kwds):
         try:
             callable(*args, **kwds)
         except exception_class:
@@ -265,7 +265,7 @@ class CkanServerCase(BaseCase):
                 break
 
     @staticmethod
-    def _stop_ckan_server(process): 
+    def _stop_ckan_server(process):
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
@@ -292,8 +292,8 @@ class TestSearchIndexer:
      (create packages)
     self.tsi.index()
      (do searching)
-    ''' 
-    
+    '''
+
     def __init__(self):
         from ckan import plugins
         if not is_search_supported():
@@ -302,12 +302,12 @@ class TestSearchIndexer:
 
     @classmethod
     def index(cls):
-        pass     
+        pass
 
     @classmethod
     def list(cls):
         return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
-            
+
 def setup_test_search_index():
     from ckan import plugins
     if not is_search_supported():
@@ -353,17 +353,15 @@ except ImportError:
     def assert_in(a, b, msg=None):
         assert a in b, msg or '%r was not in %r' % (a, b)
     def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)        
+        assert a not in b, msg or '%r was in %r' % (a, b)
 
 class TestRoles:
     @classmethod
-    def get_roles(cls, domain_object_ref, user_ref=None, authgroup_ref=None,
+    def get_roles(cls, domain_object_ref, user_ref=None,
                   prettify=True):
         data_dict = {'domain_object': domain_object_ref}
         if user_ref:
             data_dict['user'] = user_ref
-        if authgroup_ref:
-            data_dict['authorization_group'] = authgroup_ref
         role_dicts = get_action('roles_show') \
                      ({'model': model, 'session': model.Session}, \
                       data_dict)['roles']
@@ -387,12 +385,12 @@ class TestRoles:
                     pretty_role[key] = value
             if one_per_line:
                 pretty_role = '"%s" is "%s" on "%s"' % (
-                    pretty_role.get('user') or pretty_role.get('authorized_group'),
+                    pretty_role.get('user'),
                     pretty_role['role'],
-                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('authorization_group') or pretty_role.get('context'))
+                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('context'))
             pretty_roles.append(pretty_role)
         return pretty_roles
-    
+
 
 class StatusCodes:
     STATUS_200_OK = 200
@@ -401,4 +399,4 @@ class StatusCodes:
     STATUS_403_ACCESS_DENIED = 403
     STATUS_404_NOT_FOUND = 404
     STATUS_409_CONFLICT = 409
-    
+
