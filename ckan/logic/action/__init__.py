@@ -35,10 +35,6 @@ def get_domain_object(model, domain_object_ref):
     group = model.Group.get(domain_object_ref)
     if group:
         return group
-    authorization_group = model.AuthorizationGroup.by_name(domain_object_ref)  or\
-                          model.Session.query(model.AuthorizationGroup).get(domain_object_ref)
-    if authorization_group:
-        return authorization_group
     user = model.User.get(domain_object_ref)
     if user:
         return user

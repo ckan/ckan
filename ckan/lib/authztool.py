@@ -30,14 +30,10 @@ class RightsTool(object):
                 if cmd == 'make':
                     if isinstance(subj, model.User):
                         model.add_user_to_role(subj, role, obj)
-                    elif isinstance(subj, model.AuthorizationGroup):
-                        model.add_authorization_group_to_role(subj, role, obj)
                     log.debug('Role made')
                 elif cmd == 'remove':
                     if isinstance(subj, model.User):
                         model.remove_user_from_role(subj, role, obj)
-                    elif isinstance(subj, model.AuthorizationGroup):
-                        model.remove_authorization_group_from_role(subj, role, obj)
                     log.debug('Role removed')
                 else:
                     raise NotImplementedError
@@ -49,7 +45,7 @@ class RightsTool(object):
                                             exists=(cmd=='make')))
         if do_commit:
             model.repo.commit_and_remove()
-    
+
     @classmethod
     def find_subject(cls, subject):
         '''Given a name of a system object that could be the subject
@@ -58,8 +54,7 @@ class RightsTool(object):
         _type, name = 'user', subject
         if ':' in subject and not subject.lower().startswith('http'):
             _type, name = subject.split(':', 1)
-        finder = {'agroup': model.AuthorizationGroup.by_name,
-                  'user': model.User.by_name}.get(_type)
+        finder = {'user': model.User.by_name}.get(_type)
         assert finder is not None, "No such subject type: %s" % _type
         subj = finder(name)
         assert subj is not None, "No such %s: %s" % (_type, name)
@@ -78,7 +73,6 @@ class RightsTool(object):
         obj_class = {
             'package': model.Package,
             'group': model.Group,
-            'agroup': model.AuthorizationGroup,
             'system': model.System,
         }.get(_type)
         if name == 'all':
@@ -95,7 +89,7 @@ class RightsTool(object):
     def ensure_role(role):
         from ckan import model
         roles = model.Role.get_all()
-        assert role in roles, "Role %s does not exist: %s" % (role, 
+        assert role in roles, "Role %s does not exist: %s" % (role,
             ", ".join(roles))
         return role
 
@@ -128,10 +122,10 @@ Subjects (prefix defaults to 'user:'):
   agroup:editors    - An authorization group called 'editors'
   visitor           - All web site visitors
   logged_in         - All users that are logged in
-  
+
 Roles:
   %(roles)s
-  
+
 Objects (prefix defaults to 'package:'):
   package:datablob  - A package called 'datablob'
   package:all       - All packages
@@ -140,7 +134,7 @@ Objects (prefix defaults to 'package:'):
   system:           - The entire system (relevant to entity creation)
 ''' % dict(roles=", ".join(model.Role.get_all()))
         return RIGHTS_HELP
-        
+
 
     def command(self):
         self._load_config()
@@ -151,14 +145,14 @@ Objects (prefix defaults to 'package:'):
                 del args[args.index('list')]
             self.list(args)
             return
-        
+
         assert len(self.args) == 4, "Not enough parameters!" + RIGHTS_HELP
         cmd, subj, role, obj = self.args
 
         RightsTool.make_or_remove_roles(cmd, subj, role, obj, except_on_error=False)
 
     def _filter_query(self, query, args):
-        from ckan import model        
+        from ckan import model
         for arg in self.args:
             arg = unicode(arg)
             for interpret_func, column_name in ((RightsTool.ensure_role, 'role'),
@@ -172,8 +166,6 @@ Objects (prefix defaults to 'package:'):
                 if column_name == 'user':
                     if isinstance(filter_by_obj, model.User):
                         column_name = 'user'
-                    elif isinstance(filter_by_obj, model.AuthorizationGroup):
-                        column_name = 'authorized_group'
                     else:
                         raise NotImplementedError
                 if column_name == 'object':
@@ -216,7 +208,7 @@ Objects (prefix defaults to 'package:'):
             else:
                 obj = model.System()
             print RightsTool.get_printable_row(
-                uor.user if uor.user else uor.authorized_group,
+                uor.user if uor.user else '',
                 uor.role, obj)
 
 
@@ -241,7 +233,7 @@ Actions:
  %(actions)s
 ''' % dict(actions=", ".join(model.Action.get_all()))
         return ROLES_HELP
-    
+
     def command(self):
         from ckan import model
         self._load_config()
@@ -255,7 +247,7 @@ Actions:
             for role, actions in roles.items():
                 print "%-20s%s" % (role, ", ".join(actions))
             return
-        
+
         assert len(self.args) == 3, "Not enough paramters!" + ROLES_HELP
         cmd, role, action = self.args
         q = model.Session.query(model.RoleAction)
@@ -271,4 +263,4 @@ Actions:
             model.Session.delete(role_action)
         print 'Successful: %s %s %s' % (cmd, role, action)
         model.repo.commit_and_remove()
-    
+

@@ -1,7 +1,6 @@
 import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object, get_related_object, \
-    get_authorization_group_object
+    get_user_object, get_resource_object, get_related_object
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
@@ -106,13 +105,6 @@ def group_change_state(context, data_dict):
 
 def group_edit_permissions(context, data_dict):
     return {'success': False, 'msg': _('Group edit permissions is not implemented')}
-
-def authorization_group_update(context, data_dict):
-    return {'success': False, 'msg': _('Authorization group update not implemented')}
-
-
-def authorization_group_edit_permissions(context, data_dict):
-    return {'success': False, 'msg': _('Authorization group update not implemented')}
 
 def user_update(context, data_dict):
     model = context['model']
