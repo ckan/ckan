@@ -1210,7 +1210,6 @@ def debug_full_info_as_list(debug_info):
             data = data.decode('utf-8')
             out.append((key, data))
 
-    print debug_info.keys()
     if 'tmpl_context' in debug_vars:
         for key in debug_info['c_vars']:
 
