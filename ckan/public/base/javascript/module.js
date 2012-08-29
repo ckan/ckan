@@ -350,11 +350,7 @@ this.ckan = this.ckan || {};
           // If we have a boolean attribute (no value) then set to true.
           value = attr.value === "" ? true : jQuery.parseJSON(attr.value);
         } catch (error) {
-          if (error instanceof window.SyntaxError) {
-            value = attr.value;
-          } else {
-            throw error;
-          }
+          value = attr.value;
         }
 
         options[jQuery.camelCase(prop)] = value;
