@@ -209,11 +209,11 @@ def create_table(context, data_dict):
     alias = data_dict.get('alias', None)
     if alias:
         # create alias view
-        sql_alias_string = u'create view "{alias}" as select * from "{orig}"'.format(alias=alias, orig=data_dict['resource_id'])
+        sql_alias_string = u'create view "{alias}" as select * from "{main}"'.format(main=data_dict['resource_id'], alias=alias)
         context['connection'].execute(sql_alias_string)
 
         # add view to alias table
-        sql_add_alias = u'insert into "alias_mapping" values (\'{orig}\'::regclass, \'{alias}\'::regclass)'.format(alias=alias, orig=data_dict['resource_id'])
+        sql_add_alias = u'insert into "alias_mapping" values (\'{main}\', \'{alias}\')'.format(main=data_dict['resource_id'], alias=alias)
         context['connection'].execute(sql_add_alias)
 
 

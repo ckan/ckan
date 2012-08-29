@@ -40,8 +40,6 @@ class DatastorePlugin(p.SingletonPlugin):
             if 'ckan.datastore_read_url' in config:
                 self._check_read_permissions()
 
-        self._create_alias_table()
-
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
 
@@ -55,7 +53,7 @@ class DatastorePlugin(p.SingletonPlugin):
             try:
                 connection = engine.connect()
                 result = connection.execute(
-                    'select 1 from pg_tables where tablename = %s',
+                    'select * from pg_tables where tablename = %s',
                     new_data_dict['id']
                 ).fetchone()
                 if result:
@@ -65,6 +63,8 @@ class DatastorePlugin(p.SingletonPlugin):
             finally:
                 connection.close()
             return new_data_dict
+
+        self._create_alias_table()
 
         ## Make sure do not run many times if configure is called repeatedly
         ## as in tests.
@@ -130,7 +130,7 @@ class DatastorePlugin(p.SingletonPlugin):
             write_connection.execute("DROP TABLE foo")
 
     def _create_alias_table(self):
-        create_alias_table_sql = u'create table if not exists alias_mapping (relation oid, alias oid)'
+        create_alias_table_sql = u'create table if not exists alias_mapping (main name, alias name)'
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)

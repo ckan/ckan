@@ -6,7 +6,7 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
 import ckanext.datastore.db as db
-
+from pprint import pprint as pp
 
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
@@ -338,6 +338,55 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+
+class TestDatastoreCreate2(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+    p.load('datastore')
+
+    @classmethod
+    def setup_class(cls):
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_alias(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        alias = u'books'
+        data = {
+            'resource_id': resource.id,
+            'alias' : alias,
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': '_json'}],
+            'records': [
+                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
+                        {'book': 'warandpeace'}]  # treat author as null
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = [row for row in c.execute('select * from "{0}"'.format(resource.id))]
+        results2 = [row for row in c.execute('select * from "{0}"'.format(alias))]
+
+        # results from alias and main view should be the same
+        assert results == results2
+
+        # check whether the pair is in the alias table
+        sql = "select * from alias_mapping where main='{}' and alias='{}'".format(resource.id, alias)
+        results = c.execute(sql)
+        assert results.rowcount == 1
 
 
 class TestDatastoreDelete(tests.WsgiAppCase):
