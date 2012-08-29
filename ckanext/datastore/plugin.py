@@ -1,5 +1,6 @@
 import logging
 import pylons
+import sqlalchemy
 from sqlalchemy.exc import ProgrammingError
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
@@ -34,7 +35,9 @@ class DatastorePlugin(p.SingletonPlugin):
         ## to resource dict.  Not using IAction extension as this prevents other plugins
         ## from having a custom resource_read.
 
-        self._check_read_permissions()     
+        if not config['debug']:
+            self._check_separate_db()
+        self._check_read_permissions()    
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
@@ -66,6 +69,23 @@ class DatastorePlugin(p.SingletonPlugin):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
 
+    def _check_separate_db(self):
+        '''
+        Make sure the datastore is on a separate db. Otherwise one could access
+        all internal tables via the api. 
+        '''
+        ckan_url = pylons.config['sqlalchemy.url']
+        write_url = pylons.config['ckan.datastore_write_url']
+        read_url = pylons.config['ckan.datastore_read_url']
+        if  write_url == read_url:
+            raise Exception("The write and read-only database connection url are the same.")
+
+        if self._get_db_from_url(ckan_url) == self._get_db_from_url(read_url):
+            raise Exception("The CKAN and datastore database are the same.")
+
+    def _get_db_from_url(self, url):
+        return url[url.rindex("@"):]
+
     def _check_read_permissions(self):
         '''
         Check whether the right permissions are set for the read only user.
@@ -73,8 +93,6 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_url = pylons.config['ckan.datastore_write_url']
         read_url = pylons.config['ckan.datastore_read_url']
-        if  write_url == read_url:
-            raise Exception("The write and read-only database connection url are the same.")
 
         write_connection = db._get_engine(None, 
             {'connection_url': write_url}).connect()
@@ -100,7 +118,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 else:
                     log.info("Connection url {}"
                         .format(read_url))
-                    raise Exception("Write permissions on read-only database.")
+                    raise Exception("We have write permissions on the read-only database.")
                 finally:
                     read_trans.rollback()
         except Exception:

@@ -768,7 +768,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             assert db.is_single_statement(multiple) is False
 
     def test_select_basic(self):
-        query = 'SELECT * FROM "{}"'.format(self.data['resource_id'])
+        query = 'SELECT * FROM public."{}"'.format(self.data['resource_id'])
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
