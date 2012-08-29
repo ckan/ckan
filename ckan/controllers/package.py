@@ -278,7 +278,7 @@ class PackageController(BaseController):
                 ctype, format, loader = "text/html; charset=utf-8", "html", \
                     MarkupTemplate
         else:
-            ctype, extension, loader = self._content_type_from_accept()
+            ctype, format, loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -1264,6 +1264,12 @@ class PackageController(BaseController):
         recline_state.pop('width', None)
         recline_state.pop('height', None)
         recline_state['readOnly'] = True
+
+        # previous versions of recline setup used elasticsearch_url attribute
+        # for data api url - see http://trac.ckan.org/ticket/2639
+        # fix by relocating this to url attribute which is the default location
+        if 'dataset' in recline_state and 'elasticsearch_url' in recline_state['dataset']:
+            recline_state['dataset']['url'] = recline_state['dataset']['elasticsearch_url']
 
         # Ensure only the currentView is available
         # default to grid view if none specified

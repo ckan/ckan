@@ -146,7 +146,6 @@ from follower import (
     UserFollowingUser,
     UserFollowingDataset,
 )
-
 from system_info import (
     system_info_table,
     SystemInfo,
@@ -154,7 +153,6 @@ from system_info import (
     set_system_info,
     delete_system_info,
 )
-
 from domain_object import (
     DomainObjectOperation,
     DomainObject,

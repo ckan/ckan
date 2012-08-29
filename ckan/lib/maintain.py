@@ -64,36 +64,32 @@ def deprecate_context_item(item_name, message=''):
     `pylons.util.AttribSafeContextObj` at runtime.
     '''
 
-    class WrappedContextItem(object):
-        ''' This is a fake object that calls the methods of the object
-        contained. '''
-        def __init__(self, obj, message):
-            self._ckan_obj = obj
-            self._ckan_message = message
-        def __getattribute__(self, name):
-            message = object.__getattribute__(self, '_ckan_message')
-            log.warning('c.%s has been deprecated. %s', item_name, message)
-            obj = object.__getattribute__(self, '_ckan_obj')
-            # hack to get the actual object when needed
-            if name == '_ckan_obj':
-                return obj
-            return getattr(obj, name)
-
-
-    # store the value in a fake object
-    setattr(c, item_name, WrappedContextItem(getattr(c, item_name), message))
-
     # we need to store the origional __getattr__ and replace with our own one
     if not hasattr(c.__class__, '__old_getattr__'):
-        def fake_attr(self, name):
-            obj = self.__class__.__dict__['__old_getattr__'](self, name)
-            if isinstance(obj, WrappedContextItem):
-                return obj._ckan_obj
-            else:
-                return obj
-        get_attr =  getattr(c.__class__, '__getattr__')
-        setattr(c.__class__, '__old_getattr__', get_attr)
-        setattr(c.__class__, '__getattr__', fake_attr)
+        def custom__getattr__(self, name):
+            # get the origional __getattr__ so we can access things
+            __old_getattr__ = self.__class__.__dict__['__old_getattr__']
+            # see if we have a __depricated_properties__ for this name and
+            # if so log a warning
+            try:
+                depricated = __old_getattr__(self, '__depricated_properties__')
+                if name in depricated:
+                    log.warn(depricated[name])
+            except AttributeError:
+                pass
+            # return the requested value
+            return __old_getattr__(self, name)
+
+        # get store the old __getattr__ method and then replace it
+        __old_getattr__ =  getattr(c.__class__, '__getattr__')
+        setattr(c.__class__, '__old_getattr__', __old_getattr__)
+        setattr(c.__class__, '__getattr__', custom__getattr__)
+
+    # if c.__depricated_properties__ is not set it returns ''
+    if not c.__depricated_properties__:
+        c.__depricated_properties__ = {}
+    c.__depricated_properties__[item_name] = message
+
 
 def defer_context_item(item_name, function):
     ''' Allows a function to be passed that will be appended to c as a property
