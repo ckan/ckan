@@ -1,8 +1,14 @@
+import logging
+import pylons
+from sqlalchemy.exc import ProgrammingError
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
 import ckan.logic as logic
+
+log = logging.getLogger(__name__)
+_get_or_bust = logic.get_or_bust
 
 
 class DatastoreException(Exception):
@@ -28,7 +34,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ## to resource dict.  Not using IAction extension as this prevents other plugins
         ## from having a custom resource_read.
 
-        # TODO: check correct pg settings
+        self._check_read_permissions()     
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
@@ -60,6 +66,42 @@ class DatastorePlugin(p.SingletonPlugin):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
 
+    def _check_read_permissions(self):
+        '''
+        Check whether the right permissions are set for the read only user.
+        A table is created by the write user to test the read only user.
+        '''
+        write_connection = db._get_engine(None, 
+            {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
+        write_connection.execute("CREATE TABLE foo (id INTEGER NOT NULL, name VARCHAR)")
+
+        read_connection = db._get_engine(None, 
+            {'connection_url': pylons.config['ckan.datastore_read_url']}).connect()
+        read_trans = read_connection.begin()
+
+        statements = [
+            "CREATE TABLE bar (id INTEGER NOT NULL, name VARCHAR)", 
+            "INSERT INTO foo VALUES (1, 'okfn')"
+        ]
+
+        try:
+            for sql in statements:
+                read_trans = read_connection.begin()
+                try:
+                    read_connection.execute(sql)
+                except ProgrammingError, e:
+                    if 'permission denied' not in str(e):
+                        raise
+                else:
+                    log.info("Connection url {}"
+                        .format(pylons.config['ckan.datastore_read_url']))
+                    raise Exception("Write permissions on read-only database.")
+                finally:
+                    read_trans.rollback()
+        except Exception:
+            raise
+        finally:
+            write_connection.execute("DROP TABLE foo")
 
     def get_actions(self):
         available_actions = {'datastore_create': action.datastore_create,
