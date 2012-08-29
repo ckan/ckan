@@ -206,6 +206,11 @@ def create_table(context, data_dict):
 
     context['connection'].execute(sql_string)
 
+    alias = data_dict.get('alias', None)
+    if alias:
+        sql_alias_string = u'create view {alias} as select * from {orig}'.format(alias=alias, orig=data_dict['resource_id'])
+        context['connection'].execute(sql_alias_string)
+
 
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''

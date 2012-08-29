@@ -13,6 +13,8 @@ def datastore_create(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
+    :param alias: a name for a read only alias to the resource.
+    :type alias: string
     :param fields: fields/columns and their extra metadata.
     :type fields: list of dictionaries
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
