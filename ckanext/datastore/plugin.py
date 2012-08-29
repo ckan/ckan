@@ -71,17 +71,22 @@ class DatastorePlugin(p.SingletonPlugin):
         Check whether the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
+        write_url = pylons.config['ckan.datastore_write_url']
+        read_url = pylons.config['ckan.datastore_read_url']
+        if  write_url == read_url:
+            raise Exception("The write and read-only database connection url are the same.")
+
         write_connection = db._get_engine(None, 
-            {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
-        write_connection.execute("CREATE TABLE foo (id INTEGER NOT NULL, name VARCHAR)")
+            {'connection_url': write_url}).connect()
+        write_connection.execute("CREATE TABLE public.foo (id INTEGER NOT NULL, name VARCHAR)")
 
         read_connection = db._get_engine(None, 
-            {'connection_url': pylons.config['ckan.datastore_read_url']}).connect()
+            {'connection_url': read_url}).connect()
         read_trans = read_connection.begin()
 
         statements = [
-            "CREATE TABLE bar (id INTEGER NOT NULL, name VARCHAR)", 
-            "INSERT INTO foo VALUES (1, 'okfn')"
+            "CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)", 
+            "INSERT INTO public.foo VALUES (1, 'okfn')"
         ]
 
         try:
@@ -94,7 +99,7 @@ class DatastorePlugin(p.SingletonPlugin):
                         raise
                 else:
                     log.info("Connection url {}"
-                        .format(pylons.config['ckan.datastore_read_url']))
+                        .format(read_url))
                     raise Exception("Write permissions on read-only database.")
                 finally:
                     read_trans.rollback()
