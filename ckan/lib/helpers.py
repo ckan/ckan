@@ -1134,17 +1134,19 @@ def debug_full_info_as_list(debug_info):
                             '__sizeof__', '__str__', '__subclasshook__',
                             '__weakref__', 'action', 'environ', 'pylons',
                             'start_response']
-    for key in debug_info.keys():
+    debug_vars = debug_info['vars']
+    for key in debug_vars.keys():
         if not key in ignored_keys:
-            data = pprint.pformat(debug_info.get(key))
+            data = pprint.pformat(debug_vars.get(key))
             data = data.decode('utf-8')
             out.append((key, data))
 
-    if 'tmpl_context' in debug_info:
-        for key in dir(debug_info['tmpl_context']):
+    print debug_info.keys()
+    if 'tmpl_context' in debug_vars:
+        for key in debug_info['c_vars']:
 
             if not key in ignored_context_keys:
-                data = pprint.pformat(getattr(debug_info['tmpl_context'], key))
+                data = pprint.pformat(getattr(debug_vars['tmpl_context'], key))
                 data = data.decode('utf-8')
                 out.append(('c.%s' % key, data))
 
