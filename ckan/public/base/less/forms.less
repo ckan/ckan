@@ -171,6 +171,25 @@ textarea {
   top: 8px;
 }
 
+.info-block,
+.info-inline {
+  .icon-large {
+    float: left;
+    font-size: 22px;
+    margin-right: @gutterSmallX;
+  }
+}
+
+.ie7 .controls {
+  position: relative;
+  .info-block,
+  .info-inline {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}
+
 .form-horizontal .info-block a {
   color: @emptyTextColor;
   text-decoration: underline;
