@@ -767,10 +767,10 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         for multiple in multiples:
             assert db.is_single_statement(multiple) is False
 
-    def test_search_basic(self):
+    def test_select_basic(self):
         query = 'SELECT * FROM "{}"'.format(self.data['resource_id'])
         data = {'sql': query}
-        postparams = '%s=1' % json.dumps(data)
+        postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/data_search_sql', params=postparams,
                             extra_environ=auth)
