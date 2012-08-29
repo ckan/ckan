@@ -118,6 +118,13 @@
   box-shadow: @insetBoxShadow, 0 1px 0 rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.08);
 }
+.ie7 .masthead nav li a.active {
+  position: relative;
+  top: -1px;
+  background-color: lighten(@mastheadBackgroundColorStart, 2);
+  border-top: 1px solid darken(@mastheadBackgroundColorStart, 3);
+  border-bottom: 1px solid lighten(@mastheadBackgroundColorStart, 5);
+}
 
 .masthead .account {
   position: relative;
