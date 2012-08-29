@@ -625,8 +625,8 @@ def linked_user(user, maxlength=0):
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + u' ' + link_to(displayname,
-                       url_for(controller='user', action='read', id=_name))
+        return icon + u' ' + link_to(displayname,
+                       url_for(controller='user', action='read', id=name))
 
 def linked_authorization_group(authgroup, maxlength=0):
     if not isinstance(authgroup, model.AuthorizationGroup):
