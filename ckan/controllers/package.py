@@ -800,7 +800,7 @@ class PackageController(BaseController):
         Returns tuple with a link to an embed resource and a bool that indicates 
         whether the resource can be embedded directly
         '''
-        if resource['format'] in ['csv','xls','tsv']:
+        if resource['format'] in ['csv', 'xls', 'tsv']:
             return False, h.url_for(controller='package', action='data_preview', resource_id=resource['id'], qualified=True)
         elif resource['format'] in ['rdf+xml','owl+xml','xml','n3','n-triples','turtle','plain','atom','tsv','rss','txt']:
             # dataproxy
