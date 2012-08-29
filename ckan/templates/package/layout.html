@@ -38,7 +38,7 @@
       <li class="${'active' if c.action=='history' else ''}">${h.subnav_link(h.icon('page_stack') + _('History'), controller='package', action='history', id=c.pkg.name)}</li>
       <li class="${'active' if c.action=='followers' else ''}" style="float:right;">
         ${h.subnav_link(
-            h.icon('authorization_group') + _('Followers ({num_followers})').format(num_followers=h.follow_count('dataset', c.pkg_dict.id)),
+            h.icon('followers') + _('Followers ({num_followers})').format(num_followers=h.follow_count('dataset', c.pkg_dict.id)),
             controller='package',
             action='followers',
             id=c.pkg.name)}
