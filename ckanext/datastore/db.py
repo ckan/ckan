@@ -214,12 +214,6 @@ def create_table(context, data_dict):
             )
         context['connection'].execute(sql_alias_string)
 
-        # add view to alias table
-        sql_add_alias = u'insert into "alias_mapping" values (\'{main}\', \'{alias}\')'.format(
-            main=data_dict['resource_id'], alias=alias
-            )
-        context['connection'].execute(sql_add_alias)
-
 
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
@@ -553,9 +547,6 @@ def delete(context, data_dict):
         if not 'filters' in data_dict:
             context['connection'].execute(
                 u'drop table "{}" cascade'.format(data_dict['resource_id'])
-            )
-            context['connection'].execute(
-                u"delete from alias_mapping where main = '{}'".format(data_dict['resource_id'])
             )
         else:
             delete_data(context, data_dict)
