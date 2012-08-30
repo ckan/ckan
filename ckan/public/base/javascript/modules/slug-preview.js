@@ -68,6 +68,20 @@ this.ckan.module('slug-preview-slug', function (jQuery, _) {
         });
 
         sandbox.publish('slug-preview-created', preview[0]);
+
+        // Horrible hack to make sure that IE7 rerenders the subsequent
+        // DOM children correctly now that we've render the slug preview element
+        // We should drop this horrible hack ASAP
+        if (jQuery.browser.msie && jQuery.browser.version == '7.0') {
+          jQuery('.btn').on('click', preview, function(){ 
+            jQuery('.controls').ie7redraw();
+          });
+          preview.hide();
+          setTimeout(function() {
+            preview.show();
+            jQuery('.controls').ie7redraw();
+          }, 10);
+        }
       }
 
       // Watch for updates to the target field and update the hidden slug field
