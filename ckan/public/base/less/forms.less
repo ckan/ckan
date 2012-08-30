@@ -443,7 +443,6 @@ textarea {
   color: @stagesTextColor;
   counter-reset: stage;
   margin: -@gutterY -@gutterX @gutterY;
-  overflow: hidden;
 }
 
 .stages li {
@@ -555,6 +554,9 @@ textarea {
   line-height: 27px;
   z-index: -1;
 }
+.ie7 .stages li .highlight {
+  width: auto;
+}
 
 .stages li.active .highlight {
   color: @stagesActiveTextColor;
@@ -571,7 +573,7 @@ textarea {
   background-color: @stagesBackground;
   li {
     height: 30px;
-    width: 27%;
+    width: 27.5%;
     button,
     span {
       display: block;
