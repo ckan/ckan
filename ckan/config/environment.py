@@ -193,7 +193,8 @@ def load_environment(global_conf, app_conf):
         template_paths = [legacy_templates_path]
         # if we are testing allow new templates
         if asbool(config.get('ckan.enable_testing', 'false')):
-            template_paths = [paths['templates'][0]]
+            jinja2_templates_path = os.path.join(root, 'templates')
+            template_paths.append(jinja2_templates_path)
     else:
         template_paths = [paths['templates'][0]]
         template_paths.append(legacy_templates_path)
