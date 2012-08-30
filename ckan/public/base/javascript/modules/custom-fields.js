@@ -17,14 +17,16 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      * Returns nothing.
      */
     initialize: function () {
-      jQuery.proxyAll(this, /_on/);
+      if (!jQuery.browser.msie || !jQuery.browser.version == '7.0') {
+        jQuery.proxyAll(this, /_on/);
 
-      var delegated = this.options.fieldSelector + ':last input:first';
-      this.el.on('change', delegated, this._onChange);
-      this.el.on('change', ':checkbox', this._onRemove);
+        var delegated = this.options.fieldSelector + ':last input:first';
+        this.el.on('change', delegated, this._onChange);
+        this.el.on('change', ':checkbox', this._onRemove);
 
-      // Style the remove checkbox like a button.
-      this.$('.checkbox').addClass("btn btn-danger icon-remove");
+        // Style the remove checkbox like a button.
+        this.$('.checkbox').addClass("btn btn-danger icon-remove");
+      }
     },
 
     /* Creates a new field and appends it to the list. This currently works by
