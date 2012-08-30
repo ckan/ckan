@@ -455,12 +455,12 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.POST, ignore_keys=CACHE_PARAMETERS))))
+            request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
-                h.dict_list_reduce(data['tags'], 'name'))
+                h.dict_list_reduce(data.get('tags', {}), 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
