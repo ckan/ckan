@@ -31,7 +31,12 @@
 }
 
 .ie7 .toolbar .breadcrumb li {
-  margin-right: 0.5em; // No :after support in IE7 so just pad items.
+  padding-right: 10px;
+  margin-right: 5px;
+  background: transparent url("@{imagePath}/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
+  &.active {
+    background-image: none;
+  }
 }
 
 .toolbar .breadcrumb li:after {
