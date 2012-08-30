@@ -29,6 +29,29 @@ def package_delete(context, data_dict):
 def package_relationship_delete(context, data_dict):
     return package_relationship_create(context, data_dict)
 
+def resource_delete(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+    resource = get_resource_object(context, data_dict)
+
+    # check authentication against package
+    query = model.Session.query(model.Package)\
+        .join(model.ResourceGroup)\
+        .join(model.Resource)\
+        .filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
+
+    pkg_dict = {'id': pkg.id}
+    authorized = package_delete(context, pkg_dict).get('success')
+
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete resource %s') % (str(user), resource.id)}
+    else:
+        return {'success': True}
+
+
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']

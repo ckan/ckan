@@ -6,7 +6,6 @@ from pylons import config
 from pylons.i18n import _
 import sqlalchemy
 
-import ckan
 import ckan.authz
 import ckan.lib.dictization
 import ckan.logic as logic
