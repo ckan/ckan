@@ -45,8 +45,12 @@ class CkanExtend(Extension):
     tags = set(['ckan_extends'])
 
     def __init__(self, environment):
-        Extension.__init__(self, environment)
-        self.searchpath = environment.loader.searchpath[:]
+        ext.Extension.__init__(self, environment)
+        try:
+            self.searchpath = environment.loader.searchpath[:]
+        except AttributeError:
+            # this isn't available on message extraction
+            pass
 
     def parse(self, parser):
         lineno = next(parser.stream).lineno
