@@ -540,6 +540,14 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records
 
+        data = {'resource_id': self.data['alias']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict_alias = json.loads(res.body)
+        assert res_dict_alias['result']['records'] == res_dict['result']['records']
+
     def test_search_invalid_field(self):
         data = {'resource_id': self.data['resource_id'],
                 'fields': [{'id': 'bad'}]}

@@ -570,9 +570,10 @@ def search(context, data_dict):
         # check if table exists
         context['connection'].execute(
             u'set local statement_timeout to {}'.format(timeout))
+        id = data_dict['resource_id']
         result = context['connection'].execute(
-            'select * from pg_tables where tablename = %s',
-             data_dict['resource_id']
+            "(select 1 from pg_tables where tablename = '{0}') union \
+             (select 1 from pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({

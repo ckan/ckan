@@ -107,7 +107,7 @@ def datastore_search(context, data_dict):
     model = _get_or_bust(context, 'model')
     id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
+    data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
     res_exists = model.Resource.get(id)
     
