@@ -271,7 +271,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert results.rowcount == 3
         for i, row in enumerate(results):
             assert data['records'][i].get('book') == row['book']
-            assert data['records'][i].get('author') == (json.loads(row['author'][0]) if row['author'] else None) 
+            assert data['records'][i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
         model.Session.remove()
 
         ### extend types
@@ -802,7 +802,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         model.repo.rebuild_db()
 
     def test_is_single_statement(self):
-        singles = ['SELECT * FROM footable', 
+        singles = ['SELECT * FROM footable',
             'SELECT * FROM "bartable"',
             'SELECT * FROM "bartable";',
             "select 'foo'||chr(59)||'bar'"]

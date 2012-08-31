@@ -56,7 +56,7 @@ class DatastorePlugin(p.SingletonPlugin):
             try:
                 connection = engine.connect()
                 result = connection.execute(
-                    'select * from pg_tables where tablename = %s',
+                    'select 1 from pg_tables where tablename = %s',
                     new_data_dict['id']
                 ).fetchone()
                 if result:
@@ -78,7 +78,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def _check_separate_db(self):
         '''
         Make sure the datastore is on a separate db. Otherwise one could access
-        all internal tables via the api. 
+        all internal tables via the api.
         '''
 
         if  self.write_url == self.read_url:
@@ -95,16 +95,16 @@ class DatastorePlugin(p.SingletonPlugin):
         Check whether the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
-        write_connection = db._get_engine(None, 
+        write_connection = db._get_engine(None,
             {'connection_url': self.write_url}).connect()
         write_connection.execute(u"CREATE TABLE public.foo (id INTEGER NOT NULL, name VARCHAR)")
 
-        read_connection = db._get_engine(None, 
+        read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
         read_trans = read_connection.begin()
 
         statements = [
-            u"CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)", 
+            u"CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)",
             u"INSERT INTO public.foo VALUES (1, 'okfn')"
         ]
 
@@ -129,7 +129,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _create_alias_table(self):
         mapping_sql = '''
-            SELECT distinct 
+            SELECT distinct
                 d.refobjid::regclass AS main,
                 r.ev_class::regclass AS alias
             FROM
