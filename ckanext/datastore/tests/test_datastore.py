@@ -1,6 +1,6 @@
-
 import json
 import sqlalchemy
+import pylons
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -132,8 +132,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
+        alias = u'books1'
         data = {
             'resource_id': resource.id,
+            'alias' : alias,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': '_json'}],
             'records': [
@@ -175,6 +177,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('tolstoy') '''.format(resource.id))
         assert results.rowcount == 2
         model.Session.remove()
+
+        # check alias for resource
+        c = model.Session.connection()
+
+        results = [row for row in c.execute('select * from "{0}"'.format(resource.id))]
+        results_alias = [row for row in c.execute('select * from "{0}"'.format(alias))]
+
+        pp(results_alias)
+        pp(results)
+
+        assert results == results_alias
+
+        sql = "select * from alias_mapping where main='{}'::regclass and alias='{}'::regclass".format(resource.id, alias)
+        results = c.execute(sql)
+        assert results.rowcount == 1
 
         # check to test to see if resource now has a datastore table
         postparams = '%s=1' % json.dumps({'id': resource.id})
@@ -239,6 +256,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') '''.format(resource.id))
         assert results.rowcount == 2
+
         model.Session.remove()
 
     def test_guess_types(self):
@@ -339,55 +357,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
-class TestDatastoreCreate2(tests.WsgiAppCase):
-    sysadmin_user = None
-    normal_user = None
-    p.load('datastore')
-
-    @classmethod
-    def setup_class(cls):
-        ctd.CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-        cls.normal_user = model.User.get('annafan')
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def test_alias(self):
-        resource = model.Package.get('annakarenina').resources[0]
-        alias = u'books'
-        data = {
-            'resource_id': resource.id,
-            'alias' : alias,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': '_json'}],
-            'records': [
-                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
-                        {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
-                        {'book': 'warandpeace'}]  # treat author as null
-        }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        c = model.Session.connection()
-        results = [row for row in c.execute('select * from "{0}"'.format(resource.id))]
-        results2 = [row for row in c.execute('select * from "{0}"'.format(alias))]
-
-        # results from alias and main view should be the same
-        assert results == results2
-
-        # check whether the pair is in the alias table
-        sql = "select * from alias_mapping where main='{}'::regclass and alias='{}'::regclass".format(resource.id, alias)
-        results = c.execute(sql)
-        assert results.rowcount == 1
-
 
 class TestDatastoreDelete(tests.WsgiAppCase):
     sysadmin_user = None
@@ -402,6 +371,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
+            'alias': 'books2',
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
@@ -437,6 +407,10 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         self._delete()
         resource_id = self.data['resource_id']
         c = model.Session.connection()
+
+        # alias should be deleted
+        results = c.execute("select 1 from pg_views where viewname = '{}'".format(self.data['alias']))
+        assert results.rowcount == 0
 
         try:
             # check that data was actually deleted: this should raise a
@@ -527,6 +501,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
+            'alias': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],
@@ -769,6 +744,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
+            'alias': 'books4',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],
@@ -828,6 +804,16 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['records'] == self.expected_records
+
+        # test alias search
+        query = 'SELECT * FROM public."{}"'.format(self.data['alias'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        res = self.app.post('/api/action/data_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict_alias = json.loads(res.body)
+
+        assert result['records'] == res_dict_alias['result']['records']
 
     def test_self_join(self):
         query = 'SELECT a._id as first, b._id as second \

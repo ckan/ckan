@@ -107,14 +107,25 @@ def datastore_search(context, data_dict):
     model = _get_or_bust(context, 'model')
     id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(id):
+    data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
+
+    res_exists = model.Resource.get(id)
+    
+    alias_exists = False
+    if not res_exists:
+        # assume id is an alias
+        alias_sql = "select mainname from alias_mapping \
+            where aliasname = '{}'".format(id)
+        result = db._get_engine(None, data_dict).execute(alias_sql).fetchone()
+        if result:
+            alias_exists = model.Resource.get(result[0].strip('"'))
+
+    if not (res_exists or alias_exists):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{}" was not found.'.format(id)
         ))
 
     p.toolkit.check_access('datastore_search', context, data_dict)
-
-    data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
 
     result = db.search(context, data_dict)
     result.pop('id', None)
@@ -139,7 +150,8 @@ def data_search_sql(context, data_dict):
     if not db.is_single_statement(sql):
         raise p.toolkit.ValidationError({
             'query': ['Query is not a single statement or contains semicolons.'],
-            'hint': ['If you want to use semicolons, use character encoding (; equals chr(59)) and string concatenation (||). ']
+            'hint': ['If you want to use semicolons, use character encoding \
+                (; equals chr(59)) and string concatenation (||). ']
         })
 
     p.toolkit.check_access('datastore_search', context, data_dict)

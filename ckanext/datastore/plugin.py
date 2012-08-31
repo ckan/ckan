@@ -131,7 +131,9 @@ class DatastorePlugin(p.SingletonPlugin):
         mapping_sql = '''
             SELECT distinct
                 d.refobjid::regclass AS main,
-                r.ev_class::regclass AS alias
+                dependent.relname AS mainname,
+                r.ev_class::regclass AS alias,
+                dependee.relname AS aliasname
             FROM
                 pg_attribute    as a
                 JOIN pg_depend  as d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
