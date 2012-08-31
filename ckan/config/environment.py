@@ -306,9 +306,10 @@ def load_environment(global_conf, app_conf):
     env = lib.jinja_extensions.Environment(
         loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
+        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_extensions.SnippetExtension,
                     lib.jinja_extensions.CkanExtend,
+                    lib.jinja_extensions.CkanInternationalizationExtension,
                     lib.jinja_extensions.LinkForExtension,
                     lib.jinja_extensions.ResourceExtension,
                     lib.jinja_extensions.UrlForStaticExtension,
