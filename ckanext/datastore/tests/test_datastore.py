@@ -384,7 +384,7 @@ class TestDatastoreCreate2(tests.WsgiAppCase):
         assert results == results2
 
         # check whether the pair is in the alias table
-        sql = "select * from alias_mapping where main='{}' and alias='{}'".format(resource.id, alias)
+        sql = "select * from alias_mapping where main='{}'::regclass and alias='{}'::regclass".format(resource.id, alias)
         results = c.execute(sql)
         assert results.rowcount == 1
 

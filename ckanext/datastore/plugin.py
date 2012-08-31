@@ -131,18 +131,16 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _create_alias_table(self):
         mapping_sql = '''
-            SELECT distinct
-                --dependent.oid AS main_relid,
-                dependent.relname AS main,
-                --dependee.oid AS alias_relid,
-                dependee.relname AS alias
-            FROM pg_depend
-                JOIN pg_rewrite ON pg_depend.objid = pg_rewrite.oid
-                JOIN pg_class as dependee ON pg_rewrite.ev_class = dependee.oid
-                JOIN pg_class as dependent ON pg_depend.refobjid = dependent.oid
-                JOIN pg_attribute ON pg_depend.refobjid = pg_attribute.attrelid
-                    AND pg_depend.refobjsubid = pg_attribute.attnum
-            WHERE pg_attribute.attnum > 0
+            SELECT distinct 
+                d.refobjid::regclass AS main,
+                r.ev_class::regclass AS alias
+            FROM
+                pg_attribute    as a
+                JOIN pg_depend  as d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
+                JOIN pg_rewrite as r ON d.objid = r.oid
+                JOIN pg_class as dependee ON r.ev_class = dependee.oid
+                JOIN pg_class as dependent ON d.refobjid = dependent.oid
+            WHERE dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
         '''
         create_alias_table_sql = u'create or replace view alias_mapping as {}'.format(mapping_sql)
         connection = db._get_engine(None,
