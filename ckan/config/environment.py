@@ -9,7 +9,7 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
-from pylons.i18n import _, N_
+from pylons.i18n import _, ungettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
@@ -314,7 +314,7 @@ def load_environment(global_conf, app_conf):
                     lib.jinja_extensions.UrlForStaticExtension,
                     lib.jinja_extensions.UrlForExtension]
     )
-    env.install_gettext_callables(_, N_, newstyle=True)
+    env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
     env.filters['truncate'] = lib.jinja_extensions.truncate
