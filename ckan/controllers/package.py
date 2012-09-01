@@ -1222,7 +1222,7 @@ class PackageController(BaseController):
         Returns tuple with a link to an embed resource and a bool that indicates
         whether the resource can be embedded directly
         '''
-        directly = is_image = False
+        directly = False
         url = h.url_for(controller='package', action='resource_preview',
             resource_id=resource['id'], id=id, qualified=True)
 
@@ -1238,12 +1238,10 @@ class PackageController(BaseController):
             url = resource['url']
         elif resource['format'] in ['png', 'jpg', 'gif']:
             directly = True
-            is_image = True
             url = resource['url']
 
         return {
             'url': url,
-            'is_image': is_image,
             'directly': directly
         }
 

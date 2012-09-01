@@ -1,10 +1,5 @@
 var CKAN = CKAN || {};
 
-// message from iframe
-iframe_message = function(message) {
-  console.log(message);
-};
-
 (function ($) {
   $(document).ready(function () {
     CKAN.DataPreviewIframe.attachToIframe();
@@ -46,12 +41,17 @@ CKAN.DataPreviewIframe = function ($, my) {
     });
   };
 
-  // resizes a data preview iframe to match the content
+  // ** Public: resizes a data preview iframe to match the content
   var resize = function(iframe) {
     var self = iframe;
     offset = 0;
     var height = iframe.contents().height();
     iframe.animate({height: height+offset}, height);
+  };
+
+  // ** Public: connect to child iframe context
+  my.getChild = function(iframe) {
+    return $(iframe)[0].contentWindow;
   };
 
   // Export the CKANEXT object onto the window.
