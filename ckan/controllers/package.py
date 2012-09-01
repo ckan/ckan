@@ -1206,23 +1206,26 @@ class PackageController(BaseController):
     def _get_embed_url(self, id, resource):
         '''
         Returns tuple with a link to an embed resource and a bool that indicates
-        whether the resource can be embedded directly
+        whether the resource can be embedded directly (without an iframe).
         '''
+        format = resource['format'].lower()
         directly = False
         url = h.url_for(controller='package', action='resource_preview',
-            resource_id=resource['id'], id=id, qualified=True)
+                resource_id=resource['id'], id=id, qualified=True)
 
-        if resource['format'] in ['csv', 'xls', 'tsv']:
-            # all defaults
+        if format in ['csv', 'xls', 'tsv']:
+            #defaults
             pass
-        elif resource['format'] in ['html', 'htm',
-                                    'rdf+xml', 'owl+xml', 'xml', 'n3',
-                                    'n-triples', 'turtle', 'plain',
-                                    'atom', 'tsv', 'rss', 'txt']:
+        elif format in ['html', 'htm',
+                        'rdf+xml', 'owl+xml', 'xml', 'n3',
+                        'n-triples', 'turtle', 'plain',
+                        'atom', 'tsv', 'rss', 'txt', 'json']:
             url = resource['url']
-        elif resource['format'] in ['png', 'jpg', 'gif']:
+        elif format in ['png', 'jpg', 'gif']:
             directly = True
             url = resource['url']
+        else:
+            log.warn('not handler for {}'.format(resource['format']))
 
         return {
             'url': url,
