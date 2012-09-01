@@ -1130,7 +1130,7 @@ class PackageController(BaseController):
             raise ValidationException(fs)
         try:
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:
@@ -1146,7 +1146,6 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = context['package']
-            c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
             c.embed = self._get_embed_url(id, c.resource)
         except NotFound:
@@ -1223,7 +1222,7 @@ class PackageController(BaseController):
         Returns tuple with a link to an embed resource and a bool that indicates
         whether the resource can be embedded directly
         '''
-        directly = False
+        directly = is_image = False
         url = h.url_for(controller='package', action='resource_preview',
             resource_id=resource['id'], id=id, qualified=True)
 
@@ -1239,10 +1238,12 @@ class PackageController(BaseController):
             url = resource['url']
         elif resource['format'] in ['png', 'jpg', 'gif']:
             directly = True
+            is_image = True
             url = resource['url']
 
         return {
             'url': url,
+            'is_image': is_image,
             'directly': directly
         }
 

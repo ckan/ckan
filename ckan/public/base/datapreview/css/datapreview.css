@@ -70,8 +70,8 @@ body {
   width: 100%;
 }
 
-.direct-embed {
-  max-height: 600px;
+img.ckanext-datapreview-direct-embed {
+  max-height: 500px;
   max-width: 100%;
   overflow: hidden;
 }
