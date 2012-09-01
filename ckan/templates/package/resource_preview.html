@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% set pkg = c.pkg_dict %}
 {% set res = c.resource %}
 
 {% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
