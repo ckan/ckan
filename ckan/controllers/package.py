@@ -1148,6 +1148,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
+            c.embed = self._get_embed_url(id, c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
@@ -1216,6 +1217,34 @@ class PackageController(BaseController):
         if not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
+
+    def _get_embed_url(self, id, resource):
+        '''
+        Returns tuple with a link to an embed resource and a bool that indicates
+        whether the resource can be embedded directly
+        '''
+        directly = False
+        url = h.url_for(controller='package', action='resource_preview',
+            resource_id=resource['id'], id=id, qualified=True)
+
+        if resource['format'] in ['csv', 'xls', 'tsv']:
+            # all defaults
+            pass
+        elif resource['format'] in ['rdf+xml', 'owl+xml', 'xml', 'n3',
+                                    'n-triples', 'turtle', 'plain',
+                                    'atom', 'tsv', 'rss', 'txt']:
+            # dataproxy
+            url = resource['url']
+        elif resource['format'] in ['html', 'htm']:
+            url = resource['url']
+        elif resource['format'] in ['png', 'jpg', 'gif']:
+            directly = True
+            url = resource['url']
+
+        return {
+            'url': url,
+            'directly': directly
+        }
 
     def api_data(self, id=None):
         url = h.url_for('datastore_read', id=id, qualified=True)

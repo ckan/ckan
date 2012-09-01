@@ -60,9 +60,11 @@
           {% endblock %}
         </div>
       </div>
-      {% block data_preview %}
-        <div id="ckanext-datapreview" class="module-content"></div>
-      {% endblock %}
+      <div class="module-content">
+        {% block data_preview %}
+          {% snippet "package/snippets/data_preview.html", embed=c.embed %}
+        {% endblock %}
+    </div>
     </section>
   {% endblock %}
 

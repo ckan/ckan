@@ -1,5 +1,5 @@
 body {
-  background-color: #EFEFEF;
+  background-color: #fff;
 }
 
 .recline-query-editor form, .recline-query-editor .text-query {
@@ -59,4 +59,14 @@ body {
   min-height: 480px;
   border: 1px solid #ccc;
   padding: 7px;
+}
+
+.ckanext-datapreview-iframe {
+  width: 100%;
+}
+
+.direct-embed {
+  max-height: 600px;
+  max-width: 100%;
+  overflow: hidden;
 }
