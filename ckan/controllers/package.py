@@ -1215,12 +1215,10 @@ class PackageController(BaseController):
         if resource['format'] in ['csv', 'xls', 'tsv']:
             # all defaults
             pass
-        elif resource['format'] in ['rdf+xml', 'owl+xml', 'xml', 'n3',
+        elif resource['format'] in ['html', 'htm',
+                                    'rdf+xml', 'owl+xml', 'xml', 'n3',
                                     'n-triples', 'turtle', 'plain',
                                     'atom', 'tsv', 'rss', 'txt']:
-            # dataproxy
-            url = resource['url']
-        elif resource['format'] in ['html', 'htm']:
             url = resource['url']
         elif resource['format'] in ['png', 'jpg', 'gif']:
             directly = True
