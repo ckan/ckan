@@ -1,3 +1,7 @@
+body {
+  background-color: #EFEFEF;
+}
+
 .recline-query-editor form, .recline-query-editor .text-query {
   height: 28px;
 }
