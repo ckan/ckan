@@ -55,6 +55,11 @@ body {
   vertical-align: top;
 }
 
+#ckanext-datapreview {
+  position: relative;
+  overflow: auto;
+}
+
 #ckanext-datapreview iframe {
   min-height: 480px;
   border: 1px solid #ccc;
