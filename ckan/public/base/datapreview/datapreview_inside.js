@@ -292,6 +292,12 @@ CKAN.DataPreview = function ($, my) {
     else if (resourceData.formatNormalized in {'html':'', 'htm':''}
         ||  resourceData.url.substring(0,23)=='http://docs.google.com/') {
       // we displays a fullscreen dialog with the url in an iframe.
+
+      // we are already in an iframe
+      if (top !== self) {
+        window.location.replace(resourceData.url);
+      }
+
       my.$dialog.empty();
       var el = $('<iframe></iframe>');
       el.attr('src', resourceData.url);
@@ -303,6 +309,12 @@ CKAN.DataPreview = function ($, my) {
     else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''}
         ||  resourceData.resource_type=='image') {
       // we displays a fullscreen dialog with the url in an iframe.
+
+      // we are already in an iframe
+      if (top !== self) {
+        window.location.replace(resourceData.url);
+      }
+
       my.$dialog.empty();
       var el = $('<img />');
       el.attr('src', resourceData.url);
@@ -400,7 +412,7 @@ CKAN.DataPreview = function ($, my) {
     } else {
       return url;
     }
-  }
+  };
 
   // Public: Escapes HTML entities to prevent broken layout and XSS attacks
   // when inserting user generated or external content.
