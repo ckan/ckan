@@ -69,14 +69,6 @@ textarea {
   width: 100%;
 }
 
-.ie7 .control-full {
-  input,
-  select,
-  textarea {
-    width: 95%;
-  }
-}
-
 .control-medium input,
 .control-medium select,
 .control-medium textarea {
@@ -86,10 +78,6 @@ textarea {
 .control-large input,
 .control-large .control-label {
   font-size: 18px;
-}
-
-.ie9 .control-large input {
-  height: 56px; // Fixes cropped text in IE9
 }
 
 .form-actions {
@@ -136,10 +124,6 @@ textarea {
   margin-left: 130px;
 }
 
-.ie7 .form-horizontal .controls {
-  margin-left: 0;
-}
-
 .form-horizontal .info-block {
   position: relative;
   display: block;
@@ -177,16 +161,6 @@ textarea {
     float: left;
     font-size: 22px;
     margin-right: @gutterSmallX;
-  }
-}
-
-.ie7 .controls {
-  position: relative;
-  .info-block,
-  .info-inline {
-    position: absolute;
-    top: 0;
-    right: 0;
   }
 }
 
@@ -318,10 +292,6 @@ textarea {
 .control-custom .checkbox {
   display: inline-block;
   margin-left: 5px;
-}
-
-.ie7 .control-custom .checkbox {
-  .ie7-inline-block;
 }
 
 .control-custom .checkbox input {
@@ -555,9 +525,6 @@ textarea {
   line-height: 27px;
   z-index: -1;
 }
-.ie7 .stages li .highlight {
-  width: auto;
-}
 
 .stages li.active .highlight {
   color: @stagesActiveTextColor;
@@ -567,24 +534,6 @@ textarea {
 .stages li.complete .highlight {
   color: @stagesCompleteTextColor;
   background: @stagesCompleteBackground;
-}
-
-.ie7 .stages {
-  overflow: hidden;
-  background-color: @stagesBackground;
-  li {
-    height: 30px;
-    width: 27.5%;
-    button,
-    span {
-      display: block;
-      height: 30px;
-      padding-left: 20px;
-    }
-    button {
-      height: 50px;
-    }
-  }
 }
 
 // Errors

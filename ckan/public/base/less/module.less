@@ -5,15 +5,6 @@
   margin-bottom: 20px;
 }
 
-.ie9 .module {
-  // IE9 renders box shadows wildly out.
-  .box-shadow(0 0 5px rgba(0, 0, 0, 0.3));
-}
-
-.ie .module {
-  border: 1px solid @genericBorderColor;
-}
-
 .module-heading {
   .border-radius(3px 3px 0 0);
   font-size: 14px;
@@ -36,15 +27,6 @@
   color: @moduleHeadingActionTextColor;
   font-size: 11px;
   text-decoration: underline;
-}
-
-.ie7 .module-heading {
-  position: relative;
-  .action {
-    position: absolute;
-    top: 9px;
-    right: 10px;
-  }
 }
 
 .module-content {
@@ -155,12 +137,6 @@
   }
 }
 
-// Module Popup
-
-.ie .module-popup {
-  border-bottom: none;
-}
-
 // Module Grid
 
 .module-grid {
@@ -197,22 +173,4 @@
 
 .group-listing {
   margin-left: -20px; // Same as .row
-}
-
-.ie .group-listing {
-  margin-left: -24px; // Include border around items.
-}
-.ie7 .group-listing {
-  position: relative;
-  zoom: 1;
-}
-
-
-
-.ie7 .module .module-heading {
-  .clearfix;
-  .media-content,
-  .media-image img {
-    float: left;
-  }
 }
