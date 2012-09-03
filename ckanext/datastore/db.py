@@ -354,6 +354,7 @@ def _where(field_ids, data_dict):
 
 def _textsearch_query(data_dict):
     q = data_dict.get('q')
+    lang = data_dict.get('lang', 'english')
     if q:
         if (not data_dict.get('plain')
             or str(data_dict.get('plain')).lower() in ['true', '1']):
@@ -362,7 +363,7 @@ def _textsearch_query(data_dict):
             statement = ", to_tsquery('{lang}', '{query}') query"
 
         rank_column = ', ts_rank_cd(_full_text, query, 32) AS rank'
-        return statement.format(lang='english', query=q), rank_column
+        return statement.format(lang=lang, query=q), rank_column
     return '', ''
 
 

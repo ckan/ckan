@@ -82,8 +82,10 @@ def datastore_search(context, data_dict):
     :type filters: dictionary
     :param q: full text query
     :type q: string
-    :param plain: query is a plain text query that has to tranformed (default: true)
+    :param plain: query is a plain text query (default: true)
     :type plain: bool
+    :param lang: language of the full text query (default: english)
+    :type lang: string
     :param limit: maximum number of rows to return (default: 100)
     :type limit: int
     :param offset: offset the number of rows
