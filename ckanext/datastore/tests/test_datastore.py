@@ -9,6 +9,10 @@ import ckanext.datastore.db as db
 import pprint
 
 
+def extract(d, keys):
+    return dict((k, d[k]) for k in keys if k in d)
+
+
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
@@ -658,6 +662,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def test_search_full_text(self):
         data = {'resource_id': self.data['resource_id'],
                 'q': 'annakarenina'}
+
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -666,7 +671,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [self.expected_records[0]]
+
+        results = [extract(result['records'][0], [u'_id', u'author', u'b\xfck', u'nested', u'published'])]
+        assert results == [self.expected_records[0]]
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -677,9 +684,17 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 2
-        assert result['records'] == self.expected_records, result['records']
+        results = [extract(record, [u'_id', u'author', u'b\xfck', u'nested', u'published']) for record in result['records']]
+        assert results == self.expected_records, result['records']
 
-        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+        expected_fields = [{u'type': u'int4', u'id': u'_id'},
+                        {u'type': u'text', u'id': u'b\xfck'},
+                        {u'type': u'text', u'id': u'author'},
+                        {u'type': u'timestamp', u'id': u'published'},
+                        {u'type': u'_json', u'id': u'nested'},
+                        {u'type': u'float4', u'id': u'rank'}]
+        for field in expected_fields:
+            assert field in result['fields'], field
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],
@@ -692,9 +707,11 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [self.expected_records[0]], result['records']
+        results = [extract(result['records'][0], [u'_id', u'author', u'b\xfck', u'nested', u'published'])]
+        assert results == [self.expected_records[0]], result['records']
 
-        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+        for field in expected_fields:
+            assert field in result['fields'], field
 
 
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
@@ -706,8 +723,8 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         cls.normal_user = model.User.get('annafan')
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = dict(
-            resource_id = resource.id,
-            fields = [
+            resource_id=resource.id,
+            fields=[
               {'id': 'id'},
               {'id': 'date', 'type':'date'},
               {'id': 'x'},
@@ -718,7 +735,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
               {'id': 'lat'},
               {'id': 'lon'}
             ],
-            records = [
+            records=[
               {'id': 0, 'date': '2011-01-01', 'x': 1, 'y': 2, 'z': 3, 'country': 'DE', 'title': 'first', 'lat':52.56, 'lon':13.40},
               {'id': 1, 'date': '2011-02-02', 'x': 2, 'y': 4, 'z': 24, 'country': 'UK', 'title': 'second', 'lat':54.97, 'lon':-1.60},
               {'id': 2, 'date': '2011-03-03', 'x': 3, 'y': 6, 'z': 9, 'country': 'US', 'title': 'third', 'lat':40.00, 'lon':-75.5},

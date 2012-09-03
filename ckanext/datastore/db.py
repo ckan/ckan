@@ -342,19 +342,33 @@ def _where(field_ids, data_dict):
         where_clauses.append(u'"{}" = %s'.format(field))
         values.append(value)
 
-    q = data_dict.get('q')
-    if q:
-        if (not data_dict.get('plain')
-                or str(data_dict.get('plain').lower()) in ['true', '1']):
-            where_clauses.append('_full_text @@ plainto_tsquery(%s)')
-        else:
-            where_clauses.append('_full_text @@ to_tsquery(%s)')
-        values.append(q)
+    # add full-text search where clause
+    if data_dict.get('q'):
+        where_clauses.append('_full_text @@ query')
 
     where_clause = ' and '.join(where_clauses)
     if where_clause:
         where_clause = 'where ' + where_clause
     return where_clause, values
+
+
+def _textsearch_query(data_dict):
+    q = data_dict.get('q')
+    if q:
+        if (not data_dict.get('plain')
+            or str(data_dict.get('plain')).lower() in ['true', '1']):
+            statement = ", plainto_tsquery('{lang}', '{query}') query"
+        else:
+            statement = ", to_tsquery('{lang}', '{query}') query"
+
+        rank_column = ', ts_rank_cd(_full_text, query, 32) AS rank'
+        return statement.format(lang='english', query=q), rank_column
+    return '', ''
+
+
+def _rank_column(data_dict):
+    if data_dict.get('plain'):
+        return ', ts_rank_cd(_full_text, query, 32) AS rank'
 
 
 def _sort(context, sort, field_ids):
@@ -437,6 +451,7 @@ def search_data(context, data_dict):
 
     select_columns = ', '.join([u'"{}"'.format(field_id)
                                 for field_id in field_ids])
+    ts_query, rank_column = _textsearch_query(data_dict)
     where_clause, where_values = _where(all_field_ids, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
@@ -446,10 +461,16 @@ def search_data(context, data_dict):
 
     sort = _sort(context, data_dict.get('sort'), field_ids)
 
-    sql_string = u'''select {}, count(*) over() as "_full_count"
-                    from "{}" {} {} limit {} offset {}'''\
-        .format(select_columns, data_dict['resource_id'], where_clause,
-                sort, limit, offset)
+    sql_string = u'''select {select}, count(*) over() as "_full_count" {rank}
+                    from "{resource}" {ts_query}
+                    {where} {sort} limit {limit} offset {offset}'''\
+        .format(
+            select=select_columns,
+            rank=rank_column,
+            resource=data_dict['resource_id'],
+            ts_query=ts_query,
+            where=where_clause,
+            sort=sort, limit=limit, offset=offset)
     results = context['connection'].execute(sql_string, where_values)
     return format_results(context, results, data_dict)
 
