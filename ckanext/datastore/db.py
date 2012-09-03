@@ -371,10 +371,13 @@ def _rank_column(data_dict):
         return ', ts_rank_cd(_full_text, query, 32) AS rank'
 
 
-def _sort(context, sort, field_ids):
-
+def _sort(context, data_dict, field_ids):
+    sort = data_dict.get('sort')
     if not sort:
-        return ''
+        if data_dict.get('q'):
+            return 'order by rank'
+        else:
+            return ''
 
     if isinstance(sort, basestring):
         clauses = sort.split(',')
@@ -459,7 +462,7 @@ def search_data(context, data_dict):
     _validate_int(limit, 'limit')
     _validate_int(offset, 'offset')
 
-    sort = _sort(context, data_dict.get('sort'), field_ids)
+    sort = _sort(context, data_dict, field_ids)
 
     sql_string = u'''select {select}, count(*) over() as "_full_count" {rank}
                     from "{resource}" {ts_query}
