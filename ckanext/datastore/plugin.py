@@ -35,12 +35,12 @@ class DatastorePlugin(p.SingletonPlugin):
         ## to resource dict.  Not using IAction extension as this prevents other plugins
         ## from having a custom resource_read.
 
-        if not config['debug'] and 'ckan.datastore_read_url':
-            self.ckan_url = self.config['sqlalchemy.url']
-            self.write_url = self.config['ckan.datastore_write_url']
+        self.ckan_url = self.config['sqlalchemy.url']
+        self.write_url = self.config['ckan.datastore_write_url']
+        if 'ckan.datastore_read_url':
             self.read_url = self.config['ckan.datastore_read_url']
-
-            self._check_separate_db()
+            if not config['debug']:
+                self._check_separate_db()
             self._check_read_permissions()
 
         # Make sure actions are cached
