@@ -7,7 +7,7 @@ Please set the variables to you current setup. For testing purposes it
 is possible to set maindb = datastoredb.
 
 To run the script, execute:
-    psql -d datastore -f create_read_only_user.sql
+    sudo -u postgres psql -d datastore -f create_read_only_user.sql
 
 License: MIT
 */
@@ -45,6 +45,5 @@ GRANT USAGE ON SCHEMA public TO :rouser;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO :rouser;
 
 -- grant access to new tables and views by default
--- for user: the user who creates a new table
 ALTER DEFAULT PRIVILEGES FOR USER :ckanuser IN SCHEMA public
    GRANT SELECT ON TABLES TO :rouser;
