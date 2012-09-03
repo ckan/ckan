@@ -20,6 +20,7 @@ _date_formats = ['%Y-%m-%d',
                 '%m-%d-%Y',
                 ]
 
+
 def _is_valid_field_name(name):
     '''
     Check that field name is valid:
@@ -146,6 +147,7 @@ def check_fields(context, fields):
                 'fields': ['{0} is not a valid field name'.format(field['id'])]
             })
 
+
 def convert(data, type):
     if data is None:
         return None
@@ -156,6 +158,7 @@ def convert(data, type):
     if isinstance(data, (int, float)):
         return data
     return unicode(data)
+
 
 def create_table(context, data_dict):
     'Create table from combination of fields and first row of data.'
@@ -362,14 +365,9 @@ def _textsearch_query(data_dict):
         else:
             statement = ", to_tsquery('{lang}', '{query}') query"
 
-        rank_column = ', ts_rank_cd(_full_text, query, 32) AS rank'
+        rank_column = ', ts_rank(_full_text, query, 32) AS rank'
         return statement.format(lang=lang, query=q), rank_column
     return '', ''
-
-
-def _rank_column(data_dict):
-    if data_dict.get('plain'):
-        return ', ts_rank_cd(_full_text, query, 32) AS rank'
 
 
 def _sort(context, data_dict, field_ids):
