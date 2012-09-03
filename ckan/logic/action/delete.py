@@ -198,6 +198,38 @@ def group_delete(context, data_dict):
 
     model.repo.commit()
 
+def organization_delete(context, data_dict):
+    '''Delete an organization.
+
+    You must be authorized to delete the organization.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    '''
+    model = context['model']
+    user = context['user']
+    id = _get_or_bust(data_dict, 'id')
+
+    organization = model.Group.get(id)
+    context['organization'] = organization
+    if organization is None:
+        raise NotFound('Organization was not found.')
+
+    revisioned_details = 'Organization: %s' % group.name
+
+    _check_access('organization_delete', context, data_dict)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+    rev.message = _(u'REST API: Delete %s') % revisioned_details
+    organization.delete()
+
+    for item in plugins.PluginImplementations(plugins.IGroupController):
+        item.delete(organization)
+
+    model.repo.commit()
+
 def task_status_delete(context, data_dict):
     '''Delete a task status.
 

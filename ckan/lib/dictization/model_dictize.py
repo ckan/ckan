@@ -42,6 +42,40 @@ def group_list_dictize(obj_list, context,
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
+def organizations_list_dictize(obj_list, context,
+                              sort_key=lambda x:x['display_name'],
+                              reverse=False):
+
+    active = context.get('active', True)
+    with_private = context.get('include_private_packages', False)
+    result_list = []
+
+    for obj in obj_list:
+        if context.get('with_capacity'):
+            obj, capacity = obj
+            organization_dict = d.table_dictize(obj, context, capacity=capacity)
+        else:
+            organization_dict = d.table_dictize(obj, context)
+        organization_dict.pop('created')
+        if active and obj.state not in ('active', 'pending'):
+            continue
+
+        organization_dict['display_name'] = obj.display_name
+
+        organization_dict['packages'] = \
+                len(obj.active_packages(with_private=with_private).all())
+        organization_dict['users'] = \
+                obj.members_of_type(ckan.model.User).count()
+
+        if context.get('for_view'):
+            for item in plugins.PluginImplementations(
+                    plugins.IGroupController):
+                organization_dict = item.before_view(organization_dict)
+
+        result_list.append(organization_dict)
+    return sorted(result_list, key=sort_key, reverse=reverse)
+
+
 def resource_list_dictize(res_list, context):
 
     active = context.get('active', True)

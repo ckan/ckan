@@ -77,13 +77,23 @@ CKAN.Utils = CKAN.Utils || {};
       $('#save').val(CKAN.Strings.addDataset);
       $("#title").focus();
     }
-    var isGroupNew = $('body.group.new').length > 0;
+    var isGroupNew = $('body.group.new').length;;
     if (isGroupNew) {
       // Set up magic URL slug editor
       var urlEditor = new CKAN.View.UrlEditor({
         slugType: 'group'
       });
       $('#save').val(CKAN.Strings.addGroup);
+      $("#title").focus();
+    }
+
+    var isOrganizationNew = $('body.organization.new').length;;
+    if (isOrganizationNew) {
+      // Set up magic URL slug editor
+      var urlEditor = new CKAN.View.UrlEditor({
+        slugType: 'group'
+      });
+      $('#save').val(CKAN.Strings.addOrganization);
       $("#title").focus();
     }
 
