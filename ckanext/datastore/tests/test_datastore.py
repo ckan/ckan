@@ -523,7 +523,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'_id': 2,
                                  u'nested': {u'a': u'b'}, u'b\xfck': u'warandpeace', u'author': u'tolstoy'}]
 
-
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
@@ -681,6 +680,20 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 2
         assert result['records'] == self.expected_records, result['records']
+
+        assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
+
+        # test multiple word queries (connected with and)
+        data = {'resource_id': self.data['resource_id'],
+                'q': 'tolstoy annakarenina'}
+        postparams = '%s=1' % json.dumps(data)
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [self.expected_records[0]], result['records']
 
         assert result['fields'] == [{u'type': u'int4', u'id': u'_id'}, {u'type': u'text', u'id': u'b\xfck'}, {u'type': u'text', u'id': u'author'}, {u'type': u'timestamp', u'id': u'published'}, {u'type': u'_json', u'id': u'nested'}], result['fields']
 
