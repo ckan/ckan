@@ -209,9 +209,14 @@ def create_table(context, data_dict):
 
     context['connection'].execute(sql_string)
 
+    # create index for faster full text search (indextes: gin or gist)
+    sql_index_string = 'create index "{0}_idx" ON "{0}" USING gist("_full_text")'.format(
+        data_dict['resource_id'])
+    context['connection'].execute(sql_index_string)
+
+    # create alias view
     alias = data_dict.get('alias', None)
     if alias:
-        # create alias view
         sql_alias_string = u'create view "{alias}" as select * from "{main}"'.format(
             main=data_dict['resource_id'], alias=alias
             )
