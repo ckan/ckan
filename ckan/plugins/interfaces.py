@@ -638,6 +638,12 @@ class IGroupForm(Interface):
         rendered for the history page
         """
 
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+
     def package_form(self):
         """
         Returns a string representing the location of the template to be

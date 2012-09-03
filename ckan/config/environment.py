@@ -17,7 +17,6 @@ import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
-import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
@@ -168,6 +167,9 @@ def load_environment(global_conf, app_conf):
 
     # Init SOLR settings and check if the schema is compatible
     #from ckan.lib.search import SolrSettings, check_solr_schema_version
+
+    # lib.search is imported here as we need the config enabled and parsed
+    import ckan.lib.search as search
     search.SolrSettings.init(config.get('solr_url'),
                              config.get('solr_user'),
                              config.get('solr_password'))
@@ -189,6 +191,10 @@ def load_environment(global_conf, app_conf):
     legacy_templates_path = os.path.join(root, 'templates_legacy')
     if asbool(config.get('ckan.legacy_templates', 'no')):
         template_paths = [legacy_templates_path]
+        # if we are testing allow new templates
+        if asbool(config.get('ckan.enable_testing', 'false')):
+            jinja2_templates_path = os.path.join(root, 'templates')
+            template_paths.append(jinja2_templates_path)
     else:
         template_paths = [paths['templates'][0]]
         template_paths.append(legacy_templates_path)

@@ -432,7 +432,7 @@ class FeedController(BaseController):
         """
 
         try:
-            page = int(request.params.get('page', 1))
+            page = int(request.params.get('page', 1)) or 1
         except ValueError:
             abort(400, ('"page" parameter must be an integer'))
 

@@ -47,7 +47,7 @@ get_locales_dict = i18n.get_locales_dict
 log = logging.getLogger(__name__)
 
 try:
-    from collections import OrderedDict # from python 2.7
+    from collections import OrderedDict  # from python 2.7
 except ImportError:
     from sqlalchemy.util import OrderedDict
 
@@ -58,6 +58,7 @@ except ImportError:
 
 _log = logging.getLogger(__name__)
 
+
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
@@ -65,12 +66,14 @@ def redirect_to(*args, **kw):
         kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
 
+
 def url(*args, **kw):
     """Create url adding i18n information if selected
     wrapper for pylons.url"""
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
     return _add_i18n_to_url(my_url, locale=locale, **kw)
+
 
 def url_for(*args, **kw):
     """Create url adding i18n information if selected
@@ -89,6 +92,7 @@ def url_for(*args, **kw):
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
+
 def url_for_static(*args, **kw):
     """Create url for static content that does not get translated
     eg css, js
@@ -98,6 +102,7 @@ def url_for_static(*args, **kw):
         args = (str(args[0]),) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
+
 
 def _add_i18n_to_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
@@ -161,7 +166,8 @@ def _add_i18n_to_url(url_to_amend, **kw):
             url = '/%s%s' % (locale,  url)
 
     if url == '/packages':
-        raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
+        error = 'There is a broken url being created %s' % kw
+        raise ckan.exceptions.CkanUrlException(error)
 
     return url
 
@@ -175,6 +181,7 @@ def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
 
+
 def lang_native_name(lang=None):
     ''' Return the langage name currently used in it's localised form
         either from parameter or current environ setting'''
@@ -183,6 +190,7 @@ def lang_native_name(lang=None):
     if locale:
         return locale.display_name or locale.english_name
     return lang
+
 
 class Message(object):
     """A message returned by ``Flash.pop_messages()``.
@@ -195,9 +203,9 @@ class Message(object):
     """
 
     def __init__(self, category, message, allow_html):
-        self.category=category
-        self.message=message
-        self.allow_html=allow_html
+        self.category = category
+        self.message = message
+        self.allow_html = allow_html
 
     def __str__(self):
         return self.message
@@ -210,6 +218,7 @@ class Message(object):
         else:
             return escape(self.message)
 
+
 class _Flash(object):
 
     # List of allowed categories.  If None, allow any category.
@@ -218,16 +227,19 @@ class _Flash(object):
     # Default category if none is specified.
     default_category = ""
 
-    def __init__(self, session_key="flash", categories=None, default_category=None):
+    def __init__(self, session_key="flash", categories=None,
+                 default_category=None):
         self.session_key = session_key
         if categories is not None:
             self.categories = categories
         if default_category is not None:
             self.default_category = default_category
         if self.categories and self.default_category not in self.categories:
-            raise ValueError("unrecognized default category %r" % (self.default_category,))
+            raise ValueError("unrecognized default category %r"
+                             % (self.default_category,))
 
-    def __call__(self, message, category=None, ignore_duplicate=False, allow_html=False):
+    def __call__(self, message, category=None, ignore_duplicate=False,
+                 allow_html=False):
         if not category:
             category = self.default_category
         elif self.categories and category not in self.categories:
@@ -262,22 +274,25 @@ flash = _Flash()
 # this is here for backwards compatability
 _flash = flash
 
+
 def flash_notice(message, allow_html=False):
     ''' Show a flash message of type notice '''
     flash(message, category='alert-info', allow_html=allow_html)
+
 
 def flash_error(message, allow_html=False):
     ''' Show a flash message of type error '''
     flash(message, category='alert-error', allow_html=allow_html)
 
+
 def flash_success(message, allow_html=False):
     ''' Show a flash message of type success '''
     flash(message, category='alert-success', allow_html=allow_html)
 
+
 def are_there_flash_messages():
     ''' Returns True if there are flash messages for the current user '''
     return flash.are_there_messages()
-
 
 
 def nav_link(*args, **kwargs):
@@ -290,6 +305,7 @@ def nav_link(*args, **kwargs):
             return _nav_link(*args[1:], **kwargs)
         raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_link(*args, **kwargs)
+
 
 def _nav_link(text, controller, **kwargs):
     '''
@@ -326,6 +342,7 @@ def _link_class(kwargs):
         active = ''
     return kwargs.pop('class_', '') + active
 
+
 def nav_named_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
     # this is deprecated as pointless
@@ -338,6 +355,7 @@ def nav_named_link(*args, **kwargs):
         raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _nav_named_link(*args, **kwargs)
 
+
 def _nav_named_link(text, name, **kwargs):
     class_ = _link_class(kwargs)
     return link_to(
@@ -345,6 +363,7 @@ def _nav_named_link(text, name, **kwargs):
         url_for(name, **kwargs),
         class_=class_
     )
+
 
 def subnav_link(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
@@ -357,6 +376,7 @@ def subnav_link(*args, **kwargs):
         raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_link(*args, **kwargs)
 
+
 def _subnav_link(text, action, **kwargs):
     kwargs['action'] = action
     class_ = _link_class(kwargs)
@@ -365,6 +385,7 @@ def _subnav_link(text, action, **kwargs):
         url_for(**kwargs),
         class_=class_
     )
+
 
 def subnav_named_route(*args, **kwargs):
     # subnav_link() used to need c passing as the first arg
@@ -377,6 +398,7 @@ def subnav_named_route(*args, **kwargs):
             return _subnav_named_route(*args[1:], **kwargs)
         raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _subnav_named_route(*args, **kwargs)
+
 
 def _subnav_named_route(text, routename, **kwargs):
     """ Generate a subnav element based on a named route """
@@ -421,7 +443,8 @@ def _make_menu_item(menu_item, title):
 
 
 def default_group_type():
-    return str( config.get('ckan.default.group_type', 'group') )
+    return str(config.get('ckan.default.group_type', 'group'))
+
 
 
 _menu_items = {
@@ -518,6 +541,7 @@ def unselected_facet_items(facet, limit=10):
     else:
         return facets
 
+
 def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
@@ -571,19 +595,21 @@ def am_authorized(c, action, domain_object=None):
         domain_object = model.System()
     return Authorizer.am_authorized(c, action, domain_object)
 
+
 def check_access(action, data_dict=None):
-    from ckan.logic import check_access as check_access_logic,NotAuthorized
+    from ckan.logic import check_access as check_access_logic, NotAuthorized
 
     context = {'model': model,
                 'user': c.user or c.author}
 
     try:
-        check_access_logic(action,context,data_dict)
+        check_access_logic(action, context, data_dict)
         authorized = True
     except NotAuthorized:
         authorized = False
 
     return authorized
+
 
 def linked_user(user, maxlength=0):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
@@ -594,13 +620,13 @@ def linked_user(user, maxlength=0):
         if not user:
             return user_name
     if user:
-        _name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        _icon = gravatar(user.email_hash, 20)
+        name = user.name if model.User.VALID_NAME.match(user.name) else user.id
+        icon = gravatar(user.email_hash, 20)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return _icon + u' ' + link_to(displayname,
-                       url_for(controller='user', action='read', id=_name))
+        return icon + u' ' + link_to(displayname,
+                       url_for(controller='user', action='read', id=name))
 
 def linked_authorization_group(authgroup, maxlength=0):
     if not isinstance(authgroup, model.AuthorizationGroup):
@@ -613,13 +639,16 @@ def linked_authorization_group(authgroup, maxlength=0):
         if maxlength and len(display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
         return link_to(displayname,
-                       url_for(controller='authorization_group', action='read', id=displayname))
+                       url_for(controller='authorization_group',
+                               action='read', id=displayname))
+
 
 def group_name_to_title(name):
     group = model.Group.by_name(name)
     if group is not None:
         return group.display_name
     return name
+
 
 def markdown_extract(text, extract_length=190):
     if (text is None) or (text.strip() == ''):
@@ -630,13 +659,18 @@ def markdown_extract(text, extract_length=190):
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
 
+
 def icon_html(url, alt=None, inline=True):
     classes = ''
-    if inline: classes += 'inline-icon '
-    return literal('<img src="%s" height="16px" width="16px" alt="%s" class="%s" /> ' % (url, alt, classes))
+    if inline:
+        classes += 'inline-icon '
+    return literal(('<img src="%s" height="16px" width="16px" alt="%s" ' +
+                    'class="%s" /> ') % (url, alt, classes))
+
 
 def icon(name, alt=None, inline=True):
-    return icon_html(icon_url(name),alt,inline)
+    return icon_html(icon_url(name), alt, inline)
+
 
 def resource_icon(res):
     if False:
@@ -646,7 +680,8 @@ def resource_icon(res):
     # also: 'page_white_link'
         return icon(icon_name)
     else:
-        return icon(format_icon(res.get('format','')))
+        return icon(format_icon(res.get('format', '')))
+
 
 def format_icon(_format):
     _format = _format.lower()
@@ -675,10 +710,13 @@ def linked_gravatar(email_hash, size=100, default=None):
     return literal(
         '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
-        '%s</a>' % gravatar(email_hash,size,default)
+        '%s</a>' % gravatar(email_hash, size, default)
         )
 
-_VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
+_VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
+                            'wavatar', 'retro']
+
+
 def gravatar(email_hash, size=100, default=None):
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
@@ -701,9 +739,11 @@ def pager_url(page, partial=None, **kwargs):
     kwargs['page'] = page
     return url(**kwargs)
 
+
 class Page(paginate.Page):
     # Curry the pager method of the webhelpers.paginate.Page class, so we have
     # our custom layout set as default.
+
     def pager(self, *args, **kwargs):
         kwargs.update(
             format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
@@ -731,8 +771,10 @@ class Page(paginate.Page):
         # Convert current page
         text = '%s' % self.page
         current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-        current_page_link = self._pagerlink(self.page, text, extra_attributes=self.curpage_attr)
+        current_page_link = self._pagerlink(self.page, text,
+                                            extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)
+
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
     '''Render a datetime object or timestamp string as a pretty string
@@ -756,12 +798,14 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     else:
         return ''
 
+
 @deprecated()
 def datetime_to_date_str(datetime_):
     '''DEPRECATED: Takes a datetime.datetime object and returns a string of it
     in ISO format.
     '''
     return datetime_.isoformat()
+
 
 def date_str_to_datetime(date_str):
     '''Convert ISO-like formatted datestring to datetime object.
@@ -794,21 +838,24 @@ def date_str_to_datetime(date_str):
 
     return datetime.datetime(*map(int, time_tuple))
 
+
 def parse_rfc_2822_date(date_str, assume_utc=True):
     """
-    Parse a date string of the form specified in RFC 2822, and return a datetime.
+    Parse a date string of the form specified in RFC 2822, and return a
+    datetime.
 
-    RFC 2822 is the date format used in HTTP headers.  It should contain timezone
-    information, but that cannot be relied upon.
+    RFC 2822 is the date format used in HTTP headers.  It should contain
+    timezone information, but that cannot be relied upon.
 
-    If date_str doesn't contain timezone information, then the 'assume_utc' flag
-    determines whether we assume this string is local (with respect to the
+    If date_str doesn't contain timezone information, then the 'assume_utc'
+    flag determines whether we assume this string is local (with respect to the
     server running this code), or UTC.  In practice, what this means is that if
-    assume_utc is True, then the returned datetime is 'aware', with an associated
-    tzinfo of offset zero.  Otherwise, the returned datetime is 'naive'.
+    assume_utc is True, then the returned datetime is 'aware', with an
+    associated tzinfo of offset zero.  Otherwise, the returned datetime is
+    'naive'.
 
-    If timezone information is available in date_str, then the returned datetime
-    is 'aware', ie - it has an associated tz_info object.
+    If timezone information is available in date_str, then the returned
+    datetime is 'aware', ie - it has an associated tz_info object.
 
     Returns None if the string cannot be parsed as a valid datetime.
     """
@@ -820,11 +867,13 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
     # No timezone information available in the string
     if time_tuple[-1] is None and not assume_utc:
-        return datetime.datetime.fromtimestamp(email.utils.mktime_tz(time_tuple))
+        return datetime.datetime.fromtimestamp(
+                        email.utils.mktime_tz(time_tuple))
     else:
         offset = 0 if time_tuple[-1] is None else time_tuple[-1]
         tz_info = _RFC2282TzInfo(offset)
     return datetime.datetime(*time_tuple[:6], microsecond=0, tzinfo=tz_info)
+
 
 class _RFC2282TzInfo(datetime.tzinfo):
     """
@@ -860,20 +909,25 @@ class _RFC2282TzInfo(datetime.tzinfo):
 
 def time_ago_in_words_from_str(date_str, granularity='month'):
     if date_str:
-        return date.time_ago_in_words(date_str_to_datetime(date_str), granularity=granularity)
+        return date.time_ago_in_words(date_str_to_datetime(date_str),
+                                      granularity=granularity)
     else:
         return _('Unknown')
+
 
 def button_attr(enable, type='primary'):
     if enable:
         return 'class="btn %s"' % type
     return 'disabled class="btn disabled"'
 
+
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
-        return package_or_package_dict.get('title', '') or package_or_package_dict.get('name', '')
+        return package_or_package_dict.get('title', '') or \
+               package_or_package_dict.get('name', '')
     else:
         return package_or_package_dict.title or package_or_package_dict.name
+
 
 def dataset_link(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
@@ -886,6 +940,7 @@ def dataset_link(package_or_package_dict):
         url_for(controller='package', action='read', id=name)
         )
 
+
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
@@ -895,14 +950,16 @@ def resource_display_name(resource_dict):
         return name
     elif description:
         description = description.split('.')[0]
-        max_len = 60;
-        if len(description)>max_len: description = description[:max_len]+'...'
+        max_len = 60
+        if len(description) > max_len:
+            description = description[:max_len] + '...'
         return description
     elif url:
         return url
     else:
         noname_string = _('no name')
         return '[%s] %s' % (noname_string, resource_dict['id'])
+
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
@@ -912,6 +969,7 @@ def resource_link(resource_dict, package_id):
         resource_id=resource_dict['id'])
     return link_to(text, url)
 
+
 def related_item_link(related_item_dict):
     text = related_item_dict.get('title', '')
     url = url_for(controller='related',
@@ -919,16 +977,20 @@ def related_item_link(related_item_dict):
         id=related_item_dict['id'])
     return link_to(text, url)
 
+
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
     return link_to(tag['name'], url)
+
 
 def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
 
+
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
+
 
 def auto_log_message(*args):
     # auto_log_message() used to need c passing as the first arg
@@ -940,17 +1002,19 @@ def auto_log_message(*args):
     return _auto_log_message()
 
 def _get_template_name():
+    #FIX ME THIS IS BROKEN
     ''' helper function to get the currently/last rendered template name '''
     return c.__debug_info[-1]['template_name']
 
 def _auto_log_message():
-    if (c.action=='new') :
+    if (c.action == 'new'):
         return _('Created new dataset.')
-    elif (c.action=='editresources'):
+    elif (c.action == 'editresources'):
         return _('Edited resources.')
-    elif (c.action=='edit'):
+    elif (c.action == 'edit'):
         return _('Edited settings.')
     return ''
+
 
 def activity_div(template, activity, actor, object=None, target=None):
     actor = '<span class="actor">%s</span>' % actor
@@ -958,10 +1022,13 @@ def activity_div(template, activity, actor, object=None, target=None):
         object = '<span class="object">%s</span>' % object
     if target:
         target = '<span class="target">%s</span>' % target
-    date = '<span class="date">%s</span>' % render_datetime(activity['timestamp'])
-    template = template.format(actor=actor, date=date, object=object, target=target)
+    rendered_datetime = render_datetime(activity['timestamp'])
+    date = '<span class="date">%s</span>' % rendered_datetime
+    template = template.format(actor=actor, date=date,
+                               object=object, target=target)
     template = '<div class="activity">%s %s</div>' % (template, date)
     return literal(template)
+
 
 def snippet(template_name, **kw):
     ''' This function is used to load html snippets into pages. keywords
@@ -982,20 +1049,20 @@ def convert_to_dict(object_type, objs):
                 array.append(item.name)
             return array
 
-        rev = {'id' : revision.id,
-               'state' : revision.state,
-               'timestamp' : revision.timestamp,
-               'author' : revision.author,
-               'packages' : process_names(revision.packages),
-               'groups' : process_names(revision.groups),
-               'message' : revision.message,}
+        rev = {'id': revision.id,
+               'state': revision.state,
+               'timestamp': revision.timestamp,
+               'author': revision.author,
+               'packages': process_names(revision.packages),
+               'groups': process_names(revision.groups),
+               'message': revision.message, }
         return rev
     import lib.dictization.model_dictize as md
-    converters = {'package' : md.package_dictize,
-                  'revisions' : dictize_revision_list}
+    converters = {'package': md.package_dictize,
+                  'revisions': dictize_revision_list}
     converter = converters[object_type]
     items = []
-    context = {'model' : model}
+    context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1003,6 +1070,7 @@ def convert_to_dict(object_type, objs):
 
 # these are the types of objects that can be followed
 _follow_objects = ['dataset', 'user']
+
 
 def follow_button(obj_type, obj_id):
     '''Return a follow button for the given object type and id.
@@ -1025,7 +1093,7 @@ def follow_button(obj_type, obj_id):
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
     if c.user:
-        context = {'model' : model, 'session':model.Session, 'user':c.user}
+        context = {'model': model, 'session': model.Session, 'user': c.user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1033,6 +1101,7 @@ def follow_button(obj_type, obj_id):
                        obj_id=obj_id,
                        obj_type=obj_type)
     return ''
+
 
 def follow_count(obj_type, obj_id):
     '''Return the number of followers of an object.
@@ -1050,7 +1119,7 @@ def follow_count(obj_type, obj_id):
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = {'model' : model, 'session':model.Session, 'user':c.user}
+    context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
 def _create_url_with_params(params=None, controller=None, action=None,
@@ -1141,7 +1210,6 @@ def debug_full_info_as_list(debug_info):
             data = data.decode('utf-8')
             out.append((key, data))
 
-    print debug_info.keys()
     if 'tmpl_context' in debug_vars:
         for key in debug_info['c_vars']:
 
@@ -1182,8 +1250,10 @@ def dashboard_activity_stream(user_id):
 
     '''
     import ckan.logic as logic
-    context = {'model' : model, 'session':model.Session, 'user':c.user}
-    return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+    return logic.get_action('dashboard_activity_list_html')(context,
+                                                            {'id': user_id})
+
 
 def escape_js(str_to_escape):
     '''Escapes special characters from a JS string.
@@ -1221,6 +1291,7 @@ def get_request_param(parameter_name, default=None):
     from the request. This is useful for things like sort order in
     searches. '''
     return request.params.get(parameter_name, default)
+
 
 def render_markdown(data):
     ''' returns the data as rendered markdown '''

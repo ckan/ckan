@@ -137,7 +137,7 @@ class TestAction(WsgiAppCase):
                           {'alt_url': u'alt345',
                            'description': u'Index of the novel',
                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
-                           'format': u'json',
+                           'format': u'JSON',
                            'hash': u'def456',
                            'position': 1,
                            'url': u'http://www.annakarenina.com/index.json'}],

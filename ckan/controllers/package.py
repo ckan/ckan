@@ -278,7 +278,7 @@ class PackageController(BaseController):
                 ctype, format, loader = "text/html; charset=utf-8", "html", \
                     MarkupTemplate
         else:
-            ctype, extension, loader = self._content_type_from_accept()
+            ctype, format, loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -455,12 +455,12 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.POST, ignore_keys=CACHE_PARAMETERS))))
+            request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
-                h.dict_list_reduce(data['tags'], 'name'))
+                h.dict_list_reduce(data.get('tags', {}), 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
@@ -739,7 +739,7 @@ class PackageController(BaseController):
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(h.dict_list_reduce(
-                c.pkg_dict['tags'], 'name'))
+                c.pkg_dict.get('tags', {}), 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit'}
@@ -1264,6 +1264,12 @@ class PackageController(BaseController):
         recline_state.pop('width', None)
         recline_state.pop('height', None)
         recline_state['readOnly'] = True
+
+        # previous versions of recline setup used elasticsearch_url attribute
+        # for data api url - see http://trac.ckan.org/ticket/2639
+        # fix by relocating this to url attribute which is the default location
+        if 'dataset' in recline_state and 'elasticsearch_url' in recline_state['dataset']:
+            recline_state['dataset']['url'] = recline_state['dataset']['elasticsearch_url']
 
         # Ensure only the currentView is available
         # default to grid view if none specified

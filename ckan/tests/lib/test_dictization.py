@@ -30,6 +30,8 @@ import ckan.logic.action.get
 class TestBasicDictize:
     @classmethod
     def setup_class(cls):
+        # clean the db so we can run these tests on their own
+        model.repo.rebuild_db()
         CreateTestData.create()
 
         cls.package_expected = {
@@ -89,7 +91,7 @@ class TestBasicDictize:
                             u'cache_last_updated': None,
                             u'cache_url': None,
                             u'description': u'Index of the novel',
-                            u'format': u'json',
+                            u'format': u'JSON',
                             u'hash': u'def456',
                             u'last_modified': None,
                             u'mimetype': None,

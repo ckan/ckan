@@ -38,7 +38,7 @@ class RelatedController(base.BaseController):
         try:
             page = int(base.request.params.get('page', 1))
         except ValueError, e:
-            abort(400, ('"page" parameter must be an integer'))
+            base.abort(400, ('"page" parameter must be an integer'))
 
         # Update ordering in the context
         query = logic.get_action('related_list')(context,data_dict)
@@ -84,12 +84,12 @@ class RelatedController(base.BaseController):
         try:
             logic.check_access('related_show', context, data_dict)
         except logic.NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            base.abort(401, _('Not authorized to see this page'))
 
         related = model.Session.query(model.Related).\
                     filter(model.Related.id == id).first()
         if not related:
-            abort(404, _('The requested related item was not found'))
+            base.abort(404, _('The requested related item was not found'))
 
         related.view_count = model.Related.view_count + 1
 
