@@ -6,7 +6,8 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
 import ckanext.datastore.db as db
-from pprint import pprint as pp
+import pprint
+
 
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
@@ -183,9 +184,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         results = [row for row in c.execute('select * from "{0}"'.format(resource.id))]
         results_alias = [row for row in c.execute('select * from "{0}"'.format(alias))]
-
-        pp(results_alias)
-        pp(results)
 
         assert results == results_alias
 
@@ -685,6 +683,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         # test multiple word queries (connected with and)
         data = {'resource_id': self.data['resource_id'],
+                'plain': True,
                 'q': 'tolstoy annakarenina'}
         postparams = '%s=1' % json.dumps(data)
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -747,9 +746,18 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
-        import pprint
+        assert res_dict['result']['total'] == 2, pprint.pformat(res_dict)
 
-        assert res_dict['result']['total'] == 2,  pprint.pformat(res_dict)
+    def test_advanced_search_full_text(self):
+        data = {'resource_id': self.data['resource_id'],
+                'plain': 'False',
+                'q': 'DE | UK'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['total'] == 5, pprint.pformat(res_dict)
 
 
 class TestDatastoreSQL(tests.WsgiAppCase):
