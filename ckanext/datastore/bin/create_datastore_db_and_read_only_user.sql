@@ -1,5 +1,6 @@
 /*
-This script creates a new read-only user for ckan who will only be able
+This script creates a new datastore database and
+a new read-only user for ckan who will only be able
 to select from the datastore database but has no create/write/edit
 permission or any permissions on other databases.
 
@@ -7,15 +8,22 @@ Please set the variables to you current setup. For testing purposes it
 is possible to set maindb = datastoredb.
 
 To run the script, execute:
-    sudo -u postgres psql -d datastore -f create_read_only_user.sql
+    sudo -u postgres psql postgres -f create_read_only_user.sql
 
 License: MIT
 */
 
 \set maindb "ckan"
-\set datastoredb "datastore"
+-- don't quote the datastoredb variable or create the database separately
+\set datastoredb datastore
 \set ckanuser ckanuser
 \set rouser readonlyuser
+
+-- create the datastore database
+create database :datastoredb;
+
+-- switch to the new database
+\c :datastoredb;
 
 /*
 -- delete the previous users
