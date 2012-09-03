@@ -110,7 +110,7 @@ def datastore_search(context, data_dict):
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
     res_exists = model.Resource.get(id)
-    
+
     alias_exists = False
     if not res_exists:
         # assume id is an alias
@@ -132,6 +132,7 @@ def datastore_search(context, data_dict):
     result.pop('connection_url')
     return result
 
+
 @logic.side_effect_free
 def data_search_sql(context, data_dict):
     '''Execute SQL-Queries on the datastore.
@@ -144,7 +145,6 @@ def data_search_sql(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
     sql = _get_or_bust(data_dict, 'sql')
 
     if not db.is_single_statement(sql):

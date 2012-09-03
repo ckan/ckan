@@ -352,6 +352,7 @@ def _where(field_ids, data_dict):
         where_clause = 'where ' + where_clause
     return where_clause, values
 
+
 def _sort(context, sort, field_ids):
 
     if not sort:
@@ -415,7 +416,7 @@ def delete_data(context, data_dict):
 def search_data(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_field_ids = map(lambda x: x['id'], all_fields)
-    all_field_ids.insert(0,'_id')
+    all_field_ids.insert(0, '_id')
 
     fields = data_dict.get('fields')
 
@@ -448,6 +449,7 @@ def search_data(context, data_dict):
     results = context['connection'].execute(sql_string, where_values)
     return format_results(context, results, data_dict)
 
+
 def format_results(context, results, data_dict):
     result_fields = []
     for field in results.cursor.description:
@@ -456,7 +458,7 @@ def format_results(context, results, data_dict):
             'type': _get_type(context, field[1])
         })
     if len(result_fields) and result_fields[-1]['id'] == '_full_count':
-        result_fields.pop() # remove _full_count
+        result_fields.pop()  # remove _full_count
 
     records = []
     for row in results:
@@ -471,8 +473,10 @@ def format_results(context, results, data_dict):
     data_dict['fields'] = result_fields
     return data_dict
 
+
 def is_single_statement(sql):
     return not ';' in sql.strip(';')
+
 
 def create(context, data_dict):
     '''
@@ -553,7 +557,7 @@ def delete(context, data_dict):
 
         trans.commit()
         return data_dict
-    except Exception, e:
+    except Exception:
         trans.rollback()
         raise
     finally:
