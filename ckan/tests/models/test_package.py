@@ -409,7 +409,7 @@ class TestRelatedRevisions:
         # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resources.append(model.Resource(url=u'http://url1.com',
+        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url1.com',
                                                     format=u'xls',
                                                     description=u'It is.',
                                                     hash=u'abc123'))
@@ -419,8 +419,8 @@ class TestRelatedRevisions:
         # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resources[0].url = u'http://url1.com/edited'
-        pkg1.resources.append(model.Resource(url=u'http://url2.com'))
+        pkg1.resource_groups_all[0].resources_all[0].url = u'http://url1.com/edited'
+        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url2.com'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 

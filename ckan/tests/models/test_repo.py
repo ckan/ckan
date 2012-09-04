@@ -9,19 +9,18 @@ const_role_actions = [
     '<RoleAction role="editor" action="edit" context="">',
     '<RoleAction role="editor" action="create-package" context="">',
     '<RoleAction role="editor" action="create-group" context="">',
-    '<RoleAction role="editor" action="create-authorization-group" context="">',
     '<RoleAction role="editor" action="read" context="">',
     '<RoleAction role="editor" action="read-site" context="">',
     '<RoleAction role="editor" action="read-user" context="">',
     '<RoleAction role="editor" action="create-user" context="">',
-    '<RoleAction role="editor" action="file-upload" context="">',    
+    '<RoleAction role="editor" action="file-upload" context="">',
     '<RoleAction role="anon_editor" action="edit" context="">',
     '<RoleAction role="anon_editor" action="create-package" context="">',
     '<RoleAction role="anon_editor" action="read" context="">',
     '<RoleAction role="anon_editor" action="read-site" context="">',
     '<RoleAction role="anon_editor" action="read-user" context="">',
     '<RoleAction role="anon_editor" action="create-user" context="">',
-    '<RoleAction role="anon_editor" action="file-upload" context="">',    
+    '<RoleAction role="anon_editor" action="file-upload" context="">',
     '<RoleAction role="reader" action="read" context="">',
     '<RoleAction role="reader" action="read-site" context="">',
     '<RoleAction role="reader" action="read-user" context="">',
@@ -43,13 +42,13 @@ class InitialStateTestCase(object):
         authorizer = Authorizer()
         auth_for_create = authorizer.is_authorized(\
             u'johndoe', model.Action.PACKAGE_CREATE, model.System())
-        assert auth_for_create
+        assert not auth_for_create
 
     def test_default_system_user_roles(self):
         uors = model.Session.query(model.UserObjectRole).all()
         uors_str = [repr(uor) for uor in uors]
         expected_uors_str = [
-            '<SystemRole user="visitor" role="anon_editor" context="System">',
+            '<SystemRole user="visitor" role="reader" context="System">',
             '<SystemRole user="logged_in" role="editor" context="System">',
             ]
         uor_differences = set(uors_str) ^ set(expected_uors_str)
@@ -75,7 +74,7 @@ class DbFromModelTestCase(object):
         model.repo.rebuild_db()
 
 class DbFromMigrationTestCase(object):
-    
+
     @classmethod
     def setup_class(cls):
         if not is_migration_supported():
@@ -103,7 +102,7 @@ class TestUpgrade(object):
             raise SkipTest('Search not supported')
 
         # delete all objects manually
-        rev = model.repo.new_revision() 
+        rev = model.repo.new_revision()
         users = model.Session.query(model.User).all()
         uors = model.Session.query(model.UserObjectRole).all()
         ras = model.Session.query(model.RoleAction).all()
@@ -114,14 +113,14 @@ class TestUpgrade(object):
         # db will already be on the latest version so
         # this should only reinstate the constant objects
         model.repo.init_const_data()
-        
+
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def test_user_consts(self):
         users = model.Session.query(model.User).all()
-        users_names = [user.name for user in users]        
+        users_names = [user.name for user in users]
         user_differences = set(users_names) ^ set(const_user_names)
         assert not user_differences, 'Expected %r but got %r' % \
                (const_user_names, users_names)

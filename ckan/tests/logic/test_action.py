@@ -192,24 +192,25 @@ class TestAction(WsgiAppCase):
     def test_41_create_resource(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
-        resource = {'package_id': anna_id, 'url': 'new_url'}
-
+        resource = {'package_id': anna_id, 'url': 'http://new_url'}
+        api_key = model.User.get('annafan').apikey.encode('utf8')
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': api_key })
 
         resource = json.loads(res.body)['result']
 
-        assert resource['url'] == 'new_url'
+        assert resource['url'] == 'http://new_url'
 
     def test_42_create_resource_with_error(self):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
+        api_key = model.User.get('annafan').apikey.encode('utf8')
 
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'},
+                            extra_environ={'Authorization': api_key},
                             status=StatusCodes.STATUS_409_CONFLICT)
 
         assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
@@ -865,23 +866,6 @@ class TestAction(WsgiAppCase):
         assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
                                            'context', 'user_object_role_id'))
 
-    def test_34_roles_show_for_authgroup_on_authgroup(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        authgroup2 = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
-
-        model.add_authorization_group_to_role(authgroup2, 'editor', authgroup)
-        model.repo.commit_and_remove()
-
-        postparams = '%s=1' % json.dumps({'domain_object': authgroup.id,
-                                          'authorization_group': authgroup2.id})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-
-        authgroup_roles = TestRoles.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
-        assert_equal(authgroup_roles, ['"anotherauthzgroup" is "editor" on "anauthzgroup"'])
 
     def test_35_user_role_update(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -911,40 +895,6 @@ class TestAction(WsgiAppCase):
                         'user': 'tester'})
         assert_equal(results['roles'], roles_after['roles'])
 
-    def test_36_user_role_update_for_auth_group(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        all_roles_before = TestRoles.get_roles(anna.id)
-        authgroup_roles_before = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
-        assert_equal(len(authgroup_roles_before), 0)
-        postparams = '%s=1' % json.dumps({'authorization_group': authgroup.name,
-                                          'domain_object': anna.id,
-                                          'roles': ['editor']})
-
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-
-        results = json.loads(res.body)['result']
-        assert_equal(len(results['roles']), 1)
-        anna = model.Package.by_name(u'annakarenina')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-
-        assert_equal(results['roles'][0]['role'], 'editor')
-        assert_equal(results['roles'][0]['package_id'], anna.id)
-        assert_equal(results['roles'][0]['authorized_group_id'], authgroup.id)
-
-        all_roles_after = TestRoles.get_roles(anna.id)
-        authgroup_roles_after = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
-        assert_equal(set(all_roles_before) ^ set(all_roles_after),
-                     set([u'"anauthzgroup" is "editor" on "annakarenina"']))
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id,
-                        'authorization_group': authgroup.name})
-        assert_equal(results['roles'], roles_after['roles'])
 
     def test_37_user_role_update_disallowed(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -1318,7 +1268,7 @@ class MockPackageSearchPlugin(SingletonPlugin):
 
         assert 'results' in search_results
         assert 'count' in search_results
-        assert 'facets' in search_results
+        assert 'search_facets' in search_results
 
         if 'extras' in search_params and 'ext_avoid' in search_params['extras']:
             # Remove results with a certain value

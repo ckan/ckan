@@ -342,7 +342,7 @@ class TestUsage(TestController, AuthzTestBase):
         self._test_can('edit', self.visitor, [], interfaces=['rest'])
 
     def test_visitor_creates(self):
-        self._test_can('create', self.visitor, [], interfaces=['wui'], entity_types=['dataset'])
+        self._test_cant('create', self.visitor, [], interfaces=['wui'], entity_types=['dataset'])
         self._test_cant('create', self.visitor, [], interfaces=['wui'], entity_types=['group']) # need to be sysadmin
         self._test_cant('create', self.visitor, [], interfaces=['rest'])
 
@@ -628,7 +628,7 @@ class TestLockedDownViaRoles(TestController):
         self._check_logged_in_users_authorized_only('/user')
         self._check_logged_in_users_authorized_only('/user/' + self.user_name)
         res = self.app.get('/user/login', extra_environ={})
-        assert res.status in [200], res.status
+        assert res.status in [200, 302], res.status
 
     def test_new_package(self):
         offset = url_for(controller='package', action='new')

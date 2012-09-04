@@ -167,12 +167,14 @@ class ManageDb(CkanCommand):
         pg_dump_cmd += ' %(db_name)s' % self.db_details
         pg_dump_cmd += ' > %s' % filepath
         self._run_cmd(pg_dump_cmd)
+        print 'Dumped database to: %s' % filepath
 
     def _postgres_load(self, filepath):
         import ckan.model as model
         assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
+        print 'Loaded CKAN database: %s' % filepath
 
     def _run_cmd(self, command_line):
         import subprocess
@@ -275,7 +277,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
+      search-index [-i] [-o] [-r] [-e] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
       search-index check                                     - checks for datasets not indexed
       search-index show {dataset-name}                       - shows index of a dataset
       search-index clear [dataset-name]                      - clears the search index for the provided dataset or for the whole ckan instance
@@ -299,6 +301,13 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
             action='store_true', default=False, help='Refresh current index (does not clear the existing one)')
 
+        self.parser.add_option('-e', '--commit-each', dest='commit_each',
+            action='store_true', default=False, help=
+'''Perform a commit after indexing each dataset. This ensures that changes are
+immediately available on the search, but slows significantly the process.
+Default is false.'''
+                    )
+
     def command(self):
         self._load_config()
 
@@ -320,14 +329,22 @@ class SearchIndexCommand(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def rebuild(self):
-        from ckan.lib.search import rebuild
+        from ckan.lib.search import rebuild, commit
+
+        # BY default we don't commit after each request to Solr, as it is
+        # a really heavy operation and slows things a lot
 
         if len(self.args) > 1:
             rebuild(self.args[1])
         else:
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
-                    refresh=self.options.refresh)
+                    refresh=self.options.refresh,
+                    defer_commit=(not self.options.commit_each))
+
+        if not self.options.commit_each:
+            commit()
+
     def check(self):
         from ckan.lib.search import check
 
@@ -475,11 +492,10 @@ class Sysadmin(CkanCommand):
         sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            user_or_authgroup = sysadmin.user or sysadmin.authorized_group
-            assert user_or_authgroup, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (user_or_authgroup.__class__.__name__,
-                                        user_or_authgroup.name,
-                                        user_or_authgroup.id)
+            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
+            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
+                                        sysadmin.user.name,
+                                        sysadmin.user.id)
 
     def add(self):
         import ckan.model as model
@@ -777,12 +793,15 @@ class Celery(CkanCommand):
     '''Celery daemon
 
     Usage:
-        celeryd       - run the celery daemon
-        celeryd run   - run the celery daemon
-        celeryd view  - view all tasks in the queue
-        celeryd clean - delete all tasks in the queue
+        celeryd                 - run the celery daemon
+        celeryd run             - run the celery daemon
+        celeryd run concurrency - run the celery daemon with
+                                  argument 'concurrency'
+        celeryd view            - view all tasks in the queue
+        celeryd clean           - delete all tasks in the queue
     '''
     min_args = 0
+    max_args = 2
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
@@ -804,7 +823,10 @@ class Celery(CkanCommand):
     def run_(self):
         os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
         from ckan.lib.celery_app import celery
-        celery.worker_main(argv=['celeryd', '--loglevel=INFO'])
+        celery_args = []
+        if len(self.args) == 2 and self.args[1] == 'concurrency':
+            celery_args.append['--concurrency=1']
+        celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
         self._load_config()
@@ -823,19 +845,21 @@ class Celery(CkanCommand):
     def clean(self):
         self._load_config()
         import ckan.model as model
-        import pprint
-        tasks_initially = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_initially = query.rowcount
         if not tasks_initially:
             print 'No tasks to delete'
             sys.exit(0)
         query = model.Session.execute("delete from kombu_message")
-        tasks_afterwards = model.Session.execute("select * from kombu_message").rowcount
+        query = model.Session.execute("select * from kombu_message")
+        tasks_afterwards = query.rowcount
         print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
                                           tasks_initially)
         if tasks_afterwards:
             print 'ERROR: Failed to delete all tasks'
             sys.exit(1)
         model.repo.commit_and_remove()
+
 
 class Ratings(CkanCommand):
     '''Manage the ratings stored in the db
@@ -967,13 +991,13 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date
-                 ) + t1.count
+                 )
                  ,recent_views = (
                     SELECT sum(count)
                     FROM tracking_summary t2
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
-                 ) + t1.count
+                 )
                  WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
         engine.execute(sql)
 
@@ -984,13 +1008,13 @@ class Tracking(CkanCommand):
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
                     AND t2.tracking_date <= t1.tracking_date
-                 ) + t1.count
+                 )
                  ,recent_views = (
                     SELECT sum(count)
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
-                 ) + t1.count
+                 )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
@@ -1187,7 +1211,7 @@ class Profile(CkanCommand):
         import paste.fixture
         import cProfile
         import re
-        
+
         url = self.args[0]
 
         def profile_url(url):
@@ -1201,7 +1225,7 @@ class Profile(CkanCommand):
                 import traceback
                 traceback.print_exc()
                 print 'Unknown error: ', url.strip()
-        
+
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
         cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)

@@ -221,11 +221,21 @@ class DefaultDatasetForm(object):
 
         if options.get('api'):
             if options.get('type') == 'create':
-                return logic.schema.default_create_package_schema()
+                return self.form_to_db_schema_api_create()
             else:
-                return logic.schema.default_update_package_schema()
+                assert options.get('type') == 'update'
+                return self.form_to_db_schema_api_update()
         else:
-            return logic.schema.package_form_schema()
+            return self.form_to_db_schema()
+
+    def form_to_db_schema(self):
+        return logic.schema.form_to_db_package_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_create_package_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_package_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -275,7 +285,7 @@ class DefaultDatasetForm(object):
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
 
         if c.pkg:
-            c.related_count = len(c.pkg.related)
+            c.related_count = c.pkg.related_count
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
@@ -331,16 +341,20 @@ class DefaultGroupForm(object):
     def history_template(self):
         """
         Returns a string representing the location of the template to be
-        rendered for the read page
+        rendered for the history page
         """
         return 'group/history.html'
+
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'group/edit.html'
 
 
     def group_form(self):
         return 'group/new_group_form.html'
-
-    def form_to_db_schema(self):
-        return logic.schema.group_form_schema()
 
     def form_to_db_schema_options(self, options):
         ''' This allows us to select different schemas for different
@@ -356,11 +370,20 @@ class DefaultGroupForm(object):
 
         if options.get('api'):
             if options.get('type') == 'create':
-                return logic.schema.default_group_schema()
+                return self.form_to_db_schema_api_create()
             else:
-                return logic.schema.default_update_group_schema()
+                return self.form_to_db_schema_api_update()
         else:
-            return logic.schema.group_form_schema()
+            return self.form_to_db_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_group_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_group_schema()
+
+    def form_to_db_schema(self):
+        return logic.schema.group_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -387,7 +410,7 @@ class DefaultGroupForm(object):
                                'extras_validation', 'save', 'return_to',
                                'resources']
 
-        schema_keys = package_form_schema().keys()
+        schema_keys = form_to_db_package_schema().keys()
         keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
 
         missing_keys = keys_in_schema - set(data_dict.keys())

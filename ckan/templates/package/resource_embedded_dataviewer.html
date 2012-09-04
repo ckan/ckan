@@ -1,24 +1,28 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
   xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/" 
+  xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
 
   <py:def function="optional_head">
-    <!-- data preview -->
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/leaflet/0.3.1/leaflet.css')}" />
-    <!--[if lte IE 8]>
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/leaflet/0.3.1/leaflet.ie.css')}" />
-    <![endif]-->
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/data-explorer.css')}" />
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/graph.css')}" />
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/map.css')}" />
-    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/recline/css/grid.css')}" />
+
+    <xi:include href="../snippets/recline-extra-header.html" />
+
     <style type="text/css">
 
       /* Hide the query controls */
       .header {
         display: none;
+      }
+
+      /* Hide the fields control */
+/*      .recline-fields-view {*/
+      .data-view-sidebar{
+        display: none;
+      }
+
+      .data-view-container {
+        margin-right: 0 !important;
       }
 
       /* Hide CKAN footer */
@@ -46,8 +50,13 @@
         height: ${c.height-81}px;
       }
 
-      .recline-grid-container {
+      .recline-slickgrid {
         height: ${c.height-81}px;
+      }
+
+      .slick-header-column {
+        border-top: 0 !important;
+        border-bottom: 0 !important;
       }
 
       .recline-graph .graph {
@@ -86,12 +95,11 @@
   </div>
 
   <py:def function="optional_footer">
-    <!-- data preview -->
+
     <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/flot/0.7/jquery.flot.js')}"></script>
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/flot/0.7/jquery.flot.js')}"></script>
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/leaflet/0.3.1/leaflet.js')}"></script>
-    <script src="${h.url_for_static('/scripts/vendor/recline/recline.js')}"></script>
+
+    <xi:include href="../snippets/recline-extra-footer.html" />
+
   </py:def>
 
   <xi:include href="../layout_base.html" />

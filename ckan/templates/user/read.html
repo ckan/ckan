@@ -1,7 +1,7 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-  
+
   <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
   <py:def function="page_heading">
     ${h.linked_gravatar(c.user_dict['email_hash'],48)}
@@ -14,7 +14,7 @@
     </span>
     </py:if>
   </py:def>
-  
+
   <div py:match="content" py:strip="">
     <div class="summary">
       <div class="row">

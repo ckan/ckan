@@ -94,7 +94,7 @@ class TestTag:
         # errors correctly.
         context = {'model': ckan.model,
                    'session': ckan.model.Session}
-        schema = ckan.logic.schema.package_form_schema()
+        schema = ckan.logic.schema.form_to_db_package_schema()
 
         # basic parsing of comma separated values
         tests = (('tag', ['tag'], []),

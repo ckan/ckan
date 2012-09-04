@@ -125,6 +125,20 @@ def group_id_exists(group_id, context):
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
 
+
+def related_id_exists(related_id, context):
+    """Raises Invalid if the given related_id does not exist in the model
+    given in the context, otherwise returns the given related_id.
+
+    """
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Related).get(related_id)
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Related')))
+    return related_id
+
 def group_id_or_name_exists(reference, context):
     """
     Raises Invalid if a group identified by the name or id cannot be found.
@@ -139,9 +153,11 @@ def activity_type_exists(activity_type):
     """Raises Invalid if there is no registered activity renderer for the
     given activity_type. Otherwise returns the given activity_type.
 
+    This just uses object_id_validators as a lookup.
+    very safe.
+
     """
-    from ckan.logic.action.get import activity_renderers
-    if activity_renderers.has_key(activity_type):
+    if object_id_validators.has_key(activity_type):
         return activity_type
     else:
         raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
@@ -159,6 +175,8 @@ object_id_validators = {
     'new group' : group_id_exists,
     'changed group' : group_id_exists,
     'deleted group' : group_id_exists,
+    'new related item': related_id_exists,
+    'deleted related item': related_id_exists
     }
 
 def object_id_validator(key, activity_dict, errors, context):
@@ -489,3 +507,23 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
                 (tag_name, vocabulary_id))
     else:
         return
+
+def url_validator(key, data, errors, context):
+    """ Checks that the provided value (if it is present) is a valid URL """
+    import urlparse
+    import string
+
+    model = context['model']
+    session = context['session']
+
+    url = data.get(key, None)
+    if not url:
+        return
+
+    pieces = urlparse.urlparse(url)
+    if all([pieces.scheme, pieces.netloc]) and \
+       set(pieces.netloc) <= set(string.letters + string.digits + '-.') and \
+       pieces.scheme in ['http', 'https']:
+       return
+
+    errors[key].append(_('Please provide a valid URL'))

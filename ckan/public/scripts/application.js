@@ -13,7 +13,6 @@ CKAN.Utils = CKAN.Utils || {};
     CKAN.Utils.setupUserAutocomplete($('input.autocomplete-user'));
     CKAN.Utils.setupOrganizationUserAutocomplete($('input.autocomplete-organization-user'));
     CKAN.Utils.setupGroupAutocomplete($('input.autocomplete-group'));
-    CKAN.Utils.setupAuthzGroupAutocomplete($('input.autocomplete-authzgroup'));
     CKAN.Utils.setupPackageAutocomplete($('input.autocomplete-dataset'));
     CKAN.Utils.setupTagAutocomplete($('input.autocomplete-tag'));
     $('input.autocomplete-format').live('keyup', function(){
@@ -1269,26 +1268,6 @@ CKAN.Utils = function($, my) {
     });
   };
 
-  // Attach authz group autocompletion to provided elements
-  //
-  // Requires: jquery-ui autocomplete
-  my.setupAuthzGroupAutocomplete = function(elements) {
-    elements.autocomplete({
-      minLength: 2,
-      source: function(request, callback) {
-        var url = CKAN.SITE_URL + '/api/2/util/authorizationgroup/autocomplete?q=' + request.term;
-        $.getJSON(url, function(data) {
-          $.each(data, function(idx, userobj) {
-            var label = userobj.name;
-            userobj.label = label;
-            userobj.value = userobj.name;
-          });
-          callback(data);
-        });
-      }
-    });
-  };
-
   my.setupGroupAutocomplete = function(elements) {
     elements.autocomplete({
       minLength: 2,
@@ -1493,7 +1472,13 @@ CKAN.DataPreview = function ($, my) {
     my.$dialog.html('<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>');
 
     // Restore the Dataset from the given reclineState.
-    var dataset = recline.Model.Dataset.restore(reclineState);
+    var datasetInfo = _.extend({
+        url: reclineState.url,
+        backend: reclineState.backend
+      },
+      reclineState.dataset
+    );
+    var dataset = new recline.Model.Dataset(datasetInfo);
 
     // Only create the view defined in reclineState.currentView.
     // TODO: tidy this up.
@@ -1502,7 +1487,7 @@ CKAN.DataPreview = function ($, my) {
       views = [ {
         id: 'grid',
         label: 'Grid',
-        view: new recline.View.Grid({
+        view: new recline.View.SlickGrid({
           model: dataset,
           state: reclineState['view-grid']
         })
@@ -1528,14 +1513,13 @@ CKAN.DataPreview = function ($, my) {
     }
 
     // Finally, construct the DataExplorer.  Again, passing in the reclineState.
-    var dataExplorer = new recline.View.DataExplorer({
+    var dataExplorer = new recline.View.MultiView({
       el: my.$dialog,
       model: dataset,
       state: reclineState,
       views: views
     });
 
-    Backbone.history.start();
   };
 
   // **Public: Creates a link to the embeddable page.
@@ -1583,7 +1567,7 @@ CKAN.DataPreview = function ($, my) {
         {
           id: 'grid',
           label: 'Grid',
-          view: new recline.View.Grid({
+          view: new recline.View.SlickGrid({
             model: dataset
           })
         },
@@ -1602,7 +1586,8 @@ CKAN.DataPreview = function ($, my) {
           })
         }
       ];
-      var dataExplorer = new recline.View.DataExplorer({
+
+      var dataExplorer = new recline.View.MultiView({
         el: my.$dialog,
         model: dataset,
         views: views,
@@ -1611,6 +1596,9 @@ CKAN.DataPreview = function ($, my) {
         }
       });
 
+      // Hide the fields control by default
+      // (This should be done in recline!)
+      $('.menu-right a[data-action="fields"]').click();
 
       // -----------------------------
       // Setup the Embed modal dialog.
@@ -1663,8 +1651,6 @@ CKAN.DataPreview = function ($, my) {
       // Finally, since we have a DataExplorer, we can show the embed button.
       $('.preview-header .btn').show();
 
-      // will have to refactor if this can get called multiple times
-      Backbone.history.start();
     }
 
     // 4 situations
@@ -1675,7 +1661,6 @@ CKAN.DataPreview = function ($, my) {
     // that if we got here (i.e. preview shown) worth doing
     // something ...)
     resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
-
     resourceData.url  = my.normalizeUrl(resourceData.url);
     if (resourceData.formatNormalized === '') {
       var tmp = resourceData.url.split('/');
@@ -1689,8 +1674,9 @@ CKAN.DataPreview = function ($, my) {
     }
 
     if (resourceData.webstore_url) {
-      resourceData.elasticsearch_url = '/api/data/' + resourceData.id;
-      var dataset = new recline.Model.Dataset(resourceData, 'elasticsearch');
+      resourceData.url = '/api/data/' + resourceData.id;
+      resourceData.backend =  'elasticsearch';
+      var dataset = new recline.Model.Dataset(resourceData);
       var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' + CKAN.Strings.errorDataStore;
       dataset.fetch()
         .done(function(dataset){
@@ -1702,10 +1688,11 @@ CKAN.DataPreview = function ($, my) {
         });
 
     }
-    else if (resourceData.formatNormalized in {'csv': '', 'xls': ''}) {
+    else if (resourceData.formatNormalized in {'csv': '', 'xls': '', 'tsv':''}) {
       // set format as this is used by Recline in setting format for DataProxy
       resourceData.format = resourceData.formatNormalized;
-      var dataset = new recline.Model.Dataset(resourceData, 'dataproxy');
+      resourceData.backend = 'dataproxy';
+      var dataset = new recline.Model.Dataset(resourceData);
       var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' +CKAN.Strings.errorDataProxy;
       dataset.fetch()
         .done(function(dataset){

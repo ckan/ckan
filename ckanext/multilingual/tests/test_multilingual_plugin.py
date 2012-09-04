@@ -67,7 +67,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 'tolstoy',
                 "Dave's books",
                 "Roger's books",
-                'Other (Open)',
                 'romantic novel',
                 'book',
                 '123',
@@ -77,16 +76,15 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             )
             for term in terms:
                 if term in translations:
-                    response.mustcontain(translations[term])
+                    assert translations[term] in response
                 elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
+                    assert ckan.lib.create_test_data.english_translations[term] in response
                 else:
-                    response.mustcontain(term)
+                    assert term in response
             for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                response.mustcontain('<a href="/tag/%s">' % tag_name)
+                assert '<a href="/tag/%s">' % tag_name in response
             for group_name in ('david', 'roger'):
-                response.mustcontain('<a href="/group/%s">' % group_name)
+                assert '<a href="/group/%s">' % group_name in response
             assert 'this should not be rendered' not in response
 
     def test_tag_read_translation(self):
@@ -108,14 +106,12 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 terms = ('A Novel By Tolstoy', tag_name, 'plain text', 'json')
                 for term in terms:
                     if term in translations:
-                        response.mustcontain(translations[term])
+                        assert translations[term] in response
                     elif term in (
                             ckan.lib.create_test_data.english_translations):
-                        response.mustcontain(
-                            ckan.lib.create_test_data.english_translations[
-                                term])
+                        assert ckan.lib.create_test_data.english_translations[term] in response
                     else:
-                        response.mustcontain(term)
+                        assert term in response
                 assert 'this should not be rendered' not in response
 
     def test_user_read_translation(self):
@@ -137,14 +133,12 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 terms = ('A Novel By Tolstoy', 'plain text', 'json')
                 for term in terms:
                     if term in translations:
-                        response.mustcontain(translations[term])
+                        assert translations[term] in response
                     elif term in (
                             ckan.lib.create_test_data.english_translations):
-                        response.mustcontain(
-                            ckan.lib.create_test_data.english_translations[
-                                term])
+                        assert ckan.lib.create_test_data.english_translations[term] in response
                     else:
-                        response.mustcontain(term)
+                        assert term in response
                 assert 'this should not be rendered' not in response
 
     def test_group_read_translation(self):
@@ -172,14 +166,13 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             )
             for term in terms:
                 if term in translations:
-                    response.mustcontain(translations[term])
+                    assert translations[term] in response
                 elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
+                    assert ckan.lib.create_test_data.english_translations[term] in response
                 else:
-                    response.mustcontain(term)
+                    assert term in response
             for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                response.mustcontain('%s?tags=%s' % (offset, tag_name))
+                assert '%s?tags=%s' % (offset, tag_name) in response
             assert 'this should not be rendered' not in response
 
     def test_dataset_index_translation(self):
@@ -193,16 +186,15 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             for term in ('Index of the novel', 'russian', 'tolstoy',
                     "Dave's books", "Roger's books", 'plain text'):
                 if term in translations:
-                    response.mustcontain(translations[term])
+                    assert translations[term] in response
                 elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
+                    assert ckan.lib.create_test_data.english_translations[term] in response
                 else:
-                    response.mustcontain(term)
+                    assert term in response
             for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                response.mustcontain('/%s/dataset?tags=%s' % (lang_code, tag_name))
+                assert '/%s/dataset?tags=%s' % (lang_code, tag_name) in response
             for group_name in ('david', 'roger'):
-                response.mustcontain('/%s/dataset?groups=%s' % (lang_code, group_name))
+                assert '/%s/dataset?groups=%s' % (lang_code, group_name) in response
             assert 'this should not be rendered' not in response
 
     def test_group_index_translation(self):
@@ -221,14 +213,13 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             )
             for term in terms:
                 if term in translations:
-                    response.mustcontain(translations[term])
+                    assert translations[term] in response
                 elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
+                    assert ckan.lib.create_test_data.english_translations[term] in response
                 else:
-                    response.mustcontain(term)
+                    assert term in response
             for group_name in ('david', 'roger'):
-                response.mustcontain('/%s/group/%s' % (lang_code, group_name))
+                assert '/%s/group/%s' % (lang_code, group_name) in response
             assert 'this should not be rendered' not in response
 
     def test_tag_index_translation(self):
@@ -248,13 +239,12 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
             )
             for term in terms:
                 if term in translations:
-                    response.mustcontain(translations[term])
+                    assert translations[term] in response
                 elif term in ckan.lib.create_test_data.english_translations:
-                    response.mustcontain(
-                        ckan.lib.create_test_data.english_translations[term])
+                    assert ckan.lib.create_test_data.english_translations[term] in response
                 else:
-                    response.mustcontain(term)
-                response.mustcontain('/%s/tag/%s' % (lang_code, term))
+                    assert term in response
+                assert '/%s/tag/%s' % (lang_code, term) in response
             assert 'this should not be rendered' not in response
 
 class TestDatasetSearchIndex():

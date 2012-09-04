@@ -16,7 +16,6 @@ import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
-import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
@@ -32,7 +31,7 @@ class _Helpers(object):
     not been enabled. '''
     def __init__(self, helpers, restrict=True):
         functions = {}
-        allowed = helpers.__allowed_functions__
+        allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
         self.deprecated = []
 
@@ -42,7 +41,13 @@ class _Helpers(object):
                 if restrict:
                     continue
             functions[helper] = getattr(helpers, helper)
+            if helper in allowed:
+                allowed.remove(helper)
         self.functions = functions
+
+        if allowed:
+            raise Exception('Template helper function(s) `%s` not defined'
+                            % ', '.join(allowed))
 
         # extend helper functions with ones supplied by plugins
         extra_helpers = []
@@ -129,7 +134,7 @@ def load_environment(global_conf, app_conf):
 
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins') and \
+    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
             asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
@@ -155,6 +160,9 @@ def load_environment(global_conf, app_conf):
 
     # Init SOLR settings and check if the schema is compatible
     #from ckan.lib.search import SolrSettings, check_solr_schema_version
+
+    # lib.search is imported here as we need the config enabled and parsed
+    import ckan.lib.search as search
     search.SolrSettings.init(config.get('solr_url'),
                              config.get('solr_user'),
                              config.get('solr_password'))
