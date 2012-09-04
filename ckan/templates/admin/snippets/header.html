@@ -1,0 +1,10 @@
+<h1 class="page-heading">{{ _('Administration') }}</h1>
+
+<ul class="nav nav-tabs">
+  <li{% if action == 'index' %} class="active"{% endif %}>
+    <a href="{{ h.url_for(controller='admin', action='index') }}">{{ _('Sysadmins') }}</a>
+  </li>
+  <li{% if action == 'authz' %} class="active"{% endif %}>
+  	<a href="{{ h.url_for(controller='admin', action='authz') }}">{{ _('User Roles') }}</a>
+  </li>
+</ul>

@@ -8,8 +8,7 @@
 {% block primary %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Current Sysadmins') }}</h1>
-      <p>{% set url=h.url_for(controller='admin', action='authz') %}{% trans %}You can change sysadmins on the <a href="{{ url }}">authorization page</a>.{% endtrans %}</p>
+      {% snippet 'admin/snippets/header.html', action=c.action %}
       <ul>
         {% for user in c.sysadmins %}
           <li py:for="user in c.sysadmins">
