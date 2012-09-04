@@ -1253,8 +1253,8 @@ class CreateColorSchemeCommand(CkanCommand):
         '@layoutLinkColor',
         '@mastheadBackgroundColorStart',
         '@mastheadBackgroundColorEnd',
-        '@btnPrimaryBackgroundHighlight',
         '@btnPrimaryBackground',
+        '@btnPrimaryBackgroundHighlight',
     ]
 
     # list of predefined colors
