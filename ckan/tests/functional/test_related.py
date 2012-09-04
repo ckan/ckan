@@ -43,6 +43,7 @@ class TestRelatedUI(base.FunctionalTestCase):
     def test_related_new_fail(self):
         offset = h.url_for(controller='related',
                            action='new', id='warandpeace')
+        print '@@@@', offset
         res = self.app.get(offset, status=200,
                            extra_environ={"REMOTE_USER": "testsysadmin"})
         assert 'URL' in res, "URL missing in response text"

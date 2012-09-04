@@ -6,7 +6,6 @@ from pylons import config
 from pylons.i18n import _
 import sqlalchemy
 
-import ckan
 import ckan.authz
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -1614,13 +1613,11 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Return the roles of all users and authorization groups for an object.
 
-    :param domain_object: a package, group or authorization_group name or id
+    :param domain_object: a package or group name or id
         to filter the results by
     :type domain_object: string
     :param user: a user name or id
     :type user: string
-    :param authorization_group: an authorization group name or id
-    :type authorization_group: string
 
     :rtype: list of dictionaries
 
@@ -1629,15 +1626,12 @@ def roles_show(context, data_dict):
     session = context['session']
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     user_ref = data_dict.get('user')
-    authgroup_ref = data_dict.get('authorization_group')
 
     domain_object = ckan.logic.action.get_domain_object(model, domain_object_ref)
     if isinstance(domain_object, model.Package):
         query = session.query(model.PackageRole).join('package')
     elif isinstance(domain_object, model.Group):
         query = session.query(model.GroupRole).join('group')
-    elif isinstance(domain_object, model.AuthorizationGroup):
-        query = session.query(model.AuthorizationGroupRole).join('authorization_group')
     elif domain_object is model.System:
         query = session.query(model.SystemRole)
     else:
@@ -1646,20 +1640,12 @@ def roles_show(context, data_dict):
     if not isinstance(domain_object, type):
         query = query.filter_by(id=domain_object.id)
 
-    # Filter by the user / authorized_group
+    # Filter by the user
     if user_ref:
         user = model.User.get(user_ref)
         if not user:
             raise NotFound(_('unknown user:') + repr(user_ref))
         query = query.join('user').filter_by(id=user.id)
-    if authgroup_ref:
-        authgroup = model.AuthorizationGroup.get(authgroup_ref)
-        if not authgroup:
-            raise NotFound('unknown authorization group:' + repr(authgroup_ref))
-        # we need an alias as we join to model.AuthorizationGroup table twice
-        ag = _aliased(model.AuthorizationGroup)
-        query = query.join(ag, model.AuthorizationGroupRole.authorized_group) \
-                .filter_by(id=authgroup.id)
 
     uors = query.all()
 
@@ -1670,8 +1656,6 @@ def roles_show(context, data_dict):
               'roles': uors_dictized}
     if user_ref:
         result['user'] = user.id
-    if authgroup_ref:
-        result['authorization_group'] = authgroup.id
 
     return result
 

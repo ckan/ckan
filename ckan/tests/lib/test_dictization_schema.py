@@ -90,7 +90,7 @@ class TestBasicDictize:
                                                 'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                                                {'alt_url': u'alt345',
                                                 'description': u'Index of the novel',
-                                                'format': u'json',
+                                                'format': u'JSON',
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
                                                 'url': u'http://www.annakarenina.com/index.json'}],

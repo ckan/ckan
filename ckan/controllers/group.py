@@ -52,6 +52,9 @@ class GroupController(BaseController):
     def _history_template(self, group_type):
         return lookup_group_plugin(group_type).history_template()
 
+    def _edit_template(self, group_type):
+        return lookup_group_plugin(group_type).edit_template()
+
     ## end hooks
 
     def _guess_group_type(self, expecting_name=False):
@@ -139,7 +142,8 @@ class GroupController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
-        sort_by = request.params.get('sort', 'name asc')
+        #sort_by = request.params.get('sort', 'name asc')
+        sort_by = request.params.get('sort', None)
 
         def search_url(params):
             url = h.url_for(controller='group', action='read',
@@ -302,7 +306,7 @@ class GroupController(BaseController):
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
-        return render('group/edit.html')
+        return render(self._edit_template(c.group.type))
 
     def _get_group_type(self, id):
         """
@@ -351,6 +355,7 @@ class GroupController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+            context['allow_partial_update'] = True
             group = get_action('group_update')(context, data_dict)
 
             if id != group['name']:

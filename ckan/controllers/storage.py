@@ -187,7 +187,7 @@ class StorageController(BaseController):
             fapp = FileApp(filepath, headers=None, **headers)
             return fapp(request.environ, self.start_response)
         else:
-            h.redirect_to(file_url)
+            h.redirect_to(file_url.encode('ascii','ignore'))
 
 
 class StorageAPIController(BaseController):
@@ -270,7 +270,7 @@ class StorageAPIController(BaseController):
                             qualified=False
                             )
             if url.startswith('/'):
-                url = config.get('ckan.site_url','').rstrip('/') + '/' + url
+                url = config.get('ckan.site_url','').rstrip('/') + url
 
         if not self.ofs.exists(bucket, label):
             abort(404)

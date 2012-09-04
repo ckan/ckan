@@ -33,7 +33,7 @@ class TestSearch(object):
                   'alt_url':'alt2',
                   'extras':{'size_extra':'200'},
                   },
-                 ]             
+                 ]
              },
             {'name':'pkg2',
              'resources':[
@@ -46,7 +46,7 @@ class TestSearch(object):
                   'description':'This is site gh.'},
                  {'url':self.ef,
                   'description':'This is site ij.'},
-                 ]             
+                 ]
              },
             ]
         CreateTestData.create_arbitrary(self.pkgs)
@@ -68,7 +68,7 @@ class TestSearch(object):
         resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result['results']]
         urls = set([resource.url for resource in resources])
         assert set([self.ab, self.cd, self.ef]) == urls, urls
-        
+
     def test_02_search_url_2(self):
         urls = self.res_search(fields={'url':'a/b'})
         assert set([self.ab]) == urls, urls
@@ -82,7 +82,7 @@ class TestSearch(object):
     def test_04_search_url_none(self):
         urls = self.res_search(fields={'url':'nothing'})
         assert set() == urls, urls
-        
+
     def test_05_search_description(self):
         urls = self.res_search(fields={'description':'cd'})
         assert set([self.cd]) == urls, urls
@@ -128,7 +128,9 @@ class TestSearch(object):
         assert res_dict['package_id'] == pkg1.id
         assert res_dict['url'] == ab.url
         assert res_dict['description'] == ab.description
-        assert res_dict['format'] == ab.format
+        # FIXME: This needs to be fixed before this branch is merged to master
+        from ckan.lib.dictization.model_dictize import _unified_resource_format
+        assert res_dict['format'] == _unified_resource_format(ab.format)
         assert res_dict['hash'] == ab.hash
         assert res_dict['position'] == 0
 

@@ -82,16 +82,6 @@ def group_create(context, data_dict=None):
     else:
         return {'success': True}
 
-def authorization_group_create(context, data_dict=None):
-    model = context['model']
-    user = context['user']
-
-    authorized = logic.check_access_old(model.System(), model.Action.AUTHZ_GROUP_CREATE, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to create authorization groups') % str(user)}
-    else:
-        return {'success': True}
-
 def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}

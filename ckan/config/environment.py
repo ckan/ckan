@@ -9,7 +9,7 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
-from pylons.i18n import _, N_
+from pylons.i18n import _, ungettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
@@ -17,7 +17,6 @@ import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
-import ckan.lib.search as search
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
@@ -168,6 +167,9 @@ def load_environment(global_conf, app_conf):
 
     # Init SOLR settings and check if the schema is compatible
     #from ckan.lib.search import SolrSettings, check_solr_schema_version
+
+    # lib.search is imported here as we need the config enabled and parsed
+    import ckan.lib.search as search
     search.SolrSettings.init(config.get('solr_url'),
                              config.get('solr_user'),
                              config.get('solr_password'))
@@ -189,6 +191,10 @@ def load_environment(global_conf, app_conf):
     legacy_templates_path = os.path.join(root, 'templates_legacy')
     if asbool(config.get('ckan.legacy_templates', 'no')):
         template_paths = [legacy_templates_path]
+        # if we are testing allow new templates
+        if asbool(config.get('ckan.enable_testing', 'false')):
+            jinja2_templates_path = os.path.join(root, 'templates')
+            template_paths.append(jinja2_templates_path)
     else:
         template_paths = [paths['templates'][0]]
         template_paths.append(legacy_templates_path)
@@ -300,15 +306,16 @@ def load_environment(global_conf, app_conf):
     env = lib.jinja_extensions.Environment(
         loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.i18n', 'jinja2.ext.do', 'jinja2.ext.with_',
+        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
                     lib.jinja_extensions.SnippetExtension,
                     lib.jinja_extensions.CkanExtend,
+                    lib.jinja_extensions.CkanInternationalizationExtension,
                     lib.jinja_extensions.LinkForExtension,
                     lib.jinja_extensions.ResourceExtension,
                     lib.jinja_extensions.UrlForStaticExtension,
                     lib.jinja_extensions.UrlForExtension]
     )
-    env.install_gettext_callables(_, N_, newstyle=True)
+    env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
     env.filters['truncate'] = lib.jinja_extensions.truncate

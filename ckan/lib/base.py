@@ -99,16 +99,17 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # we remove it so any bad templates crash and burn
         del globs['url']
 
-        # snippets should not pass the context
-        if renderer == 'snippet':
-            del globs['c']
-            del globs['tmpl_context']
-
         try:
             template_path, template_type = lib.render.template_info(template_name)
         except lib.render.TemplateNotFound:
             template_type  = 'genshi'
             template_path = ''
+
+        # snippets should not pass the context
+        # but allow for legacy genshi templates
+        if renderer == 'snippet' and template_type  != 'genshi':
+            del globs['c']
+            del globs['tmpl_context']
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
         if config.get('debug'):
@@ -518,20 +519,13 @@ class BaseController(WSGIController):
         data_dict = {'domain_object': domain_object.id}
 
         # Work out actions needed, depending on which button was pressed
+        update_type = 'user'
         if 'save' in request.POST:
-            user_or_authgroup = 'user'
             update_or_add = 'update'
         elif 'add' in request.POST:
-            user_or_authgroup = 'user'
-            update_or_add = 'add'
-        elif 'authz_save' in request.POST:
-            user_or_authgroup = 'authorization_group'
-            update_or_add = 'update'
-        elif 'authz_add' in request.POST:
-            user_or_authgroup = 'authorization_group'
             update_or_add = 'add'
         else:
-            user_or_authgroup = None
+            update_type = None
             update_or_add = None
 
         # Work out what role checkboxes are checked or unchecked
@@ -545,20 +539,20 @@ class BaseController(WSGIController):
             # Get user_roles by decoding the checkbox grid - user$role strings
             user_roles = {}
             for checked_role in checked_roles:
-                user_or_authgroup_id, role = checked_role.split('$')
-                if user_or_authgroup_id not in user_roles:
-                    user_roles[user_or_authgroup_id] = []
-                user_roles[user_or_authgroup_id].append(role)
+                obj_id, role = checked_role.split('$')
+                if obj_id not in user_roles:
+                    user_roles[obj_id] = []
+                user_roles[obj_id].append(role)
             # Users without roles need adding to the user_roles too to make
             # their roles be deleted
             for unchecked_role in unchecked_roles:
-                user_or_authgroup_id, role = unchecked_role.split('$')
-                if user_or_authgroup_id not in user_roles:
-                    user_roles[user_or_authgroup_id] = []
+                obj_id, role = unchecked_role.split('$')
+                if obj_id not in user_roles:
+                    user_roles[obj_id] = []
             # Convert user_roles to role dictionaries
             role_dicts = []
             for user, roles in user_roles.items():
-                role_dicts.append({user_or_authgroup: user, 'roles': roles})
+                role_dicts.append({update_type: user, 'roles': roles})
             data_dict['user_roles'] = role_dicts
 
             action = 'user_role_bulk_update'
@@ -567,11 +561,10 @@ class BaseController(WSGIController):
             # Roles for this new user is a simple list from the checkbox row
             data_dict['roles'] = checked_roles
 
-            # User (or "user group" aka AuthorizationGroup) comes from
-            # the input box.
+            # User comes from the input box.
             new_user = request.params.get('new_user_name')
             if new_user:
-                data_dict[user_or_authgroup] = new_user
+                data_dict[update_type] = new_user
 
                 action = 'user_role_update'
                 success_message = _('User role(s) added')
@@ -588,8 +581,8 @@ class BaseController(WSGIController):
 
         # Return roles for all users on this domain object
         if update_or_add is 'add':
-            if user_or_authgroup in data_dict:
-                del data_dict[user_or_authgroup]
+            if update_type in data_dict:
+                del data_dict[update_type]
         return get_action('roles_show')(context, data_dict)
 
     def _prepare_authz_info_for_render(self, user_object_roles):
@@ -604,9 +597,6 @@ class BaseController(WSGIController):
         users = sorted(list(set([uor['user_id']
                                  for uor in user_object_roles['roles']
                                  if uor['user_id']])))
-        authz_groups = sorted(list(set([uor['authorized_group_id']
-                                        for uor in user_object_roles['roles']
-                                        if uor['authorized_group_id']])))
 
         # make a dictionary from (user, role) to True, False
         users_roles = [(uor['user_id'], uor['role'])
@@ -617,26 +607,9 @@ class BaseController(WSGIController):
             for r in possible_roles:
                 user_role_dict[(u, r)] = (u, r) in users_roles
 
-        # and similarly make a dictionary from (authz_group, role) to True
-        # , False
-        authz_groups_roles = [(uor['authorized_group_id'], uor['role'])
-                              for uor in user_object_roles['roles']
-                              if uor['authorized_group_id']]
-        authz_groups_role_dict = {}
-        for u in authz_groups:
-            for r in possible_roles:
-                if (u, r) in authz_groups_roles:
-                    authz_groups_role_dict[(u, r)] = True
-                else:
-                    authz_groups_role_dict[(u, r)] = False
-
         c.roles = possible_roles
         c.users = users
         c.user_role_dict = user_role_dict
-        c.authz_groups = authz_groups
-        c.authz_groups_role_dict = authz_groups_role_dict
-        c.are_any_authz_groups = bool(model.Session.query(
-            model.AuthorizationGroup).count())
 
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')

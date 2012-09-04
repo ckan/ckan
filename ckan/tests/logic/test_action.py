@@ -137,7 +137,7 @@ class TestAction(WsgiAppCase):
                           {'alt_url': u'alt345',
                            'description': u'Index of the novel',
                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
-                           'format': u'json',
+                           'format': u'JSON',
                            'hash': u'def456',
                            'position': 1,
                            'url': u'http://www.annakarenina.com/index.json'}],
@@ -866,23 +866,6 @@ class TestAction(WsgiAppCase):
         assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
                                            'context', 'user_object_role_id'))
 
-    def test_34_roles_show_for_authgroup_on_authgroup(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        authgroup2 = model.AuthorizationGroup.by_name(u'anotherauthzgroup')
-
-        model.add_authorization_group_to_role(authgroup2, 'editor', authgroup)
-        model.repo.commit_and_remove()
-
-        postparams = '%s=1' % json.dumps({'domain_object': authgroup.id,
-                                          'authorization_group': authgroup2.id})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-
-        authgroup_roles = TestRoles.get_roles(authgroup.id, authgroup_ref=authgroup2.name)
-        assert_equal(authgroup_roles, ['"anotherauthzgroup" is "editor" on "anauthzgroup"'])
 
     def test_35_user_role_update(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -912,40 +895,6 @@ class TestAction(WsgiAppCase):
                         'user': 'tester'})
         assert_equal(results['roles'], roles_after['roles'])
 
-    def test_36_user_role_update_for_auth_group(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-        all_roles_before = TestRoles.get_roles(anna.id)
-        authgroup_roles_before = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
-        assert_equal(len(authgroup_roles_before), 0)
-        postparams = '%s=1' % json.dumps({'authorization_group': authgroup.name,
-                                          'domain_object': anna.id,
-                                          'roles': ['editor']})
-
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-
-        results = json.loads(res.body)['result']
-        assert_equal(len(results['roles']), 1)
-        anna = model.Package.by_name(u'annakarenina')
-        authgroup = model.AuthorizationGroup.by_name(u'anauthzgroup')
-
-        assert_equal(results['roles'][0]['role'], 'editor')
-        assert_equal(results['roles'][0]['package_id'], anna.id)
-        assert_equal(results['roles'][0]['authorized_group_id'], authgroup.id)
-
-        all_roles_after = TestRoles.get_roles(anna.id)
-        authgroup_roles_after = TestRoles.get_roles(anna.id, authgroup_ref=authgroup.name)
-        assert_equal(set(all_roles_before) ^ set(all_roles_after),
-                     set([u'"anauthzgroup" is "editor" on "annakarenina"']))
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id,
-                        'authorization_group': authgroup.name})
-        assert_equal(results['roles'], roles_after['roles'])
 
     def test_37_user_role_update_disallowed(self):
         anna = model.Package.by_name(u'annakarenina')

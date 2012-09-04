@@ -277,7 +277,7 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
+      search-index [-i] [-o] [-r] [-e] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
       search-index check                                     - checks for datasets not indexed
       search-index show {dataset-name}                       - shows index of a dataset
       search-index clear [dataset-name]                      - clears the search index for the provided dataset or for the whole ckan instance
@@ -301,6 +301,13 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
             action='store_true', default=False, help='Refresh current index (does not clear the existing one)')
 
+        self.parser.add_option('-e', '--commit-each', dest='commit_each',
+            action='store_true', default=False, help=
+'''Perform a commit after indexing each dataset. This ensures that changes are
+immediately available on the search, but slows significantly the process.
+Default is false.'''
+                    )
+
     def command(self):
         self._load_config()
 
@@ -322,14 +329,22 @@ class SearchIndexCommand(CkanCommand):
             print 'Command %s not recognized' % cmd
 
     def rebuild(self):
-        from ckan.lib.search import rebuild
+        from ckan.lib.search import rebuild, commit
+
+        # BY default we don't commit after each request to Solr, as it is
+        # a really heavy operation and slows things a lot
 
         if len(self.args) > 1:
             rebuild(self.args[1])
         else:
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
-                    refresh=self.options.refresh)
+                    refresh=self.options.refresh,
+                    defer_commit=(not self.options.commit_each))
+
+        if not self.options.commit_each:
+            commit()
+
     def check(self):
         from ckan.lib.search import check
 
@@ -477,11 +492,10 @@ class Sysadmin(CkanCommand):
         sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            user_or_authgroup = sysadmin.user or sysadmin.authorized_group
-            assert user_or_authgroup, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (user_or_authgroup.__class__.__name__,
-                                        user_or_authgroup.name,
-                                        user_or_authgroup.id)
+            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
+            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
+                                        sysadmin.user.name,
+                                        sysadmin.user.id)
 
     def add(self):
         import ckan.model as model
@@ -1197,7 +1211,7 @@ class Profile(CkanCommand):
         import paste.fixture
         import cProfile
         import re
-        
+
         url = self.args[0]
 
         def profile_url(url):
@@ -1211,7 +1225,7 @@ class Profile(CkanCommand):
                 import traceback
                 traceback.print_exc()
                 print 'Unknown error: ', url.strip()
-        
+
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
         cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)
@@ -1239,8 +1253,8 @@ class CreateColorSchemeCommand(CkanCommand):
         '@layoutLinkColor',
         '@mastheadBackgroundColorStart',
         '@mastheadBackgroundColorEnd',
-        '@btnPrimaryBackgroundHighlight',
         '@btnPrimaryBackground',
+        '@btnPrimaryBackgroundHighlight',
     ]
 
     # list of predefined colors
@@ -1603,6 +1617,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
                          '|\[\d*\:[^\]]*\]' + \
                          '|\{[^\}]*\}' + \
+                         '|<[^>}]*>' + \
                          '|\%((\d)*\$)?' + spf_reg_ex + ')'
 
         for entry in po:

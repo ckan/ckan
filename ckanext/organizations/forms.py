@@ -80,35 +80,42 @@ class OrganizationForm(SingletonPlugin):
         Returns a string representing the location of the template to be
         rendered for the new page
         """
-        return 'organization_new.html'
+        return 'organizations/new.html'
 
     def index_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the index page
         """
-        return 'organization_index.html'
+        return 'organizations/index.html'
 
     def read_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the read page
         """
-        return 'organization_read.html'
+        return 'organizations/read.html'
 
     def history_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the read page
         """
-        return 'organization_history.html'
+        return 'organizations/history.html'
+
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'organization_edit.html'
 
     def group_form(self):
         """
         Returns a string representing the location of the template to be
         rendered.  e.g. "forms/group_form.html".
         """
-        return 'organization_form.html'
+        return 'organizations/form.html'
 
     def group_types(self):
         """
@@ -228,7 +235,7 @@ class OrganizationDatasetForm(SingletonPlugin):
         return 'package/history.html'
 
     def package_form(self):
-        return 'organization_package_form.html'
+        return 'organizations/package_form.html'
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database

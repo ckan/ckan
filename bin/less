@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var fs = require('fs'),
-    path = require('path'),
+var path = require('path'),
+    nodeWatch = require('nodewatch'),
     exec = require('child_process').exec,
     watch = path.join(__dirname, '..', 'ckan', 'public', 'base', 'less'),
     debug = process.env.ENV !== 'production',
@@ -39,5 +39,5 @@ if (lastArg === '-p' || lastArg === '--production') {
 }
 
 console.log('Watching %s', watch);
-fs.watch(watch, compile);
+nodeWatch.add(watch).onChange(compile);
 compile();
