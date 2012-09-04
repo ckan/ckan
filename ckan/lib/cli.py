@@ -1618,6 +1618,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
                          '|\[\d*\:[^\]]*\]' + \
                          '|\{[^\}]*\}' + \
+                         '|<[^>}]*>' + \
                          '|\%((\d)*\$)?' + spf_reg_ex + ')'
 
         for entry in po:
