@@ -1,6 +1,7 @@
 import ckan.logic as logic
-from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object, get_related_object
+from ckan.logic.auth import (get_package_object, get_group_object,
+                             get_user_object, get_resource_object,
+                             get_organization_object, get_related_object)
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
@@ -60,6 +61,28 @@ def package_edit_permissions(context, data_dict):
     return {'success': False,
             'msg': _('Package edit permissions is not available')}
 
+def organization_add_dataset(context, data_dict):
+    """
+    Can the user add a dataset to the organization
+    """
+    model = context['model']
+    user = context.get('user','')
+    group = get_group_object(context, data_dict)
+
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
+
+    userobj = model.User.get( user )
+    if not userobj:
+        return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }
+
+    # Any member of this group can add a package to it.
+    if not _groups_intersect(userobj.get_groups( 'organization' ), [group]):
+        return { 'success': False, 'msg': _('User %s not authorized to add datasets to this organization') % str(user) }
+
+    return { 'success': True }
+
+
 def group_update(context, data_dict):
     """
     Group edit permission.  Checks that a valid user is supplied and that the user is
@@ -82,10 +105,38 @@ def group_update(context, data_dict):
         return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }
 
     # Only admins of this group should be able to update this group
-    if not _groups_intersect( userobj.get_groups( 'organization', 'admin' ), [group] ):
+    if not _groups_intersect( userobj.get_groups(None, 'admin' ), [group] ):
         return { 'success': False, 'msg': _('User %s not authorized to edit this group') % str(user) }
 
     return { 'success': True }
+
+def organization_update(context, data_dict):
+    """
+    Organization edit permission.  Checks that a valid user is supplied and that the user is
+    a member of the group currently with admin capacity.
+    """
+    model = context['model']
+    user = context.get('user','')
+    organization = get_organization_object(context, data_dict)
+
+    if not user:
+        return {'success': False, 'msg': _('Only members of this organization are authorized to edit this group')}
+
+    # Sys admins should be allowed to update groups
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
+
+    # Only allow package update if the user and package groups intersect
+    userobj = model.User.get( user )
+    if not userobj:
+        return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }
+
+    # Only admins of this group should be able to update this group
+    if not _groups_intersect( userobj.get_groups( 'organization', 'admin' ), [organization] ):
+        return { 'success': False, 'msg': _('User %s not authorized to edit this organization') % str(user) }
+
+    return { 'success': True }
+
 
 def related_update(context, data_dict):
     model = context['model']
@@ -103,8 +154,14 @@ def related_update(context, data_dict):
 def group_change_state(context, data_dict):
     return group_update(context, data_dict)
 
+def organization_change_state(context, data_dict):
+    return organization_update(context, data_dict)
+
 def group_edit_permissions(context, data_dict):
     return {'success': False, 'msg': _('Group edit permissions is not implemented')}
+
+def organization_edit_permissions(context, data_dict):
+    return {'success': False, 'msg': _('Organization edit permissions is not implemented')}
 
 def user_update(context, data_dict):
     model = context['model']
@@ -174,4 +231,12 @@ def group_update_rest(context, data_dict):
         return {'success': False, 'msg': _('Valid API key needed to edit a group')}
 
     return group_update(context, data_dict)
+
+def organization_update_rest(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if user in (model.PSEUDO_USER__VISITOR, ''):
+        return {'success': False, 'msg': _('Valid API key needed to edit a group')}
+
+    return organization_update(context, data_dict)
 
