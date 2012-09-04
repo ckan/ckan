@@ -1,5 +1,5 @@
 import sqlalchemy
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, IntegrityError
 import ckan.plugins as p
 import psycopg2.extras
 import json
@@ -19,6 +19,8 @@ _date_formats = ['%Y-%m-%d',
                 '%d-%m-%Y',
                 '%m-%d-%Y',
                 ]
+_true = ['true', '1', 'on', 'yes']
+_pluck = lambda field, arr: [x[field] for x in arr]
 
 
 def _is_valid_field_name(name):
@@ -172,7 +174,7 @@ def create_table(context, data_dict):
     extra_fields = []
     supplied_fields = data_dict.get('fields', [])
     check_fields(context, supplied_fields)
-    field_ids = [field['id'] for field in data_dict.get('fields', [])]
+    field_ids = _pluck('id', data_dict.get('fields', []))
     records = data_dict.get('records')
 
     # if type is field is not given try and guess or throw an error
@@ -209,11 +211,6 @@ def create_table(context, data_dict):
 
     context['connection'].execute(sql_string)
 
-    # create index for faster full text search (indextes: gin or gist)
-    sql_index_string = 'create index "{0}_idx" ON "{0}" USING gist("_full_text")'.format(
-        data_dict['resource_id'])
-    context['connection'].execute(sql_index_string)
-
     # create alias view
     alias = data_dict.get('alias', None)
     if alias:
@@ -223,6 +220,38 @@ def create_table(context, data_dict):
         context['connection'].execute(sql_alias_string)
 
 
+def create_indexes(context, data_dict):
+    indexes = data_dict.get('indexes', [])
+    unique_indexes = [index for index in indexes
+        if u'unique' in index and str(index[u'unique']).lower() in _true]
+
+    if len(unique_indexes) > 1:
+        raise p.toolkit.ValidationError({
+            'indexes': [('Only one unique index is allowed per table.')]
+            })
+
+    sql_index_string = 'create {unique} index on "{res_id}" using {method}("{field}")'
+    sql_index_strings = []
+    field_ids = _pluck('id', data_dict.get('fields', []))
+    for index in indexes:
+        if index['field'] not in field_ids:
+            raise p.toolkit.ValidationError({
+                'index': [('The field "{}" is not a valid column name.').format(
+                    index['field'])]
+            })
+        unique = 'unique' if index in unique_indexes else ''
+        sql_index_strings.append(sql_index_string.format(
+            res_id=data_dict['resource_id'], unique=unique,
+            method='btree', field=index['field']))
+
+    # create index for faster full text search (indexes: gin or gist)
+    sql_index_strings.append(sql_index_string.format(
+            res_id=data_dict['resource_id'], unique='',
+            method='gist', field='_full_text'))
+
+    map(context['connection'].execute, sql_index_strings)
+
+
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data'''
     supplied_fields = data_dict.get('fields', [])
@@ -230,7 +259,7 @@ def alter_table(context, data_dict):
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
-    field_ids = [field['id'] for field in supplied_fields]
+    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
     new_fields = []
 
@@ -282,7 +311,7 @@ def insert_data(context, data_dict):
         return
 
     fields = _get_fields(context, data_dict)
-    field_names = [field['id'] for field in fields]
+    field_names = _pluck('id', fields)
     sql_columns = ", ".join(['"%s"' % name for name in field_names]
                             + ['_full_text'])
 
@@ -365,7 +394,7 @@ def _textsearch_query(data_dict):
     lang = data_dict.get('lang', 'english')
     if q:
         if (not data_dict.get('plain')
-            or str(data_dict.get('plain')).lower() in ['true', '1']):
+            or str(data_dict.get('plain')).lower() in _true):
             statement = ", plainto_tsquery('{lang}', '{query}') query"
         else:
             statement = ", to_tsquery('{lang}', '{query}') query"
@@ -440,7 +469,7 @@ def delete_data(context, data_dict):
 
 def search_data(context, data_dict):
     all_fields = _get_fields(context, data_dict)
-    all_field_ids = map(lambda x: x['id'], all_fields)
+    all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
 
     fields = data_dict.get('fields')
@@ -550,8 +579,19 @@ def create(context, data_dict):
         else:
             alter_table(context, data_dict)
         insert_data(context, data_dict)
+        create_indexes(context, data_dict)
         trans.commit()
         return data_dict
+    except IntegrityError, e:
+        if 'duplicate key value violates unique constraint' in str(e):
+            raise p.toolkit.ValidationError({
+                'constraints': ['Cannot insert records because of uniqueness constraint in index'],
+                'info': {
+                    'details': str(e)
+                }
+            })
+        else:
+            raise
     except Exception, e:
         if 'due to statement timeout' in str(e):
             raise p.toolkit.ValidationError({

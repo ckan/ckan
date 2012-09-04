@@ -142,6 +142,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'alias': alias,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': '_json'}],
+            'indexes': [{'field': 'book', 'unique': True},
+                        {'field': 'author', 'unique': False}],
             'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
@@ -267,6 +269,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert results.rowcount == 2
 
         model.Session.remove()
+
+        #######  insert again which will fail because of unique book name
+        data3 = {
+            'resource_id': resource.id,
+            'records': [{'book': 'warandpeace'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data3)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+        assert 'constraints' in res_dict['error']
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
