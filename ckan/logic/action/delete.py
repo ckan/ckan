@@ -315,3 +315,30 @@ def unfollow_dataset(context, data_dict):
         raise ValidationError(errors, ckan.logic.action.error_summary(errors))
 
     _unfollow(context, data_dict, context['model'].UserFollowingDataset)
+
+def user_delete(context, data_dict):
+    '''Delete a user.
+
+    You must be authorized to update the user.
+    
+    :param id: the name of the user to delete
+    :type id: string
+
+    '''
+    model = context['model']
+    user = context['user']
+    id = _get_or_bust(data_dict, 'id')
+
+    user_obj = model.User.get(id)
+
+    if user_obj is None:
+        raise NotFound
+
+    _check_access('user_update',context, data_dict)
+
+    #rev = model.repo.new_revision()
+    #rev.author = user
+    #rev.message = _(u'REST API: Delete Package: %s') % entity.name
+
+    user_obj.delete()
+    model.repo.commit()
