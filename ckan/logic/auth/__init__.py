@@ -32,6 +32,3 @@ def get_group_object(context, data_dict={}):
 def get_user_object(context, data_dict={}):
     return _get_object(context, data_dict, 'user_obj', 'User')
 
-def get_authorization_group_object(context, data_dict={}):
-    return _get_object(context, data_dict, 'authorization_group',
-                       'AuthorizationGroup')

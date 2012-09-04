@@ -638,28 +638,6 @@ class ApiController(base.BaseController):
         out = map(convert_to_dict, query.all())
         return out
 
-    @jsonp.jsonpify
-    def authorizationgroup_autocomplete(self):
-        q = request.params.get('q', '')
-        limit = request.params.get('limit', 20)
-        try:
-            limit = int(limit)
-        except:
-            limit = 20
-        limit = min(50, limit)
-
-        query = model.AuthorizationGroup.search(q)
-
-        def convert_to_dict(user):
-            out = {}
-            for k in ['id', 'name']:
-                out[k] = getattr(user, k)
-            return out
-
-        query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
-        return out
-
     def is_slug_valid(self):
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''

@@ -492,11 +492,10 @@ class Sysadmin(CkanCommand):
         sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            user_or_authgroup = sysadmin.user or sysadmin.authorized_group
-            assert user_or_authgroup, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (user_or_authgroup.__class__.__name__,
-                                        user_or_authgroup.name,
-                                        user_or_authgroup.id)
+            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
+            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
+                                        sysadmin.user.name,
+                                        sysadmin.user.id)
 
     def add(self):
         import ckan.model as model
@@ -1212,7 +1211,7 @@ class Profile(CkanCommand):
         import paste.fixture
         import cProfile
         import re
-        
+
         url = self.args[0]
 
         def profile_url(url):
@@ -1226,7 +1225,7 @@ class Profile(CkanCommand):
                 import traceback
                 traceback.print_exc()
                 print 'Unknown error: ', url.strip()
-        
+
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
         cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)
