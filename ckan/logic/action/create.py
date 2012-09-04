@@ -685,28 +685,11 @@ def organization_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.create(organization)
 
-#    activity_dict = {
-#            'user_id': model.User.by_name(user.decode('utf8')).id,
-#            'object_id': organization.id,
-#            'activity_type': 'new organization',
-#            }
-#    activity_dict['data'] = {
-#            'organization': ckan.lib.dictization.table_dictize(organization, context)
-#            }
-#    activity_create_context = {
-#        'model': model,
-#        'user': user,
-#        'defer_commit':True,
-#        'session': session
-#    }
-#    logic.get_action('activity_create')(activity_create_context,
-#            activity_dict, ignore_auth=True)
-
     if not context.get('defer_commit'):
         model.repo.commit()
     context["organization"] = organization
     context["id"] = organization.id
-    log.debug('Created object %s' % str(organization.name))
+    log.debug(u'Created object %s' % organization.name)
     return model_dictize.group_dictize(organization, context)
 
 def rating_create(context, data_dict):
