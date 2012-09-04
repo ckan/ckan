@@ -361,9 +361,5 @@ def user_delete(context, data_dict):
 
     _check_access('user_update',context, data_dict)
 
-    #rev = model.repo.new_revision()
-    #rev.author = user
-    #rev.message = _(u'REST API: Delete Package: %s') % entity.name
-
     user_obj.delete()
     model.repo.commit()
