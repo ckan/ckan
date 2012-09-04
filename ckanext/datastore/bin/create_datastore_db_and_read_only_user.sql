@@ -9,8 +9,6 @@ is possible to set maindb = datastoredb.
 
 To run the script, execute:
     sudo -u postgres psql postgres -f create_read_only_user.sql
-
-License: MIT
 */
 
 \set maindb "ckan"

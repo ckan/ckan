@@ -118,8 +118,8 @@ def datastore_search(context, data_dict):
     alias_exists = False
     if not res_exists:
         # assume id is an alias
-        alias_sql = "select mainname from alias_mapping \
-            where aliasname = '{}'".format(id)
+        alias_sql = ("select mainname from alias_mapping "
+            "where aliasname = '{}'").format(id)
         result = db._get_engine(None, data_dict).execute(alias_sql).fetchone()
         if result:
             alias_exists = model.Resource.get(result[0].strip('"'))
@@ -154,8 +154,8 @@ def data_search_sql(context, data_dict):
     if not db.is_single_statement(sql):
         raise p.toolkit.ValidationError({
             'query': ['Query is not a single statement or contains semicolons.'],
-            'hint': ['If you want to use semicolons, use character encoding \
-                (; equals chr(59)) and string concatenation (||). ']
+            'hint': [('If you want to use semicolons, use character encoding'
+                '(; equals chr(59)) and string concatenation (||). ')]
         })
 
     p.toolkit.check_access('datastore_search', context, data_dict)

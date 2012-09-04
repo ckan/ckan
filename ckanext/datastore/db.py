@@ -470,8 +470,7 @@ def search_data(context, data_dict):
 
     sql_string = u'''select {select}, count(*) over() as "_full_count" {rank}
                     from "{resource}" {ts_query}
-                    {where} {sort} limit {limit} offset {offset}'''\
-        .format(
+                    {where} {sort} limit {limit} offset {offset}'''.format(
             select=select_columns,
             rank=rank_column,
             resource=data_dict['resource_id'],
@@ -608,8 +607,8 @@ def search(context, data_dict):
             u'set local statement_timeout to {}'.format(timeout))
         id = data_dict['resource_id']
         result = context['connection'].execute(
-            "(select 1 from pg_tables where tablename = '{0}') union \
-             (select 1 from pg_views where viewname = '{0}')".format(id)
+            "(select 1 from pg_tables where tablename = '{0}') union"
+             "(select 1 from pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
