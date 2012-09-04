@@ -9,19 +9,18 @@ const_role_actions = [
     '<RoleAction role="editor" action="edit" context="">',
     '<RoleAction role="editor" action="create-package" context="">',
     '<RoleAction role="editor" action="create-group" context="">',
-    '<RoleAction role="editor" action="create-authorization-group" context="">',
     '<RoleAction role="editor" action="read" context="">',
     '<RoleAction role="editor" action="read-site" context="">',
     '<RoleAction role="editor" action="read-user" context="">',
     '<RoleAction role="editor" action="create-user" context="">',
-    '<RoleAction role="editor" action="file-upload" context="">',    
+    '<RoleAction role="editor" action="file-upload" context="">',
     '<RoleAction role="anon_editor" action="edit" context="">',
     '<RoleAction role="anon_editor" action="create-package" context="">',
     '<RoleAction role="anon_editor" action="read" context="">',
     '<RoleAction role="anon_editor" action="read-site" context="">',
     '<RoleAction role="anon_editor" action="read-user" context="">',
     '<RoleAction role="anon_editor" action="create-user" context="">',
-    '<RoleAction role="anon_editor" action="file-upload" context="">',    
+    '<RoleAction role="anon_editor" action="file-upload" context="">',
     '<RoleAction role="reader" action="read" context="">',
     '<RoleAction role="reader" action="read-site" context="">',
     '<RoleAction role="reader" action="read-user" context="">',
@@ -75,7 +74,7 @@ class DbFromModelTestCase(object):
         model.repo.rebuild_db()
 
 class DbFromMigrationTestCase(object):
-    
+
     @classmethod
     def setup_class(cls):
         if not is_migration_supported():
@@ -103,7 +102,7 @@ class TestUpgrade(object):
             raise SkipTest('Search not supported')
 
         # delete all objects manually
-        rev = model.repo.new_revision() 
+        rev = model.repo.new_revision()
         users = model.Session.query(model.User).all()
         uors = model.Session.query(model.UserObjectRole).all()
         ras = model.Session.query(model.RoleAction).all()
@@ -114,14 +113,14 @@ class TestUpgrade(object):
         # db will already be on the latest version so
         # this should only reinstate the constant objects
         model.repo.init_const_data()
-        
+
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def test_user_consts(self):
         users = model.Session.query(model.User).all()
-        users_names = [user.name for user in users]        
+        users_names = [user.name for user in users]
         user_differences = set(users_names) ^ set(const_user_names)
         assert not user_differences, 'Expected %r but got %r' % \
                (const_user_names, users_names)

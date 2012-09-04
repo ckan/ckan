@@ -55,7 +55,7 @@ class TestAuthorizer(object):
         model.Session.add(model.User(name=u'testadmin'))
         # Cannot setup testsysadmin user as it is alreade done in
         # the default test data.
-        #model.Session.add(model.User(name=u'testsysadmin')) 
+        #model.Session.add(model.User(name=u'testsysadmin'))
         model.Session.add(model.User(name=u'notadmin'))
         model.Session.add(model.Group(name=u'testgroup'))
         model.Session.add(model.Group(name=u'testgroup2'))
@@ -156,7 +156,7 @@ class TestAuthorizer(object):
     def test_authorized_query(self):
         assert self.authorizer.is_authorized(self.notadmin.name, model.Action.READ, self.pkg)
         assert not self.authorizer.is_authorized(self.notadmin.name, model.Action.READ, self.private_pkg)
-        
+
         q = self.authorizer.authorized_query(self.notadmin.name, model.Package)
         pkgs = set([pkg.name for pkg in q.all()])
         expected_pkgs = set([u'testpkg', u'testpkg2', u'annakarenina', u'warandpeace'])
@@ -196,7 +196,7 @@ class TestLockedDownAuthorizer(object):
         for role in q:
             model.Session.delete(role)
         model.repo.commit_and_remove()
-        model.repo.new_revision()        
+        model.repo.new_revision()
         model.Session.add(model.Package(name=u'testpkg'))
         model.Session.add(model.Package(name=u'testpkg2'))
         model.Session.add(model.User(name=u'testadmin'))
@@ -240,12 +240,12 @@ class TestLockedDownAuthorizer(object):
         assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
         assert not self.authorizer.is_authorized(u'blah', action, model.System())
         assert not self.authorizer.is_authorized(u'visitor', action, model.System())
-    
+
     def test_pkg_edit(self):
-        #reproduce a bug 
+        #reproduce a bug
         action = model.Action.EDIT
         assert self.authorizer.is_authorized(self.notadmin.name, action, model.System())
-    
+
     def test_pkg_admin(self):
         action = model.Action.PURGE
         assert self.authorizer.is_authorized(self.admin.name, action, self.pkg)
@@ -258,110 +258,3 @@ class TestLockedDownAuthorizer(object):
         assert self.authorizer.is_authorized(self.sysadmin.name, action, self.grp2)
         assert not self.authorizer.is_authorized(u'blah', action, self.grp)
 
-
-class TestAuthorizationGroups(object):
-
-    @classmethod
-    def setup_class(self):
-        CreateTestData.create()
-        model.repo.new_revision()
-        model.Session.add(model.Package(name=u'testpkgag'))
-        model.Session.add(model.Group(name=u'testgroupag'))
-        model.Session.add(model.User(name=u'ag_member'))
-        model.Session.add(model.User(name=u'ag_admin'))
-        model.Session.add(model.User(name=u'ag_notmember'))
-        model.Session.add(model.AuthorizationGroup(name=u'authz_group'))
-        model.repo.commit_and_remove()
-
-        pkg = model.Package.by_name(u'testpkgag')
-        grp = model.Group.by_name(u'testgroupag')
-        authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
-        member = model.User.by_name(u'ag_member')
-        admin = model.User.by_name(u'ag_admin')
-    
-        model.setup_default_user_roles(authzgrp, [admin])
-        model.add_authorization_group_to_role(authzgrp, model.Role.ADMIN, pkg)
-        model.add_authorization_group_to_role(authzgrp, model.Role.ADMIN, grp)
-        model.add_user_to_authorization_group(member, authzgrp, model.Role.EDITOR)
-        model.repo.commit_and_remove()
-
-        self.authorizer = ckan.authz.Authorizer()
-        self.pkg = model.Package.by_name(u'testpkgag')
-        self.grp = model.Group.by_name(u'testgroupag')
-        self.member = model.User.by_name(u'ag_member')
-        self.admin = model.User.by_name(u'ag_admin')
-        self.notmember = model.User.by_name(u'ag_notmember')
-        self.authzgrp = model.AuthorizationGroup.by_name(u'authz_group')
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    authorizer = ckan.authz.Authorizer()
-
-    def test_get_authorization_groups(self):
-        assert self.authzgrp.id == self.authorizer.get_authorization_groups(self.member.name)[0].id
-        assert not self.authorizer.get_authorization_groups(self.notmember.name)
-
-    @uses_example_auth_plugin
-    def test_get_groups_with_plugin(self):
-        groups = self.authorizer.get_authorization_groups(self.member.name)
-        assert len(groups) == 2, len(groups)
-
-    def test_edit_via_grp(self):
-        action = model.Action.EDIT
-        assert not self.authorizer.is_authorized(self.notmember.name, action, self.pkg)
-        assert not self.authorizer.is_authorized(self.notmember.name, action, self.grp)
-        assert self.authorizer.is_authorized(self.member.name, action, self.pkg)
-        assert self.authorizer.is_authorized(self.member.name, action, self.grp)
-        
-    def test_add_to_authzgrp(self):
-        model.Session.add(model.User(name=u'ag_joiner'))
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-        user = model.User.by_name(u'ag_joiner')
-        assert not model.user_in_authorization_group(user, self.authzgrp), user
-        model.add_user_to_authorization_group(user, self.authzgrp, model.Role.ADMIN)
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert model.user_in_authorization_group(user, self.authzgrp)
-
-    def test_remove_from_authzgrp(self):
-        model.Session.add(model.User(name=u'ag_leaver'))
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-        user = model.User.by_name(u'ag_leaver')
-        model.add_user_to_authorization_group(user, self.authzgrp, model.Role.ADMIN)
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert model.user_in_authorization_group(user, self.authzgrp)
-        model.remove_user_from_authorization_group(user, self.authzgrp)
-        model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert not model.user_in_authorization_group(user, self.authzgrp)
-
-    def test_authzgrp_edit_rights(self):
-        assert self.authorizer.is_authorized(self.member.name, model.Action.READ, self.authzgrp)
-        assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.authzgrp)
-        assert self.authorizer.is_authorized(self.member.name, model.Action.EDIT, self.authzgrp)
-        assert not self.authorizer.is_authorized(self.member.name, model.Action.PURGE, self.authzgrp)
-        assert self.authorizer.is_authorized(self.admin.name, model.Action.PURGE, self.authzgrp)
-        assert not self.authorizer.is_authorized(self.notmember.name, model.Action.EDIT, self.authzgrp)
-
-    def test_authorized_query(self):
-        assert not self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.pkg)
-        assert self.authorizer.is_authorized(self.member.name, model.Action.READ, self.pkg)
-        
-        q = self.authorizer.authorized_query(self.notmember.name, model.Package)
-        q = q.filter(model.Package.name==self.pkg.name)
-        assert not len(q.all()) 
-        
-        q = self.authorizer.authorized_query(self.member.name, model.Package)
-        q = q.filter(model.Package.name==self.pkg.name)
-        assert len(q.all()) == 1
-
-    @uses_example_auth_plugin
-    def test_authorized_query_with_plugin(self):
-        assert self.authorizer.is_authorized(self.notmember.name, model.Action.READ, self.pkg)

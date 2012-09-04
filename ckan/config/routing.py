@@ -58,7 +58,6 @@ def make_map():
             'tag',
             'group',
             'related',
-            'authorizationgroup',
             'revision',
             'licenses',
             'rating',
@@ -119,8 +118,6 @@ def make_map():
                   action='format_autocomplete', conditions=GET)
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
-        m.connect('/util/authorizationgroup/autocomplete',
-                  action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
@@ -243,17 +240,6 @@ def make_map():
 
     register_package_plugins(map)
     register_group_plugins(map)
-
-    # authz group
-    map.redirect('/authorizationgroups', '/authorizationgroup')
-    map.redirect('/authorizationgroups/{url:.*}', '/authorizationgroup/{url}')
-    with SubMapper(map, controller='authorization_group') as m:
-        m.connect('/authorizationgroup', action='index')
-        m.connect('/authorizationgroup/list', action='list')
-        m.connect('/authorizationgroup/new', action='new')
-        m.connect('/authorizationgroup/edit/{id}', action='edit')
-        m.connect('/authorizationgroup/authz/{id}', action='authz')
-        m.connect('/authorizationgroup/{id}', action='read')
 
     # tags
     map.redirect('/tags', '/tag')
