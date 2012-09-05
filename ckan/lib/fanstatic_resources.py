@@ -71,6 +71,8 @@ def create_library(name, path, depend_base=True):
             core.set_resource_file_existence_checking(True)
         else:
             # This doesn't exist so stop fanstatic checking the filesystem
+            if path not in force_top:
+                kw['bottom'] = True
             core.set_resource_file_existence_checking(False)
         dependencies = []
         if path in depends:
@@ -203,6 +205,8 @@ def create_library(name, path, depend_base=True):
     # add inline scripts
     for inline in inline_scripts:
         resource_list.append(inline)
+        if inline not in custom_render_order:
+            custom_render_order[inline] = 20
 
     # order resource_list so that resources are created in the correct order
     for resource_name in reversed(order):
