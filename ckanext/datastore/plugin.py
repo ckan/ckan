@@ -130,10 +130,10 @@ class DatastorePlugin(p.SingletonPlugin):
     def _create_alias_table(self):
         mapping_sql = '''
             SELECT distinct
-                d.refobjid::regclass AS main,
-                dependent.relname AS mainname,
-                r.ev_class::regclass AS alias,
-                dependee.relname AS aliasname
+                dependee.relname AS name,
+                -- r.ev_class::regclass AS oid,
+                dependent.relname AS alias_of
+                -- d.refobjid::regclass AS oid,
             FROM
                 pg_attribute    as a
                 JOIN pg_depend  as d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
@@ -142,7 +142,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 JOIN pg_class as dependent ON d.refobjid = dependent.oid
             WHERE dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
         '''
-        create_alias_table_sql = u'create or replace view alias_mapping as {}'.format(mapping_sql)
+        create_alias_table_sql = u'create or replace view "_table_metadata" as {}'.format(mapping_sql)
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)

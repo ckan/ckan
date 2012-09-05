@@ -196,8 +196,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert results == results_alias
 
-        sql = ("select * from alias_mapping "
-            "where main='{}'::regclass and alias='{}'::regclass").format(resource.id, alias)
+        sql = ("select * from _table_metadata "
+            "where alias_of='{}' and name='{}'").format(resource.id, alias)
         results = c.execute(sql)
         assert results.rowcount == 1
 
