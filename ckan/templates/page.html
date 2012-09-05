@@ -95,6 +95,10 @@
 {%- endblock -%}
 
 {%- block scripts %}
+    {% resource 'base/main' %}
+
+    {% if config.get('ckan.tracking_enabled', 'false') %}
+      {% snippet 'snippets/internal_tracking.html' %}
+    {% endif %}
   {{ super() }}
-  {% snippet "snippets/scripts.html" %}
 {% endblock -%}
