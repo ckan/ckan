@@ -46,10 +46,13 @@ def create_library(name, path, depend_base=True):
         if op.exists(path_min) and op.getmtime(path) < op.getmtime(path_min):
             return
         source = open(path, 'r').read()
-        f = open(path_min, 'w')
-        f.write(min_function(source))
-        f.close()
-        log.debug('minified %s' % path)
+        try:
+            f = open(path_min, 'w')
+            f.write(min_function(source))
+            f.close()
+            log.debug('minified %s' % path)
+        except IOError:
+            pass
 
     def create_resource(path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''
