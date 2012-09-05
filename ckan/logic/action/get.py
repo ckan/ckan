@@ -433,6 +433,33 @@ def group_list_authz(context, data_dict):
 
     return [{'id':group.id,'name':group.name} for group in groups]
 
+def organization_list_authz(context, data_dict):
+    '''Return the list of organizations that the user is authorized to add to.
+
+    :param available_only: remove the existing orgsin the package
+      (optional, default: ``False``)
+    :type available_only: boolean
+
+    :returns: the names of orgs that the user is authorized to add to
+    :rtype: list of strings
+
+    '''
+    model = context['model']
+    user = context['user']
+    available_only = data_dict.get('available_only',False)
+
+    _check_access('organization_list_authz',context, data_dict)
+
+    userobj = model.User.get(user)
+    organizations = userobj.get_groups('organization')
+
+    if available_only:
+        package = context.get('package')
+        if package:
+            organizations = organizations - set(package.get_groups())
+
+    return [{'id':organization.id,'name':organization.name} for organization in organizations]
+
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
 

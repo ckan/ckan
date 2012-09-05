@@ -1225,6 +1225,15 @@ def groups_available():
     data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
 
+def organizations_available():
+    ''' return a list of available organizations '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user or c.author}
+    data_dict = {'available_only': True}
+    return logic.get_action('organization_list_authz')(context, data_dict)
+
+
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
 
@@ -1382,6 +1391,7 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'organizations_available',
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
