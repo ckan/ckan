@@ -191,7 +191,7 @@ def create_table(context, data_dict):
     extra_fields = []
     supplied_fields = data_dict.get('fields', [])
     check_fields(context, supplied_fields)
-    field_ids = _pluck('id', data_dict.get('fields', []))
+    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
 
     # if type is field is not given try and guess or throw an error
@@ -239,6 +239,8 @@ def create_table(context, data_dict):
 
 def create_indexes(context, data_dict):
     indexes = _get_list(data_dict.get('indexes'))
+    # primary key is not a real primary key
+    # it's just a unique key
     primary_key = _get_list(data_dict.get('primary_key'))
 
     # index and primary key could be [],
@@ -246,12 +248,13 @@ def create_indexes(context, data_dict):
     if indexes == None and primary_key == None:
         return
 
-    sql_index_string = 'create {unique} index on "{res_id}" using {method}("{fields}")'
+    sql_index_string = 'create {unique} index on "{res_id}" using {method}({fields})'
     sql_index_strings = []
     field_ids = _pluck('id', data_dict.get('fields', []))
 
     if indexes != None:
-        # delete previous indexes
+        _drop_indexes(context, data_dict, False)
+
         for index in indexes:
             fields = _get_list(index)
             for field in fields:
@@ -260,16 +263,18 @@ def create_indexes(context, data_dict):
                         'index': [('The field "{}" is not a valid column name.').format(
                             index)]
                     })
+            fields_string = ','.join(["%s" % field for field in fields])
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='',
-                method='btree', fields=','.join(fields)))
+                method='btree', fields=fields_string))
 
         # create index for faster full text search (indexes: gin or gist)
         sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='',
                 method='gist', fields='_full_text'))
     if primary_key != None:
-        # delete previous primary key
+        _drop_indexes(context, data_dict, True)
+
         # create unique index
         for field in primary_key:
             if field not in field_ids:
@@ -277,15 +282,42 @@ def create_indexes(context, data_dict):
                     'primary_key': [('The field "{}" is not a valid column name.').format(
                         index)]
                 })
-        sql_index_strings.append(sql_index_string.format(
-                res_id=data_dict['resource_id'], unique='unique',
-                method='btree', fields=','.join(primary_key)))
+        if primary_key:
+            sql_index_strings.append(sql_index_string.format(
+                    res_id=data_dict['resource_id'], unique='unique',
+                    method='btree', fields=','.join(primary_key)))
 
     map(context['connection'].execute, sql_index_strings)
 
 
+def _drop_indexes(context, data_dict, unique=False):
+    sql_drop_index = 'drop index "{}" cascade'
+    sql_get_index_string = """
+        select
+            i.relname as index_name
+        from
+            pg_class t,
+            pg_class i,
+            pg_index idx
+        where
+            t.oid = idx.indrelid
+            and i.oid = idx.indexrelid
+            and t.relkind = 'r'
+            and idx.indisunique = {unique}
+            and idx.indisprimary = false
+            and t.relname = '{res_id}'
+        """
+    sql_stmt = sql_get_index_string.format(
+        res_id=data_dict['resource_id'],
+        unique='true' if unique else 'false')
+    indexes_to_drop = context['connection'].execute(sql_stmt).fetchall()
+    for index in indexes_to_drop:
+        context['connection'].execute(sql_drop_index.format(index[0]))
+
+
 def alter_table(context, data_dict):
-    '''alter table from combination of fields and first row of data'''
+    '''alter table from combination of fields and first row of data
+    return: all fields of the resource table'''
     supplied_fields = data_dict.get('fields', [])
     current_fields = _get_fields(context, data_dict)
     if not supplied_fields:
@@ -335,6 +367,8 @@ def alter_table(context, data_dict):
             field['id'],
             field['type'])
         context['connection'].execute(sql)
+
+    return new_fields + supplied_fields
 
 
 def insert_data(context, data_dict):
@@ -608,13 +642,15 @@ def create(context, data_dict):
         if not result:
             create_table(context, data_dict)
         else:
-            alter_table(context, data_dict)
+            all_fields = alter_table(context, data_dict)
+            data_dict['fields'] = all_fields
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         trans.commit()
         return data_dict
     except IntegrityError, e:
-        if 'duplicate key value violates unique constraint' in str(e):
+        if ('duplicate key value violates unique constraint' in str(e)
+                or 'could not create unique index' in str(e)):
             raise p.toolkit.ValidationError({
                 'constraints': ['Cannot insert records because of uniqueness constraint in index'],
                 'info': {

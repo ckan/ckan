@@ -169,7 +169,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'alias': alias,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': '_json'}],
-            'primary_key': 'book',
+            'primary_key': 'book, author',
             'indexes': ['author'],
             'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
@@ -271,7 +271,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data3 = {
             'resource_id': resource.id,
             'records': [{'book': 'crime and punsihment',
-                         'author': ['dostoevsky'], 'rating': 'good'}]
+                         'author': ['dostoevsky'], 'rating': 'good'}],
+            'indexes': ['rating']
         }
 
         postparams = '%s=1' % json.dumps(data3)
@@ -298,12 +299,13 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         model.Session.remove()
 
         #######  insert again which will fail because of unique book name
-        data3 = {
+        data4 = {
             'resource_id': resource.id,
-            'records': [{'book': 'warandpeace'}]
+            'records': [{'book': 'warandpeace'}],
+            'primary_key': 'book'
         }
 
-        postparams = '%s=1' % json.dumps(data3)
+        postparams = '%s=1' % json.dumps(data4)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, expect_errors=True)
@@ -311,6 +313,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
         assert 'constraints' in res_dict['error']
+
+        #######  insert again which should not fail because constraint is removed
+        data5 = {
+            'resource_id': resource.id,
+            'records': [{'book': 'warandpeace'}],
+            'primary_key': ''
+        }
+
+        postparams = '%s=1' % json.dumps(data5)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
