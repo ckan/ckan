@@ -78,6 +78,15 @@ this.ckan = this.ckan || {};
 
 })(this.ckan, this.jQuery);
 
+// Forces this to redraw in Internet Explorer 7
+// This is useful for when IE7 doesn't properly render parts of the page after
+// some dom manipulation has happened
+this.jQuery.fn.ie7redraw = function() {
+  if (jQuery.browser.msie && jQuery.browser.version == '7.0') {
+    jQuery(this).css('zoom', 1);
+  }
+};
+
 // Temporary banner to let users on IE7 know that it may not display as
 // expected.
 (function showIEBanner() {

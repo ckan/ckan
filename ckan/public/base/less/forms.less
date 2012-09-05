@@ -80,10 +80,6 @@ textarea {
   font-size: 18px;
 }
 
-.ie9 .control-large input {
-  height: 56px; // Fixes cropped text in IE9
-}
-
 .form-actions {
   background: none;
   margin-left: -@gutterX;
@@ -128,10 +124,6 @@ textarea {
   margin-left: 130px;
 }
 
-.ie7 .form-horizontal .controls {
-  margin-left: 0;
-}
-
 .form-horizontal .info-block {
   position: relative;
   display: block;
@@ -161,6 +153,15 @@ textarea {
 
 .form-horizontal .info-inline:before {
   top: 8px;
+}
+
+.info-block,
+.info-inline {
+  .icon-large {
+    float: left;
+    font-size: 22px;
+    margin-right: @gutterSmallX;
+  }
 }
 
 .form-horizontal .info-block a {
@@ -291,10 +292,6 @@ textarea {
 .control-custom .checkbox {
   display: inline-block;
   margin-left: 5px;
-}
-
-.ie7 .control-custom .checkbox {
-  .ie7-inline-block;
 }
 
 .control-custom .checkbox input {
