@@ -92,9 +92,9 @@ def datastore_search(context, data_dict):
     :type limit: int
     :param offset: offset the number of rows
     :type offset: int
-    :param fields: ordered list of fields to return
+    :param fields: fields to return
                    (default: all fields in original order)
-    :type fields: list of dictionaries
+    :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
                  eg: "fieldname1, fieldname2 desc"
     :type sort: string

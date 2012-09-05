@@ -475,7 +475,10 @@ def search_data(context, data_dict):
     fields = data_dict.get('fields')
 
     if fields:
-        field_ids = fields
+        if type(fields) in [str, unicode]:
+            field_ids = map(lambda x: x.strip(), fields.split(','))
+        else:
+            field_ids = fields
 
         for field in field_ids:
             if not field in all_field_ids:
