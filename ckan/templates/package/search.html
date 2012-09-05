@@ -47,7 +47,7 @@
                 {%- else -%}
                   {{ value }}
                 {%- endif %}
-                <a href="{{ c.remove_field(field, value) }}" class="remove icon-remove icon-white">[remove]</a>
+                <a href="{{ c.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
               </span>
             {% endfor %}
           {% endfor %}

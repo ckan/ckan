@@ -1,9 +1,10 @@
+import re
 from os import path
 import logging
 
 from jinja2 import nodes
 from jinja2 import loaders
-from jinja2.ext import Extension
+from jinja2 import ext
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists, escape
 from jinja2.filters import do_truncate
@@ -37,7 +38,39 @@ def truncate(value, length=255, killwords=None, end='...'):
 
 ### Tags
 
-class CkanExtend(Extension):
+def regularise_html(html):
+    ''' Take badly formatted html with strings etc and make it beautiful
+    generally remove surlus whitespace and kill \n this will break <code><pre>
+    tags but they should not be being translated '''
+    if html is None:
+        return
+    html = re.sub('\n', ' ', html)
+    matches = re.findall('(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
+    for i in xrange(len(matches)):
+        match = matches[i]
+        if match.startswith('<') or match.startswith('%'):
+            continue
+        matches[i] = re.sub('\s{2,}', ' ', match)
+    html = ''.join(matches)
+    return html
+
+
+class CkanInternationalizationExtension(ext.InternationalizationExtension):
+    ''' Custom translation to allow cleaned up html '''
+
+    def parse(self, parser):
+        node = ext.InternationalizationExtension.parse(self, parser)
+        args = getattr(node.nodes[0], 'args', None)
+        if args:
+            for arg in args:
+                if isinstance(arg, nodes.Const):
+                    value = arg.value
+                    if isinstance(value, unicode):
+                        arg.value = regularise_html(value)
+        return node
+
+
+class CkanExtend(ext.Extension):
     ''' Custom {% ckan_extends <template> %} tag that allows templates
     to inherit from the ckan template futher down the template search path
     if no template provided we assume the same template name. '''
@@ -45,8 +78,12 @@ class CkanExtend(Extension):
     tags = set(['ckan_extends'])
 
     def __init__(self, environment):
-        Extension.__init__(self, environment)
-        self.searchpath = environment.loader.searchpath[:]
+        ext.Extension.__init__(self, environment)
+        try:
+            self.searchpath = environment.loader.searchpath[:]
+        except AttributeError:
+            # this isn't available on message extraction
+            pass
 
     def parse(self, parser):
         lineno = next(parser.stream).lineno
@@ -160,7 +197,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         raise TemplateNotFound(template)
 
 
-class BaseExtension(Extension):
+class BaseExtension(ext.Extension):
     ''' Base class for creating custom jinja2 tags.
     parse expects a tag of the format
     {% tag_name args, kw %}

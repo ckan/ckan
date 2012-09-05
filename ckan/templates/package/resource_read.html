@@ -120,15 +120,18 @@
 
 {% block styles %}
   {{ super() }}
+  {#
   <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.css' %}" />
-
+  #}
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
+  {#
   <script src="{% url_for_static '/base/datapreview/vendor/jquery.resize/jquery.ba-resize.js' %}"></script>
   <script src="{% url_for_static '/base/datapreview/datapreview_outside.js' %}"></script>
-
+  #}
+  {% resource 'datapreview/datapreview' %}
   <script>
     var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
   </script>

@@ -43,13 +43,11 @@
   padding: 1px 5px 1px 8px;
   margin-right: 5px;
   .border-radius(7px);
-  .remove {
-    .hide-text; // Hide the link text
-  }
-  .remove:before {
-    color: #fff;
-    font-size: 10px; // Show the icon glyph
-    line-height: 1;
+  a {
+    color: @pillTextColor;
+    &.remove {
+      font-size: 11px;
+    }
   }
 }
 

@@ -36,7 +36,7 @@ from pylons import session
 from pylons import c, g
 from pylons.i18n import _, ungettext
 
-import html_resources
+import ckan.lib.fanstatic_resources as fanstatic_resources
 from lib.maintain import deprecated
 import ckan.model as model
 import ckan.lib.formatters as formatters
@@ -628,20 +628,6 @@ def linked_user(user, maxlength=0):
         return icon + u' ' + link_to(displayname,
                        url_for(controller='user', action='read', id=name))
 
-def linked_authorization_group(authgroup, maxlength=0):
-    if not isinstance(authgroup, model.AuthorizationGroup):
-        authgroup_name = unicode(authgroup)
-        authgroup = model.AuthorizationGroup.get(authgroup_name)
-        if not authgroup:
-            return authgroup_name
-    if authgroup:
-        displayname = authgroup.name or authgroup.id
-        if maxlength and len(display_name) > maxlength:
-            displayname = displayname[:maxlength] + '...'
-        return link_to(displayname,
-                       url_for(controller='authorization_group',
-                               action='read', id=displayname))
-
 
 def group_name_to_title(name):
     group = model.Group.by_name(name)
@@ -1182,7 +1168,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
                                    action=action, extras=extras)
 
 def include_resource(resource):
-    r = getattr(html_resources, resource)
+    r = getattr(fanstatic_resources, resource)
     r.need()
 
 def debug_inspect(arg):
@@ -1350,7 +1336,6 @@ __allowed_functions__ = [
          #  am_authorized, # deprecated
            'check_access',
            'linked_user',
-           'linked_authorization_group',
            'group_name_to_title',
            'markdown_extract',
            'icon',

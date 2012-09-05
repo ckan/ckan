@@ -34,11 +34,13 @@ On ubuntu node can be installed using the following commands:
 
 LESS can then be installed via the node package manager which is bundled
 with node (or installed with apt as it is not bundled with node on Ubuntu).
+We also need nodewatch.
+
 ``cd`` into the ``pyenv/src/ckan`` and run:
 
 ::
 
-    $ npm install less
+    $ npm install less nodewatch
 
 A watcher script can then be used to compile the CSS whenever the LESS
 changes:

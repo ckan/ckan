@@ -17,29 +17,12 @@
   font-size: 20px;
 }
 
-.ie .toolbar .breadcrumb,
-.ie9 .toolbar .breadcrumb {
-  filter: none; // Remove filter set by the gradient mixin.
-}
-
 .toolbar li [class^=icon]:before {
   width: auto; // Fix Bootstrap icon widths
 }
 
-.ie .toolbar .breadcrumb li {
-  float: left; // Fixes inline block display issues.
-}
-
-.ie7 .toolbar .breadcrumb li {
-  margin-right: 0.5em; // No :after support in IE7 so just pad items.
-}
-
 .toolbar .breadcrumb li:after {
   content: " / ";
-}
-
-.ie .toolbar .breadcrumb li:after {
-  margin: 0 0.2em;
 }
 
 .toolbar .breadcrumb li.active:after {
