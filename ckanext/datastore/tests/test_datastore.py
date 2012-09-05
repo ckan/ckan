@@ -1,3 +1,4 @@
+import unittest
 import json
 import sqlalchemy
 import ckan.plugins as p
@@ -10,6 +11,19 @@ import pprint
 
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
+
+
+class TestTypeGetters(unittest.TestCase):
+    def test_list(self):
+        assert db._get_list(None) == None
+        assert db._get_list([]) == []
+        assert db._get_list('') == []
+        assert db._get_list('foo') == ['foo']
+        assert db._get_list('foo, bar') == ['foo', 'bar']
+        assert db._get_list(u'foo, bar') == ['foo', 'bar']
+        assert db._get_list(['foo', 'bar']) == ['foo', 'bar']
+        assert db._get_list([u'foo', u'bar']) == ['foo', 'bar']
+        assert db._get_list(['foo', ['bar', 'baz']]) == ['foo', ['bar', 'baz']]
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):
@@ -142,8 +156,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'alias': alias,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': '_json'}],
-            'indexes': [{'field': 'book', 'unique': True},
-                        {'field': 'author', 'unique': False}],
+            'primary_key': 'book',
+            'indexes': ['author'],
             'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},

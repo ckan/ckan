@@ -19,8 +19,10 @@ def datastore_create(context, data_dict):
     :type fields: list of dictionaries
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
     :type records: list of dictionaries
-    :param indexes: indexes on table, eg: [{"field": "email", "unique": True}]
-    :type indexes: list of dictionaries
+    :param primary_key: fields that represent a unique key
+    :type primary_key: list or comma separated string
+    :param indexes: indexes on table
+    :type indexes: list or comma separated string
 
     :returns: the newly created data object.
     :rtype: dictionary

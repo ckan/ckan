@@ -23,6 +23,18 @@ _true = ['true', '1', 'on', 'yes']
 _pluck = lambda field, arr: [x[field] for x in arr]
 
 
+def _get_list(input):
+    """Transforms a string or list to a list"""
+    if type(input) in [str, unicode]:
+        if len(input.strip()) == 0:
+            return []
+        return map(lambda x: x.strip(), input.split(','))
+    elif type(input) == list:
+        return input
+    else:
+        return
+
+
 def _is_valid_field_name(name):
     '''
     Check that field name is valid:
@@ -69,8 +81,7 @@ def _cache_types(context):
             ## redo cache types with json now availiable.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('_json', connection.connection,
-                                           True)
+        psycopg2.extras.register_composite('_json', connection.connection, True)
 
 
 def _get_type(context, oid):
@@ -221,33 +232,48 @@ def create_table(context, data_dict):
 
 
 def create_indexes(context, data_dict):
-    indexes = data_dict.get('indexes', [])
-    unique_indexes = [index for index in indexes
-        if u'unique' in index and str(index[u'unique']).lower() in _true]
+    indexes = _get_list(data_dict.get('indexes'))
+    primary_key = _get_list(data_dict.get('primary_key'))
 
-    if len(unique_indexes) > 1:
-        raise p.toolkit.ValidationError({
-            'indexes': [('Only one unique index is allowed per table.')]
-            })
+    # index and primary key could be [],
+    # which means that indexes should be deleted
+    if indexes == None and primary_key == None:
+        return
 
-    sql_index_string = 'create {unique} index on "{res_id}" using {method}("{field}")'
+    sql_index_string = 'create {unique} index on "{res_id}" using {method}("{fields}")'
     sql_index_strings = []
     field_ids = _pluck('id', data_dict.get('fields', []))
-    for index in indexes:
-        if index['field'] not in field_ids:
-            raise p.toolkit.ValidationError({
-                'index': [('The field "{}" is not a valid column name.').format(
-                    index['field'])]
-            })
-        unique = 'unique' if index in unique_indexes else ''
-        sql_index_strings.append(sql_index_string.format(
-            res_id=data_dict['resource_id'], unique=unique,
-            method='btree', field=index['field']))
 
-    # create index for faster full text search (indexes: gin or gist)
-    sql_index_strings.append(sql_index_string.format(
-            res_id=data_dict['resource_id'], unique='',
-            method='gist', field='_full_text'))
+    if indexes != None:
+        # delete previous indexes
+        for index in indexes:
+            fields = _get_list(index)
+            for field in fields:
+                if field not in field_ids:
+                    raise p.toolkit.ValidationError({
+                        'index': [('The field "{}" is not a valid column name.').format(
+                            index)]
+                    })
+            sql_index_strings.append(sql_index_string.format(
+                res_id=data_dict['resource_id'], unique='',
+                method='btree', fields=','.join(fields)))
+
+        # create index for faster full text search (indexes: gin or gist)
+        sql_index_strings.append(sql_index_string.format(
+                res_id=data_dict['resource_id'], unique='',
+                method='gist', fields='_full_text'))
+    if primary_key != None:
+        # delete previous primary key
+        # create unique index
+        for field in primary_key:
+            if field not in field_ids:
+                raise p.toolkit.ValidationError({
+                    'primary_key': [('The field "{}" is not a valid column name.').format(
+                        index)]
+                })
+        sql_index_strings.append(sql_index_string.format(
+                res_id=data_dict['resource_id'], unique='unique',
+                method='btree', fields=','.join(primary_key)))
 
     map(context['connection'].execute, sql_index_strings)
 
@@ -475,10 +501,7 @@ def search_data(context, data_dict):
     fields = data_dict.get('fields')
 
     if fields:
-        if type(fields) in [str, unicode]:
-            field_ids = map(lambda x: x.strip(), fields.split(','))
-        else:
-            field_ids = fields
+        field_ids = _get_list(fields)
 
         for field in field_ids:
             if not field in all_field_ids:
