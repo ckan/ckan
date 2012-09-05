@@ -19,7 +19,6 @@ _date_formats = ['%Y-%m-%d',
                 '%d-%m-%Y',
                 '%m-%d-%Y',
                 ]
-_true = ['true', '1', 'on', 'yes']
 _pluck = lambda field, arr: [x[field] for x in arr]
 
 
@@ -33,6 +32,13 @@ def _get_list(input):
         return input
     else:
         return
+
+
+def _get_bool(input, default=False):
+    if input in [None, '']:
+        return default
+    true_values = ['true', '1', 'on', 'yes']
+    return str(input).lower() in true_values
 
 
 def _is_valid_field_name(name):
@@ -419,8 +425,7 @@ def _textsearch_query(data_dict):
     q = data_dict.get('q')
     lang = data_dict.get('lang', 'english')
     if q:
-        if (not data_dict.get('plain')
-            or str(data_dict.get('plain')).lower() in _true):
+        if (_get_bool(data_dict.get('plain'), True)):
             statement = ", plainto_tsquery('{lang}', '{query}') query"
         else:
             statement = ", to_tsquery('{lang}', '{query}') query"
