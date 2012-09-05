@@ -75,6 +75,32 @@ def related_delete(context, data_dict):
 
     return {'success': True}
 
+def organization_delete(context, data_dict):
+    """
+    Organization delete permission.  Checks that the user specified is
+    within the organization to be deleted and also have 'admin' capacity.
+    """
+    model = context['model']
+    user = context['user']
+
+    if not user:
+        return {'success': False, 'msg': _('Only members of this organization are authorized to delete this group')}
+
+    if Authorizer.is_sysadmin(user):
+        return {'success': True}
+
+    organization = get_group_object(context, data_dict)
+    userobj = model.User.get(user)
+    if not userobj:
+        return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')}
+
+    authorized = _groups_intersect( userobj.get_groups('organization', 'admin'), [organization] )
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to delete organization %s') % (str(user),organization.id)}
+    else:
+        return {'success': True}
+
 
 def group_delete(context, data_dict):
     """
@@ -92,7 +118,7 @@ def group_delete(context, data_dict):
     if not userobj:
         return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')}
 
-    authorized = _groups_intersect( userobj.get_groups('organization', 'admin'), [group] )
+    authorized = _groups_intersect( userobj.get_groups(None, 'admin'), [group] )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
     else:

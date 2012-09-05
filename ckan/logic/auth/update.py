@@ -71,6 +71,9 @@ def package_edit_permissions(context, data_dict):
     else:
         return {'success': True}
 
+def organization_add_dataset(context, data_dict):
+    return group_update(context, data_dict)
+
 def group_update(context, data_dict):
     model = context['model']
     user = context['user']

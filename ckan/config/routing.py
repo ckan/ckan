@@ -57,6 +57,7 @@ def make_map():
             'resource',
             'tag',
             'group',
+            'organization',
             'related',
             'revision',
             'licenses',
@@ -119,6 +120,7 @@ def make_map():
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
         m.connect('/util/group/autocomplete', action='group_autocomplete')
+        m.connect('/util/organization/autocomplete', action='organization_autocomplete')
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',
@@ -218,9 +220,8 @@ def make_map():
     map.redirect('/groups', '/group')
     map.redirect('/groups/{url:.*}', '/group/{url}')
 
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/group/new', controller='group_formalchemy', action='new')
-    ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
+    map.redirect('/organizations', '/organization')
+    map.redirect('/organizations/{url:.*}', '/organization/{url}')
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
@@ -237,6 +238,26 @@ def make_map():
           ]))
           )
         m.connect('group_read', '/group/{id}', action='read')
+
+    # These are the routes for organizations
+    with SubMapper(map, controller='organization') as m:
+        m.connect('organization_index', '/organization', action='index')
+        m.connect('organization_list', '/organization/list', action='list')
+        m.connect('organization_new',  '/organization/new', action='new')
+        m.connect('organization_users', '/organization/users/{id}',
+                  action='users')
+        m.connect('organization_apply_named', '/organization/apply/{id}',
+                  action='apply')
+        m.connect('organization_apply', '/organization/apply',
+                  action='apply')
+        m.connect('organization_action', '/organization/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'history'
+          ]))
+          )
+        m.connect('organization_read', '/organization/{id}', action='read')
+
 
     register_package_plugins(map)
     register_group_plugins(map)

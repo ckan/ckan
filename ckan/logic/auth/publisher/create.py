@@ -82,6 +82,40 @@ def package_relationship_create(context, data_dict):
     else:
         return {'success': True}
 
+def organization_create(context, data_dict=None):
+    """
+    Organization create permission.  If an organization is provided, within
+    which we want to create an organization then we check that the user is
+    within that group.  If not then we just say Yes for now although there
+    may be some approval issues elsewhere.
+    """
+    model = context['model']
+    user  = context['user']
+
+    if not model.User.get(user):
+        return {'success': False, 'msg': _('User is not authorized to create groups') }
+
+    if Authorizer.is_sysadmin(user):
+        return {'success': True}
+
+    try:
+        # If the user is doing this within another group then we need to make sure that
+        # the user has permissions for this group.
+        organization = get_group_object( context )
+    except logic.NotFound:
+        return { 'success' : True }
+
+    userobj = model.User.get( user )
+    if not userobj:
+        return {'success': False, 'msg': _('User %s not authorized to create organizations') % str(user)}
+
+    authorized = _groups_intersect(userobj.get_groups('organization'), [organization])
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to create organizations') % str(user)}
+    else:
+        return {'success': True}
+
+
 def group_create(context, data_dict=None):
     """
     Group create permission.  If a group is provided, within which we want to create a group
@@ -108,11 +142,12 @@ def group_create(context, data_dict=None):
     if not userobj:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
 
-    authorized = _groups_intersect( userobj.get_groups('organization'), [group] )
+    authorized = _groups_intersect( userobj.get_groups(), [group] )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
     else:
         return {'success': True}
+
 
 
 def rating_create(context, data_dict):
@@ -140,6 +175,14 @@ def group_create_rest(context, data_dict):
         return {'success': False, 'msg': _('Valid API key needed to create a group')}
 
     return group_create(context, data_dict)
+
+def organization_create_rest(context, data_dict):
+    model = context['model']
+    user = context['user']
+    if user in (model.PSEUDO_USER__VISITOR, ''):
+        return {'success': False, 'msg': _('Valid API key needed to create an organization')}
+
+    return organization_create(context, data_dict)
 
 def activity_create(context, data_dict):
     user = context['user']

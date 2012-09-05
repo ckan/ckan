@@ -29,6 +29,9 @@ def get_resource_object(context, data_dict={}):
 def get_group_object(context, data_dict={}):
     return _get_object(context, data_dict, 'group', 'Group')
 
+def get_organization_object(context, data_dict={}):
+    return _get_object(context, data_dict, 'organization', 'Group')
+
 def get_user_object(context, data_dict={}):
     return _get_object(context, data_dict, 'user_obj', 'User')
 
