@@ -2,14 +2,11 @@ import ckan.logic as logic
 from ckan.logic.auth import (get_package_object, get_group_object,
                              get_user_object, get_resource_object,
                              get_organization_object, get_related_object)
-from ckan.logic.auth.publisher import _groups_intersect
-from ckan.logic.auth.publisher.create import package_relationship_create
+from ckan.logic.auth.organization import _groups_intersect
+from ckan.logic.auth.organization.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-# FIXME: Which is worse, 'from module import foo' or duplicating these
-# functions in this module?
-from ckan.logic.auth.update import vocabulary_update
 
 def make_latest_pending_package_active(context, data_dict):
     return package_update(context, data_dict)
@@ -239,4 +236,9 @@ def organization_update_rest(context, data_dict):
         return {'success': False, 'msg': _('Valid API key needed to edit a group')}
 
     return organization_update(context, data_dict)
+
+
+def vocabulary_update(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
 

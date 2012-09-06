@@ -1,14 +1,11 @@
 import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, \
     get_user_object, get_resource_object, get_related_object
-from ckan.logic.auth.publisher import _groups_intersect
-from ckan.logic.auth.publisher.create import package_relationship_create
+from ckan.logic.auth.organization import _groups_intersect
+from ckan.logic.auth.organization.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-# FIXME: Which is worse, 'from module import foo' or duplicating these
-# functions in this module?
-from ckan.logic.auth.delete import vocabulary_delete, tag_delete
 
 def package_delete(context, data_dict):
     """
@@ -139,3 +136,11 @@ def task_status_delete(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to delete task_status') % str(user)}
     else:
         return {'success': True}
+
+def vocabulary_delete(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
+
+def tag_delete(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}

@@ -1,13 +1,10 @@
 from ckan.logic.auth import (get_package_object, get_group_object,
     get_user_object, get_resource_object, get_related_object)
-from ckan.logic.auth.publisher import _groups_intersect
+from ckan.logic.auth.organization import _groups_intersect
 import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 
-# FIXME: Which is worse, 'from module import foo' or duplicating these
-# functions in this module?
-from ckan.logic.auth.create import vocabulary_create, tag_create
 
 def package_create(context, data_dict=None):
     model = context['model']
@@ -185,5 +182,13 @@ def organization_create_rest(context, data_dict):
     return organization_create(context, data_dict)
 
 def activity_create(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
+
+def vocabulary_create(context, data_dict):
+    user = context['user']
+    return {'success': Authorizer.is_sysadmin(user)}
+
+def tag_create(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}

@@ -27,6 +27,7 @@ class TestAdminController(WsgiAppCase):
 
 
 class TestAdminAuthzController(WsgiAppCase):
+
     @classmethod
     def setup_class(cls):
         # setup test data including testsysadmin user

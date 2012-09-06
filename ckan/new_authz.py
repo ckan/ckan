@@ -3,6 +3,7 @@ from ckan.plugins import implements, SingletonPlugin
 from ckan.plugins import IAuthFunctions
 from ckan.plugins import PluginImplementations
 from ckan.lib.base import _
+from pylons import config
 
 log = getLogger(__name__)
 
@@ -10,17 +11,28 @@ log = getLogger(__name__)
 # be accessed directly
 class AuthFunctions:
     _functions = {}
+    _profile = config.get('ckan.auth.profile', 'organization')
+
+
+def set_auth_profile(profile):
+    """
+    Resets the AuthFunctions object so that it is reloaded.  This should only
+    be used by tests to handle deprecated auth models.
+    """
+    log.debug('Setting auth profile to %s' % profile)
+    AuthFunctions._functions = {}
+    AuthFunctions._profile = profile
 
 def is_authorized(action, context,data_dict=None):
+
     auth_function = _get_auth_function(action)
+
     if auth_function:
         return auth_function(context, data_dict)
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
-def _get_auth_function(action, profile=None):
-    from pylons import config
-
+def _get_auth_function(action):
     if AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
 
@@ -32,13 +44,7 @@ def _get_auth_function(action, profile=None):
 
     # We will load the auth profile from settings
     module_root = 'ckan.logic.auth'
-    if profile is not None:
-        auth_profile = profile
-    else:
-        auth_profile = config.get('ckan.auth.profile', '')
-
-    if auth_profile:
-        module_root = '%s.%s' % (module_root, auth_profile)
+    module_root = '%s.%s' % (module_root, AuthFunctions._profile)
 
     log.debug('Using auth profile at %s' % module_root)
 
@@ -47,6 +53,7 @@ def _get_auth_function(action, profile=None):
         try:
             module = __import__(module_path)
         except ImportError,e:
+            from nose.tools import set_trace; set_trace()
             log.debug('No auth module for action "%s"' % auth_module_name)
             continue
 

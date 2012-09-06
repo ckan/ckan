@@ -1,7 +1,7 @@
 import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
-from ckan.logic.auth.create import package_relationship_create
+from ckan.logic.auth.deprecated.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
 

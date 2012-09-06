@@ -752,6 +752,9 @@ class TestPublisherEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("To be replaced")
+
         from ckan.tests.mock_publisher_auth import MockPublisherAuth
         self.auth = MockPublisherAuth()
 

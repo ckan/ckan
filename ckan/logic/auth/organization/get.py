@@ -3,7 +3,7 @@ from ckan.logic.auth import (get_package_object, get_group_object,
                              get_user_object, get_resource_object,
                              get_related_object, get_organization_object)
 from ckan.lib.base import _
-from ckan.logic.auth.publisher import _groups_intersect
+from ckan.logic.auth.organization import _groups_intersect
 from ckan.authz import Authorizer
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
