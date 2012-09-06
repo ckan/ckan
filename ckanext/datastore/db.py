@@ -250,7 +250,7 @@ def create_indexes(context, data_dict):
 
     sql_index_string = 'create {unique} index on "{res_id}" using {method}({fields})'
     sql_index_strings = []
-    field_ids = _pluck('id', data_dict.get('fields', []))
+    field_ids = _pluck('id', _get_fields(context, data_dict))
 
     if indexes != None:
         _drop_indexes(context, data_dict, False)
@@ -367,8 +367,6 @@ def alter_table(context, data_dict):
             field['id'],
             field['type'])
         context['connection'].execute(sql)
-
-    return new_fields + supplied_fields
 
 
 def insert_data(context, data_dict):
@@ -642,8 +640,7 @@ def create(context, data_dict):
         if not result:
             create_table(context, data_dict)
         else:
-            all_fields = alter_table(context, data_dict)
-            data_dict['fields'] = all_fields
+            alter_table(context, data_dict)
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         trans.commit()
