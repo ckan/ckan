@@ -142,7 +142,7 @@ def datastore_search(context, data_dict):
 
 
 @logic.side_effect_free
-def data_search_sql(context, data_dict):
+def datastore_search_sql(context, data_dict):
     '''Execute SQL-Queries on the datastore.
 
     :param sql: a single sql select statement

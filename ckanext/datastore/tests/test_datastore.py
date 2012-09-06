@@ -946,7 +946,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/data_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -957,7 +957,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         query = 'SELECT * FROM public."{}"'.format(self.data['alias'])
         data = {'sql': query}
         postparams = json.dumps(data)
-        res = self.app.post('/api/action/data_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
                             extra_environ=auth)
         res_dict_alias = json.loads(res.body)
 
@@ -974,7 +974,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/data_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True

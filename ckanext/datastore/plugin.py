@@ -152,7 +152,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_delete': action.datastore_delete,
                 'datastore_search': action.datastore_search}
         if 'ckan.datastore_read_url' in self.config:
-            available_actions['data_search_sql'] = action.data_search_sql
+            available_actions['datastore_search_sql'] = action.datastore_search_sql
         return available_actions
 
     def get_auth_functions(self):
