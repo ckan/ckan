@@ -28,7 +28,8 @@ class MockPublisherAuth(object):
 
 
     def check_access(self,action, context, data_dict):
-        if Authorizer.is_sysadmin(user):
+
+        if Authorizer.is_sysadmin(unicode(context['user'])):
             return {'success': True}
 
         logic_authorization = self.functions[action](context, data_dict)
