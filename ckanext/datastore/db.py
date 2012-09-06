@@ -27,13 +27,19 @@ UPDATE = 'update'
 _methods = [INSERT, UPSERT, UPDATE]
 
 
+def _strip(input):
+    if isinstance(input, basestring):
+        return input.strip('"')
+    return input
+
+
 def _get_list(input):
     """Transforms a string or list to a list"""
     if input == None:
         return
     if input == '':
         return []
-    return aslist(input, ',', True)
+    return [_strip(x) for x in aslist(input, ',', True)]
 
 
 def _get_bool(input, default=False):
@@ -457,7 +463,7 @@ def upsert_data(context, data_dict):
 
 
 def _get_unique_key(context, data_dict):
-    sql_get_uique_key = '''
+    sql_get_unique_key = '''
     select
         a.attname as column_names
     from
@@ -473,7 +479,7 @@ def _get_unique_key(context, data_dict):
         and idx.indisprimary = false
         and t.relname = '%s'
     '''
-    key_parts = context['connection'].execute(sql_get_uique_key, data_dict['resource_id'])
+    key_parts = context['connection'].execute(sql_get_unique_key, data_dict['resource_id'])
     return [x[0] for x in key_parts]
 
 

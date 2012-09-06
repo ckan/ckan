@@ -20,6 +20,7 @@ class TestTypeGetters(unittest.TestCase):
         assert db._get_list('') == []
         assert db._get_list('foo') == ['foo']
         assert db._get_list('foo, bar') == ['foo', 'bar']
+        assert db._get_list('"foo", "bar"') == ['foo', 'bar']
         assert db._get_list(u'foo, bar') == ['foo', 'bar']
         assert db._get_list(['foo', 'bar']) == ['foo', 'bar']
         assert db._get_list([u'foo', u'bar']) == ['foo', 'bar']
@@ -443,7 +444,6 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'alias': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],

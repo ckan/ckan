@@ -3,6 +3,7 @@ import pylons
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
+from sqlalchemy import text
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -159,9 +160,8 @@ def datastore_search(context, data_dict):
     alias_exists = False
     if not res_exists:
         # assume id is an alias
-        alias_sql = ('select alias_of from "_table_metadata" '
-            "where name = '{}'").format(id)
-        result = db._get_engine(None, data_dict).execute(alias_sql).fetchone()
+        alias_sql = text('select alias_of from "_table_metadata" where name = :id')
+        result = db._get_engine(None, data_dict).execute(alias_sql, id=id).fetchone()
         if result:
             alias_exists = model.Resource.get(result[0].strip('"'))
 
