@@ -7,4 +7,7 @@
   <li{% if action == 'authz' %} class="active"{% endif %}>
   	<a href="{{ h.url_for(controller='admin', action='authz') }}">{{ _('User Roles') }}</a>
   </li>
+  <li{% if action == 'config' %} class="active"{% endif %}>
+    <a href="{{ h.url_for(controller='admin', action='config') }}">{{ _('Config settings') }}</a>
+  </li>
 </ul>
