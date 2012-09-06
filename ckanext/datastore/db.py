@@ -133,7 +133,7 @@ def _guess_type(field):
 def _get_fields(context, data_dict):
     fields = []
     all_fields = context['connection'].execute(
-        'select * from "{0}" limit 1'.format(data_dict['resource_id'])
+        u'select * from "{0}" limit 1'.format(data_dict['resource_id'])
     )
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
@@ -252,7 +252,7 @@ def create_indexes(context, data_dict):
     if indexes == None and primary_key == None:
         return
 
-    sql_index_string = 'create {unique} index on "{res_id}" using {method}({fields})'
+    sql_index_string = u'create {unique} index on "{res_id}" using {method}({fields})'
     sql_index_strings = []
     field_ids = _pluck('id', _get_fields(context, data_dict))
 
@@ -264,10 +264,10 @@ def create_indexes(context, data_dict):
             for field in fields:
                 if field not in field_ids:
                     raise p.toolkit.ValidationError({
-                        'index': [('The field "{}" is not a valid column name.').format(
+                        'index': [('The field {} is not a valid column name.').format(
                             index)]
                     })
-            fields_string = ','.join(["%s" % field for field in fields])
+            fields_string = u','.join(['"%s"' % field for field in fields])
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='',
                 method='btree', fields=fields_string))
@@ -283,19 +283,19 @@ def create_indexes(context, data_dict):
         for field in primary_key:
             if field not in field_ids:
                 raise p.toolkit.ValidationError({
-                    'primary_key': [('The field "{}" is not a valid column name.').format(
-                        index)]
+                    'primary_key': [('The field {} is not a valid column name.').format(
+                        field)]
                 })
         if primary_key:
             sql_index_strings.append(sql_index_string.format(
-                    res_id=data_dict['resource_id'], unique='unique',
-                    method='btree', fields=','.join(primary_key)))
+                res_id=data_dict['resource_id'], unique='unique',
+                method='btree', fields=u','.join(['"%s"' % field for field in primary_key])))
 
     map(context['connection'].execute, sql_index_strings)
 
 
 def _drop_indexes(context, data_dict, unique=False):
-    sql_drop_index = 'drop index "{}" cascade'
+    sql_drop_index = u'drop index "{}" cascade'
     sql_get_index_string = """
         select
             i.relname as index_name
@@ -387,7 +387,7 @@ def upsert_data(context, data_dict):
 
     if method not in _methods:
         raise p.toolkit.ValidationError({
-            'method': [u'Method {} is not defined'.format(method)]
+            'method': [u'{} is not defined'.format(method)]
         })
 
     fields = _get_fields(context, data_dict)
@@ -416,7 +416,7 @@ def upsert_data(context, data_dict):
                 full_text.append(value)
             row.append(value)
 
-        row.append(' '.join(full_text))
+        row.append(u' '.join(full_text))
 
         if method == UPDATE:
             # all key columns have to be defined
@@ -449,8 +449,8 @@ def upsert_data(context, data_dict):
             res_id=data_dict['resource_id'],
             columns=sql_columns,
             values=', '.join(['%s' for field in field_names]),
-            primary_key='({})'.format(','.join(["'%s'" % part for part in key_parts])),
-            primary_value='({})'.format(','.join(['%s'] * len(key_parts)))
+            primary_key='({})'.format(','.join(['"%s"' % part for part in key_parts])),
+            primary_value='({})'.format(','.join(["'%s'"] * len(key_parts)))
         )
         context['connection'].execute(sql_string, rows)
 
@@ -474,7 +474,7 @@ def _get_unique_key(context, data_dict):
         and t.relkind = 'r'
         and idx.indisunique = true
         and idx.indisprimary = false
-        and t.relname = %s
+        and t.relname = '%s'
     '''
     key_parts = context['connection'].execute(sql_get_uique_key, data_dict['resource_id'])
     return [x[0] for x in key_parts]
@@ -709,7 +709,7 @@ def create(context, data_dict):
         context['connection'].execute(
             u'set local statement_timeout to {}'.format(timeout))
         result = context['connection'].execute(
-            'select * from pg_tables where tablename = %s',
+            u'select * from pg_tables where tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:
@@ -768,7 +768,7 @@ def delete(context, data_dict):
         # check if table existes
         trans = context['connection'].begin()
         result = context['connection'].execute(
-            'select * from pg_tables where tablename = %s',
+            u'select * from pg_tables where tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:
@@ -804,8 +804,8 @@ def search(context, data_dict):
             u'set local statement_timeout to {}'.format(timeout))
         id = data_dict['resource_id']
         result = context['connection'].execute(
-            "(select 1 from pg_tables where tablename = '{0}') union"
-             "(select 1 from pg_views where viewname = '{0}')".format(id)
+            u"(select 1 from pg_tables where tablename = '{0}') union"
+             u"(select 1 from pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
