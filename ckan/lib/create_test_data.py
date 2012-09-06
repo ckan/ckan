@@ -45,7 +45,6 @@ class CreateTestData(object):
         if tester is None:
             tester = model.User(name=u'tester', apikey=u'tester',
                 password=u'tester')
-            model.add_user_to_role(tester, model.Role.ADMIN, model.System())
             model.Session.add(tester)
 
         model.add_user_to_role(tester, model.Role.ADMIN, model.System())
@@ -474,6 +473,7 @@ left arrow <
             model.User(name=u'russianfan', password=u'russianfan'),
             model.User(name=u'testsysadmin', password=u'testsysadmin'),
             ])
+
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
@@ -491,9 +491,7 @@ left arrow <
         model.setup_default_user_roles(roger, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
         testsysadmin = model.User.by_name(u'testsysadmin')
-
-        for u in [visitor, annafan, russianfan, testsysadmin]:
-            model.add_user_to_role(u, model.Role.ADMIN, model.System())
+        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
 

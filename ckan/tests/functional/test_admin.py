@@ -162,6 +162,7 @@ class TestAdminTrashController(WsgiAppCase):
     def setup(cls):
         model.repo.rebuild_db()
         CreateTestData.create()
+        raise SkipTest()
 
     def teardown(self):
         model.repo.rebuild_db()

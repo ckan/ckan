@@ -12,6 +12,7 @@ import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 import ckan.authz as authz
 from ckan.lib.helpers import json, truncate
+from nose.plugins.skip import SkipTest
 
 class AuthzTestBase(object):
     INTERFACES = ['wui', 'rest']
@@ -22,6 +23,7 @@ class AuthzTestBase(object):
 
     @classmethod
     def setup_class(self):
+        raise SkipTest()
         setup_test_search_index()
         self._create_test_data()
         model.Session.remove()
@@ -488,6 +490,7 @@ class TestSiteRead(TestController, AuthzTestBase):
     '''
     TRUSTED_ROLE = u'TrustedRole'
     ENTITY_NAME = u'test'
+
     @classmethod
     def _create_test_data(cls):
         CreateTestData.create()
@@ -589,6 +592,7 @@ class TestLockedDownViaRoles(TestController):
     '''
     @classmethod
     def setup_class(self):
+        raise SkipTest()
         model.repo.init_db()
         q = model.Session.query(model.UserObjectRole) \
             .filter(sa.or_(model.UserObjectRole.role==model.Role.EDITOR,
