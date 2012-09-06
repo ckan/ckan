@@ -1,3 +1,9 @@
+// @themeBaseColor within this document is a magic variable that is defined
+// within ./bin/less (depending on the theme we're generating)
+// If you are compiling the document from a source that isn't the ckan ./bin/less
+// uncomment the next line
+// @themeBaseColor: #3B5B77;
+
 // Base variables
 @imagePath: "../../../base/images";
 @spritePath: "@{imagePath}/sprite-ckan-icons.png";
@@ -7,7 +13,7 @@
 @layoutFontFamily: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 @layoutTextColor: #4d4d4d;
 @layoutBoldColor: #000000;
-@layoutLinkColor: #005772;
+@layoutLinkColor: @themeBaseColor;
 @layoutBackgroundColor: #efefef;
 @layoutTrimBackgroundColor: #fff;
 @layoutTrimBorderColor: #c9c9c9;
@@ -41,8 +47,8 @@
 
 @mastheadTextColor: #fff;
 @mastheadLinkColor: @mastheadTextColor;
-@mastheadBackgroundColorStart: #005d7a;
-@mastheadBackgroundColorEnd: #00536b;
+@mastheadBackgroundColorStart: @themeBaseColor;
+@mastheadBackgroundColorEnd: darken(@themeBaseColor, 5%);
 
 @footerTextColor: #CCDEE3;
 @footerLinkColor: @footerTextColor;
@@ -99,8 +105,8 @@
 @bodyBackground: @layoutBackgroundColor;
 @btnBackground: #ffffff;
 @btnBackgroundHighlight: #eaeaea;
-@btnPrimaryBackground: #30778d;
-@btnPrimaryBackgroundHighlight: #085871;
+@btnPrimaryBackground: lighten(@themeBaseColor, 10%);
+@btnPrimaryBackgroundHighlight: @themeBaseColor;
 @baseFontFamily: @layoutFontFamily;
 @textColor: @layoutTextColor;
 @linkColor: @layoutLinkColor;

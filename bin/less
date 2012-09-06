@@ -1,43 +1,84 @@
 #!/usr/bin/env node
 
-var path = require('path'),
-    nodeWatch = require('nodewatch'),
-    exec = require('child_process').exec,
-    watch = path.join(__dirname, '..', 'ckan', 'public', 'base', 'less'),
-    debug = process.env.ENV !== 'production',
-    lastArg = process.argv.slice().pop();
+var fs = require('fs');
+var path = require('path');
+var less = require('less');
 
-function now() {
-  return new Date().toISOString().replace('T', ' ').substr(0, 19);
+var dir_input = path.join(__dirname, '..', 'ckan', 'public', 'base', 'less');
+var dir_output = path.join(__dirname, '..', 'ckan', 'public', 'base', 'css');
+var parser = new(less.Parser)({ paths: [ dir_input ] });
+var last_arg = process.argv.slice().pop();
+var is_production = ( last_arg === '-p' || last_arg === '--production' );
+
+var tick = 0;
+var colors = [
+  { 'name': 'fuchsia', 'color': '#B763BB' },
+  { 'name': 'green', 'color': '#3FBF4E' },
+  { 'name': 'maroon', 'color': '#8C1010' },
+  { 'name': 'red', 'color': '#EB3838' }
+];
+
+function log(what) {
+  var now = new Date().toISOString().replace('T', ' ').substr(0, 19);
+  console.log(now + ' :: ' + what);
 }
 
-function compile(event, filename) {
-  var start = Date.now(),
-      filename = 'main.css';
-
-  if (debug) {
-    filename = 'main.debug.css';
-  }
-
-  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
+function compile(filename, color) {
+  var color = ( typeof color != 'undefined' ) ? color : '#3B5B77';
+  var file_input = dir_input + '/main.less';
+  var file_output = dir_output + '/' + filename + ( !is_production ? '.debug' : '' ) + '.css';
+  var data = '@themeBaseColor: ' + color + '; ' + getFileContents(file_input);
+  var start = Date.now();
+  parser.parse(data, function (error, tree) {
+    var css = tree.toCSS();
+    writeFileContents(file_output, css);
     var duration = Date.now() - start;
-
-    if (err) {
-      console.log('An error occurred running the less command:');
-      console.log(err.message);
-    }
-    else if (stderr || stdout) {
-      console.log(stdout, stderr);
-    } else {
-      console.log('[%s] recompiled ' + filename + ' in %sms', now(), duration);
+    log('Compiled :: ' + file_output.replace(dir_output + '/', '') + ' [' + duration + 'ms]');
+    if (is_production) {
+      if (typeof colors[tick] != 'undefined') {
+        compile(colors[tick].name, colors[tick].color);
+        tick++;
+      }
     }
   });
 }
 
-if (lastArg === '-p' || lastArg === '--production') {
-  debug = false;
+function writeFileContents(file, data) {
+  try {
+    fs.writeFileSync(file, data);
+    return true;
+  }
+  catch (error) {
+    log('Error :: fs.writeFileSync :: ' + error);
+    return false;
+  }
 }
 
-console.log('Watching %s', watch);
-nodeWatch.add(watch).onChange(compile);
-compile();
+function getFileContents(file, type) {
+  var type = type | 'ascii';
+  try {
+    return fs.readFileSync(file, 'ascii');
+  }
+  catch (error) {
+    log('Error :: fs.readFileSync :: ' + error);
+    return false;
+  }
+}
+
+function handleDebugFileChanged(event, file) {
+  compile('main');
+}
+
+function init() {
+  if (is_production) {
+    log('Production mode active :: compiling all main CSS documents');
+    compile('main');
+  } else {
+    log('Debug mode active :: watching main.less');
+    var nodewatch = require('nodewatch');
+    nodewatch.add(dir_input).onChange(handleDebugFileChanged);
+    handleDebugFileChanged();
+  }
+}
+
+init();
