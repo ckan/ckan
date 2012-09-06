@@ -46,6 +46,43 @@ def datastore_create(context, data_dict):
     return result
 
 
+def datastore_upsert(context, data_dict):
+    '''Updates or inserts into a table in the datastore
+
+    :param resource_id: resource id that the data is going to be stored under.
+    :type resource_id: string
+    :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
+    :type records: list of dictionaries
+    :param method: the method to use to put the data into the datastore
+                    possible options: upsert (default), insert, update
+        :param upsert: update if record with same key already exists,
+                        otherwise insert
+        :param insert: insert only, faster because checks are omitted
+        :param update: update only, exception if duplicates occur
+    :type method: string
+
+    :returns: the newly created data object.
+    :rtype: dictionary
+
+    '''
+    model = _get_or_bust(context, 'model')
+    id = _get_or_bust(data_dict, 'resource_id')
+
+    if not model.Resource.get(id):
+        raise p.toolkit.ObjectNotFound(p.toolkit._(
+            'Resource "{}" was not found.'.format(id)
+        ))
+
+    p.toolkit.check_access('datastore_upsert', context, data_dict)
+
+    data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
+
+    result = db.upsert(context, data_dict)
+    result.pop('id')
+    result.pop('connection_url')
+    return result
+
+
 def datastore_delete(context, data_dict):
     '''Deletes a table from the datastore.
 

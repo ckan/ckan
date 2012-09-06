@@ -149,6 +149,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def get_actions(self):
         available_actions = {'datastore_create': action.datastore_create,
+                'datastore_upsert': action.datastore_upsert,
                 'datastore_delete': action.datastore_delete,
                 'datastore_search': action.datastore_search}
         if 'ckan.datastore_read_url' in self.config:
@@ -157,5 +158,6 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
+                'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search}
