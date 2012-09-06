@@ -5,6 +5,7 @@ import psycopg2.extras
 import json
 import datetime
 import shlex
+from paste.deploy.converters import asbool, aslist
 
 _pg_types = {}
 _type_names = set()
@@ -28,21 +29,17 @@ _methods = [INSERT, UPSERT, UPDATE]
 
 def _get_list(input):
     """Transforms a string or list to a list"""
-    if type(input) in [str, unicode]:
-        if len(input.strip()) == 0:
-            return []
-        return map(lambda x: x.strip(), input.split(','))
-    elif type(input) == list:
-        return input
-    else:
+    if input == None:
         return
+    if input == '':
+        return []
+    return aslist(input, ',', True)
 
 
 def _get_bool(input, default=False):
     if input in [None, '']:
         return default
-    true_values = ['true', '1', 'on', 'yes']
-    return str(input).lower() in true_values
+    return asbool(input)
 
 
 def _is_valid_field_name(name):
