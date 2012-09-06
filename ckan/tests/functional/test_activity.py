@@ -1,6 +1,7 @@
 from pylons.test import pylonsapp
 import paste.fixture
 import ckan
+import ckan.model as model
 from routes import url_for
 from ckan.logic.action.create import package_create, user_create, group_create
 from ckan.logic.action.create import follow_dataset, follow_user
@@ -44,6 +45,9 @@ class TestActivity(HtmlCheckMethods):
             'extras_as_string': True,
             }
         user = user_create(context, user_dict)
+        model.add_user_to_role(model.User.get(user['id']), model.Role.ADMIN, model.System())
+        model.Session.commit()
+
         offset = url_for(controller='user', action='read', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)

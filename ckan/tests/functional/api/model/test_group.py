@@ -113,6 +113,7 @@ class GroupsTestCase(BaseModelApiTestCase):
         assert len(group.member_all) == 2, group.member_all
         user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
+        model.add_user_to_role(user, model.Role.ADMIN, model.System())
 
         # edit it
         group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',

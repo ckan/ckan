@@ -67,7 +67,7 @@ def organization_add_dataset(context, data_dict):
     """
     model = context['model']
     user = context.get('user','')
-    group = get_group_object(context, data_dict)
+    organization = get_organization_object(context, data_dict)
 
     if Authorizer().is_sysadmin(unicode(user)):
         return { 'success': True }
@@ -77,7 +77,7 @@ def organization_add_dataset(context, data_dict):
         return { 'success' : False, 'msg': _('Could not find user %s') % str(user) }
 
     # Any member of this group can add a package to it.
-    if not _groups_intersect(userobj.get_groups( 'organization' ), [group]):
+    if not _groups_intersect(userobj.get_groups( 'organization' ), [organization]):
         return { 'success': False, 'msg': _('User %s not authorized to add datasets to this organization') % str(user) }
 
     return { 'success': True }

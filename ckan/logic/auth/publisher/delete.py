@@ -1,6 +1,7 @@
 import ckan.logic as logic
-from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object, get_related_object
+from ckan.logic.auth import (get_package_object, get_group_object,
+                             get_user_object, get_resource_object,
+                             get_related_object, get_organization_object)
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
@@ -19,6 +20,9 @@ def package_delete(context, data_dict):
     user = context['user']
     package = get_package_object(context, data_dict)
     userobj = model.User.get( user )
+
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
 
     if not userobj or \
        not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
@@ -86,13 +90,13 @@ def organization_delete(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Only members of this organization are authorized to delete this group')}
 
-    if Authorizer.is_sysadmin(user):
+    if Authorizer.is_sysadmin(unicode(user)):
         return {'success': True}
 
-    organization = get_group_object(context, data_dict)
+    organization = get_organization_object(context, data_dict)
     userobj = model.User.get(user)
     if not userobj:
-        return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')}
+        return {'success': False, 'msg': _('Only members of this organization are authorized to delete this group')}
 
     authorized = _groups_intersect( userobj.get_groups('organization', 'admin'), [organization] )
     if not authorized:
@@ -112,6 +116,9 @@ def group_delete(context, data_dict):
 
     if not user:
         return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')}
+
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
 
     group = get_group_object(context, data_dict)
     userobj = model.User.get( user )

@@ -14,6 +14,9 @@ def package_create(context, data_dict=None):
     user = context['user']
     userobj = model.User.get(user)
 
+    if Authorizer.is_sysadmin(user):
+        return {'success': True}
+
     if userobj and len(userobj.get_groups()):
         return {'success': True}
 
@@ -63,6 +66,9 @@ def package_relationship_create(context, data_dict):
     model = context['model']
     user = context['user']
 
+    if Authorizer.is_sysadmin(user):
+        return {'success': True}
+
     id = data_dict.get('id', '')
     id2 = data_dict.get('id2', '')
 
@@ -75,7 +81,7 @@ def package_relationship_create(context, data_dict):
     pkg1grps = pkg1.get_groups('organization')
     pkg2grps = pkg2.get_groups('organization')
 
-    usergrps = model.User.get( user ).get_groups('organization')
+    usergrps = model.User.get(user).get_groups('organization')
     authorized = _groups_intersect( usergrps, pkg1grps ) and _groups_intersect( usergrps, pkg2grps )
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit these packages') % str(user)}
@@ -101,7 +107,7 @@ def organization_create(context, data_dict=None):
     try:
         # If the user is doing this within another group then we need to make sure that
         # the user has permissions for this group.
-        organization = get_group_object( context )
+        organization = get_organization_object( context )
     except logic.NotFound:
         return { 'success' : True }
 
