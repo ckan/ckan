@@ -392,13 +392,16 @@ def upsert_data(context, data_dict):
 
     fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
+    records = data_dict['records']
     sql_columns = ", ".join(['"%s"' % name for name in field_names]
                             + ['_full_text'])
+    if method in [UPDATE, UPSERT]:
+        key_parts = _get_unique_key(context, data_dict)
 
     rows = []
     ## clean up and validate data
 
-    for num, record in enumerate(data_dict['records']):
+    for num, record in enumerate(records):
         _validate_record(record, num, field_names)
 
         full_text = []
@@ -414,6 +417,19 @@ def upsert_data(context, data_dict):
             row.append(value)
 
         row.append(' '.join(full_text))
+
+        if method == UPDATE:
+            # all key columns have to be defined
+            missing_columns = [field for field in fields
+                    if record.get(field['id']) == None]
+            if missing_columns:
+                raise p.toolkit.ValidationError({
+                    'key': [u'rows {} are missing but needed as key'.format(
+                        ','.join(missing_columns))]
+                })
+            keys = [records[key] for key in key_parts]
+            row += keys
+
         rows.append(row)
 
     if method == INSERT:
@@ -428,19 +444,40 @@ def upsert_data(context, data_dict):
         sql_string = u'''
         update {table}
         set ({columns}) = ({values}, to_tsvector(%s))
-        where {primary_key} = {primary_value}
+        where {primary_key} = {primary_value};
         '''.format(
             res_id=data_dict['resource_id'],
             columns=sql_columns,
             values=', '.join(['%s' for field in field_names]),
-            primary_key='',
-            primary_value=''
+            primary_key='({})'.format(','.join(["'%s'" % part for part in key_parts])),
+            primary_value='({})'.format(','.join(['%s'] * len(key_parts)))
         )
         context['connection'].execute(sql_string, rows)
 
     elif method == UPSERT:
         # TODO
         pass
+
+
+def _get_unique_key(context, data_dict):
+    sql_get_uique_key = '''
+    select
+        a.attname as column_names
+    from
+        pg_class t,
+        pg_index idx,
+        pg_attribute a
+    where
+        t.oid = idx.indrelid
+        and a.attrelid = t.oid
+        and a.attnum = ANY(idx.indkey)
+        and t.relkind = 'r'
+        and idx.indisunique = true
+        and idx.indisprimary = false
+        and t.relname = %s
+    '''
+    key_parts = context['connection'].execute(sql_get_uique_key, data_dict['resource_id'])
+    return [x[0] for x in key_parts]
 
 
 def _validate_record(record, num, field_names):

@@ -308,7 +308,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         postparams = '%s=1' % json.dumps(data4)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, expect_errors=True)
+                            extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
@@ -426,6 +426,41 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
 
+        assert res_dict['success'] is False
+
+
+class TestDatastoreUpsert(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+    p.load('datastore')
+
+    @classmethod
+    def setup_class(cls):
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_upsert_requires_auth(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id
+        }
+        postparams = '%s=1' % json.dumps(data)
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_upsert_empty_fails(self):
+        postparams = '%s=1' % json.dumps({})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
 
