@@ -418,6 +418,7 @@ def upsert_data(context, data_dict):
     records = data_dict['records']
     sql_columns = ", ".join(['"%s"' % name for name in field_names]
                             + ['"_full_text"'])
+
     if method in [UPDATE, UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
         if len(unique_keys) < 1:
@@ -455,7 +456,7 @@ def upsert_data(context, data_dict):
                     if field not in record]
             if missing_fields:
                 raise p.toolkit.ValidationError({
-                    'key': [u'rows "{0}" are missing but needed as key'.format(
+                    'key': [u'fields "{0}" are missing but needed as key'.format(
                         ', '.join(missing_fields))]
                 })
             unique_values = [record[key] for key in unique_keys]
@@ -463,6 +464,14 @@ def upsert_data(context, data_dict):
             used_field_names = record.keys()
             used_values = [record[field] for field in used_field_names]
             full_text = _to_full_text(fields, record)
+
+            non_existing_filed_names = [field for field in used_field_names
+                if field not in field_names]
+            if non_existing_filed_names:
+                raise p.toolkit.ValidationError({
+                    'fields': [u'fields "{0}" do not exist'.format(
+                        ', '.join(missing_fields))]
+                })
 
             sql_string = u'''
                 update "{res_id}"

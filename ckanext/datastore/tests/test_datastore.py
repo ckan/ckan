@@ -535,6 +535,21 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert results.rowcount == 3
 
+    def test_insert_non_existing_field(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'insert',
+            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
     def test_update(self):
         c = model.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
@@ -546,7 +561,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'update',
-            'records': [{u'b\xfck': hhguide, 'author': 'adams'}]
+            'records': [{'author': 'adams', u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -571,11 +586,11 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert results.rowcount == 1
         model.Session.remove()
 
-        #update only the publish date
+        # update only the publish date
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'update',
-            'records': [{u'b\xfck': hhguide, 'published': '1979-1-1'}]
+            'records': [{'published': '1979-1-1', u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -594,6 +609,31 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
         assert records[2].published == datetime.datetime(1979, 1, 1)
+        model.Session.remove()
+
+        # delete publish date
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'update',
+            'records': [{u'b\xfck': hhguide, 'published': None}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 3
+
+        records = results.fetchall()
+        assert records[2][u'b\xfck'] == hhguide
+        assert records[2].author == 'adams'
+        assert records[2].published == None
         model.Session.remove()
 
     def test_update_missing_key(self):
@@ -616,6 +656,21 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
             'resource_id': self.data['resource_id'],
             'method': 'update',
             'records': [{u'b\xfck': '', 'author': 'tolkien'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
+    def test_update_non_existing_field(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'update',
+            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
         }
 
         postparams = '%s=1' % json.dumps(data)
