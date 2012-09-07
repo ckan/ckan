@@ -494,8 +494,46 @@ def upsert_data(context, data_dict):
                 })
 
     elif method == UPSERT:
-        # TODO
-        pass
+        for num, record in enumerate(records):
+            # all key columns have to be defined
+            missing_fields = [field for field in unique_keys
+                    if field not in record]
+            if missing_fields:
+                raise p.toolkit.ValidationError({
+                    'key': [u'fields "{0}" are missing but needed as key'.format(
+                        ', '.join(missing_fields))]
+                })
+            unique_values = [record[key] for key in unique_keys]
+
+            used_field_names = record.keys()
+            used_values = [record[field] for field in used_field_names]
+            full_text = _to_full_text(fields, record)
+
+            non_existing_filed_names = [field for field in used_field_names
+                if field not in field_names]
+            if non_existing_filed_names:
+                raise p.toolkit.ValidationError({
+                    'fields': [u'fields "{0}" do not exist'.format(
+                        ', '.join(missing_fields))]
+                })
+
+            sql_string = u'''
+                update "{res_id}"
+                set ({columns}, "_full_text") = ({values}, to_tsvector(%s))
+                where ({primary_key}) = ({primary_value});
+                insert into "{res_id}" ({columns}, "_full_text")
+                       select {values}, to_tsvector(%s)
+                       where not exists (select 1 from "{res_id}"
+                                where ({primary_key}) = ({primary_value}));
+            '''.format(
+                res_id=data_dict['resource_id'],
+                columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
+                values=u', '.join(['%s' for _ in used_field_names]),
+                primary_key=u','.join([u'"{}"'.format(part) for part in unique_keys]),
+                primary_value=u','.join(["%s"] * len(unique_keys))
+            )
+            results = context['connection'].execute(
+                    sql_string, (used_values + [full_text] + unique_values) * 2)
 
 
 def _get_unique_key(context, data_dict):

@@ -515,7 +515,182 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
-    def test_insert(self):
+    def test_upsert_basic(self):
+        c = model.Session.connection()
+        results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 2
+        model.Session.remove()
+
+        hhguide = u"hitchhikers guide to the galaxy"
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{'author': 'adams', u'b\xfck': hhguide}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 3
+
+        records = results.fetchall()
+        assert records[2][u'b\xfck'] == hhguide
+        assert records[2].author == 'adams'
+        model.Session.remove()
+
+        c = model.Session.connection()
+        results = c.execute("select * from \"{0}\" where author='{1}'".format(self.data['resource_id'], 'adams'))
+        assert results.rowcount == 1
+        model.Session.remove()
+
+        # upsert only the publish date
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{'published': '1979-1-1', u'b\xfck': hhguide}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 3
+
+        records = results.fetchall()
+        assert records[2][u'b\xfck'] == hhguide
+        assert records[2].author == 'adams'
+        assert records[2].published == datetime.datetime(1979, 1, 1)
+        model.Session.remove()
+
+        # delete publish date
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{u'b\xfck': hhguide, 'published': None}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 3
+
+        records = results.fetchall()
+        assert records[2][u'b\xfck'] == hhguide
+        assert records[2].author == 'adams'
+        assert records[2].published == None
+        model.Session.remove()
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{'author': 'tolkien', u'b\xfck': 'the hobbit'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        c = model.Session.connection()
+        results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        assert results.rowcount == 4
+
+        records = results.fetchall()
+        assert records[3][u'b\xfck'] == 'the hobbit'
+        assert records[3].author == 'tolkien'
+        model.Session.remove()
+
+    def test_upsert_missing_key(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{'author': 'tolkien'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
+    def test_upsert_non_existing_field(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
+
+class TestDatastoreInsert(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+    p.load('datastore')
+
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = {
+            'resource_id': resource.id,
+            'fields': [{'id': u'b\xfck', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'published'}],
+            'primary_key': u'b\xfck',
+            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
+                        'nested': {'a':'b'}}
+                       ]
+        }
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_insert_basic(self):
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'insert',
@@ -550,7 +725,44 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
-    def test_update(self):
+
+class TestDatastoreUpdate(tests.WsgiAppCase):
+    sysadmin_user = None
+    normal_user = None
+    p.load('datastore')
+
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+        ctd.CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.normal_user = model.User.get('annafan')
+        resource = model.Package.get('annakarenina').resources[0]
+        cls.data = {
+            'resource_id': resource.id,
+            'fields': [{'id': u'b\xfck', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'published'}],
+            'primary_key': u'b\xfck',
+            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
+                        'nested': {'a':'b'}},
+                        {u'b\xfck': 'hitchhikers guide to the galaxy', 'author': 'tolstoy'}
+                       ]
+        }
+        postparams = '%s=1' % json.dumps(cls.data)
+        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
+        res = cls.app.post('/api/action/datastore_create', params=postparams,
+                           extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_update_basic(self):
         c = model.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
