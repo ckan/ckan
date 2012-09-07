@@ -14,8 +14,8 @@ def datastore_create(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param alias: a name for a read only alias to the resource.
-    :type alias: string
+    :param aliases: name for read only aliases to the resource.
+    :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata.
     :type fields: list of dictionaries
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
@@ -40,6 +40,14 @@ def datastore_create(context, data_dict):
     p.toolkit.check_access('datastore_create', context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_write_url']
+
+    # validate aliases
+    aliases = db._get_list(data_dict.get('aliases', []))
+    for alias in aliases:
+        if not db._is_valid_table_name(alias):
+            raise p.toolkit.ValidationError({
+                'alias': ['{0} is not a valid alias name'.format(alias)]
+            })
 
     result = db.create(context, data_dict)
     result.pop('id')
@@ -90,7 +98,7 @@ def datastore_delete(context, data_dict):
     :param resource_id: resource id that the data will be deleted from.
     :type resource_id: string
     :param filter: filter to do deleting on over (eg {'name': 'fred'}).
-                   If missing delete whole table.
+                   If missing delete whole table and all dependent views.
 
     :returns: original filters sent.
     :rtype: dictionary
@@ -118,7 +126,7 @@ def datastore_delete(context, data_dict):
 def datastore_search(context, data_dict):
     '''Search a datastore table.
 
-    :param resource_id: id of the data that is going to be selected.
+    :param resource_id: id or alias of the data that is going to be selected.
     :type resource_id: string
     :param filters: matching conditions to select.
     :type filters: dictionary
@@ -151,23 +159,23 @@ def datastore_search(context, data_dict):
 
     '''
     model = _get_or_bust(context, 'model')
-    id = _get_or_bust(data_dict, 'resource_id')
+    res_id = _get_or_bust(data_dict, 'resource_id')
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
-    res_exists = model.Resource.get(id)
+    res_exists = model.Resource.get(res_id)
 
     alias_exists = False
     if not res_exists:
         # assume id is an alias
-        alias_sql = text('select alias_of from "_table_metadata" where name = :id')
-        result = db._get_engine(None, data_dict).execute(alias_sql, id=id).fetchone()
+        alias_sql = text(u'select alias_of from "_table_metadata" where name = :id')
+        result = db._get_engine(None, data_dict).execute(alias_sql, id=res_id).fetchone()
         if result:
             alias_exists = model.Resource.get(result[0].strip('"'))
 
     if not (res_exists or alias_exists):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{}" was not found.'.format(id)
+            'Resource "{}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_search', context, data_dict)
@@ -192,7 +200,7 @@ def datastore_search_sql(context, data_dict):
     '''
     sql = _get_or_bust(data_dict, 'sql')
 
-    if not db.is_single_statement(sql):
+    if not db._is_single_statement(sql):
         raise p.toolkit.ValidationError({
             'query': ['Query is not a single statement or contains semicolons.'],
             'hint': [('If you want to use semicolons, use character encoding'

@@ -21,6 +21,7 @@ class TestTypeGetters(unittest.TestCase):
         assert db._get_list('') == []
         assert db._get_list('foo') == ['foo']
         assert db._get_list('foo, bar') == ['foo', 'bar']
+        assert db._get_list('foo_"bar, baz') == ['foo_"bar', 'baz']
         assert db._get_list('"foo", "bar"') == ['foo', 'bar']
         assert db._get_list(u'foo, bar') == ['foo', 'bar']
         assert db._get_list(['foo', 'bar']) == ['foo', 'bar']
@@ -69,6 +70,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_create_empty_fails(self):
         postparams = '%s=1' % json.dumps({})
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_create_invalid_alias_name(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'aliases': 'foo"bar',
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, status=409)
@@ -165,10 +181,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
-        alias = u'books1'
+        aliases = [u'great_list_of_books', u'another_list_of_b\xfcks']
         data = {
             'resource_id': resource.id,
-            'alias': alias,
+            'aliases': aliases,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': '_json'}],
             'primary_key': 'book, author',
@@ -217,18 +233,19 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert results.rowcount == 2
         model.Session.remove()
 
-        # check alias for resource
-        c = model.Session.connection()
+        # check aliases for resource
+        for alias in aliases:
+            c = model.Session.connection()
 
-        results = [row for row in c.execute('select * from "{0}"'.format(resource.id))]
-        results_alias = [row for row in c.execute('select * from "{0}"'.format(alias))]
+            results = [row for row in c.execute(u'select * from "{0}"'.format(resource.id))]
+            results_alias = [row for row in c.execute(u'select * from "{0}"'.format(alias))]
 
-        assert results == results_alias
+            assert results == results_alias
 
-        sql = ("select * from _table_metadata "
-            "where alias_of='{}' and name='{}'").format(resource.id, alias)
-        results = c.execute(sql)
-        assert results.rowcount == 1
+            sql = (u"select * from _table_metadata "
+                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
+            results = c.execute(sql)
+            assert results.rowcount == 1
 
         # check to test to see if resource now has a datastore table
         postparams = '%s=1' % json.dumps({'id': resource.id})
@@ -319,6 +336,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         #######  insert again which should not fail because constraint is removed
         data5 = {
             'resource_id': resource.id,
+            'aliases': 'another_alias',  # replaces aliases
             'records': [{'book': 'warandpeace'}],
             'primary_key': ''
         }
@@ -330,6 +348,19 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True
+
+        # new aliases should replace old aliases
+        c = model.Session.connection()
+        for alias in aliases:
+            sql = (u"select * from _table_metadata "
+                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
+            results = c.execute(sql)
+            assert results.rowcount == 0
+
+        sql = (u"select * from _table_metadata "
+            "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
+        results = c.execute(sql)
+        assert results.rowcount == 1
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
@@ -609,7 +640,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'alias': 'books2',
+            'aliases': 'books2',
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
@@ -647,7 +678,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         c = model.Session.connection()
 
         # alias should be deleted
-        results = c.execute("select 1 from pg_views where viewname = '{}'".format(self.data['alias']))
+        results = c.execute("select 1 from pg_views where viewname = '{}'".format(self.data['aliases']))
         assert results.rowcount == 0
 
         try:
@@ -739,7 +770,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'alias': 'books3',
+            'aliases': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],
@@ -785,13 +816,16 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records
 
-        data = {'resource_id': self.data['alias']}
+    def test_search_alias(self):
+        data = {'resource_id': self.data['aliases']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
         res_dict_alias = json.loads(res.body)
-        assert res_dict_alias['result']['records'] == res_dict['result']['records']
+        result = res_dict_alias['result']
+        assert result['total'] == len(self.data['records'])
+        assert result['records'] == self.expected_records
 
     def test_search_invalid_field(self):
         data = {'resource_id': self.data['resource_id'],
@@ -1054,7 +1088,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'alias': 'books4',
+            'aliases': 'books4',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'}],
@@ -1099,14 +1133,14 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             "select 'foo'||chr(59)||'bar'"]
 
         for single in singles:
-            assert db.is_single_statement(single) is True
+            assert db._is_single_statement(single) is True
 
         multiples = ['SELECT * FROM abc; SET LOCAL statement_timeout to'
             'SET LOCAL statement_timeout to; SELECT * FROM abc',
             'SELECT * FROM "foo"; SELECT * FROM "abc"']
 
         for multiple in multiples:
-            assert db.is_single_statement(multiple) is False
+            assert db._is_single_statement(multiple) is False
 
     def test_select_basic(self):
         query = 'SELECT * FROM public."{}"'.format(self.data['resource_id'])
@@ -1121,7 +1155,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert result['records'] == self.expected_records
 
         # test alias search
-        query = 'SELECT * FROM public."{}"'.format(self.data['alias'])
+        query = 'SELECT * FROM public."{}"'.format(self.data['aliases'])
         data = {'sql': query}
         postparams = json.dumps(data)
         res = self.app.post('/api/action/datastore_search_sql', params=postparams,

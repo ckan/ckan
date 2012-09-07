@@ -60,6 +60,9 @@ def _is_valid_field_name(name):
     return True
 
 
+_is_valid_table_name = _is_valid_field_name
+
+
 def _validate_int(i, field_name):
     try:
         int(i)
@@ -236,13 +239,29 @@ def create_table(context, data_dict):
 
     context['connection'].execute(sql_string)
 
-    # create alias view
-    alias = data_dict.get('alias', None)
-    if alias:
-        sql_alias_string = u'create view "{alias}" as select * from "{main}"'.format(
-            main=data_dict['resource_id'], alias=alias
+
+def _get_aliases(context, data_dict):
+    res_id = data_dict['resource_id']
+    alias_sql = text(u'select name from "_table_metadata" where alias_of = :id')
+    results = context['connection'].execute(alias_sql, id=res_id).fetchall()
+    return [x[0] for x in results]
+
+
+def create_alias(context, data_dict):
+    aliases = _get_list(data_dict.get('aliases', None))
+    if aliases:
+        # delete previous aliases
+        previous_aliases = _get_aliases(context, data_dict)
+        for alias in previous_aliases:
+            sql_alias_drop_string = u'drop view "{0}"'.format(alias)
+            context['connection'].execute(sql_alias_drop_string)
+
+        for alias in aliases:
+            sql_alias_string = u'create view "{alias}" as select * from "{main}"'.format(
+                main=data_dict['resource_id'],
+                alias=alias
             )
-        context['connection'].execute(sql_alias_string)
+            context['connection'].execute(sql_alias_string)
 
 
 def create_indexes(context, data_dict):
@@ -694,7 +713,7 @@ def format_results(context, results, data_dict):
     return data_dict
 
 
-def is_single_statement(sql):
+def _is_single_statement(sql):
     return not ';' in sql.strip(';')
 
 
@@ -740,6 +759,7 @@ def create(context, data_dict):
             alter_table(context, data_dict)
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
+        create_alias(context, data_dict)
         trans.commit()
         return data_dict
     except IntegrityError, e:
@@ -787,10 +807,10 @@ def delete(context, data_dict):
     _cache_types(context)
 
     try:
-        # check if table existes
+        # check if table exists
         trans = context['connection'].begin()
         result = context['connection'].execute(
-            u'select * from pg_tables where tablename = %s',
+            u'select 1 from pg_tables where tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:
