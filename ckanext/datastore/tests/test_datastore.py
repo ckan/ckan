@@ -179,6 +179,36 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
+    def test_create_invalid_index(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'indexes': 'book, dummy',
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_create_invalid_unique_index(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'primary_key': 'dummy',
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
         aliases = [u'great_list_of_books', u'another_list_of_b\xfcks']
@@ -371,7 +401,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                        {'id': 'book'},
                        {'id': 'date'}],
             'records': [{'book': 'annakarenina', 'author': 'tolstoy',
-                         'count': 1, 'date': '2005-12-01', 'count2': 2},
+                         'count': 1, 'date': '2005-12-01', 'count2': 0.5},
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'book': 'warandpeace'}]  # treat author as null
         }
@@ -386,8 +416,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
-        assert types == [u'int4', u'tsvector', u'_json', u'int4',
-                         u'text', u'timestamp', u'int4'], types
+        assert types == [u'int4', u'tsvector', u'_json', u'int4', u'text', u'timestamp', u'float8'], types
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
@@ -430,7 +459,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                          u'int4',  # count
                          u'text',  # book
                          u'timestamp',  # date
-                         u'int4',  # count2
+                         u'float8',  # count2
                          u'text',  # extra
                          u'timestamp',  # date2
                          u'_json',  # count3
@@ -1408,6 +1437,16 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
         for multiple in multiples:
             assert db._is_single_statement(multiple) is False
+
+    def test_invalid_statement(self):
+        query = 'SELECT ** FROM public.foo'
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
 
     def test_select_basic(self):
         query = 'SELECT * FROM public."{}"'.format(self.data['resource_id'])
