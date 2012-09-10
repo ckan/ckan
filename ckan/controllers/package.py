@@ -602,6 +602,7 @@ class PackageController(BaseController):
 
             data['package_id'] = id
             try:
+                context['ignore_auth'] = True
                 if resource_id:
                     data['id'] = resource_id
                     get_action('resource_update')(context, data)
@@ -672,6 +673,7 @@ class PackageController(BaseController):
             context['allow_state_change'] = True
             data_dict.update(data)
             try:
+                context['ignore_auth'] = True
                 get_action('package_update')(context, data_dict)
             except ValidationError, e:
                 errors = e.error_dict

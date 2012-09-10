@@ -99,6 +99,8 @@ def package_show(context, data_dict):
 
         if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    elif package.state == 'draft':
+        return {'success': True}
 
     # If package is in a private group then we require:
     #   1. Logged in user

@@ -15,7 +15,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.logic.auth as auth
 
 # FIXME this looks nasty and should be shared better
-from ckan.logic.action.update import _update_package_relationship
+from ckan.logic.action.update import _update_package_relationship\
 
 log = logging.getLogger(__name__)
 
