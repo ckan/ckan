@@ -33,18 +33,12 @@ tutorial on using this API see :doc:`using-data-api`.
 Installation and Configuration
 ==============================
 
-.. warning:: This is an advanced topic.
+.. warning:: Even though the datastore verifies the permissions make sure that all settings are correct.
 
 The DataStore in previous lives required a custom setup of ElasticSearch and Nginx,
 but that is no more, as it can use any relational database management system
 (PostgreSQL for example). However, you should set-up a  separate database for the datastore
 and create a read-only user to make you CKAN installation save.
-
-To create a new database and a read-only user, use the SQL-script in ``ckanext/datastore/bin``.
-
-Edit the script to your needs and then execute it::
-
- sudo -u postgres psql postgres -f create_read_only_user.sql
 
 In your config file ensure that the datastore extension is enabled::
 
@@ -54,6 +48,16 @@ Also ensure that the ``ckan.datastore_write_url`` and ``datastore_read_url`` var
 
  ckan.datastore_write_url = postgresql://ckanuser:pass@localhost/datastore
  ckan.datastore_read_url = postgresql://readonlyuser:pass@localhost/datastore
+
+A few things have to be kept in mind
+
+* The datastore cannot be on the CKAN database
+* The write user (i.e. ``ckanuser``) and read-only user (i.e. ``readonlyuser``) cannot be the same
+
+To create a new database and a read-only user, use the provided paster commands after you have set the right database URLs.::
+
+ paster --plugin=ckan datastore create-db
+ paster --plugin=ckan datastore create-read-only-user
 
 To test you can create a new datastore, so on linux command line do::
 
