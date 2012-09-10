@@ -129,22 +129,26 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _create_alias_table(self):
         mapping_sql = '''
-            SELECT DISTINCT ON (r.ev_class, dependent.relname)
-                r.ev_class AS "_id",
+            SELECT DISTINCT
+                md5(dependee.relname) AS "_id",
                 dependee.relname AS name,
-                -- r.ev_class AS oid,
+                dependee.oid AS oid,
                 dependent.relname AS alias_of
-                -- d.refobjid::regclass AS oid
+                -- dependent.oid AS oid
             FROM
-                pg_attribute    AS a
-                JOIN pg_depend  aS d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
-                JOIN pg_rewrite AS r ON d.objid = r.oid
-                JOIN pg_class AS dependee ON r.ev_class = dependee.oid
-                JOIN pg_class AS dependent ON d.refobjid = dependent.oid
-            WHERE dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
-            ORDER BY r.ev_class ASC
+                pg_class AS dependee
+                LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
+                LEFT OUTER JOIN pg_depend AS d ON d.objid = r.oid
+                LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
+            WHERE
+                (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
+                (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
+                    OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
+                dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
+            ORDER BY dependee.oid DESC;
         '''
-        create_alias_table_sql = u'CREATE TEMPORARY VIEW "_table_metadata" AS {}'.format(mapping_sql)
+        create_alias_table_sql = (u'DROP VIEW "_table_metadata";'
+            u'CREATE VIEW "_table_metadata" AS {}').format(mapping_sql)
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)
