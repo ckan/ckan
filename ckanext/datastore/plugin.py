@@ -96,15 +96,16 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_connection = db._get_engine(None,
             {'connection_url': self.write_url}).connect()
-        write_connection.execute(u"CREATE TABLE public.foo (id INTEGER NOT NULL, name VARCHAR)")
+        write_connection.execute(u"DROP TABLE IF EXISTS public._foo;"
+            u"CREATE TABLE public._foo (id INTEGER NOT NULL, name VARCHAR)")
 
         read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
         read_trans = read_connection.begin()
 
         statements = [
-            u"CREATE TABLE public.bar (id INTEGER NOT NULL, name VARCHAR)",
-            u"INSERT INTO public.foo VALUES (1, 'okfn')"
+            u"CREATE TABLE public._bar (id INTEGER NOT NULL, name VARCHAR)",
+            u"INSERT INTO public._foo VALUES (1, 'okfn')"
         ]
 
         try:
@@ -124,7 +125,7 @@ class DatastorePlugin(p.SingletonPlugin):
         except Exception:
             raise
         finally:
-            write_connection.execute("DROP TABLE foo")
+            write_connection.execute("DROP TABLE _foo")
 
     def _create_alias_table(self):
         mapping_sql = '''

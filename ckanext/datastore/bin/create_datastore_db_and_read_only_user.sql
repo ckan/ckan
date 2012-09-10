@@ -40,7 +40,7 @@ GRANT USAGE ON SCHEMA public TO :ckanuser;
 -- create new read only user
 CREATE USER :rouser NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
 
--- take connect permissions to main db
+-- take connect permissions from main db
 REVOKE CONNECT ON DATABASE :maindb FROM :rouser;
 
 -- grant select permissions for read-only user
