@@ -20,8 +20,9 @@ def set_auth_profile(profile):
     be used by tests to handle deprecated auth models.
     """
     log.debug('Setting auth profile to %s' % profile)
-    AuthFunctions._functions = {}
-    AuthFunctions._profile = profile
+    if AuthFunctions._profile != profile:
+        AuthFunctions._functions = {}
+        AuthFunctions._profile = profile
 
 def is_authorized(action, context,data_dict=None):
 

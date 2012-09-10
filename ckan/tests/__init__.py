@@ -66,10 +66,14 @@ if model.engine_is_sqlite():
 class BaseCase(object):
 
     def setup(self):
-        pass
+        self.set_auth_profile('deprecated')
+
+    def set_auth_profile(self, profile):
+        from ckan.new_authz import set_auth_profile
+        set_auth_profile(profile)
 
     def teardown(self):
-        pass
+        self.set_auth_profile('deprecated')
 
     @staticmethod
     def _system(cmd):

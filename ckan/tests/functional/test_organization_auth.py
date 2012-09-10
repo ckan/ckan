@@ -11,9 +11,9 @@ from ckan.tests import *
 from ckan.tests import setup_test_search_index
 from base import FunctionalTestCase
 from ckan.tests import search_related, is_search_supported
+from ckan.logic import check_access
 
-
-class TestPublisherGroups(FunctionalTestCase):
+class TestOrganizationGroups(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -112,7 +112,7 @@ class TestPublisherGroups(FunctionalTestCase):
         self._run_fail_test('annafan', 'group_show',
                             group_name=self.deleted_group_name)
 
-class TestPublisherShow(FunctionalTestCase):
+class TestOrganizationShow(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -189,7 +189,7 @@ class TestPublisherShow(FunctionalTestCase):
 
 
 
-class TestPublisherGroupPackages(FunctionalTestCase):
+class TestOrganizationGroupPackages(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
@@ -283,7 +283,7 @@ class TestPublisherGroupPackages(FunctionalTestCase):
         self._run_fail_test( 'nosuchuser', 'package_delete' )
 
 
-class TestPublisherPackageRelationships(FunctionalTestCase):
+class TestOrganizationPackageRelationships(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
