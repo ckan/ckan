@@ -23,7 +23,7 @@ queries over the spreadsheet contents.
 The DataStore Data API
 ======================
 
-The DataStore's Data API, which derives from the underlying data-table, 
+The DataStore's Data API, which derives from the underlying data-table,
 is RESTful and JSON-based with extensive query capabilities.
 
 Each resource in a CKAN instance can have an associated DataStore 'table'. The
@@ -33,22 +33,32 @@ tutorial on using this API see :doc:`using-data-api`.
 Installation and Configuration
 ==============================
 
-The DataStore in previous lives required a custom setup of ElasticSearch and Nginx, 
-but that is no more, as it can use any relational database management system 
-(PostgreSQL for example).
+.. warning:: This is an advanced topic.
+
+The DataStore in previous lives required a custom setup of ElasticSearch and Nginx,
+but that is no more, as it can use any relational database management system
+(PostgreSQL for example). However, you should set-up a  separate database for the datastore
+and create a read-only user to make you CKAN installation save.
+
+To create a new database and a read-only user, use the SQL-script in ``ckanext/datastore/bin``.
+
+Edit the script to your needs and then execute it::
+
+ sudo -u postgres psql postgres -f create_read_only_user.sql
 
 In your config file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
- 
-Also ensure that the ckan.datastore_write_url variable is set::
 
- ckan.datastore_write_url = postgresql://ckanuser:pass@localhost/ckantest
- 
+Also ensure that the ``ckan.datastore_write_url`` and ``datastore_read_url`` variables are set::
+
+ ckan.datastore_write_url = postgresql://ckanuser:pass@localhost/datastore
+ ckan.datastore_read_url = postgresql://readonlyuser:pass@localhost/datastore
+
 To test you can create a new datastore, so on linux command line do::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}"
-   -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], 
+   -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ],
     "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
 
@@ -71,46 +81,105 @@ be found, along with installation instructions, at:
 API Reference
 -------------
 
+.. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``foo, bar``, ``"foo", "bar"`` and ``foo``.
+
 datastore_create
 ~~~~~~~~~~~~~~~~
 
-The datastore_create API endpoint allows a user to post JSON data to 
-be stored against a resource, the JSON must be in the following form::
+The datastore_create API endpoint allows a user to post JSON data to
+be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion.
+The JSON must be in the following form::
 
  {
     resource_id: resource_id, # the data is going to be stored against.
-    fields: [], # a list of dictionaries of fields/columns and their extra metadata.
-    records: [], # a list of dictionaries of the data eg  [{"dob": "2005", "some_stuff": ['a', b']}, ..]
+    aliases: # list of names for read only aliases to the resource
+    fields: [] # a list of dictionaries of fields/columns and their extra metadata.
+    records: [] # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', b']}, ..]
+    primary_key: # list of fields that represent a unique key
+    indexes: # indexes on table
  }
 
-
-datastore_search
-~~~~~~~~~~~~~~~~
-
-The datastore_search API endpoint allows a user to search data at a resource, 
-the JSON for searching must be in the following form::
-
- {
-     resource_id: # the resource id to be searched against
-     filters : # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}  
-        # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
-     q: # full text query
-     limit: # limit the amount of rows to size defaults to 20
-     offset: # offset the amount of rows
-     fields:  # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
-     sort: 
- }
 
 datastore_delete
 ~~~~~~~~~~~~~~~~
 
-The datastore_delete API endpoint allows a user to delete from a resource, 
-the JSON for searching must be in the following form::
+The datastore_delete API endpoint allows a user to delete from a resource.
+The JSON for searching must be in the following form::
 
  {
     resource_id: resource_id # the data that is going to be deleted.
-    filters: # dictionary of matching conditions to delete
-       		# e.g  {'key1': 'a. 'key2': 'b'}  
-       		# this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
+    filter: # dictionary of matching conditions to delete
+            # e.g  {'key1': 'a. 'key2': 'b'}
+            # this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
  }
 
+
+datastore_upsert
+~~~~~~~~~~~~~~~~
+
+The datastore_upsert API endpoint allows a user to add data to an existing datastore resource. In order for the upsert and update to work a unique key has to defined via the datastore_create API endpoint command.
+The JSON for searching must be in the following form::
+
+ {
+    resource_id: resource_id # resource id that the data is going to be stored under.
+    records: [] # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', b']}, ..]
+    method: # the method to use to put the data into the datastore
+            # possible options: upsert (default), insert, update
+ }
+
+upsert
+    Update if record with same key already exists, otherwise insert. Requires unique key.
+insert
+    Insert only. This method is faster that upsert because checks are omitted. Does *not* require a unique key.
+update
+    Update only. Exception will occur if the key that should be updated does not exist. Requires unique key.
+
+datastore_search
+~~~~~~~~~~~~~~~~
+
+The datastore_search API endpoint allows a user to search data at a resource.
+The JSON for searching must be in the following form::
+
+ {
+     resource_id: # the resource id to be searched against
+     filters : # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}
+        # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
+     q: # full text query
+     plain: # treat as plain text query (default: true)
+     language: # language of the full text query (default: english)
+     limit: # limit the amount of rows to size (default: 100)
+     offset: # offset the amount of rows
+     fields:  # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
+     sort: # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
+ }
+
+datastore_search_sql
+~~~~~~~~~~~~~~~~~~~~
+
+The datastore_search_sql API endpoint allows a user to search data at a resource or connect multiple resources with join expressions. The underlying SQL engine is the `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_. The JSON for searching must be in the following form::
+
+ {
+    sql: # a single sql select statement
+ }
+
+
+Table aliases
+-------------
+
+Resources in the datastore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the datastore_create API endpoint. All aliases can be found in a special view called ``_table_metadata``.
+
+Comparison of different querying methods
+----------------------------------------
+
+The datastore supports querying with the datastore_search and datastore_search_sql API endpoint. They are similar but support different features. The following list gives an overview on the different methods.
+
+==============================  =======================  =====================  ======================
+..                              datastore_search         datastore_search_sql
+..                                                       SQL                    HTSQL
+==============================  =======================  =====================  ======================
+**Status**                      Stable                   Stable                 In development
+**Ease of use**                 Easy                     Complex                Medium
+**Query language**              Custom (JSON)            SQL                    HTSQL
+**Connect multiple resources**  No                       Yes                    Yes
+**Use aliases**                 Yes                      Yes                    Yes
+==============================  =======================  =====================  ======================
