@@ -144,7 +144,7 @@ class DatastorePlugin(p.SingletonPlugin):
             WHERE dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
             ORDER BY r.ev_class ASC
         '''
-        create_alias_table_sql = u'create or replace view "_table_metadata" as {}'.format(mapping_sql)
+        create_alias_table_sql = u'CREATE TEMPORARY VIEW "_table_metadata" AS {}'.format(mapping_sql)
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)
