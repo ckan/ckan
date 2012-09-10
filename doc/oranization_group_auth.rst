@@ -210,7 +210,11 @@ The data model will not change from how it is currently::
                                            +------------+
 
 The group table has a "type" field specifying if the table is an "organization" 
-or a "group".
+or a "group". 
+
+Using the one 'group' table for both organizations and groups means you can't
+have an organization and a group with the same name. This is probably a good
+thing as it would be confusing for users anyway.
 
 The member table has field called capacity which should be used as follows: 
 
