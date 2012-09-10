@@ -3,8 +3,8 @@
 {% set organizations_available = h.organizations_available() %}
 {% if organizations_available %}
   <div class="control-group">
-    {% set groups = h.dict_list_reduce(data.groups, 'id') %}
-    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
+    {% set organization = h.dict_list_reduce(data.organizations, 'id') %}
+    <label for="field-groups" class="control-label">{{ _('Add to Organization') }}</label>
     <div class="controls">
       <select id="field-groups" name="organizations__{{ organizations | count }}__id" data-module="autocomplete">
         <option value="">{{ _('Select an organization...') }}</option>
@@ -13,6 +13,15 @@
         {% endfor %}
       </select>
     </div>
+    <div class="controls">
+          <label for='cap_public'>
+          <input id='cap_public' type='radio' name='organizations__0__capacity' value='public' {{"checked='checked'" if (organization or {}).get('capacity','') in ['public', ''] else ''}}/>
+          Public</label>
+
+          <label for='cap_private'>
+          <input id='cap_private' type='radio' name='organizations__0__capacity' value='private' {{"checked='checked'" if (organization or {}).get('capacity','') == 'private' else ''}}/>
+          Private</label>
+     </div>
   </div>
 {% endif %}
 

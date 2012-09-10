@@ -129,7 +129,7 @@ def default_package_schema():
         'extras': default_extras_schema(),
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
-        'groups': {
+        'organizations': {
             'id': [ignore_missing, unicode],
             'name': [ignore_missing, unicode],
             'title': [ignore_missing, unicode],
@@ -164,7 +164,7 @@ def form_to_db_package_schema():
     schema = default_package_schema()
     ##new
     schema['log_message'] = [ignore_missing, unicode, no_http]
-    schema['groups'] = {
+    schema['organizations'] = {
             'id': [ignore_missing, unicode],
             '__extras': [ignore],
     }
