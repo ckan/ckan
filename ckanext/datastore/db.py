@@ -247,7 +247,7 @@ def create_table(context, data_dict):
 
 def _get_aliases(context, data_dict):
     res_id = data_dict['resource_id']
-    alias_sql = text(u'select name from "_table_metadata" where alias_of = :id')
+    alias_sql = text(u'select name from "_table_metadata" where :id = any(alias_of)')
     results = context['connection'].execute(alias_sql, id=res_id).fetchall()
     return [x[0] for x in results]
 

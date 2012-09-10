@@ -273,7 +273,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert results == results_alias
 
             sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
+                "where '{0}' = any(alias_of) and name='{1}'").format(resource.id, alias)
             results = c.execute(sql)
             assert results.rowcount == 1
 
@@ -383,12 +383,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         c = model.Session.connection()
         for alias in aliases:
             sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
+                "where '{0}'=any(alias_of) and name='{1}'").format(resource.id, alias)
             results = c.execute(sql)
             assert results.rowcount == 0
 
         sql = (u"select * from _table_metadata "
-            "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
+            "where '{0}'=any(alias_of) and name='{1}'").format(resource.id, 'another_alias')
         results = c.execute(sql)
         assert results.rowcount == 1
 
@@ -1130,6 +1130,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_search_invalid_resource_id(self):
+        data = {'resource_id': 'bad'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=404)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 

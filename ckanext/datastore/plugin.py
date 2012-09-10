@@ -133,8 +133,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 md5(dependee.relname) AS "_id",
                 dependee.relname AS name,
                 dependee.oid AS oid,
-                dependent.relname AS alias_of
-                -- dependent.oid AS oid
+                COUNT(DISTINCT dependent.relname) AS dependency_count,
+                ARRAY_AGG(DISTINCT dependent.relname) AS alias_of
             FROM
                 pg_class AS dependee
                 LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
@@ -142,9 +142,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
             WHERE
                 (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
-                (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
-                    OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
+                (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables) OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
                 dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
+            GROUP BY dependee.relname,  dependee.oid
             ORDER BY dependee.oid DESC;
         '''
         create_alias_table_sql = (u'DROP VIEW "_table_metadata";'
