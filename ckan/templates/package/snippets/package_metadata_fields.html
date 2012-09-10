@@ -3,13 +3,13 @@
 {% set organizations_available = h.organizations_available() %}
 {% if organizations_available %}
   <div class="control-group">
-    {% set organization = h.dict_list_reduce(data.organizations, 'id') %}
+    {% set organization = h.dataset_organization(data) %}
     <label for="field-groups" class="control-label">{{ _('Add to Organization') }}</label>
     <div class="controls">
       <select id="field-groups" name="organizations__{{ organizations | count }}__id" data-module="autocomplete">
         <option value="">{{ _('Select an organization...') }}</option>
-        {% for organization in organizations_available %}
-        <option value="{{ organization.id }}" {% if organization.id in organization %}selected="selected"{% endif %}>{{ organization.name }}</option>
+        {% for org in organizations_available %}
+        <option value="{{ org.id }}" {% if org.id == organization.id %}selected="selected"{% endif %}>{{ org.name }}</option>
         {% endfor %}
       </select>
     </div>

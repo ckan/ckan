@@ -1236,6 +1236,12 @@ def organizations_available():
     data_dict = {'available_only': True}
     return logic.get_action('organization_list_authz')(context, data_dict)
 
+def dataset_organization(dataset):
+    organization = None
+    if dataset.get('organizations'):
+        organization = dataset.get('organizations')[0]
+    return organization
+
 
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
@@ -1395,6 +1401,7 @@ __allowed_functions__ = [
            'add_url_param',
            'groups_available',
            'organizations_available',
+           'dataset_organization',
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',

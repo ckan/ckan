@@ -275,7 +275,7 @@ def package_dictize(pkg, context):
                ).where(member_rev.c.table_id == pkg.id)\
                 .where(member_rev.c.state == 'active')
     result = _execute_with_revision(q, member_rev, context)
-    result_dict["groups"] = d.obj_list_dictize(result, context)
+    result_dict["organizations"] = d.obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)

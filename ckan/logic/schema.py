@@ -132,6 +132,7 @@ def default_package_schema():
         'relationships_as_subject': default_relationship_schema(),
         'organizations': {
             'id': [ignore_missing, unicode],
+            'capacity': [ignore_missing, unicode],
             'name': [ignore_missing, unicode],
             'title': [ignore_missing, unicode],
             '__extras': [ignore],
