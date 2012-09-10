@@ -600,7 +600,7 @@ def _where(field_ids, data_dict):
 
 def _textsearch_query(data_dict):
     q = data_dict.get('q')
-    lang = data_dict.get('lang', 'english')
+    lang = data_dict.get('language', 'english')
     if q:
         if (_get_bool(data_dict.get('plain'), True)):
             statement = ", plainto_tsquery('{lang}', '{query}') query"

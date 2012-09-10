@@ -134,8 +134,8 @@ def datastore_search(context, data_dict):
     :type q: string
     :param plain: treat as plain text query (default: true)
     :type plain: bool
-    :param lang: language of the full text query (default: english)
-    :type lang: string
+    :param language: language of the full text query (default: english)
+    :type language: string
     :param limit: maximum number of rows to return (default: 100)
     :type limit: int
     :param offset: offset the number of rows
