@@ -14,7 +14,7 @@ def datastore_create(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param aliases: name for read only aliases to the resource.
+    :param aliases: names for read only aliases to the resource.
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata.
     :type fields: list of dictionaries
@@ -132,7 +132,7 @@ def datastore_search(context, data_dict):
     :type filters: dictionary
     :param q: full text query
     :type q: string
-    :param plain: query is a plain text query (default: true)
+    :param plain: treat as plain text query (default: true)
     :type plain: bool
     :param lang: language of the full text query (default: english)
     :type lang: string
@@ -191,6 +191,7 @@ def datastore_search_sql(context, data_dict):
     '''Execute SQL-Queries on the datastore.
 
     :param sql: a single sql select statement
+    :type sql: string
 
     :returns: a dictionary containing the search results.
               keys: fields: columns for results

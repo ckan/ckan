@@ -29,18 +29,23 @@ _methods = [INSERT, UPSERT, UPDATE]
 
 
 def _strip(input):
-    if isinstance(input, basestring):
-        return input.strip('"')
+    if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
+        return input.strip().strip('"')
     return input
 
 
-def _get_list(input):
+def _get_list(input, strip=True):
     """Transforms a string or list to a list"""
     if input == None:
         return
     if input == '':
         return []
-    return [_strip(x) for x in aslist(input, ',', True)]
+
+    l = aslist(input, ',', True)
+    if strip:
+        return [_strip(x) for x in l]
+    else:
+        return l
 
 
 def _get_bool(input, default=False):
@@ -615,14 +620,7 @@ def _sort(context, data_dict, field_ids):
         else:
             return ''
 
-    if isinstance(sort, basestring):
-        clauses = sort.split(',')
-    elif isinstance(sort, list):
-        clauses = sort
-    else:
-        raise p.toolkit.ValidationError({
-            'sort': ['sort is not a list or a string']
-        })
+    clauses = _get_list(sort, False)
 
     clause_parsed = []
 
