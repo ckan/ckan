@@ -269,6 +269,14 @@ def duplicate_extras_key(key, data, errors, context):
     if extras_keys:
         errors[key].append(_('Duplicate key "%s"') % extras_keys[0])
 
+def organization_required(key, data, errors, context):
+    """ We want at least a group in the data we are provided """
+    has_group = ('organization', 0, 'id') in data
+    if not has_group:
+        errors[('Organizations', '')] = \
+            [_('Please choose an organization to add the dataset to')]
+
+
 def organization_name_validator(key, data, errors, context):
     model = context['model']
     session = context['session']

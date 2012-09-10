@@ -16,6 +16,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    package_version_validator,
                                    group_name_validator,
                                    organization_name_validator,
+                                   organization_required,
                                    tag_length_validator,
                                    tag_name_validator,
                                    tag_string_convert,
@@ -166,6 +167,7 @@ def form_to_db_package_schema():
     schema['log_message'] = [ignore_missing, unicode, no_http]
     schema['organizations'] = {
             'id': [ignore_missing, unicode],
+            'capacity': [ignore_missing, unicode],
             '__extras': [ignore],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
@@ -173,7 +175,7 @@ def form_to_db_package_schema():
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
     schema['type'] = [ignore_missing, unicode]
-
+    schema['__after'] = [organization_required]
     ##changes
     schema.pop("id")
     schema.pop('tags')
