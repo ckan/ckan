@@ -193,7 +193,7 @@ class OrganizationController(BaseController):
             c.page = h.Page(collection=[])
 
         # Add the organizations's activity stream (already rendered to HTML)
-        # to the template context for the group/read.html template to retrieve
+        # to the template context for the orgzniation/read.html template to retrieve
         # later.
         c.organization_activity_stream = \
             get_action('organization_activity_list_html')(context,
@@ -220,10 +220,12 @@ class OrganizationController(BaseController):
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary,
+                'action': 'new'}
 
         self.setup_template_variables(context, data)
-        c.form = render('organization/organization_form.html',
+        c.form = render('organization/form.html',
                         extra_vars=vars)
         return render('organization/new.html')
 
@@ -258,10 +260,12 @@ class OrganizationController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary,
+                'action': 'edit'}
 
         self.setup_template_variables(context, data)
-        c.form = render('organization/organization_form.html', extra_vars=vars)
+        c.form = render('organization/form.html', extra_vars=vars)
         return render('organization/edit.html')
 
 
@@ -272,10 +276,10 @@ class OrganizationController(BaseController):
             data_dict['type'] = 'organization'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
-            group = get_action('organization_create')(context, data_dict)
+            organization = get_action('organization_create')(context, data_dict)
 
             # Redirect to the appropriate _read route for the type of group
-            h.redirect_to(group['type'] + '_read', id=group['name'])
+            h.redirect_to('organization_read', id=organization['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read organization %s') % '')
         except NotFound, e:
@@ -288,12 +292,12 @@ class OrganizationController(BaseController):
             return self.new(data_dict, errors, error_summary)
 
     def _force_reindex(self, grp):
-        ''' When the group name has changed, we need to force a reindex
-        of the datasets within the group, otherwise they will stop
-        appearing on the read page for the group (as they're connected via
-        the group name)'''
-        group = model.Group.get(grp['name'])
-        for dataset in group.active_packages().all():
+        ''' When the organization name has changed, we need to force a reindex
+        of the datasets within the organization, otherwise they will stop
+        appearing on the read page for the organization (as they're connected via
+        the organization name)'''
+        organization = model.Group.get(grp['name'])
+        for dataset in organization.active_packages().all():
             search.rebuild(dataset.name)
 
     def _save_edit(self, id, context):
@@ -394,11 +398,6 @@ class OrganizationController(BaseController):
             return feed.writeString('utf-8')
         return render('organization/history.html')
 
-    def _render_edit_form(self, fs):
-        # errors arrive in c.error and fs.errors
-        c.fieldset = fs
-        c.fieldset2 = ckan.forms.get_package_group_fieldset()
-        return render('group/edit_form.html')
 
     def _send_application(self, organization, reason):
         from genshi.template.text import NewTextTemplate
@@ -418,12 +417,12 @@ class OrganizationController(BaseController):
         if not recipients:
             h.flash_error(
                 _("There is a problem with the system configuration"))
-            errors = {"reason": ["No group administrator exists"]}
-            return self.apply(group.id, data=None, errors=errors,
+            errors = {"reason": ["No organization administrator exists"]}
+            return self.apply(organization.id, data=None, errors=errors,
                               error_summary=action.error_summary(errors))
 
         extra_vars = {
-            'group': group,
+            'organization': organization,
             'requester': c.userobj,
             'reason': reason
         }
@@ -441,11 +440,11 @@ class OrganizationController(BaseController):
             h.flash_error(
                 _("There is a problem with the system configuration"))
             errors = {"reason": ["No mail server was found"]}
-            return self.apply(group.id, errors=errors,
+            return self.apply(organization.id, errors=errors,
                               error_summary=action.error_summary(errors))
 
         h.flash_success(_("Your application has been submitted"))
-        h.redirect_to('organization_read', id=group.name)
+        h.redirect_to('organization_read', id=organization.name)
 
     def apply(self, id=None, data=None, errors=None, error_summary=None):
         """

@@ -361,6 +361,43 @@ def group_dictize(group, context):
 
     return result_dict
 
+
+def organization_dictize(organization, context):
+    model = context['model']
+    result_dict = d.table_dictize(organization, context)
+
+    result_dict['display_name'] = organization.display_name
+
+    result_dict['extras'] = extras_dict_dictize(
+        organization._extras, context)
+
+    context['with_capacity'] = True
+
+    result_dict['packages'] = d.obj_list_dictize(
+        _get_members(context, organization, 'packages'),
+        context)
+
+    result_dict['tags'] = tag_list_dictize(
+        _get_members(context, organization, 'tags'),
+        context)
+
+    result_dict['organizations'] = group_list_dictize(
+        _get_members(context, organization, 'groups'),
+        context)
+
+    result_dict['users'] = user_list_dictize(
+        _get_members(context, organization, 'users'),
+        context)
+
+    context['with_capacity'] = False
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IGroupController):
+            result_dict = item.before_view(result_dict)
+
+    return result_dict
+
+
 def tag_list_dictize(tag_list, context):
 
     result_list = []

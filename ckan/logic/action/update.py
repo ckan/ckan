@@ -583,40 +583,6 @@ def organization_update(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.edit(organization)
 
-    activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
-            'object_id': organization.id,
-            'activity_type': 'changed organization',
-            }
-    # Handle 'deleted' groups.
-    # When the user marks a group as deleted this comes through here as
-    # a 'changed' group activity. We detect this and change it to a 'deleted'
-    # activity.
-    if organization.state == u'deleted':
-        if session.query(ckan.model.Activity).filter_by(
-                object_id=organization.id, activity_type='deleted').all():
-            # A 'deleted group' activity for this group has already been
-            # emitted.
-            # FIXME: What if the group was deleted and then activated again?
-            activity_dict = None
-        else:
-            # We will emit a 'deleted group' activity.
-            activity_dict['activity_type'] = 'deleted organization'
-    if activity_dict is not None:
-        activity_dict['data'] = {
-                'organization': ckan.lib.dictization.table_dictize(organization, context)
-                }
-        activity_create_context = {
-            'model': model,
-            'user': user,
-            'defer_commit':True,
-            'session': session
-        }
-        _get_action('activity_create')(activity_create_context, activity_dict,
-                ignore_auth=True)
-        # TODO: Also create an activity detail recording what exactly changed
-        # in the group.
-
     if not context.get('defer_commit'):
         model.repo.commit()
 
