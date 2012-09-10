@@ -15,6 +15,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    package_name_validator,
                                    package_version_validator,
                                    group_name_validator,
+                                   organization_name_validator,
                                    tag_length_validator,
                                    tag_name_validator,
                                    tag_string_convert,
@@ -202,6 +203,46 @@ def db_to_form_package_schema():
     })
     return schema
 
+def default_organization_schema():
+
+    schema = {
+        'id': [ignore_missing, unicode],
+        'revision_id': [ignore],
+        'name': [not_empty, unicode, name_validator, organization_name_validator],
+        'title': [ignore_missing, unicode],
+        'description': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode],
+        'type': [ignore_missing, unicode],
+        'state': [ignore_not_group_admin, ignore_missing],
+        'created': [ignore],
+        'approval_status': [ignore_missing, unicode],
+        'extras': default_extras_schema(),
+        '__extras': [ignore],
+        'packages': {
+            "id": [not_empty, unicode, package_id_or_name_exists],
+            "title":[ignore_missing, unicode],
+            "name":[ignore_missing, unicode],
+            "__extras": [ignore]
+        },
+         'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'users': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'groups': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        }
+    }
+    return schema
+
+
 def default_group_schema():
 
     schema = {
@@ -241,6 +282,22 @@ def default_group_schema():
     }
     return schema
 
+def organization_form_schema():
+    schema = default_organization_schema()
+    schema['packages'] = {
+        "name": [not_empty, unicode],
+        "title": [ignore_missing],
+        "__extras": [ignore]
+    }
+    schema['users'] = {
+        "name": [not_empty, unicode],
+        "capacity": [ignore_missing],
+        "__extras": [ignore]
+    }
+    schema['display_name'] = [ignore_missing]
+    return schema
+
+
 def group_form_schema():
     schema = default_group_schema()
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
@@ -255,6 +312,12 @@ def group_form_schema():
         "__extras": [ignore]
     }
     schema['display_name'] = [ignore_missing]
+    return schema
+
+
+def default_update_organization_schema():
+    schema = default_organization_schema()
+    schema["name"] = [ignore_missing, organiztion_name_validator, unicode]
     return schema
 
 

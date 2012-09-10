@@ -269,6 +269,22 @@ def duplicate_extras_key(key, data, errors, context):
     if extras_keys:
         errors[key].append(_('Duplicate key "%s"') % extras_keys[0])
 
+def organization_name_validator(key, data, errors, context):
+    model = context['model']
+    session = context['session']
+    organization = context.get('organization')
+
+    query = session.query(model.Group.name).filter_by(name=data[key])
+    if group:
+        group_id = organization.id
+    else:
+        group_id = data.get(key[:-1] + ('id',))
+    if group_id and group_id is not missing:
+        query = query.filter(model.Group.id <> group_id)
+    result = query.first()
+    if result:
+        errors[key].append(_('Organization name already exists in database'))
+
 def group_name_validator(key, data, errors, context):
     model = context['model']
     session = context['session']

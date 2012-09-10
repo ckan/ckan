@@ -38,7 +38,7 @@ class OrganizationController(BaseController):
     """
 
     def form_to_db_schema(self):
-        return schema.group_form_schema()
+        return schema.organization_form_schema()
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
@@ -490,7 +490,7 @@ class OrganizationController(BaseController):
 
         context = {
             "group": group,
-            "schema": schema.default_group_schema(),
+            "schema": schema.default_organization_schema(),
             "model": model,
             "session": model.Session
         }
