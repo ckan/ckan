@@ -67,7 +67,7 @@ def datastore_upsert(context, data_dict):
         :param upsert: update if record with same key already exists,
                         otherwise insert
         :param insert: insert only, faster because checks are omitted
-        :param update: update only, exception if duplicates occur
+        :param update: update only, exception if key does not exist
     :type method: string
 
     :returns: the newly created data object.
@@ -173,7 +173,7 @@ def datastore_search(context, data_dict):
         if result:
             alias_exists = model.Resource.get(result[0].strip('"'))
 
-    if not (res_exists or alias_exists):
+    if not (res_exists or alias_exists or res_id=='_table_metadata'):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{}" was not found.'.format(res_id)
         ))

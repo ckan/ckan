@@ -1,6 +1,5 @@
 import logging
 import pylons
-import sqlalchemy
 from sqlalchemy.exc import ProgrammingError
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
@@ -129,18 +128,20 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _create_alias_table(self):
         mapping_sql = '''
-            SELECT distinct
+            SELECT DISTINCT ON (r.ev_class, dependent.relname)
+                r.ev_class AS "_id",
                 dependee.relname AS name,
-                -- r.ev_class::regclass AS oid,
+                -- r.ev_class AS oid,
                 dependent.relname AS alias_of
-                -- d.refobjid::regclass AS oid,
+                -- d.refobjid::regclass AS oid
             FROM
-                pg_attribute    as a
-                JOIN pg_depend  as d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
-                JOIN pg_rewrite as r ON d.objid = r.oid
-                JOIN pg_class as dependee ON r.ev_class = dependee.oid
-                JOIN pg_class as dependent ON d.refobjid = dependent.oid
+                pg_attribute    AS a
+                JOIN pg_depend  aS d on d.refobjid = a.attrelid AND d.refobjsubid = a.attnum
+                JOIN pg_rewrite AS r ON d.objid = r.oid
+                JOIN pg_class AS dependee ON r.ev_class = dependee.oid
+                JOIN pg_class AS dependent ON d.refobjid = dependent.oid
             WHERE dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
+            ORDER BY r.ev_class ASC
         '''
         create_alias_table_sql = u'create or replace view "_table_metadata" as {}'.format(mapping_sql)
         connection = db._get_engine(None,
