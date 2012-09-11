@@ -25,31 +25,35 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def configure(self, config):
         self.config = config
-        # check for ckan.datastore_write_url
+        # check for ckan.datastore_write_url and ckan.datastore_read_url
         if (not 'ckan.datastore_write_url' in config):
             error_msg = 'ckan.datastore_write_url not found in config'
             raise DatastoreException(error_msg)
+
+        if (not 'ckan.datastore_read_url' in config):
+            error_msg = 'ckan.datastore_read_url not found in config'
+            raise DatastoreException(error_msg)
+
+        # check for user and database
+
+        self.ckan_url = self.config['sqlalchemy.url']
+        self.write_url = self.config['ckan.datastore_write_url']
+        self.read_url = self.config['ckan.datastore_read_url']
+        if not config['debug']:
+            self._check_separate_db()
+        self._check_read_permissions()
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents other plugins
         ## from having a custom resource_read.
 
-        self.ckan_url = self.config['sqlalchemy.url']
-        self.write_url = self.config['ckan.datastore_write_url']
-        if 'ckan.datastore_read_url':
-            self.read_url = self.config['ckan.datastore_read_url']
-            if not config['debug']:
-                self._check_separate_db()
-            self._check_read_permissions()
-
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
 
-        # TODO: move to package.py or better: have a think about it
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
                 context,
-                {'connection_url': config['ckan.datastore_write_url']}
+                {'connection_url': config['ckan.datastore_read_url']}
             )
             new_data_dict = resource_show(context, data_dict)
             try:
@@ -154,13 +158,11 @@ class DatastorePlugin(p.SingletonPlugin):
         connection.execute(create_alias_table_sql)
 
     def get_actions(self):
-        available_actions = {'datastore_create': action.datastore_create,
+        return {'datastore_create': action.datastore_create,
                 'datastore_upsert': action.datastore_upsert,
                 'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search}
-        if 'ckan.datastore_read_url' in self.config:
-            available_actions['datastore_search_sql'] = action.datastore_search_sql
-        return available_actions
+                'datastore_search': action.datastore_search,
+                'datastore_search_sql': action.datastore_search_sql}
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
