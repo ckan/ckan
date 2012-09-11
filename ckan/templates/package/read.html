@@ -73,8 +73,8 @@
 
 {% block secondary_content %}
   {% block package_groups %}
-    {% for group in pkg.groups %}
-      {% snippet "snippets/group.html", group=group, truncate=70 %}
+    {% for organization in pkg.organizations %}
+      {% snippet "snippets/organization.html", organization=organization, truncate=70 %}
     {% endfor %}
   {% endblock %}
 
