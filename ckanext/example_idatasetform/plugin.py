@@ -39,7 +39,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
             vocab = logic.get_action('vocabulary_create')(context, data)
             for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
                 logging.info(
-                        "Adding tag {} to vocab 'country_codes'".format(tag))
+                        "Adding tag {0} to vocab 'country_codes'".format(tag))
                 data = {'name': tag, 'vocabulary_id': vocab['id']}
                 logic.get_action('tag_create')(context, data)
 
