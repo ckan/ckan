@@ -549,6 +549,10 @@ class OrganizationController(BaseController):
                filter(model.Group.state == 'active').\
                filter(model.Group.type == 'organization').\
                order_by(model.Group.title).all()
+        if c.user:
+            c.possible_parents = [o for o in c.possible_parents
+                                  if not o
+                                  in c.userobj.get_groups('organization')]
 
     def setup_template_variables(self, context, data_dict):
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
