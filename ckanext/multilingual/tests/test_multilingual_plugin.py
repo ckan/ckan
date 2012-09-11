@@ -67,7 +67,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 'tolstoy',
                 "Dave's books",
                 "Roger's books",
-                'Other (Open)',
                 'romantic novel',
                 'book',
                 '123',

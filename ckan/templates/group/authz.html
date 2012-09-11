@@ -1,10 +1,10 @@
 <html xmlns:py="http://genshi.edgewall.org/"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   py:strip="">
-  
+
   <py:def function="page_title">Authorization: ${c.group.display_name}</py:def>
   <py:def function="page_heading">Authorization: ${c.group.display_name}</py:def>
-  
+
   <div py:match="content">
     <h3>Update Existing Roles</h3>
 
@@ -22,26 +22,6 @@
       <button type="submit" name="add" class="btn btn-primary">Add Role</button>
       <div class="clear"></div>
     </form>
-
-    <hr/>
-
-   <py:if test="c.are_any_authz_groups">
-    <h3>Update Existing Roles for Authorization Groups</h3>
-
-    <form id="authzgroup_form" method="POST">
-      ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
-      <button type="submit" name="authz_save" class="btn btn-primary">Save Changes</button>
-      <div class="clear"></div>
-    </form>
-
-    <h3>Add Roles for Any Authorization Group</h3>
-
-    <form id="authzgroup_addform" method="POST">
-      ${authz_add_group_table(c.roles)}
-      <button type="submit" name="authz_add" class="btn btn-primary">Add Role</button>
-      <div class="clear"></div>
-    </form>
-   </py:if>
 
   </div>
 

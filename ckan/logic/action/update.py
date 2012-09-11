@@ -213,7 +213,9 @@ def package_update(context, data_dict):
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset
+    :returns: the updated dataset (if 'return_package_dict' is True in the
+              context, which is the default. Otherwise returns just the
+              dataset id)
     :rtype: dictionary
 
     '''
@@ -273,7 +275,13 @@ def package_update(context, data_dict):
         model.repo.commit()
 
     log.debug('Updated object %s' % str(pkg.name))
-    return _get_action('package_show')(context, data_dict)
+
+    return_id_only = context.get('return_id_only', False)
+
+    output = data_dict['id'] if return_id_only \
+            else _get_action('package_show')(context, {'id': data_dict['id']})
+
+    return output
 
 def package_update_validate(context, data_dict):
     model = context['model']
@@ -832,7 +840,7 @@ def package_relationship_update_rest(context, data_dict):
 def user_role_update(context, data_dict):
     '''Update a user or authorization group's roles for a domain object.
 
-    Either the ``user`` or the ``authorization_group`` parameter must be given.
+    The ``user`` parameter must be given.
 
     You must be authorized to update the domain object.
 
@@ -841,15 +849,13 @@ def user_role_update(context, data_dict):
 
     :param user: the name or id of the user
     :type user: string
-    :param authorization_group: the name or id of the authorization group
-    :type authorization_group: string
     :param domain_object: the name or id of the domain object (e.g. a package,
         group or authorization group)
     :type domain_object: string
     :param roles: the new roles, e.g. ``['editor']``
     :type roles: list of strings
 
-    :returns: the updated roles of all users and authorization_groups for the
+    :returns: the updated roles of all users for the
         domain object
     :rtype: dictionary
 
@@ -857,9 +863,8 @@ def user_role_update(context, data_dict):
     model = context['model']
 
     new_user_ref = data_dict.get('user') # the user who is being given the new role
-    new_authgroup_ref = data_dict.get('authorization_group') # the authgroup who is being given the new role
-    if bool(new_user_ref) == bool(new_authgroup_ref):
-        raise logic.ParameterError('You must provide either "user" or "authorization_group" parameter.')
+    if not bool(new_user_ref):
+        raise logic.ParameterError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
         raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
@@ -872,13 +877,6 @@ def user_role_update(context, data_dict):
         data_dict['user'] = user_object.id
         add_user_to_role_func = model.add_user_to_role
         remove_user_from_role_func = model.remove_user_from_role
-    else:
-        user_object = model.AuthorizationGroup.get(new_authgroup_ref)
-        if not user_object:
-            raise NotFound('Cannot find authorization group %r' % new_authgroup_ref)
-        data_dict['authorization_group'] = user_object.id
-        add_user_to_role_func = model.add_authorization_group_to_role
-        remove_user_from_role_func = model.remove_authorization_group_from_role
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
@@ -886,8 +884,6 @@ def user_role_update(context, data_dict):
         _check_access('package_edit_permissions', context, data_dict)
     elif isinstance(domain_object, model.Group):
         _check_access('group_edit_permissions', context, data_dict)
-    elif isinstance(domain_object, model.AuthorizationGroup):
-        _check_access('authorization_group_edit_permissions', context, data_dict)
     # Todo: 'system' object
     else:
         raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
@@ -925,20 +921,19 @@ def user_role_bulk_update(context, data_dict):
     :rtype: dictionary
 
     '''
-    for user_or_authgroup in ('user', 'authorization_group'):
-        # Collate all the roles for each user
-        roles_by_user = {} # user:roles
-        for user_role_dict in data_dict['user_roles']:
-            user = user_role_dict.get(user_or_authgroup)
-            if user:
-                roles = user_role_dict['roles']
-                if user not in roles_by_user:
-                    roles_by_user[user] = []
-                roles_by_user[user].extend(roles)
-        # For each user, update its roles
-        for user in roles_by_user:
-            uro_data_dict = {user_or_authgroup: user,
-                             'roles': roles_by_user[user],
-                             'domain_object': data_dict['domain_object']}
-            user_role_update(context, uro_data_dict)
+    # Collate all the roles for each user
+    roles_by_user = {} # user:roles
+    for user_role_dict in data_dict['user_roles']:
+        user = user_role_dict.get('user')
+        if user:
+            roles = user_role_dict['roles']
+            if user not in roles_by_user:
+                roles_by_user[user] = []
+            roles_by_user[user].extend(roles)
+    # For each user, update its roles
+    for user in roles_by_user:
+        uro_data_dict = {'user': user,
+                         'roles': roles_by_user[user],
+                         'domain_object': data_dict['domain_object']}
+        user_role_update(context, uro_data_dict)
     return _get_action('roles_show')(context, data_dict)
