@@ -115,8 +115,8 @@
     <field name="ratings_count" type="int" indexed="true" stored="false" />
     <field name="ratings_average" type="float" indexed="true" stored="false" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="organizations" type="string" indexed="true" stored="true" multiValued="true"/>
 
+    <field name="organizations" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
 
     <field name="res_description" type="textgen" indexed="true" stored="true" multiValued="true"/>
@@ -174,7 +174,7 @@
 <copyField source="license" dest="text"/>
 <copyField source="notes" dest="text"/>
 <copyField source="tags" dest="text"/>
-<copyField source="groups" dest="text"/>
+<copyField source="organizations" dest="text"/>
 <copyField source="res_description" dest="text"/>
 <copyField source="maintainer" dest="text"/>
 <copyField source="author" dest="text"/>

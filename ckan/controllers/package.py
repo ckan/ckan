@@ -193,7 +193,9 @@ class PackageController(BaseController):
             # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
+
+            # Only show public datasets
+            fq = 'capacity:"public"'
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):

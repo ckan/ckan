@@ -85,7 +85,7 @@ class OrganizationController(BaseController):
             abort(401, _('Unauthorized to read organization %s') % id)
 
         # Search within group
-        q += ' groups: "%s"' % c.organization_dict.get('name')
+        q += ' organizations: "%s"' % c.organization_dict.get('name')
 
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(
