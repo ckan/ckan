@@ -30,7 +30,7 @@ class AdminController(BaseController):
         return render('admin/index.html')
 
     def authz(self):
-        def action_save_form(users_or_authz_groups):
+        def action_save_form(users):
             # The permissions grid has been saved
             # which is a grid of checkboxes named user$role
             rpi = request.params.items()
@@ -59,17 +59,9 @@ class AdminController(BaseController):
             # we get the current user/role assignments
             # and make a dictionary of them
             current_uors = model.Session.query(model.SystemRole).all()
-
-            if users_or_authz_groups == 'users':
-                current_users_roles = [(uor.user.name, uor.role)
-                                       for uor in current_uors
-                                       if uor.user]
-            elif users_or_authz_groups == 'authz_groups':
-                current_users_roles = [(uor.authorized_group.name, uor.role)
-                                       for uor in current_uors
-                                       if uor.authorized_group]
-            else:
-                assert False, "shouldn't be here"
+            current_users_roles = [(uor.user.name, uor.role)
+                                   for uor in current_uors
+                                   if uor.user]
 
             current_user_role_dict = {}
             for (u, r) in current_users_roles:
@@ -85,32 +77,18 @@ class AdminController(BaseController):
             # which would seem to be prone to suffer the same effect. Why
             # the difference?
 
-            if users_or_authz_groups == 'users':
-                for ((u, r), val) in new_user_role_dict.items():
-                    if val:
-                        if not ((u, r) in current_user_role_dict):
-                            model.add_user_to_role(
-                                model.User.by_name(u), r,
-                                model.System())
-                    else:
-                        if ((u, r) in current_user_role_dict):
-                            model.remove_user_from_role(
-                                model.User.by_name(u), r,
-                                model.System())
-            elif users_or_authz_groups == 'authz_groups':
-                for ((u, r), val) in new_user_role_dict.items():
-                    if val:
-                        if not ((u, r) in current_user_role_dict):
-                            model.add_authorization_group_to_role(
-                                model.AuthorizationGroup.by_name(u), r,
-                                model.System())
-                    else:
-                        if ((u, r) in current_user_role_dict):
-                            model.remove_authorization_group_from_role(
-                                model.AuthorizationGroup.by_name(u), r,
-                                model.System())
-            else:
-                assert False, "shouldn't be here"
+
+            for ((u, r), val) in new_user_role_dict.items():
+                if val:
+                    if not ((u, r) in current_user_role_dict):
+                        model.add_user_to_role(
+                            model.User.by_name(u), r,
+                            model.System())
+                else:
+                    if ((u, r) in current_user_role_dict):
+                        model.remove_user_from_role(
+                            model.User.by_name(u), r,
+                            model.System())
 
             # finally commit the change to the database
             model.Session.commit()
@@ -119,10 +97,7 @@ class AdminController(BaseController):
         if ('save' in request.POST):
             action_save_form('users')
 
-        if ('authz_save' in request.POST):
-            action_save_form('authz_groups')
-
-        def action_add_form(users_or_authz_groups):
+        def action_add_form(users):
             # The user is attempting to set new roles for a named user
             new_user = request.params.get('new_user_name')
             # this is the list of roles whose boxes were ticked
@@ -147,62 +122,33 @@ class AdminController(BaseController):
 
             current_uors = model.Session.query(model.SystemRole).all()
 
-            if users_or_authz_groups == 'users':
-                current_roles = [uor.role for uor in current_uors
-                                 if (uor.user and uor.user.name == new_user)]
-                user_object = model.User.by_name(new_user)
-                if user_object is None:
-                    # The submitted user does not exist. Bail with flash
-                    # message
-                    h.flash_error(_('unknown user:') + str(new_user))
-                else:
-                    # Whenever our desired state is different from our
-                    # current state, change it.
-                    for (r, val) in desired_roles.items():
-                        if val:
-                            if (r not in current_roles):
-                                model.add_user_to_role(user_object, r,
-                                                       model.System())
-                        else:
-                            if (r in current_roles):
-                                model.remove_user_from_role(user_object, r,
-                                                            model.System())
-                    h.flash_success(_("User Added"))
 
-            elif users_or_authz_groups == 'authz_groups':
-                current_roles = [uor.role for uor in current_uors
-                                 if (uor.authorized_group and
-                                     uor.authorized_group.name == new_user)]
-                user_object = model.AuthorizationGroup.by_name(new_user)
-                if user_object is None:
-                    # The submitted user does not exist. Bail with flash
-                    # message
-                    h.flash_error(_('unknown authorization group:') +
-                                  str(new_user))
-                else:
-                    # Whenever our desired state is different from our
-                    # current state, change it.
-                    for (r, val) in desired_roles.items():
-                        if val:
-                            if (r not in current_roles):
-                                model.add_authorization_group_to_role(
-                                    user_object, r, model.System())
-                        else:
-                            if (r in current_roles):
-                                model.remove_authorization_group_from_role(
-                                    user_object, r, model.System())
-                    h.flash_success(_("Authorization Group Added"))
-
+            current_roles = [uor.role for uor in current_uors
+                             if (uor.user and uor.user.name == new_user)]
+            user_object = model.User.by_name(new_user)
+            if user_object is None:
+                # The submitted user does not exist. Bail with flash
+                # message
+                h.flash_error(_('unknown user:') + str(new_user))
             else:
-                assert False, "shouldn't be here"
+                # Whenever our desired state is different from our
+                # current state, change it.
+                for (r, val) in desired_roles.items():
+                    if val:
+                        if (r not in current_roles):
+                            model.add_user_to_role(user_object, r,
+                                                   model.System())
+                    else:
+                        if (r in current_roles):
+                            model.remove_user_from_role(user_object, r,
+                                                        model.System())
+                h.flash_success(_("User Added"))
 
             # and finally commit all these changes to the database
             model.Session.commit()
 
         if 'add' in request.POST:
             action_add_form('users')
-        if 'authz_add' in request.POST:
-            action_add_form('authz_groups')
 
         # =================
         # Display the page
@@ -214,10 +160,7 @@ class AdminController(BaseController):
         uors = model.Session.query(model.SystemRole).all()
         # uniquify and sort
         users = sorted(list(set([uor.user.name for uor in uors if uor.user])))
-        authz_groups = sorted(list(set([uor.authorized_group.name
-                              for uor in uors if uor.authorized_group])))
 
-        # make a dictionary from (user, role) to True, False
         users_roles = [(uor.user.name, uor.role) for uor in uors if uor.user]
         user_role_dict = {}
         for u in users:
@@ -227,29 +170,11 @@ class AdminController(BaseController):
                 else:
                     user_role_dict[(u, r)] = False
 
-        # and similarly make a dictionary from (authz_group, role) to
-        # True, False
-        authz_groups_roles = [(uor.authorized_group.name, uor.role)
-                              for uor in uors if uor.authorized_group]
-        authz_groups_role_dict = {}
-        for u in authz_groups:
-            for r in possible_roles:
-                if (u, r) in authz_groups_roles:
-                    authz_groups_role_dict[(u, r)] = True
-                else:
-                    authz_groups_role_dict[(u, r)] = False
 
         # pass these variables to the template for rendering
         c.roles = possible_roles
-
         c.users = users
         c.user_role_dict = user_role_dict
-
-        c.authz_groups = authz_groups
-        c.authz_groups_role_dict = authz_groups_role_dict
-
-        count = model.Session.query(model.AuthorizationGroup).count()
-        c.are_any_authz_groups = bool(count)
 
         return render('admin/authz.html')
 
