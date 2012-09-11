@@ -34,8 +34,16 @@ class DatastorePlugin(p.SingletonPlugin):
             error_msg = 'ckan.datastore_read_url not found in config'
             raise DatastoreException(error_msg)
 
-        # check for user and database
+        # Check whether we are running one of the paster commands which means
+        # that we should ignore the following tests.
+        import sys
+        if sys.argv[-1] in ['create-db', 'create-read-only-user']:
+            log.warn("Omitting permission checks because you are "
+                        "running paster commands.")
+            return
 
+        # Make sure that the right permissions are set
+        # so that no harmful queries can be made
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore_write_url']
         self.read_url = self.config['ckan.datastore_read_url']

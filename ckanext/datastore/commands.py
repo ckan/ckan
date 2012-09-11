@@ -2,7 +2,7 @@ import re
 from ckan.lib.cli import CkanCommand
 
 import logging
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 read_only_user_sql = '''
 -- revoke permissions for the new user
@@ -69,11 +69,11 @@ class SetupDatastoreCommand(CkanCommand):
         if cmd == 'create-db':
             self.create_db()
             if self.verbose:
-                print 'Initialising DB: SUCCESS'
+                print 'Creating DB: SUCCESS'
         elif cmd == 'create-read-only-user':
             self.create_read_only_user()
             if self.verbose:
-                print 'Initialising read-only user: SUCCESS'
+                print 'Creating read-only user: SUCCESS'
         else:
             log.error('Command "%s" not recognized' % (cmd,))
 
@@ -96,7 +96,8 @@ class SetupDatastoreCommand(CkanCommand):
     def _run_sql(self, sql, database='postgres'):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
-        self._run_cmd("sudo -u postgres psql {database} -c '{sql}'".format(sql=sql, database=database))
+        if not self.simulate:
+            self._run_cmd("sudo -u postgres psql {database} -c '{sql}'".format(sql=sql, database=database))
 
     def create_db(self):
         sql = "create database {0}".format(self.urlparts_w['db_name'])
