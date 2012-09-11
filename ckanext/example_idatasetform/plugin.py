@@ -7,6 +7,7 @@ import ckan.logic as logic
 import ckan.logic.converters as converters
 import ckan.lib.base as base
 
+
 class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         lib_plugins.DefaultDatasetForm):
     '''An example IDatasetForm CKAN plugin.
@@ -14,8 +15,18 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     Uses a tag vocabulary to add a custom metadata field to datasets.
 
     '''
-    plugins.implements(plugins.IConfigurer, inherit=True)
-    plugins.implements(plugins.IDatasetForm, inherit=True)
+    plugins.implements(plugins.IConfigurer, inherit=False)
+    plugins.implements(plugins.IDatasetForm, inherit=False)
+
+    # These record how many times methods that this plugin otherwise wouldn't
+    # use are called, for testing purposes.
+    num_times_check_data_dict_called = 0
+    num_times_new_template_called = 0
+    num_times_comments_template_called = 0
+    num_times_search_template_called = 0
+    num_times_read_template_called = 0
+    num_times_history_template_called = 0
+    num_times_package_form_called = 0
 
     def create_country_codes(self):
         '''Create country_codes vocab and tags, if they don't exist already.
@@ -96,9 +107,35 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         except logic.NotFound:
             toolkit.c.country_codes = None
 
+    # These methods just record how many times they're called, for testing
+    # purposes.
+    # TODO: It might be better to test that custom templates returned by
+    # these methods are actually used, not just that the methods get
+    # called.
+
+    def new_template(self):
+        ExampleIDatasetFormPlugin.num_times_new_template_called += 1
+        return lib_plugins.DefaultDatasetForm.new_template(self)
+
+    def comments_template(self):
+        ExampleIDatasetFormPlugin.num_times_comments_template_called += 1
+        return lib_plugins.DefaultDatasetForm.comments_template(self)
+
+    def search_template(self):
+        ExampleIDatasetFormPlugin.num_times_search_template_called += 1
+        return lib_plugins.DefaultDatasetForm.search_template(self)
+
+    def read_template(self):
+        ExampleIDatasetFormPlugin.num_times_read_template_called += 1
+        return lib_plugins.DefaultDatasetForm.read_template(self)
+
+    def history_template(self):
+        ExampleIDatasetFormPlugin.num_times_history_template_called += 1
+        return lib_plugins.DefaultDatasetForm.history_template(self)
+
+    def package_form(self):
+        ExampleIDatasetFormPlugin.num_times_package_form_called += 1
+        return lib_plugins.DefaultDatasetForm.package_form(self)
+
     def check_data_dict(self, data_dict):
-        # Here we could validate the data dict submitted by the user when
-        # creating or editing a package, e.g. to validate the submitted
-        # value of our custom metadata field, but in this example there is no
-        # validation needed.
-        pass
+        ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1

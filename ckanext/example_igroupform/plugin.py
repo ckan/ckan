@@ -5,6 +5,7 @@ import ckan.lib.navl.validators as validators
 import ckan.logic.schema
 import ckan.logic.converters as converters
 
+
 class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
         lib_plugins.DefaultGroupForm):
     '''An example CKAN plugin that adds some custom metadata fields to groups.
@@ -12,6 +13,15 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
     '''
     plugins.implements(plugins.IConfigurer, inherit=True)
     plugins.implements(plugins.IGroupForm, inherit=True)
+
+    # These record how many times methods that this plugin otherwise wouldn't
+    # use are called, for testing purposes.
+    num_times_new_template_called = 0
+    num_times_index_template_called = 0
+    num_times_read_template_called = 0
+    num_times_history_template_called = 0
+    num_times_edit_template_called = 0
+    num_times_group_form_called = 0
 
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
@@ -73,3 +83,33 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
 
         # Add this list of available country codes to the template context.
         toolkit.c.country_codes = ('de', 'en', 'fr', 'nl')
+
+    # These methods just record how many times they're called, for testing
+    # purposes.
+    # TODO: It might be better to test that custom templates returned by
+    # these methods are actually used, not just that the methods get
+    # called.
+
+    def new_template(self):
+        ExampleIGroupFormPlugin.num_times_new_template_called += 1
+        return lib_plugins.DefaultGroupForm.new_template(self)
+
+    def index_template(self):
+        ExampleIGroupFormPlugin.num_times_index_template_called += 1
+        return lib_plugins.DefaultGroupForm.index_template(self)
+
+    def read_template(self):
+        ExampleIGroupFormPlugin.num_times_read_template_called += 1
+        return lib_plugins.DefaultGroupForm.read_template(self)
+
+    def history_template(self):
+        ExampleIGroupFormPlugin.num_times_history_template_called += 1
+        return lib_plugins.DefaultGroupForm.history_template(self)
+
+    def edit_template(self):
+        ExampleIGroupFormPlugin.num_times_edit_template_called += 1
+        return lib_plugins.DefaultGroupForm.edit_template(self)
+
+    def group_form(self):
+        ExampleIGroupFormPlugin.num_times_group_form_called += 1
+        return lib_plugins.DefaultGroupForm.group_form(self)
