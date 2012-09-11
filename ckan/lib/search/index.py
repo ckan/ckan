@@ -150,10 +150,8 @@ class PackageSearchIndex(SearchIndex):
         # from the single group that it is a part of if we have a group
         if len(organizations):
             pkg_dict['capacity'] = organizations[0].get('capacity', 'public')
-            pkg_dict['organization_name'] = organizations[0].get('name')
         else:
             pkg_dict['capacity'] = 'public'
-            pkg_dict['organization_name'] = ''
 
         pkg_dict['organizations'] = [organization['name'] for organization in organizations]
 

@@ -451,6 +451,9 @@ class OrganizationController(BaseController):
         A user has requested access to this publisher and so we will send an
         email to any admins within the publisher.
         """
+        if not c.user:
+            abort(401, _('You must be logged in to apply for membership'))
+
         if 'parent' in request.params and not id:
             id = request.params['parent']
 

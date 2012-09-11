@@ -116,7 +116,6 @@
     <field name="ratings_average" type="float" indexed="true" stored="false" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="organizations" type="string" indexed="true" stored="true" multiValued="true"/>
-
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
 
     <field name="res_description" type="textgen" indexed="true" stored="true" multiValued="true"/>
