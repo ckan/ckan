@@ -154,6 +154,8 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['capacity'] = 'public'
 
         pkg_dict['organizations'] = [organization['name'] for organization in organizations]
+        if pkg_dict['organizations']:  # Take the first organization only
+            pkg_dict['organizations'] = pkg_dict['organizations'][0]
 
         # tracking
         tracking_summary = pkg_dict.pop('tracking_summary', None)
