@@ -10,26 +10,28 @@ the features should be implemented.
 Use Cases
 ---------
 
-**Q: David, can you fill these out?** The aim is to make it clear how groups
-differ from organizations in use-case.
-
-**A site like thedatahub.org**, you want users to people to register new user
+**A site like thedatahub.org**:
+You want users to people to register new user
 accounts and start adding datasets as quickly and easily as possible. You don't
 want them to have to join an organization before they can add a dataset, or to
 choose an organization when adding a dataset. You would turn on the option that
 creates a default 'public' organization that datasets are added to if no other
 organization is specified.
-**Q: How would thedatahub use organizations? Groups?**
+The datahub would probably not have a use case for groups but may want 
 
-**A site like data.gov.uk**, they don't want anyone to be able to register a
+**A site like data.gov.uk**: 
+They don't want anyone to be able to register a
 user account and start adding content. So you would turn off the default public
 organization, and new users would have to be added to an organization by a
 sysadmin or organization admin before they can start adding content. By having
 multiple organizations with different admins, they can distribute the
 responsibility for giving users permission to create content.
-**Q: How would data.gov.uk use groups?**
 
-**Q: Any other use cases to add?**
+Data.gov.uk or thedatahub.org could use groups if they wanted a way for the public 
+to organize the datasets into categories or wanted groups of people to colaborate 
+on subsets of the datasets and they wanted this colaboration to be orthoganal to
+the authorization around metadata.
+
 
 User Stories
 ------------
@@ -74,9 +76,7 @@ User Stories that apply to both Organizations and Groups
 * **Organization admins** can add users to and remove users from an
   organization that they are admin of.
 * **Organization admins** can specify what role (editor or admin) each user who
-  is a member of the organization has
-  **Q: Can organization admins demote other organization admins to editors?**
-  (and same question for groups)
+  is a member of the organization has.
 * **Group admins** can add users to and remove users from a group that they
   are admin of.
 * **Group admins** can add specify what role (editor or admin) each
@@ -86,38 +86,22 @@ User Stories that apply to both Organizations and Groups
   group.
 * **Organization admins** can edit the organization's metadata (name,
   description, etc.)
-* **Group admins** can edit the group's metadata (name, description, etc.)
-  **Q: Can sysadmins edit organization and group metadata? Yes seems
+* **Group admins** and **Sysadmins** can edit the group's metadata (name, description, etc.)
   sensible.**
 * **Developers** can provide custom forms for groups and organizations, for
   example to add custom metadata fields to groups or organizations.
+* **Anyone** can see which users are members of groups.
+* **Sysadmins** should decide if members of organizations should be visible to the public
+  globally throughout the site.  If they are not visible to the public only syadmins and
+  orgainization admins should be able to see the members of the organization.
 
-**Q: What about viewing the users who are members of a group or organization,
-and their roles? Who can see this list, besides sysadmins? Anyone? The
-organization or group's editors? The organization or group's admins?**
-
-User stories from Ross' Google Doc:
-**Q: Do we want to implement these?**
-
-* Receive a notification when I've been added to or removed from a group or
-  organization or my role changes.
-
-* Organization or group editors or admin can leave the organization or group.
-
-* Organization and group admins (and also editors?) get notifications when a
-  dataset is added to (or removed from) their organization or group
-
-* Organization and group admins (and also editors?) get notifications when a
-  user joins or leaves their group or organization
 
 User Stories that apply to Organizations Only
 `````````````````````````````````````````````
 
 * **Organization admins and editors** can see an organization's private
-  datasets.
-  **Q: Do they see them mixed in with the list of public datasets? Or in a
-  separate list maybe on a separate page? If in one list, is there some visual
-  difference to show which datasets are private?**
+  datasets. They should be able to see them in thier organazations search results
+  and have a facet of public/private so they can filter by them.
 * **Organization admins and editors** can create new datasets that belong to
   the organization, and choose whether they are public or private.
 * **Organization admins and editors** can edit all datasets belonging to the
@@ -137,20 +121,9 @@ organization is specified. Users who are not a member of an organization will
 be able to add datasets to this default organization.
 
 * **Sysadmins** can move datasets from one organization to another.
-  **Q: What about users who are members of more than one organization, can they
-  move datasets between the organizations that they are members of? Can editors
-  do this or do they have to be organization admins? Or do they have to be the
-  person that created the dataset?**
-
-Potential user stories from Ross' Google Doc:
-**Q: Do we want to implement these or not?**
-
-* **Users** (who are logged in) can contact the admin(s) of an organizations
-  **Q: Why?**
     
 * **Sysadmins** can delete organizations, and this deletes all of the
-  organization's datasets
-  **Q: Can anyone else delete an organization? The user who created it?**
+  organization's datasets.
 
 User Stories that apply to Groups Only
 ``````````````````````````````````````
@@ -159,9 +132,8 @@ User Stories that apply to Groups Only
   groups that they are members of. A dataset can belong to multiple groups at
   once, or can belong to no groups.
 
-* **Sysadmins** can delete groups, but unlike with organizations this does not
+* **Sysadmins and Group Admins** can delete groups, but unlike with organizations this does not
   delete the group's datasets.
-  **Q: Can anyone else delete a group? The user who created it?**
 
 Joining Groups and Organizations
 ````````````````````````````````
@@ -220,7 +192,6 @@ The member table has field called capacity which should be used as follows:
 
 *  When a dataset is a member of an Organization it must have capacity of 
    either public/private.
-*  When a dataset is a member of a Group it must have capacity of member.
-   **Q: Should 'member' here just be 'public'?**
+*  When a dataset is a member of a Group it must have capacity of 'member'. 
 *  When a user is a member of a Group/Organization it must have capacity 
    of admin/editor.
