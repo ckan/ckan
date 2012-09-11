@@ -158,23 +158,15 @@ def datastore_search(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
     res_id = _get_or_bust(data_dict, 'resource_id')
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
-    res_exists = model.Resource.get(res_id)
+    resources_sql = text(u'select 1 from "_table_metadata" where name = :id')
+    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    res_exists = results.rowcount > 0
 
-    alias_exists = False
     if not res_exists:
-        # assume id is an alias
-        alias_sql = text(u'select alias_of from "_table_metadata" where name = :id')
-        result = db._get_engine(None, data_dict).execute(alias_sql, id=res_id).fetchall()
-        if result:
-            alias_exists = [True for res in [x[0].strip('"') for x in result]
-                            if model.Resource.get(res)]
-
-    if not (res_exists or alias_exists or res_id=='_table_metadata'):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{}" was not found.'.format(res_id)
         ))
