@@ -2,9 +2,9 @@
 
 {% set organizations_available = h.organizations_available() %}
 {% if organizations_available %}
+  {% set organization = h.dataset_organization(data) %}
   <div class="control-group">
-    {% set organization = h.dataset_organization(data) %}
-    <label for="field-groups" class="control-label">{{ _('Add to Organization') }}</label>
+    <label for="field-groups" class="control-label">{{ _('Organization') }}</label>
     <div class="controls">
       <select id="field-groups" name="organizations__{{ organizations | count }}__id" data-module="autocomplete">
         <option value="">{{ _('Select an organization...') }}</option>
@@ -13,15 +13,19 @@
         {% endfor %}
       </select>
     </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label">Privacy</label>
     <div class="controls">
-          <label for='cap_public'>
-          <input id='cap_public' type='radio' name='organizations__0__capacity' value='public' {{"checked='checked'" if (organization or {}).get('capacity','') in ['public', ''] else ''}}/>
-          Public</label>
-
-          <label for='cap_private'>
-          <input id='cap_private' type='radio' name='organizations__0__capacity' value='private' {{"checked='checked'" if (organization or {}).get('capacity','') == 'private' else ''}}/>
-          Private</label>
-     </div>
+      <label for="cap_public" class="radio inline">
+        <input id="cap_public" type="radio" name="organizations__0__capacity" value="public" {{"checked=\"checked\"" if (organization or {}).get('capacity','') in ['public', ''] else ''}}>
+        Public
+      </label>
+      <label for="cap_private" class="radio inline">
+        <input id="cap_private" type="radio" name="organizations__0__capacity" value="private" {{"checked=\"checked\"" if (organization or {}).get('capacity','') == 'private' else ''}}>
+        Private
+      </label>
+    </div>
   </div>
 {% endif %}
 
