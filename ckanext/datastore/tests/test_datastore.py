@@ -1316,6 +1316,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         for field in expected_fields:
             assert field in result['fields'], field
 
+    def test_search_table_metadata(self):
+        data = {'resource_id': "_table_metadata"}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
 
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
