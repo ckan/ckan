@@ -171,8 +171,8 @@ def datastore_search(context, data_dict):
         alias_sql = text(u'select alias_of from "_table_metadata" where name = :id')
         result = db._get_engine(None, data_dict).execute(alias_sql, id=res_id).fetchone()
         if result:
-            alias_exists = [True for res_id in [x.strip('"') for x in result[0]]
-                            if model.Resource.get(res_id)]
+            alias_exists = [True for res in [x.strip('"') for x in result[0]]
+                            if model.Resource.get(res)]
 
     if not (res_exists or alias_exists or res_id=='_table_metadata'):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
