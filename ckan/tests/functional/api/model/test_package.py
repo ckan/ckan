@@ -136,7 +136,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = self.get_groups_identifiers(test_groups,[user])
 
         package_fixture_data = self.package_fixture_data
-        package_fixture_data['groups'] = groups
+        package_fixture_data['organizations'] = [{'name':g} for g in groups]
         data = self.dumps(package_fixture_data)
         res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                              extra_environ={'Authorization':str(user.apikey)})
@@ -152,7 +152,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             self.assert_equal([g.name for g in pkg_groups], groups)
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)
-        del package_fixture_data['groups']
+        del package_fixture_data['organizations']
 
     def test_register_post_with_group_not_authorized(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -162,11 +162,10 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = self.get_groups_identifiers(test_groups)
 
         package_fixture_data = self.package_fixture_data
-        package_fixture_data['groups'] = groups
+        package_fixture_data['organizations'] = [{'name':g} for g in groups]
         data = self.dumps(package_fixture_data)
-        res = self.post_json(offset, data, status=self.STATUS_403_ACCESS_DENIED,
-                             extra_environ=self.extra_environ)
-        del package_fixture_data['groups']
+        res = self.post_json(offset, data, status=self.STATUS_403_ACCESS_DENIED)
+        del package_fixture_data['organizations']
 
     def test_register_post_with_group_not_found(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -176,11 +175,11 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = test_groups
 
         package_fixture_data = self.package_fixture_data
-        package_fixture_data['groups'] = groups
+        package_fixture_data['organizations'] = [{'name':g} for g in groups]
         data = self.dumps(package_fixture_data)
         res = self.post_json(offset, data, status=self.STATUS_404_NOT_FOUND,
                              extra_environ=self.extra_environ)
-        del package_fixture_data['groups']
+        del package_fixture_data['organizations']
 
     def test_register_post_with_group_sysadmin(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -190,7 +189,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         groups = self.get_groups_identifiers(test_groups)
 
         package_fixture_data = self.package_fixture_data
-        package_fixture_data['groups'] = groups
+        package_fixture_data['organizations'] = [{'name':g} for g in groups]
         data = self.dumps(package_fixture_data)
         res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
                               extra_environ={'Authorization':str(user.apikey)})
@@ -206,7 +205,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         else:
             self.assert_equal([g.id for g in pkg_groups], groups)
 
-        del package_fixture_data['groups']
+        del package_fixture_data['organizations']
 
     def test_register_post_json(self):
         assert not self.get_package_by_name(self.package_fixture_data['name'])
