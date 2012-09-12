@@ -506,7 +506,7 @@ class OrganizationController(BaseController):
         model_save.group_member_save(context, data_dict, 'users')
         model.Session.commit()
 
-        h.redirect_to(controller='organization', action='edit', id=group.name)
+        h.redirect_to(controller='organization', action='users', id=group.name)
 
     def users(self, id, data=None, errors=None, error_summary=None):
         c.organization = model.Group.get(id)

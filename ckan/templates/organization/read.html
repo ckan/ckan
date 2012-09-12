@@ -11,9 +11,9 @@
   {% if h.check_access('organization_update', {'id': c.organization.id}) %}
     <li>{% link_for _('Add Dataset'), controller='package', action='new', organization=c.organization_dict.id, class_='btn', icon='plus' %}</li>
     <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.organization_dict.name, class_='btn', icon='cog' %}</li>
-    <li>{% link_for _('Manage Users'), controller='organization', action='users', id=c.organization_dict.name, class_='btn', icon='cog' %}</li>
+    <li>{% link_for _('Manage Users'), controller='organization', action='users', id=c.organization_dict.name, class_='btn', icon='group' %}</li>
   {% else %}
-    <li>{% link_for _('Join organization'), controller='organization', action='apply', id=c.organization_dict.name, class_='btn', icon='cog' %}</li>
+    <li>{% link_for _('Join organization'), controller='organization', action='apply', id=c.organization_dict.name, class_='btn', icon='plus' %}</li>
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=c.organization_dict.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
