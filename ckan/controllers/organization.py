@@ -402,6 +402,14 @@ class OrganizationController(BaseController):
     def _send_application(self, organization, reason):
         from genshi.template.text import NewTextTemplate
 
+        if not organization:
+            h.flash_error(_("There was a problem with your submission, \
+                             please choose an organization and try again"))
+            errors = {"reason": ["No organization was supplied"]}
+            return self.apply(None, errors=errors,
+                              error_summary=action.error_summary(errors))
+
+
         if not reason:
             h.flash_error(_("There was a problem with your submission, \
                              please correct it and try again"))
@@ -475,18 +483,20 @@ class OrganizationController(BaseController):
         return render('organization/apply.html')
 
     def _add_users(self, group, parameters):
-        if not group:
-            h.flash_error(_("There was a problem with your submission, \
-                             please correct it and try again"))
-            errors = {"reason": ["No reason was supplied"]}
-            return self.apply(group.id, errors=errors,
-                              error_summary=action.error_summary(errors))
-
         data_dict = logic.clean_dict(unflatten(
                 logic.tuplize_dict(logic.parse_params(request.params))))
         data_dict['id'] = group.id
 
-        # Temporary fix for strange caching during dev
+        # Check the current user is in the list, so they can't remove
+        # themselves
+        current_user = [d for d in data_dict['users'] if d['name'] == c.user]
+        if not current_user:
+            h.flash_error(_("You cannot remove yourself as administrator"))
+            errors = {"reason": ["You cannot remove yourself as administrator"]}
+            return self.users(group.id, errors=errors,
+                              error_summary=action.error_summary(errors))
+
+        # Default users without a capacity to editors
         l = data_dict['users']
         for d in l:
             d['capacity'] = d.get('capacity', 'editor')
