@@ -216,9 +216,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'resource_id': resource.id,
             'aliases': aliases,
             'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': '_json'}],
-            'primary_key': 'book, author',
-            'indexes': ['author'],
+                       {'id': 'author', 'type': 'json'}],
+            'indexes': ['book'],
             'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
@@ -239,9 +238,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True
-        assert res_dict['result']['resource_id'] == data['resource_id']
-        assert res_dict['result']['fields'] == data['fields']
-        assert res_dict['result']['records'] == data['records']
+        res = res_dict['result']
+        assert res['resource_id'] == data['resource_id']
+        assert res['fields'] == data['fields'], res['fields']
+        assert res['records'] == data['records']
 
         c = model.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
@@ -377,7 +377,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth, expect_errors=True)
         res_dict = json.loads(res.body)
 
-        assert res_dict['success'] is True
+        assert res_dict['success'] is True, res_dict
 
         # new aliases should replace old aliases
         c = model.Session.connection()
@@ -396,7 +396,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[1]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'author', 'type': '_json'},
+            'fields': [{'id': 'author', 'type': 'json'},
                        {'id': 'count'},
                        {'id': 'book'},
                        {'id': 'date'}],
@@ -416,7 +416,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
-        assert types == [u'int4', u'tsvector', u'_json', u'int4', u'text', u'timestamp', u'float8'], types
+        assert types == [u'int4', u'tsvector', u'nested', u'int4', u'text', u'timestamp', u'float8'], types
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
@@ -455,14 +455,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert types == [u'int4',  # id
                          u'tsvector',  # fulltext
-                         u'_json',  # author
+                         u'nested',  # author
                          u'int4',  # count
                          u'text',  # book
                          u'timestamp',  # date
                          u'float8',  # count2
                          u'text',  # extra
                          u'timestamp',  # date2
-                         u'_json',  # count3
+                         u'nested',  # count3
                         ], types
 
         ### fields resupplied in wrong order
@@ -1282,7 +1282,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                         {u'type': u'text', u'id': u'b\xfck'},
                         {u'type': u'text', u'id': u'author'},
                         {u'type': u'timestamp', u'id': u'published'},
-                        {u'type': u'_json', u'id': u'nested'},
+                        {u'type': u'json', u'id': u'nested'},
                         {u'type': u'float4', u'id': u'rank'}]
         for field in expected_fields:
             assert field in result['fields'], field

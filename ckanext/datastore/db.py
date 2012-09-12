@@ -1,12 +1,15 @@
-import sqlalchemy
-from sqlalchemy.exc import ProgrammingError, IntegrityError
-from sqlalchemy import text
-import ckan.plugins as p
-import psycopg2.extras
 import json
 import datetime
 import shlex
+import logging
+import sqlalchemy
+from sqlalchemy.exc import ProgrammingError, IntegrityError
+from sqlalchemy import text
+import psycopg2.extras
 from paste.deploy.converters import asbool, aslist
+import ckan.plugins as p
+
+log = logging.getLogger(__name__)
 
 _pg_types = {}
 _type_names = set()
@@ -97,13 +100,24 @@ def _cache_types(context):
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
-        if '_json' not in _type_names:
-            connection.execute('create type "_json" as (json text, extra text)')
+        if 'nested' not in _type_names:
+            native_json = False
+            try:
+                version = connection.execute('select version();').fetchone()
+                native_json = map(int, version[0].split()[1].split(".")[:2]) >= [9, 2]
+            except Exception:
+                pass
+
+            connection.execute('create type "nested" as (json {0}, extra text)'
+                .format('json' if native_json else 'text'))
             _pg_types.clear()
-            ## redo cache types with json now availiable.
+
+            log.info("Created nested type. Native JSON: {0}".format(native_json))
+
+            ## redo cache types with json now available.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('_json', connection.connection, True)
+        psycopg2.extras.register_composite('nested', connection.connection, True)
 
 
 def _get_type(context, oid):
@@ -111,11 +125,31 @@ def _get_type(context, oid):
     return _pg_types[oid]
 
 
+def _rename_json_field(data_dict):
+    '''
+    rename json type to a corresponding type for the datastore since
+    pre 9.2 postgres versions do not support native json
+    '''
+    return _rename_field(data_dict, 'json', 'nested')
+
+
+def _unrename_json_field(data_dict):
+    return _rename_field(data_dict, 'nested', 'json')
+
+
+def _rename_field(data_dict, term, replace):
+    fields = data_dict.get('fields', [])
+    for i, field in enumerate(fields):
+        if 'type' in field and field['type'] == term:
+            data_dict['fields'][i]['type'] = replace
+    return data_dict
+
+
 def _guess_type(field):
     'Simple guess type of field, only allowed are integer, numeric and text'
     data_types = set([int, float])
     if isinstance(field, (dict, list)):
-        return '_json'
+        return 'nested'
     if isinstance(field, int):
         return 'int'
     if isinstance(field, float):
@@ -186,7 +220,7 @@ def check_fields(context, fields):
 def convert(data, type):
     if data is None:
         return None
-    if type == '_json':
+    if type == 'nested':
         return json.loads(data[0])
     if isinstance(data, datetime.datetime):
         return data.isoformat()
@@ -338,11 +372,9 @@ def _drop_indexes(context, data_dict, unique=False):
             and idx.indisunique = {unique}
             and idx.indisprimary = false
             and t.relname = %s
-        """
-    sql_stmt = sql_get_index_string.format(
-        unique='true' if unique else 'false')
+        """.format(unique='true' if unique else 'false')
     indexes_to_drop = context['connection'].execute(
-        sql_stmt, data_dict['resource_id']).fetchall()
+        sql_get_index_string, data_dict['resource_id']).fetchall()
     for index in indexes_to_drop:
         context['connection'].execute(sql_drop_index.format(index[0]))
 
@@ -432,7 +464,7 @@ def upsert_data(context, data_dict):
             row = []
             for field in fields:
                 value = record.get(field['id'])
-                if field['type'].lower() == '_json' and value:
+                if value and field['type'].lower() == 'nested':
                     ## a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)
@@ -561,7 +593,7 @@ def _to_full_text(fields, record):
     full_text = []
     for field in fields:
         value = record.get(field['id'])
-        if field['type'].lower() == '_json' and value:
+        if field['type'].lower() == 'nested' and value:
             full_text.extend(json_get_values(value))
         elif field['type'].lower() == 'text' and value:
             full_text.append(value)
@@ -732,7 +764,7 @@ def format_results(context, results, data_dict):
         records.append(converted_row)
     data_dict['records'] = records
     data_dict['fields'] = result_fields
-    return data_dict
+    return _unrename_json_field(data_dict)
 
 
 def _is_single_statement(sql):
@@ -765,6 +797,8 @@ def create(context, data_dict):
     timeout = context.get('query_timeout', 60000)
     _cache_types(context)
 
+    _rename_json_field(data_dict)
+
     # close connection at all cost.
     try:
         # check if table already existes
@@ -783,12 +817,12 @@ def create(context, data_dict):
         create_indexes(context, data_dict)
         create_alias(context, data_dict)
         trans.commit()
-        return data_dict
+        return _unrename_json_field(data_dict)
     except IntegrityError, e:
         if ('duplicate key value violates unique constraint' in str(e)
                 or 'could not create unique index' in str(e)):
             raise p.toolkit.ValidationError({
-                'constraints': ['Cannot insert records because of uniqueness constraint in index'],
+                'constraints': ['Cannot insert records because of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
@@ -820,7 +854,7 @@ def upsert(context, data_dict):
     trans = context['connection'].begin()
     upsert_data(context, data_dict)
     trans.commit()
-    return data_dict
+    return _unrename_json_field(data_dict)
 
 
 def delete(context, data_dict):
@@ -848,7 +882,7 @@ def delete(context, data_dict):
             delete_data(context, data_dict)
 
         trans.commit()
-        return data_dict
+        return _unrename_json_field(data_dict)
     except Exception:
         trans.rollback()
         raise
