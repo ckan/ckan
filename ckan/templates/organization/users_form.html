@@ -25,11 +25,11 @@
 				<td>
 					<div class="control-group">
 						<label class="radio inline">
-							<input type="radio" name="users__{{ loop.index0 + 1 }}__capacity" value="admin" {{"checked" if (user or {}).get('capacity','') == 'admin' else ''}}>
+							<input type="radio" name="users__{{ loop.index0 }}__capacity" value="admin" {{"checked" if (user or {}).get('capacity','') == 'admin' else ''}}>
 							{{ _('Admin') }}
 						</label>
 						<label class="radio inline">
-							<input type="radio" name="users__{{ loop.index0 + 1 }}__capacity" value="editor" {{"checked" if (user or {}).get('capacity','') in ['editor', 'member', ''] else ''}}>
+							<input type="radio" name="users__{{ loop.index0 }}__capacity" value="editor" {{"checked" if (user or {}).get('capacity','') in ['editor', 'member', ''] else ''}}>
 							{{ _('Editor') }}
 						</label>
 					</div>
@@ -37,7 +37,7 @@
 				<td>
 					<div class="control-group">
 						<label class="orginization-remove">
-							<input id="users__{{ loop.index0 + 1 }}__name" name="users__{{ loop.index0 + 1 }}__name" type="checkbox" value="{{ user.name }}" checked="checked">
+							<input id="users__{{ loop.index0 }}__name" name="users__{{ loop.index0 }}__name" type="checkbox" value="{{ user.name }}" checked="checked">
 							<span>{{ _('Keep this user?') }}</span>
 						</label>
 					</div>
@@ -49,9 +49,10 @@
 
 	<legend>{{ _('Add user') }}</legend>
 	<div class="control-group organization-adduser">
-		<label for="users__0__name" class="control-label">{{ _('Username') }}</label>
+		<label for="users__{{data.users|length}}__name" class="control-label">{{ _('Username') }}</label>
 		<div class="controls">
-			<input id="users__0__name" name="users__0__name" type="text">
+			<input id="users__{{data.users|length}}__name" name="users__{{data.users|length}}__name" type="text">
+			<input id="users__{{data.users|length}}__capacity" name="users__{{data.users|length}}__capacity" value="editor" type="hidden">
 		</div>
 	</div>
 

@@ -496,9 +496,11 @@ class OrganizationController(BaseController):
             return self.users(group.id, errors=errors,
                               error_summary=action.error_summary(errors))
 
-        # Default users without a capacity to editors
-        l = data_dict['users']
-        for d in l:
+        # Default users without a capacity to editors and handle missing username
+        # which appears during deletion.
+        # FIXME: When the UI changes to not submit empty names, we can strip this
+        # down.
+        for d in data_dict['users']:
             d['capacity'] = d.get('capacity', 'editor')
 
         context = {
@@ -515,6 +517,8 @@ class OrganizationController(BaseController):
         model.repo.new_revision()
         model_save.group_member_save(context, data_dict, 'users')
         model.Session.commit()
+
+        h.flash_success(_("User list updated"))
 
         h.redirect_to(controller='organization', action='users', id=group.name)
 
