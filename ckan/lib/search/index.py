@@ -92,10 +92,10 @@ class PackageSearchIndex(SearchIndex):
     def remove_dict(self, pkg_dict):
         self.delete_package(pkg_dict)
 
-    def update_dict(self, pkg_dict):
-        self.index_package(pkg_dict)
+    def update_dict(self, pkg_dict, defer_commit=False):
+        self.index_package(pkg_dict, defer_commit)
 
-    def index_package(self, pkg_dict):
+    def index_package(self, pkg_dict, defer_commit=False):
         if pkg_dict is None:
             return
         pkg_dict['data_dict'] = json.dumps(pkg_dict)
@@ -222,7 +222,20 @@ class PackageSearchIndex(SearchIndex):
         # send to solr:
         try:
             conn = make_connection()
-            conn.add_many([pkg_dict])
+            commit = not defer_commit
+            conn.add_many([pkg_dict], _commit=commit)
+        except Exception, e:
+            log.exception(e)
+            raise SearchIndexError(e)
+        finally:
+            conn.close()
+
+        commit_debug_msg = 'Not commited yet' if defer_commit else 'Commited'
+        log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
+
+    def commit(self):
+        try:
+            conn = make_connection()
             conn.commit(wait_flush=False, wait_searcher=False)
         except Exception, e:
             log.exception(e)
@@ -230,7 +243,6 @@ class PackageSearchIndex(SearchIndex):
         finally:
             conn.close()
 
-        log.debug("Updated index for %s" % pkg_dict.get('name'))
 
     def delete_package(self, pkg_dict):
         conn = make_connection()
