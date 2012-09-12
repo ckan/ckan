@@ -20,9 +20,8 @@ class PackagesTestCase(BaseModelApiTestCase):
     @classmethod
     def setup_class(cls):
         from nose.plugins.skip import SkipTest
-        from pylons import config
-        if config.get('ckan.auth.profile',False):
-            raise SkipTest()
+
+        raise SkipTest()
         CreateTestData.create()
         cls.user_name = u'annafan' # created in CreateTestData
         cls.init_extra_environ(cls.user_name)

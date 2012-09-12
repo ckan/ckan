@@ -51,6 +51,9 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Use organizations instead of groups")
+
         model.Session.remove()
         CreateTestData.create()
 
@@ -230,6 +233,9 @@ class TestGroupWithSearch(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Use organizations instead of groups")
+
         setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
@@ -244,6 +250,14 @@ class TestGroupWithSearch(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
+        pkg = model.Package.by_name(pkgname)
+        member = model.Member(group=group, group_id=group.id, table_id=pkg.id,
+                        table_name='package',
+                        capacity='public')
+        model.repo.new_revision()
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)
@@ -265,6 +279,9 @@ class TestEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Use organizations instead of groups")
+
         setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
@@ -489,6 +506,9 @@ class TestNew(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Use organizations instead of groups")
+
         model.Session.remove()
         CreateTestData.create()
 
@@ -606,6 +626,9 @@ class TestNew(FunctionalTestCase):
 class TestRevisions(FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Use organizations instead of groups")
+
         model.Session.remove()
         CreateTestData.create()
         self.name = u'revisiontest1'
@@ -683,22 +706,21 @@ class TestOrganizationGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        self.set_auth_profile('organization')
         model.Session.remove()
         CreateTestData.create(auth_profile='publisher')
 
     @classmethod
     def teardown_class(self):
+        self.set_auth_profile('deprecated')
         model.repo.rebuild_db()
 
     def test_index(self):
         from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
 
-        offset = url_for(controller='group', action='index')
+        offset = url_for(controller='organization', action='index')
         res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
+        assert 'Organizations' in res, res
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
@@ -713,9 +735,6 @@ class TestOrganizationGroup(FunctionalTestCase):
 
     def test_read(self):
         from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
 
         # Relies on the search index being available
         setup_test_search_index()
@@ -735,11 +754,6 @@ class TestOrganizationGroup(FunctionalTestCase):
             assert '0 datasets found.' in self.strip_tags(main_res), main_res
 
     def test_read_and_not_authorized_to_edit(self):
-        from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
-
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
@@ -752,9 +766,6 @@ class TestPublisherEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
-        from nose import SkipTest
-        raise SkipTest("To be replaced")
-
         from ckan.tests.mock_publisher_auth import MockPublisherAuth
         self.auth = MockPublisherAuth()
 
