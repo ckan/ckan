@@ -646,7 +646,7 @@ def organization_create(context, data_dict):
 
     _check_access('organization_create', context, data_dict)
 
-    schema = ckan.logic.schema.default_group_schema()
+    schema = ckan.logic.schema.default_organization_schema()
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
@@ -699,8 +699,9 @@ def organization_create(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+# FIXME: Re-enable
+#    logic.get_action('activity_create')(activity_create_context,
+#            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()

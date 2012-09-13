@@ -74,7 +74,7 @@ def activity_stream_string_deleted_group():
     return _("{actor} deleted the group {group}")
 
 def activity_stream_string_deleted_organization():
-    return _("{actor} deleted the group {organization}")
+    return _("{actor} deleted the organization {organization}")
 
 def activity_stream_string_deleted_package():
     return _("{actor} deleted the dataset {dataset}")

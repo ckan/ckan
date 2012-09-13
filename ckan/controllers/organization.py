@@ -305,7 +305,6 @@ class OrganizationController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            data_dict['id'] = id
             context['allow_partial_update'] = True
             organization = get_action('organization_update')(context, data_dict)
 
