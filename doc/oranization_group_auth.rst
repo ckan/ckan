@@ -11,26 +11,25 @@ Use Cases
 ---------
 
 **A site like thedatahub.org**:
-You want users to people to register new user
-accounts and start adding datasets as quickly and easily as possible. You don't
-want them to have to join an organization before they can add a dataset, or to
-choose an organization when adding a dataset. You would turn on the option that
-creates a default 'public' organization that datasets are added to if no other
+You want users to be able to register new user accounts and start adding
+datasets as quickly and easily as possible. You don't want them to have to join
+an organization before they can add a dataset, or to have to choose an
+organization when adding a dataset. You would turn on the option that creates a
+default 'public' organization that datasets are added to if no other
 organization is specified.
-The datahub would probably not have a use case for groups but may want 
 
 **A site like data.gov.uk**: 
-They don't want anyone to be able to register a
-user account and start adding content. So you would turn off the default public
-organization, and new users would have to be added to an organization by a
-sysadmin or organization admin before they can start adding content. By having
-multiple organizations with different admins, they can distribute the
-responsibility for giving users permission to create content.
+They don't want just anyone to be able to register a user account and start
+adding content. So you would turn off the default public organization, and new
+users would have to be added to an organization by a sysadmin or organization
+admin before they can start adding content. By having multiple organizations
+with different admins, they can distribute the responsibility for giving users
+permission to create content.
 
-Data.gov.uk or thedatahub.org could use groups if they wanted a way for the public 
-to organize the datasets into categories or wanted groups of people to colaborate 
-on subsets of the datasets and they wanted this colaboration to be orthoganal to
-the authorization around metadata.
+data.gov.uk or thedatahub.org could use groups if they wanted a way for the
+public to organize the datasets into categories or wanted groups of people to
+collaborate on subsets of the datasets and they wanted this collaboration to be
+orthoganal to the authorization around metadata.
 
 
 User Stories
@@ -100,8 +99,8 @@ User Stories that apply to Organizations Only
 `````````````````````````````````````````````
 
 * **Organization admins and editors** can see an organization's private
-  datasets. They should be able to see them in thier organazations search results
-  and have a facet of public/private so they can filter by them.
+  datasets. They should be able to see them in thier organization's search
+  results and have a facet of public/private so they can filter by them.
 * **Organization admins and editors** can create new datasets that belong to
   the organization, and choose whether they are public or private.
 * **Organization admins and editors** can edit all datasets belonging to the
