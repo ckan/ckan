@@ -1,0 +1,14 @@
+<html
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+<py:for each="activity in activities" >
+
+<div class="activity">
+  ${    h.literal(activity.msg.format(**activity.data))  }
+    <span class="date">${ h.render_datetime(activity.timestamp) }</span>
+</div>
+</py:for>
+</html>

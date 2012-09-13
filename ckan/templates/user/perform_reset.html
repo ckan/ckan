@@ -1,30 +1,34 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Reset your password</py:def>
+{% extends "page.html" %}
 
-  <div py:match="content">
-    <form id="user-reset" action="" method="post" class="simple-form" 
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      >
-      <fieldset>
-        <legend>Reset your password</legend>
-        <label for="password1">Password:</label>
-        <input type="password" name="password1" value="" />
-        <br/>
-        <label for="password2">Password (repeat):</label>
-        <input type="password" name="password2" value="" />
-        <br/>
-      </fieldset>
-      <div>
-        <input type="submit" id="save" name="save" class="btn primary" value="Save" />
-      </div>
-    </form>
-  </div>
+{% block subtitle %}{{ _('Reset Your Password') }}{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block breadcrumb_content %}
+  <li class="active">{{ _('Password Reset') }}</li>
+{% endblock %}
 
+{% block primary_content %}
+  <article class="module">
+    <h1 class="module-heading">{{ _('Reset Your Password') }}</h1>
+    <div class="module-content">
+      {% block form %}
+        <form class="form-horizontal" action="" method="post">
+          {{ form.errors(error_summary) }}
+          {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"]) }}
+          {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password1, classes=["control-medium"]) }}
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" name="save">{{ _("Update Password") }}</button>
+          </div>
+        </form>
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _('How does this work?') }}</h2>
+    <div class="module-content">
+      <p>{% trans %}Simply enter a new password and we'll update your account{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}

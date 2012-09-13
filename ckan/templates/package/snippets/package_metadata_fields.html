@@ -1,0 +1,29 @@
+{% import 'macros/form.html' as form %}
+
+{% set groups_available = h.groups_available() %}
+{% if groups_available %}
+  <div class="control-group">
+    {% set groups = h.dict_list_reduce(data.groups, 'id') %}
+    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
+    <div class="controls">
+      <select id="field-groups" name="groups__{{ groups | count }}__id" data-module="autocomplete">
+        <option value="">{{ _('Select a group...') }}</option>
+        {% for group in groups_available %}
+        <option value="{{ group.id }}" {% if group.id in groups %}selected="selected"{% endif %}>{{ group.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+{% endif %}
+
+{{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
+
+{{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
+
+{{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium']) }}
+
+{{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium']) }}
+
+{% block custom_fields %}
+  {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
+{% endblock %}

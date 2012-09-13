@@ -1,16 +1,35 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">${c.user} - Edit - User</py:def>
-  <py:def function="page_heading">
-      Edit User: ${c.user_name}
-  </py:def>
+{% extends 'page.html' %}
 
-  <div py:match="content">
-    ${Markup(c.form)}
-  </div>
+{% set user = c.user %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block breadcrumb_content %}
+  <li>{% link_for _('User'), controller='user', action='index' %}</li>
+  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
+    <li>{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
+  {% endwith %}
+  <li class="active">{% link_for _('Edit'), controller='user', action='edit', id=user.name %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  {% snippet 'user/snippets/back_to_user_action.html', user=user %}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {{ c.form | safe }}
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-medium icon-info-sign"></i> {{ _('Account Info') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        Your profile lets other CKAN users know about who you are and what you
+        do.
+      {% endtrans %}
+    </div>
+  </section>
+{% endblock %}

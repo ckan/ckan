@@ -1,16 +1,12 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Logout - User</py:def>
+{% extends "page.html" %}
 
-  <py:def function="page_title">Logout</py:def>
-  <py:def function="page_heading">Logout from ${g.site_title}</py:def>
-  <py:def function="body_class">no-sidebar</py:def>
+{% block subtitle %}{{ _('Logged Out') }}{% endblock %}
 
-  <div py:match="content">
-    <p>You have logged out successfully.</p>
-  </div>
-
-  <xi:include href="layout.html" />
-</html>
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Logged Out') }}</h1>
+      <p>{% trans %}You are now logged out.{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}

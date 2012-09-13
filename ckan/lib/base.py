@@ -7,6 +7,7 @@ from hashlib import md5
 import logging
 import os
 import urllib
+import time
 
 from paste.deploy.converters import asbool
 from pylons import c, cache, config, g, request, response, session
@@ -14,9 +15,10 @@ from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify, validate
-from pylons.i18n import _, ungettext, N_, gettext
+from pylons.i18n import _, ungettext, N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
+from genshi.template.base import TemplateSyntaxError
 from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
@@ -24,7 +26,9 @@ import ckan.exceptions
 import ckan
 import ckan.authz as authz
 from ckan.lib import i18n
+import lib.render
 import ckan.lib.helpers as h
+import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 from ckan.lib.helpers import json
 import ckan.model as model
@@ -58,7 +62,8 @@ def render_snippet(template_name, **kw):
     the extra template variables. '''
     # allow cache_force to be set in render function
     cache_force = kw.pop('cache_force', None)
-    output = render(template_name, extra_vars=kw, cache_force=cache_force)
+    output = render(template_name, extra_vars=kw, cache_force=cache_force,
+                    renderer='snippet')
     output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
         template_name, output, template_name)
     return literal(output)
@@ -74,23 +79,59 @@ def render_text(template_name, extra_vars=None, cache_force=None):
                   loader_class=NewTextTemplate)
 
 
+def render_jinja2(template_name, extra_vars):
+    env = config['pylons.app_globals'].jinja_env
+    template = env.get_template(template_name)
+    return template.render(**extra_vars)
+
+
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force=None):
-    ''' Main genshi template rendering function. '''
+           cache_force = None, renderer=None):
+    ''' Main template rendering function. '''
 
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
         globs['actions'] = model.Action
-        # add the template name to the context to help us know where we are
-        # used in depreciating functions etc
-        c.__template_name = template_name
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
         del globs['url']
 
+        try:
+            template_path, template_type = lib.render.template_info(template_name)
+        except lib.render.TemplateNotFound:
+            template_type  = 'genshi'
+            template_path = ''
+
+        # snippets should not pass the context
+        # but allow for legacy genshi templates
+        if renderer == 'snippet' and template_type  != 'genshi':
+            del globs['c']
+            del globs['tmpl_context']
+
+        log.debug('rendering %s [%s]' % (template_path, template_type))
+        if config.get('debug'):
+            context_vars = globs.get('c')
+            if context_vars:
+                context_vars = dir(context_vars)
+            debug_info = {'template_name' : template_name,
+                          'template_path' : template_path,
+                          'template_type' : template_type,
+                          'vars' : globs,
+                          'c_vars': context_vars,
+                          'renderer' : renderer,}
+            if 'CKAN_DEBUG_INFO' not in request.environ:
+                request.environ['CKAN_DEBUG_INFO'] = []
+            request.environ['CKAN_DEBUG_INFO'].append(debug_info)
+
+        # Jinja2 templates
+        if template_type == 'jinja2':
+            # TODO should we raise error if genshi filters??
+            return render_jinja2(template_name, globs)
+
+        # Genshi templates
         template = globs['app_globals'].genshi_loader.load(template_name,
                                                            cls=loader_class)
         stream = template.generate(**globs)
@@ -167,7 +208,9 @@ class BaseController(WSGIController):
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
+        c.__timer = time.time()
         c.__version__ = ckan.__version__
+        app_globals.app_globals._check_uptodate()
         self._identify_user()
         i18n.handle_request(request, c)
 
@@ -274,6 +317,9 @@ class BaseController(WSGIController):
 
     def __after__(self, action, **params):
         self._set_cors()
+        r_time = time.time() - c.__timer
+        url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+        log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
         response.headers['Access-Control-Allow-Origin'] = "*"

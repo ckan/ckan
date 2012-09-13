@@ -1,0 +1,281 @@
+.dataset-item {
+  border-bottom: 1px dotted @genericBorderColor;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.dataset-item:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.dataset-heading {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.dataset-heading a {
+  color: @listingHeadingTextColor;
+}
+
+.dataset-heading .label {
+  position: relative;
+  top: -1px;
+}
+
+.dataset-content {
+  font-size: 12px;
+}
+
+.dataset-resources {
+  font-size: 10px;
+  line-height: 14px;
+  margin-top: 5px;
+}
+
+.dataset-resources li {
+  display: inline;
+}
+
+.dataset-resources li a {
+  background-color: @resourceFormatBackground;
+}
+
+.dataset-heading .popular {
+  top: 0;
+}
+
+.results {
+  margin-bottom: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px dotted @genericBorderColor;
+}
+
+.results strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1.3;
+  color: @layoutBoldColor;
+  margin-bottom: 10px;
+}
+
+// Use a before block to space out the area occupied by the sort select box
+// this allows the text content in the strong tag to flow correctly around
+// the input.
+.results strong:before {
+  float: right;
+  content: " ";
+  width: 280px;
+  white-space: pre;
+}
+
+.filter-list {
+  color: @layoutTextColor;
+  font-weight: bold;
+}
+
+.filter-list .extra {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: normal;
+  color: @layoutBoldColor;
+}
+
+.dataset-search {
+  position: relative;
+}
+
+.search-giant {
+  position: relative;
+}
+
+.search-giant input {
+  .box-sizing(border-box);
+  font-size: 16px;
+  padding: 14px 10px;
+  width: 100%;
+  height: auto;
+}
+
+.search-giant button {
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: block;
+  border: none;
+  padding: 0;
+  margin-top: -17px;
+  width: 30px;
+  height: 30px;
+  background: transparent url("@{imagePath}/icon-search-27x26.png") no-repeat center center;
+  text-indent: -900em;
+}
+
+.control-order-by {
+  position: absolute;
+  bottom: -65px;
+  right: 0;
+}
+
+.control-order-by label,
+.control-order-by select {
+  display: inline;
+}
+
+.control-order-by select {
+  width: 160px;
+}
+
+// Resource List
+
+.resource-list {
+  .unstyled;
+}
+
+.resource-item {
+  position: relative;
+  padding-left: 40px;
+  padding-right: 110px; // Should really use ems here.
+}
+
+.resource-item .heading {
+  color: @layoutBoldColor;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.resource-item .format-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.resource-item .description {
+  font-size: 12px;
+}
+
+.resource-item .btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+// Dataset Forms
+
+.dataset-resource-form .dataset-form-resource-types {
+  margin-bottom: 5px;
+}
+
+.dataset-form-resource-types .ckan-icon {
+  position: relative;
+  top: 3px;
+}
+
+.dataset-form-resource-types .radio {
+  font-weight: normal;
+  padding-left: 0;
+  padding-right: 18px;
+}
+
+.dataset-form-resource-types label {
+  position: relative;
+}
+
+.dataset-form-resource-types input[type=radio]:checked+label {
+  font-weight: bold;
+}
+
+.dataset-form-resource-types input[type=radio]:checked+label:after {
+  .ckan-icon;
+  .ckan-icon-callout;
+  display: block;
+  content: "";
+  position: absolute;
+  top: auto;
+  left: 0;
+  bottom: -12px;
+}
+
+.dataset-form-resource-types input[type=radio] {
+  display: none;
+}
+
+// Tag List
+
+.tag-list {
+  .unstyled;
+  padding: 10px;
+}
+
+.tag-list li {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.tag-list li:last-child {
+  margin-right: 0;
+}
+
+// Additional Info
+
+.additional-info td,
+.additional-info th {
+  width: 50%;
+}
+
+// FORMATS
+
+.label[data-format=html],
+.label[data-format*=html] {
+  background-color: #55a1ce;
+}
+
+.label[data-format=json],
+.label[data-format*=json] {
+  background-color: #ef7100;
+}
+
+.label[data-format=xml],
+.label[data-format*=xml] {
+  background-color: #ef7100;
+}
+
+.label[data-format=text],
+.label[data-format*=text] {
+  background-color: #74cbec;
+}
+
+.label[data-format=csv],
+.label[data-format*=csv] {
+  background-color: #dfb100;
+}
+
+.label[data-format=xls],
+.label[data-format*=xls] {
+  background-color: #2db55d;
+}
+
+.label[data-format=zip],
+.label[data-format*=zip] {
+  background-color: #686868;
+}
+
+.label[data-format=api],
+.label[data-format*=api] {
+  background-color: #ec96be;
+}
+
+.label[data-format=pdf],
+.label[data-format*=pdf] {
+  background-color: #e0051e;
+}
+
+.label[data-format=rdf],
+.label[data-format*=rdf],
+.label[data-format*=nquad],
+.label[data-format*=ntriples],
+.label[data-format*=turtle] {
+  background-color: #0b4498;
+}

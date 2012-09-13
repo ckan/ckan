@@ -1,0 +1,41 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Organization') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Organizations'), controller='group', action='index' %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  <li>{% link_for _('Add Organization'), controller='group', action='new', class_='btn', icon='plus' %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Organizations') }}</h1>
+      {% if c.page.items %}
+        {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+      {% else %}
+        <p class="empty">
+          {{ _('There are currently no organizations for this site') }}.
+          {% if h.check_access('package_create') %}
+            {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    {{ c.page.pager() }}
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Organizations?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        <p>Organizations allow you to add both users and datasets to it in order to control who can access and manage your datasets</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}

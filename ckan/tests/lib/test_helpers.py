@@ -3,7 +3,7 @@ import time
 import datetime
 from nose.tools import assert_equal, assert_raises
 
-from pylons import config 
+from pylons import config
 
 from ckan.tests import *
 from ckan.lib import helpers as h
@@ -17,7 +17,7 @@ Notes: this is the classic RDF source but historically has had some problems wit
 WITH_UNICODE = u'''[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving.'''
 
 class TestHelpers(TestController):
-        
+
     def test_extract_markdown(self):
         assert "Data exposed" in h.markdown_extract(WITH_HTML)
         assert "collects information" in h.markdown_extract(WITH_UNICODE)
@@ -124,7 +124,7 @@ class TestHelpers(TestController):
         """
         dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26')
         assert_equal(dt.isoformat(), '1994-11-15T12:45:26+00:00')
-    
+
     def test_parse_rfc_2822_no_timezone_specified_assuming_local(self):
         """
         Parse "Tue, 15 Nov 1994 12:45:26" successfully.
@@ -151,3 +151,29 @@ class TestHelpers(TestController):
         dt = h.parse_rfc_2822_date('Tue, 15 Nov 1994 12:45:26 +0700')
         assert_equal(dt.isoformat(), '1994-11-15T12:45:26+07:00')
 
+    def test_escape_js(self):
+
+        input_str = '{"type":"point", "desc":"Bla bla O\'hara.\\nNew line."}'
+
+        expected_str = '{\\"type\\":\\"point\\", \\"desc\\":\\"Bla bla O\\\'hara.\\\\nNew line.\\"}'
+
+        output_str = h.escape_js(input_str)
+
+        assert_equal(output_str, expected_str)
+
+
+    def test_get_pkg_dict_extra(self):
+
+        from ckan.lib.create_test_data import CreateTestData
+        from ckan import model
+        from ckan.logic import get_action
+
+        CreateTestData.create()
+
+        pkg_dict = get_action('package_show')({'model':model,'user':u'tester'},{'id': 'annakarenina'})
+
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'genre'), '"romantic novel"')
+
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
+
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found','default_value'), 'default_value')

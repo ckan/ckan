@@ -1,0 +1,58 @@
+{#
+Construct a facet module populated with links to filtered results.
+
+name
+  The field name identifying the facet field, eg. "tags"
+
+title
+  The title of the facet, eg. "Tags", or "Tag Cloud"
+
+label_function
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a `facet_item`.
+  eg. lambda facet_item: facet_item.display_name.upper()
+  By default it displays the facet item's display name, which should
+  usually be good enough
+
+if_empty
+  A string, which if defined, and the list of possible facet items is empty,
+  is displayed in lieu of an empty list.
+
+count_label
+  A callable which accepts an integer, and returns a string.  This controls
+  how a facet-item's count is displayed.
+
+extras
+  Extra info passed into the add/remove params to make the url
+
+#}
+{% with items = items or h.get_facet_items_dict(name) %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">{{ _('Clear All') }}</a></h2>
+    {% if items %}
+      <nav>
+        <ul class="unstyled nav nav-simple nav-facet">
+          {% for item in items %}
+            {% set href = h.remove_url_param(name, item.name, extras=extras) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras) %}
+            {% set label = label_function(item) if label_function else h.truncate(item.display_name, 22) %}
+            {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
+              <li class="nav-item{% if item.active %} active{% endif %}">
+                <a href="{{ href }}">
+                  <span>{{ label }} {{ count }}</span>
+                </a>
+              </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <p class="module-footer">
+        {% if h.get_param_int('_%s_limit' % name) %}
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">{{ _('Show More {facet}').format(facet=h.get_facet_title(name)) }}</a>
+        {% else %}
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=h.get_facet_title(name)) }}</a>
+        {% endif %}
+      </p>
+    {% else %}
+      <p class="module-content empty">{{ _('There are no filters for this search') }}</p>
+    {% endif %}
+  </section>
+{% endwith %}

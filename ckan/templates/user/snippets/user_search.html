@@ -1,0 +1,13 @@
+<section class="module module-narrow module-shallow simple-input">
+  <h2 class="module-heading">{{ _('Users') }}</h2>
+  <form class="module-content field-bordered" action="{% url_for controller='user', action='index' %}" method="get">
+    <div class="field">
+      <label for="field-user-search">{{ _('Search Users') }}</label>
+      <input id="field-user-search" class="field" name="q" placeholder="{{ _('Search') }}" />
+      <button class="btn-search" type="submit">{{ _('Search') }}</button>
+    </div>
+  </form>
+  <ul class="nav nav-simple">
+    <li class="nav-item">{{ h.nav_link(_('All Users'), controller='user', action='index') }}</li>
+  </ul>
+</section>

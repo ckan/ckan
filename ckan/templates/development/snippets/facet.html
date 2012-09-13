@@ -1,0 +1,15 @@
+<section class="module module-narrow" style="width: 280px">
+  {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
+    <h2 class="module-heading"><i class="icon-medium icon-filter"></i>  Facet List <a href="{{ h.remove_field(name) }}" class="action">Clear All</a></h2>
+    <nav>
+      <ul class="unstyled nav nav-simple nav-facet">
+        {% for value, active in items %}
+          <li class="nav-item{{ ' active' if active }}"><a href="#">{{ value }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+    <p class="module-footer">
+      <a href="#" class="read-more">Read More</a>
+    </p>
+  {% endwith %}
+</section>

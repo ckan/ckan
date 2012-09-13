@@ -35,8 +35,8 @@ class TestAuthProfiles(PylonsTestCase):
         }
 
         module_items = {
-            'ckan.logic.auth': [],
-            'ckan.logic.auth.publisher': []
+            'ckan.logic.auth': {},
+            'ckan.logic.auth.publisher': {}
         }
 
         for module_root in modules.keys():
@@ -48,18 +48,20 @@ class TestAuthProfiles(PylonsTestCase):
                     module = getattr(module, part)
 
                 for key, v in module.__dict__.items():
-                    if not key.startswith('_'):
+                    # we should check these are actually functions
+                    if not key.startswith('_') and key != 'ckan':
                         modules[module_root] = modules[module_root] + 1
-                        module_items[module_root].append( key )
+                        info = '%s.%s.%s' % (module_root, auth_module_name, key)
+                        module_items[module_root][key] = info
 
         err = []
         if modules['ckan.logic.auth'] != modules['ckan.logic.auth.publisher']:
             oldauth = module_items['ckan.logic.auth']
             pubauth = module_items['ckan.logic.auth.publisher']
-            for e in [n for n in oldauth if not n in pubauth]:
-                err.append( '%s is in auth but not publisher auth ' % e )
-            for e in [n for n in  pubauth if not n in oldauth]:
-                err.append( '%s is in publisher auth but not auth ' % e )
-        # Temporarily fudge
-        assert modules['ckan.logic.auth']+8 == modules['ckan.logic.auth.publisher'], modules
-
+            for e in oldauth:
+                if not e in pubauth:
+                    err.append( '%s is in auth but not publisher auth ' % oldauth[e] )
+            for e in pubauth:
+                if not e in oldauth:
+                    err.append( '%s is in publisher auth but not auth ' % pubauth[e] )
+        assert not err, '\n'.join(err)

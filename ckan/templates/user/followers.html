@@ -1,22 +1,23 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">${c.user} - Followers - User</py:def>
-  <py:def function="page_heading">
-      ${c.user_dict.display_name}'s Followers
-  </py:def>
+{% extends "page.html" %}
 
-  <div py:match="content">
-    <ul class="userlist">
-     <li py:for="follower in c.followers" class="user">
-        <ul>
-          ${h.linked_user(follower['name'], maxlength=20)}
-        </ul>
-      </li>
-    </ul>
-  </div>
+{% block subtitle %}{{ _('Followers') }}{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Home'), controller='user', action='me') }}</li>
+  <li class="active">{{ h.nav_link(_('Followers'), controller='user', action='followers', id="") }}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('{name}\'s Followers').format(name=c.user_dict.display_name) }}</h1>
+      <ul class="userlist">
+        {% for follower in c.followers %}
+          <li class="user">
+            {{ h.linked_user(follower['name'], maxlength=20) }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </article>
+{% endblock %}

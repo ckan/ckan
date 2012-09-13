@@ -1,75 +1,29 @@
-<form
-  id="user-edit"
-  action=""
-  method="post"
-  class="form-horizontal ${'has-errors' if errors else ''}"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude">
+{% import 'macros/form.html' as form %}
 
-  <xi:include href="../_util.html" />
+<form class="dataset-form form-horizontal" method="post" action="{{ action }}">
+	{{ form.errors(error_summary) }}
 
-<div class="alert alert-error error-explanation" py:if="error_summary">
-<h2>Errors in form</h2>
-<p>The form contains invalid entries:</p>
-<ul>
-  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
-</ul>
-</div>
-  <fieldset>
-    <div class="control-group">
-      <label for="fullname" class="control-label">Full name</label>
-      <div class="controls">
-        <input type="text" name="fullname" value="${data.get('fullname','')}" />
-      </div>
-    </div>
-    <div class="control-group">
-      <label for="email" class="control-label">E-mail</label>
-      <div class="controls">
-        <input type="text" name="email" value="${data.get('email','')}" />
-      </div>
-    </div>
-    <div class="control-group" py:if="g.openid_enabled">
-      <label for="openid" class="control-label">OpenId</label>
-      <div class="controls">
-        <input type="text" name="openid" value="${data.get('openid','')}" />
-      </div>
-    </div>
-    <div class="control-group">
-      <label for="about" class="control-label">About</label>
-      <div class="controls">
-        ${markdown_editor('about',data.get('about',''),'about',_('A little about you...'))}
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend>Change your password</legend>
-    <div class="control-group">
-      <label for="password1" class="control-label">Password</label>
-      <div class="controls">
-        <input type="password" name="password1" value="" />
-      </div>
-    </div>
-    <div class="control-group">
-      <label for="password2" class="control-label">Password (repeat)</label>
-      <div class="controls">
-        <input type="password" name="password2" value="" />
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend>Change your username</legend>
-    <div class="control-group">
-      <label for="name" class="control-label">Username</label>
-      <div class="controls">
-        <input type="text" name="name" value="${data.get('name','')}" />
-        <p>Changing your username will log you out, and require you to log back in with the new username</p>
-      </div>
-    </div>
-  </fieldset>
-  <div class="form-actions">
-    <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
-    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='user', action='me')}" />
-  </div>
+	<fieldset>
+		<legend>{{ _('Change your details') }}</legend>
+
+		{{ form.input('name', label=_('Username'), id='field-username', value=data.name, error=errors.name, classes=['control-medium']) }}
+
+		{{ form.input('fullname', label=_('Full name'), id='field-fullname', value=data.fullname, error=errors.fullname, placeholder=_('eg. Joe Bloggs'), classes=['control-medium']) }}
+
+		{{ form.input('email', label=_('Email'), id='field-email', type='email', value=data.email, error=errors.email, placeholder=_('eg. joe@example.com'), classes=['control-medium']) }}
+
+		{{ form.markdown('about', label=_('About'), id='field-about', value=data.about, error=errors.about, placeholder=_('A little information about yourself')) }}
+	</fieldset>
+
+	<fieldset>
+		<legend>{{ _('Change your password') }}</legend>
+
+		{{ form.input('password1', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium']) }}
+
+		{{ form.input('password2', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium']) }}
+	</fieldset>
+
+	<div class="form-actions">
+		<button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
+	</div>
 </form>
-

@@ -1,0 +1,50 @@
+<header class="masthead">
+  {% if config.debug %}
+    <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+  {% endif %}
+  <div class="container">
+    {# The .header-image class hides the main text and uses image replacement for the title #}
+    <hgroup class="{{ g.header_class }}">
+      {% if g.site_logo %}
+        <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
+      {% else %}
+        <h1>
+          <a href="{{ h.url('home') }}">{{ g.site_title }}</a>
+        </h1>
+        {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
+      {% endif %}
+    </hgroup>
+    <div class="content">
+      {% if c.userobj %}
+        <div class="account section avatar">
+          <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
+            {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
+          </a>
+          <span class="links">
+            <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
+            <a class="sub" href="{{ h.url_for('/user/_logout') }}">{{ _('Log out') }}</a>
+          </span>
+        </div>
+      {% else %}
+        <nav class="account section">
+          <span class="links">
+            {% link_for _('Log in'), controller='user', action='login' %}
+            {% link_for _('Register'), controller='user', action='register', class_='sub' %}
+          </span>
+        </nav>
+      {% endif %}
+      <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
+        <div class="field">
+          <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
+          <input id="field-sitewide-search" name="q" placeholder="{{ _('Search') }}" />
+          <button class="btn-search" type="submit">{{ _('Search') }}</button>
+        </div>
+      </form>
+      <nav class="first section navigation">
+        <ul class="unstyled">
+          {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>

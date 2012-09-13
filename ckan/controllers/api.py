@@ -1,3 +1,4 @@
+import os.path
 import logging
 import cgi
 import datetime
@@ -145,6 +146,12 @@ class ApiController(base.BaseController):
         response_data = {}
         response_data['version'] = ver
         return self._finish_ok(response_data)
+
+    def snippet(self, snippet_path, ver=None):
+        ''' Renders and returns a snippet used by ajax calls '''
+        # we only allow snippets in templates/ajax_snippets and it's subdirs
+        snippet_path = u'ajax_snippets/' + snippet_path
+        return base.render(snippet_path, extra_vars=dict(request.params))
 
     def action(self, logic_function, ver=None):
         try:
@@ -727,3 +734,14 @@ class ApiController(base.BaseController):
         data_dict = {}
         status = get_action('status_show')(context, data_dict)
         return self._finish_ok(status)
+
+    def i18n_js_translations(self, lang):
+        ''' translation strings for front end '''
+        ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        source = os.path.abspath(os.path.join(ckan_path, 'public',
+                                    'base', 'i18n', '%s.js' % lang))
+        response.headers['Content-Type'] = CONTENT_TYPES['json']
+        if not os.path.exists(source):
+            return '{}'
+        f = open(source, 'r')
+        return(f)

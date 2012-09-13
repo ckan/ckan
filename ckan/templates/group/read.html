@@ -1,66 +1,46 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <xi:include href="../facets.html" />
+{% extends "page.html" %}
 
-  <py:def function="page_title">${c.group_dict.display_name}</py:def>
-  <py:def function="page_heading">${c.group_dict.display_name}</py:def>
-  <py:if test="c.group.image_url">
-    <py:def function="page_logo">${c.group.image_url}</py:def>
-  </py:if>
+{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
-  <py:match path="primarysidebar">
-  
-    <li class="widget-container widget_text">
-      <ul class="property-list">
-        <py:if test="c.group_admins">
-        <li>
-        <h3>Administrators</h3> 
-          <ul class="no-break">
-            <li py:for="admin in c.group_admins">${h.linked_user(admin)}</li>
-          </ul>
-        </li>
-        </py:if>
-      </ul>
-    </li>
-    ${facet_div('tags', _('Tags'))}
-    ${facet_div('res_format', _('Resource Formats'))}
-  </py:match>
+{% block breadcrumb_content %}
+  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
+{% endblock %}
 
-  <py:match path="content">
-    <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
-    <div class="notes" py:if="str(c.description_formatted).strip()">
-      <div id="notes-extract">
-        ${c.description_formatted}
-      </div>
-      <div id="notes-remainder"></div>
-      <div id="notes-toggle" style="display: none;">
-        <button class="more btn"><img src="/images/chevron-down.png"/></button>
-        <button class="less btn" style="display: none;"><img src="/images/chevron-up.png"/></button>
-      </div>
+{% block actions_content %}
+  {% if h.check_access('group_update', {'id': c.group.id}) %}
+    <li>{% link_for _('Add Dataset to Group'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
+    <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='cog' %}</li>
+  {% endif %}
+  {# <li>{% link_for _('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {% include "package/snippets/search_form.html" %}
     </div>
-    <div class="group-dataset-list">
-      <h3>Datasets</h3>
-  <xi:include href="../package/search_form.html" />
-      ${field_list()}   
+    {{ c.page.pager(q=c.q) }}
+  </section>
+{% endblock %}
 
-      <p i18n:msg="query, number_of_results"><span py:if="c.q">You searched for "${c.q}". </span>${c.page.item_count} datasets found.</p>
-      ${c.page.pager()}
-      ${package_list_from_dict(c.page.items)}
-      ${c.page.pager()}
-    </div>
-  </py:match>
+{% block secondary_content %}
+  {% snippet 'snippets/group.html', group=c.group_dict %}
 
-  <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets in group '${c.group['title']}'"
-    href="${h.url(controller='feed', action='group', id=c.group['name'])}" />
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
-    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
-  </py:def>
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-user"></i> {{ _('Administrators') }}</h2>
+    <ul class="nav nav-simple">
+      {% for admin in c.group_admins %}
+        <li class="nav-item image">{{ h.linked_user(admin, 30) }}</li>
+      {% endfor %}
+    </ul>
+  </section>
 
-  <xi:include href="layout.html" />
-</html>
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
+{% endblock %}
 
-
+{% block links %}
+  {{ super() }}
+  {% include "group/snippets/feeds.html" %}
+{% endblock %}

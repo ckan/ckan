@@ -31,6 +31,9 @@ fl_notes.txt
 # local symlinks
 ckan/public/scripts/ckanjs.js
 
+# custom style
+ckan/public/base/less/custom.less
+
 # nosetest coverage output
 .coverage
 htmlcov/*

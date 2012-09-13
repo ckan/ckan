@@ -136,10 +136,18 @@ from follower import (
     UserFollowingUser,
     UserFollowingDataset,
 )
+from system_info import (
+    system_info_table,
+    SystemInfo,
+    get_system_info,
+    set_system_info,
+    delete_system_info,
+)
 from domain_object import (
     DomainObjectOperation,
     DomainObject,
 )
+
 import ckan.migration
 
 log = logging.getLogger(__name__)

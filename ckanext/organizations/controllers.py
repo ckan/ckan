@@ -51,8 +51,9 @@ class OrganizationController(BaseController):
             'requester': c.userobj,
             'reason'   : reason
         }
-        email_msg = render("email/join_publisher_request.txt", extra_vars=extra_vars,
-                         loader_class=NewTextTemplate)
+        email_msg = render("organizations/email/join_publisher_request.txt",
+                           extra_vars=extra_vars,
+                           loader_class=NewTextTemplate)
 
         try:
             for (name,recipient) in recipients:
@@ -90,8 +91,8 @@ class OrganizationController(BaseController):
         data.update(request.params)
 
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
-        c.form = render('organization_apply_form.html', extra_vars=vars)
-        return render('organization_apply.html')
+        c.form = render('organizations/apply_form.html', extra_vars=vars)
+        return render('organizations/apply.html')
 
     def _add_users( self, group, parameters  ):
         if not group:
@@ -161,9 +162,9 @@ class OrganizationController(BaseController):
                                 for user in c.group.members_of_type( model.User, 'editor' ).all() )
 
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
-        c.form = render('organization_users_form.html', extra_vars=vars)
+        c.form = render('organizations/users_form.html', extra_vars=vars)
 
-        return render('organization_users.html')
+        return render('organizations/users.html')
 
     def _add_publisher_list(self):
         c.possible_parents = model.Session.query(model.Group).\

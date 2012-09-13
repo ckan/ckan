@@ -142,6 +142,7 @@ class GroupController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
+        #sort_by = request.params.get('sort', 'name asc')
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
@@ -152,16 +153,17 @@ class GroupController(BaseController):
             return url + u'?' + urlencode(params)
 
         def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+            return h.add_url_param(alternative_url=None,
+                                   controller='group', action='read',
+                                   extras=dict(id=c.group_dict.get('name')),
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
-            params = list(params_nopage)
-            params.remove((key, value))
-            return search_url(params)
+        def remove_field(key, value=None, replace=None):
+            return h.remove_url_param(key, value=value, replace=replace,
+                                  controller='group', action='read',
+                                  extras=dict(id=c.group_dict.get('name')))
 
         c.remove_field = remove_field
 
@@ -213,6 +215,14 @@ class GroupController(BaseController):
               'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
+            c.facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+            c.search_facets_limits = {}
+            for facet in c.facets.keys():
+                limit = int(request.params.get('_%s_limit' % facet, 10))
+                c.search_facets_limits[facet] = limit
             c.page.items = query['results']
 
             c.sort_by_selected = sort_by
@@ -251,7 +261,8 @@ class GroupController(BaseController):
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
@@ -290,7 +301,8 @@ class GroupController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'edit'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
@@ -384,6 +396,30 @@ class GroupController(BaseController):
         roles = self._handle_update_of_authz(group)
         self._prepare_authz_info_for_render(roles)
         return render('group/authz.html')
+
+    def delete(self, id):
+        if 'cancel' in request.params:
+            h.redirect_to(controller='group', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('group_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+
+        try:
+            if request.method == 'POST':
+                get_action('group_delete')(context, {'id': id})
+                h.flash_notice(_('Group has been deleted.'))
+                h.redirect_to(controller='group', action='index')
+            c.group_dict = get_action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return render('group/confirm_delete.html')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:

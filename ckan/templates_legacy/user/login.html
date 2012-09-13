@@ -1,0 +1,87 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="optional_head">
+    <!-- Simple OpenID Selector -->
+    <link rel="stylesheet" href="${h.url_for_static('/scripts/vendor/openid-selector/css/openid.css')}" />
+  </py:def>
+  <py:def function="optional_footer">
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/openid-selector/js/openid-jquery.js')}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+          openid.init('openid_identifier');
+      });
+    </script>
+  </py:def>
+  
+  <py:def function="page_title">Login - User</py:def>
+  <py:def function="page_heading">Login to ${g.site_title}</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
+
+  <div py:match="content">
+
+    <form action="${c.login_handler}" method="post" class="form-horizontal" id="login">  
+      <fieldset>
+        <!--legend i18n:msg="site_title">Login</legend-->
+        <div class="control-group">
+          <label class="control-label" for="login">Login:</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge" name="login" id="login" value="" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="password">Password:</label>
+          <div class="controls">
+            <input type="password" name="password" id="password" value="" />
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="remember">Remember me:</label>
+          <!-- optional 2 year cookie expiry -->
+          <div class="controls">
+            <input type="checkbox" name="remember" id="remember" value="63072000" checked="checked"/>
+          </div>
+        </div>        
+
+        <div class="form-actions">
+          <button name="s" id="s" type="submit" class="btn btn-primary">${_('Sign In')}</button>
+          &mdash; 
+          <a href="${h.url_for(controller='user', action='request_reset')}">Forgot your password?</a>
+        </div>
+      </fieldset>
+    </form>
+    <br/> 
+    <!-- Simple OpenID Selector -->
+    <form py:if="g.openid_enabled" action="${h.url_for('/login_openid')}" method="post"
+      class="simple-form" id="openid_form">
+      <input type="hidden" name="action" value="verify" />
+      <fieldset>
+        <legend i18n:msg="site_title">Login using Open ID</legend>
+        <p i18n:msg="site_title">NB: To set-up your OpenID for this site, you first need to <a href="${h.url_for(controller='user', action='register')}">Register</a> and then edit your Profile to provide your OpenID.</p>
+        <div id="openid_choice">
+          <p>Please click your account provider:</p>
+          <div id="openid_btns"></div>
+        </div>
+        <div id="openid_input_area">
+          <label for="openid_identifier">OpenID Identifier:</label>
+          <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
+        </div>
+      <div py:if="g.openid_enabled">
+        <h3>Don't have an OpenID?</h3>
+        <p i18n:msg="">
+          OpenID is service that allows you to log-on to many different websites
+          using a single identity. Find out <a href="http://openid.net/what/">more
+          about OpenID</a> and <a href="http://openid.net/get/">how to get an
+          OpenID enabled account</a>. Probably the simplest way is sign up with a
+          free OpenID provider such as <a 
+          href="https://www.myopenid.com/">https://www.myopenid.com/</a>.
+        </p>
+      </div>
+      </fieldset>
+      <input id="openid_submit" type="submit" class="btn primary" value="${_('Sign in with OpenID')}"/>
+    </form>
+  </div>
+  <xi:include href="layout.html" />
+</html>

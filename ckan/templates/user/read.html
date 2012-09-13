@@ -1,95 +1,110 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
+{% extends "page.html" %}
 
-  <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
-  <py:def function="page_heading">
-    ${h.linked_gravatar(c.user_dict['email_hash'],48)}
-    <span class="username">
-    ${c.user_dict['name']}
-    </span>
-    <py:if test="c.user_dict['fullname']">
-    <span class="fullname">
-      (${c.user_dict['fullname']})
-    </span>
-    </py:if>
-  </py:def>
+{% set user = c.user_dict %}
 
-  <div py:match="content" py:strip="">
-    <div class="summary">
-      <div class="row">
-        <div class="span6">
-          <dl class="vcard">
-            <dt>Name</dt>
-            <dd>${c.user_dict['fullname'] or 'No name provided'}</dd>
-            <dt>Member since</dt>
-            <dd>${h.render_datetime(c.user_dict['created'])}</dd>
-            <py:if test="unicode(c.about_formatted)">
-            <dt>About</dt>
-            <dd>${c.about_formatted}</dd>
-            </py:if>
-          <py:if test="c.is_myself">
-            <dt>Email</dt>
-            <dd>
-              <py:if test="c.user_dict['email']">
-              ${h.mail_to(c.user_dict['email'], encode='javascript')}
-              </py:if>
-              <py:if test="not c.user_dict['email']">
-              No email
-              </py:if>
-            </dd>
-            <!--checkpoint:is-myself-->
-            <dt>API Key</dt>
-            <dd>
-            ${c.user_dict['apikey']}
-            <br />
-            <em>&ndash; Note: your API key is visible only to you!</em>
-            </dd>
-          </py:if>
-          </dl>
-        </div>
-        <div class="span6">
-          <ul class="stats">
-            <li>
-              <strong>${c.user_dict['number_administered_packages']}</strong>
-              <span>Datasets</span>
-            </li>
-            <li>
-              <strong>${c.user_dict['number_of_edits']}</strong>
-              <span>Edits</span>
-            </li>
-            <li>
-              <a href="${h.url_for(controller='user', action='followers',
-                  id=c.user_dict.name)}">
-                <strong>${c.num_followers}</strong>
-                <span>Followers</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div><!-- /row -->
-    </div><!-- /summary -->
-    <div class="rule"></div>
+{% block subtitle %}{{ user.display_name }}{% endblock %}
 
-    <div class="listing">
-      <div class="row">
-        <div class="span6">
-          <div class="datasets">
-            <h2>Datasets</h2>
-            ${package_list_from_dict(c.user_dict['datasets'])}
-          </div>
-        </div>
-        <div class="span6">
-          <div class="changes">
-            <h2>Public Activity</h2>
-            <div class="activity-stream">
-              ${c.user_activity_stream}
-            </div>
-          </div>
-        </div>
-      </div><!-- /row -->
-    </div><!-- /listing -->
-  </div>
+{% block breadcrumb_content %}
+  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
+  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
+    <li class="active">{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
+  {% endwith %}
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block actions_content %}
+{% if c.is_myself %}
+{# FIXME dashboard disabled #}
+  {#    <li>{% link_for _('Dashboard'), controller='user', action='dashboard', class_='btn', icon='dashboard' %}</li>  #}
+  {% endif %}
+  {% if h.check_access('user_update', user) %}
+    <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module profile">
+    <section class="module-content profile-info">
+      <header class="media">
+        <span class="media-image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
+        <div class="description">
+          <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
+          {% if c.about_formatted %}
+            {{ c.about_formatted }}
+          {% else %}
+            <p class="empty">
+              {% if c.is_myself %}
+                {% trans %}You have not provided a biography.{% endtrans %}
+              {% else %}
+                {% trans %}This user has no biography.{% endtrans %}
+              {% endif %}
+            </p>
+          {% endif %}
+        </div>
+      </header>
+      <ul class="listing unstyled">
+        <li>
+          {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+            <b class="key">{{ _('Open ID') }}:</b>
+            {{ user.name|urlize(25) }}{# Be great if this just showed the domain #}
+          {% else %}
+            <b class="key">{{ _('Username') }}:</b>
+            <span class="value">{{ user.name }}</span>
+          {% endif %}
+        </li>
+        {% if c.is_myself %}
+          <li>
+            <b class="key">{{ _('Email') }}:</b>
+            <span class="value">{{ user.email }}</span>
+          </li>
+        {% endif %}
+        <li>
+          <b class="key">{{ _('Member Since') }}:</b>
+          <span class="value">{{ h.render_datetime(user.created) }}</span>
+        </li>
+        {% if c.is_myself %}
+          <li>
+            <b class="key">{{ _('API Key') }}:</b>
+            <span class="value">{{ user.apikey }}</span>
+          </li>
+        {% endif %}
+        <li>
+          <b class="key">{{ _('Datasets') }}:</b>
+          <span class="value">{{ user.number_administered_packages }}</span>
+          <b class="key inline">{{ _('Edits') }}:</b>
+          <span class="value">{{ user.number_of_edits }}</span>
+        </li>
+      </ul>
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#datasets" data-toggle="tab">{{ _('Datasets') }}</a></li>
+        <li><a href="#activity" data-toggle="tab">{{ _('Activity Stream') }}</a></li>
+      </ul>
+    </section>
+    <section id="datasets" class="module-content tab-content active clearfix">
+      <h2 class="tab-heading">{{ _('Datasets') }}</h2>
+      {% if user.datasets %}
+        {% snippet 'snippets/package_list.html', packages=user.datasets %}
+      {% else %}
+
+        {% if c.is_myself %}
+          <p class="empty">
+            {{ _('You haven\'t created any datasets.') }}
+            {% link_for _('Create one now?'), controller='package', action='new' %}.
+          </p>
+        {% else %}
+          <p class="empty">
+            {{ _('User hasn\'t created any datasets.') }}
+          </p>
+        {% endif %}
+
+      {% endif %}
+    </section>
+    <section id="activity" class="module-content module-activity tab-content">
+      <h2 class="tab-heading">{{ _('Activity Stream') }}</h2>
+      {{ c.user_activity_stream | safe }}
+    </section>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'user/snippets/user_search.html' %}
+{% endblock %}

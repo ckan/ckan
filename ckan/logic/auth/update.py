@@ -42,7 +42,7 @@ def resource_update(context, data_dict):
     authorized = package_update(context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read edit %s') % (str(user), resource.id)}
+        return {'success': False, 'msg': _('User %s not authorized to edit resource %s') % (str(user), resource.id)}
     else:
         return {'success': True}
 

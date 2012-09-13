@@ -1,14 +1,15 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Error ${c.code}</py:def>
+{% extends "page.html" %}
 
-  <div py:match="content">
+{% block subtitle %}{{ gettext('Error %(error_code)s', error_code=c.code[0]) }}{% endblock %}
 
-    ${c.content}
+{% block primary_content %}
+	{{ c.content}}
+{% endblock %}
 
-  </div>
+{% block breadcrumb %}
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block flash %}
+    {# eat the flash messages caused by the 404 #}
+    {% set flash_messages = h.flash.pop_messages() %}
+{% endblock %}

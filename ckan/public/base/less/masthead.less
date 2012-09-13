@@ -1,0 +1,228 @@
+@mastheadPadding: 5px 10px 3px;
+
+.masthead {
+  #gradient > .vertical(@mastheadBackgroundColorStart, @mastheadBackgroundColorEnd);
+  .clearfix();
+  color: @mastheadTextColor;
+  padding: @mastheadPadding;
+}
+
+.masthead .container {
+  position: relative;
+}
+
+.masthead a {
+  color: @mastheadLinkColor;
+}
+
+.masthead hgroup,
+.masthead nav {
+  .clearfix;
+  min-height: 52px;
+  position: relative;
+  display: inline-block;
+}
+
+.masthead hgroup h1,
+.masthead hgroup h2 {
+  font-size: 34px;
+  line-height: 1.5;
+  float: left;
+}
+
+.masthead hgroup h1 {
+  font-family: "Arial Black", "Arial Bold", Gadget, sans-serif;
+  letter-spacing: -2px; // Sorry world of typography.
+}
+
+.masthead hgroup h2 { 
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: normal;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.masthead .tagline-right h2 {
+  left: auto;
+  right: 0;
+}
+
+.masthead hgroup a {
+  text-decoration: none;
+}
+
+.masthead .logo {
+  margin-right: 10px;
+  float: left;
+}
+
+.masthead .logo img {
+  display: block;
+}
+
+.masthead .content {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 0;
+}
+
+.masthead .content > * {
+  float: right;
+}
+
+.masthead nav {
+  display: inline-block;
+  line-height: 40px;
+}
+
+.masthead nav ul {
+  margin: 0;
+}
+
+.masthead nav li {
+  display: inline-block;
+}
+
+.masthead nav li a {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+}
+
+.masthead nav li a.active {
+  @insetBoxShadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  .border-radius(3px);
+  .box-shadow(@insetBoxShadow);
+  box-shadow: @insetBoxShadow, 0 1px 0 rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.masthead .account {
+  position: relative;
+  padding-top: 7px;
+}
+
+.masthead .account.avatar {
+  padding-left: 55px;
+}
+
+.masthead .section {
+  margin-left: 20px;
+  padding-left: 20px;
+  min-height: 35px;
+}
+
+.masthead .section:before,
+.masthead .section:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -@mastheadPadding - 10;
+  left: 0;
+  bottom: -@mastheadPadding - 10;
+  width: 1px;
+  background-color: lighten(@mastheadBackgroundColorStart, 5);
+  #gradient > .radial(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  .rgba-vertical-gradient-three-colors(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), 0.5, rgba(255, 255, 255, 0));
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.masthead .section:before {
+}
+
+.masthead .section:after {
+  left: -1px;
+  background-color: darken(@mastheadBackgroundColorStart, 5);
+  #gradient > .radial(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+  .rgba-vertical-gradient-three-colors(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), 0.5, rgba(0, 0, 0, 0));
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.masthead .section.first:after,
+.masthead .section.first:before {
+  content: none;
+}
+
+.masthead .navigation {
+  margin-right: -10px; // Pull nav in to the right.
+}
+
+.masthead .account .image {
+  position: absolute;
+  left: 20px;
+  top: 6px;
+}
+
+.masthead .account .image img {
+  display: block;
+}
+
+.masthead .links {
+  display: block;
+  position: relative;
+  top: -2px;
+}
+
+.masthead .links a {
+  line-height: 13px;
+  float: left;
+}
+
+.masthead .links .sub {
+  font-size: 11px;
+  clear: left;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.masthead .site-search {
+  position: relative;
+  margin: 0;
+  margin-left: 20px;
+  padding: 0 0 0 20px;
+}
+
+.masthead .site-search .field {
+  padding: 0;
+  margin-top: 5px;
+}
+
+.masthead .site-search input {
+  width: 190px;
+  font-size: 11px;
+  padding: 4px;
+}
+
+.masthead .site-search button {
+
+}
+
+// Logo Image Replacement
+
+.masthead .header-image {
+  font: inherit; // Override Bootstrap .hide-text
+  text-indent: -900em;
+  min-height: 50px;
+}
+
+.masthead .header-image .logo {
+  position: absolute;
+  top: 0;
+  left: 0; 
+  display: block;
+  width: 240px;
+  height: 50px;
+  text-indent: 0;
+}
+
+.masthead .debug {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
