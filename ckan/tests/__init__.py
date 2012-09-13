@@ -45,6 +45,7 @@ __all__ = ['url_for',
            'CkanServerCase',
         ]
 
+
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
@@ -403,4 +404,5 @@ class StatusCodes:
     STATUS_403_ACCESS_DENIED = 403
     STATUS_404_NOT_FOUND = 404
     STATUS_409_CONFLICT = 409
+
 

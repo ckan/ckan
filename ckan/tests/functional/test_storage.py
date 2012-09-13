@@ -11,6 +11,9 @@ from ckan.controllers.storage import create_pairtree_marker
 class TestStorageAPIController:
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         config = appconfig('config:test.ini', relative_to=conf_dir)
         for key in config.local_conf.keys():
             if key.startswith('ofs'):
@@ -40,11 +43,11 @@ class TestStorageAPIController:
 
         # Non logged in users can not upload
         res = self.app.get(url, status=[302,401])
-        
+
         # Logged in users can upload
         res = self.app.get(url, status=[200], extra_environ={'REMOTE_USER':'tester'})
-       
-        
+
+
         # TODO: ? test for non-authz case
         # url = url_for('storage_api_auth_form', label='abc')
         # res = self.app.get(url, status=[302,401])
@@ -53,6 +56,9 @@ class TestStorageAPIController:
 class TestStorageAPIControllerLocal:
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         config = appconfig('config:test.ini', relative_to=conf_dir)
         for key in config.local_conf.keys():
             if key.startswith('ofs'):
@@ -103,6 +109,9 @@ class TestStorageAPIControllerLocal:
 class _TestStorageAPIControllerGoogle:
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         config = appconfig('config:test.ini', relative_to=conf_dir)
         config.local_conf['ckan.storage.bucket'] = 'ckantest'
         config.local_conf['ofs.impl'] = 'google'

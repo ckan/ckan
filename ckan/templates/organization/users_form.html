@@ -47,12 +47,14 @@
 		</tbody>
 	</table>
 
-	<legend>{{ _('Add user') }}</legend>
-	<div class="control-group organization-adduser">
-		<label for="users__{{data.users|length}}__name" class="control-label">{{ _('Username') }}</label>
-		<div class="controls">
-			<input id="users__{{data.users|length}}__name" name="users__{{data.users|length}}__name" type="text">
-			<input id="users__{{data.users|length}}__capacity" name="users__{{data.users|length}}__capacity" value="editor" type="hidden">
+	<div class="organization-adduser">
+		<legend>{{ _('Add user') }}</legend>
+		<div class="control-group">
+			<label for="users__{{data.users|length}}__name" class="control-label">{{ _('Username') }}</label>
+			<div class="controls">
+				<input id="users__{{data.users|length}}__name" name="users__{{data.users|length}}__name" type="text" data-module="autocomplete" data-module-source="/api/2/util/user/autocomplete?q=?" data-module-completions="parseCompletionsForUsers">
+				<input id="users__{{data.users|length}}__capacity" name="users__{{data.users|length}}__capacity" value="editor" type="hidden">
+			</div>
 		</div>
 	</div>
 

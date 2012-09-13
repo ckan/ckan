@@ -72,6 +72,9 @@ class Select(paste.fixture.Field):
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         MockVocabTagsPlugin().set_active(True)
         CreateTestData.create(package_type='mock_vocab_tags_plugin')
         cls.sysadmin_user = model.User.get('testsysadmin')

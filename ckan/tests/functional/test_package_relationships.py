@@ -6,6 +6,9 @@ from base import FunctionalTestCase
 class TestRelationships(FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         create = CreateTestData
         create.create_family_test_data()
 
@@ -27,7 +30,7 @@ class TestRelationships(FunctionalTestCase):
         self.check_named_element(res, 'li', 'is a parent of', 'lisa')
         self.check_named_element(res, 'li', 'has derivation', 'homer_derived')
         self.check_named_element(res, 'li', 'depends on', 'beer')
-        
+
         res = read_package(u'bart')
         self.check_named_element(res, 'li', 'has sibling', 'lisa')
         self.check_named_element(res, 'li', 'is a child of', 'homer')

@@ -6,6 +6,9 @@ class TestRevisionController(TestController):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         # rebuild db before this test as it depends delicately on what
         # revisions exist
@@ -134,7 +137,7 @@ class TestRevisionController(TestController):
         model.repo.commit()
 
     def get_package(self, name):
-        return model.Package.by_name(name) 
+        return model.Package.by_name(name)
 
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -151,7 +154,7 @@ class TestRevisionController(TestController):
         #assert "Datasets' Tags" in res
         #res = res.click('annakarenina', index=0)
         #assert 'Datasets - annakarenina' in res
-        
+
     def test_list_format_atom(self):
         self.create_40_revisions()
         self.create_updating_revision(u'warandpeace',

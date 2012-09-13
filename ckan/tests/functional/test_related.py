@@ -11,6 +11,9 @@ import ckan.tests.functional.api.base as apibase
 class TestRelatedUI(base.FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         tests.CreateTestData.create()
 

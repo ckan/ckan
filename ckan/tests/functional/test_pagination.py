@@ -35,6 +35,9 @@ def test_scrape_user():
 class TestPaginationPackage(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         model.repo.init_db()
 
@@ -82,6 +85,9 @@ class TestPaginationPackage(TestController):
 class TestPaginationGroup(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # no. entities per page is hardcoded into the controllers, so
         # create enough of each here so that we can test pagination
         cls.num_groups = 21
@@ -110,6 +116,9 @@ class TestPaginationGroup(TestController):
 class TestPaginationUsers(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # Delete default user as it appears in the first page of results
         model.User.by_name(u'logged_in').purge()
         model.repo.commit_and_remove()
