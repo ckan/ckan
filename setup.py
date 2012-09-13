@@ -109,6 +109,7 @@ setup(
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     datastore=ckanext.datastore.plugin:DatastorePlugin
+    datastore_htsql = ckanext.datastore_htsql.plugin:DatastoreHTSQLPlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
