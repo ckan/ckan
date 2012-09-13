@@ -303,7 +303,9 @@ def organization_name_validator(key, data, errors, context):
         if result and result.id == organization.id:
             result = None
     else:
-        result = session.query(model.Group).filter(model.Group.name == data.get(key[:-1] + ('id',))).first()
+        from pdb import set_trace; set_trace()
+
+        result = session.query(model.Group).filter(model.Group.name == data.get(key[:-1] + ('name',))).first()
 
     if result:
         errors[key].append(_('Organization name already exists in database'))
