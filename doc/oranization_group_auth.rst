@@ -26,6 +26,19 @@ admin before they can start adding content. By having multiple organizations
 with different admins, they can distribute the responsibility for giving users
 permission to create content.
 
+**If we have organizations, then what are groups for?**
+The main difference between organizations and groups are:
+
+1. A member of an organization can edit any of the datasets in that
+   organization. Members of groups do not get permission to edit the group's
+   datasets, only to add datasets to and remove datasets from the group.
+
+2. A dataset must belong to exactly one organization, but can belong no group
+   or to multiple groups.
+
+Organizations are more about controlling who has permission to add and edit
+datasets, whereas groups are just about categorizing datasets.
+
 data.gov.uk or thedatahub.org could use groups if they wanted a way for the
 public to organize the datasets into categories or wanted groups of people to
 collaborate on subsets of the datasets and they wanted this collaboration to be
