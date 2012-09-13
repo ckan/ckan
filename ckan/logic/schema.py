@@ -227,17 +227,12 @@ def default_organization_schema():
             "name":[ignore_missing, unicode],
             "__extras": [ignore]
         },
-         'groups': {
+         'organizations': {
             "name": [not_empty, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         },
         'users': {
-            "name": [not_empty, unicode],
-            "capacity": [ignore_missing],
-            "__extras": [ignore]
-        },
-        'groups': {
             "name": [not_empty, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
@@ -287,6 +282,7 @@ def default_group_schema():
 
 def organization_form_schema():
     schema = default_organization_schema()
+    schema['id'] = [not_empty, unicode]
     schema['packages'] = {
         "name": [not_empty, unicode],
         "title": [ignore_missing],

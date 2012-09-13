@@ -539,7 +539,7 @@ def organization_update(context, data_dict):
     if organization is None:
         raise NotFound('Organization was not found.')
 
-    schema = ckan.logic.schema.group_form_schema()
+    schema = ckan.logic.schema.organization_form_schema()
 
     _check_access('organization_update', context, data_dict)
 
@@ -594,7 +594,7 @@ def organization_update(context, data_dict):
     # activity.
     if organization.state == u'deleted':
         if session.query(ckan.model.Activity).filter_by(
-                object_id=group.id, activity_type='deleted').all():
+                object_id=organization.id, activity_type='deleted').all():
             # A 'deleted group' activity for this group has already been
             # emitted.
             # FIXME: What if the group was deleted and then activated again?
@@ -602,6 +602,7 @@ def organization_update(context, data_dict):
         else:
             # We will emit a 'deleted group' activity.
             activity_dict['activity_type'] = 'deleted organization'
+
     if activity_dict is not None:
         activity_dict['data'] = {
                 'organization': ckan.lib.dictization.table_dictize(organization, context)
@@ -610,10 +611,13 @@ def organization_update(context, data_dict):
             'model': model,
             'user': user,
             'defer_commit':True,
-            'session': session
+            'session': session,
+            'organization_id': organization.id
         }
-        _get_action('activity_create')(activity_create_context, activity_dict,
-                ignore_auth=True)
+
+        # FIXME: Re-enable
+        #_get_action('activity_create')(activity_create_context, activity_dict,
+        #            ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
