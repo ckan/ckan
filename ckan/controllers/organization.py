@@ -197,7 +197,7 @@ class OrganizationController(BaseController):
         # later.
         c.organization_activity_stream = \
             get_action('organization_activity_list_html')(context,
-                                                   {'id': c.organization_dict['id']})
+                                                   {'id': c.organization.id})
 
         return render('organization/read.html')
 

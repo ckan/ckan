@@ -976,6 +976,10 @@ def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
 
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
@@ -1377,6 +1381,7 @@ __allowed_functions__ = [
            'related_item_link',
            'tag_link',
            'group_link',
+           'organization_link',
            'dump_json',
            'auto_log_message',
            'snippet',
