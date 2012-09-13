@@ -521,6 +521,7 @@ def unselected_facet_items(facet, limit=10):
     '''
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
+@deprecated('Please use get_facet_title(name) for i18n improvements.')
 def facet_title(name):
     '''Returns a title for the given facet name.
     
@@ -1318,7 +1319,7 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_title',
+         # 'facet_title',  # deprecated
          #  am_authorized, # deprecated
            'check_access',
            'linked_user',

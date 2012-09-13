@@ -32,7 +32,7 @@ count_label
 -->
 <py:def function="facet_div(name, title, limit=10, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
     <div py:if="if_empty is not None or h.unselected_facet_items(name, limit)" class="facet-box">
-        <h2>${h.facet_title(title)}</h2>
+        <h2>${h.get_facet_title(title)}</h2>
         <ul class="facet-options">
             ${facet_li(name, limit=limit, label_function=label_function, if_empty=None, count_label=count_label)}
         </ul>
@@ -78,7 +78,7 @@ count_label
 <py:def function="field_list()">
     <div class="filter-list" py:if="c.fields">
         <div class="filter-entry" py:for="(field, value) in c.fields">
-            <span class="name">${h.facet_title(field)}</span>
+            <span class="name">${h.get_facet_title(field)}</span>
             <span class="value" py:choose="">
                 <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
                     ${c.translated_fields[(field,value)]}
