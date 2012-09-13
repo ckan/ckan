@@ -162,7 +162,7 @@ def datastore_search(context, data_dict):
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
-    resources_sql = text(u'select 1 from "_table_metadata" where name = :id')
+    resources_sql = text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 

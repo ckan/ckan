@@ -67,7 +67,7 @@ class DatastorePlugin(p.SingletonPlugin):
             try:
                 connection = engine.connect()
                 result = connection.execute(
-                    'select 1 from pg_tables where tablename = %s',
+                    'SELECT 1 FROM pg_tables WHERE tablename = %s',
                     new_data_dict['id']
                 ).fetchone()
                 if result:
@@ -92,7 +92,7 @@ class DatastorePlugin(p.SingletonPlugin):
         all internal tables via the api.
         '''
 
-        if  self.write_url == self.read_url:
+        if self.write_url == self.read_url:
             raise Exception("The write and read-only database connection url are the same.")
 
         if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):

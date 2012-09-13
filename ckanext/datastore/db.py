@@ -95,7 +95,7 @@ def _cache_types(context):
     if not _pg_types:
         connection = context['connection']
         results = connection.execute(
-            'select oid, typname from pg_type;'
+            'SELECT oid, typname FROM pg_type;'
         )
         for result in results:
             _pg_types[result[0]] = result[1]
@@ -108,7 +108,7 @@ def _cache_types(context):
             except Exception:
                 pass
 
-            connection.execute('create type "nested" as (json {0}, extra text)'
+            connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
                 .format('json' if native_json else 'text'))
             _pg_types.clear()
 
@@ -179,7 +179,7 @@ def _guess_type(field):
 def _get_fields(context, data_dict):
     fields = []
     all_fields = context['connection'].execute(
-        u'select * from "{0}" limit 1'.format(data_dict['resource_id'])
+        u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
     )
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
@@ -271,7 +271,7 @@ def create_table(context, data_dict):
     sql_fields = u", ".join([u'"{0}" {1}'.format(f['id'], f['type'])
                             for f in fields])
 
-    sql_string = u'create table "{0}" ({1});'.format(
+    sql_string = u'CREATE TABLE "{0}" ({1});'.format(
         data_dict['resource_id'],
         sql_fields
     )
@@ -281,7 +281,7 @@ def create_table(context, data_dict):
 
 def _get_aliases(context, data_dict):
     res_id = data_dict['resource_id']
-    alias_sql = text(u'select name from "_table_metadata" where alias_of = :id')
+    alias_sql = text(u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
     results = context['connection'].execute(alias_sql, id=res_id).fetchall()
     return [x[0] for x in results]
 
@@ -292,11 +292,11 @@ def create_alias(context, data_dict):
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
-            sql_alias_drop_string = u'drop view "{0}"'.format(alias)
+            sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
             context['connection'].execute(sql_alias_drop_string)
 
         for alias in aliases:
-            sql_alias_string = u'create view "{alias}" as select * from "{main}"'.format(
+            sql_alias_string = u'CREATE VIEW"{alias}" AS SELECT * FROM "{main}"'.format(
                 main=data_dict['resource_id'],
                 alias=alias
             )
@@ -314,7 +314,7 @@ def create_indexes(context, data_dict):
     if indexes == None and primary_key == None:
         return
 
-    sql_index_string = u'create {unique} index on "{res_id}" using {method}({fields})'
+    sql_index_string = u'CREATE {unique} INDEX ON "{res_id}" USING {method}({fields})'
     sql_index_strings = []
     field_ids = _pluck('id', _get_fields(context, data_dict))
 
@@ -357,21 +357,21 @@ def create_indexes(context, data_dict):
 
 
 def _drop_indexes(context, data_dict, unique=False):
-    sql_drop_index = u'drop index "{0}" cascade'
+    sql_drop_index = u'DROP INDEX "{0}" CASCADE'
     sql_get_index_string = u"""
-        select
-            i.relname as index_name
-        from
+        SELECT
+            i.relname AS index_name
+        FROM
             pg_class t,
             pg_class i,
             pg_index idx
-        where
+        WHERE
             t.oid = idx.indrelid
-            and i.oid = idx.indexrelid
-            and t.relkind = 'r'
-            and idx.indisunique = {unique}
-            and idx.indisprimary = false
-            and t.relname = %s
+            AND i.oid = idx.indexrelid
+            AND t.relkind = 'r'
+            AND idx.indisunique = {unique}
+            AND idx.indisprimary = false
+            AND t.relname = %s
         """.format(unique='true' if unique else 'false')
     indexes_to_drop = context['connection'].execute(
         sql_get_index_string, data_dict['resource_id']).fetchall()
@@ -426,7 +426,7 @@ def alter_table(context, data_dict):
                 })
 
     for field in new_fields:
-        sql = 'alter table "{0}" add "{1}" {2}'.format(
+        sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
             data_dict['resource_id'],
             field['id'],
             field['type'])
@@ -471,7 +471,7 @@ def upsert_data(context, data_dict):
             row.append(_to_full_text(fields, record))
             rows.append(row)
 
-        sql_string = u'insert into "{res_id}" ({columns}) values ({values}, to_tsvector(%s));'.format(
+        sql_string = u'INSERT INTO "{res_id}" ({columns}) VALUES ({values}, to_tsvector(%s));'.format(
             res_id=data_dict['resource_id'],
             columns=sql_columns,
             values=', '.join(['%s' for field in field_names])
@@ -511,9 +511,9 @@ def upsert_data(context, data_dict):
 
             if method == UPDATE:
                 sql_string = u'''
-                    update "{res_id}"
-                    set ({columns}, "_full_text") = ({values}, to_tsvector(%s))
-                    where ({primary_key}) = ({primary_value});
+                    UPDATE "{res_id}"
+                    SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
+                    WHERE ({primary_key}) = ({primary_value});
                 '''.format(
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
@@ -532,13 +532,13 @@ def upsert_data(context, data_dict):
 
             elif method == UPSERT:
                 sql_string = u'''
-                    update "{res_id}"
-                    set ({columns}, "_full_text") = ({values}, to_tsvector(%s))
-                    where ({primary_key}) = ({primary_value});
-                    insert into "{res_id}" ({columns}, "_full_text")
-                           select {values}, to_tsvector(%s)
-                           where not exists (select 1 from "{res_id}"
-                                    where ({primary_key}) = ({primary_value}));
+                    UPDATE "{res_id}"
+                    SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
+                    WHERE ({primary_key}) = ({primary_value});
+                    INSERT INTO "{res_id}" ({columns}, "_full_text")
+                           SELECT {values}, to_tsvector(%s)
+                           WHERE NOT EXISTS (SELECT 1 FROM "{res_id}"
+                                    WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
@@ -552,20 +552,20 @@ def upsert_data(context, data_dict):
 
 def _get_unique_key(context, data_dict):
     sql_get_unique_key = '''
-    select
-        a.attname as column_names
-    from
+    SELECT
+        a.attname AS column_names
+    FROM
         pg_class t,
         pg_index idx,
         pg_attribute a
-    where
+    WHERE
         t.oid = idx.indrelid
-        and a.attrelid = t.oid
-        and a.attnum = ANY(idx.indkey)
-        and t.relkind = 'r'
-        and idx.indisunique = true
-        and idx.indisprimary = false
-        and t.relname = %s
+        AND a.attrelid = t.oid
+        AND a.attnum = ANY(idx.indkey)
+        AND t.relkind = 'r'
+        AND idx.indisunique = true
+        AND idx.indisprimary = false
+        AND t.relname = %s
     '''
     key_parts = context['connection'].execute(sql_get_unique_key, data_dict['resource_id'])
     return [x[0] for x in key_parts]
@@ -624,9 +624,9 @@ def _where(field_ids, data_dict):
     if data_dict.get('q'):
         where_clauses.append('_full_text @@ query')
 
-    where_clause = ' and '.join(where_clauses)
+    where_clause = ' AND '.join(where_clauses)
     if where_clause:
-        where_clause = 'where ' + where_clause
+        where_clause = 'WHERE ' + where_clause
     return where_clause, values
 
 
@@ -648,7 +648,7 @@ def _sort(context, data_dict, field_ids):
     sort = data_dict.get('sort')
     if not sort:
         if data_dict.get('q'):
-            return 'order by rank'
+            return 'ORDER BY rank'
         else:
             return ''
 
@@ -692,7 +692,7 @@ def delete_data(context, data_dict):
     where_clause, where_values = _where(field_ids, data_dict)
 
     context['connection'].execute(
-        u'delete from "{0}" {1}'.format(
+        u'DELETE FROM "{0}" {1}'.format(
             data_dict['resource_id'],
             where_clause
         ),
@@ -730,9 +730,9 @@ def search_data(context, data_dict):
 
     sort = _sort(context, data_dict, field_ids)
 
-    sql_string = u'''select {select}, count(*) over() as "_full_count" {rank}
-                    from "{resource}" {ts_query}
-                    {where} {sort} limit {limit} offset {offset}'''.format(
+    sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
+                    FROM "{resource}" {ts_query}
+                    {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
             select=select_columns,
             rank=rank_column,
             resource=data_dict['resource_id'],
@@ -804,9 +804,9 @@ def create(context, data_dict):
         # check if table already existes
         trans = context['connection'].begin()
         context['connection'].execute(
-            u'set local statement_timeout to {0}'.format(timeout))
+            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         result = context['connection'].execute(
-            u'select * from pg_tables where tablename = %s',
+            u'SELECT * FROM pg_tables WHERE tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:
@@ -876,7 +876,7 @@ def delete(context, data_dict):
             })
         if not 'filters' in data_dict:
             context['connection'].execute(
-                u'drop table "{0}" cascade'.format(data_dict['resource_id'])
+                u'DROP TABLE "{0}" CASCADE'.format(data_dict['resource_id'])
             )
         else:
             delete_data(context, data_dict)
@@ -902,8 +902,8 @@ def search(context, data_dict):
             u'set local statement_timeout to {0}'.format(timeout))
         id = data_dict['resource_id']
         result = context['connection'].execute(
-            u"(select 1 from pg_tables where tablename = '{0}') union"
-             u"(select 1 from pg_views where viewname = '{0}')".format(id)
+            u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
+             u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise p.toolkit.ValidationError({
@@ -929,7 +929,7 @@ def search_sql(context, data_dict):
 
     try:
         context['connection'].execute(
-            u'set local statement_timeout to {0}'.format(timeout))
+            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         results = context['connection'].execute(
             data_dict['sql']
         )
