@@ -30,6 +30,7 @@ def make_map():
 
     from ckan.lib.plugins import register_package_plugins
     from ckan.lib.plugins import register_group_plugins
+    from ckan.lib.plugins import register_organization_plugins
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -261,6 +262,7 @@ def make_map():
 
     register_package_plugins(map)
     register_group_plugins(map)
+    register_organization_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')

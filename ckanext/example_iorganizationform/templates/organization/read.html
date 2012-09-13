@@ -1,0 +1,17 @@
+{% ckan_extends %}
+{% block secondary_content %}
+  {{ super() }}
+
+  <!-- Our custom Country Code metadata field. -->
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">Country Code</h2>
+    <p class="module-content">{{ c.organization_dict.country_code }}</p>
+  </section>
+
+  <!-- Our custom Website URL metadata field. -->
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">Website</h2>
+    <p class="module-content"><a href="{{ c.organization_dict.website_url }}">{{ c.organization_dict.website_url }}</a></p>
+  </section>
+
+{% endblock %}

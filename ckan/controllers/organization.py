@@ -23,6 +23,7 @@ import ckan.logic.action.get
 import ckan.logic.action as action
 import ckan.lib.search as search
 import ckan.lib.mailer as mailer
+import ckan.lib.plugins as plugins
 
 
 log = logging.getLogger(__name__)
@@ -37,6 +38,82 @@ class OrganizationController(BaseController):
     two and so they can diverge.
     """
 
+    def _organization_form(self, organization_type=None):
+        return plugins.lookup_organization_plugin(
+                organization_type).organization_form()
+
+    def _form_to_db_schema(self, organization_type=None):
+        return plugins.lookup_organization_plugin(
+                organization_type).form_to_db_schema()
+
+    def _db_to_form_schema(self, organization_type=None):
+        return plugins.lookup_organization_plugin(
+                organization_type).db_to_form_schema()
+
+    def _setup_template_variables(self, context, data_dict,
+            organization_type=None):
+        return plugins.lookup_organization_plugin(organization_type).\
+            setup_template_variables(context, data_dict)
+
+    def _new_template(self, organization_type):
+        return plugins.lookup_organization_plugin(organization_type).\
+                new_template()
+
+    def _index_template(self, organization_type):
+        return plugins.lookup_organization_plugin(organization_type).\
+                index_template()
+
+    def _read_template(self, organization_type):
+        return plugins.lookup_organization_plugin(organization_type).\
+                read_template()
+
+    def _history_template(self, organization_type):
+        return plugins.lookup_organization_plugin(organization_type).\
+                history_template()
+
+    def _edit_template(self, organization_type):
+        return plugins.lookup_organization_plugin(organization_type).\
+                edit_template()
+
+    def _get_organization_type(self, reference):
+        '''Return the organization_type of an organization.
+
+        :param reference: the id or name of the organization
+        :type reference: string
+        :rtype: string
+
+        '''
+        organization = model.Group.get(reference)
+        if not organization:
+            return None
+        return organization.type
+
+    def _guess_organization_type(self, expecting_name=False):
+        '''Guess the organization_type from the URL.
+
+        In some cases there's no organization dict or object to get the
+        organization_type value from, e.g. when showing the organization index
+        page or when showing the new organization page.
+
+        For those cases this method can be used to extract an organization
+        type from the URL, e.g.:
+
+        /organization/new -> organization_type is 'organization'
+        /custom_type -> organization_type is 'custom_type'
+
+        '''
+        parts = [x for x in request.path.split('/') if x]
+
+        idx = -1
+        if expecting_name:
+            idx = -2
+
+        gt = parts[idx]
+        if gt == 'organization':
+            gt = None
+
+        return gt
+
     def form_to_db_schema(self):
         return schema.organization_form_schema()
 
@@ -45,6 +122,8 @@ class OrganizationController(BaseController):
         into a format suitable for the form (optional)'''
 
     def index(self):
+        organization_type = self._guess_organization_type()
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'with_private': False}
@@ -64,13 +143,14 @@ class OrganizationController(BaseController):
             url=h.pager_url,
             items_per_page=20
         )
-        return render('organization/index.html')
+        return render(self._index_template(organization_type))
 
     def read(self, id):
         from ckan.lib.search import SearchError
+        organization_type = self._get_organization_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self.db_to_form_schema(),
+                   'schema': self._db_to_form_schema(organization_type),
                    'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
@@ -84,7 +164,7 @@ class OrganizationController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read organization %s') % id)
 
-        # Search within group
+        # Search within organization
         q += ' organizations: "%s"' % c.organization_dict.get('name')
 
         try:
@@ -199,9 +279,10 @@ class OrganizationController(BaseController):
             get_action('organization_activity_list_html')(context,
                                                    {'id': c.organization.id})
 
-        return render('organization/read.html')
+        return render(self._read_template(organization_type))
 
     def new(self, data=None, errors=None, error_summary=None):
+        organization_type = self._guess_organization_type(True)
         if data:
             data['type'] = 'organization'
 
@@ -215,7 +296,7 @@ class OrganizationController(BaseController):
             abort(401, _('Unauthorized to create an organization'))
 
         if context['save'] and not data:
-            return self._save_new(context)
+            return self._save_new(context, organization_type)
 
         data = data or {}
         errors = errors or {}
@@ -224,12 +305,13 @@ class OrganizationController(BaseController):
                 'error_summary': error_summary,
                 'action': 'new'}
 
-        self.setup_template_variables(context, data)
-        c.form = render('organization/form.html',
+        self._setup_template_variables(context, data, organization_type)
+        c.form = render(self._organization_form(organization_type),
                         extra_vars=vars)
-        return render('organization/new.html')
+        return render(self._new_template(organization_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
+        organization_type = self._get_organization_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
                    'save': 'save' in request.params,
@@ -264,21 +346,21 @@ class OrganizationController(BaseController):
                 'error_summary': error_summary,
                 'action': 'edit'}
 
-        self.setup_template_variables(context, data)
-        c.form = render('organization/form.html', extra_vars=vars)
-        return render('organization/edit.html')
+        self._setup_template_variables(context, data, organization_type)
+        c.form = render(self._organization_form(organization_type),
+                extra_vars=vars)
+        return render(self._edit_template(organization_type))
 
-
-    def _save_new(self, context):
+    def _save_new(self, context, organization_type=None):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.params))))
-            data_dict['type'] = 'organization'
+            data_dict['type'] = organization_type or 'organization'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             organization = get_action('organization_create')(context, data_dict)
 
-            # Redirect to the appropriate _read route for the type of group
+            # Redirect to the appropriate _read route for the type of organization
             h.redirect_to('organization_read', id=organization['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read organization %s') % '')
@@ -340,8 +422,7 @@ class OrganizationController(BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'schema': self.form_to_db_schema()}
+                   'user': c.user or c.author}
         data_dict = {'id': id}
         try:
             c.organization_dict = get_action('organization_show')(context, data_dict)
@@ -395,7 +476,7 @@ class OrganizationController(BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render('organization/history.html')
+        return render(self._history_template(c.organization_dict['type']))
 
 
     def _send_application(self, organization, reason):

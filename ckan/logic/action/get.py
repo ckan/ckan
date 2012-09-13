@@ -864,6 +864,19 @@ def organization_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.read(organization)
 
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization_dict['type'])
+    try:
+        schema = organization_plugin.db_to_form_schema_options({
+            'type':'show',
+            'api': 'api_version' in context,
+            'context': context })
+    except AttributeError:
+        schema = organization_plugin.db_to_form_schema()
+    if schema:
+        organization_dict, errors = _validate(organization_dict, schema,
+                context=context)
+
     return organization_dict
 
 

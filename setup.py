@@ -116,6 +116,7 @@ setup(
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
+    example_iorganizationform=ckanext.example_iorganizationform.plugin:ExampleIOrganizationFormPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
