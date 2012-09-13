@@ -1,6 +1,7 @@
 import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object, get_related_object
+    get_user_object, get_resource_object, get_related_object, \
+    get_organization_object
 from ckan.logic.auth.organization import _groups_intersect
 from ckan.logic.auth.organization.create import package_relationship_create
 from ckan.authz import Authorizer
