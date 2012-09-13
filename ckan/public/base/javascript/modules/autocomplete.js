@@ -18,6 +18,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       tags: false,
       items: 10,
       source: null,
+      completions: null,
       interval: 1000,
       dropdownClass: '',
       containerClass: '',
@@ -98,6 +99,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var source = parts.join('?') + encodeURIComponent(string) + end;
       var client = this.sandbox.client;
       var options = {format: client.parseCompletionsForPlugin};
+      if (this.options.completions) {
+        options.format = this[this.options.completions];
+      }
 
       return client.getCompletions(source, options, fn);
     },
@@ -221,6 +225,25 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       }
 
       return formatted;
+    },
+
+    /* Callback for completions for when querying users
+     *
+     * Returns results object
+     */
+    parseCompletionsForUsers: function (data) {
+      var users = [];
+      jQuery.each(data, function() {
+        if (typeof this.name != 'undefined') {
+          users.push({
+            id: this.name,
+            text: this.name
+          });
+        } else {
+          users.push(this);
+        }
+      });
+      return { results: users };
     },
 
     /* Callback triggered when the select2 plugin needs to make a request.
