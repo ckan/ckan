@@ -1280,7 +1280,8 @@ def format_resource_items(items):
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
-    reg_ex_number = '^-?\d{1,}\.?\d*$'  # int/float
+    reg_ex_int = '^-?\d{1,}$'
+    reg_ex_float = '^-?\d{1,}\.\d{1,}$'
     for key, value in items:
         if not value or key in blacklist:
             continue
@@ -1292,8 +1293,10 @@ def format_resource_items(items):
             if re.search(reg_ex_datetime, value):
                 datetime_ = date_str_to_datetime(value)
                 value = formatters.localised_nice_date(datetime_)
-            elif re.search(reg_ex_number, value):
+            elif re.search(reg_ex_float, value):
                 value = formatters.localised_number(float(value))
+            elif re.search(reg_ex_int, value):
+                value = formatters.localised_number(int(value))
         elif isinstance(value, int) or isinstance(value, float):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
