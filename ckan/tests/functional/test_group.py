@@ -704,15 +704,17 @@ class TestRevisions(FunctionalTestCase):
 
 class TestOrganizationGroup(FunctionalTestCase):
 
+
+    def setup(self):
+        self.set_auth_profile('organization')
+
     @classmethod
     def setup_class(self):
-        self.set_auth_profile('organization')
         model.Session.remove()
         CreateTestData.create(auth_profile='publisher')
 
     @classmethod
     def teardown_class(self):
-        self.set_auth_profile('deprecated')
         model.repo.rebuild_db()
 
     def test_index(self):
@@ -731,7 +733,6 @@ class TestOrganizationGroup(FunctionalTestCase):
                                  group_description)
         res = res.click(group_title)
         assert groupname in res
-        assert 'organization' == group.type, group.type
 
     def test_read(self):
         from pylons import config
@@ -742,7 +743,6 @@ class TestOrganizationGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
-        assert 'organization' == group.type
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)
@@ -758,7 +758,7 @@ class TestOrganizationGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='edit', id=name)
-        res = self.app.get(offset,  status=200,
+        res = self.app.get(offset,  status=401,
                            extra_environ={'REMOTE_USER': 'russianfan'})
 
 
