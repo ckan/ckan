@@ -42,14 +42,22 @@ class DatastorePlugin(p.SingletonPlugin):
                         "running paster commands.")
             return
 
-        # Make sure that the right permissions are set
-        # so that no harmful queries can be made
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore_write_url']
         self.read_url = self.config['ckan.datastore_read_url']
-        if not config['debug']:
-            self._check_separate_db()
-        self._check_read_permissions()
+
+        if not self._is_read_only_database():
+            # Make sure that the right permissions are set
+            # so that no harmful queries can be made
+            if not config['debug']:
+                self._check_separate_db()
+            self._check_read_permissions()
+
+            self._create_alias_table()
+        else:
+            log.warn("We detected that CKAN is running on a read only database. "
+                "Permission checks and _table_metadata creation are skipped."
+                "Make sure that replication is properly set-up.")
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents other plugins
@@ -78,13 +86,31 @@ class DatastorePlugin(p.SingletonPlugin):
                 connection.close()
             return new_data_dict
 
-        self._create_alias_table()
-
         ## Make sure do not run many times if configure is called repeatedly
         ## as in tests.
         if not hasattr(resource_show, '_datastore_wrapped'):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
+
+    def _is_read_only_database(self):
+        read_only_database = True
+        for url in [self.ckan_url, self.write_url, self.read_url]:
+            connection = db._get_engine(None,
+                {'connection_url': url}).connect()
+            trans = connection.begin()
+            try:
+                sql = u"CREATE TABLE test_readonly(id INTEGER);"
+                connection.execute(sql)
+            except ProgrammingError, e:
+                if 'permission denied' in str(e) or 'read-only transaction' in str(e):
+                    pass
+                else:
+                    raise
+            else:
+                read_only_database = False
+            finally:
+                trans.rollback()
+        return read_only_database
 
     def _check_separate_db(self):
         '''
@@ -109,14 +135,13 @@ class DatastorePlugin(p.SingletonPlugin):
         write_connection = db._get_engine(None,
             {'connection_url': self.write_url}).connect()
         write_connection.execute(u"DROP TABLE IF EXISTS public._foo;"
-            u"CREATE TABLE public._foo (id INTEGER NOT NULL, name VARCHAR)")
+            u"CREATE TABLE public._foo (id INTEGER, name VARCHAR)")
 
         read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
-        read_trans = read_connection.begin()
 
         statements = [
-            u"CREATE TABLE public._bar (id INTEGER NOT NULL, name VARCHAR)",
+            u"CREATE TABLE public._bar (id INTEGER, name VARCHAR)",
             u"INSERT INTO public._foo VALUES (1, 'okfn')"
         ]
 
@@ -129,8 +154,7 @@ class DatastorePlugin(p.SingletonPlugin):
                     if 'permission denied' not in str(e):
                         raise
                 else:
-                    log.info("Connection url {}"
-                        .format(self.read_url))
+                    log.info("Connection url {}".format(self.read_url))
                     raise Exception("We have write permissions on the read-only database.")
                 finally:
                     read_trans.rollback()
@@ -159,8 +183,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
             ORDER BY dependee.oid DESC;
         '''
-        create_alias_table_sql = (u'DROP VIEW "_table_metadata";'
-            u'CREATE VIEW "_table_metadata" AS {}').format(mapping_sql)
+        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {}'.format(mapping_sql)
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)
