@@ -519,28 +519,7 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
-    # TODO if we agree to propossed change then we can just wrap
-    # get_facet_items_dict()
-
-    #return get_facet_items_dict(facet, limit=limit, exclude_active=True)
-    if not c.search_facets or \
-       not c.search_facets.get(facet) or \
-       not c.search_facets.get(facet).get('items'):
-        return []
-    facets = []
-    for facet_item in c.search_facets.get(facet)['items']:
-        if not len(facet_item['name'].strip()):
-            continue
-        if not (facet, facet_item['name']) in request.params.items():
-            facets.append(facet_item)
-    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    if c.search_facets_limits:
-        limit = c.search_facets_limits.get(facet)
-    if limit:
-        return facets[:limit]
-    else:
-        return facets
-
+    return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 def facet_title(name):
     # FIXME this looks like an i18n issue
