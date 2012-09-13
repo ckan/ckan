@@ -286,12 +286,12 @@ def organization_name_validator(key, data, errors, context):
     organization = context.get('organization')
 
     query = session.query(model.Group.name).filter_by(name=data[key])
-    if group:
-        group_id = organization.id
+    if organization:
+        organization_id = organization.id
     else:
-        group_id = data.get(key[:-1] + ('id',))
-    if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
+        organization_id = data.get(key[:-1] + ('id',))
+    if organization_id and organization_id is not missing:
+        query = query.filter(model.Group.id != organization_id)
     result = query.first()
     if result:
         errors[key].append(_('Organization name already exists in database'))
