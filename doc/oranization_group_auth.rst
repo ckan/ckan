@@ -83,10 +83,10 @@ User Stories that apply to both Organizations and Groups
 * **Sysadmins** can add users to and remove users from any organization or
   group, and set the role (editor or admin) of any user in any organization or
   group.
-* **Organization admins** can edit the organization's metadata (name,
+* **Organization admins** and **sysadmins** can edit the organization's
+  metadata (name, description, etc.)
+* **Group admins** and **sysadmins** can edit the group's metadata (name,
   description, etc.)
-* **Group admins** and **Sysadmins** can edit the group's metadata (name, description, etc.)
-  sensible.**
 * **Developers** can provide custom forms for groups and organizations, for
   example to add custom metadata fields to groups or organizations.
 * **Anyone** can see which users are members of groups.
