@@ -9,7 +9,7 @@
     {% set attrs = {'data-module': 'slug-preview-target'} %}
     {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
-    <input type='hidden' name='id' id='id' value="{{data.get('id')}}">
+    <input type="hidden" name="id" id="id" value="{{data.get('id')}}">
 
     {# Perhaps these should be moved into the controller? #}
     {% set prefix = h.url_for(controller='organization', action='read', id='') %}
