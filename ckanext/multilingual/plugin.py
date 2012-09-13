@@ -95,7 +95,7 @@ def translate_data_dict(data_dict):
     return translated_data_dict
 
 KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done seperately
-                  'metadata_created', 'metadata_modified', 'site_id']
+                  'metadata_created', 'metadata_modified', 'site_id', 'data_dict', 'rdf']
 
 class MultilingualDataset(SingletonPlugin):
     implements(IPackageController, inherit=True)
@@ -126,7 +126,7 @@ class MultilingualDataset(SingletonPlugin):
                 continue
             if isinstance(value, list):
                 all_terms.extend(value)
-            elif value in (None, True, False):
+            elif value in (None, True, False, {}):
                 continue
             else:
                 all_terms.append(value)
