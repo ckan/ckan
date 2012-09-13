@@ -522,6 +522,13 @@ def unselected_facet_items(facet, limit=10):
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 def facet_title(name):
+    '''Returns a title for the given facet name.
+    
+    If a mapping is declared in the config, this is used.  Otherwise it falls
+    back to capitalizing the given name.
+
+    This function is deprecated, use `get_facet_title` instead.
+    '''
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
