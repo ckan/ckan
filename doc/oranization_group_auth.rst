@@ -44,6 +44,12 @@ public to organize the datasets into categories or wanted groups of people to
 collaborate on subsets of the datasets and they wanted this collaboration to be
 orthoganal to the authorization around metadata.
 
+**What is the difference between groups and tags?**
+Groups work like controlled tags. While anyone who can edit a dataset can
+create a new tag, only sysadmins can create new groups. While anyone can add
+any tag to a dataset, only sysadmins or members of a group can add a dataset
+to that group.
+
 
 User Stories
 ------------
