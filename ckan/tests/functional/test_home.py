@@ -13,11 +13,14 @@ from ckan.tests import search_related, setup_test_search_index
 class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         PylonsTestCase.setup_class()
         model.repo.init_db()
         CreateTestData.create()
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
@@ -36,7 +39,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
         offset = url_for('home')
         res = self.app.get(offset)
         res.click('Search', index=0)
-        
+
     def test_template_head_end(self):
         offset = url_for('home')
         res = self.app.get(offset)
@@ -98,7 +101,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
 ##            tag='a', href_attr='href',
 ##            href_extract=None,
 ##            content='Deutsch',
-##            id=None, 
+##            id=None,
 ##            href_pattern=None,
 ##            html_pattern=None,
 ##            index=None, verbose=False)
@@ -219,12 +222,15 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
 class TestHomeControllerWithoutSearch(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         PylonsTestCase.setup_class()
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        
+
     def test_404(self):
         offset = '/some_nonexistent_url'
         res = self.app.get(offset, status=404)
@@ -238,6 +244,9 @@ class TestHomeControllerWithoutSearch(TestController, PylonsTestCase, HtmlCheckM
 class TestDatabaseNotInitialised(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         PylonsTestCase.setup_class()
         model.repo.clean_db()
 

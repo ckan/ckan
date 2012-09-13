@@ -23,7 +23,9 @@ class AuthzTestBase(object):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest()
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         self._create_test_data()
         model.Session.remove()
@@ -592,7 +594,9 @@ class TestLockedDownViaRoles(TestController):
     '''
     @classmethod
     def setup_class(self):
-        raise SkipTest()
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.repo.init_db()
         q = model.Session.query(model.UserObjectRole) \
             .filter(sa.or_(model.UserObjectRole.role==model.Role.EDITOR,

@@ -19,6 +19,9 @@ class TestActivity(HtmlCheckMethods):
     """
     @classmethod
     def setup(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         ckan.tests.CreateTestData.create()
         cls.sysadmin_user = ckan.model.User.get('testsysadmin')
         cls.app = paste.fixture.TestApp(pylonsapp)

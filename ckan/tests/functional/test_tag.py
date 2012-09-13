@@ -9,6 +9,9 @@ class TestTagController(TestController):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         CreateTestData.create()
 
@@ -64,7 +67,7 @@ class TestTagController(TestController):
         assert 'There are <strong>%s</strong> results for tags.' % tag_count in res
         # Avoid interactions.
         offset = url_for(controller='tag', action='index')
-    
+
     def test_search(self):
         offset = url_for(controller='tag', action='index', id=None)
         res = self.app.get(offset)
@@ -108,7 +111,7 @@ class TestTagController(TestController):
         res = self.app.get(offset)
         data = json.loads(res.body)
         assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
-        
+
     def test_autocomplete_with_space_in_search_term(self):
         controller = 'api'
         action = 'tag_autocomplete'
@@ -116,7 +119,7 @@ class TestTagController(TestController):
         res = self.app.get(offset)
         data = json.loads(res.body)
         assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
-        
+
     def test_autocomplete_with_unicode_in_search_term(self):
         controller = 'api'
         action = 'tag_autocomplete'

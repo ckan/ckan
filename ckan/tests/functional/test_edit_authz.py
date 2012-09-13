@@ -28,6 +28,9 @@ def check_and_set_checkbox(theform, user, role, should_be, set_to):
 class TestEditAuthz(TestController):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # for the authorization editing tests we set up test data so:
         # three users, sysadmin , administrator, and another
         # one group, one package

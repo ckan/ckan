@@ -1,11 +1,12 @@
 import ckan.model as model
 from ckan.tests import url_for, CreateTestData, WsgiAppCase
-from nose.plugins.skip import SkipTest
 
 class TestAdminController(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        raise SkipTest()
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         # setup test data including testsysadmin user
         CreateTestData.create()
@@ -34,11 +35,12 @@ class TestAdminAuthzController(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        # setup test data including testsysadmin user
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         CreateTestData.create()
         model.Session.commit()
 
-        raise SkipTest()
 
     @classmethod
     def teardown_class(self):
@@ -160,9 +162,11 @@ class TestAdminAuthzController(WsgiAppCase):
 
 class TestAdminTrashController(WsgiAppCase):
     def setup(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.repo.rebuild_db()
         CreateTestData.create()
-        raise SkipTest()
 
     def teardown(self):
         model.repo.rebuild_db()

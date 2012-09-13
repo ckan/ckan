@@ -250,7 +250,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
 
     @classmethod
     def setup_class(cls):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         PylonsTestCase.setup_class()
         CreateTestData.create()
@@ -403,7 +405,9 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
 
     @classmethod
     def setup_class(cls):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         cls.before = datetime.datetime(2010, 1, 1)
         cls.date1 = datetime.datetime(2011, 1, 1)
@@ -576,7 +580,8 @@ class TestEdit(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         CreateTestData.create()
 
@@ -1048,7 +1053,9 @@ class TestNew(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         model.repo.init_db()
         CreateTestData.create_test_user()
@@ -1322,7 +1329,9 @@ class TestSearch(TestPackageForm):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.repo.init_db()
 
     @classmethod
@@ -1346,7 +1355,9 @@ class TestNewPreview(TestPackageBase):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.repo.init_db()
 
     @classmethod
@@ -1358,7 +1369,9 @@ class TestNonActivePackages(TestPackageBase):
 
     @classmethod
     def setup_class(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
@@ -1395,7 +1408,9 @@ class TestNonActivePackages(TestPackageBase):
 class TestRevisions(TestPackageBase):
     @classmethod
     def setup_class(cls):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         model.repo.init_db()
         cls.name = u'revisiontest1'
@@ -1498,7 +1513,9 @@ alert('Hello world!');
 '''
 
     def setup(self):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
 
         model.Session.remove()
         model.repo.init_db()
@@ -1534,7 +1551,9 @@ alert('Hello world!');
 class TestAutocomplete(PylonsTestCase, TestPackageBase):
     @classmethod
     def setup_class(cls):
-        raise SkipTest("No UI test for organization")
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         PylonsTestCase.setup_class()
         CreateTestData.create()
 

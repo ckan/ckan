@@ -52,7 +52,7 @@ class TestGroup(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         from nose import SkipTest
-        raise SkipTest("Use organizations instead of groups")
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         model.Session.remove()
         CreateTestData.create()
@@ -234,7 +234,7 @@ class TestGroupWithSearch(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         from nose import SkipTest
-        raise SkipTest("Use organizations instead of groups")
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         setup_test_search_index()
         model.Session.remove()
@@ -280,7 +280,7 @@ class TestEdit(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         from nose import SkipTest
-        raise SkipTest("Use organizations instead of groups")
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         setup_test_search_index()
         model.Session.remove()
@@ -507,7 +507,7 @@ class TestNew(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         from nose import SkipTest
-        raise SkipTest("Use organizations instead of groups")
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         model.Session.remove()
         CreateTestData.create()
@@ -627,7 +627,7 @@ class TestRevisions(FunctionalTestCase):
     @classmethod
     def setup_class(self):
         from nose import SkipTest
-        raise SkipTest("Use organizations instead of groups")
+        raise SkipTest("Disable UI tests for 2.0 branch")
 
         model.Session.remove()
         CreateTestData.create()
