@@ -217,7 +217,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'aliases': aliases,
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'json'}],
-            'indexes': ['book'],
+            'indexes': [['book', 'author'], 'book'],
             'records': [
                         {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
@@ -1448,7 +1448,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             assert db._is_single_statement(multiple) is False
 
     def test_invalid_statement(self):
-        query = 'SELECT ** FROM public.foo'
+        query = 'SELECT ** FROM public.foobar'
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}

@@ -314,7 +314,9 @@ def create_indexes(context, data_dict):
     if indexes == None and primary_key == None:
         return
 
-    sql_index_string = u'CREATE {unique} INDEX ON "{res_id}" USING {method}({fields})'
+    sql_index_skeletton = u'CREATE {unique} INDEX ON "{res_id}"'
+    sql_index_string_method = sql_index_skeletton + u' USING {method}({fields})'
+    sql_index_string = sql_index_skeletton + u' ({fields})'
     sql_index_strings = []
     field_ids = _pluck('id', _get_fields(context, data_dict))
 
@@ -332,10 +334,10 @@ def create_indexes(context, data_dict):
             fields_string = u','.join(['"%s"' % field for field in fields])
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='',
-                method='btree', fields=fields_string))
+                fields=fields_string))
 
         # create index for faster full text search (indexes: gin or gist)
-        sql_index_strings.append(sql_index_string.format(
+        sql_index_strings.append(sql_index_string_method.format(
                 res_id=data_dict['resource_id'], unique='',
                 method='gist', fields='_full_text'))
     if primary_key != None:
@@ -351,7 +353,7 @@ def create_indexes(context, data_dict):
         if primary_key:
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='unique',
-                method='btree', fields=u','.join(['"%s"' % field for field in primary_key])))
+                fields=u','.join(['"%s"' % field for field in primary_key])))
 
     map(context['connection'].execute, sql_index_strings)
 
