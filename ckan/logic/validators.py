@@ -120,7 +120,7 @@ def group_id_exists(group_id, context):
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).filter(model.Group.name==group_id).first()
+    result = session.query(model.Group).filter(model.Group.id==group_id).first()
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
@@ -133,7 +133,7 @@ def organization_id_exists(organization_id, context):
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).filter(model.Group.name==organization_id).first()
+    result = session.query(model.Group).filter(model.Group.id==organization_id).first()
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Organization')))
     return organization_id
@@ -313,14 +313,13 @@ def group_name_validator(key, data, errors, context):
     session = context['session']
     group = context.get('group')
 
-    query = session.query(model.Group.name).filter_by(name=data[key])
-    if group:
-        group_id = group.id
+    if group:  # This is part of an update
+        result =  session.query(model.Group).filter(model.Group.name==data[key]).first()
+        if result and result.id == group.id:
+            result = None
     else:
-        group_id = data.get(key[:-1] + ('id',))
-    if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
-    result = query.first()
+        result = session.query(model.Group).filter(model.Group.name == data.get(key[:-1] + ('name',))).first()
+
     if result:
         errors[key].append(_('Group name already exists in database'))
 

@@ -699,9 +699,9 @@ def organization_create(context, data_dict):
         'defer_commit':True,
         'session': session
     }
-# FIXME: Re-enable
-#    logic.get_action('activity_create')(activity_create_context,
-#            activity_dict, ignore_auth=True)
+
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()

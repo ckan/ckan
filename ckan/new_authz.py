@@ -54,7 +54,6 @@ def _get_auth_function(action):
         try:
             module = __import__(module_path)
         except ImportError,e:
-            from nose.tools import set_trace; set_trace()
             log.debug('No auth module for action "%s"' % auth_module_name)
             continue
 

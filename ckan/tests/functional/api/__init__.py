@@ -27,9 +27,8 @@ def change_lists_to_sets(iterable):
 
 def assert_dicts_equal_ignoring_ordering(dict1, dict2):
     '''Asserts dicts are equal, assuming that the ordering of
-    any lists is unimportant.'''                
+    any lists is unimportant.'''
     dicts = [copy.deepcopy(dict1), copy.deepcopy(dict2)]
     for d in dicts:
         d = change_lists_to_sets(d)
-    #from nose.tools import set_trace; set_trace()
     assert_equal(dicts[0], dicts[1])

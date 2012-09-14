@@ -616,8 +616,8 @@ def organization_update(context, data_dict):
         }
 
         # FIXME: Re-enable
-        #_get_action('activity_create')(activity_create_context, activity_dict,
-        #            ignore_auth=True)
+        _get_action('activity_create')(activity_create_context, activity_dict,
+                    ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
