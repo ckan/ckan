@@ -36,7 +36,7 @@ from pylons import session
 from pylons import c, g
 from pylons.i18n import _, ungettext
 
-import html_resources
+import ckan.lib.fanstatic_resources as fanstatic_resources
 from lib.maintain import deprecated
 import ckan.model as model
 import ckan.lib.formatters as formatters
@@ -1175,7 +1175,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
                                    action=action, extras=extras)
 
 def include_resource(resource):
-    r = getattr(html_resources, resource)
+    r = getattr(fanstatic_resources, resource)
     r.need()
 
 def debug_inspect(arg):

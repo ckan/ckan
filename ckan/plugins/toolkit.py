@@ -50,6 +50,7 @@ class _Toolkit(object):
 
         ## Fully defined in this file ##
         'add_template_directory',
+        'add_resource',
         'add_public_directory',
         'requires_ckan_version',
         'check_ckan_version',
@@ -97,6 +98,7 @@ class _Toolkit(object):
         t['render_snippet'] = self._render_snippet
         t['add_template_directory'] = self._add_template_directory
         t['add_public_directory'] = self._add_public_directory
+        t['add_resource'] = self._add_resource
         t['requires_ckan_version'] = self._requires_ckan_version
         t['check_ckan_version'] = self._check_ckan_version
         t['CkanVersionException'] = CkanVersionException
@@ -144,6 +146,18 @@ class _Toolkit(object):
                 config[config_var] += ',' + absolute_path
             else:
                 config[config_var] = absolute_path
+
+    @classmethod
+    def _add_resource(cls, path, name):
+        # we want the filename that of the function caller but they will
+        # have used one of the available helper functions
+        frame, filename, line_number, function_name, lines, index =\
+            inspect.getouterframes(inspect.currentframe())[1]
+
+        this_dir = os.path.dirname(filename)
+        absolute_path = os.path.join(this_dir, path)
+        import ckan.lib.fanstatic_resources
+        ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
     def _version_str_2_list(cls, v_str):

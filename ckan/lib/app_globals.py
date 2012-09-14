@@ -70,7 +70,10 @@ def get_globals_key(key):
 def reset():
     ''' set updatable values from config '''
     def get_config_value(key, default=''):
-        value = model.get_system_info(key)
+        if model.meta.engine.has_table('system_info'):
+            value = model.get_system_info(key)
+        else:
+            value = None
         # we want to store the config the first time we get here so we can
         # reset them if needed
         config_value = config.get(key)

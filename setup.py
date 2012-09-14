@@ -115,6 +115,7 @@ setup(
     multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
+    datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
     example_iorganizationform=ckanext.example_iorganizationform.plugin:ExampleIOrganizationFormPlugin
 
