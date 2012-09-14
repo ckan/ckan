@@ -555,13 +555,15 @@ def package_to_api(pkg, context):
 
     if api_version == 1:
         api_fn = make_api_1
-        #dictized["organizations"] = [organization["name"] for organization in dictized["organizations"]]
+        if dictized.get("organizations"):
+            dictized["organizations"] = [organization["name"] for organization in dictized["organizations"]]
         # FIXME why is this just for version 1?
         if pkg.resources:
             dictized['download_url'] = pkg.resources[0].url
     else:
         api_fn = make_api_2
-        #dictized["organizations"] = [organization["id"] for organization in dictized["organizations"]]
+        if dictized.get("organizations"):
+            dictized["organizations"] = [organization["id"] for organization in dictized["organizations"]]
 
     subjects = dictized.pop("relationships_as_subject")
     objects = dictized.pop("relationships_as_object")

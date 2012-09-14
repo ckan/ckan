@@ -74,9 +74,10 @@ class TestBasicDictize:
 
         assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
                                             {'key': u'original media', 'value': u'"book"'}],
-                                   'groups': [{u'name': u'david',
+                                   'organizations': [{u'capacity':u'public',
+                                               u'name': u'david',
                                                u'title': u"Dave's books"},
-                                              {u'name': u'roger',
+                                              {u'capacity':u'public', u'name': u'roger',
                                                u'title': u"Roger's books",
                                                }],
                                  'license_id': u'other-open',
@@ -147,8 +148,10 @@ class TestBasicDictize:
         del data['tags']
         del data['extras']
 
+        self.context['group'] = group
         converted_data, errors = validate(data, default_group_schema(), self.context)
         group_pack = sorted(group.active_packages().all(), key=lambda x:x.id)
+        del self.context['group']
 
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
 
@@ -168,7 +171,7 @@ class TestBasicDictize:
                                  'approval_status': u'approved'}
 
 
-        assert not errors
+        assert not errors, errors
         assert converted_data == expected, pformat(converted_data) + '\n\n' + pformat(expected)
 
 
@@ -178,7 +181,10 @@ class TestBasicDictize:
         data["packages"][1].pop("id")
         data["packages"][1].pop("name")
 
+        self.context['group'] = group
         converted_data, errors = validate(data, default_group_schema(), self.context)
+        del self.context['group']
+
         assert errors ==  {'packages': [{'id': [u'Not found: Dataset']}, {'id': [u'Missing value']}]} , pformat(errors)
 
     def test_3_tag_schema_allows_spaces(self):

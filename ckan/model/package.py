@@ -85,7 +85,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return []
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
+        return [resource for resource in
                 self.resource_groups_all[0].resources_all
                 if resource.state <> 'deleted']
 
@@ -200,7 +200,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['tags'] = tags
         groups = [getattr(group, ref_group_by) for group in self.get_groups()]
         groups.sort()
-        _dict['groups'] = groups
+        _dict['organizations'] = groups
         _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
