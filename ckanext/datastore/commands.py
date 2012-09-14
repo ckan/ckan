@@ -39,8 +39,15 @@ class SetupDatastoreCommand(CkanCommand):
 
     Usage::
 
-        create-db                 - create the datastore database
-        create-read-only-user     - create a read-only user for the datastore read url
+        paster datastore create-db <sql-user-user>
+        paster datastore create-read-only-user <sql-super-user>
+
+    Where:
+        <sql-super-user> is the name of a postgres user with sufficient
+                         permissions to create new tables, users, and grant
+                         and revoke new permissions.  Typically, this would
+                         be the "postgres" user.
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -67,15 +74,25 @@ class SetupDatastoreCommand(CkanCommand):
         assert self.urlparts_w['db_name'] == self.urlparts_r['db_name'], "write and read db should be the same"
 
         if cmd == 'create-db':
+            if len(self.args) != 2:
+                print self.usage
+                return
+            self.sql_superuser = self.args[1]
             self.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
         elif cmd == 'create-read-only-user':
+            if len(self.args) != 2:
+                print self.usage
+                return
+            self.sql_superuser = self.args[1]
             self.create_read_only_user()
             if self.verbose:
                 print 'Creating read-only user: SUCCESS'
         else:
+            print self.usage
             log.error('Command "%s" not recognized' % (cmd,))
+            return
 
     def _get_db_config(self, name):
         from pylons import config
@@ -93,15 +110,19 @@ class SetupDatastoreCommand(CkanCommand):
         if retcode != 0:
             raise SystemError('Command exited with errorcode: %i' % retcode)
 
-    def _run_sql(self, sql, database='postgres'):
+    def _run_sql(self, sql, as_sql_user, database='postgres'):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
         if not self.simulate:
-            self._run_cmd("sudo -u postgres psql {database} -c '{sql}'".format(sql=sql, database=database))
+            self._run_cmd("psql --username='{username}' --dbname='{database}' -c '{sql}' -W".format(
+                username=as_sql_user,
+                database=database,
+                sql=sql
+            )) 
 
     def create_db(self):
         sql = "create database {0}".format(self.urlparts_w['db_name'])
-        self._run_sql(sql)
+        self._run_sql(sql, as_sql_user=self.sql_superuser)
 
     def create_read_only_user(self):
         sql = read_only_user_sql.format(
@@ -110,5 +131,7 @@ class SetupDatastoreCommand(CkanCommand):
             ckanuser=self.urlparts_c['db_user'],
             readonlyuser=self.urlparts_r['db_user'],
             writeuser=self.urlparts_w['db_user'])
-        self._run_sql(sql, self.urlparts_w['db_name'])
+        self._run_sql(sql,
+                      as_sql_user=self.sql_superuser,
+                      database=self.urlparts_w['db_name'])
 
