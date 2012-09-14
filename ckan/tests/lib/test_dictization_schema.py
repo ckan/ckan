@@ -22,7 +22,8 @@ class TestBasicDictize:
 
     def setup(self):
         self.context = {'model': model,
-                        'session': model.Session}
+                        'session': model.Session,
+                        'user': 'testsysadmin'}
 
     @classmethod
     def setup_class(cls):
@@ -98,6 +99,7 @@ class TestBasicDictize:
                                  'tags': [{'name': u'Flexible \u30a1'},
                                           {'name': u'russian'},
                                           {'name': u'tolstoy'}],
+                                 'state': u'active',
                                  'title': u'A Novel By Tolstoy',
                                  'url': u'http://www.annakarenina.com',
                                  'version': u'0.7a'}, pformat(converted_data)
@@ -167,6 +169,7 @@ class TestBasicDictize:
                                               'name': group_pack[1].name,
                                               'title':group_pack[1].title}],
                                               key=lambda x:x["id"]),
+                                 'state': u"active",
                                  'title': u"Dave's books",
                                  'approval_status': u'approved'}
 
