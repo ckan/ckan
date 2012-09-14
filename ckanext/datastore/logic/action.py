@@ -3,7 +3,7 @@ import pylons
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
-from sqlalchemy import text
+import sqlalchemy
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -162,7 +162,7 @@ def datastore_search(context, data_dict):
 
     data_dict['connection_url'] = pylons.config['ckan.datastore_read_url']
 
-    resources_sql = text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
+    resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
