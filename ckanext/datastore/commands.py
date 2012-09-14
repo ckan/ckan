@@ -33,6 +33,7 @@ ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
    GRANT SELECT ON TABLES TO "{readonlyuser}";
 '''
 
+
 class SetupDatastoreCommand(CkanCommand):
     '''Perform commands to set up the datastore.
     Make sure that the datastore urls are set properly before you run these commands.
@@ -45,9 +46,9 @@ class SetupDatastoreCommand(CkanCommand):
     summary = __doc__.split('\n')[0]
     usage = __doc__
 
-    def __init__(self,name):
+    def __init__(self, name):
 
-        super(SetupDatastoreCommand,self).__init__(name)
+        super(SetupDatastoreCommand, self).__init__(name)
 
     def command(self):
         '''
