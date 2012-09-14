@@ -1,6 +1,11 @@
 import logging
+import pylons
+from htsql import HTSQL
+from htsql.core.cmd.command import UniversalCmd
+from htsql.core.cmd.act import analyze
 import ckan.plugins as p
 import ckan.logic as logic
+from ckanext.datastore import db
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -19,10 +24,23 @@ def datastore_search_htsql(context, data_dict):
     :rtype: dictionary
 
     '''
-    htsql = _get_or_bust(data_dict, 'htsql')
-    print htsql
+    query = _get_or_bust(data_dict, 'htsql')
+    query = str(query)
+    print query
 
-    data_dict['sql'] = htsql
+    uri = pylons.config['ckan.datastore_read_url']
+    engine = db._get_engine(None, {'connection_url': uri})
+
+    htsql = HTSQL(None, {'tweak.sqlalchemy': {'engine': engine}, 'tweak.timeout': {'timeout': 1000}})
+
+    with htsql:
+        cmd = UniversalCmd(query)
+        plan = analyze(cmd)
+        sql = plan.statement.sql
+
+    data_dict['sql'] = sql
 
     action = p.toolkit.get_action('datastore_search_sql')
-    return action(context, data_dict)
+    result = action(context, data_dict)
+    result['htsql'] = query
+    return result
