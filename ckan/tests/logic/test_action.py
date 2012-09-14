@@ -74,7 +74,7 @@ class TestAction(WsgiAppCase):
             "Return the metadata of a dataset (package) and its resources.")
         pkg = res_dict['result']
         assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        missing_keys = set(('title', 'organizations')) - set(pkg.keys())
         assert not missing_keys, missing_keys
 
     def test_01_package_show_with_jsonp(self):
@@ -91,7 +91,7 @@ class TestAction(WsgiAppCase):
             "Return the metadata of a dataset (package) and its resources.")
         pkg = res_dict['result']
         assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
+        missing_keys = set(('title', 'organizations')) - set(pkg.keys())
         assert not missing_keys, missing_keys
 
     def test_02_package_autocomplete_match_name(self):
@@ -282,7 +282,7 @@ class TestAction(WsgiAppCase):
         assert 'timestamp' in edit
         assert_equal(edit['state'], 'active')
         assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(( 'roger', 'david')))
+        assert_equal(set(edit['groups']), set(( u'roger', u'david')))
         assert_equal(edit['state'], 'active')
         assert edit['message'].startswith('Creating test data.')
         assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
@@ -790,7 +790,7 @@ class TestAction(WsgiAppCase):
 
         pkg = {
             'name': 'test_pending_package',
-            'groups': [{'id': group['id']}]
+            'organizations': [{'id': group['id']}]
         }
         pkg = get_action('package_create')(context, pkg)
         # can't seem to add a package with 'pending' state, so update it
@@ -1170,7 +1170,7 @@ class TestActionPackageSearch(WsgiAppCase):
     def test_1_basic(self):
         postparams = '%s=1' % json.dumps({
                 'q':'tolstoy',
-                'facet.field': ('groups', 'tags', 'res_format', 'license'),
+                'facet.field': ('organizations', 'tags', 'res_format', 'license'),
                 'rows': 20,
                 'start': 0,
             })
