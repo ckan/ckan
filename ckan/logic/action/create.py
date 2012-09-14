@@ -646,7 +646,19 @@ def organization_create(context, data_dict):
 
     _check_access('organization_create', context, data_dict)
 
-    schema = ckan.logic.schema.default_organization_schema()
+    # Get the schema
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization_type=data_dict.get('type'))
+    try:
+        schema = organization_plugin.form_to_db_schema_options({
+            'type':'create',
+            'api':'api_version' in context,
+            'context': context})
+    except AttributeError:
+        schema = organization_plugin.form_to_db_schema()
+
+    if 'api_version' not in context:
+        organization_plugin.check_data_dict(data_dict, schema)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',

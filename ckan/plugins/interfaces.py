@@ -16,6 +16,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'IOrganizationForm',
 ]
 
 from inspect import isclass
@@ -240,7 +241,6 @@ class IGroupController(Interface):
              sent to the template.
         '''
         return pkg_dict
-
 
 class IPackageController(Interface):
     """
@@ -669,4 +669,183 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
-    ##### End of hooks                                                   #####
+
+class IOrganizationForm(Interface):
+    '''An interface that allows plugins to customise the organization form.
+
+    By implementing this interface plugins can change CKAN's behaviour when
+    creating or updating organizations, for example by changing the forms and
+    templates used by CKAN's organization pages, or by providing custom schemas
+    for validating new or updated organizations.
+
+    This interface can be used, for example, to add a custom metadata field to
+    CKAN's organizations, or to add custom organization types that each have
+    their own forms, templates and validation schemas.
+
+    There can be multiple plugins that implement this interface registered at
+    once, each plugin associating itself with different organization types.
+    When an organization controller action is invoked, the organization type of
+    the organization in question determines which of the registered plugins the
+    action is delegated to.
+
+    Plugins implementating this interface might want to inherit from
+    ckan.lib.plugins.DefaultOrganizationForm, which provides default
+    implementations for the method hooks defined below.
+
+    '''
+    def organization_types(self):
+        '''Return the organization types that this plugin handles.
+
+        When an organization controller action is invoked involving an
+        organization whose organization_type string matches one of the types
+        this plugin returns, then this plugin will be delegated to.
+
+        There can only be one IOrganizationForm plugin for each organization
+        type. It two plugins return the same organization type CKAN will raise
+        an exception at startup.
+
+        :rtype: iterable of organization type strings
+
+        '''
+
+    def is_fallback(self):
+        '''Return True if this plugin provides the fallback behaviour.
+
+        When no plugin's organization_types() match the type of the
+        organization in question, the fallback plugin will be delegated to.
+
+        Only one IOrganizationForm plugin whose is_fallback() method returns
+        True may be active at once, if more than one plugin returns True CKAN
+        will throw an exception at startup.
+
+        If no plugin returns True here, ckan.lib.plugins.DefaultGroupForm will
+        be used as the fallback.
+
+        '''
+
+    def setup_template_variables(self, context, data_dict):
+        '''Modify the template context c before rendering a template.
+
+        '''
+
+    def new_template(self):
+        '''Return the path to the template for the new organization page.
+
+        :rtype: string
+
+        '''
+
+    def index_template(self):
+        '''Return the path to the template for the organization index page.
+
+        :rtype: string
+
+        '''
+
+    def read_template(self):
+        '''Return the path to the template for the read organization page.
+
+        :rtype: string
+
+        '''
+
+    def history_template(self):
+        '''Return the path to the template for the organization history page.
+
+        :rtype: string
+
+        '''
+
+    def edit_template(self):
+        '''Return the path to the template for the organization edit page.
+
+        :rtype: string
+
+        '''
+
+    def package_form(self):
+        '''Return the path to the template for the organization form.
+
+        :rtype: string
+
+        '''
+
+    def form_to_db_schema(self):
+        '''Return the schema for mapping organizations from form to database.
+
+        Organization data submitted by a user when creating or updating an
+        organization via the organization form will be passed through this
+        schema before it is saved in the database.
+
+        You don't have to implement this method if you've implemented
+        form_to_db_schema_options() instead.
+
+        '''
+
+    def form_to_db_schema_options(self, options):
+        '''Return the schema for mapping organizations from form to database.
+
+        Implementing this optional method allows plugins to return different
+        schemas for different purposes, for example you might use one
+        db_to_form_schema when the organization web form is submitted and
+        another when organizations are created or updated via the API, or you
+        might use one schema when an organization is created and another when
+        one is updated.
+
+        Implementing this method is optional, if the plugin does not implement
+        this method then its form_to_db_schema() method will be called instead.
+
+        The `options` param is a dictionary with the following keys:
+
+        'context': the request context (dictionary)
+
+        'type': 'create' or 'update' (string)
+
+        'api': True if the request is via the API, False otherwise
+
+        '''
+
+    def db_to_form_schema(self):
+        '''Return the schema for mapping organizations from database to form.
+
+        When updating an organization, the organization's current data from the
+        database will be passed through this schema before it is displayed to
+        the user in the organization form.
+
+        You don't have to implement this method if you've implemented
+        db_to_form_schema_options() instead.
+
+        '''
+
+    def db_to_form_schema_options(self, options):
+        '''Return the schema for mapping organizations from database to form.
+
+        Implementing this optional method allows plugins to return different
+        schemas for different purposes, for example you might use one
+        db_to_form_schema when the organization web form is shown and another
+        when organizations are returned via the API.
+
+        Implementing this method is optional, if the plugin does not implement
+        this method then its db_to_form_schema() method will be called instead.
+
+        The `options` param is a dictionary with the following keys:
+
+        'context': the request context (dictionary)
+
+        'type': always 'show' (string)
+
+        'api': True if the request is via the API, False otherwise
+
+        '''
+
+    def check_data_dict(self, data_dict, schema):
+        '''Check a data_dict submitted via the organization form.
+
+        This method is called whenever a user creates or updates an
+        organization using the organization web form (but not when
+        organizations are created or updated via the API). It gives plugins a
+        chance to validate the data_dict and accept or reject it.
+
+        :returns: True if the data_dict is valid, raise DataError if not.
+
+        '''

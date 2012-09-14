@@ -1,0 +1,30 @@
+{% ckan_extends %}
+
+<!-- Note that we override the custom_fields block here to add our own fields,
+and we deliberately don't call super() because we want to remove CKAN's 'free
+extras' from. This is because CKAN's free extras break the convert_to_extras()
+and convert_from_extras() functions that this extension uses for its custom
+fields. -->
+{% block custom_fields %}
+
+  <!-- Our custom Country Code metadata field. -->
+  <div class="control-group controll-full">
+    <label class="control-label" for="field-country-code">Country Code</label>
+    <div class="controls">
+      <select id="field-country-code" name="country_code">
+        {% for country_code in c.country_codes %}
+          <option value="{{ country_code }}"{% if country_code == data.get('country_code', '') %} selected="selected"{% endif %}>{{ country_code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Our custom Website URL metadata field. -->
+  <div class="control-group control-full">
+    <label class="control-label" for="field-website-url">Website URL</label>
+    <div class="controls ">
+      <input id="field-website-url" type="url" name="website_url" value=""
+             placeholder="http://example.com/" />
+    </div>
+  </div>
+{% endblock %}

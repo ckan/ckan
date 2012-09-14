@@ -539,9 +539,21 @@ def organization_update(context, data_dict):
     if organization is None:
         raise NotFound('Organization was not found.')
 
-    schema = ckan.logic.schema.organization_form_schema()
+    # Get the schema.
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization.type)
+    try:
+        schema = organization_plugin.form_to_db_schema_options({
+            'type':'update',
+            'api':'api_version' in context,
+            'context': context})
+    except AttributeError:
+        schema = organization_plugin.form_to_db_schema()
 
     _check_access('organization_update', context, data_dict)
+
+    if 'api_version' not in context:
+        organization_plugin.check_data_dict(data_dict, schema)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('organization_update validate_errs=%r user=%s organization=%s data_dict=%r',
