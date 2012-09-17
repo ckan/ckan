@@ -11,8 +11,8 @@ import psycopg2.extras
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
-    from paste.deploy.converters import asbool, aslist
-    from ckan.plugins import toolkit
+    import paste.deploy.converters as converters
+    import ckan.plugins.toolkit as toolkit
     ValidationError = toolkit.ValidationError
 else:
     log.warn("Running datastore without CKAN")
@@ -54,7 +54,7 @@ def _get_list(input, strip=True):
     if input == '':
         return []
 
-    l = aslist(input, ',', True)
+    l = converters.aslist(input, ',', True)
     if strip:
         return [_strip(x) for x in l]
     else:
@@ -64,7 +64,7 @@ def _get_list(input, strip=True):
 def _get_bool(input, default=False):
     if input in [None, '']:
         return default
-    return asbool(input)
+    return converters.asbool(input)
 
 
 def _is_valid_field_name(name):
