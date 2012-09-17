@@ -37,7 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
         import sys
-        if sys.argv[-1] in ['create-db', 'create-read-only-user']:
+        if sys.argv[0].split('/')[-1] == 'paster':
             log.warn("Omitting permission checks because you are "
                         "running paster commands.")
             return
@@ -154,7 +154,7 @@ class DatastorePlugin(p.SingletonPlugin):
                     if 'permission denied' not in str(e):
                         raise
                 else:
-                    log.info("Connection url {}".format(self.read_url))
+                    log.info("Connection url {0}".format(self.read_url))
                     raise Exception("We have write permissions on the read-only database.")
                 finally:
                     read_trans.rollback()
@@ -183,7 +183,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
             ORDER BY dependee.oid DESC;
         '''
-        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {}'.format(mapping_sql)
+        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
         connection.execute(create_alias_table_sql)

@@ -530,7 +530,7 @@ def upsert_data(context, data_dict):
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
                     values=u', '.join(['%s' for _ in used_field_names]),
-                    primary_key=u','.join([u'"{}"'.format(part) for part in unique_keys]),
+                    primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
                 results = context['connection'].execute(
@@ -555,7 +555,7 @@ def upsert_data(context, data_dict):
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
                     values=u', '.join(['%s' for _ in used_field_names]),
-                    primary_key=u','.join([u'"{}"'.format(part) for part in unique_keys]),
+                    primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
                 context['connection'].execute(

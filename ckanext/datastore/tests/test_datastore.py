@@ -974,7 +974,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         c = model.Session.connection()
 
         # alias should be deleted
-        results = c.execute("select 1 from pg_views where viewname = '{}'".format(self.data['aliases']))
+        results = c.execute("select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
         assert results.rowcount == 0
 
         try:
@@ -983,7 +983,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
             c.execute('select * from "{0}";'.format(resource_id))
             raise Exception("Data not deleted")
         except sqlalchemy.exc.ProgrammingError as e:
-            expected_msg = 'relation "{}" does not exist'.format(resource_id)
+            expected_msg = 'relation "{0}" does not exist'.format(resource_id)
             assert expected_msg in str(e)
 
         model.Session.remove()
@@ -1458,7 +1458,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert res_dict['success'] is False
 
     def test_select_basic(self):
-        query = 'SELECT * FROM public."{}"'.format(self.data['resource_id'])
+        query = 'SELECT * FROM public."{0}"'.format(self.data['resource_id'])
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -1470,7 +1470,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert result['records'] == self.expected_records
 
         # test alias search
-        query = 'SELECT * FROM public."{}"'.format(self.data['aliases'])
+        query = 'SELECT * FROM public."{0}"'.format(self.data['aliases'])
         data = {'sql': query}
         postparams = json.dumps(data)
         res = self.app.post('/api/action/datastore_search_sql', params=postparams,
