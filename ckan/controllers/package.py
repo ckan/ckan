@@ -1130,7 +1130,7 @@ class PackageController(BaseController):
             raise ValidationException(fs)
         try:
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:
@@ -1146,8 +1146,8 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = context['package']
-            c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
+            c.embed = self._get_embed_url(id, c.resource)
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
@@ -1164,6 +1164,24 @@ class PackageController(BaseController):
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
+
+    def resource_preview(self, id, resource_id):
+        '''
+        Embeded page for a resource data-preview.
+        '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        return render('package/resource_preview.html')
 
     def resource_download(self, id, resource_id):
         """
@@ -1184,6 +1202,35 @@ class PackageController(BaseController):
         if not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
+
+    def _get_embed_url(self, id, resource):
+        '''
+        Returns tuple with a link to an embed resource and a bool that indicates
+        whether the resource can be embedded directly (without an iframe).
+        '''
+        format = resource['format'].lower()
+        directly = False
+        url = h.url_for(controller='package', action='resource_preview',
+                resource_id=resource['id'], id=id, qualified=True)
+
+        if format in ['csv', 'xls', 'tsv']:
+            #defaults
+            pass
+        elif format in ['html', 'htm',
+                        'rdf+xml', 'owl+xml', 'xml', 'n3',
+                        'n-triples', 'turtle', 'plain',
+                        'atom', 'tsv', 'rss', 'txt', 'json']:
+            url = resource['url']
+        elif format in ['png', 'jpg', 'gif']:
+            directly = True
+            url = resource['url']
+        else:
+            log.warn('not handler for {}'.format(resource['format']))
+
+        return {
+            'url': url,
+            'directly': directly
+        }
 
     def api_data(self, id=None):
         url = h.url_for('datastore_read', id=id, qualified=True)
