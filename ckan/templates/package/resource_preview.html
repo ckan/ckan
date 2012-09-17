@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% set res = c.resource %}
+
+{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block page %}
+  <div id="ckanext-datapreview" class="module-content"></div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% resource 'datapreview/datapreview' %}
+
+  <script>
+    var preload_resource = {{ h.literal(c.resource_json) }};
+  </script>
+{% endblock %}
