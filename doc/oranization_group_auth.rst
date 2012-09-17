@@ -18,7 +18,7 @@ organization when adding a dataset. You would turn on the option that creates a
 default 'public' organization that datasets are added to if no other
 organization is specified.
 
-**A site like data.gov.uk**: 
+**A site like data.gov.uk**:
 They don't want just anyone to be able to register a user account and start
 adding content. So you would turn off the default public organization, and new
 users would have to be added to an organization by a sysadmin or organization
@@ -40,9 +40,11 @@ Organizations are more about controlling who has permission to add and edit
 datasets, whereas groups are just about categorizing datasets.
 
 data.gov.uk or thedatahub.org could use groups if they wanted a way for the
-public to organize the datasets into categories or wanted groups of people to
-collaborate on subsets of the datasets and they wanted this collaboration to be
-orthoganal to the authorization around metadata.
+public to organize datasets into categories, or if they wanted groups of people
+to be able to create sets of data to work on collaboratively. For example at
+hackdays people often start by putting relevant datasets into a group. With
+groups, this kind of collaboration can be orthogonal to the authorization
+around organizations.
 
 **What is the difference between groups and tags?**
 Groups work like controlled tags. While anyone who can edit a dataset can
