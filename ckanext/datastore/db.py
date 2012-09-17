@@ -78,7 +78,10 @@ def _is_valid_field_name(name):
     return True
 
 
-_is_valid_table_name = _is_valid_field_name
+def _is_valid_table_name(name):
+    if '%' in name:
+        return False
+    return _is_valid_field_name(name)
 
 
 def _validate_int(i, field_name):
@@ -278,7 +281,7 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(f['id'], f['type'])
+    sql_fields = u", ".join([u'"{0}" {1}'.format(f['id'].replace('%', '%%'), f['type'])
                             for f in fields])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
@@ -341,7 +344,7 @@ def create_indexes(context, data_dict):
                         'index': [('The field {0} is not a valid column name.').format(
                             index)]
                     })
-            fields_string = u','.join(['"%s"' % field for field in fields])
+            fields_string = u','.join(['"%s"' % field.replace('%', '%%') for field in fields])
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='',
                 fields=fields_string))
@@ -363,7 +366,7 @@ def create_indexes(context, data_dict):
         if primary_key:
             sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'], unique='unique',
-                fields=u','.join(['"%s"' % field for field in primary_key])))
+                fields=u','.join(['"%s"' % field.replace('%', '%%') for field in primary_key])))
 
     map(context['connection'].execute, sql_index_strings)
 
@@ -388,7 +391,7 @@ def _drop_indexes(context, data_dict, unique=False):
     indexes_to_drop = context['connection'].execute(
         sql_get_index_string, data_dict['resource_id']).fetchall()
     for index in indexes_to_drop:
-        context['connection'].execute(sql_drop_index.format(index[0]))
+        context['connection'].execute(sql_drop_index.format(index[0]).replace('%', '%%'))
 
 
 def alter_table(context, data_dict):
@@ -440,7 +443,7 @@ def alter_table(context, data_dict):
     for field in new_fields:
         sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
             data_dict['resource_id'],
-            field['id'],
+            field['id'].replace('%', '%%'),
             field['type'])
         context['connection'].execute(sql)
 
@@ -465,7 +468,7 @@ def upsert_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
     records = data_dict['records']
-    sql_columns = ", ".join(['"%s"' % name for name in field_names]
+    sql_columns = ", ".join(['"%s"' % name.replace('%', '%%') for name in field_names]
                             + ['"_full_text"'])
 
     if method == INSERT:
