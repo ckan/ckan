@@ -61,7 +61,7 @@
         </div>
       </div>
       {% block data_preview %}
-        <div id="ckanext-datapreview" class="module-content"></div>
+        {{ h.resource_preview(c.resource, c.package.id) }}
       {% endblock %}
     </section>
   {% endblock %}
@@ -116,41 +116,7 @@
   {% endblock %}
 {% endblock %}
 
-{% block styles %}
-  {{ super() }}
-  {#
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/slick.grid.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.css' %}" />
-  <!--[if lte IE 8]>
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.ie.css' %}" />
-  <![endif]-->
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/vendor/recline/css/recline.css' %}" />
-  <link rel="stylesheet" href="{% url_for_static '/base/datapreview/css/datapreview.css' %}" />
-  #}
-{% endblock %}
-
 {% block scripts %}
   {{ super() }}
-  {#
-  <script src="{% url_for_static '/base/datapreview/vendor/underscore/1.1.6/underscore.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/backbone/0.5.1/backbone.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/mustache/0.5.0-dev/mustache.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/bootstrap/2.0.3/bootstrap.min.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/jquery.mustache/jquery.mustache.js' %}"></script>
-
-  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/jquery-ui-1.8.16.custom.min.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/jquery.event.drag-2.0.min.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/slickgrid/2.0.1/slick.grid.min.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/flot/0.7/jquery.flot.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/moment/1.6.2/moment.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/vendor/leaflet/0.3.1/leaflet.js'%}"></script>
-
-  <script src="{% url_for_static '/base/datapreview/vendor/recline/recline.js' %}"></script>
-  <script src="{% url_for_static '/base/datapreview/datapreview.js' %}"></script>
-  #}
-  {% resource 'datapreview/datapreview' %}
-  <script>
-    var preload_resource = {{ h.literal(c.resource_json) }};
-    var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
-  </script>
+  {% resource 'datapreview/datapreview-frame' %}
 {% endblock %}

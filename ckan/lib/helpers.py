@@ -1303,6 +1303,35 @@ def format_resource_items(items):
         output.append((key, value))
     return sorted(output, key=lambda x:x[0])
 
+def resource_preview(resource, pkg_id):
+    '''
+    Returns a rendered snippet for a embeded resource preview.
+    '''
+
+    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
+    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
+                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
+                'txt', 'json']
+
+    format_lower = resource['format'].lower()
+    directly = False
+
+    url = url_for(controller='package', action='resource_preview',
+            resource_id=resource['id'], id=pkg_id, qualified=True)
+
+    if format_lower in ['csv', 'xls', 'tsv']:
+        #defaults
+        pass
+    elif format_lower in LOADABLE:
+        url = resource['url']
+    elif format_lower in DIRECT_EMBEDS:
+        directly = True
+        url = resource['url']
+    else:
+        log.warn('not handler for {}'.format(resource['format']))
+
+    return snippet("package/snippets/data_preview.html", embed=directly, resource_url=url)
+
 
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
@@ -1378,6 +1407,7 @@ __allowed_functions__ = [
            'get_request_param',
            'render_markdown',
            'format_resource_items',
+           'resource_preview',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
