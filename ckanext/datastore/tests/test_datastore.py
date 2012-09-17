@@ -666,6 +666,21 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert records[3].author == 'tolkien'
         model.Session.remove()
 
+        # test % in records
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{'author': 'tol % kien', u'b\xfck': 'the % hobbit'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
     def test_upsert_missing_key(self):
         data = {
             'resource_id': self.data['resource_id'],
