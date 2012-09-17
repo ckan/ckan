@@ -80,7 +80,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'aliases': 'foo"bar',
+            'aliases': u'foo"bar',
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        data = {
+            'resource_id': resource.id,
+            'aliases': u'fo%25bar',
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}]
         }
@@ -215,13 +228,13 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data = {
             'resource_id': resource.id,
             'aliases': aliases,
-            'fields': [{'id': 'book', 'type': 'text'},
+            'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'json'}],
-            'indexes': [['book', 'author'], 'book'],
+            'indexes': [['boo%k', 'author'], 'boo%k'],
             'records': [
-                        {'book': 'crime', 'author': ['tolstoy', 'dostoevsky']},
-                        {'book': 'annakarenina', 'author': ['tolstoy', 'putin']},
-                        {'book': 'warandpeace'}]  # treat author as null
+                        {'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'boo%k': 'annakarenina', 'author': ['tolstoy', 'putin']},
+                        {'boo%k': 'warandpeace'}]  # treat author as null
         }
         ### Firstly test to see if resource things it has datastore table
         postparams = '%s=1' % json.dumps({'id': resource.id})
@@ -248,7 +261,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert results.rowcount == 3
         for i, row in enumerate(results):
-            assert data['records'][i].get('book') == row['book']
+            assert data['records'][i].get('boo%k') == row['boo%k']
             assert data['records'][i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
 
@@ -288,7 +301,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         #######  insert again simple
         data2 = {
             'resource_id': resource.id,
-            'records': [{'book': 'hagji murat', 'author': ['tolstoy']}]
+            'records': [{'boo%k': 'hagji murat', 'author': ['tolstoy']}]
         }
 
         postparams = '%s=1' % json.dumps(data2)
@@ -306,7 +319,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         all_data = data['records'] + data2['records']
         for i, row in enumerate(results):
-            assert all_data[i].get('book') == row['book']
+            assert all_data[i].get('boo%k') == row['boo%k']
             assert all_data[i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
 
@@ -319,7 +332,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         #######  insert again extra field
         data3 = {
             'resource_id': resource.id,
-            'records': [{'book': 'crime and punsihment',
+            'records': [{'boo%k': 'crime and punsihment',
                          'author': ['dostoevsky'], 'rating': 'good'}],
             'indexes': ['rating']
         }
@@ -339,7 +352,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         all_data = data['records'] + data2['records'] + data3['records']
         for i, row in enumerate(results):
-            assert all_data[i].get('book') == row['book'], (i, all_data[i].get('book'), row['book'])
+            assert all_data[i].get('boo%k') == row['boo%k'], (i, all_data[i].get('boo%k'), row['boo%k'])
             assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') '''.format(resource.id))
@@ -350,8 +363,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         #######  insert again which will fail because of unique book name
         data4 = {
             'resource_id': resource.id,
-            'records': [{'book': 'warandpeace'}],
-            'primary_key': 'book'
+            'records': [{'boo%k': 'warandpeace'}],
+            'primary_key': 'boo%k'
         }
 
         postparams = '%s=1' % json.dumps(data4)
