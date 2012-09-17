@@ -230,7 +230,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'aliases': aliases,
             'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'json'}],
-            'indexes': [['boo%k', 'author'], 'boo%k'],
+            'indexes': [['boo%k', 'author'], 'author'],
             'records': [
                         {'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'boo%k': 'annakarenina', 'author': ['tolstoy', 'putin']},

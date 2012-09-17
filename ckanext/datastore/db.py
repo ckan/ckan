@@ -331,42 +331,45 @@ def create_indexes(context, data_dict):
     sql_index_string_method = sql_index_skeletton + u' USING {method}({fields})'
     sql_index_string = sql_index_skeletton + u' ({fields})'
     sql_index_strings = []
-    field_ids = _pluck('id', _get_fields(context, data_dict))
+
+    fields = _get_fields(context, data_dict)
+    field_ids = _pluck('id', fields)
+    json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
     if indexes != None:
         _drop_indexes(context, data_dict, False)
 
-        for index in indexes:
-            fields = _get_list(index)
-            for field in fields:
-                if field not in field_ids:
-                    raise ValidationError({
-                        'index': [('The field {0} is not a valid column name.').format(
-                            index)]
-                    })
-            fields_string = u','.join(['"%s"' % field.replace('%', '%%') for field in fields])
-            sql_index_strings.append(sql_index_string.format(
-                res_id=data_dict['resource_id'], unique='',
-                fields=fields_string))
-
         # create index for faster full text search (indexes: gin or gist)
         sql_index_strings.append(sql_index_string_method.format(
-                res_id=data_dict['resource_id'], unique='',
-                method='gist', fields='_full_text'))
+            res_id=data_dict['resource_id'], unique='',
+            method='gist', fields='_full_text'))
+    else:
+        indexes = []
+
     if primary_key != None:
         _drop_indexes(context, data_dict, True)
+        indexes.append(primary_key)
 
-        # create unique index
-        for field in primary_key:
+    for index in indexes:
+        if not index:
+            continue
+
+        index_fields = _get_list(index)
+        for field in index_fields:
             if field not in field_ids:
                 raise ValidationError({
-                    'primary_key': [('The field {0} is not a valid column name.').format(
-                        field)]
+                    'index': [('The field {0} is not a valid column name.').format(
+                        index)]
                 })
-        if primary_key:
-            sql_index_strings.append(sql_index_string.format(
-                res_id=data_dict['resource_id'], unique='unique',
-                fields=u','.join(['"%s"' % field.replace('%', '%%') for field in primary_key])))
+        fields_string = u', '.join([
+                '(("{0}").json::text)'.format(field.replace('%', '%%'))
+            if field in json_fields else
+                 '"%s"' % field.replace('%', '%%')
+            for field in index_fields])
+        sql_index_strings.append(sql_index_string.format(
+                res_id=data_dict['resource_id'],
+                unique='unique' if index == primary_key else '',
+                fields=fields_string))
 
     map(context['connection'].execute, sql_index_strings)
 
