@@ -9,11 +9,17 @@ this.ckan.module('data-viewer', function (jQuery, _) {
     },
 
     _onLoad: function() {
-      this._recalibrate();
-      var that = this;
-      this.el.contents().find('body').resize(function() {
-        that._recalibrate();
-      });
+      // WHAT IS THIS DOING AND WHY?
+      loc = window.location.protocol + '//' + window.location.host;
+      if (this.el.attr('src').substring(0, loc.length) === loc) {
+        this._recalibrate();
+        this.el.contents().find('body').resize(function() {
+          this._recalibrate();
+        });
+      }
+      else {
+        this.el.animate({height: 600}, 600);
+      }
     },
 
     _recalibrate: function() {
