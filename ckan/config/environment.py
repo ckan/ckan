@@ -32,7 +32,7 @@ class _Helpers(object):
     missing functions from causing template exceptions. Useful if
     templates have helper functions provided by extensions that have
     not been enabled. '''
-    def __init__(self, helpers, restrict=True):
+    def __init__(self, helpers):
         functions = {}
         allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
@@ -41,8 +41,7 @@ class _Helpers(object):
         for helper in dir(helpers):
             if helper not in allowed:
                 self.deprecated.append(helper)
-                if restrict:
-                    continue
+                continue
             functions[helper] = getattr(helpers, helper)
             if helper in allowed:
                 allowed.remove(helper)
@@ -181,9 +180,7 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals']._init()
 
     # add helper functions
-    restrict_helpers = asbool(
-        config.get('ckan.restrict_template_vars', 'true'))
-    helpers = _Helpers(h, restrict_helpers)
+    helpers = _Helpers(h)
     config['pylons.h'] = helpers
 
     ## redo template setup to use genshi.search_path
