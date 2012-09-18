@@ -159,8 +159,14 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
   // 
   // @param {String} s The string to convert
   // @param {Object} options Options for loading CSV including
-  // 	@param {Boolean} [trim=false] If set to True leading and trailing whitespace is stripped off of each non-quoted field as it is imported
-  //	@param {String} [separator=','] Separator for CSV file
+  // 	  @param {Boolean} [trim=false] If set to True leading and trailing
+  // 	    whitespace is stripped off of each non-quoted field as it is imported
+  //	  @param {String} [delimiter=','] A one-character string used to separate
+  //	    fields. It defaults to ','
+  //    @param {String} [quotechar='"'] A one-character string used to quote
+  //      fields containing special characters, such as the delimiter or
+  //      quotechar, or which contain new-line characters. It defaults to '"'
+  //
   // Heavily based on uselesscode's JS CSV parser (MIT Licensed):
   // http://www.uselesscode.org/javascript/csv/
   my.parseCSV= function(s, options) {
@@ -169,8 +175,8 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
 
     var options = options || {};
     var trm = (options.trim === false) ? false : true;
-    var separator = options.separator || ',';
-    var delimiter = options.delimiter || '"';
+    var delimiter = options.delimiter || ',';
+    var quotechar = options.quotechar || '"';
 
     var cur = '', // The character we are currently processing.
       inQuote = false,
@@ -205,7 +211,7 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
       cur = s.charAt(i);
 
       // If we are at a EOF or EOR
-      if (inQuote === false && (cur === separator || cur === "\n")) {
+      if (inQuote === false && (cur === delimiter || cur === "\n")) {
 	field = processField(field);
         // Add the current field to the current row
         row.push(field);
@@ -218,8 +224,8 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
         field = '';
         fieldQuoted = false;
       } else {
-        // If it's not a delimiter, add it to the field buffer
-        if (cur !== delimiter) {
+        // If it's not a quotechar, add it to the field buffer
+        if (cur !== quotechar) {
           field += cur;
         } else {
           if (!inQuote) {
@@ -227,9 +233,9 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
             inQuote = true;
             fieldQuoted = true;
           } else {
-            // Next char is delimiter, this is an escaped delimiter
-            if (s.charAt(i + 1) === delimiter) {
-              field += delimiter;
+            // Next char is quotechar, this is an escaped quotechar
+            if (s.charAt(i + 1) === quotechar) {
+              field += quotechar;
               // Skip the next char
               i += 1;
             } else {
@@ -249,23 +255,48 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
     return out;
   };
 
-  // Converts an array of arrays into a Comma Separated Values string.
-  // Each array becomes a line in the CSV.
+  // ### serializeCSV
+  // 
+  // Convert an Object or a simple array of arrays into a Comma
+  // Separated Values string.
   //
   // Nulls are converted to empty fields and integers or floats are converted to non-quoted numbers.
   //
   // @return The array serialized as a CSV
   // @type String
   // 
-  // @param {Array} a The array of arrays to convert
-  // @param {Object} options Options for loading CSV including
-  //	@param {String} [separator=','] Separator for CSV file
-  // Heavily based on uselesscode's JS CSV parser (MIT Licensed):
+  // @param {Object or Array} dataToSerialize The Object or array of arrays to convert. Object structure must be as follows:
+  //
+  //     {
+  //       fields: [ {id: .., ...}, {id: ..., 
+  //       records: [ { record }, { record }, ... ]
+  //       ... // more attributes we do not care about
+  //     }
+  // 
+  // @param {object} options Options for serializing the CSV file including
+  //   delimiter and quotechar (see parseCSV options parameter above for
+  //   details on these).
+  //
+  // Heavily based on uselesscode's JS CSV serializer (MIT Licensed):
   // http://www.uselesscode.org/javascript/csv/
-  my.serializeCSV= function(a, options) {
+  my.serializeCSV= function(dataToSerialize, options) {
+    var a = null;
+    if (dataToSerialize instanceof Array) {
+      a = dataToSerialize;
+    } else {
+      a = [];
+      var fieldNames = _.pluck(dataToSerialize.fields, 'id');
+      a.push(fieldNames);
+      _.each(dataToSerialize.records, function(record, index) {
+        var tmp = _.map(fieldNames, function(fn) {
+          return record[fn];
+        });
+        a.push(tmp);
+      });
+    }
     var options = options || {};
-    var separator = options.separator || ',';
-    var delimiter = options.delimiter || '"';
+    var delimiter = options.delimiter || ',';
+    var quotechar = options.quotechar || '"';
 
     var cur = '', // The character we are currently processing.
       field = '', // Buffer for building up the current field
@@ -281,7 +312,7 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
         field = '';
       } else if (typeof field === "string" && rxNeedsQuoting.test(field)) {
         // Convert string to delimited string
-        field = delimiter + field + delimiter;
+        field = quotechar + field + quotechar;
       } else if (typeof field === "number") {
         // Convert number to string
         field = field.toString(10);
@@ -302,7 +333,7 @@ this.recline.Backend.CSV = this.recline.Backend.CSV || {};
           row = '';
         } else {
           // Add the current field to the current row
-          row += field + separator;
+          row += field + delimiter;
         }
         // Flush the field buffer
         field = '';
@@ -1001,20 +1032,23 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
     this._applyFreeTextQuery = function(results, queryObj) {
       if (queryObj.q) {
         var terms = queryObj.q.split(' ');
+        var patterns=_.map(terms, function(term) {
+          return new RegExp(term.toLowerCase());;
+          });
         results = _.filter(results, function(rawdoc) {
           var matches = true;
-          _.each(terms, function(term) {
+          _.each(patterns, function(pattern) {
             var foundmatch = false;
             _.each(self.fields, function(field) {
               var value = rawdoc[field.id];
-              if (value !== null) { 
+              if ((value !== null) && (value !== undefined)) { 
                 value = value.toString();
               } else {
                 // value can be null (apparently in some cases)
                 value = '';
               }
               // TODO regexes?
-              foundmatch = foundmatch || (value.toLowerCase() === term.toLowerCase());
+              foundmatch = foundmatch || (pattern.test(value.toLowerCase()));
               // TODO: early out (once we are true should break to spare unnecessary testing)
               // if (foundmatch) return true;
             });
@@ -1848,26 +1882,27 @@ my.Graph = Backbone.View.extend({
       return getFormattedX(x);
     };
     
+    // infoboxes on mouse hover on points/bars etc
     var trackFormatter = function (obj) {
-          var x = obj.x;
-          var y = obj.y;
-          // it's horizontal so we have to flip
-          if (self.state.attributes.graphType === 'bars') {
-            var _tmp = x;
-            x = y;
-            y = _tmp;
-          }
-          
-          x = getFormattedX(x);
+      var x = obj.x;
+      var y = obj.y;
+      // it's horizontal so we have to flip
+      if (self.state.attributes.graphType === 'bars') {
+        var _tmp = x;
+        x = y;
+        y = _tmp;
+      }
+      
+      x = getFormattedX(x);
 
-          var content = _.template('<%= group %> = <%= x %>, <%= series %> = <%= y %>', {
-            group: self.state.attributes.group,
-            x: x,
-            series: obj.series.label,
-            y: y
-          });
-        
-        return content;
+      var content = _.template('<%= group %> = <%= x %>, <%= series %> = <%= y %>', {
+        group: self.state.attributes.group,
+        x: x,
+        series: obj.series.label,
+        y: y
+      });
+      
+      return content;
     };
     
     var getFormattedX = function (x) {
@@ -1938,18 +1973,18 @@ my.Graph = Backbone.View.extend({
         xaxis: yaxis,
         yaxis: xaxis,
         mouse: { 
-            track: true,
-            relative: true,
-            trackFormatter: trackFormatter,
-            fillColor: '#FFFFFF',
-            fillOpacity: 0.3,
-            position: 'e'
+          track: true,
+          relative: true,
+          trackFormatter: trackFormatter,
+          fillColor: '#FFFFFF',
+          fillOpacity: 0.3,
+          position: 'e'
         },
         bars: {
-            show: true,
-            horizontal: true,
-            shadowSize: 0,
-            barWidth: 0.8         
+          show: true,
+          horizontal: true,
+          shadowSize: 0,
+          barWidth: 0.8         
         },
       },
       columns: {
@@ -2470,6 +2505,11 @@ this.recline.View = this.recline.View || {};
 //     latField: {id of field containing latitude in the dataset}
 //   }
 // </pre>
+//
+// Useful attributes to know about (if e.g. customizing)
+//
+// * map: the Leaflet map (L.Map)
+// * features: Leaflet GeoJSON layer containing all the features (L.GeoJSON)
 my.Map = Backbone.View.extend({
   template: ' \
     <div class="recline-map"> \
@@ -2488,6 +2528,8 @@ my.Map = Backbone.View.extend({
     this.el = $(this.el);
     this.visible = true;
     this.mapReady = false;
+    // this will be the Leaflet L.Map object (setup below)
+    this.map = null;
 
     var stateData = _.extend({
         geomField: null,
@@ -2501,18 +2543,18 @@ my.Map = Backbone.View.extend({
 
     // Listen to changes in the fields
     this.model.fields.bind('change', function() {
-      self._setupGeometryField()
-      self.render()
+      self._setupGeometryField();
+      self.render();
     });
 
     // Listen to changes in the records
-    this.model.records.bind('add', function(doc){self.redraw('add',doc)});
+    this.model.records.bind('add', function(doc){self.redraw('add',doc);});
     this.model.records.bind('change', function(doc){
         self.redraw('remove',doc);
         self.redraw('add',doc);
     });
-    this.model.records.bind('remove', function(doc){self.redraw('remove',doc)});
-    this.model.records.bind('reset', function(){self.redraw('reset')});
+    this.model.records.bind('remove', function(doc){self.redraw('remove',doc);});
+    this.model.records.bind('reset', function(){self.redraw('reset');});
 
     this.menu = new my.MapMenu({
       model: this.model,
@@ -2524,6 +2566,34 @@ my.Map = Backbone.View.extend({
     });
     this.elSidebar = this.menu.el;
   },
+
+  // ## Customization Functions
+  //
+  // The following methods are designed for overriding in order to customize
+  // behaviour
+
+  // ### infobox
+  //
+  // Function to create infoboxes used in popups. The default behaviour is very simple and just lists all attributes.
+  // 
+  // Users should override this function to customize behaviour i.e.
+  //
+  //     view = new View({...});
+  //     view.infobox = function(record) {
+  //       ...
+  //     }
+  infobox: function(record) {
+    var html = '';
+    for (key in record.attributes){
+      if (!(this.state.get('geomField') && key == this.state.get('geomField'))){
+        html += '<div><strong>' + key + '</strong>: '+ record.attributes[key] + '</div>';
+      }
+    }
+    return html;
+  },
+
+  // END: Customization section
+  // ----
 
   // ### Public: Adds the necessary elements to the page.
   //
@@ -2612,29 +2682,23 @@ my.Map = Backbone.View.extend({
 
     var count = 0;
     var wrongSoFar = 0;
-    _.every(docs,function(doc){
+    _.every(docs, function(doc){
       count += 1;
       var feature = self._getGeometryFromRecord(doc);
       if (typeof feature === 'undefined' || feature === null){
         // Empty field
         return true;
       } else if (feature instanceof Object){
-        // Build popup contents
-        // TODO: mustache?
-        html = ''
-        for (key in doc.attributes){
-          if (!(self.state.get('geomField') && key == self.state.get('geomField'))){
-            html += '<div><strong>' + key + '</strong>: '+ doc.attributes[key] + '</div>';
-          }
-        }
-        feature.properties = {popupContent: html};
-
-        // Add a reference to the model id, which will allow us to
-        // link this Leaflet layer to a Recline doc
-        feature.properties.cid = doc.cid;
+        feature.properties = {
+          popupContent: self.infobox(doc),
+          // Add a reference to the model id, which will allow us to
+          // link this Leaflet layer to a Recline doc
+          cid: doc.cid
+        };
 
         try {
-          self.features.addGeoJSON(feature);
+          self.features.addData(feature);
+
         } catch (except) {
           wrongSoFar += 1;
           var msg = 'Wrong geometry value';
@@ -2644,7 +2708,7 @@ my.Map = Backbone.View.extend({
           }
         }
       } else {
-        wrongSoFar += 1
+        wrongSoFar += 1;
         if (wrongSoFar <= 10) {
           self.trigger('recline:flash', {message: 'Wrong geometry value', category:'error'});
         }
@@ -2663,7 +2727,7 @@ my.Map = Backbone.View.extend({
 
     _.each(docs,function(doc){
       for (key in self.features._layers){
-        if (self.features._layers[key].cid == doc.cid){
+        if (self.features._layers[key].feature.properties.cid == doc.cid){
           self.features.removeLayer(self.features._layers[key]);
         }
       }
@@ -2762,10 +2826,10 @@ my.Map = Backbone.View.extend({
   //
   _zoomToFeatures: function(){
     var bounds = this.features.getBounds();
-    if (bounds){
+    if (bounds.getNorthEast()){
       this.map.fitBounds(bounds);
     } else {
-      this.map.setView(new L.LatLng(0, 0), 2);
+      this.map.setView([0, 0], 2);
     }
   },
 
@@ -2782,37 +2846,14 @@ my.Map = Backbone.View.extend({
     var bg = new L.TileLayer(mapUrl, {maxZoom: 18, attribution: osmAttribution ,subdomains: '1234'});
     this.map.addLayer(bg);
 
-    this.features = new L.GeoJSON();
-    this.features.on('featureparse', function (e) {
-      if (e.properties && e.properties.popupContent){
-        e.layer.bindPopup(e.properties.popupContent);
-       }
-      if (e.properties && e.properties.cid){
-        e.layer.cid = e.properties.cid;
-       }
-
-    });
-
-    // This will be available in the next Leaflet stable release.
-    // In the meantime we add it manually to our layer.
-    this.features.getBounds = function(){
-      var bounds = new L.LatLngBounds();
-      this._iterateLayers(function (layer) {
-        if (layer instanceof L.Marker){
-          bounds.extend(layer.getLatLng());
-        } else {
-          if (layer.getBounds){
-            bounds.extend(layer.getBounds().getNorthEast());
-            bounds.extend(layer.getBounds().getSouthWest());
-          }
+    this.features = new L.GeoJSON(null,
+      {onEachFeature: function(feature,layer) {
+        layer.bindPopup(feature.properties.popupContent);
         }
-      }, this);
-      return (typeof bounds.getNorthEast() !== 'undefined') ? bounds : null;
-    }
-
+        });
     this.map.addLayer(this.features);
 
-    this.map.setView(new L.LatLng(0, 0), 2);
+    this.map.setView([0, 0], 2);
 
     this.mapReady = true;
   },
@@ -3112,8 +3153,9 @@ my.MultiView = Backbone.View.extend({
       </div> \
       <div class="menu-right"> \
         <div class="btn-group" data-toggle="buttons-checkbox"> \
-          <a href="#" class="btn active" data-action="filters">Filters</a> \
-          <a href="#" class="btn active" data-action="fields">Fields</a> \
+          {{#sidebarViews}} \
+          <a href="#" data-action="{{id}}" class="btn active">{{label}}</a> \
+          {{/sidebarViews}} \
         </div> \
       </div> \
       <div class="query-editor-here" style="display:inline;"></div> \
@@ -3143,28 +3185,28 @@ my.MultiView = Backbone.View.extend({
         view: new my.SlickGrid({
           model: this.model,
           state: this.state.get('view-grid')
-        }),
+        })
       }, {
         id: 'graph',
         label: 'Graph',
         view: new my.Graph({
           model: this.model,
           state: this.state.get('view-graph')
-        }),
+        })
       }, {
         id: 'map',
         label: 'Map',
         view: new my.Map({
           model: this.model,
           state: this.state.get('view-map')
-        }),
+        })
       }, {
         id: 'timeline',
         label: 'Timeline',
         view: new my.Timeline({
           model: this.model,
           state: this.state.get('view-timeline')
-        }),
+        })
       }, {
         id: 'transform',
         label: 'Transform',
@@ -3247,6 +3289,7 @@ my.MultiView = Backbone.View.extend({
   render: function() {
     var tmplData = this.model.toTemplateJSON();
     tmplData.views = this.pageViews;
+    tmplData.sidebarViews = this.sidebarViews;
     var template = Mustache.render(this.template, tmplData);
     $(this.el).html(template);
 
@@ -3266,7 +3309,7 @@ my.MultiView = Backbone.View.extend({
     _.each(this.sidebarViews, function(view) {
       this['$'+view.id] = view.view.el;
       $dataSidebar.append(view.view.el);
-    });
+    }, this);
 
     var pager = new recline.View.Pager({
       model: this.model.queryState
@@ -3309,13 +3352,7 @@ my.MultiView = Backbone.View.extend({
   _onMenuClick: function(e) {
     e.preventDefault();
     var action = $(e.target).attr('data-action');
-    if (action === 'filters') {
-      this.$filterEditor.toggle();
-    } else if (action === 'fields') {
-      this.$fieldsView.toggle();
-    } else if (action === 'transform') {
-      this.transformView.el.toggle();
-    }
+    this['$'+action].toggle();
   },
 
   _onSwitchView: function(e) {
@@ -3380,7 +3417,7 @@ my.MultiView = Backbone.View.extend({
     var self = this;
     _.each(this.pageViews, function(pageView) {
       pageView.view.bind('recline:flash', function(flash) {
-        self.notify(flash); 
+        self.notify(flash);
       });
     });
   },
@@ -3402,14 +3439,15 @@ my.MultiView = Backbone.View.extend({
       },
       flash
     );
+    var _template;
     if (tmplData.loader) {
-      var _template = ' \
+      _template = ' \
         <div class="alert alert-info alert-loader"> \
           {{message}} \
           <span class="notification-loader">&nbsp;</span> \
         </div>';
     } else {
-      var _template = ' \
+      _template = ' \
         <div class="alert alert-{{category}} fade in" data-alert="alert"><a class="close" data-dismiss="alert" href="#">×</a> \
           {{message}} \
         </div>';
