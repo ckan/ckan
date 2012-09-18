@@ -1,11 +1,11 @@
 {% import 'macros/form.html' as form %}
 
-<form class="form-horizontal organization-form-users" method="post" data-module="organization-users">
+<form class="form-horizontal organization-form-users" method="post" data-module="organization-users" data-module-index="{{data.users|length}}" data-module-users="{% for user in data.users %}{{ user.name }}~~{% endfor %}">
 	<input type="hidden" name="type" value="organization">
 
 	{{ form.errors(error_summary) }}
 
-	<table class="table table-bordered table-striped">
+	<table class="table table-bordered">
 		<colgroup>
 			<col width="58%">
 			<col width="30%">
@@ -19,6 +19,11 @@
 			</tr>
 		</thead>
 		<tbody>
+			{% if data.users|length == 0 %}
+			<tr class="empty">
+				<td colspan="3">{{ _('There are no users currently associated to this organization ') }}</td>
+			</tr>
+			{% else %}
 			{% for user in data.users %}
 			<tr>
 				<td class="username">{{ user.name }}</td>
@@ -36,7 +41,7 @@
 				</td>
 				<td>
 					<div class="control-group">
-						<label class="orginization-remove">
+						<label class="organizations-remove">
 							<input id="users__{{ loop.index0 }}__name" name="users__{{ loop.index0 }}__name" type="checkbox" value="{{ user.name }}" checked="checked">
 							<span>{{ _('Keep this user?') }}</span>
 						</label>
@@ -44,22 +49,65 @@
 				</td>
 			</tr>
 			{% endfor %}
+			{% endif %}
+			<tr class="organizations-add">
+				<td>
+					<label for="users__{{data.users|length}}__name">{{ _('Add') }}</label>
+					<input id="users__{{data.users|length}}__name" name="users__{{data.users|length}}__name" type="text">
+				</td>
+				<td>
+					<div class="control-group">
+						<label class="radio inline">
+							<input type="radio" name="users__{{data.users|length}}__capacity" value="admin">
+							{{ _('Admin') }}
+						</label>
+						<label class="radio inline">
+							<input type="radio" name="users__{{data.users|length}}__capacity" value="editor" checked="checked">
+							{{ _('Editor') }}
+						</label>
+					</div>
+				</td>
+				<td></td>
+			</tr>
 		</tbody>
 	</table>
-
-	<div class="organization-adduser">
-		<legend>{{ _('Add user') }}</legend>
-		<div class="control-group">
-			<label for="users__{{data.users|length}}__name" class="control-label">{{ _('Username') }}</label>
-			<div class="controls">
-				<input id="users__{{data.users|length}}__name" name="users__{{data.users|length}}__name" type="text" data-module="autocomplete" data-module-source="/api/2/util/user/autocomplete?q=?" data-module-completions="parseCompletionsForUsers">
-				<input id="users__{{data.users|length}}__capacity" name="users__{{data.users|length}}__capacity" value="editor" type="hidden">
-			</div>
-		</div>
-	</div>
 
 	<div class="form-actions">
 		<button name="save" type="submit" class="btn btn-primary">{{ _('Save') }}</button>
 	</div>
 
 </form>
+
+<script id="organizations-add-form" type="text/html">
+<div>
+	<input type="text" data-module="autocomplete" data-module-source="/api/2/util/user/autocomplete?q=?" data-module-completions="parseCompletionsForUsers" placeholder="{{ _('Username') }}">
+	<a href="javascript:;" class="btn btn-primary">{{ _('Add') }}</a>
+</div>
+</script>
+
+<script id="organizations-add-row" type="text/html">
+<tr>
+	<td class="username">[username]</td>
+	<td>
+		<div class="control-group">
+			<label class="radio inline">
+				<input type="radio" name="users__[index]__capacity" value="admin">
+				{{ _('Admin') }}
+			</label>
+			<label class="radio inline">
+				<input type="radio" name="users__[index]__capacity" value="editor" checked="checked">
+				{{ _('Editor') }}
+			</label>
+		</div>
+	</td>
+	<td>
+		<div class="control-group">
+			<label class="organizations-remove">
+				<input name="users__[index]__name" type="checkbox" value="[username]" checked="checked">
+				<span>{{ _('Keep this user?') }}</span>
+			</label>
+		</div>
+	</td>
+</tr>
+</script>
+

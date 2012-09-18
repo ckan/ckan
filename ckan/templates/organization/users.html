@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block actions_content %}
-	<li>{% link_for _('Back to organization'), controller='organization', action='read', id=c.organization.name, class_='btn', icon='caret-left' %}</li>
+	<li id="organizations-back">{% link_for _('Back to organization'), controller='organization', action='read', id=c.organization.name, class_='btn', icon='caret-left' %}</li>
 {% endblock %}
 
 {% block primary_content %}
