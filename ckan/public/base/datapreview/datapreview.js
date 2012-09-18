@@ -176,6 +176,7 @@ CKAN.DataPreview = function ($, my) {
       // Update the embedLink and embedIframeText to contain the updated link
       // and update width and height parameters.
       function updateLink() {
+        return // FIXME what is this doing? disabled for now
         var link = my.makeEmbedLink(dataExplorer.state);
         var width = iframeWidth.val();
         var height = iframeHeight.val();
