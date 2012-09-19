@@ -26,11 +26,11 @@
         </td>
           {% for role in roles %}
             <td>
-              <input type="hidden" name="{{ h.literal( '%s$%s' % (user,role)) }}" value="submitted"/>
+              <input type="hidden" name="{{ h.literal( '%s$%s' % (user, role)) }}" value="submitted"/>
               {% if user_role_dict[(user,role)] %}
-                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user,role)) }}" checked='checked' class="checkbox-onown"/>
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
               {% else %}
-                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user,role)) }}" class="checkbox-onown"/>
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" class="checkbox-onown"/>
               {% endif %}
             </td>
         {% endfor %}
@@ -89,11 +89,11 @@
         </td>
       {% for role in roles %}
           <td>
-            <input type="hidden" name="${ h.literal( '%s$%s' % (user,role)) }" value="submitted"/>
+            <input type="hidden" name="${ h.literal( '%s$%s' % (user, role)) }" value="submitted"/>
             {% if user_role_dict[(user,role)] %}
-                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user,role)) }}" checked='checked' class="checkbox-onown"/>
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
                    {% else %}
-                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user,role)) }}" />
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" />
               {% endif %}
           </td>
       {% endfor %}
