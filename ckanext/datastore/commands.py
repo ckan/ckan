@@ -68,8 +68,8 @@ class SetupDatastoreCommand(CkanCommand):
         cmd = self.args[0]
         self._load_config()
 
-        self.urlparts_w = self._get_db_config('ckan.datastore_write_url')
-        self.urlparts_r = self._get_db_config('ckan.datastore_read_url')
+        self.urlparts_w = self._get_db_config('ckan.datastore.write_url')
+        self.urlparts_r = self._get_db_config('ckan.datastore.read_url')
         self.urlparts_c = self._get_db_config('sqlalchemy.url')
 
         assert self.urlparts_w['db_name'] == self.urlparts_r['db_name'], "write and read db should be the same"
