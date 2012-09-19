@@ -44,10 +44,10 @@ In your config file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
 
-Also ensure that the ``ckan.datastore_write_url`` and ``datastore_read_url`` variables are set::
+Also ensure that the ``ckan.datastore.write_url`` and ``datastore.read_url`` variables are set::
 
- ckan.datastore_write_url = postgresql://ckanuser:pass@localhost/datastore
- ckan.datastore_read_url = postgresql://readonlyuser:pass@localhost/datastore
+ ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
 
 A few things have to be kept in mind
 

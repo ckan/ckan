@@ -25,13 +25,13 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def configure(self, config):
         self.config = config
-        # check for ckan.datastore_write_url and ckan.datastore_read_url
-        if (not 'ckan.datastore_write_url' in config):
-            error_msg = 'ckan.datastore_write_url not found in config'
+        # check for ckan.datastore.write_url and ckan.datastore.read_url
+        if (not 'ckan.datastore.write_url' in config):
+            error_msg = 'ckan.datastore.write_url not found in config'
             raise DatastoreException(error_msg)
 
-        if (not 'ckan.datastore_read_url' in config):
-            error_msg = 'ckan.datastore_read_url not found in config'
+        if (not 'ckan.datastore.read_url' in config):
+            error_msg = 'ckan.datastore.read_url not found in config'
             raise DatastoreException(error_msg)
 
         # Check whether we are running one of the paster commands which means
@@ -43,8 +43,8 @@ class DatastorePlugin(p.SingletonPlugin):
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
-        self.write_url = self.config['ckan.datastore_write_url']
-        self.read_url = self.config['ckan.datastore_read_url']
+        self.write_url = self.config['ckan.datastore.write_url']
+        self.read_url = self.config['ckan.datastore.read_url']
 
         if not self._is_read_only_database():
             # Make sure that the right permissions are set
@@ -69,7 +69,7 @@ class DatastorePlugin(p.SingletonPlugin):
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
                 context,
-                {'connection_url': config['ckan.datastore_read_url']}
+                {'connection_url': config['ckan.datastore.read_url']}
             )
             new_data_dict = resource_show(context, data_dict)
             try:
@@ -185,7 +185,7 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         connection = db._get_engine(None,
-            {'connection_url': pylons.config['ckan.datastore_write_url']}).connect()
+            {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
         connection.execute(create_alias_table_sql)
 
     def get_actions(self):
