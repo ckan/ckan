@@ -234,7 +234,7 @@ CKAN.DataPreview = function ($, my) {
 
     // Set recline CKAN backend API endpoint to right location (so it can locate
     // CKAN DataStore)
-    recline.Backend.Ckan.API_ENDPOINT = ckan.API_ROOT + '/api';
+    recline.Backend.Ckan.API_ENDPOINT = $('body').data('site-root') + 'api';
 
     if (resourceData.datastore_active) {
       resourceData.backend =  'ckan';
