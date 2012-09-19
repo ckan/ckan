@@ -88,6 +88,7 @@ setup(
     color = ckan.lib.cli:CreateColorSchemeCommand
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
     trans = ckan.lib.cli:TranslationsCommand
+    datastore = ckanext.datastore.commands:SetupDatastoreCommand
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
