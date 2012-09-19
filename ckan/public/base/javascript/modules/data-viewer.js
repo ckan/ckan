@@ -9,12 +9,14 @@ this.ckan.module('data-viewer', function (jQuery, _) {
     },
 
     _onLoad: function() {
-      // WHAT IS THIS DOING AND WHY?
-      loc = window.location.protocol + '//' + window.location.host;
+      var that = this;
+      var loc = $('body').data('site-root');
+      // see if page is in part of the same domain
       if (this.el.attr('src').substring(0, loc.length) === loc) {
         this._recalibrate();
         this.el.contents().find('body').resize(function() {
-          this._recalibrate();
+        // this breaks in firefox on the graph page so disabled for now
+        //  that._recalibrate();
         });
       }
       else {
