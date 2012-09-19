@@ -1654,8 +1654,8 @@ CKAN.DataPreview = function ($, my) {
     }
 
     // 4 situations
-    // a) webstore_url is active (something was posted to the datastore)
-    // b) csv or xls (but not webstore)
+    // a) something was posted to the datastore - need to check for this
+    // b) csv or xls (but not datastore)
     // c) can be treated as plain text
     // d) none of the above but worth iframing (assumption is
     // that if we got here (i.e. preview shown) worth doing
@@ -1673,9 +1673,12 @@ CKAN.DataPreview = function ($, my) {
       }
     }
 
-    if (resourceData.webstore_url) {
-      resourceData.url = '/api/data/' + resourceData.id;
-      resourceData.backend =  'elasticsearch';
+    // Set recline CKAN backend API endpoint to right location (so it can locate
+    // CKAN DataStore)
+    recline.Backend.Ckan.API_ENDPOINT = CKAN.SITE_URL + '/api';
+
+    if (resourceData.datastore_active) {
+      resourceData.backend =  'ckan';
       var dataset = new recline.Model.Dataset(resourceData);
       var errorMsg = CKAN.Strings.errorLoadingPreview + ': ' + CKAN.Strings.errorDataStore;
       dataset.fetch()
