@@ -1,6 +1,5 @@
 from pylons.test import pylonsapp
 import webtest
-from oktest import ok
 
 import ckan.tests as tests
 import ckan.model as model
@@ -41,7 +40,7 @@ class WebAppTest(tests.BaseCase):
         form['password'] = 'tester'
 
         res = self.auto_follow(form.submit())
-        ok(res).contains("tester is now logged in")
+        assert "tester is now logged in" in res
 
         return res
 

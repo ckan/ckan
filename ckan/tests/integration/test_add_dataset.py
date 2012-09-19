@@ -1,5 +1,4 @@
 from base import WebAppTest
-from oktest import ok
 from ckan.tests import url_for
 
 
@@ -8,14 +7,14 @@ class TestAddDataset(WebAppTest):
         self.app.reset()
         res = self.app.get(url_for(controller='package', action='new'), status=302).follow()
 
-        ok(res.lxml.xpath('//h1[contains(text(), "Login")]')).length(1)
-        ok(res.pyquery('h1.page_heading').text()) == 'Login to CKAN'
+        assert len(res.lxml.xpath('//h1[contains(text(), "Login")]')) == 1
+        assert res.pyquery('h1.page_heading').text() == 'Login to CKAN'
 
     def test_add_dataset(self):
         res = self.log_in()
 
         res = res.click(description="Add a dataset", index=0)
-        ok(res.pyquery('h1.page_heading').text()) == 'Add a Dataset'
+        assert res.pyquery('h1.page_heading').text() == 'Add a Dataset'
 
         form = res.forms['dataset-edit']
 
@@ -26,4 +25,4 @@ class TestAddDataset(WebAppTest):
         form['tag_string'] = 'foo, far, baz'
 
         res = form.submit(name='save').follow()
-        ok(res.pyquery('h1.page_heading').text()) == 'New Resource'
+        assert res.pyquery('h1.page_heading').text() == 'New Resource'

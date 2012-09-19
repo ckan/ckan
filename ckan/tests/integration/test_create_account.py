@@ -1,5 +1,4 @@
 from base import WebAppTest
-from oktest import ok
 from ckan.tests import url_for
 
 
@@ -21,6 +20,6 @@ class TestAccountCreation(WebAppTest):
         res = form.submit(name='save')
         res = self.auto_follow(res)
 
-        ok(res).contains("Bar is now logged in")
-        ok(res.pyquery('h1.page_heading span.username').text()) == 'foo_bar'
-        ok(res.pyquery('h1.page_heading span.fullname').text()).contains('Foo Bar')
+        assert "Bar is now logged in" in res
+        assert res.pyquery('h1.page_heading span.username').text() == 'foo_bar'
+        assert 'Foo Bar' in res.pyquery('h1.page_heading span.fullname').text()
