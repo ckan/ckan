@@ -36,7 +36,7 @@ from pylons import session
 from pylons import c, g
 from pylons.i18n import _, ungettext
 
-import html_resources
+import ckan.lib.fanstatic_resources as fanstatic_resources
 from lib.maintain import deprecated
 import ckan.model as model
 import ckan.lib.formatters as formatters
@@ -519,30 +519,17 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
-    # TODO if we agree to propossed change then we can just wrap
-    # get_facet_items_dict()
+    return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
-    #return get_facet_items_dict(facet, limit=limit, exclude_active=True)
-    if not c.search_facets or \
-       not c.search_facets.get(facet) or \
-       not c.search_facets.get(facet).get('items'):
-        return []
-    facets = []
-    for facet_item in c.search_facets.get(facet)['items']:
-        if not len(facet_item['name'].strip()):
-            continue
-        if not (facet, facet_item['name']) in request.params.items():
-            facets.append(facet_item)
-    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    if c.search_facets_limits:
-        limit = c.search_facets_limits.get(facet)
-    if limit:
-        return facets[:limit]
-    else:
-        return facets
-
-
+@deprecated('Please use get_facet_title(name) for i18n improvements.')
 def facet_title(name):
+    '''Returns a title for the given facet name.
+    
+    If a mapping is declared in the config, this is used.  Otherwise it falls
+    back to capitalizing the given name.
+
+    This function is deprecated, use `get_facet_title` instead.
+    '''
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
@@ -1168,7 +1155,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
                                    action=action, extras=extras)
 
 def include_resource(resource):
-    r = getattr(html_resources, resource)
+    r = getattr(fanstatic_resources, resource)
     r.need()
 
 def debug_inspect(arg):
@@ -1293,7 +1280,8 @@ def format_resource_items(items):
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
-    reg_ex_number = '^-?\d{1,}\.?\d*$'  # int/float
+    reg_ex_int = '^-?\d{1,}$'
+    reg_ex_float = '^-?\d{1,}\.\d{1,}$'
     for key, value in items:
         if not value or key in blacklist:
             continue
@@ -1305,8 +1293,10 @@ def format_resource_items(items):
             if re.search(reg_ex_datetime, value):
                 datetime_ = date_str_to_datetime(value)
                 value = formatters.localised_nice_date(datetime_)
-            elif re.search(reg_ex_number, value):
+            elif re.search(reg_ex_float, value):
                 value = formatters.localised_number(float(value))
+            elif re.search(reg_ex_int, value):
+                value = formatters.localised_number(int(value))
         elif isinstance(value, int) or isinstance(value, float):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
@@ -1332,7 +1322,7 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-           'facet_title',
+         # 'facet_title',  # deprecated
          #  am_authorized, # deprecated
            'check_access',
            'linked_user',

@@ -1,4 +1,3 @@
-@import "../vendor/select2/select2.css";
 article,
 aside,
 details,
@@ -3752,8 +3751,8 @@ a.badge:hover {
     */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../vendor/font-awesome/fonts/fontawesome-webfont.eot');
-  src: url('../vendor/font-awesome/fonts/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../vendor/font-awesome/fonts/fontawesome-webfont.woff') format('woff'), url('../vendor/font-awesome/fonts/fontawesome-webfont.ttf') format('truetype'), url('../vendor/font-awesome/fonts/fontawesome-webfont.svg#FontAwesome') format('svg');
+  src: url('../../../base/vendor/font-awesome/fonts/fontawesome-webfont.eot');
+  src: url('../../../base/vendor/font-awesome/fonts/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../../../base/vendor/font-awesome/fonts/fontawesome-webfont.woff') format('woff'), url('../../../base/vendor/font-awesome/fonts/fontawesome-webfont.ttf') format('truetype'), url('../../../base/vendor/font-awesome/fonts/fontawesome-webfont.svg#FontAwesome') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -4461,7 +4460,7 @@ ul.icons li .icon-large:before {
   font-size: 11px;
 }
 .tag {
-  background: url("../images/background-tag.png") no-repeat -13px center;
+  background: url("../../../base/images/background-tag.png") no-repeat -13px center;
   position: relative;
   display: block;
   font-size: 11px;
@@ -4473,7 +4472,7 @@ ul.icons li .icon-large:before {
 }
 .tag:before {
   content: "";
-  background: url("../images/background-tag.png") no-repeat center left;
+  background: url("../../../base/images/background-tag.png") no-repeat center left;
   position: absolute;
   display: block;
   top: 0;
@@ -4895,7 +4894,7 @@ ol.media-grid:after {
   display: block;
 }
 .nav-item.active > a {
-  background: url("../images/background-tag.png") no-repeat -13px center;
+  background: url("../../../base/images/background-tag.png") no-repeat -13px center;
   position: relative;
   display: block;
   font-size: 11px;
@@ -4920,7 +4919,7 @@ ol.media-grid:after {
 }
 .nav-item.active > a:before {
   content: "";
-  background: url("../images/background-tag.png") no-repeat center left;
+  background: url("../../../base/images/background-tag.png") no-repeat center left;
   position: absolute;
   display: block;
   top: 0;
@@ -4966,7 +4965,7 @@ ol.media-grid:after {
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("../images/sprite-ckan-icons.png");
+  background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
   content: "";
@@ -5183,7 +5182,7 @@ textarea {
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("../images/sprite-ckan-icons.png");
+  background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
   width: 17px;
@@ -5545,7 +5544,7 @@ textarea {
 }
 .resource-upload-field.loading {
   display: inline-block;
-  background: url("../images/loading-spinner.gif") no-repeat center right;
+  background: url("../../../base/images/loading-spinner.gif") no-repeat center right;
   padding-right: 5px;
 }
 .select2-container .select2-choice input,
@@ -5707,7 +5706,7 @@ textarea {
   margin-top: -17px;
   width: 30px;
   height: 30px;
-  background: transparent url("../images/icon-search-27x26.png") no-repeat center center;
+  background: transparent url("../../../base/images/icon-search-27x26.png") no-repeat center center;
   text-indent: -900em;
 }
 .control-order-by {
@@ -5775,7 +5774,7 @@ textarea {
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("../images/sprite-ckan-icons.png");
+  background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
   width: 16px;
@@ -6282,7 +6281,7 @@ textarea {
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("../images/sprite-ckan-icons.png");
+  background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
 }
@@ -6474,11 +6473,11 @@ textarea {
   top: 2px;
   width: 16px;
   height: 16px;
-  background-image: url("../images/sprite-ckan-icons.png");
+  background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
   text-indent: -900em;
-  background: url("../images/sprite-resource-icons.png") no-repeat 0 0;
+  background: url("../../../base/images/sprite-resource-icons.png") no-repeat 0 0;
 }
 .format-label:last-child {
   *margin-left: 0;
@@ -6608,7 +6607,7 @@ li .icon-large:before {
   margin-bottom: 0;
 }
 .hero {
-  background: url("../images/background-tile.png");
+  background: url("../../../base/images/background-tile.png");
 }
 .hero:after {
   background-color: rgba(0, 0, 0, 0.09);
@@ -6990,7 +6989,7 @@ li .icon-large:before {
   width: 65px;
   height: 21px;
   margin-top: 2px;
-  background: url("../images/ckan-logo-footer.png") no-repeat top left;
+  background: url("../../../base/images/ckan-logo-footer.png") no-repeat top left;
   text-indent: -900em;
 }
 .lang-select {
@@ -7019,7 +7018,7 @@ li .icon-large:before {
 .lang-dropdown .select2-result-label[data-value]:before {
   content: "";
   display: inline-block;
-  background-image: url("../images/flags.png");
+  background-image: url("../../../base/images/flags.png");
   background-repeat: no-repeat;
   background-position: 0 11px;
   width: 17px;
@@ -7425,7 +7424,7 @@ iframe {
 .ie7 .toolbar .breadcrumb li {
   padding-right: 10px;
   margin-right: 5px;
-  background: transparent url("../images/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
+  background: transparent url("../../../base/images/breadcrumb-slash-ie7.png") 100% 50% no-repeat;
 }
 .ie7 .toolbar .breadcrumb li.active {
   background-image: none;

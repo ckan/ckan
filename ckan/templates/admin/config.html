@@ -7,7 +7,7 @@
 {% block primary %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Configuration Settings') }}</h1>
+      {% snippet 'admin/snippets/header.html', action=c.action %}
 
       <form method='post' action="" class="form-horizontal">
           {{ autoform.generate(form_items, data, errors) }}

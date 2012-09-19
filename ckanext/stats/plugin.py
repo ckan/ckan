@@ -24,3 +24,4 @@ class StatsPlugin(p.SingletonPlugin):
                 templates = 'templates_legacy'
         p.toolkit.add_template_directory(config, templates)
         p.toolkit.add_public_directory(config, 'public')
+        p.toolkit.add_resource('public/ckanext/stats', 'ckanext_stats')
