@@ -1832,9 +1832,8 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv) {
   };
 };
 
-document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
+var loadPdfJsView = function(params) {
   PDFView.initialize();
-  var params = PDFView.parseQueryString(document.location.search.substring(1));
 
   var file = params.file || kDefaultURL;
 
@@ -2004,7 +2003,7 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
 
 
   PDFView.open(file, 0);
-}, true);
+}
 
 function updateViewarea() {
 
@@ -2063,6 +2062,11 @@ function updateViewarea() {
   var href = PDFView.getAnchorUrl(pdfOpenParams);
   document.getElementById('viewBookmark').href = href;
 }
+
+document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
+  var params = PDFView.parseQueryString(document.location.search.substring(1));
+  loadPdfJsView(params);
+}, true);
 
 window.addEventListener('resize', function webViewerResize(evt) {
   if (PDFView.initialized &&
