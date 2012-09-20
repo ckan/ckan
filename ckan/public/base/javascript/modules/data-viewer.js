@@ -28,8 +28,8 @@ this.ckan.module('data-viewer', function (jQuery, _) {
       // save reference to this to use in timeout
       var that = this;
       resizeTimer = setTimeout(function() {
-        var height = that.el.contents().height();
-        that.el.animate({height: height+2}, Math.max(500, 100/height));
+        var height = that.el.contents().find('body').height();
+        that.el.animate({height: height+2}, Math.min(700, height*2));
       }, 100);
     },
 
