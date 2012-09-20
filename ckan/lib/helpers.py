@@ -1320,7 +1320,7 @@ def resource_preview(resource, pkg_id):
     format_lower = resource['format'].lower()
     directly = False
 
-    url = url_for(controller='package', action='resource_preview',
+    url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
 
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:

@@ -1279,7 +1279,7 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_preview(self, id, resource_id):
+    def resource_datapreview(self, id, resource_id):
         '''
         Embeded page for a resource data-preview.
         '''
@@ -1299,7 +1299,7 @@ class PackageController(BaseController):
 
     def resource_pdfpreview(self, id, resource_id):
         '''
-        Embeded page for a resource data-preview.
+        Embeded page for a resource pdf-preview.
         '''
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
