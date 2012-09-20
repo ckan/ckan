@@ -2063,10 +2063,10 @@ function updateViewarea() {
   document.getElementById('viewBookmark').href = href;
 }
 
-document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
+/*document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
   var params = PDFView.parseQueryString(document.location.search.substring(1));
   loadPdfJsView(params);
-}, true);
+}, true); */
 
 window.addEventListener('resize', function webViewerResize(evt) {
   if (PDFView.initialized &&
