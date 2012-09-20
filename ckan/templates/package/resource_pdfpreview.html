@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
 {% set res = c.resource %}
+{% set locale_href = h.url_for_static('/base/datapreview/vendor/pdfviewer/locale.properties')%}
 
 {% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
-{% block extra_headers %}
+{% block styles %}
   {{ super() }}
-  <link rel="resource" type="application/l10n" href="locale.properties"/>
+  <link rel="resource" type="application/l10n" href="{{locale_href}}"/>
 {% endblock %}
 
 {% block page %}
-  <div id="outerContainer" id="ckanext-pdfpreview" class="module-content">
+  <div id="outerContainer" class="module-content">
     <div id="sidebarContainer">
       <div id="toolbarSidebar" class="splitToolbarButton toggled">
         <button id="viewThumbnail" class="toolbarButton group toggled" title="Show Thumbnails" tabindex="1" data-l10n-id="thumbs">
@@ -68,10 +69,6 @@
 
               <button id="fullscreen" class="toolbarButton fullscreen" title="Fullscreen" tabindex="11" data-l10n-id="fullscreen">
                 <span data-l10n-id="fullscreen_label">Fullscreen</span>
-              </button>
-
-              <button id="openFile" class="toolbarButton openFile" title="Open File" tabindex="12" data-l10n-id="open_file">
-                 <span data-l10n-id="open_file_label">Open</span>
               </button>
 
               <button id="print" class="toolbarButton print" title="Print" tabindex="13" data-l10n-id="print">
@@ -162,5 +159,6 @@
 
   <script>
     var preload_resource = {{ h.literal(c.resource_json) }};
+    //var pdfjs_workersrc = '{{ h.url_for_static('/base/dataviewer/vendor/pdfjs/pdf.js') }}';
   </script>
 {% endblock %}

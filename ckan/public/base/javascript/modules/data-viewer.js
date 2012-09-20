@@ -15,8 +15,8 @@ this.ckan.module('data-viewer', function (jQuery, _) {
       if (this.el.attr('src').substring(0, loc.length) === loc) {
         this._recalibrate();
         this.el.contents().find('body').resize(function() {
-        // this might break in firefox on the graph page
-        that._recalibrate();
+          // this might break in firefox on the graph page
+          that._recalibrate();
         });
       }
       else {
@@ -29,7 +29,7 @@ this.ckan.module('data-viewer', function (jQuery, _) {
       var that = this;
       resizeTimer = setTimeout(function() {
         var height = that.el.contents().height();
-        that.el.animate({height: height}, height);
+        that.el.animate({height: height+2}, Math.max(500, 100/height));
       }, 100);
     },
 
