@@ -215,3 +215,68 @@ The member table has field called capacity which should be used as follows:
 *  When a dataset is a member of a Group it must have capacity of 'member'. 
 *  When a user is a member of a Group/Organization it must have capacity 
    of admin/editor.
+
+
+Transition
+==========
+
+Member table - this does not seem to exist would be
+
+
+    +-------------+
+    |Member       |
+    +-------------+
+    |Dataset      |
+    |User         |
+    |Role         |
+    +-------------+
+
+
+Orgs would just be a group type with it's own forms and a field that destiguishes it as an org.  Probably it's own schema etc
+
+If possible all actions will just be group_.... not organization_....
+
+Any changes to the group model would be as minimal as possible
+
+
+Admin
+~~~~~
+
+Need to add some stuff to allow admin of group datasets etc both for admin/sysadmins
+
+
+Searches
+~~~~~~~~
+
+Search Indexes would be updated to contain privacy information for groups
+
+Searches would be updated to not return private data.  This may need some thought to keep things running fast - public users would almost definatly be a special case as this is a common usage
+
+
+Need methods for group/org applications and admin
+
+Do we need to move/migrate existing data?
+
+Group/Org searches should seem different to the user so searching groups only shows groups etc
+
+Auth
+~~~~
+
+All auth functions would be group_... but these would then internally use the org_... functionality if the group is an org
+
+Try to remove any old auth stuff if possible
+
+Permissions to just be hard coded (as user stories) in this first phase but keep an eye on future upgrades
+
+Sysadmins will have magic powers to see do anything
+
+
+Tests
+~~~~~
+
+Attempt to keep existing tests running and look at some tests for new functionality.
+
+Misc
+~~~~
+
+There will be some integration issues but they are outside the scope of this doc and the development cycle
