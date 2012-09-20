@@ -21,11 +21,9 @@ CKAN.PdfPreview = function ($, pdf, my) {
   //
   // Returns nothing.
   my.loadPreview = function(resourceData) {
-    /*var params = {
+    var params = {
       file: resourceData['url']
-    }*/
-
-    var params = PDFView.parseQueryString(document.location.search.substring(1));
+    }
 
     pdf(params);
   }
