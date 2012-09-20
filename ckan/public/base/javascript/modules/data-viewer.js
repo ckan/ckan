@@ -15,8 +15,8 @@ this.ckan.module('data-viewer', function (jQuery, _) {
       if (this.el.attr('src').substring(0, loc.length) === loc) {
         this._recalibrate();
         this.el.contents().find('body').resize(function() {
-        // this breaks in firefox on the graph page so disabled for now
-        //  that._recalibrate();
+        // this might break in firefox on the graph page
+        that._recalibrate();
         });
       }
       else {
