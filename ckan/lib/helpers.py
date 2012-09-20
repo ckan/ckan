@@ -1306,6 +1306,10 @@ def format_resource_items(items):
 def resource_preview(resource, pkg_id):
     '''
     Returns a rendered snippet for a embeded resource preview.
+
+    Depending on the type, different previews are loaded.
+    This could be an img tag where the image is loaded directly or an iframe that
+    embeds a webpage, recline or a pdf preview.
     '''
 
     DIRECT_EMBEDS = ['png', 'jpg', 'gif']
@@ -1322,6 +1326,9 @@ def resource_preview(resource, pkg_id):
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
         #default
         pass
+    elif format_lower == 'pdf':
+        url = url_for(controller='package', action='resource_pdfpreview',
+            resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in LOADABLE:
         url = resource['url']
     elif format_lower in DIRECT_EMBEDS:

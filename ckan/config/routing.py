@@ -215,6 +215,8 @@ def make_map():
                   action='resource_embedded_dataviewer', width="960", height="800")
         m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_preview')
+        m.connect('/dataset/{id}/resource/{resource_id}/pdfpreview',
+                  action='resource_pdfpreview')
 
     # group
     map.redirect('/groups', '/group')
