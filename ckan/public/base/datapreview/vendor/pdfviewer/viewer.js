@@ -35,6 +35,8 @@ var RenderingStates = {
   FINISHED: 3
 };
 
+  PDFJS.workerSrc = '../build/pdf.js';
+
 var mozL10n = document.mozL10n || document.webL10n;
 
 function getFileName(url) {
@@ -124,9 +126,6 @@ var ProgressBar = (function ProgressBarClosure() {
   return ProgressBar;
 })();
 
-//#if FIREFOX || MOZCENTRAL
-//#include firefoxcom.js
-//#endif
 
 // Settings Manager - This is a utility for saving settings
 // First we see if localStorage is available
@@ -147,14 +146,10 @@ var Settings = (function SettingsClosure() {
   function Settings(fingerprint) {
     var database = null;
     var index;
-//#if !(FIREFOX || MOZCENTRAL)
     if (isLocalStorageEnabled)
       database = localStorage.getItem('database') || '{}';
     else
       return;
-//#else
-//  database = FirefoxCom.requestSync('getDatabase', null) || '{}';
-//#endif
 
     database = JSON.parse(database);
     if (!('files' in database))
@@ -182,12 +177,8 @@ var Settings = (function SettingsClosure() {
       var file = this.file;
       file[name] = val;
       var database = JSON.stringify(this.database);
-//#if !(FIREFOX || MOZCENTRAL)
       if (isLocalStorageEnabled)
         localStorage.setItem('database', database);
-//#else
-//    FirefoxCom.requestSync('setDatabase', database);
-//#endif
     },
 
     get: function settingsGet(name, defaultValue) {
@@ -481,54 +472,12 @@ var PDFView = {
     }
 
     var url = this.url.split('#')[0];
-//#if !(FIREFOX || MOZCENTRAL)
     url += '#pdfjs.action=download';
     window.open(url, '_parent');
-//#else
-//  // Document isn't ready just try to download with the url.
-//  if (!this.pdfDocument) {
-//    noData();
-//    return;
-//  }
-//  this.pdfDocument.getData().then(
-//    function getDataSuccess(data) {
-//      var bb = new MozBlobBuilder();
-//      bb.append(data.buffer);
-//      var blobUrl = window.URL.createObjectURL(
-//                      bb.getBlob('application/pdf'));
-//
-//      FirefoxCom.request('download', { blobUrl: blobUrl, originalUrl: url },
-//        function response(err) {
-//          if (err) {
-//            // This error won't really be helpful because it's likely the
-//            // fallback won't work either (or is already open).
-//            PDFView.error('PDF failed to download.');
-//          }
-//          window.URL.revokeObjectURL(blobUrl);
-//        }
-//      );
-//    },
-//    noData // Error occurred try downloading with just the url.
-//  );
-//#endif
   },
 
   fallback: function pdfViewFallback() {
-//#if !(FIREFOX || MOZCENTRAL)
-//  return;
-//#else
-//  // Only trigger the fallback once so we don't spam the user with messages
-//  // for one PDF.
-//  if (this.fellback)
-//    return;
-//  this.fellback = true;
-//  var url = this.url.split('#')[0];
-//  FirefoxCom.request('fallback', url, function response(download) {
-//    if (!download)
-//      return;
-//    PDFView.download();
-//  });
-//#endif
+    return;
   },
 
   navigateTo: function pdfViewNavigateTo(dest) {
@@ -580,11 +529,7 @@ var PDFView = {
    * @param {String} anchor The anchor hash include the #.
    */
   getAnchorUrl: function getAnchorUrl(anchor) {
-//#if !(FIREFOX || MOZCENTRAL)
     return anchor;
-//#else
-//  return this.url.split('#')[0] + anchor;
-//#endif
   },
 
   /**
@@ -622,7 +567,6 @@ var PDFView = {
     var loadingBox = document.getElementById('loadingBox');
     loadingBox.setAttribute('hidden', 'true');
 
-//#if !(FIREFOX || MOZCENTRAL)
     var errorWrapper = document.getElementById('errorWrapper');
     errorWrapper.removeAttribute('hidden');
 
@@ -652,10 +596,6 @@ var PDFView = {
     errorMoreInfo.value = moreInfoText;
 
     errorMoreInfo.rows = moreInfoText.split('\n').length - 1;
-//#else
-//  console.error(message + '\n' + moreInfoText);
-//  this.fallback();
-//#endif
   },
 
   progress: function pdfViewProgress(level) {
@@ -1896,21 +1836,13 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
   PDFView.initialize();
   var params = PDFView.parseQueryString(document.location.search.substring(1));
 
-//#if !(FIREFOX || MOZCENTRAL)
   var file = params.file || kDefaultURL;
-//#else
-//var file = window.location.toString()
-//#endif
 
-//#if !(FIREFOX || MOZCENTRAL)
   if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
     document.getElementById('openFile').setAttribute('hidden', 'true');
   } else {
     document.getElementById('fileInput').value = null;
   }
-//#else
-//document.getElementById('openFile').setAttribute('hidden', 'true');
-//#endif
 
   // Special debugging flags in the hash section of the URL.
   var hash = document.location.hash.substring(1);
@@ -1919,12 +1851,10 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
   if ('disableWorker' in hashParams)
     PDFJS.disableWorker = (hashParams['disableWorker'] === 'true');
 
-//#if !(FIREFOX || MOZCENTRAL)
   var locale = navigator.language;
   if ('locale' in hashParams)
     locale = hashParams['locale'];
   mozL10n.language.code = locale;
-//#endif
 
   if ('textLayer' in hashParams) {
     switch (hashParams['textLayer']) {
@@ -1940,11 +1870,7 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
     }
   }
 
-//#if !(FIREFOX || MOZCENTRAL)
   if ('pdfBug' in hashParams) {
-//#else
-//if ('pdfBug' in hashParams && FirefoxCom.requestSync('pdfBugEnabled')) {
-//#endif
     PDFJS.pdfBug = true;
     var pdfBug = hashParams['pdfBug'];
     var enabled = pdfBug.split(',');
@@ -1952,12 +1878,6 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
     PDFBug.init();
   }
 
-//#if !(FIREFOX || MOZCENTRAL)
-//#else
-//if (FirefoxCom.requestSync('searchEnabled')) {
-//  document.querySelector('#viewSearch').classList.remove('hidden');
-//}
-//#endif
 
   if (!PDFView.supportsPrinting) {
     document.getElementById('print').classList.add('hidden');
@@ -2082,17 +2002,8 @@ document.addEventListener('DOMContentLoaded', function webViewerLoad(evt) {
         PDFView.rotatePages(90);
       });
 
-//#if (FIREFOX || MOZCENTRAL)
-//if (FirefoxCom.requestSync('getLoadingType') == 'passive') {
-//  PDFView.setTitleUsingUrl(file);
-//  PDFView.initPassiveLoading();
-//  return;
-//}
-//#endif
 
-//#if !B2G
   PDFView.open(file, 0);
-//#endif
 }, true);
 
 function updateViewarea() {
@@ -2377,20 +2288,4 @@ window.addEventListener('afterprint', function afterPrint(evt) {
   window.addEventListener('webkitfullscreenchange', fullscreenChange, false);
 })();
 
-//#if B2G
-//window.navigator.mozSetMessageHandler('activity', function(activity) {
-//  var url = activity.source.data.url;
-//  // Temporarily get the data here since the cross domain xhr is broken in
-//  // the worker currently, see bug 761227.
-//  var params = {
-//    url: url,
-//    error: function(e) {
-//      PDFView.error(mozL10n.get('loading_error', null,
-//                    'An error occurred while loading the PDF.'), e);
-//    }
-//  };
-//  PDFJS.getPdf(params, function successCallback(data) {
-//    PDFView.open(data, 0);
-//  });
-//});
-//#endif
+
