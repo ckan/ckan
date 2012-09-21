@@ -1,6 +1,6 @@
 <div class="module-content">
 	{% if no_preview %}
-	<div class="alert alert-block">
+	<div class="alert alert-block" data-module="dismiss-alerts">
 		<button type="button" class="close" data-dismiss="alert">×</button>
 		<h4>{{_('Preview not available')}} </h4>
 			{{_('No handler defined for data type:')}} <code>{{ resource_type }}</code>
