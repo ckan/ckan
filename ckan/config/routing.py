@@ -217,6 +217,8 @@ def make_map():
                   action='resource_datapreview')
         m.connect('/dataset/{id}/resource/{resource_id}/pdfpreview',
                   action='resource_pdfpreview')
+        m.connect('/dataset/{id}/resource/{resource_id}/jsonpreview',
+                  action='resource_jsonpreview')
 
     # group
     map.redirect('/groups', '/group')

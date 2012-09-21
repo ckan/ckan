@@ -1,10 +1,5 @@
 var CKAN = CKAN || {};
 
-CKAN.View = CKAN.View || {};
-CKAN.Model = CKAN.Model || {};
-CKAN.Utils = CKAN.Utils || {};
-CKAN.Strings = CKAN.Strings || {};
-
 (function ($) {
   $(document).ready(function () {
     CKAN.PdfPreview.loadPreview(preload_resource);

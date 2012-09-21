@@ -1314,3 +1314,21 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
         return render('package/resource_pdfpreview.html')
+
+    def resource_jsonpreview(self, id, resource_id):
+        '''
+        Embeded page for a resource json-preview.
+        '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        return render('package/resource_jsonpreview.html')

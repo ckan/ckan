@@ -1328,6 +1328,9 @@ def resource_preview(resource, pkg_id):
     elif format_lower == 'pdf':
         url = url_for(controller='package', action='resource_pdfpreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
+    elif format_lower == 'jsonp':
+        url = url_for(controller='package', action='resource_jsonpreview',
+            resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in LOADABLE:
         url = resource['url']
     elif format_lower in DIRECT_EMBEDS:
