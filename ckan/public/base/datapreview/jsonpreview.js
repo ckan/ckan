@@ -19,7 +19,6 @@ CKAN.JsonPreview = function ($, my) {
 
     $.getJSON(resourceData['url'], function(data) {
       var html = JSON.stringify(data, null, 4);
-      console.log(html);
       $('#'+my.dialogId).html(html);
     });
   };
