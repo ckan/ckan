@@ -1295,7 +1295,7 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('package/resource_preview.html')
+        return render('package/resource_datapreview.html')
 
     def resource_pdfpreview(self, id, resource_id):
         '''
