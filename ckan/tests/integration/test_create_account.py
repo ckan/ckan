@@ -1,10 +1,13 @@
 from ckan.tests import url_for
-import ckan.tests as tests
+from pylons.test import pylonsapp
 import helpers
+import webtest
+import unittest
 
 
-class TestAccountCreation(tests.WsgiWebAppCase):
-    fixtures = ['users.json']
+class TestAccountCreation(unittest.TestCase):
+    assert pylonsapp, 'You need to run nose with --with-pylons'
+    app = webtest.TestApp(pylonsapp)
 
     def test_create_account(self):
         res = self.app.get(url_for('home'))

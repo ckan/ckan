@@ -1,9 +1,14 @@
 from ckan.tests import url_for
-import ckan.tests as tests
+from pylons.test import pylonsapp
 import helpers
+import webtest
+import unittest
 
 
-class TestAddDataset(tests.WsgiWebAppCase):
+class TestAddDataset(unittest.TestCase):
+    assert pylonsapp, 'You need to run nose with --with-pylons'
+    app = webtest.TestApp(pylonsapp)
+
     def test_create_requires_login(self):
         self.app.reset()
         res = self.app.get(url_for(controller='package', action='new'), status=302).follow()
