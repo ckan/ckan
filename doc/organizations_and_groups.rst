@@ -220,17 +220,51 @@ The member table has field called capacity which should be used as follows:
 Transition
 ==========
 
-Member table - this does not seem to exist would be
+
+I'd remove the member table as horrible and move to this model
 ::
 
-    +-------------+
-    |Member       |
-    +-------------+
-    |Group/Org    |
-    |User         |
-    |Role         |
-    +-------------+
 
+                        +------------+
+                        |            |
+                    +---+  dataset   |
+    +-----------+   |   |            |
+    | group     +---+   +------------+
+    | ownership |
+    |           +---+   +------------+
+    +-----------+   |   |            |
+                    +---+   group    |
+                        |            |
+                        +------------+
+
+
+
+                        +------------+
+                        |            |
+                    +---+  user      |
+    +-----------+   |   |            |
+    | group     +---+   +------------+
+    | membership|
+    |           +---+   +------------+
+    +-----------+   |   |            |
+                    +---+   group    |
+                        |            |
+                        +------------+
+
+    +----------------+
+    |group_membership|
+    +----------------+
+    |Group/Org       |
+    |User            |
+    |Role            |
+    +----------------+
+
+    +----------------+
+    |group_ownership |
+    +----------------+
+    |Group/Org       |
+    |Dataset         |
+    +----------------+
 
 Orgs would just be a group type with it's own forms and a field that
 destiguishes it as an org.  Probably it's own schema etc
