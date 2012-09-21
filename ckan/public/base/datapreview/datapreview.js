@@ -211,13 +211,10 @@ CKAN.DataPreview = function ($, my) {
 
     }
 
-    // 4 situations
+    // 3 situations
     // a) something was posted to the datastore - need to check for this
     // b) csv or xls (but not datastore)
     // c) can be treated as plain text
-    // d) none of the above but worth iframing (assumption is
-    // that if we got here (i.e. preview shown) worth doing
-    // something ...)
     resourceData.formatNormalized = my.normalizeFormat(resourceData.format);
 
     resourceData.url  = my.normalizeUrl(resourceData.url);
@@ -291,35 +288,6 @@ CKAN.DataPreview = function ($, my) {
       var _url = my.jsonpdataproxyUrl + '?type=csv&url=' + resourceData.url;
       my.getResourceDataDirect(_url, function(data) {
         my.showPlainTextData(data);
-      });
-    }
-    else if (resourceData.formatNormalized in {'html':'', 'htm':''}
-        ||  resourceData.url.substring(0,23)=='http://docs.google.com/') {
-      // we displays a fullscreen dialog with the url in an iframe.
-      my.$dialog.empty();
-      var el = $('<iframe></iframe>');
-      el.attr('src', resourceData.url);
-      el.attr('width', '100%');
-      el.attr('height', '100%');
-      my.$dialog.append(el);
-    }
-    // images
-    else if (resourceData.formatNormalized in {'png':'', 'jpg':'', 'gif':''}
-        ||  resourceData.resource_type=='image') {
-      // we displays a fullscreen dialog with the url in an iframe.
-      my.$dialog.empty();
-      var el = $('<img />');
-      el.attr('src', resourceData.url);
-      el.css('max-width', '100%');
-      el.css('border', 'solid 4px black');
-      my.$dialog.append(el);
-    }
-    else {
-      // Cannot reliably preview this item - with no mimetype/format information,
-      // can't guarantee it's not a remote binary file such as an executable.
-      my.showError({
-        title: CKAN.Strings.previewNotAvailableForDataType + resourceData.formatNormalized,
-        message: ''
       });
     }
   };
@@ -404,7 +372,7 @@ CKAN.DataPreview = function ($, my) {
     } else {
       return url;
     }
-  }
+  };
 
   // Public: Escapes HTML entities to prevent broken layout and XSS attacks
   // when inserting user generated or external content.

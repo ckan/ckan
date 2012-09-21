@@ -23,10 +23,10 @@ CKAN.PdfPreview = function ($, pdf, my) {
   my.loadPreview = function(resourceData) {
     var params = {
       file: resourceData['url']
-    }
+    };
 
     pdf(params);
-  }
+  };
 
   // Export the CKANEXT object onto the window.
   $.extend(true, window, {CKANEXT: {}});

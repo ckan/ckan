@@ -1319,13 +1319,12 @@ def resource_preview(resource, pkg_id):
 
     format_lower = resource['format'].lower()
     directly = False
-
-    url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], id=pkg_id, qualified=True)
+    url = ''
+    no_preview = False
 
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
-        #default
-        pass
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower == 'pdf':
         url = url_for(controller='package', action='resource_pdfpreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
@@ -1335,9 +1334,16 @@ def resource_preview(resource, pkg_id):
         directly = True
         url = resource['url']
     else:
-        log.warn('not handler for {}'.format(resource['format']))
+        log.info('no handler for {}'.format(resource['format']))
+        no_preview = True
 
-    return snippet("package/snippets/data_preview.html", embed=directly, resource_url=url)
+    return snippet(
+        "package/snippets/data_preview.html",
+        embed=directly,
+        resource_url=url,
+        no_preview=no_preview,
+        resource_type=resource['format']
+        )
 
 
 # these are the functions that will end up in `h` template helpers
