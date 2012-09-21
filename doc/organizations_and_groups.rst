@@ -221,7 +221,7 @@ Transition
 ==========
 
 Member table - this does not seem to exist would be
-
+::
 
     +-------------+
     |Member       |
@@ -244,13 +244,15 @@ If possible all actions will just be group_.... not organization_....
 Any changes to the group model would be as minimal as possible
 
 
-Admin ~~~~~
+Admin
+`````
 
 Need to add some stuff to allow admin of group datasets etc both for
 admin/sysadmins
 
 
-Searches ~~~~~~~~
+Searches
+````````
 
 Search Indexes would be updated to contain privacy information for groups
 
@@ -268,7 +270,8 @@ only shows groups etc
 
 I may need some help with the search stuff
 
-Auth ~~~~
+Auth
+````
 
 All auth functions would be group_... but these would then internally use
 the org_... functionality if the group is an org
@@ -281,17 +284,20 @@ keep an eye on future upgrades
 Sysadmins will have magic powers to see do anything
 
 
-Tests ~~~~~
+Tests
+`````
 
 Attempt to keep existing tests running and look at some tests for new
 functionality.
 
-Misc ~~~~
+Misc
+````
 
 There will be some integration issues but they are outside the scope of this
 doc and the development cycle
 
-API ~~~
+API
+```
 
 Only actions will be supported for orgs - any v1/2 apis will only work for
 groups orgs will 500
