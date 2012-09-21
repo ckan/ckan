@@ -1,8 +1,9 @@
-from base import WebAppTest
 from ckan.tests import url_for
+import ckan.tests as tests
+import helpers
 
 
-class TestAccountCreation(WebAppTest):
+class TestAccountCreation(tests.WsgiWebAppCase):
     fixtures = ['users.json']
 
     def test_create_account(self):
@@ -18,7 +19,7 @@ class TestAccountCreation(WebAppTest):
         form['password2'] = 'secret'
 
         res = form.submit(name='save')
-        res = self.auto_follow(res)
+        res = helpers.auto_follow(res)
 
         assert "Bar is now logged in" in res
         assert res.pyquery('h1.page_heading span.username').text() == 'foo_bar'

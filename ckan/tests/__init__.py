@@ -14,6 +14,7 @@ import re
 from unittest import TestCase
 from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
+import webtest
 import time
 
 from pylons import config
@@ -228,6 +229,15 @@ class WsgiAppCase(BaseCase):
     # running, meaning the pylonsapp wasn't setup yet (which is done in
     # pylons.test.py:begin())
     app = paste.fixture.TestApp(wsgiapp)
+
+
+class WsgiWebAppCase(BaseCase):
+    wsgiapp = pylonsapp
+    assert wsgiapp, 'You need to run nose with --with-pylons'
+    # Either that, or this file got imported somehow before the tests started
+    # running, meaning the pylonsapp wasn't setup yet (which is done in
+    # pylons.test.py:begin())
+    app = webtest.TestApp(wsgiapp)
 
 
 def config_abspath(file_path):

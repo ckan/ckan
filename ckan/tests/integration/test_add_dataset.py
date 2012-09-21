@@ -1,8 +1,9 @@
-from base import WebAppTest
 from ckan.tests import url_for
+import ckan.tests as tests
+import helpers
 
 
-class TestAddDataset(WebAppTest):
+class TestAddDataset(tests.WsgiWebAppCase):
     def test_create_requires_login(self):
         self.app.reset()
         res = self.app.get(url_for(controller='package', action='new'), status=302).follow()
@@ -11,7 +12,7 @@ class TestAddDataset(WebAppTest):
         assert res.pyquery('h1.page_heading').text() == 'Login to CKAN'
 
     def test_add_dataset(self):
-        res = self.log_in()
+        res = helpers.log_in(self.app)
 
         res = res.click(description="Add a dataset", index=0)
         assert res.pyquery('h1.page_heading').text() == 'Add a Dataset'
