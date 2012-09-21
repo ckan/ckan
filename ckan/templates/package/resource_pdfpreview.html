@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
-{% set locale_href = h.url_for_static('/base/datapreview/vendor/pdfviewer/locale.properties')%}
 {% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(c.resource) }}{% endblock %}
 
 {% block styles %}
-  {{ super() }}
+  {% set locale_href = h.url_for_static('/base/datapreview/vendor/pdfviewer/locale.properties')%}
   <link rel="resource" type="application/l10n" href="{{locale_href}}"/>
+{% endblock %}
+
+{%- block custom_styles %}
 {% endblock %}
 
 {% block page %}
@@ -152,7 +154,6 @@
 {% endblock %}
 
 {% block scripts %}
-  {{ super() }}
   {% resource 'datapreview/pdfpreview' %}
 
   <script>
