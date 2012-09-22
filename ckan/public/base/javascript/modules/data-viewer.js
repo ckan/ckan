@@ -29,7 +29,6 @@ this.ckan.module('data-viewer', function (jQuery) {
       resizeTimer = setTimeout(function() {
         var height = that.el.contents().find('body').outerHeight();
         var deltaHeight = height - that.el.outerHeight();
-        console.log(deltaHeight);
         if (deltaHeight > 0 || deltaHeight < -10) {
           that.el.animate({height: height+20}, Math.min(700, height*2));
         }
