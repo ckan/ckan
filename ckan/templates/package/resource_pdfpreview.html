@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block page %}
-  <div id="outerContainer" class="module-content">
+  <div id="outerContainer" class="module-content" data-module="pdfpreview">
     <div id="sidebarContainer">
       <div id="toolbarSidebar" class="splitToolbarButton toggled">
         <button id="viewThumbnail" class="toolbarButton group toggled" title="Show Thumbnails" tabindex="1" data-l10n-id="thumbs">
@@ -154,6 +154,8 @@
 {% endblock %}
 
 {% block scripts %}
+  {% resource 'base/main' %}
+  {% resource 'vendor/vendor' %}
   {% resource 'datapreview/pdfpreview' %}
 
   <script>
