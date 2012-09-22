@@ -18,8 +18,7 @@ this.ckan.module('data-viewer', function (jQuery, _) {
           // this might break in firefox on the graph page
           that._recalibrate();
         });
-      }
-      else {
+      } else {
         this.el.animate({height: 600}, 600);
       }
     },
@@ -29,7 +28,11 @@ this.ckan.module('data-viewer', function (jQuery, _) {
       var that = this;
       resizeTimer = setTimeout(function() {
         var height = that.el.contents().find('body').height();
-        that.el.animate({height: height+2}, Math.min(700, height*2));
+        var deltaHeight = height - that.el.height();
+        console.log(deltaHeight);
+        if (deltaHeight > 0 || deltaHeight < -10) {
+          that.el.animate({height: height+2}, Math.min(700, height*2));
+        }
       }, 100);
     },
 
