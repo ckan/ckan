@@ -27,11 +27,11 @@ this.ckan.module('data-viewer', function (jQuery) {
       // save reference to this to use in timeout
       var that = this;
       resizeTimer = setTimeout(function() {
-        var height = that.el.contents().find('body').height();
-        var deltaHeight = height - that.el.height();
+        var height = that.el.contents().find('body').outerHeight();
+        var deltaHeight = height - that.el.outerHeight();
         console.log(deltaHeight);
         if (deltaHeight > 0 || deltaHeight < -10) {
-          that.el.animate({height: height+2}, Math.min(700, height*2));
+          that.el.animate({height: height+20}, Math.min(700, height*2));
         }
       }, 100);
     },
