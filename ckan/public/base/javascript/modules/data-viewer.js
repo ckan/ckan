@@ -1,6 +1,6 @@
 // data viewer module
 // resizes the iframe when the content is loaded
-this.ckan.module('data-viewer', function (jQuery, _) {
+this.ckan.module('data-viewer', function (jQuery) {
   return {
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
