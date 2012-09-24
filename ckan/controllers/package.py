@@ -1279,7 +1279,7 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_datapreview(self, id, resource_id):
+    def resource_datapreview(self, id, resource_id, style):
         '''
         Embeded page for a resource data-preview.
         '''
@@ -1295,40 +1295,4 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/recline.html')
-
-    def resource_pdfpreview(self, id, resource_id):
-        '''
-        Embeded page for a resource pdf-preview.
-        '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
-        try:
-            c.resource = get_action('resource_show')(context,
-                                                     {'id': resource_id})
-            c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
-        except NotFound:
-            abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/pdf.html')
-
-    def resource_jsonpreview(self, id, resource_id):
-        '''
-        Embeded page for a resource json-preview.
-        '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
-        try:
-            c.resource = get_action('resource_show')(context,
-                                                     {'id': resource_id})
-            c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
-        except NotFound:
-            abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/json.html')
+        return render('dataviewer/{style}.html'.format(style=style))
