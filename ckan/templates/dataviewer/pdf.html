@@ -152,6 +152,6 @@
   {{ super() }}
   {% resource 'datapreview/pdf' %}
   <script>
-    var pdfjs_workerSrc = "{{ h.urls_for_resource('datapreview/vendor/pdfjs/pdf.js')[-1] }}";
+    var pdfjs_workerSrc = "{{ h.urls_for_resource('datapreview/vendor/pdfjs/pdf.js')[0] }}";
   </script>
 {% endblock %}
