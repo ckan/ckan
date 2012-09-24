@@ -1,13 +1,8 @@
-{% extends "base.html" %}
-
-{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(c.resource) }}{% endblock %}
+{% extends "dataviewer/base.html" %}
 
 {% block styles %}
   {% set locale_href = h.url_for_static('/base/datapreview/vendor/pdfviewer/locale.properties')%}
   <link rel="resource" type="application/l10n" href="{{locale_href}}"/>
-{% endblock %}
-
-{%- block custom_styles %}
 {% endblock %}
 
 {% block page %}
@@ -154,12 +149,6 @@
 {% endblock %}
 
 {% block scripts %}
-  {% resource 'base/main' %}
-  {% resource 'vendor/vendor' %}
+  {{ super() }}
   {% resource 'datapreview/pdfpreview' %}
-
-  <script>
-    var preload_resource = {{ h.literal(c.resource_json) }};
-    //var pdfjs_workersrc = '{{ h.url_for_static('/base/dataviewer/vendor/pdfjs/pdf.js') }}';
-  </script>
 {% endblock %}
