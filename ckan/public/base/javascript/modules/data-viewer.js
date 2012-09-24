@@ -26,8 +26,11 @@ this.ckan.module('data-viewer', function (jQuery) {
     _recalibrate: function() {
       // save reference to this to use in timeout
       var that = this;
+      MIN_HEIGHT = 300;
+
       resizeTimer = setTimeout(function() {
         var height = that.el.contents().find('body').outerHeight();
+        height = Math.max(height, MIN_HEIGHT);
         var deltaHeight = height - that.el.outerHeight();
         if (deltaHeight > 0 || deltaHeight < -10) {
           that.el.animate({height: height+20}, Math.min(700, height*2));
