@@ -26,7 +26,7 @@ this.ckan.module('data-viewer', function (jQuery) {
     _recalibrate: function() {
       // save reference to this to use in timeout
       var that = this;
-      MIN_HEIGHT = 300;
+      MIN_HEIGHT = 400;
 
       resizeTimer = setTimeout(function() {
         var height = that.el.contents().find('body').get(0).scrollHeight;

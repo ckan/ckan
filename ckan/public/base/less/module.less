@@ -174,3 +174,19 @@
 .group-listing {
   margin-left: -20px; // Same as .row
 }
+
+// PREVIEW
+
+.ckanext-datapreview {
+  position: relative;
+  overflow: auto;
+
+  & > iframe {
+    min-height: 400px;
+  }
+  & > img {
+    max-height: 500px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
