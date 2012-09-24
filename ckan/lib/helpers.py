@@ -1341,7 +1341,7 @@ def resource_preview(resource, pkg_id):
         no_preview = True
 
     return snippet(
-        "package/snippets/data_preview.html",
+        "dataviewer/snippets/data_preview.html",
         embed=directly,
         resource_url=url,
         no_preview=no_preview,

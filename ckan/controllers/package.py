@@ -1295,7 +1295,7 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('package/resource_datapreview.html')
+        return render('dataviewer/recline.html')
 
     def resource_pdfpreview(self, id, resource_id):
         '''
@@ -1313,7 +1313,7 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('package/resource_pdfpreview.html')
+        return render('dataviewer/pdf.html')
 
     def resource_jsonpreview(self, id, resource_id):
         '''
@@ -1331,4 +1331,4 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('package/resource_jsonpreview.html')
+        return render('dataviewer/json.html')
