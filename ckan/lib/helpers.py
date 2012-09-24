@@ -1158,6 +1158,35 @@ def include_resource(resource):
     r = getattr(fanstatic_resources, resource)
     r.need()
 
+def urls_for_resource(resource):
+    ''' Returns a list of urls for the resource specified.  If the resource
+    is a group or has dependencies then there can be multiple urls.
+
+    NOTE: This is for special situations only and is not the way to generaly
+    include resources.  It is advised not to use this function.'''
+    r = getattr(fanstatic_resources, resource)
+    resources = list(r.resources)
+    core = fanstatic_resources.fanstatic_extensions.core
+    f = core.get_needed()
+    lib = resources[0].library
+    root_path = f.library_url(lib)
+
+    resources = core.sort_resources(resources)
+    if f._bundle:
+        resources = core.bundle_resources(resources)
+    out = []
+    for resource in resources:
+        if isinstance(resource, core.Bundle):
+            paths = [resource.relpath for resource in resource.resources()]
+            relpath = ';'.join(paths)
+            relpath = core.BUNDLE_PREFIX + relpath
+        else:
+            relpath = resource.relpath
+
+        out.append('%s/%s' % (root_path, relpath))
+    return out
+
+
 def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
@@ -1403,6 +1432,7 @@ __allowed_functions__ = [
            'get_facet_items_dict',
            'unselected_facet_items',
            'include_resource',
+           'urls_for_resource',
            'build_nav_main',
            'debug_inspect',
            'dict_list_reduce',
