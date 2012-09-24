@@ -4,9 +4,6 @@
 
 {# remove any scripts #}
 {% block scripts %}
-	{% resource 'base/main' %}
-  {% resource 'vendor/vendor' %}
-
   <script>
     var preload_resource = {{ h.literal(c.resource_json) }};
   </script>
