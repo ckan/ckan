@@ -168,7 +168,18 @@ ckan.module('reclinepreview', function (jQuery, _) {
         items.push(key + '=' + escape(value));
       });
       queryString += items.join('&');
-      return embedPath + queryString;
+
+      // iframeWidth and iframeHeight control the width and height parameters
+      // used to construct the iframe, and are also used in the link.
+      var iframeWidth = $('.iframe-width');
+      var iframeHeight = $('.iframe-height');
+      var width = iframeWidth.val();
+      var height = iframeHeight.val();
+
+      var link = embedPath + queryString;
+      link += '&width='+width+'&height='+height;
+
+      return link;
     },
 
     // **Public: Loads a data previewer for an embedded page**
