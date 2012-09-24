@@ -3,10 +3,10 @@ ckan.module('jsonpreview', function (jQuery) {
   return {
     initialize: function () {
       var self = this;
-      $.getJSON(preload_resource['url'], function(data) {
+      jQuery.getJSON(preload_resource['url'], function(data) {
         var html = JSON.stringify(data, null, 4);
         var pretty = self._syntaxHighlight(html);
-        $(self.el).html(pretty);
+        self.el.html(pretty);
       });
     },
 
