@@ -1303,6 +1303,7 @@ def format_resource_items(items):
         output.append((key, value))
     return sorted(output, key=lambda x:x[0])
 
+
 def resource_preview(resource, pkg_id):
     '''
     Returns a rendered snippet for a embeded resource preview.
@@ -1320,7 +1321,6 @@ def resource_preview(resource, pkg_id):
     format_lower = resource['format'].lower()
     directly = False
     url = ''
-    no_preview = False
 
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
         url = url_for(controller='package', action='resource_datapreview',
@@ -1338,14 +1338,15 @@ def resource_preview(resource, pkg_id):
         url = resource['url']
     else:
         log.info('no handler for {}'.format(resource['format']))
-        no_preview = True
+        return snippet(
+            "dataviewer/snippets/no_preview.html",
+            resource_type=format_lower
+            )
 
     return snippet(
         "dataviewer/snippets/data_preview.html",
         embed=directly,
-        resource_url=url,
-        no_preview=no_preview,
-        resource_type=resource['format']
+        resource_url=url
         )
 
 

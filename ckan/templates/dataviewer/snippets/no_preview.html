@@ -1,0 +1,8 @@
+<div class="module-content">
+  <div class="alert alert-block" data-module="dismiss-alert">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <h4>{{ _('This resource cannot be previewed.') }}</h4>
+    {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
+    {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+  </div>
+</div>
