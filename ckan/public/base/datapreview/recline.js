@@ -88,25 +88,6 @@ ckan.module('reclinepreview', function (jQuery, _) {
             if (error.message) errorMsg += ' (' + error.message + ')';
             showError(errorMsg);
           });
-      } else if (resourceData.formatNormalized in {
-        'rdf+xml': '',
-        'owl+xml': '',
-        'xml': '',
-        'n3': '',
-        'n-triples': '',
-        'turtle': '',
-        'plain': '',
-        'atom': '',
-        'tsv': '',
-        'rss': '',
-        'txt': ''
-        }) {
-          // HACK: treat as plain text / csv
-          // pass url to jsonpdataproxy so we can load remote data (and tell dataproxy to treat as csv!)
-          var _url = this.jsonpdataproxyUrl + '?type=csv&url=' + resourceData.url;
-          this.getResourceDataDirect(_url, function(data) {
-            this.showPlainTextData(data);
-          });
       }
     },
     initializeDataExplorer: function(dataset) {
