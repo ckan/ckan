@@ -12,6 +12,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
     initialize: function() {
       this.loadPreviewDialog(preload_resource);
     },
+
     // **Public: Loads a data preview**
     //
     // Fetches the preview data object from the link provided and loads the
@@ -90,6 +91,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
           });
       }
     },
+
     initializeDataExplorer: function(dataset) {
       var views = [
         {
@@ -148,6 +150,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
         return url;
       }
     },
+
     // **Public: Creates a link to the embeddable page.
     //
     // For a given DataExplorer state, this function constructs and returns the
@@ -166,6 +169,58 @@ ckan.module('reclinepreview', function (jQuery, _) {
       });
       queryString += items.join('&');
       return embedPath + queryString;
+    },
+
+    // **Public: Loads a data previewer for an embedded page**
+    //
+    // Uses the provided reclineState to restore the Dataset.  Creates a single
+    // view for the Dataset (the one defined by reclineState.currentView).  And
+    // then passes the constructed Dataset, the constructed View, and the
+    // reclineState into the DataExplorer constructor.
+    loadEmbeddedPreview: function(resourceData, reclineState) {
+      var self = this;
+      // Restore the Dataset from the given reclineState.
+      var dataset = recline.Model.Dataset.restore(reclineState);
+
+      // Only create the view defined in reclineState.currentView.
+      // TODO: tidy this up.
+      var views = null;
+      if (reclineState.currentView === 'grid') {
+        views = [ {
+          id: 'grid',
+          label: 'Grid',
+          view: new recline.View.SlickGrid({
+            model: dataset,
+            state: reclineState['view-grid']
+          })
+        }];
+      } else if (reclineState.currentView === 'graph') {
+        views = [ {
+          id: 'graph',
+          label: 'Graph',
+          view: new recline.View.Graph({
+            model: dataset,
+            state: reclineState['view-graph']
+          })
+        }];
+      } else if (reclineState.currentView === 'map') {
+        views = [ {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
+            model: dataset,
+            state: reclineState['view-map']
+          })
+        }];
+      }
+
+      // Finally, construct the DataExplorer.  Again, passing in the reclineState.
+      var dataExplorer = new recline.View.MultiView({
+        el: self.el,
+        model: dataset,
+        state: reclineState,
+        views: views
+      });
     }
   };
 });
