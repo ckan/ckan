@@ -20,6 +20,14 @@ VALID_SOLR_PARAMETERS = set([
 # and their relative weighting
 QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
 
+def escape_legacy_argument(val):
+    # According to http://lucene.apache.org/core/3_6_1/queryparsersyntax.html, the
+    # current set of special characters is:
+    escape_chars = r'\+-&|!(){}[]^"~*?:' # must put \ anywhere except the end
+    for c in escape_chars:
+        val = val.replace(c, "\\" + c)
+    return val
+
 def convert_legacy_parameters_to_solr(legacy_params):
     '''API v1 and v2 allowed search params that the SOLR syntax does not
     support, so use this function to convert those to SOLR syntax.
@@ -53,12 +61,10 @@ def convert_legacy_parameters_to_solr(legacy_params):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
-            solr_q_list.extend(['tags:"%s"' % tag for tag in tag_list])
+            solr_q_list.extend(['tags:"%s"' % escape_legacy_argument(tag) for tag in tag_list])
         else:
             if len(value.strip()):
-                if ' ' in value:
-                    value = '"%s"' % value
-                solr_q_list.append('%s:%s' % (search_key, value))
+                solr_q_list.append('%s:"%s"' % (search_key, escape_legacy_argument(value)))
         del solr_params[search_key]
     solr_params['q'] = ' '.join(solr_q_list)
     if non_solr_params:
