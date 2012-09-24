@@ -53,24 +53,3 @@ body {
 .header .recline-query-editor .input-prepend {
   vertical-align: top;
 }
-
-#ckanext-datapreview {
-  position: relative;
-  overflow: auto;
-}
-
-#ckanext-datapreview iframe {
-  min-height: 480px;
-  border: 1px solid #ccc;
-  padding: 7px;
-}
-
-.ckanext-datapreview-iframe {
-  width: 100%;
-}
-
-img.ckanext-datapreview-direct-embed {
-  max-height: 500px;
-  max-width: 100%;
-  overflow: hidden;
-}
