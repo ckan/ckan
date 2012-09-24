@@ -1,8 +1,8 @@
 // a simple module that makes bootstrap alerts dismissable via javascript
 
-ckan.module('dismiss-alerts', {
+ckan.module('dismiss-alert', function (jQuery){
   initialize: function () {
-    $(".alert").alert();
+    this.el.alert();
   },
     teardown: function () {
   }
