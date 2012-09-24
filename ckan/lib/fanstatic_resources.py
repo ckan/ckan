@@ -252,6 +252,6 @@ create_library('base', os.path.join(base_path, 'javascript'),
                depend_base=False)
 
 create_library('datapreview', os.path.join(base_path, 'datapreview'),
-               depend_base=True)
+               depend_base=False)
 
 create_library('css', os.path.join(base_path, 'css'), depend_base=False)
