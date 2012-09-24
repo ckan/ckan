@@ -428,14 +428,14 @@ class RDFExport(CkanCommand):
             url = h.url_for( controller='package',action='read',
                                                   id=dd['name'])
 
-            url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
+            url = urlparse.urljoin(fetch_url, url) + '.rdf'
             try:
                 fname = os.path.join( out_folder, dd['name'] ) + ".rdf"
                 r = urllib2.urlopen(url).read()
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
-                sys.stderr.write( str(ioe) + "\n" )
+                sys.stderr.write(url + ":\t" + str(ioe) + "\n" )
 
 
 
