@@ -248,10 +248,10 @@ base_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
 
 create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
-create_library('datapreview', os.path.join(base_path, 'datapreview'),
-               depend_base=False)
-
 create_library('base', os.path.join(base_path, 'javascript'),
                depend_base=False)
+
+create_library('datapreview', os.path.join(base_path, 'datapreview'),
+               depend_base=True)
 
 create_library('css', os.path.join(base_path, 'css'), depend_base=False)
