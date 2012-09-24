@@ -3,10 +3,19 @@ ckan.module('jsonpreview', function (jQuery) {
   return {
     initialize: function () {
       var self = this;
-      jQuery.getJSON(preload_resource['url'], function(data) {
-        var html = JSON.stringify(data, null, 4);
-        var pretty = self._syntaxHighlight(html);
-        self.el.html(pretty);
+      jQuery.ajax(preload_resource['url'], {
+        type: 'GET',
+        async: false,
+        contentType: "application/json",
+        dataType: 'jsonp',
+        success: function(data, textStatus, jqXHR) {
+          var html = JSON.stringify(data, null, 4);
+          var pretty = self._syntaxHighlight(html);
+          self.el.html(pretty);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          this.sandbox.notify(message, 'textStatus');
+        }
       });
     },
 
