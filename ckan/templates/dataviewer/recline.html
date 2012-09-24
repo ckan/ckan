@@ -1,7 +1,9 @@
 {% extends "dataviewer/base.html" %}
 
 {% block page %}
-  <div id="ckanext-datapreview"></div>
+  <div data-module="reclinepreview">
+  	<h4>Loading ... <img src="http://assets.okfn.org/images/icons/ajaxload-circle.gif" class="loading-spinner" /></h4>
+  </div>
 {% endblock %}
 
 {% block scripts %}
