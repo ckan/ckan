@@ -29,9 +29,9 @@ this.ckan.module('data-viewer', function (jQuery) {
       MIN_HEIGHT = 300;
 
       resizeTimer = setTimeout(function() {
-        var height = that.el.contents().find('body').outerHeight();
+        var height = that.el.contents().find('body').get(0).scrollHeight;
         height = Math.max(height, MIN_HEIGHT);
-        var deltaHeight = height - that.el.outerHeight();
+        var deltaHeight = height - that.el.get(0).scrollHeight;
         if (deltaHeight > 0 || deltaHeight < -10) {
           that.el.animate({height: height+20}, Math.min(700, height*2));
         }
