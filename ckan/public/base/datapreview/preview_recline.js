@@ -129,13 +129,6 @@ ckan.module('reclinepreview', function (jQuery, _) {
       // (This should be done in recline!)
       jQuery('.menu-right a[data-action="fields"]', self.el).click();
     },
-    showError: function (error) {
-      var _html = _.template(
-          '<div class="alert alert-error"><strong><%= title %></strong><br /><%= message %></div>',
-          error
-      );
-      this.el.html(_html);
-    },
     normalizeFormat: function (format) {
       var out = format.toLowerCase();
       out = out.split('/');
