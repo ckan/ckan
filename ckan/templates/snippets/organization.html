@@ -1,0 +1,33 @@
+{#
+Embeds a organization within the sidebar of a page.
+
+organization    - The organization dict.
+truncate - A max length for the organization description. If not provided the description
+           will be full length.
+
+Example:
+
+    {% snippet 'snippets/organization, organization=c.group_dict %}
+
+#}
+{% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
+  <section class="module module-narrow module-shallow group">
+    <div class="module-content media media-vertical">
+      <a class="media-image" href="{{ url }}">
+        <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" height="125" alt="{{ organization.name }}" />
+      </a>
+      <div class="media-content">
+        <h3 class="media-heading"><a href={{ url }}>{{ organization.title or organization.name }}</a></h3>
+        {% if organization.description %}
+          {% if truncate %}
+            <p>{{ organization.description }}</p>
+          {% else %}
+            <p>{{ h.markdown_extract(organization.description, truncate) }}</p>
+          {% endif %}
+        {% else %}
+          <p class="empty">{{ _('There is no description for this organization') }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endwith %}

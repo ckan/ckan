@@ -1,0 +1,28 @@
+{% extends "page.html" %}
+
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Organizations'), controller='organization', action='index') }}</li>
+  <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Organization'), controller='organization', action='new') }}{% endblock %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{% block page_heading %}{{ _('Organization Form') }}{% endblock %}</h1>
+      {% block form %}
+        {{ c.form | safe }}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Organizations?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+      <p>good question<P/>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
