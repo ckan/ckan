@@ -251,7 +251,7 @@ def make_map():
           'history'
           ]))
           )
-        m.connect('group_read', '/group/{id}', action='read')
+        m.connect('organization_read', '/organization/{id}', action='read')
     register_package_plugins(map)
     register_group_plugins(map)
 
