@@ -27,7 +27,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       function showError(msg){
         msg = msg || _('error loading preview');
-        return jQuery('#ckanext-datapreview')
+        return self.el
           .append('<div></div>')
           .addClass('alert alert-error fade in')
           .html(msg);
@@ -127,7 +127,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // Hide the fields control by default
       // (This should be done in recline!)
-      jQuery('.menu-right a[data-action="fields"]').click();
+      jQuery('.menu-right a[data-action="fields"]', self.el).click();
     },
     showError: function (error) {
       var _html = _.template(
@@ -170,8 +170,8 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // iframeWidth and iframeHeight control the width and height parameters
       // used to construct the iframe, and are also used in the link.
-      var iframeWidth = jQuery('.iframe-width');
-      var iframeHeight = jQuery('.iframe-height');
+      var iframeWidth = jQuery('.iframe-width', self.el);
+      var iframeHeight = jQuery('.iframe-height', self.el);
       var width = iframeWidth.val();
       var height = iframeHeight.val();
 
