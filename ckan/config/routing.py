@@ -238,6 +238,20 @@ def make_map():
           )
         m.connect('group_read', '/group/{id}', action='read')
 
+    # organizations these basically end up being the same as groups
+    with SubMapper(map, controller='organization') as m:
+        m.connect('/organization', action='index')
+        m.connect('/organization/list', action='list')
+        m.connect('/organization/new', action='new')
+        m.connect('/organization/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'authz',
+          'delete',
+          'history'
+          ]))
+          )
+        m.connect('group_read', '/group/{id}', action='read')
     register_package_plugins(map)
     register_group_plugins(map)
 
