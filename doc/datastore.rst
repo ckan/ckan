@@ -181,8 +181,9 @@ The datastore supports querying with the datastore_search and datastore_search_s
 ..                              datastore_search         datastore_search_sql
 ..                                                       SQL                    HTSQL
 ==============================  =======================  =====================  ======================
-**Status**                      Stable                   Stable                 In development
+**Status**                      Stable                   Stable                 Will be available as plugin
 **Ease of use**                 Easy                     Complex                Medium
+**Flexibility**                 Low                      High                   Medium
 **Query language**              Custom (JSON)            SQL                    HTSQL
 **Connect multiple resources**  No                       Yes                    Yes
 **Use aliases**                 Yes                      Yes                    Yes
