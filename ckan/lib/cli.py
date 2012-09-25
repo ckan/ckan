@@ -489,13 +489,12 @@ class Sysadmin(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Sysadmins:'
-        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
+        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
-                                        sysadmin.user.name,
-                                        sysadmin.user.id)
+            print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
+                                        sysadmin.name,
+                                        sysadmin.id)
 
     def add(self):
         import ckan.model as model
@@ -517,7 +516,7 @@ class Sysadmin(CkanCommand):
             else:
                 print 'Exiting ...'
                 return
-        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        user.sysadmin = True
         model.repo.commit_and_remove()
         print 'Added %s as sysadmin' % username
 
@@ -533,7 +532,7 @@ class Sysadmin(CkanCommand):
         if not user:
             print 'Error: user "%s" not found!' % username
             return
-        model.remove_user_from_role(user, model.Role.ADMIN, model.System())
+        user.sysadmin = False
         model.repo.commit_and_remove()
 
 
