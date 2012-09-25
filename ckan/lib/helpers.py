@@ -1346,6 +1346,7 @@ def resource_preview(resource, pkg_id):
     LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
                 'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
                 'txt', 'json']
+    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
 
     format_lower = resource['format'].lower()
     directly = False
@@ -1354,7 +1355,7 @@ def resource_preview(resource, pkg_id):
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], style='recline', id=pkg_id, qualified=True)
-    elif format_lower == 'pdf':
+    elif format_lower in PDF:
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], style='pdf', id=pkg_id, qualified=True)
     elif format_lower == 'jsonp':
