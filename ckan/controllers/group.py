@@ -23,6 +23,8 @@ log = logging.getLogger(__name__)
 
 class GroupController(BaseController):
 
+    group_type = 'group'
+
     ## hooks for subclasses
 
     def _group_form(self, group_type=None):
@@ -57,6 +59,12 @@ class GroupController(BaseController):
 
     ## end hooks
 
+    def _action(self, action_name):
+        if self.group_type == 'organization':
+            action_name = action_name.replace('group', 'organization')
+        print action_name
+        return get_action(action_name)
+
     def _guess_group_type(self, expecting_name=False):
         """
             Guess the type of group from the URL handling the case
@@ -88,7 +96,7 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        results = get_action('group_list')(context, data_dict)
+        results = self._action('group_list')(context, data_dict)
 
         c.page = Page(
             collection=results,
@@ -110,7 +118,7 @@ class GroupController(BaseController):
         q = c.q = request.params.get('q', '')
 
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
+            c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
             abort(404, _('Group not found'))
@@ -199,7 +207,7 @@ class GroupController(BaseController):
                 'extras': search_extras
             }
 
-            query = get_action('package_search')(context, data_dict)
+            query = self._action('package_search')(context, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -236,7 +244,7 @@ class GroupController(BaseController):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
         c.group_activity_stream = \
-            get_action('group_activity_list_html')(context,
+            self._action('group_activity_list_html')(context,
                                                    {'id': c.group_dict['id']})
 
         return render(self._read_template(c.group_dict['type']))
@@ -283,7 +291,7 @@ class GroupController(BaseController):
             return self._save_edit(id, context)
 
         try:
-            old_data = get_action('group_show')(context, data_dict)
+            old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             data = data or old_data
@@ -325,7 +333,7 @@ class GroupController(BaseController):
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
-            group = get_action('group_create')(context, data_dict)
+            group = self._action('group_create')(context, data_dict)
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
@@ -356,7 +364,7 @@ class GroupController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             context['allow_partial_update'] = True
-            group = get_action('group_update')(context, data_dict)
+            group = self._action('group_update')(context, data_dict)
 
             if id != group['name']:
                 self._force_reindex(group)
@@ -411,10 +419,10 @@ class GroupController(BaseController):
 
         try:
             if request.method == 'POST':
-                get_action('group_delete')(context, {'id': id})
+                self._action('group_delete')(context, {'id': id})
                 h.flash_notice(_('Group has been deleted.'))
                 h.redirect_to(controller='group', action='index')
-            c.group_dict = get_action('group_show')(context, {'id': id})
+            c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -443,8 +451,8 @@ class GroupController(BaseController):
                    'extras_as_string': True}
         data_dict = {'id': id}
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.group_revisions = get_action('group_revision_list')(context,
+            c.group_dict = self._action('group_show')(context, data_dict)
+            c.group_revisions = self._action('group_revision_list')(context,
                                                                   data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
