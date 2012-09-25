@@ -23,6 +23,7 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
+        Column('sysadmin', types.Boolean, default=False),
         )
 
 
