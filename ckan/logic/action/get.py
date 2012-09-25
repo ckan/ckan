@@ -279,26 +279,7 @@ def member_list(context, data_dict=None):
     return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
              for m in q.all() ]
 
-def group_list(context, data_dict):
-    '''Return a list of the names of the site's groups.
-
-    :param order_by: the field to sort the list by, must be ``'name'`` or
-      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
-    :type order_by: string
-    :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
-    :type sort: string
-    :param groups: a list of names of the groups to return, if given only
-        groups whose names are in this list will be returned (optional)
-    :type groups: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
-        (optional, default: ``False``)
-    :type all_fields: boolean
-
-    :rtype: list of strings
-
-    '''
+def _group_or_org_list(context, data_dict):
 
     model = context['model']
     api = context.get('api_version')
@@ -324,7 +305,6 @@ def group_list(context, data_dict):
 
     all_fields = data_dict.get('all_fields', None)
 
-    _check_access('group_list', context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
@@ -341,6 +321,53 @@ def group_list(context, data_dict):
         group_list = [group[ref_group_by] for group in group_list]
 
     return group_list
+
+
+def group_list(context, data_dict):
+    '''Return a list of the names of the site's groups.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param groups: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type groups: list of strings
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
+    _check_access('group_list', context, data_dict)
+    return _group_or_org_list(context, data_dict)
+
+
+def organization_list(context, data_dict):
+    '''Return a list of the names of the site's organizations.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
+    _check_access('organization_list', context, data_dict)
+    data_dict['groups'] = 'organization'
+    return _group_or_org_list(context, data_dict)
+
 
 def group_list_authz(context, data_dict):
     '''Return the list of groups that the user is authorized to edit.
