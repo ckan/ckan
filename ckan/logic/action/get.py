@@ -723,15 +723,7 @@ def revision_show(context, data_dict):
                                       ref_package_by=ref_package_by)
     return rev_dict
 
-def group_show(context, data_dict):
-    '''Return the details of a group.
-
-    :param id: the id or name of the group
-    :type id: string
-
-    :rtype: dictionary
-
-    '''
+def _group_or_org_show(context, data_dict):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -742,6 +734,7 @@ def group_show(context, data_dict):
         raise NotFound
 
     _check_access('group_show',context, data_dict)
+    _check_access('organization_show',context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -760,6 +753,30 @@ def group_show(context, data_dict):
     if schema:
         group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
+
+
+def group_show(context, data_dict):
+    '''Return the details of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_show(context, data_dict)
+
+def organization_show(context, data_dict):
+    '''Return the details of a organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_show(context, data_dict)
+
 
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
