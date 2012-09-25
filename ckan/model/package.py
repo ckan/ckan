@@ -43,6 +43,8 @@ package_table = Table('package', meta.metadata,
         Column('notes', types.UnicodeText),
         Column('license_id', types.UnicodeText),
         Column('type', types.UnicodeText),
+        Column('owner_org', types.UnicodeText),
+        Column('private', types.Boolean, default=False),
 )
 
 

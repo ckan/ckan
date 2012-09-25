@@ -6,8 +6,11 @@ def upgrade(migrate_engine):
 BEGIN;
 
 ALTER TABLE "user"
-	ADD COLUMN sysadmin boolean DEFAULT FALSE;
+    ADD COLUMN sysadmin boolean DEFAULT FALSE;
 
+ALTER TABLE package
+    ADD COLUMN owner_org TEXT,
+    ADD COLUMN private boolean DEFAULT FALSE;
 COMMIT;
 
 '''
