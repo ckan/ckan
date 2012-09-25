@@ -26,13 +26,13 @@ class OrganizationController(group.GroupController):
         return 'organization/index.html'
 
     def _read_template(self, group_type):
-        return lookup_group_plugin(group_type).read_template()
+        return 'organization/read.html'
 
     def _history_template(self, group_type):
         return lookup_group_plugin(group_type).history_template()
 
     def _edit_template(self, group_type):
-        return lookup_group_plugin(group_type).edit_template()
+        return 'organization/edit.html'
 
     def _guess_group_type(self, expecting_name=False):
         return 'organization'
