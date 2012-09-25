@@ -312,6 +312,11 @@ def _group_or_org_list(context, data_dict):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
+    if data_dict['type'] == 'organization':
+        query = query.filter(model.GroupRevision.type=='organization')
+    else:
+        query = query.filter(model.GroupRevision.type!='organization')
+
     groups = query.all()
     group_list = model_dictize.group_list_dictize(groups, context,
                                                   lambda x:x[sort_info[0][0]],
@@ -344,6 +349,7 @@ def group_list(context, data_dict):
 
     '''
     _check_access('group_list', context, data_dict)
+    data_dict['type'] = 'group'
     return _group_or_org_list(context, data_dict)
 
 
@@ -357,6 +363,9 @@ def organization_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name' and 'packages'
     :type sort: string
+    :param organizations: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type organizations: list of strings
     :param all_fields: return full group dictionaries instead of  just names
         (optional, default: ``False``)
     :type all_fields: boolean
@@ -365,7 +374,8 @@ def organization_list(context, data_dict):
 
     '''
     _check_access('organization_list', context, data_dict)
-    data_dict['groups'] = 'organization'
+    data_dict['groups'] = data_dict.get('organizations')
+    data_dict['type'] = 'organization'
     return _group_or_org_list(context, data_dict)
 
 
