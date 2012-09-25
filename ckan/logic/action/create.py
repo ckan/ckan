@@ -444,7 +444,7 @@ def member_create(context, data_dict=None):
 
     return model_dictize.member_dictize(member, context)
 
-def group_create(context, data_dict):
+def _group_or_org_create(context, data_dict):
     '''Create a new group.
 
     You must be authorized to create groups.
@@ -507,7 +507,6 @@ def group_create(context, data_dict):
     session = context['session']
     parent = context.get('parent', None)
 
-    _check_access('group_create', context, data_dict)
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
@@ -587,6 +586,22 @@ def group_create(context, data_dict):
     context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
     return model_dictize.group_dictize(group, context)
+
+
+def group_create(context, data_dict):
+    # wrapper for creating groups
+    if data_dict.get('type') == 'organization':
+        # FIXME better exception?
+        raise Exception(_('Trying to create an organization as a group'))
+    _check_access('group_create', context, data_dict)
+    return _group_or_org_create(context, data_dict)
+
+def organization_create(context, data_dict):
+    # wrapper for creating organizations
+    data_dict['type'] = 'organization'
+    _check_access('organization_create', context, data_dict)
+    return _group_or_org_create(context, data_dict)
+
 
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
