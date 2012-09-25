@@ -154,5 +154,6 @@
   <script>
     var pdfjs_workerSrc = "{{ h.urls_for_resource('datapreview/vendor/pdfjs/pdf.js')[0] }}";
   </script>
+  {% resource 'datapreview/vendor/pdfjs/pdf.js' %}
   {% resource 'datapreview/pdf' %}
 {% endblock %}
