@@ -27,7 +27,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       function showError(msg){
         msg = msg || _('error loading preview');
-        return $('#ckanext-datapreview')
+        return jQuery('#ckanext-datapreview')
           .append('<div></div>')
           .addClass('alert alert-error fade in')
           .html(msg);
@@ -52,7 +52,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // Set recline CKAN backend API endpoint to right location (so it can locate
       // CKAN DataStore)
-      recline.Backend.Ckan.API_ENDPOINT = $('body').data('site-root') + 'api';
+      recline.Backend.Ckan.API_ENDPOINT = jQuery('body').data('site-root') + 'api';
 
       if (resourceData.datastore_active) {
         resourceData.backend =  'ckan';
@@ -77,12 +77,12 @@ ckan.module('reclinepreview', function (jQuery, _) {
           .done(function(dataset){
 
             dataset.bind('query:fail', function (error) {
-              $('.data-view-container', self.el).hide();
-              $('.header', self.el).hide();
+              jQuery('.data-view-container', self.el).hide();
+              jQuery('.header', self.el).hide();
             });
 
             self.initializeDataExplorer(dataset);
-            $('.recline-query-editor .text-query').hide();
+            jQuery('.recline-query-editor .text-query').hide();
           })
           .fail(function(error){
             if (error.message) errorMsg += ' (' + error.message + ')';
@@ -127,7 +127,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // Hide the fields control by default
       // (This should be done in recline!)
-      $('.menu-right a[data-action="fields"]').click();
+      jQuery('.menu-right a[data-action="fields"]').click();
     },
     showError: function (error) {
       var _html = _.template(
@@ -160,7 +160,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       var queryString = '?';
       var items = [];
-      $.each(state, function(key, value) {
+      jQuery.each(state, function(key, value) {
         if (typeof(value) === 'object') {
           value = JSON.stringify(value);
         }
@@ -170,8 +170,8 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // iframeWidth and iframeHeight control the width and height parameters
       // used to construct the iframe, and are also used in the link.
-      var iframeWidth = $('.iframe-width');
-      var iframeHeight = $('.iframe-height');
+      var iframeWidth = jQuery('.iframe-width');
+      var iframeHeight = jQuery('.iframe-height');
       var width = iframeWidth.val();
       var height = iframeHeight.val();
 
