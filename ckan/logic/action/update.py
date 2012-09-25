@@ -384,23 +384,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
-def group_update(context, data_dict):
-    '''Update a group.
-
-    You must be authorized to edit the group.
-
-    Plugins may change the parameters of this function depending on the value
-    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
-
-    For further parameters see ``group_create()``.
-
-    :param id: the name or id of the group to update
-    :type id: string
-
-    :returns: the updated group
-    :rtype: dictionary
-
-    '''
+def _group_or_org_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
@@ -510,6 +494,44 @@ def group_update(context, data_dict):
         model.repo.commit()
 
     return model_dictize.group_dictize(group, context)
+
+def group_update(context, data_dict):
+    '''Update a group.
+
+    You must be authorized to edit the group.
+
+    Plugins may change the parameters of this function depending on the value
+    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+
+    For further parameters see ``group_create()``.
+
+    :param id: the name or id of the group to update
+    :type id: string
+
+    :returns: the updated group
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_update(context, data_dict)
+
+def organization_update(context, data_dict):
+    '''Update a organization.
+
+    You must be authorized to edit the organization.
+
+    Plugins may change the parameters of this function depending on the value
+    of the organization's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+
+    For further parameters see ``group_create()``.
+
+    :param id: the name or id of the organization to update
+    :type id: string
+
+    :returns: the updated organization
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_update(context, data_dict)
 
 def user_update(context, data_dict):
     '''Update a user account.
