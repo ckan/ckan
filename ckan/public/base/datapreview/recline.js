@@ -9,7 +9,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
         previewNotAvailableForDataType: "Preview not available for data type: "
       }
     },
-    initialize: function() {
+    initialize: function () {
       this.loadPreviewDialog(preload_resource);
     },
 
@@ -33,10 +33,9 @@ ckan.module('reclinepreview', function (jQuery, _) {
           .html(msg);
       }
 
-      // 3 situations
+      // 2 situations
       // a) something was posted to the datastore - need to check for this
       // b) csv or xls (but not datastore)
-      // c) can be treated as plain text
       resourceData.formatNormalized = this.normalizeFormat(resourceData.format);
 
       resourceData.url  = this.normalizeUrl(resourceData.url);
@@ -77,7 +76,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
         dataset.fetch()
           .done(function(dataset){
 
-            dataset.bind('query:fail', function(error) {
+            dataset.bind('query:fail', function (error) {
               $('.data-view-container', self.el).hide();
               $('.header', self.el).hide();
             });
@@ -92,7 +91,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
       }
     },
 
-    initializeDataExplorer: function(dataset) {
+    initializeDataExplorer: function (dataset) {
       var views = [
         {
           id: 'grid',
@@ -137,13 +136,13 @@ ckan.module('reclinepreview', function (jQuery, _) {
       );
       this.el.html(_html);
     },
-    normalizeFormat: function(format) {
+    normalizeFormat: function (format) {
       var out = format.toLowerCase();
       out = out.split('/');
       out = out[out.length-1];
       return out;
     },
-    normalizeUrl: function(url) {
+    normalizeUrl: function (url) {
       if (url.indexOf('https') === 0) {
         return 'http' + url.slice(5);
       } else {
@@ -155,7 +154,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
     //
     // For a given DataExplorer state, this function constructs and returns the
     // url to the embeddable view of the current dataexplorer state.
-    makeEmbedLink: function(explorerState) {
+    makeEmbedLink: function (explorerState) {
       var state = explorerState.toJSON();
       state.state_version = 1;
 
@@ -188,7 +187,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
     // view for the Dataset (the one defined by reclineState.currentView).  And
     // then passes the constructed Dataset, the constructed View, and the
     // reclineState into the DataExplorer constructor.
-    loadEmbeddedPreview: function(resourceData, reclineState) {
+    loadEmbeddedPreview: function (resourceData, reclineState) {
       var self = this;
       // Restore the Dataset from the given reclineState.
       var dataset = recline.Model.Dataset.restore(reclineState);
