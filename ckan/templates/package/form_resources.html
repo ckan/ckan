@@ -4,7 +4,7 @@
 
           <thead> 
               <tr>
-                <th class="${c.field.is_required(column) and 'field_req' or 'field_opt'} resource-${column}" py:for="column in c.columns">
+                <th scope="col" class="${c.field.is_required(column) and 'field_req' or 'field_opt'} resource-${column}" py:for="column in c.columns">
                   ${c.fieldset.prettify(column)}
                   <py:if test="c.field.is_required(column)">*</py:if>
                 </th>
