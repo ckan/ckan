@@ -1,3 +1,5 @@
+from pylons import c
+
 from logging import getLogger
 from ckan.plugins import implements, SingletonPlugin
 from ckan.plugins import IAuthFunctions
@@ -12,6 +14,13 @@ class AuthFunctions:
     _functions = {}
 
 def is_authorized(action, context,data_dict=None):
+
+    # sysadmins can do anything
+    user = context.get('user')
+    # see if we can authorise without touching the database
+    if user and c.userobj and c.userobj.name == user and c.userobj.sysadmin:
+        return {'success': True}
+
     auth_function = _get_auth_function(action)
     if auth_function:
         return auth_function(context, data_dict)
