@@ -53,3 +53,15 @@ body {
 .header .recline-query-editor .input-prepend {
   vertical-align: top;
 }
+
+.loading-dialog {
+  width: 120px;
+
+}
+
+.loading-spinner {
+  float: right;
+  background-image: url('../img/ajaxload-circle.gif');
+  width: 32px;
+  height: 32px;
+}
