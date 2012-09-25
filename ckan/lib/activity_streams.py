@@ -178,6 +178,8 @@ def activity_list_to_html(context, activity_stream):
 
         activity_msg = activity_stream_string_functions[activity_type]()
 
+        activity_type_css = activity_type.replace(' ', '-').lower()
+
         # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)
         data = {}
@@ -185,6 +187,7 @@ def activity_list_to_html(context, activity_stream):
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
         activity_list.append({'msg': activity_msg,
+                              'type': activity_type_css,
                               'data': data,
                               'timestamp': activity['timestamp']})
     return literal(base.render('activity_streams/activity_stream_items.html',
