@@ -63,6 +63,9 @@ def group_delete(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Only members of this group are authorized to delete this group')}
 
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
     group = get_group_object(context, data_dict)
     userobj = model.User.get( user )
     if not userobj:
