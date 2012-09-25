@@ -455,6 +455,7 @@ _menu_items = {
     'default_group': dict(name='%s_index' % default_group_type(),
                           controller='group',
                           highlight_actions='index search'),
+    'organizations': dict(action='index', controller='organization'),
     'about' : dict(controller='home', action='about'),
     'login' : dict(controller='user', action='login'),
     'register' : dict(controller='user', action='register'),
