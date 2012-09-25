@@ -21,7 +21,8 @@ var PDFJS = {};
   // Use strict in our context only - users might not want it
   'use strict';
 
-  PDFJS.build = '2012-09-20';
+  PDFJS.build =
+'574d626';
 
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
@@ -257,7 +258,7 @@ var Page = (function PageClosure() {
     },
     getLinks: function Page_getLinks() {
       var links = [];
-      var annotations = pageGetAnnotations();
+      var annotations = this.getAnnotations();
       var i, n = annotations.length;
       for (i = 0; i < n; ++i) {
         if (annotations[i].type != 'Link')
@@ -605,12 +606,16 @@ var PDFDocument = (function PDFDocumentClosure() {
 
 // Use only for debugging purposes. This should not be used in any code that is
 // in mozilla master.
-function log(msg) {
-  if (console && console.log)
-    console.log(msg);
-  else if (print)
-    print(msg);
-}
+var log = (function() {
+  if ('console' in globalScope && 'log' in globalScope['console']) {
+    return globalScope['console']['log'].bind(globalScope['console']);
+  } else if ('print' in globalScope) {
+    return globalScope['print'].bind(globalScope);
+  } else {
+    return function nop() {
+    };
+  }
+})();
 
 // A notice for devs that will not trigger the fallback UI.  These are good
 // for things that are helpful to devs, such as warning that Workers were
@@ -633,7 +638,16 @@ function warn(msg) {
 // Fatal errors that should trigger the fallback UI and halt execution by
 // throwing an exception.
 function error(msg) {
-  log('Error: ' + msg);
+  // If multiple arguments were passed, pass them all to the log function.
+  if (arguments.length > 1) {
+    var logArguments = ['Error:'];
+    logArguments.push.apply(logArguments, arguments);
+    log.apply(null, logArguments);
+    // Join the arguments into a single string for the lines below.
+    msg = [].join.call(arguments, ' ');
+  } else {
+    log('Error: ' + msg);
+  }
   log(backtrace());
   PDFJS.LogManager.notify('error', msg);
   throw new Error(msg);
@@ -1236,6 +1250,15 @@ var StatTimer = (function StatTimerClosure() {
   return StatTimer;
 })();
 
+PDFJS.createBlob = function createBlob(data, contentType) {
+  if (typeof Blob === 'function')
+    return new Blob([data], { type: contentType });
+  // Blob builder is deprecated in FF14 and removed in FF18.
+  var bb = new MozBlobBuilder();
+  bb.append(data);
+  return bb.getBlob(contentType);
+};
+
 
 /**
  * This is the main entry point for loading a PDF and interacting with it.
@@ -1581,8 +1604,9 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
       var length = this.operatorList.fnArray.length;
       var operatorList = this.operatorList;
       var stepper = null;
-      if (PDFJS.pdfBug && StepperManager.enabled) {
-        stepper = StepperManager.create(this.pageNumber - 1);
+      if (PDFJS.pdfBug && 'StepperManager' in globalScope &&
+          globalScope['StepperManager'].enabled) {
+        stepper = globalScope['StepperManager'].create(this.pageNumber - 1);
         stepper.init(operatorList);
         stepper.nextBreakPoint = stepper.getNextBreakPoint();
       }
@@ -1713,6 +1737,7 @@ var WorkerTransport = (function WorkerTransportClosure() {
       this.pagePromises = [];
     },
     setupFakeWorker: function WorkerTransport_setupFakeWorker() {
+      warn('Setting up fake worker.');
       // If we don't use a worker, just post/sendMessage to the main thread.
       var fakeWorker = {
         postMessage: function WorkerTransport_postMessage(obj) {
@@ -4155,7 +4180,7 @@ var PDFFunction = (function PDFFunctionClosure() {
         var range = IR[9];
 
         if (m != args.length)
-          error('Incorrect number of arguments: ' + inputSize + ' != ' +
+          error('Incorrect number of arguments: ' + m + ' != ' +
                 args.length);
 
         var x = args;
@@ -12088,7 +12113,7 @@ var ColorSpace = (function ColorSpaceClosure() {
       return true;
 
     if (n * 2 !== decode.length) {
-      warning('The decode map is not the correct length');
+      warn('The decode map is not the correct length');
       return true;
     }
     for (var i = 0, ii = decode.length; i < ii; i += 2) {
@@ -13288,7 +13313,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           }
 
           if (data instanceof Font)
-            data = data.export();
+            data = data.exportData();
 
           handler.send('obj', [
               loadedName,
@@ -15540,13 +15565,717 @@ var NormalizedUnicodes = {
   '\uFB16': '\u057E\u0576',
   '\uFB17': '\u0574\u056D',
   '\uFB4F': '\u05D0\u05DC',
+  '\uFB50': '\u0671',
+  '\uFB51': '\u0671',
+  '\uFB52': '\u067B',
+  '\uFB53': '\u067B',
+  '\uFB54': '\u067B',
+  '\uFB55': '\u067B',
+  '\uFB56': '\u067E',
+  '\uFB57': '\u067E',
+  '\uFB58': '\u067E',
+  '\uFB59': '\u067E',
+  '\uFB5A': '\u0680',
+  '\uFB5B': '\u0680',
+  '\uFB5C': '\u0680',
+  '\uFB5D': '\u0680',
+  '\uFB5E': '\u067A',
+  '\uFB5F': '\u067A',
+  '\uFB60': '\u067A',
+  '\uFB61': '\u067A',
+  '\uFB62': '\u067F',
+  '\uFB63': '\u067F',
+  '\uFB64': '\u067F',
+  '\uFB65': '\u067F',
+  '\uFB66': '\u0679',
+  '\uFB67': '\u0679',
+  '\uFB68': '\u0679',
+  '\uFB69': '\u0679',
+  '\uFB6A': '\u06A4',
+  '\uFB6B': '\u06A4',
+  '\uFB6C': '\u06A4',
+  '\uFB6D': '\u06A4',
+  '\uFB6E': '\u06A6',
+  '\uFB6F': '\u06A6',
+  '\uFB70': '\u06A6',
+  '\uFB71': '\u06A6',
+  '\uFB72': '\u0684',
+  '\uFB73': '\u0684',
+  '\uFB74': '\u0684',
+  '\uFB75': '\u0684',
+  '\uFB76': '\u0683',
+  '\uFB77': '\u0683',
+  '\uFB78': '\u0683',
+  '\uFB79': '\u0683',
+  '\uFB7A': '\u0686',
+  '\uFB7B': '\u0686',
+  '\uFB7C': '\u0686',
+  '\uFB7D': '\u0686',
+  '\uFB7E': '\u0687',
+  '\uFB7F': '\u0687',
+  '\uFB80': '\u0687',
+  '\uFB81': '\u0687',
+  '\uFB82': '\u068D',
+  '\uFB83': '\u068D',
+  '\uFB84': '\u068C',
+  '\uFB85': '\u068C',
+  '\uFB86': '\u068E',
+  '\uFB87': '\u068E',
+  '\uFB88': '\u0688',
+  '\uFB89': '\u0688',
+  '\uFB8A': '\u0698',
+  '\uFB8B': '\u0698',
+  '\uFB8C': '\u0691',
+  '\uFB8D': '\u0691',
+  '\uFB8E': '\u06A9',
+  '\uFB8F': '\u06A9',
+  '\uFB90': '\u06A9',
+  '\uFB91': '\u06A9',
+  '\uFB92': '\u06AF',
+  '\uFB93': '\u06AF',
+  '\uFB94': '\u06AF',
+  '\uFB95': '\u06AF',
+  '\uFB96': '\u06B3',
+  '\uFB97': '\u06B3',
+  '\uFB98': '\u06B3',
+  '\uFB99': '\u06B3',
+  '\uFB9A': '\u06B1',
+  '\uFB9B': '\u06B1',
+  '\uFB9C': '\u06B1',
+  '\uFB9D': '\u06B1',
+  '\uFB9E': '\u06BA',
+  '\uFB9F': '\u06BA',
+  '\uFBA0': '\u06BB',
+  '\uFBA1': '\u06BB',
+  '\uFBA2': '\u06BB',
+  '\uFBA3': '\u06BB',
+  '\uFBA4': '\u06C0',
+  '\uFBA5': '\u06C0',
+  '\uFBA6': '\u06C1',
+  '\uFBA7': '\u06C1',
+  '\uFBA8': '\u06C1',
+  '\uFBA9': '\u06C1',
+  '\uFBAA': '\u06BE',
+  '\uFBAB': '\u06BE',
+  '\uFBAC': '\u06BE',
+  '\uFBAD': '\u06BE',
+  '\uFBAE': '\u06D2',
+  '\uFBAF': '\u06D2',
+  '\uFBB0': '\u06D3',
+  '\uFBB1': '\u06D3',
+  '\uFBD3': '\u06AD',
+  '\uFBD4': '\u06AD',
+  '\uFBD5': '\u06AD',
+  '\uFBD6': '\u06AD',
+  '\uFBD7': '\u06C7',
+  '\uFBD8': '\u06C7',
+  '\uFBD9': '\u06C6',
+  '\uFBDA': '\u06C6',
+  '\uFBDB': '\u06C8',
+  '\uFBDC': '\u06C8',
+  '\uFBDD': '\u0677',
+  '\uFBDE': '\u06CB',
+  '\uFBDF': '\u06CB',
+  '\uFBE0': '\u06C5',
+  '\uFBE1': '\u06C5',
+  '\uFBE2': '\u06C9',
+  '\uFBE3': '\u06C9',
+  '\uFBE4': '\u06D0',
+  '\uFBE5': '\u06D0',
+  '\uFBE6': '\u06D0',
+  '\uFBE7': '\u06D0',
+  '\uFBE8': '\u0649',
+  '\uFBE9': '\u0649',
+  '\uFBEA': '\u0626\u0627',
+  '\uFBEB': '\u0626\u0627',
+  '\uFBEC': '\u0626\u06D5',
+  '\uFBED': '\u0626\u06D5',
+  '\uFBEE': '\u0626\u0648',
+  '\uFBEF': '\u0626\u0648',
+  '\uFBF0': '\u0626\u06C7',
+  '\uFBF1': '\u0626\u06C7',
+  '\uFBF2': '\u0626\u06C6',
+  '\uFBF3': '\u0626\u06C6',
+  '\uFBF4': '\u0626\u06C8',
+  '\uFBF5': '\u0626\u06C8',
+  '\uFBF6': '\u0626\u06D0',
+  '\uFBF7': '\u0626\u06D0',
+  '\uFBF8': '\u0626\u06D0',
+  '\uFBF9': '\u0626\u0649',
+  '\uFBFA': '\u0626\u0649',
+  '\uFBFB': '\u0626\u0649',
+  '\uFBFC': '\u06CC',
+  '\uFBFD': '\u06CC',
+  '\uFBFE': '\u06CC',
+  '\uFBFF': '\u06CC',
+  '\uFC00': '\u0626\u062C',
+  '\uFC01': '\u0626\u062D',
+  '\uFC02': '\u0626\u0645',
+  '\uFC03': '\u0626\u0649',
+  '\uFC04': '\u0626\u064A',
+  '\uFC05': '\u0628\u062C',
+  '\uFC06': '\u0628\u062D',
+  '\uFC07': '\u0628\u062E',
+  '\uFC08': '\u0628\u0645',
+  '\uFC09': '\u0628\u0649',
+  '\uFC0A': '\u0628\u064A',
+  '\uFC0B': '\u062A\u062C',
+  '\uFC0C': '\u062A\u062D',
+  '\uFC0D': '\u062A\u062E',
+  '\uFC0E': '\u062A\u0645',
+  '\uFC0F': '\u062A\u0649',
+  '\uFC10': '\u062A\u064A',
+  '\uFC11': '\u062B\u062C',
+  '\uFC12': '\u062B\u0645',
+  '\uFC13': '\u062B\u0649',
+  '\uFC14': '\u062B\u064A',
+  '\uFC15': '\u062C\u062D',
+  '\uFC16': '\u062C\u0645',
+  '\uFC17': '\u062D\u062C',
+  '\uFC18': '\u062D\u0645',
+  '\uFC19': '\u062E\u062C',
+  '\uFC1A': '\u062E\u062D',
+  '\uFC1B': '\u062E\u0645',
+  '\uFC1C': '\u0633\u062C',
+  '\uFC1D': '\u0633\u062D',
+  '\uFC1E': '\u0633\u062E',
+  '\uFC1F': '\u0633\u0645',
+  '\uFC20': '\u0635\u062D',
+  '\uFC21': '\u0635\u0645',
+  '\uFC22': '\u0636\u062C',
+  '\uFC23': '\u0636\u062D',
+  '\uFC24': '\u0636\u062E',
+  '\uFC25': '\u0636\u0645',
+  '\uFC26': '\u0637\u062D',
+  '\uFC27': '\u0637\u0645',
+  '\uFC28': '\u0638\u0645',
+  '\uFC29': '\u0639\u062C',
+  '\uFC2A': '\u0639\u0645',
+  '\uFC2B': '\u063A\u062C',
+  '\uFC2C': '\u063A\u0645',
+  '\uFC2D': '\u0641\u062C',
+  '\uFC2E': '\u0641\u062D',
+  '\uFC2F': '\u0641\u062E',
+  '\uFC30': '\u0641\u0645',
+  '\uFC31': '\u0641\u0649',
+  '\uFC32': '\u0641\u064A',
+  '\uFC33': '\u0642\u062D',
+  '\uFC34': '\u0642\u0645',
+  '\uFC35': '\u0642\u0649',
+  '\uFC36': '\u0642\u064A',
+  '\uFC37': '\u0643\u0627',
+  '\uFC38': '\u0643\u062C',
+  '\uFC39': '\u0643\u062D',
+  '\uFC3A': '\u0643\u062E',
+  '\uFC3B': '\u0643\u0644',
+  '\uFC3C': '\u0643\u0645',
+  '\uFC3D': '\u0643\u0649',
+  '\uFC3E': '\u0643\u064A',
+  '\uFC3F': '\u0644\u062C',
+  '\uFC40': '\u0644\u062D',
+  '\uFC41': '\u0644\u062E',
+  '\uFC42': '\u0644\u0645',
+  '\uFC43': '\u0644\u0649',
+  '\uFC44': '\u0644\u064A',
+  '\uFC45': '\u0645\u062C',
+  '\uFC46': '\u0645\u062D',
+  '\uFC47': '\u0645\u062E',
+  '\uFC48': '\u0645\u0645',
+  '\uFC49': '\u0645\u0649',
+  '\uFC4A': '\u0645\u064A',
+  '\uFC4B': '\u0646\u062C',
+  '\uFC4C': '\u0646\u062D',
+  '\uFC4D': '\u0646\u062E',
+  '\uFC4E': '\u0646\u0645',
+  '\uFC4F': '\u0646\u0649',
+  '\uFC50': '\u0646\u064A',
+  '\uFC51': '\u0647\u062C',
+  '\uFC52': '\u0647\u0645',
+  '\uFC53': '\u0647\u0649',
+  '\uFC54': '\u0647\u064A',
+  '\uFC55': '\u064A\u062C',
+  '\uFC56': '\u064A\u062D',
+  '\uFC57': '\u064A\u062E',
+  '\uFC58': '\u064A\u0645',
+  '\uFC59': '\u064A\u0649',
+  '\uFC5A': '\u064A\u064A',
+  '\uFC5B': '\u0630\u0670',
+  '\uFC5C': '\u0631\u0670',
+  '\uFC5D': '\u0649\u0670',
+  '\uFC5E': '\u0020\u064C\u0651',
+  '\uFC5F': '\u0020\u064D\u0651',
+  '\uFC60': '\u0020\u064E\u0651',
+  '\uFC61': '\u0020\u064F\u0651',
+  '\uFC62': '\u0020\u0650\u0651',
+  '\uFC63': '\u0020\u0651\u0670',
+  '\uFC64': '\u0626\u0631',
+  '\uFC65': '\u0626\u0632',
+  '\uFC66': '\u0626\u0645',
+  '\uFC67': '\u0626\u0646',
+  '\uFC68': '\u0626\u0649',
+  '\uFC69': '\u0626\u064A',
+  '\uFC6A': '\u0628\u0631',
+  '\uFC6B': '\u0628\u0632',
+  '\uFC6C': '\u0628\u0645',
+  '\uFC6D': '\u0628\u0646',
+  '\uFC6E': '\u0628\u0649',
+  '\uFC6F': '\u0628\u064A',
+  '\uFC70': '\u062A\u0631',
+  '\uFC71': '\u062A\u0632',
+  '\uFC72': '\u062A\u0645',
+  '\uFC73': '\u062A\u0646',
+  '\uFC74': '\u062A\u0649',
+  '\uFC75': '\u062A\u064A',
+  '\uFC76': '\u062B\u0631',
+  '\uFC77': '\u062B\u0632',
+  '\uFC78': '\u062B\u0645',
+  '\uFC79': '\u062B\u0646',
+  '\uFC7A': '\u062B\u0649',
+  '\uFC7B': '\u062B\u064A',
+  '\uFC7C': '\u0641\u0649',
+  '\uFC7D': '\u0641\u064A',
+  '\uFC7E': '\u0642\u0649',
+  '\uFC7F': '\u0642\u064A',
+  '\uFC80': '\u0643\u0627',
+  '\uFC81': '\u0643\u0644',
+  '\uFC82': '\u0643\u0645',
+  '\uFC83': '\u0643\u0649',
+  '\uFC84': '\u0643\u064A',
+  '\uFC85': '\u0644\u0645',
+  '\uFC86': '\u0644\u0649',
+  '\uFC87': '\u0644\u064A',
+  '\uFC88': '\u0645\u0627',
+  '\uFC89': '\u0645\u0645',
+  '\uFC8A': '\u0646\u0631',
+  '\uFC8B': '\u0646\u0632',
+  '\uFC8C': '\u0646\u0645',
+  '\uFC8D': '\u0646\u0646',
+  '\uFC8E': '\u0646\u0649',
+  '\uFC8F': '\u0646\u064A',
+  '\uFC90': '\u0649\u0670',
+  '\uFC91': '\u064A\u0631',
+  '\uFC92': '\u064A\u0632',
+  '\uFC93': '\u064A\u0645',
+  '\uFC94': '\u064A\u0646',
+  '\uFC95': '\u064A\u0649',
+  '\uFC96': '\u064A\u064A',
+  '\uFC97': '\u0626\u062C',
+  '\uFC98': '\u0626\u062D',
+  '\uFC99': '\u0626\u062E',
+  '\uFC9A': '\u0626\u0645',
+  '\uFC9B': '\u0626\u0647',
+  '\uFC9C': '\u0628\u062C',
+  '\uFC9D': '\u0628\u062D',
+  '\uFC9E': '\u0628\u062E',
+  '\uFC9F': '\u0628\u0645',
+  '\uFCA0': '\u0628\u0647',
+  '\uFCA1': '\u062A\u062C',
+  '\uFCA2': '\u062A\u062D',
+  '\uFCA3': '\u062A\u062E',
+  '\uFCA4': '\u062A\u0645',
+  '\uFCA5': '\u062A\u0647',
+  '\uFCA6': '\u062B\u0645',
+  '\uFCA7': '\u062C\u062D',
+  '\uFCA8': '\u062C\u0645',
+  '\uFCA9': '\u062D\u062C',
+  '\uFCAA': '\u062D\u0645',
+  '\uFCAB': '\u062E\u062C',
+  '\uFCAC': '\u062E\u0645',
+  '\uFCAD': '\u0633\u062C',
+  '\uFCAE': '\u0633\u062D',
+  '\uFCAF': '\u0633\u062E',
+  '\uFCB0': '\u0633\u0645',
+  '\uFCB1': '\u0635\u062D',
+  '\uFCB2': '\u0635\u062E',
+  '\uFCB3': '\u0635\u0645',
+  '\uFCB4': '\u0636\u062C',
+  '\uFCB5': '\u0636\u062D',
+  '\uFCB6': '\u0636\u062E',
+  '\uFCB7': '\u0636\u0645',
+  '\uFCB8': '\u0637\u062D',
+  '\uFCB9': '\u0638\u0645',
+  '\uFCBA': '\u0639\u062C',
+  '\uFCBB': '\u0639\u0645',
+  '\uFCBC': '\u063A\u062C',
+  '\uFCBD': '\u063A\u0645',
+  '\uFCBE': '\u0641\u062C',
+  '\uFCBF': '\u0641\u062D',
+  '\uFCC0': '\u0641\u062E',
+  '\uFCC1': '\u0641\u0645',
+  '\uFCC2': '\u0642\u062D',
+  '\uFCC3': '\u0642\u0645',
+  '\uFCC4': '\u0643\u062C',
+  '\uFCC5': '\u0643\u062D',
+  '\uFCC6': '\u0643\u062E',
+  '\uFCC7': '\u0643\u0644',
+  '\uFCC8': '\u0643\u0645',
+  '\uFCC9': '\u0644\u062C',
+  '\uFCCA': '\u0644\u062D',
+  '\uFCCB': '\u0644\u062E',
+  '\uFCCC': '\u0644\u0645',
+  '\uFCCD': '\u0644\u0647',
+  '\uFCCE': '\u0645\u062C',
+  '\uFCCF': '\u0645\u062D',
+  '\uFCD0': '\u0645\u062E',
+  '\uFCD1': '\u0645\u0645',
+  '\uFCD2': '\u0646\u062C',
+  '\uFCD3': '\u0646\u062D',
+  '\uFCD4': '\u0646\u062E',
+  '\uFCD5': '\u0646\u0645',
+  '\uFCD6': '\u0646\u0647',
+  '\uFCD7': '\u0647\u062C',
+  '\uFCD8': '\u0647\u0645',
+  '\uFCD9': '\u0647\u0670',
+  '\uFCDA': '\u064A\u062C',
+  '\uFCDB': '\u064A\u062D',
+  '\uFCDC': '\u064A\u062E',
+  '\uFCDD': '\u064A\u0645',
+  '\uFCDE': '\u064A\u0647',
+  '\uFCDF': '\u0626\u0645',
+  '\uFCE0': '\u0626\u0647',
+  '\uFCE1': '\u0628\u0645',
+  '\uFCE2': '\u0628\u0647',
+  '\uFCE3': '\u062A\u0645',
+  '\uFCE4': '\u062A\u0647',
+  '\uFCE5': '\u062B\u0645',
+  '\uFCE6': '\u062B\u0647',
+  '\uFCE7': '\u0633\u0645',
+  '\uFCE8': '\u0633\u0647',
+  '\uFCE9': '\u0634\u0645',
+  '\uFCEA': '\u0634\u0647',
+  '\uFCEB': '\u0643\u0644',
+  '\uFCEC': '\u0643\u0645',
+  '\uFCED': '\u0644\u0645',
+  '\uFCEE': '\u0646\u0645',
+  '\uFCEF': '\u0646\u0647',
+  '\uFCF0': '\u064A\u0645',
+  '\uFCF1': '\u064A\u0647',
+  '\uFCF2': '\u0640\u064E\u0651',
+  '\uFCF3': '\u0640\u064F\u0651',
+  '\uFCF4': '\u0640\u0650\u0651',
+  '\uFCF5': '\u0637\u0649',
+  '\uFCF6': '\u0637\u064A',
+  '\uFCF7': '\u0639\u0649',
+  '\uFCF8': '\u0639\u064A',
+  '\uFCF9': '\u063A\u0649',
+  '\uFCFA': '\u063A\u064A',
+  '\uFCFB': '\u0633\u0649',
+  '\uFCFC': '\u0633\u064A',
+  '\uFCFD': '\u0634\u0649',
+  '\uFCFE': '\u0634\u064A',
+  '\uFCFF': '\u062D\u0649',
+  '\uFD00': '\u062D\u064A',
+  '\uFD01': '\u062C\u0649',
+  '\uFD02': '\u062C\u064A',
+  '\uFD03': '\u062E\u0649',
+  '\uFD04': '\u062E\u064A',
+  '\uFD05': '\u0635\u0649',
+  '\uFD06': '\u0635\u064A',
+  '\uFD07': '\u0636\u0649',
+  '\uFD08': '\u0636\u064A',
+  '\uFD09': '\u0634\u062C',
+  '\uFD0A': '\u0634\u062D',
+  '\uFD0B': '\u0634\u062E',
+  '\uFD0C': '\u0634\u0645',
+  '\uFD0D': '\u0634\u0631',
+  '\uFD0E': '\u0633\u0631',
+  '\uFD0F': '\u0635\u0631',
+  '\uFD10': '\u0636\u0631',
+  '\uFD11': '\u0637\u0649',
+  '\uFD12': '\u0637\u064A',
+  '\uFD13': '\u0639\u0649',
+  '\uFD14': '\u0639\u064A',
+  '\uFD15': '\u063A\u0649',
+  '\uFD16': '\u063A\u064A',
+  '\uFD17': '\u0633\u0649',
+  '\uFD18': '\u0633\u064A',
+  '\uFD19': '\u0634\u0649',
+  '\uFD1A': '\u0634\u064A',
+  '\uFD1B': '\u062D\u0649',
+  '\uFD1C': '\u062D\u064A',
+  '\uFD1D': '\u062C\u0649',
+  '\uFD1E': '\u062C\u064A',
+  '\uFD1F': '\u062E\u0649',
+  '\uFD20': '\u062E\u064A',
+  '\uFD21': '\u0635\u0649',
+  '\uFD22': '\u0635\u064A',
+  '\uFD23': '\u0636\u0649',
+  '\uFD24': '\u0636\u064A',
+  '\uFD25': '\u0634\u062C',
+  '\uFD26': '\u0634\u062D',
+  '\uFD27': '\u0634\u062E',
+  '\uFD28': '\u0634\u0645',
+  '\uFD29': '\u0634\u0631',
+  '\uFD2A': '\u0633\u0631',
+  '\uFD2B': '\u0635\u0631',
+  '\uFD2C': '\u0636\u0631',
+  '\uFD2D': '\u0634\u062C',
+  '\uFD2E': '\u0634\u062D',
+  '\uFD2F': '\u0634\u062E',
+  '\uFD30': '\u0634\u0645',
+  '\uFD31': '\u0633\u0647',
+  '\uFD32': '\u0634\u0647',
+  '\uFD33': '\u0637\u0645',
+  '\uFD34': '\u0633\u062C',
+  '\uFD35': '\u0633\u062D',
+  '\uFD36': '\u0633\u062E',
+  '\uFD37': '\u0634\u062C',
+  '\uFD38': '\u0634\u062D',
+  '\uFD39': '\u0634\u062E',
+  '\uFD3A': '\u0637\u0645',
+  '\uFD3B': '\u0638\u0645',
+  '\uFD3C': '\u0627\u064B',
+  '\uFD3D': '\u0627\u064B',
+  '\uFD50': '\u062A\u062C\u0645',
+  '\uFD51': '\u062A\u062D\u062C',
+  '\uFD52': '\u062A\u062D\u062C',
+  '\uFD53': '\u062A\u062D\u0645',
+  '\uFD54': '\u062A\u062E\u0645',
+  '\uFD55': '\u062A\u0645\u062C',
+  '\uFD56': '\u062A\u0645\u062D',
+  '\uFD57': '\u062A\u0645\u062E',
+  '\uFD58': '\u062C\u0645\u062D',
+  '\uFD59': '\u062C\u0645\u062D',
+  '\uFD5A': '\u062D\u0645\u064A',
+  '\uFD5B': '\u062D\u0645\u0649',
+  '\uFD5C': '\u0633\u062D\u062C',
+  '\uFD5D': '\u0633\u062C\u062D',
+  '\uFD5E': '\u0633\u062C\u0649',
+  '\uFD5F': '\u0633\u0645\u062D',
+  '\uFD60': '\u0633\u0645\u062D',
+  '\uFD61': '\u0633\u0645\u062C',
+  '\uFD62': '\u0633\u0645\u0645',
+  '\uFD63': '\u0633\u0645\u0645',
+  '\uFD64': '\u0635\u062D\u062D',
+  '\uFD65': '\u0635\u062D\u062D',
+  '\uFD66': '\u0635\u0645\u0645',
+  '\uFD67': '\u0634\u062D\u0645',
+  '\uFD68': '\u0634\u062D\u0645',
+  '\uFD69': '\u0634\u062C\u064A',
+  '\uFD6A': '\u0634\u0645\u062E',
+  '\uFD6B': '\u0634\u0645\u062E',
+  '\uFD6C': '\u0634\u0645\u0645',
+  '\uFD6D': '\u0634\u0645\u0645',
+  '\uFD6E': '\u0636\u062D\u0649',
+  '\uFD6F': '\u0636\u062E\u0645',
+  '\uFD70': '\u0636\u062E\u0645',
+  '\uFD71': '\u0637\u0645\u062D',
+  '\uFD72': '\u0637\u0645\u062D',
+  '\uFD73': '\u0637\u0645\u0645',
+  '\uFD74': '\u0637\u0645\u064A',
+  '\uFD75': '\u0639\u062C\u0645',
+  '\uFD76': '\u0639\u0645\u0645',
+  '\uFD77': '\u0639\u0645\u0645',
+  '\uFD78': '\u0639\u0645\u0649',
+  '\uFD79': '\u063A\u0645\u0645',
+  '\uFD7A': '\u063A\u0645\u064A',
+  '\uFD7B': '\u063A\u0645\u0649',
+  '\uFD7C': '\u0641\u062E\u0645',
+  '\uFD7D': '\u0641\u062E\u0645',
+  '\uFD7E': '\u0642\u0645\u062D',
+  '\uFD7F': '\u0642\u0645\u0645',
+  '\uFD80': '\u0644\u062D\u0645',
+  '\uFD81': '\u0644\u062D\u064A',
+  '\uFD82': '\u0644\u062D\u0649',
+  '\uFD83': '\u0644\u062C\u062C',
+  '\uFD84': '\u0644\u062C\u062C',
+  '\uFD85': '\u0644\u062E\u0645',
+  '\uFD86': '\u0644\u062E\u0645',
+  '\uFD87': '\u0644\u0645\u062D',
+  '\uFD88': '\u0644\u0645\u062D',
+  '\uFD89': '\u0645\u062D\u062C',
+  '\uFD8A': '\u0645\u062D\u0645',
+  '\uFD8B': '\u0645\u062D\u064A',
+  '\uFD8C': '\u0645\u062C\u062D',
+  '\uFD8D': '\u0645\u062C\u0645',
+  '\uFD8E': '\u0645\u062E\u062C',
+  '\uFD8F': '\u0645\u062E\u0645',
+  '\uFD92': '\u0645\u062C\u062E',
+  '\uFD93': '\u0647\u0645\u062C',
+  '\uFD94': '\u0647\u0645\u0645',
+  '\uFD95': '\u0646\u062D\u0645',
+  '\uFD96': '\u0646\u062D\u0649',
+  '\uFD97': '\u0646\u062C\u0645',
+  '\uFD98': '\u0646\u062C\u0645',
+  '\uFD99': '\u0646\u062C\u0649',
+  '\uFD9A': '\u0646\u0645\u064A',
+  '\uFD9B': '\u0646\u0645\u0649',
+  '\uFD9C': '\u064A\u0645\u0645',
+  '\uFD9D': '\u064A\u0645\u0645',
+  '\uFD9E': '\u0628\u062E\u064A',
+  '\uFD9F': '\u062A\u062C\u064A',
+  '\uFDA0': '\u062A\u062C\u0649',
+  '\uFDA1': '\u062A\u062E\u064A',
+  '\uFDA2': '\u062A\u062E\u0649',
+  '\uFDA3': '\u062A\u0645\u064A',
+  '\uFDA4': '\u062A\u0645\u0649',
+  '\uFDA5': '\u062C\u0645\u064A',
+  '\uFDA6': '\u062C\u062D\u0649',
+  '\uFDA7': '\u062C\u0645\u0649',
+  '\uFDA8': '\u0633\u062E\u0649',
+  '\uFDA9': '\u0635\u062D\u064A',
+  '\uFDAA': '\u0634\u062D\u064A',
+  '\uFDAB': '\u0636\u062D\u064A',
+  '\uFDAC': '\u0644\u062C\u064A',
+  '\uFDAD': '\u0644\u0645\u064A',
+  '\uFDAE': '\u064A\u062D\u064A',
+  '\uFDAF': '\u064A\u062C\u064A',
+  '\uFDB0': '\u064A\u0645\u064A',
+  '\uFDB1': '\u0645\u0645\u064A',
+  '\uFDB2': '\u0642\u0645\u064A',
+  '\uFDB3': '\u0646\u062D\u064A',
+  '\uFDB4': '\u0642\u0645\u062D',
+  '\uFDB5': '\u0644\u062D\u0645',
+  '\uFDB6': '\u0639\u0645\u064A',
+  '\uFDB7': '\u0643\u0645\u064A',
+  '\uFDB8': '\u0646\u062C\u062D',
+  '\uFDB9': '\u0645\u062E\u064A',
+  '\uFDBA': '\u0644\u062C\u0645',
+  '\uFDBB': '\u0643\u0645\u0645',
+  '\uFDBC': '\u0644\u062C\u0645',
+  '\uFDBD': '\u0646\u062C\u062D',
+  '\uFDBE': '\u062C\u062D\u064A',
+  '\uFDBF': '\u062D\u062C\u064A',
+  '\uFDC0': '\u0645\u062C\u064A',
+  '\uFDC1': '\u0641\u0645\u064A',
+  '\uFDC2': '\u0628\u062D\u064A',
+  '\uFDC3': '\u0643\u0645\u0645',
+  '\uFDC4': '\u0639\u062C\u0645',
+  '\uFDC5': '\u0635\u0645\u0645',
+  '\uFDC6': '\u0633\u062E\u064A',
+  '\uFDC7': '\u0646\u062C\u064A',
   '\uFE49': '\u203E',
   '\uFE4A': '\u203E',
   '\uFE4B': '\u203E',
   '\uFE4C': '\u203E',
   '\uFE4D': '\u005F',
   '\uFE4E': '\u005F',
-  '\uFE4F': '\u005F'
+  '\uFE4F': '\u005F',
+  '\uFE80': '\u0621',
+  '\uFE81': '\u0622',
+  '\uFE82': '\u0622',
+  '\uFE83': '\u0623',
+  '\uFE84': '\u0623',
+  '\uFE85': '\u0624',
+  '\uFE86': '\u0624',
+  '\uFE87': '\u0625',
+  '\uFE88': '\u0625',
+  '\uFE89': '\u0626',
+  '\uFE8A': '\u0626',
+  '\uFE8B': '\u0626',
+  '\uFE8C': '\u0626',
+  '\uFE8D': '\u0627',
+  '\uFE8E': '\u0627',
+  '\uFE8F': '\u0628',
+  '\uFE90': '\u0628',
+  '\uFE91': '\u0628',
+  '\uFE92': '\u0628',
+  '\uFE93': '\u0629',
+  '\uFE94': '\u0629',
+  '\uFE95': '\u062A',
+  '\uFE96': '\u062A',
+  '\uFE97': '\u062A',
+  '\uFE98': '\u062A',
+  '\uFE99': '\u062B',
+  '\uFE9A': '\u062B',
+  '\uFE9B': '\u062B',
+  '\uFE9C': '\u062B',
+  '\uFE9D': '\u062C',
+  '\uFE9E': '\u062C',
+  '\uFE9F': '\u062C',
+  '\uFEA0': '\u062C',
+  '\uFEA1': '\u062D',
+  '\uFEA2': '\u062D',
+  '\uFEA3': '\u062D',
+  '\uFEA4': '\u062D',
+  '\uFEA5': '\u062E',
+  '\uFEA6': '\u062E',
+  '\uFEA7': '\u062E',
+  '\uFEA8': '\u062E',
+  '\uFEA9': '\u062F',
+  '\uFEAA': '\u062F',
+  '\uFEAB': '\u0630',
+  '\uFEAC': '\u0630',
+  '\uFEAD': '\u0631',
+  '\uFEAE': '\u0631',
+  '\uFEAF': '\u0632',
+  '\uFEB0': '\u0632',
+  '\uFEB1': '\u0633',
+  '\uFEB2': '\u0633',
+  '\uFEB3': '\u0633',
+  '\uFEB4': '\u0633',
+  '\uFEB5': '\u0634',
+  '\uFEB6': '\u0634',
+  '\uFEB7': '\u0634',
+  '\uFEB8': '\u0634',
+  '\uFEB9': '\u0635',
+  '\uFEBA': '\u0635',
+  '\uFEBB': '\u0635',
+  '\uFEBC': '\u0635',
+  '\uFEBD': '\u0636',
+  '\uFEBE': '\u0636',
+  '\uFEBF': '\u0636',
+  '\uFEC0': '\u0636',
+  '\uFEC1': '\u0637',
+  '\uFEC2': '\u0637',
+  '\uFEC3': '\u0637',
+  '\uFEC4': '\u0637',
+  '\uFEC5': '\u0638',
+  '\uFEC6': '\u0638',
+  '\uFEC7': '\u0638',
+  '\uFEC8': '\u0638',
+  '\uFEC9': '\u0639',
+  '\uFECA': '\u0639',
+  '\uFECB': '\u0639',
+  '\uFECC': '\u0639',
+  '\uFECD': '\u063A',
+  '\uFECE': '\u063A',
+  '\uFECF': '\u063A',
+  '\uFED0': '\u063A',
+  '\uFED1': '\u0641',
+  '\uFED2': '\u0641',
+  '\uFED3': '\u0641',
+  '\uFED4': '\u0641',
+  '\uFED5': '\u0642',
+  '\uFED6': '\u0642',
+  '\uFED7': '\u0642',
+  '\uFED8': '\u0642',
+  '\uFED9': '\u0643',
+  '\uFEDA': '\u0643',
+  '\uFEDB': '\u0643',
+  '\uFEDC': '\u0643',
+  '\uFEDD': '\u0644',
+  '\uFEDE': '\u0644',
+  '\uFEDF': '\u0644',
+  '\uFEE0': '\u0644',
+  '\uFEE1': '\u0645',
+  '\uFEE2': '\u0645',
+  '\uFEE3': '\u0645',
+  '\uFEE4': '\u0645',
+  '\uFEE5': '\u0646',
+  '\uFEE6': '\u0646',
+  '\uFEE7': '\u0646',
+  '\uFEE8': '\u0646',
+  '\uFEE9': '\u0647',
+  '\uFEEA': '\u0647',
+  '\uFEEB': '\u0647',
+  '\uFEEC': '\u0647',
+  '\uFEED': '\u0648',
+  '\uFEEE': '\u0648',
+  '\uFEEF': '\u0649',
+  '\uFEF0': '\u0649',
+  '\uFEF1': '\u064A',
+  '\uFEF2': '\u064A',
+  '\uFEF3': '\u064A',
+  '\uFEF4': '\u064A',
+  '\uFEF5': '\u0644\u0622',
+  '\uFEF6': '\u0644\u0622',
+  '\uFEF7': '\u0644\u0623',
+  '\uFEF8': '\u0644\u0623',
+  '\uFEF9': '\u0644\u0625',
+  '\uFEFA': '\u0644\u0625',
+  '\uFEFB': '\u0644\u0627',
+  '\uFEFC': '\u0644\u0627'
 };
 
 function reverseIfRtl(chars) {
@@ -16102,7 +16831,7 @@ var Font = (function FontClosure() {
     mimetype: null,
     encoding: null,
 
-    export: function Font_export() {
+    exportData: function Font_exportData() {
       var data = {};
       for (var i in this) {
         if (this.hasOwnProperty(i))
@@ -17236,8 +17965,9 @@ var Font = (function FontClosure() {
       var styleSheet = styleElement.sheet;
       styleSheet.insertRule(rule, styleSheet.cssRules.length);
 
-      if (PDFJS.pdfBug && FontInspector.enabled)
-        FontInspector.fontAdded(this, url);
+      if (PDFJS.pdfBug && 'FontInspector' in globalScope &&
+          globalScope['FontInspector'].enabled)
+        globalScope['FontInspector'].fontAdded(this, url);
 
       return rule;
     },
@@ -18766,7 +19496,7 @@ var CFFParser = (function CFFParserClosure() {
 
         var data = charstring;
         var length = data.length;
-        for (var j = 0; j <= length; j) {
+        for (var j = 0; j <= length;) {
           var value = data[j++];
           if (value == 12 && data[j++] == 0) {
               data[j - 2] = 139;
@@ -30574,11 +31304,18 @@ function MessageHandler(name, comObj) {
   var ah = this.actionHandler = {};
 
   ah['console_log'] = [function ahConsoleLog(data) {
-    console.log.apply(console, data);
+    log.apply(null, data);
   }];
-  ah['console_error'] = [function ahConsoleError(data) {
-    console.error.apply(console, data);
-  }];
+  // If there's no console available, console_error in the
+  // action handler will do nothing.
+  if ('console' in globalScope) {
+    ah['console_error'] = [function ahConsoleError(data) {
+      globalScope['console'].error.apply(null, data);
+    }];
+  } else {
+    ah['console_error'] = [function ahConsoleError(data) {
+    }];
+  }
   ah['_warn'] = [function ah_Warn(data) {
     warn(data);
   }];
@@ -30783,7 +31520,7 @@ var WorkerMessageHandler = {
         return;
       }
 
-      console.log('page=%d - getOperatorList: time=%dms, len=%d', pageNum,
+      log('page=%d - getOperatorList: time=%dms, len=%d', pageNum,
                               Date.now() - start, operatorList.fnArray.length);
 
       // Filter the dependecies for fonts.
@@ -30815,7 +31552,7 @@ var WorkerMessageHandler = {
         promise.reject(e);
       }
 
-      console.log('text indexing: page=%d - time=%dms',
+      log('text indexing: page=%d - time=%dms',
                       pageNum, Date.now() - start);
     });
   }
@@ -30826,7 +31563,7 @@ var consoleTimer = {};
 var workerConsole = {
   log: function log() {
     var args = Array.prototype.slice.call(arguments);
-    postMessage({
+    globalScope.postMessage({
       action: 'console_log',
       data: args
     });
@@ -30834,7 +31571,7 @@ var workerConsole = {
 
   error: function error() {
     var args = Array.prototype.slice.call(arguments);
-    postMessage({
+    globalScope.postMessage({
       action: 'console_error',
       data: args
     });
@@ -30862,7 +31599,7 @@ if (typeof window === 'undefined') {
   // throw an exception which will be forwarded on automatically.
   PDFJS.LogManager.addLogger({
     warn: function(msg) {
-      postMessage({
+      globalScope.postMessage({
         action: '_warn',
         data: msg
       });
@@ -31127,7 +31864,8 @@ var JpxImage = (function JpxImageClosure() {
                   cod.resetContextProbabilities ||
                   cod.terminationOnEachCodingPass ||
                   cod.verticalyStripe || cod.predictableTermination)
-                throw 'Unsupported COD options: ' + uneval(cod);
+                throw 'Unsupported COD options: ' +
+                  globalScope.JSON.stringify(cod);
 
               if (context.mainHeader)
                 context.COD = cod;
@@ -34282,23 +35020,19 @@ var Metadata = PDFJS.Metadata = (function MetadataClosure() {
       if (!rdf || nodeName !== 'rdf:rdf' || !rdf.hasChildNodes())
         return;
 
-      var childNodes = rdf.childNodes, desc, namespace, entries, entry;
+      var children = rdf.childNodes, desc, entry, name, i, ii, length, iLength;
 
-      for (var i = 0, length = childNodes.length; i < length; i++) {
-        desc = childNodes[i];
+      for (i = 0, length = children.length; i < length; i++) {
+        desc = children[i];
         if (desc.nodeName.toLowerCase() !== 'rdf:description')
           continue;
 
-        entries = [];
-        for (var ii = 0, iLength = desc.childNodes.length; ii < iLength; ii++) {
-          if (desc.childNodes[ii].nodeName.toLowerCase() !== '#text')
-            entries.push(desc.childNodes[ii]);
-        }
-
-        for (ii = 0, iLength = entries.length; ii < iLength; ii++) {
-          var entry = entries[ii];
-          var name = entry.nodeName.toLowerCase();
-          this.metadata[name] = entry.textContent.trim();
+        for (ii = 0, iLength = desc.childNodes.length; ii < iLength; ii++) {
+          if (desc.childNodes[ii].nodeName.toLowerCase() !== '#text') {
+            entry = desc.childNodes[ii];
+            name = entry.nodeName.toLowerCase();
+            this.metadata[name] = entry.textContent.trim();
+          }
         }
       }
     },
@@ -34832,6 +35566,10 @@ var JpegImage = (function jpegImage() {
     return lines;
   }
 
+  function clampTo8bit(a) {
+    return a < 0 ? 0 : a > 255 ? 255 : a;
+  }
+
   constructor.prototype = {
     load: function load(path) {
       var xhr = new XMLHttpRequest();
@@ -35082,9 +35820,6 @@ var JpegImage = (function jpegImage() {
       }
     },
     getData: function getData(width, height) {
-      function clampTo8bit(a) {
-        return a < 0 ? 0 : a > 255 ? 255 : a;
-      }
       var scaleX = this.width / width, scaleY = this.height / height;
 
       var component1, component2, component3, component4;
@@ -35252,6 +35987,7 @@ var JpegImage = (function jpegImage() {
 
   return constructor;
 })();
+
 
 }).call((typeof window === 'undefined') ? this : window);
 
