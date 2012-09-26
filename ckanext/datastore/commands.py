@@ -16,7 +16,7 @@ GRANT CREATE ON SCHEMA public TO "{writeuser}";
 GRANT USAGE ON SCHEMA public TO "{writeuser}";
 
 -- create new read only user
-CREATE USER "{readonlyuser}" WITH PASSWORD '{password}' NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
+CREATE USER "{readonlyuser}" {with_password} NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
 
 -- take connect permissions from main db
 REVOKE CONNECT ON DATABASE "{maindb}" FROM "{readonlyuser}";
@@ -126,12 +126,13 @@ class SetupDatastoreCommand(CkanCommand):
         self._run_sql(sql, as_sql_user=self.sql_superuser)
 
     def create_read_only_user(self):
+        password = self.urlparts_r['db_pass']
         sql = read_only_user_sql.format(
             maindb=self.urlparts_c['db_name'],
             datastore=self.urlparts_w['db_name'],
             ckanuser=self.urlparts_c['db_user'],
             readonlyuser=self.urlparts_r['db_user'],
-            password=self.urlparts_r['db_pass'],
+            with_password="WITH PASSWORD '{0}'".format(password) if password else "",
             writeuser=self.urlparts_w['db_user'])
         self._run_sql(sql,
                       as_sql_user=self.sql_superuser,
