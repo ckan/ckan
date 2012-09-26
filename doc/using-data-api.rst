@@ -17,8 +17,11 @@ Quickstart
 There are several endpoints into the DataStore API, they are:
 
 * datastore_create: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_create``
-* datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
 * datastore_delete: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
+* datastore_delete: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
+* datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
+* datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
+* datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
 
 Before going into detail about the API and the examples, it is useful to create a resource first so that you can store data against it in the Datastore. This can be done either through the CKAN Graphical User Interface.
 
