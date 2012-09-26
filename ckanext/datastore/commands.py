@@ -43,7 +43,7 @@ class SetupDatastoreCommand(cli.CkanCommand):
 
     Usage::
 
-        paster datastore create-db <sql-user-user>
+        paster datastore create-db <sql-super-user>
         paster datastore create-read-only-user <sql-super-user>
 
     Where:
