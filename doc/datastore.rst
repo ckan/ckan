@@ -51,19 +51,17 @@ Also ensure that the ``ckan.datastore.write_url`` and ``datastore.read_url`` var
 
 A few things have to be kept in mind
 
-* The datastore cannot be on the CKAN database
+* The datastore cannot be on the CKAN database (except for testing)
 * The write user (i.e. ``ckanuser``) and read-only user (i.e. ``readonlyuser``) cannot be the same
 
 To create a new database and a read-only user, use the provided paster commands after you have set the right database URLs.::
 
- paster --plugin=ckan datastore create-db
- paster --plugin=ckan datastore create-read-only-user
+ paster --plugin=ckan datastore create-db <sql-user-user>
+ paster --plugin=ckan datastore create-read-only-user <sql-user-user>
 
-To test you can create a new datastore, so on linux command line do::
+To test the setup you can create a new datastore, so on linux command line do::
 
- curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}"
-   -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ],
-    "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
+ curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
 
 DataStorer: Automatically Add Data to the DataStore
@@ -167,6 +165,18 @@ The datastore_search_sql API endpoint allows a user to search data at a resource
  }
 
 
+datastore_search_htsql
+~~~~~~~~~~~~~~~~~~~~
+
+.. note:: HTSQL is not in the core datastore and has to be installed as a plugin.
+
+The datastore_search_htsql API endpoint allows a user to search data at a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. The JSON for searching must be in the following form::
+
+ {
+    htsql: # a htsql query statement.
+ }
+
+
 Table aliases
 -------------
 
@@ -178,7 +188,7 @@ Comparison of different querying methods
 The datastore supports querying with the datastore_search and datastore_search_sql API endpoint. They are similar but support different features. The following list gives an overview on the different methods.
 
 ==============================  =======================  =====================  ======================
-..                              datastore_search         datastore_search_sql
+..                              datastore_search         datastore_search_sql   datastore_search_htsql
 ..                                                       SQL                    HTSQL
 ==============================  =======================  =====================  ======================
 **Status**                      Stable                   Stable                 Will be available as plugin
