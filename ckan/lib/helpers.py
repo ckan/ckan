@@ -598,7 +598,7 @@ def check_access(action, data_dict=None):
     return authorized
 
 
-def linked_user(user, maxlength=0):
+def linked_user(user, maxlength=0, avatar=20):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
     if not isinstance(user, model.User):
@@ -608,7 +608,7 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        icon = gravatar(user.email_hash, 20)
+        icon = gravatar(user.email_hash, avatar)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'

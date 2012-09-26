@@ -1,6 +1,11 @@
-{% for activity in activities %}
-  <div class="activity">
-    {{    h.literal(activity.msg.format(**activity.data))  }}
-    <span class="date">{{ h.render_datetime(activity.timestamp) }}</span>
-  </div>
-{% endfor %}
+<ul class="activity">
+	{% for activity in activities %}
+	<li class="item {{ activity.type|lower }}">
+		<i class="icon-{{ activity.icon }}"></i>
+		<p>
+			{{ h.literal(activity.msg.format(**activity.data)) }}
+			<span class="date">{{ h.time_ago_in_words_from_str(activity.timestamp, 'hour') }} ago</span>
+		</p>
+	</li>
+	{% endfor %}
+</ul>

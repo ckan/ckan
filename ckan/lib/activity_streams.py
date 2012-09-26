@@ -12,10 +12,10 @@ import ckan.logic as logic
 # etc.
 
 def get_snippet_actor(activity, detail):
-    return h.linked_user(activity['user_id'])
+    return h.linked_user(activity['user_id'], 0, 30)
 
 def get_snippet_user(activity, detail):
-    return h.linked_user(activity['data']['user']['name'])
+    return h.linked_user(activity['data']['user']['name'], 0, 30)
 
 def get_snippet_dataset(activity, detail):
     data = activity['data']
@@ -144,6 +144,30 @@ activity_stream_string_functions = {
   'new related item': activity_stream_string_new_related_item,
 }
 
+# A dictionary mapping activity types to the icons associated to them
+activity_stream_string_icons = {
+  'added tag': 'tag',
+  'changed group': 'users',
+  'changed package': 'sitemap',
+  'changed package_extra': 'edit',
+  'changed resource': 'bar-chart',
+  'changed user': 'user',
+  'deleted group': 'users',
+  'deleted package': 'sitemap',
+  'deleted package_extra': 'edit',
+  'deleted resource': 'bar-chart',
+  'new group': 'users',
+  'new package': 'sitemap',
+  'new package_extra': 'edit',
+  'new resource': 'bar-chart',
+  'new user': 'user',
+  'removed tag': 'tag',
+  'deleted related item': 'picture',
+  'follow dataset': 'sitemap',
+  'follow user': 'user',
+  'new related item': 'picture',
+}
+
 # A list of activity types that may have details
 activity_stream_actions_with_detail = ['changed package']
 
@@ -176,9 +200,12 @@ def activity_list_to_html(context, activity_stream):
             raise NotImplementedError("No activity renderer for activity "
                 "type '%s'" % str(activity_type))
 
-        activity_msg = activity_stream_string_functions[activity_type]()
+        if not activity_type in activity_stream_string_icons:
+                  raise NotImplementedError("No activity icon for activity "
+                      "type '%s'" % str(activity_type))
 
-        activity_type_css = activity_type.replace(' ', '-').lower()
+        activity_msg = activity_stream_string_functions[activity_type]()
+        activity_icon = activity_stream_string_icons[activity_type]
 
         # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)
@@ -187,7 +214,8 @@ def activity_list_to_html(context, activity_stream):
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
         activity_list.append({'msg': activity_msg,
-                              'type': activity_type_css,
+                              'type': activity_type.replace(' ', '-').lower(),
+                              'icon': activity_icon,
                               'data': data,
                               'timestamp': activity['timestamp']})
     return literal(base.render('activity_streams/activity_stream_items.html',
