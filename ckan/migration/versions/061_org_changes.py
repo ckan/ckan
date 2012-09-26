@@ -11,6 +11,11 @@ ALTER TABLE "user"
 ALTER TABLE package
     ADD COLUMN owner_org TEXT,
     ADD COLUMN private boolean DEFAULT FALSE;
+
+ALTER TABLE package_revision
+    ADD COLUMN owner_org TEXT,
+    ADD COLUMN private boolean DEFAULT FALSE;
+
 COMMIT;
 
 '''
