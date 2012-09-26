@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{h.resource_display_name(c.resource) }}{% endblock %}
+
+{# remove any scripts #}
+{% block scripts %}
+  <script>
+    var preload_resource = {{ h.literal(c.resource_json) }};
+  </script>
+{% endblock %}
+
+{# remove any ckan styles #}
+{% block styles %}
+{% endblock %}
+
+{% block custom_styles %}
+{% endblock %}
