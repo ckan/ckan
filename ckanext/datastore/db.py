@@ -34,7 +34,6 @@ _date_formats = ['%Y-%m-%d',
                 '%d-%m-%Y',
                 '%m-%d-%Y',
                 ]
-_pluck = lambda field, arr: [x[field] for x in arr]
 INSERT = 'insert'
 UPSERT = 'upsert'
 UPDATE = 'update'
@@ -45,6 +44,10 @@ def _strip(input):
     if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
         return input.strip().strip('"')
     return input
+
+
+def _pluck(field, arr):
+    return [x[field] for x in arr]
 
 
 def _get_list(input, strip=True):
