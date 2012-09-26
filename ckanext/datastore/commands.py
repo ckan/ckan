@@ -127,6 +127,7 @@ class SetupDatastoreCommand(CkanCommand):
 
     def create_read_only_user(self):
         password = self.db_read_url_parts['db_pass']
+        self.validate_password(password)
         sql = read_only_user_sql.format(
             maindb=self.db_ckan_url_parts['db_name'],
             datastore=self.db_write_url_parts['db_name'],
@@ -137,3 +138,7 @@ class SetupDatastoreCommand(CkanCommand):
         self._run_sql(sql,
                       as_sql_user=self.sql_superuser,
                       database=self.db_write_url_parts['db_name'])
+
+    def validate_password(self, password):
+        if "'" in password:
+            raise ValueError("Passwords cannot contain '")
