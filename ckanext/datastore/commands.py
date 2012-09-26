@@ -4,7 +4,7 @@ from ckan.lib.cli import CkanCommand
 import logging
 log = logging.getLogger(__name__)
 
-read_only_user_sql = """
+read_only_user_sql = '''
 -- revoke permissions for the new user
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
@@ -31,7 +31,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{readonlyuser}";
 -- grant access to new tables and views by default
 ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
    GRANT SELECT ON TABLES TO "{readonlyuser}";
-"""
+'''
 
 
 class SetupDatastoreCommand(CkanCommand):
@@ -68,11 +68,11 @@ class SetupDatastoreCommand(CkanCommand):
         cmd = self.args[0]
         self._load_config()
 
-        self.urlparts_w = self._get_db_config('ckan.datastore.write_url')
-        self.urlparts_r = self._get_db_config('ckan.datastore.read_url')
-        self.urlparts_c = self._get_db_config('sqlalchemy.url')
+        self.db_write_url_parts = self._get_db_config('ckan.datastore.write_url')
+        self.db_read_url_parts = self._get_db_config('ckan.datastore.read_url')
+        self.db_ckan_url_parts = self._get_db_config('sqlalchemy.url')
 
-        assert self.urlparts_w['db_name'] == self.urlparts_r['db_name'], "write and read db should be the same"
+        assert self.db_write_url_parts['db_name'] == self.db_read_url_parts['db_name'], "write and read db should be the same"
 
         if cmd == 'create-db':
             if len(self.args) != 2:
@@ -122,18 +122,18 @@ class SetupDatastoreCommand(CkanCommand):
             ))
 
     def create_db(self):
-        sql = "create database {0}".format(self.urlparts_w['db_name'])
+        sql = "create database {0}".format(self.db_write_url_parts['db_name'])
         self._run_sql(sql, as_sql_user=self.sql_superuser)
 
     def create_read_only_user(self):
-        password = self.urlparts_r['db_pass']
+        password = self.db_read_url_parts['db_pass']
         sql = read_only_user_sql.format(
-            maindb=self.urlparts_c['db_name'],
-            datastore=self.urlparts_w['db_name'],
-            ckanuser=self.urlparts_c['db_user'],
-            readonlyuser=self.urlparts_r['db_user'],
+            maindb=self.db_ckan_url_parts['db_name'],
+            datastore=self.db_write_url_parts['db_name'],
+            ckanuser=self.db_ckan_url_parts['db_user'],
+            readonlyuser=self.db_read_url_parts['db_user'],
             with_password="WITH PASSWORD '{0}'".format(password) if password else "",
-            writeuser=self.urlparts_w['db_user'])
+            writeuser=self.db_write_url_parts['db_user'])
         self._run_sql(sql,
                       as_sql_user=self.sql_superuser,
-                      database=self.urlparts_w['db_name'])
+                      database=self.db_write_url_parts['db_name'])
