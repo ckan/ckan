@@ -1,8 +1,11 @@
 import re
-from ckan.lib.cli import CkanCommand
-
+import sys
 import logging
+
+import ckan.lib.cli as cli
+
 log = logging.getLogger(__name__)
+
 
 read_only_user_sql = '''
 -- revoke permissions for the new user
@@ -34,7 +37,7 @@ ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
 '''
 
 
-class SetupDatastoreCommand(CkanCommand):
+class SetupDatastoreCommand(cli.CkanCommand):
     '''Perform commands to set up the datastore.
     Make sure that the datastore urls are set properly before you run these commands.
 
@@ -68,9 +71,9 @@ class SetupDatastoreCommand(CkanCommand):
         cmd = self.args[0]
         self._load_config()
 
-        self.db_write_url_parts = self._get_db_config('ckan.datastore.write_url')
-        self.db_read_url_parts = self._get_db_config('ckan.datastore.read_url')
-        self.db_ckan_url_parts = self._get_db_config('sqlalchemy.url')
+        self.db_write_url_parts = cli.parse_db_config('ckan.datastore.write_url')
+        self.db_read_url_parts = cli.parse_db_config('ckan.datastore.read_url')
+        self.db_ckan_url_parts = cli.parse_db_config('sqlalchemy.url')
 
         assert self.db_write_url_parts['db_name'] == self.db_read_url_parts['db_name'], "write and read db should be the same"
 
@@ -95,31 +98,26 @@ class SetupDatastoreCommand(CkanCommand):
             log.error('Command "%s" not recognized' % (cmd,))
             return
 
-    def _get_db_config(self, name):
-        from pylons import config
-        url = config[name]
-        # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
-        if not db_details_match:
-            raise Exception('Could not extract db details from url: %r' % url)
-        db_details = db_details_match.groupdict()
-        return db_details
-
-    def _run_cmd(self, command_line):
+    def _run_cmd(self, command_line, inputstring=''):
         import subprocess
-        retcode = subprocess.call(command_line, shell=True)
-        if retcode != 0:
-            raise SystemError('Command exited with errorcode: %i' % retcode)
+        p = subprocess.Popen(
+            command_line, shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout_value, stderr_value = p.communicate(input=inputstring)
+        if stderr_value:
+            print '\nAn error occured: {0}'.format(stderr_value)
+            sys.exit(1)
 
     def _run_sql(self, sql, as_sql_user, database='postgres'):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
         if not self.simulate:
-            self._run_cmd("psql --username='{username}' --dbname='{database}' -c \"{sql}\" -W".format(
+            self._run_cmd("psql --username='{username}' --dbname='{database}' -W".format(
                 username=as_sql_user,
-                database=database,
-                sql=sql.replace('"', '\\"')
-            ))
+                database=database
+            ), inputstring=sql)
 
     def create_db(self):
         sql = "create database {0}".format(self.db_write_url_parts['db_name'])
