@@ -4,7 +4,7 @@ from ckan.lib.cli import CkanCommand
 import logging
 log = logging.getLogger(__name__)
 
-read_only_user_sql = '''
+read_only_user_sql = """
 -- revoke permissions for the new user
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
@@ -16,7 +16,7 @@ GRANT CREATE ON SCHEMA public TO "{writeuser}";
 GRANT USAGE ON SCHEMA public TO "{writeuser}";
 
 -- create new read only user
-CREATE USER "{readonlyuser}" NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
+CREATE USER "{readonlyuser}" WITH PASSWORD '{password}' NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
 
 -- take connect permissions from main db
 REVOKE CONNECT ON DATABASE "{maindb}" FROM "{readonlyuser}";
@@ -31,7 +31,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{readonlyuser}";
 -- grant access to new tables and views by default
 ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
    GRANT SELECT ON TABLES TO "{readonlyuser}";
-'''
+"""
 
 
 class SetupDatastoreCommand(CkanCommand):
@@ -115,11 +115,11 @@ class SetupDatastoreCommand(CkanCommand):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
         if not self.simulate:
-            self._run_cmd("psql --username='{username}' --dbname='{database}' -c '{sql}' -W".format(
+            self._run_cmd("psql --username='{username}' --dbname='{database}' -c \"{sql}\" -W".format(
                 username=as_sql_user,
                 database=database,
-                sql=sql
-            )) 
+                sql=sql.replace('"', '\\"')
+            ))
 
     def create_db(self):
         sql = "create database {0}".format(self.urlparts_w['db_name'])
@@ -131,8 +131,8 @@ class SetupDatastoreCommand(CkanCommand):
             datastore=self.urlparts_w['db_name'],
             ckanuser=self.urlparts_c['db_user'],
             readonlyuser=self.urlparts_r['db_user'],
+            password=self.urlparts_r['db_pass'],
             writeuser=self.urlparts_w['db_user'])
         self._run_sql(sql,
                       as_sql_user=self.sql_superuser,
                       database=self.urlparts_w['db_name'])
-
