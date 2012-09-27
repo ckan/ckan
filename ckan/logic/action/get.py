@@ -723,7 +723,7 @@ def revision_show(context, data_dict):
                                       ref_package_by=ref_package_by)
     return rev_dict
 
-def _group_or_org_show(context, data_dict):
+def _group_or_org_show(context, data_dict, is_org=False):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -733,8 +733,10 @@ def _group_or_org_show(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_show',context, data_dict)
-    _check_access('organization_show',context, data_dict)
+    if is_org:
+        _check_access('organization_show',context, data_dict)
+    else:
+        _check_access('group_show',context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -775,7 +777,7 @@ def organization_show(context, data_dict):
     :rtype: dictionary
 
     '''
-    return _group_or_org_show(context, data_dict)
+    return _group_or_org_show(context, data_dict, is_org=True)
 
 
 def group_package_show(context, data_dict):
