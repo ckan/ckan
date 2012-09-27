@@ -10,7 +10,7 @@ def _datastore_auth(context, data_dict):
     if not authorized:
         return {
             'success': False,
-            'msg': p.toolkit._('User {} not authorized to update resource {}'\
+            'msg': p.toolkit._('User {0} not authorized to update resource {1}'\
                     .format(str(user), data_dict['id']))
         }
     else:
@@ -18,6 +18,10 @@ def _datastore_auth(context, data_dict):
 
 
 def datastore_create(context, data_dict):
+    return _datastore_auth(context, data_dict)
+
+
+def datastore_upsert(context, data_dict):
     return _datastore_auth(context, data_dict)
 
 
