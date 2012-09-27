@@ -279,7 +279,7 @@ def member_list(context, data_dict=None):
     return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
              for m in q.all() ]
 
-def _group_or_org_list(context, data_dict):
+def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
     api = context.get('api_version')
@@ -312,7 +312,7 @@ def _group_or_org_list(context, data_dict):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
-    if data_dict['type'] == 'organization':
+    if is_org:
         query = query.filter(model.GroupRevision.type=='organization')
     else:
         query = query.filter(model.GroupRevision.type!='organization')
@@ -374,9 +374,9 @@ def organization_list(context, data_dict):
 
     '''
     _check_access('organization_list', context, data_dict)
-    data_dict['groups'] = data_dict.get('organizations')
+    data_dict['groups'] = data_dict.pop('organizations', [])
     data_dict['type'] = 'organization'
-    return _group_or_org_list(context, data_dict)
+    return _group_or_org_list(context, data_dict, is_org=True)
 
 
 def group_list_authz(context, data_dict):
