@@ -444,64 +444,7 @@ def member_create(context, data_dict=None):
 
     return model_dictize.member_dictize(member, context)
 
-def _group_or_org_create(context, data_dict):
-    '''Create a new group.
-
-    You must be authorized to create groups.
-
-    Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
-
-    :param name: the name of the group, a string between 2 and 100 characters
-        long, containing only lowercase alphanumeric characters, ``-`` and
-        ``_``
-    :type name: string
-    :param id: the id of the group (optional)
-    :type id: string
-    :param title: the title of the group (optional)
-    :type title: string
-    :param description: the description of the group (optional)
-    :type description: string
-    :param image_url: the URL to an image to be displayed on the group's page
-        (optional)
-    :type image_url: string
-    :param type: the type of the group (optional), ``IGroupForm`` plugins
-        associate themselves with different group types and provide custom
-        group handling behaviour for these types
-    :type type: string
-    :param state: the current state of the group, e.g. ``'active'`` or
-        ``'deleted'``, only active groups show up in search results and
-        other lists of groups, this parameter will be ignored if you are not
-        authorized to change the state of the group (optional, default:
-        ``'active'``)
-    :type state: string
-    :param approval_status: (optional)
-    :type approval_status: string
-    :param extras: the group's extras (optional), extras are arbitrary
-        (key: value) metadata items that can be added to groups, each extra
-        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
-    :type extras: list of dataset extra dictionaries
-    :param packages: the datasets (packages) that belong to the group, a list
-        of dictionaries each with keys ``'name'`` (string, the id or name of
-        the dataset) and optionally ``'title'`` (string, the title of the
-        dataset)
-    :type packages: list of dictionaries
-    :param groups: the groups that belong to the group, a list of dictionaries
-        each with key ``'name'`` (string, the id or name of the group) and
-        optionally ``'capacity'`` (string, the capacity in which the group is
-        a member of the group)
-    :type groups: list of dictionaries
-    :param users: the users that belong to the group, a list of dictionaries
-        each with key ``'name'`` (string, the id or name of the user) and
-        optionally ``'capacity'`` (string, the capacity in which the user is
-        a member of the group)
-    :type users: list of dictionaries
-
-    :returns: the newly created group
-    :rtype: dictionary
-
-    '''
+def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
@@ -589,6 +532,64 @@ def _group_or_org_create(context, data_dict):
 
 
 def group_create(context, data_dict):
+    '''Create a new group.
+
+    You must be authorized to create groups.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the group, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the group (optional)
+    :type id: string
+    :param title: the title of the group (optional)
+    :type title: string
+    :param description: the description of the group (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
+    :param type: the type of the group (optional), ``IGroupForm`` plugins
+        associate themselves with different group types and provide custom
+        group handling behaviour for these types
+        Cannot be 'organization'
+    :type type: string
+    :param state: the current state of the group, e.g. ``'active'`` or
+        ``'deleted'``, only active groups show up in search results and
+        other lists of groups, this parameter will be ignored if you are not
+        authorized to change the state of the group (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the group's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to groups, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the group, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+    :param groups: the groups that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the group) and
+        optionally ``'capacity'`` (string, the capacity in which the group is
+        a member of the group)
+    :type groups: list of dictionaries
+    :param users: the users that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the group)
+    :type users: list of dictionaries
+
+    :returns: the newly created group
+    :rtype: dictionary
+
+    '''
     # wrapper for creating groups
     if data_dict.get('type') == 'organization':
         # FIXME better exception?
@@ -597,10 +598,63 @@ def group_create(context, data_dict):
     return _group_or_org_create(context, data_dict)
 
 def organization_create(context, data_dict):
+    '''Create a new organization.
+
+    You must be authorized to create organizations.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the organization, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the organization (optional)
+    :type id: string
+    :param title: the title of the organization (optional)
+    :type title: string
+    :param description: the description of the organization (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the organization's page
+        (optional)
+    :type image_url: string
+    :param state: the current state of the organization, e.g. ``'active'`` or
+        ``'deleted'``, only active organizations show up in search results and
+        other lists of organizations, this parameter will be ignored if you are not
+        authorized to change the state of the organization (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the organization's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to organizations, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the organization, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+ ##   :param groups: the groups that belong to the group, a list of dictionaries
+ ##       each with key ``'name'`` (string, the id or name of the group) and
+ ##       optionally ``'capacity'`` (string, the capacity in which the group is
+ ##       a member of the group)
+ ##   :type groups: list of dictionaries
+    :param users: the users that belong to the organization, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the organization)
+    :type users: list of dictionaries
+
+    :returns: the newly created organization
+    :rtype: dictionary
+
+    '''
     # wrapper for creating organizations
     data_dict['type'] = 'organization'
     _check_access('organization_create', context, data_dict)
-    return _group_or_org_create(context, data_dict)
+    return _group_or_org_create(context, data_dict, is_org=True)
 
 
 def rating_create(context, data_dict):
