@@ -749,6 +749,11 @@ def search_data(context, data_dict):
     _validate_int(limit, 'limit')
     _validate_int(offset, 'offset')
 
+    if 'limit' in data_dict:
+        data_dict['limit'] = int(limit)
+    if 'offset' in data_dict:
+        data_dict['offset'] = int(offset)
+
     sort = _sort(context, data_dict, field_ids)
 
     sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
