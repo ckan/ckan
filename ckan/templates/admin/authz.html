@@ -6,9 +6,15 @@
 {% endblock %}
 
 {% macro authz_form_table(id, roles, users, user_role_dict) %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
     <tr>
-      <th> User </th>
+      <th>{{ _('User') }}</th>
       {% for role in roles %}
       <th> {{ role }} </th>
       {% endfor %}
@@ -20,15 +26,11 @@
         </td>
           {% for role in roles %}
             <td>
-              <input type="hidden" name="{{ h.literal( '%s$%s' % (user,role)) }}" value="submitted"/>
+              <input type="hidden" name="{{ h.literal( '%s$%s' % (user, role)) }}" value="submitted"/>
               {% if user_role_dict[(user,role)] %}
-                <input type="checkbox"
-                name="{{ h.literal( '%s$%s' % (user,role)) }}"
-                   checked='checked'/>
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
               {% else %}
-                <input type="checkbox"
-                name="{{ h.literal( '%s$%s' % (user,role)) }}"
-                       />
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" class="checkbox-onown"/>
               {% endif %}
             </td>
         {% endfor %}
@@ -39,21 +41,27 @@
 
 
 {% macro authz_add_table(roles) %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
     <tr>
-      <th>User</th>
+      <th>{{ _('User') }}</th>
       {% for role in roles %}
         <th> {{ role }} </th>
       {% endfor %}
     </tr>
     <tr>
-      <td>
-        <input type="textbox" name="new_user_name" class="autocomplete-user" />
+      <td class="control-full">
+        <input type="text" name="new_user_name" class="autocomplete-user no-margin reduced-padding" />
       </td>
       {% for role in roles %}
         <td>
           <input type="hidden" name="{{ h.literal( '%s' % role) }}" value="submitted"/>
-          <input type="checkbox" name="{{ h.literal( '%s' % role) }}"/>
+          <input type="checkbox" name="{{ h.literal( '%s' % role) }}" class="checkbox-onown"/>
         </td>
       {% endfor %}
     </tr>
@@ -61,9 +69,15 @@
 {% endmacro %}
 
 {% macro authz_form_group_table(id, roles, users, user_role_dict) %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
     <tr>
-      <th>User Group</th>
+      <th>{{ _('User Group') }}</th>
       {% for role in roles %}
       <th> {{ role }} </th>
       {% endfor %}
@@ -75,15 +89,11 @@
         </td>
       {% for role in roles %}
           <td>
-            <input type="hidden" name="${ h.literal( '%s$%s' % (user,role)) }" value="submitted"/>
+            <input type="hidden" name="${ h.literal( '%s$%s' % (user, role)) }" value="submitted"/>
             {% if user_role_dict[(user,role)] %}
-                <input type="checkbox"
-                name="{{ h.literal( '%s$%s' % (user,role)) }}"
-                   checked='checked'/>
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
                    {% else %}
-                <input type="checkbox"
-                name="{{ h.literal( '%s$%s' % (user,role)) }}"
-                       />
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" />
               {% endif %}
           </td>
       {% endfor %}
@@ -94,7 +104,13 @@
 
 
 {% macro authz_add_group_table(roles) %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
     <tr>
       <th>User Group</th>
       {% for role in roles %}
@@ -102,13 +118,13 @@
       {% endfor %}
     </tr>
     <tr>
-      <td>
-        <input type="textbox" name="new_user_name" class="autocomplete-authzgroup" />
+      <td class="control-full">
+        <input type="text" name="new_user_name" class="autocomplete-authzgroup no-margin reduced-padding" />
       </td>
       {% for role in roles %}
         <td>
           <input type="hidden" name="{{ h.literal( '%s' % role) }}" value="submitted"/>
-          <input type="checkbox" name="{{ h.literal( '%s' % role) }}"/>
+          <input type="checkbox" name="{{ h.literal( '%s' % role) }}" class="checkbox-onown"/>
         </td>
       {% endfor %}
     </tr>
@@ -118,20 +134,19 @@
 {% block primary %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Administration - Authorization') }}</h1>
-      <h3>Update Existing Roles</h3>
+      {% snippet 'admin/snippets/header.html', action=c.action %}
+
+      <h3 class="m-bottom">{{ _('Update Existing Roles') }}</h3>
       <form id="theform" method="POST">
         {{ authz_form_table('theform', c.roles, c.users, c.user_role_dict) }}
-        <button type="submit" name="save" class="btn btn-primary">
-          Save Changes
-        </button>
+        <button type="submit" name="save" class="btn btn-primary">{{ _('Save Changes') }}</button>
         <div class="clear"></div>
       </form>
 
-      <h3>Add Roles for Any User</h3>
+      <h3 class="m-bottom">{{ _('Add Roles for Any User') }}</h3>
       <form id="addform" method="POST">
         {{ authz_add_table(c.roles) }}
-        <button type="submit" name="add" class="btn btn-primary">Add Role</button>
+        <button type="submit" name="add" class="btn btn-primary">{{ _('Add Role') }}</button>
         <div class="clear"></div>
       </form>
 

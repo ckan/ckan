@@ -1,8 +1,11 @@
 import re
-from ckan.lib.cli import CkanCommand
-
+import sys
 import logging
+
+import ckan.lib.cli as cli
+
 log = logging.getLogger(__name__)
+
 
 read_only_user_sql = '''
 -- revoke permissions for the new user
@@ -16,7 +19,7 @@ GRANT CREATE ON SCHEMA public TO "{writeuser}";
 GRANT USAGE ON SCHEMA public TO "{writeuser}";
 
 -- create new read only user
-CREATE USER "{readonlyuser}" NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
+CREATE USER "{readonlyuser}" {with_password} NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
 
 -- take connect permissions from main db
 REVOKE CONNECT ON DATABASE "{maindb}" FROM "{readonlyuser}";
@@ -34,13 +37,13 @@ ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
 '''
 
 
-class SetupDatastoreCommand(CkanCommand):
+class SetupDatastoreCommand(cli.CkanCommand):
     '''Perform commands to set up the datastore.
     Make sure that the datastore urls are set properly before you run these commands.
 
     Usage::
 
-        paster datastore create-db <sql-user-user>
+        paster datastore create-db <sql-super-user>
         paster datastore create-read-only-user <sql-super-user>
 
     Where:
@@ -68,11 +71,11 @@ class SetupDatastoreCommand(CkanCommand):
         cmd = self.args[0]
         self._load_config()
 
-        self.urlparts_w = self._get_db_config('ckan.datastore.write_url')
-        self.urlparts_r = self._get_db_config('ckan.datastore.read_url')
-        self.urlparts_c = self._get_db_config('sqlalchemy.url')
+        self.db_write_url_parts = cli.parse_db_config('ckan.datastore.write_url')
+        self.db_read_url_parts = cli.parse_db_config('ckan.datastore.read_url')
+        self.db_ckan_url_parts = cli.parse_db_config('sqlalchemy.url')
 
-        assert self.urlparts_w['db_name'] == self.urlparts_r['db_name'], "write and read db should be the same"
+        assert self.db_write_url_parts['db_name'] == self.db_read_url_parts['db_name'], "write and read db should be the same"
 
         if cmd == 'create-db':
             if len(self.args) != 2:
@@ -95,44 +98,45 @@ class SetupDatastoreCommand(CkanCommand):
             log.error('Command "%s" not recognized' % (cmd,))
             return
 
-    def _get_db_config(self, name):
-        from pylons import config
-        url = config[name]
-        # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
-        if not db_details_match:
-            raise Exception('Could not extract db details from url: %r' % url)
-        db_details = db_details_match.groupdict()
-        return db_details
-
-    def _run_cmd(self, command_line):
+    def _run_cmd(self, command_line, inputstring=''):
         import subprocess
-        retcode = subprocess.call(command_line, shell=True)
-        if retcode != 0:
-            raise SystemError('Command exited with errorcode: %i' % retcode)
+        p = subprocess.Popen(
+            command_line, shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout_value, stderr_value = p.communicate(input=inputstring)
+        if stderr_value:
+            print '\nAn error occured: {0}'.format(stderr_value)
+            sys.exit(1)
 
     def _run_sql(self, sql, as_sql_user, database='postgres'):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
         if not self.simulate:
-            self._run_cmd("psql --username='{username}' --dbname='{database}' -c '{sql}' -W".format(
+            self._run_cmd("psql --username='{username}' --dbname='{database}' -W".format(
                 username=as_sql_user,
-                database=database,
-                sql=sql
-            )) 
+                database=database
+            ), inputstring=sql)
 
     def create_db(self):
-        sql = "create database {0}".format(self.urlparts_w['db_name'])
+        sql = 'create database "{0}"'.format(self.db_write_url_parts['db_name'])
         self._run_sql(sql, as_sql_user=self.sql_superuser)
 
     def create_read_only_user(self):
+        password = self.db_read_url_parts['db_pass']
+        self.validate_password(password)
         sql = read_only_user_sql.format(
-            maindb=self.urlparts_c['db_name'],
-            datastore=self.urlparts_w['db_name'],
-            ckanuser=self.urlparts_c['db_user'],
-            readonlyuser=self.urlparts_r['db_user'],
-            writeuser=self.urlparts_w['db_user'])
+            maindb=self.db_ckan_url_parts['db_name'],
+            datastore=self.db_write_url_parts['db_name'],
+            ckanuser=self.db_ckan_url_parts['db_user'],
+            readonlyuser=self.db_read_url_parts['db_user'],
+            with_password="WITH PASSWORD '{0}'".format(password) if password else "",
+            writeuser=self.db_write_url_parts['db_user'])
         self._run_sql(sql,
                       as_sql_user=self.sql_superuser,
-                      database=self.urlparts_w['db_name'])
+                      database=self.db_write_url_parts['db_name'])
 
+    def validate_password(self, password):
+        if "'" in password:
+            raise ValueError("Passwords cannot contain '")

@@ -34,7 +34,6 @@ _date_formats = ['%Y-%m-%d',
                 '%d-%m-%Y',
                 '%m-%d-%Y',
                 ]
-_pluck = lambda field, arr: [x[field] for x in arr]
 INSERT = 'insert'
 UPSERT = 'upsert'
 UPDATE = 'update'
@@ -45,6 +44,10 @@ def _strip(input):
     if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
         return input.strip().strip('"')
     return input
+
+
+def _pluck(field, arr):
+    return [x[field] for x in arr]
 
 
 def _get_list(input, strip=True):
@@ -300,8 +303,8 @@ def _get_aliases(context, data_dict):
 
 
 def create_alias(context, data_dict):
-    aliases = _get_list(data_dict.get('aliases', None))
-    if aliases:
+    aliases = _get_list(data_dict.get('aliases'))
+    if aliases != None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
@@ -309,9 +312,9 @@ def create_alias(context, data_dict):
             context['connection'].execute(sql_alias_drop_string)
 
         for alias in aliases:
-            sql_alias_string = u'CREATE VIEW"{alias}" AS SELECT * FROM "{main}"'.format(
-                main=data_dict['resource_id'],
-                alias=alias
+            sql_alias_string = u'CREATE VIEW "{alias}" AS SELECT * FROM "{main}"'.format(
+                alias=alias,
+                main=data_dict['resource_id']
             )
             context['connection'].execute(sql_alias_string)
 
@@ -746,6 +749,11 @@ def search_data(context, data_dict):
     _validate_int(limit, 'limit')
     _validate_int(offset, 'offset')
 
+    if 'limit' in data_dict:
+        data_dict['limit'] = int(limit)
+    if 'offset' in data_dict:
+        data_dict['offset'] = int(offset)
+
     sort = _sort(context, data_dict, field_ids)
 
     sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
@@ -848,6 +856,7 @@ def create(context, data_dict):
         else:
             raise
     except Exception, e:
+        trans.rollback()
         if 'due to statement timeout' in str(e):
             raise ValidationError({
                 'query': ['Query took too long']
@@ -867,12 +876,25 @@ def upsert(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    timeout = context.get('query_timeout', 60000)
 
-    # check if table already existes
-    trans = context['connection'].begin()
-    upsert_data(context, data_dict)
-    trans.commit()
-    return _unrename_json_field(data_dict)
+    try:
+        # check if table already existes
+        trans = context['connection'].begin()
+        context['connection'].execute(
+            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
+        upsert_data(context, data_dict)
+        trans.commit()
+        return _unrename_json_field(data_dict)
+    except Exception, e:
+        trans.rollback()
+        if 'due to statement timeout' in str(e):
+            raise ValidationError({
+                'query': ['Query took too long']
+            })
+        raise
+    finally:
+        context['connection'].close()
 
 
 def delete(context, data_dict):
@@ -917,7 +939,7 @@ def search(context, data_dict):
     try:
         # check if table exists
         context['connection'].execute(
-            u'set local statement_timeout to {0}'.format(timeout))
+            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         id = data_dict['resource_id']
         result = context['connection'].execute(
             u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"

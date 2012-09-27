@@ -1,17 +1,45 @@
 import unittest
 import json
+import pprint
+import datetime
+
 import sqlalchemy
+import sqlalchemy.orm as orm
+
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
+import ckan.lib.cli as cli
 import ckanext.datastore.db as db
-import pprint
-import datetime
-
 
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
+
+
+def clear_db(Session):
+    drop_tables = u'''select 'drop table "' || tablename || '" cascade;'
+                    from pg_tables where schemaname = 'public' '''
+    c = Session.connection()
+    results = c.execute(drop_tables)
+    for result in results:
+        c.execute(result[0])
+    Session.commit()
+    Session.remove()
+
+
+def rebuild_all_dbs(Session):
+    ''' If the tests are running on the same db, we have to make sure that
+    the ckan tables are recrated.
+    '''
+    db_read_url_parts = cli.parse_db_config('ckan.datastore.read_url')
+    db_ckan_url_parts = cli.parse_db_config('sqlalchemy.url')
+    same_db = db_read_url_parts['db_name'] == db_ckan_url_parts['db_name']
+
+    if same_db:
+        model.repo.tables_created_and_initialised = False
+    clear_db(Session)
+    model.repo.rebuild_db()
 
 
 class TestTypeGetters(unittest.TestCase):
@@ -49,13 +77,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -256,7 +291,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res['fields'] == data['fields'], res['fields']
         assert res['records'] == data['records']
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
         assert results.rowcount == 3
@@ -274,11 +309,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             select * from "{0}" where _full_text @@ to_tsquery('tolstoy')
             '''.format(resource.id))
         assert results.rowcount == 2
-        model.Session.remove()
+        self.Session.remove()
 
         # check aliases for resource
+        c = self.Session.connection()
         for alias in aliases:
-            c = model.Session.connection()
 
             results = [row for row in c.execute(u'select * from "{0}"'.format(resource.id))]
             results_alias = [row for row in c.execute(u'select * from "{0}"'.format(alias))]
@@ -289,6 +324,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                 "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
             results = c.execute(sql)
             assert results.rowcount == 1
+        self.Session.remove()
 
         # check to test to see if resource now has a datastore table
         postparams = '%s=1' % json.dumps({'id': resource.id})
@@ -312,8 +348,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
+        self.Session.remove()
 
         assert results.rowcount == 4
 
@@ -323,11 +360,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert all_data[i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
 
+        c = self.Session.connection()
         results = c.execute('''
             select * from "{0}" where _full_text @@ 'tolstoy'
             '''.format(resource.id))
+        self.Session.remove()
         assert results.rowcount == 3
-        model.Session.remove()
 
         #######  insert again extra field
         data3 = {
@@ -345,7 +383,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
         assert results.rowcount == 5
@@ -356,9 +394,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') '''.format(resource.id))
+        self.Session.remove()
         assert results.rowcount == 2
-
-        model.Session.remove()
 
         #######  insert again which will fail because of unique book name
         data4 = {
@@ -393,7 +430,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is True, res_dict
 
         # new aliases should replace old aliases
-        c = model.Session.connection()
+        c = self.Session.connection()
         for alias in aliases:
             sql = (u"select * from _table_metadata "
                 "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
@@ -404,6 +441,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
         results = c.execute(sql)
         assert results.rowcount == 1
+        self.Session.remove()
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
@@ -424,7 +462,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('''select * from "{0}" '''.format(resource.id))
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
@@ -436,7 +474,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert data['records'][i].get('book') == row['book']
             assert data['records'][i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
-        model.Session.remove()
+        self.Session.remove()
 
         ### extend types
 
@@ -461,8 +499,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('''select * from "{0}" '''.format(resource.id))
+        self.Session.remove()
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
 
@@ -535,9 +574,16 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_upsert_requires_auth(self):
         data = {
@@ -558,10 +604,10 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert res_dict['success'] is False
 
     def test_upsert_basic(self):
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 2
-        model.Session.remove()
+        self.Session.remove()
 
         hhguide = u"hitchhikers guide to the galaxy"
 
@@ -579,19 +625,19 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
 
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
-        model.Session.remove()
+        self.Session.remove()
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute("select * from \"{0}\" where author='{1}'".format(self.data['resource_id'], 'adams'))
         assert results.rowcount == 1
-        model.Session.remove()
+        self.Session.remove()
 
         # upsert only the publish date
         data = {
@@ -608,7 +654,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
 
@@ -616,7 +662,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
         assert records[2].published == datetime.datetime(1979, 1, 1)
-        model.Session.remove()
+        self.Session.remove()
 
         # delete publish date
         data = {
@@ -633,7 +679,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
 
@@ -641,7 +687,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
         assert records[2].published == None
-        model.Session.remove()
+        self.Session.remove()
 
         data = {
             'resource_id': self.data['resource_id'],
@@ -657,14 +703,14 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 4
 
         records = results.fetchall()
         assert records[3][u'b\xfck'] == 'the hobbit'
         assert records[3].author == 'tolkien'
-        model.Session.remove()
+        self.Session.remove()
 
         # test % in records
         data = {
@@ -743,9 +789,16 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_insert_basic(self):
         data = {
@@ -762,8 +815,9 @@ class TestDatastoreInsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        self.Session.remove()
 
         assert results.rowcount == 3
 
@@ -815,15 +869,22 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_update_basic(self):
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
-        model.Session.remove()
+        self.Session.remove()
 
         hhguide = u"hitchhikers guide to the galaxy"
 
@@ -841,19 +902,19 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
         assert results.rowcount == 3
 
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
-        model.Session.remove()
+        self.Session.remove()
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute("select * from \"{0}\" where author='{1}'".format(self.data['resource_id'], 'adams'))
         assert results.rowcount == 1
-        model.Session.remove()
+        self.Session.remove()
 
         # update only the publish date
         data = {
@@ -870,15 +931,15 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        self.Session.remove()
         assert results.rowcount == 3
 
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
         assert records[2].published == datetime.datetime(1979, 1, 1)
-        model.Session.remove()
 
         # delete publish date
         data = {
@@ -895,15 +956,15 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(self.data['resource_id']))
+        self.Session.remove()
         assert results.rowcount == 3
 
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
         assert records[2].published == None
-        model.Session.remove()
 
     def test_update_missing_key(self):
         data = {
@@ -954,6 +1015,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
 class TestDatastoreDelete(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
+    Session = None
 
     @classmethod
     def setup_class(cls):
@@ -971,9 +1033,19 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                         {'book': 'warandpeace', 'author': 'tolstoy'}]
         }
 
+        #model.repo.rebuild_db()
+        #model.repo.clean_db()
+
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def _create(self):
         postparams = '%s=1' % json.dumps(self.data)
@@ -999,7 +1071,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         self._create()
         self._delete()
         resource_id = self.data['resource_id']
-        c = model.Session.connection()
+        c = self.Session.connection()
 
         # alias should be deleted
         results = c.execute("select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
@@ -1014,7 +1086,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
             expected_msg = 'relation "{0}" does not exist'.format(resource_id)
             assert expected_msg in str(e)
 
-        model.Session.remove()
+        self.Session.remove()
 
     def test_delete_invalid_resource_id(self):
         postparams = '%s=1' % json.dumps({'resource_id': 'bad'})
@@ -1038,12 +1110,12 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
-        model.Session.remove()
+        self.Session.remove()
 
         # shouldn't delete anything
         data = {'resource_id': resource_id,
@@ -1055,12 +1127,12 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
-        model.Session.remove()
+        self.Session.remove()
 
         # delete the 'annakarenina' row
         data = {'resource_id': resource_id,
@@ -1072,11 +1144,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         result = c.execute('select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 0
-        model.Session.remove()
+        self.Session.remove()
 
         self._delete()
 

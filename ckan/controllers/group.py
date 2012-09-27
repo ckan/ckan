@@ -439,7 +439,8 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(),
+                   'extras_as_string': True}
         data_dict = {'id': id}
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
