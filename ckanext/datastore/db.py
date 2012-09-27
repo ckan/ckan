@@ -303,8 +303,8 @@ def _get_aliases(context, data_dict):
 
 
 def create_alias(context, data_dict):
-    aliases = _get_list(data_dict.get('aliases', None))
-    if aliases:
+    aliases = _get_list(data_dict.get('aliases'))
+    if aliases != None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
@@ -312,9 +312,9 @@ def create_alias(context, data_dict):
             context['connection'].execute(sql_alias_drop_string)
 
         for alias in aliases:
-            sql_alias_string = u'CREATE VIEW"{alias}" AS SELECT * FROM "{main}"'.format(
-                main=data_dict['resource_id'],
-                alias=alias
+            sql_alias_string = u'CREATE VIEW "{alias}" AS SELECT * FROM "{main}"'.format(
+                alias=alias,
+                main=data_dict['resource_id']
             )
             context['connection'].execute(sql_alias_string)
 
