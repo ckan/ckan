@@ -25,7 +25,7 @@ Example:
       </a>
     </h3>
     {% if organization.description %}
-      <p>{{ h.truncate(organization.description, length=80, whole_word=True) }}...</p>
+      <p>{{ h.truncate(organization.description, length=80, whole_word=True) }}</p>
     {% else %}
       <p class="empty">{{ _('This organization has no description') }}</p>
     {% endif %}
