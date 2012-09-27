@@ -33,12 +33,12 @@ tutorial on using this API see :doc:`using-data-api`.
 Installation and Configuration
 ==============================
 
-.. warning:: Even though the datastore verifies the permissions make sure that all settings are correct.
+.. warning:: Make sure that you follow the steps below and make sure that the settings are correct. Wrong settings could lead to serious security issues.
 
 The DataStore in previous lives required a custom setup of ElasticSearch and Nginx,
-but that is no more, as it can use any relational database management system
-(PostgreSQL for example). However, you should set-up a  separate database for the datastore
-and create a read-only user to make you CKAN installation save.
+but that is no more, as it the relational database management system PostgreSQL.
+However, you should set-up a  separate database for the datastore
+and create a read-only user to make your CKAN installation save.
 
 In your config file ensure that the datastore extension is enabled::
 
@@ -166,7 +166,7 @@ The datastore_search_sql API endpoint allows a user to search data at a resource
 
 
 datastore_search_htsql
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. note:: HTSQL is not in the core datastore and has to be installed as a plugin.
 
