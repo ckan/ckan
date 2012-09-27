@@ -1,3 +1,4 @@
+import re
 import logging
 import genshi
 import datetime
@@ -58,6 +59,11 @@ class GroupController(BaseController):
         return lookup_group_plugin(group_type).edit_template()
 
     ## end hooks
+    def _replace_group_org(self, string):
+        ''' substitute organization for group if this is an org'''
+        if self.group_type == 'organization':
+            string = re.sub('^group', 'organization', string)
+        return string
 
     def _action(self, action_name):
         if self.group_type == 'organization':
