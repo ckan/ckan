@@ -49,9 +49,9 @@ class DatastorePlugin(p.SingletonPlugin):
         if not self._is_read_only_database():
             # Make sure that the right permissions are set
             # so that no harmful queries can be made
-            if not config['debug']:
+            if not ('debug' in config and config['debug']):
                 self._check_separate_db()
-            self._check_read_permissions()
+                self._check_read_permissions()
 
             self._create_alias_table()
         else:
