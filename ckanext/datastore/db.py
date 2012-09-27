@@ -2,6 +2,9 @@ import json
 import datetime
 import shlex
 import os
+import urllib
+import urllib2
+import urlparse
 import logging
 import pprint
 import sqlalchemy
@@ -707,6 +710,42 @@ def _sort(context, data_dict, field_ids):
         return "order by " + ", ".join(clause_parsed)
 
 
+def _insert_links(data_dict, limit, offset):
+    ''' Adds link to the next/prev part (same limit, offset=offset+limit)
+    and the resource page.
+    '''
+    data_dict['_links'] = {}
+
+    # get the url from the request
+    import ckan.plugins.toolkit as toolkit
+    urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+
+    # change the offset in the url
+    parsed = list(urlparse.urlparse(urlstring))
+    query = urllib2.unquote(parsed[4])
+
+    arguments = dict(urlparse.parse_qsl(query))
+    arguments_start = dict(arguments)
+    arguments_prev = dict(arguments)
+    arguments_next = dict(arguments)
+    arguments_start.pop('offset')
+    arguments_next['offset'] = int(offset) + int(limit)
+    arguments_prev['offset'] = int(offset) - int(limit)
+
+    parsed_start = parsed[:]
+    parsed_prev = parsed[:]
+    parsed_next = parsed[:]
+    parsed_start[4] = urllib.urlencode(arguments_start)
+    parsed_next[4] = urllib.urlencode(arguments_next)
+    parsed_prev[4] = urllib.urlencode(arguments_prev)
+
+    # add the links to the data dict
+    data_dict['_links']['start'] = urlparse.urlunparse(parsed_start)
+    data_dict['_links']['next'] = urlparse.urlunparse(parsed_next)
+    if int(offset) - int(limit) > 0:
+        data_dict['_links']['prev'] = urlparse.urlunparse(parsed_prev)
+
+
 def delete_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
@@ -766,6 +805,8 @@ def search_data(context, data_dict):
             where=where_clause,
             sort=sort, limit=limit, offset=offset)
     results = context['connection'].execute(sql_string, where_values)
+
+    _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
 
 
@@ -790,6 +831,7 @@ def format_results(context, results, data_dict):
         records.append(converted_row)
     data_dict['records'] = records
     data_dict['fields'] = result_fields
+
     return _unrename_json_field(data_dict)
 
 
