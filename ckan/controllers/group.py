@@ -174,7 +174,7 @@ class GroupController(BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            url = h.url_for(controller='group', action='read',
+            url = self._url_for(controller='group', action='read',
                             id=c.group_dict.get('name'))
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
@@ -227,7 +227,7 @@ class GroupController(BaseController):
                 'extras': search_extras
             }
 
-            query = self._action('package_search')(context, data_dict)
+            query = get_action('package_search')(context, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -427,7 +427,7 @@ class GroupController(BaseController):
 
     def delete(self, id):
         if 'cancel' in request.params:
-            h.redirect_to(controller='group', action='edit', id=id)
+            self._redirect_to(controller='group', action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -441,13 +441,13 @@ class GroupController(BaseController):
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
                 h.flash_notice(_('Group has been deleted.'))
-                h.redirect_to(controller='group', action='index')
+                self._redirect_to(controller='group', action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return render('group/confirm_delete.html')
+        return self._render_template('group/confirm_delete.html')
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -488,7 +488,7 @@ class GroupController(BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=h.url_for(controller='group', action='read',
+                link=self._url_for(controller='group', action='read',
                                id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
