@@ -851,6 +851,7 @@ def create(context, data_dict):
         else:
             raise
     except Exception, e:
+        trans.rollback()
         if 'due to statement timeout' in str(e):
             raise ValidationError({
                 'query': ['Query took too long']
