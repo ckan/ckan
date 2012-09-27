@@ -1810,6 +1810,30 @@ def group_activity_list(context, data_dict):
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+def organization_activity_list(context, data_dict):
+    '''Return a organization's activity stream.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    # FIXME This is a duplicate of group_activity_list and
+    # package_activity_list but they claim to get the group/package by name
+    # or id but I think that they only get by id.  Either they need fixing
+    # and remain seperate or they should share code - probably should share
+    # code anyway.
+
+    model = context['model']
+    group_id = _get_or_bust(data_dict, 'id')
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=group_id)
+    query = query.order_by(_desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
@@ -1883,6 +1907,22 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
+    return activity_streams.activity_list_to_html(context, activity_stream)
+
+def organization_activity_list_html(context, data_dict):
+    '''Return a organization's activity stream as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: string
+
+    '''
+    # FIXME does this work with a name? same issue with package/group
+    activity_stream = organization_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):

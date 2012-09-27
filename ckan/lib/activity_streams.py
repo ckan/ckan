@@ -27,6 +27,9 @@ def get_snippet_tag(activity, detail):
 def get_snippet_group(activity, detail):
     return h.group_link(activity['data']['group'])
 
+def get_snippet_organization(activity, detail):
+    return h.organization_link(activity['data']['group'])
+
 def get_snippet_extra(activity, detail):
     return '"%s"' % detail['data']['package_extra']['key']
 
@@ -52,6 +55,9 @@ def activity_stream_string_added_tag():
 def activity_stream_string_changed_group():
     return _("{actor} updated the group {group}")
 
+def activity_stream_string_changed_organization():
+    return _("{actor} updated the organization {organization}")
+
 def activity_stream_string_changed_package():
     return _("{actor} updated the dataset {dataset}")
 
@@ -67,6 +73,9 @@ def activity_stream_string_changed_user():
 def activity_stream_string_deleted_group():
     return _("{actor} deleted the group {group}")
 
+def activity_stream_string_deleted_organization():
+    return _("{actor} deleted the organization {organization}")
+
 def activity_stream_string_deleted_package():
     return _("{actor} deleted the dataset {dataset}")
 
@@ -78,6 +87,9 @@ def activity_stream_string_deleted_resource():
 
 def activity_stream_string_new_group():
     return _("{actor} created the group {group}")
+
+def activity_stream_string_new_organization():
+    return _("{actor} created the organization {organization}")
 
 def activity_stream_string_new_package():
     return _("{actor} created the dataset {dataset}")
@@ -113,6 +125,7 @@ activity_snippet_functions = {
     'dataset': get_snippet_dataset,
     'tag': get_snippet_tag,
     'group': get_snippet_group,
+    'organization': get_snippet_organization,
     'extra': get_snippet_extra,
     'resource': get_snippet_resource,
     'related_item': get_snippet_related_item,
@@ -124,15 +137,18 @@ activity_snippet_functions = {
 activity_stream_string_functions = {
   'added tag': activity_stream_string_added_tag,
   'changed group': activity_stream_string_changed_group,
+  'changed organization': activity_stream_string_changed_organization,
   'changed package': activity_stream_string_changed_package,
   'changed package_extra': activity_stream_string_changed_package_extra,
   'changed resource': activity_stream_string_changed_resource,
   'changed user': activity_stream_string_changed_user,
   'deleted group': activity_stream_string_deleted_group,
+  'deleted organization': activity_stream_string_deleted_organization,
   'deleted package': activity_stream_string_deleted_package,
   'deleted package_extra': activity_stream_string_deleted_package_extra,
   'deleted resource': activity_stream_string_deleted_resource,
   'new group': activity_stream_string_new_group,
+  'new organization': activity_stream_string_new_organization,
   'new package': activity_stream_string_new_package,
   'new package_extra': activity_stream_string_new_package_extra,
   'new resource': activity_stream_string_new_resource,
