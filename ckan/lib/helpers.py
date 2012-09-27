@@ -962,6 +962,11 @@ def group_link(group):
     return link_to(group['name'], url)
 
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
+
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
