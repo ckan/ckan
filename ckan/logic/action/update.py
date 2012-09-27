@@ -384,7 +384,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
-def _group_or_org_update(context, data_dict):
+def _group_or_org_update(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
@@ -405,7 +405,10 @@ def _group_or_org_update(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    _check_access('group_update', context, data_dict)
+    if is_org:
+        _check_access('organization_update', context, data_dict)
+    else:
+        _check_access('group_update', context, data_dict)
 
     if 'api_version' not in context:
         # old plugins do not support passing the schema so we need
@@ -519,10 +522,7 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
-    Plugins may change the parameters of this function depending on the value
-    of the organization's ``type`` attribute, see the ``IGroupForm`` plugin interface.
-
-    For further parameters see ``group_create()``.
+    For further parameters see ``organization_create()``.
 
     :param id: the name or id of the organization to update
     :type id: string
@@ -531,7 +531,7 @@ def organization_update(context, data_dict):
     :rtype: dictionary
 
     '''
-    return _group_or_org_update(context, data_dict)
+    return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context, data_dict):
     '''Update a user account.
