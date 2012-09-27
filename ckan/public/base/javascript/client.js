@@ -25,6 +25,19 @@
       return path;
     },
 
+    action: function(path, data, fn) {
+      var url = this.url('/api/action/' + path);
+      jQuery.ajax({
+        contentType: 'application/json',
+        url: url,
+        data: data,
+        dataType: 'json',
+        processData: false,
+        type: 'POST',
+        success: fn
+      });
+    },
+
     /* Requests a block of HTML from the snippet API endpoint. Optional
      * parameters can also be provided to the template via the params
      * object.
