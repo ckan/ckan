@@ -66,10 +66,24 @@ class GroupController(BaseController):
         return string
 
     def _action(self, action_name):
-        if self.group_type == 'organization':
-            action_name = action_name.replace('group', 'organization')
-        print action_name
-        return get_action(action_name)
+        ''' select the correct group/org action '''
+        return get_action(self._replace_group_org(action_name))
+
+    def _render_template(self, template_name):
+        ''' render the correct group/org template '''
+        return render(self._replace_group_org(template_name))
+
+    def _redirect_to(self, *args, **kw):
+        ''' wrapper to ensue the correct controller is used '''
+        if self.group_type == 'organization' and 'controller' in kw:
+            kw['controller'] = 'organization'
+        return h.redirect_to(*args, **kw)
+
+    def _url_for(self, *args, **kw):
+        ''' wrapper to ensue the correct controller is used '''
+        if self.group_type == 'organization' and 'controller' in kw:
+            kw['controller'] = 'organization'
+        return h.url_for(*args, **kw)
 
     def _guess_group_type(self, expecting_name=False):
         """
