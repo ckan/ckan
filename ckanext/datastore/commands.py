@@ -120,7 +120,7 @@ class SetupDatastoreCommand(cli.CkanCommand):
             ), inputstring=sql)
 
     def create_db(self):
-        sql = "create database {0}".format(self.db_write_url_parts['db_name'])
+        sql = 'create database "{0}"'.format(self.db_write_url_parts['db_name'])
         self._run_sql(sql, as_sql_user=self.sql_superuser)
 
     def create_read_only_user(self):
