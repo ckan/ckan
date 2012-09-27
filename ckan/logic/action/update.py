@@ -459,10 +459,15 @@ def _group_or_org_update(context, data_dict, is_org=False):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.edit(group)
 
+    if is_org:
+        activity_type = 'changed organization'
+    else:
+        activity_type = 'changed group'
+
     activity_dict = {
             'user_id': model.User.by_name(user.decode('utf8')).id,
             'object_id': group.id,
-            'activity_type': 'changed group',
+            'activity_type': activity_type,
             }
     # Handle 'deleted' groups.
     # When the user marks a group as deleted this comes through here as

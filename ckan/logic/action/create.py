@@ -506,10 +506,15 @@ def _group_or_org_create(context, data_dict, is_org=False):
     for item in plugins.PluginImplementations(plugins.IGroupController):
         item.create(group)
 
+    if is_org:
+        activity_type = 'new organization'
+    else:
+        activity_type = 'new group'
+
     activity_dict = {
             'user_id': model.User.by_name(user.decode('utf8')).id,
             'object_id': group.id,
-            'activity_type': 'new group',
+            'activity_type': activity_type,
             }
     activity_dict['data'] = {
             'group': ckan.lib.dictization.table_dictize(group, context)
