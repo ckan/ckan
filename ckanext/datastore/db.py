@@ -728,7 +728,8 @@ def _insert_links(data_dict, limit, offset):
     arguments_start = dict(arguments)
     arguments_prev = dict(arguments)
     arguments_next = dict(arguments)
-    arguments_start.pop('offset')
+    if 'offset' in arguments_start:
+        arguments_start.pop('offset')
     arguments_next['offset'] = int(offset) + int(limit)
     arguments_prev['offset'] = int(offset) - int(limit)
 
