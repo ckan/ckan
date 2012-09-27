@@ -11,7 +11,6 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{{ h.follow_button('dataset', pkg.id) }}</li>
   <li>{% link_for _('Related'), controller='related', action='list', id=pkg.name, class_='btn', icon='picture' %}</li>
   {# NOTE: Not implemented in stage 1 #}
   {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
@@ -21,6 +20,7 @@
   {% if h.check_access('package_update', {'id':pkg.id }) %}
     <li>{% link_for _('Add resource'), controller='package', action='new_resource', id=pkg.name, class_='btn', icon='plus' %}</li>
   {% endif %}
+  <li>{{ h.follow_button('dataset', pkg.id) }}</li>
 {% endblock %}
 
 {% block primary_content %}
