@@ -14,6 +14,16 @@ def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
 
 
+def clear_db(Session):
+    drop_tables = u'''select 'drop table "' || tablename || '" cascade;'
+                    from pg_tables where schemaname = 'public' '''
+    c = Session.connection()
+    results = c.execute(drop_tables)
+    for result in results:
+        c.execute(result[0])
+    Session.commit()
+
+
 class TestTypeGetters(unittest.TestCase):
     def test_list(self):
         assert db._get_list(None) == None
@@ -52,10 +62,18 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        orm = sqlalchemy.orm
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        clear_db(cls.Session)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -256,7 +274,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res['fields'] == data['fields'], res['fields']
         assert res['records'] == data['records']
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
         assert results.rowcount == 3
@@ -274,11 +292,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             select * from "{0}" where _full_text @@ to_tsquery('tolstoy')
             '''.format(resource.id))
         assert results.rowcount == 2
-        model.Session.remove()
 
         # check aliases for resource
         for alias in aliases:
-            c = model.Session.connection()
 
             results = [row for row in c.execute(u'select * from "{0}"'.format(resource.id))]
             results_alias = [row for row in c.execute(u'select * from "{0}"'.format(alias))]
@@ -312,7 +328,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
         assert results.rowcount == 4
@@ -323,11 +338,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert all_data[i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
 
+        c = self.Session.connection()
         results = c.execute('''
             select * from "{0}" where _full_text @@ 'tolstoy'
             '''.format(resource.id))
+        self.Session.remove()
         assert results.rowcount == 3
-        model.Session.remove()
 
         #######  insert again extra field
         data3 = {
@@ -345,7 +361,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))
 
         assert results.rowcount == 5
@@ -356,9 +372,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert all_data[i].get('author') == (json.loads(row['author'][0]) if row['author'] else None)
 
         results = c.execute('''select * from "{0}" where _full_text @@ to_tsquery('dostoevsky') '''.format(resource.id))
+        self.Session.remove()
         assert results.rowcount == 2
-
-        model.Session.remove()
 
         #######  insert again which will fail because of unique book name
         data4 = {
@@ -393,7 +408,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         assert res_dict['success'] is True, res_dict
 
         # new aliases should replace old aliases
-        c = model.Session.connection()
+        c = self.Session.connection()
         for alias in aliases:
             sql = (u"select * from _table_metadata "
                 "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
@@ -404,6 +419,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
         results = c.execute(sql)
         assert results.rowcount == 1
+        self.Session.remove()
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
@@ -424,7 +440,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('''select * from "{0}" '''.format(resource.id))
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
@@ -436,7 +452,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             assert data['records'][i].get('book') == row['book']
             assert data['records'][i].get('author') == (
                 json.loads(row['author'][0]) if row['author'] else None)
-        model.Session.remove()
+        self.Session.remove()
 
         ### extend types
 
@@ -461,7 +477,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
 
-        c = model.Session.connection()
+        c = self.Session.connection()
         results = c.execute('''select * from "{0}" '''.format(resource.id))
 
         types = [db._pg_types[field[1]] for field in results.cursor.description]
