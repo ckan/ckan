@@ -1354,13 +1354,13 @@ def resource_preview(resource, pkg_id):
 
     if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], style='recline', id=pkg_id, qualified=True)
+            resource_id=resource['id'], preview_type='recline', id=pkg_id, qualified=True)
     elif format_lower in PDF:
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], style='pdf', id=pkg_id, qualified=True)
+            resource_id=resource['id'], preview_type='pdf', id=pkg_id, qualified=True)
     elif format_lower == 'jsonp':
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], style='json', id=pkg_id, qualified=True)
+            resource_id=resource['id'], preview_type='json', id=pkg_id, qualified=True)
     elif format_lower in LOADABLE:
         url = resource['url']
     elif format_lower in DIRECT_EMBEDS:

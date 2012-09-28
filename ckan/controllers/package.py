@@ -1279,7 +1279,7 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_datapreview(self, id, resource_id, style):
+    def resource_datapreview(self, id, resource_id, preview_type):
         '''
         Embeded page for a resource data-preview.
         '''
@@ -1295,4 +1295,4 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/{style}.html'.format(style=style))
+        return render('dataviewer/{type}.html'.format(type=preview_type))
