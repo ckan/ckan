@@ -737,7 +737,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     group_dict = model_dictize.group_dictize(group, context)
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])

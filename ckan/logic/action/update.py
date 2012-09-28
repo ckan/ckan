@@ -455,8 +455,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
             log.debug('Group %s is made child of group %s',
                       group.name, parent_group.name)
 
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    for item in plugins.PluginImplementations(plugin_type):
         item.edit(group)
 
     if is_org:

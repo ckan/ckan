@@ -504,7 +504,12 @@ def _group_or_org_create(context, data_dict, is_org=False):
     # Needed to let extensions know the group id
     session.flush()
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.create(group)
 
     if is_org:

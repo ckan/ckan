@@ -10,6 +10,7 @@ __all__ = [
     'IMiddleware',
     'IAuthFunctions',
     'IDomainObjectModification', 'IGroupController',
+    'IOrganizationController',
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
@@ -236,6 +237,41 @@ class IGroupController(Interface):
     def before_view(self, pkg_dict):
         '''
              Extensions will recieve this before the group gets
+             displayed. The dictionary passed will be the one that gets
+             sent to the template.
+        '''
+        return pkg_dict
+
+
+class IOrganizationController(Interface):
+    """
+    Hook into the Organization controller. These will
+    usually be called just before committing or returning the
+    respective object, i.e. all validation, synchronization
+    and authorization setup are complete.
+    """
+
+    def read(self, entity):
+        pass
+
+    def create(self, entity):
+        pass
+
+    def edit(self, entity):
+        pass
+
+    def authz_add_role(self, object_role):
+        pass
+
+    def authz_remove_role(self, object_role):
+        pass
+
+    def delete(self, entity):
+        pass
+
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the organization gets
              displayed. The dictionary passed will be the one that gets
              sent to the template.
         '''

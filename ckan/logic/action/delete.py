@@ -214,7 +214,12 @@ def group_delete(context, data_dict):
     rev.message = _(u'REST API: Delete %s') % revisioned_details
     group.delete()
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.delete(group)
 
     model.repo.commit()
