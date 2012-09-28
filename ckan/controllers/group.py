@@ -69,6 +69,10 @@ class GroupController(BaseController):
         ''' select the correct group/org action '''
         return get_action(self._replace_group_org(action_name))
 
+    def _check_access(self, action_name, *args, **kw):
+        ''' select the correct group/org check_access '''
+        return check_access(self._replace_group_org(action_name), *args, **kw)
+
     def _render_template(self, template_name):
         ''' render the correct group/org template '''
         return render(self._replace_group_org(template_name))
@@ -112,7 +116,7 @@ class GroupController(BaseController):
         data_dict = {'all_fields': True}
 
         try:
-            check_access('site_read', context)
+            self._check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
@@ -279,7 +283,7 @@ class GroupController(BaseController):
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
-            check_access('group_create', context)
+            self._check_access('group_create', context)
         except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
@@ -324,7 +328,7 @@ class GroupController(BaseController):
         c.group = group
 
         try:
-            check_access('group_update', context)
+            self._check_access('group_update', context)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
@@ -411,7 +415,7 @@ class GroupController(BaseController):
         try:
             context = \
                 {'model': model, 'user': c.user or c.author, 'group': group}
-            check_access('group_edit_permissions', context)
+            self._check_access('group_edit_permissions', context)
             c.authz_editable = True
             c.group = context['group']
         except NotAuthorized:
@@ -433,7 +437,7 @@ class GroupController(BaseController):
                    'user': c.user or c.author}
 
         try:
-            check_access('group_delete', context, {'id': id})
+            self._check_access('group_delete', context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
 
