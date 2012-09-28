@@ -16,6 +16,13 @@ ALTER TABLE package_revision
     ADD COLUMN owner_org TEXT,
     ADD COLUMN private boolean DEFAULT FALSE;
 
+
+ALTER TABLE "group"
+    ADD COLUMN is_organization boolean DEFAULT FALSE;
+
+ALTER TABLE group_revision
+    ADD COLUMN is_organization boolean DEFAULT FALSE;
+
 COMMIT;
 
 '''

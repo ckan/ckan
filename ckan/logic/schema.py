@@ -214,6 +214,7 @@ def default_group_schema():
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
+        'is_organization': [ignore_missing],
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],

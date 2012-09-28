@@ -449,6 +449,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     user = context['user']
     session = context['session']
     parent = context.get('parent', None)
+    data_dict['is_organization'] = is_org
 
 
     # get the schema

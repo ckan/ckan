@@ -43,6 +43,7 @@ group_table = Table('group', meta.metadata,
                     Column('image_url', types.UnicodeText),
                     Column('created', types.DateTime,
                            default=datetime.datetime.now),
+                    Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
                            default=u"approved"))
 

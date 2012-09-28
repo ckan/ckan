@@ -312,10 +312,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
 
-    if is_org:
-        query = query.filter(model.GroupRevision.type=='organization')
-    else:
-        query = query.filter(model.GroupRevision.type!='organization')
+    query = query.filter(model.GroupRevision.is_organization==is_org)
 
     groups = query.all()
     group_list = model_dictize.group_list_dictize(groups, context,
