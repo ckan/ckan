@@ -239,7 +239,8 @@ def package_dictize(pkg, context):
     q = select([group, member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
-                .where(member_rev.c.state == 'active')
+                .where(member_rev.c.state == 'active') \
+                .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = d.obj_list_dictize(result, context)
     #relations
