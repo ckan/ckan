@@ -403,6 +403,31 @@ def group_list_authz(context, data_dict):
 
     return [{'id':group.id,'name':group.name} for group in groups]
 
+def organization_list_for_user(context, data_dict):
+    '''Return the list of organizations that the user is a member of.
+
+    :returns: the names of organizations that the user is authorized to edit
+    :rtype: list of strings
+
+    '''
+    model = context['model']
+    user = context['user']
+
+    _check_access('organization_list_for_user',context, data_dict)
+
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.table_id == get_user_id_for_username(user))
+    group_ids = []
+    for row in q.all():
+        group_ids.append(row.group_id)
+
+    q = model.Session.query(model.Group) \
+        .filter(model.Group.id.in_(group_ids)) \
+        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.state == 'active')
+    return [{'id':org.id,'name':org.name} for org in q.all()]
+
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
 
