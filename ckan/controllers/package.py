@@ -310,7 +310,6 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.resources_json = json.dumps(c.pkg_dict.get('resources', []))
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -1146,7 +1145,6 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = context['package']
-            c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
         except NotFound:
             abort(404, _('Resource not found'))
@@ -1280,3 +1278,21 @@ class PackageController(BaseController):
                     not k.endswith(recline_state['currentView']):
                 recline_state.pop(k)
         return recline_state
+
+    def resource_datapreview(self, id, resource_id, preview_type):
+        '''
+        Embeded page for a resource data-preview.
+        '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        return render('dataviewer/{type}.html'.format(type=preview_type))

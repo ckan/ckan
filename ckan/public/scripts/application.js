@@ -40,12 +40,12 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.Utils.setupNotesExtract();
     }
 
-    var isResourceView = $('body.package.resource_read').length > 0;
+    var isResourceView = false; //$('body.package.resource_read').length > 0;
     if (isResourceView) {
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
 
-    var isEmbededDataviewer = $('body.package.resource_embedded_dataviewer').length > 0;
+    var isEmbededDataviewer = false;//$('body.package.resource_embedded_dataviewer').length > 0;
     if (isEmbededDataviewer) {
       CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
     }
