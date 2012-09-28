@@ -61,7 +61,7 @@
         </div>
       </div>
       {% block data_preview %}
-        <div id="ckanext-datapreview" class="module-content"></div>
+        {{ h.resource_preview(c.resource, c.package.id) }}
       {% endblock %}
     </section>
   {% endblock %}
@@ -116,12 +116,3 @@
   {% endblock %}
 {% endblock %}
 
-
-{% block scripts %}
-  {{ super() }}
-  {% resource 'datapreview/datapreview' %}
-  <script>
-    var preload_resource = {{ h.literal(c.resource_json) }};
-    var embedPath = "{{ h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True) }}";
-  </script>
-{% endblock %}

@@ -10,7 +10,6 @@
 <!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
 
-{% resource g.main_css[6:] %}
   {# Allows custom attributes to be added to the <head> tag #}
   <head{% block headtag %}{% endblock %}>
     {#
@@ -70,17 +69,21 @@
       {% endblock %}
     #}
     {%- block styles %}
+      {% resource g.main_css[6:] %}
     {% endblock %}
 
     {# defined in the config.ini under "ckan.template_head_end" #}
     {% block head_extras %}
       {{ config.get('ckan.template_head_end', '') | safe }}
     {% endblock %}
-    {%- if g.site_custom_css -%}
-    <style>
-      {{ g.site_custom_css | safe }}
-    </style>
-    {%- endif %}
+
+    {%- block custom_styles %}
+      {%- if g.site_custom_css -%}
+      <style>
+        {{ g.site_custom_css | safe }}
+      </style>
+      {%- endif %}
+    {% endblock %}
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
