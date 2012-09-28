@@ -1,15 +1,15 @@
 {% import 'macros/form.html' as form %}
 
-{% set groups_available = h.groups_available() %}
-{% if groups_available %}
+{% set organizations_available = h.organizations_available() %}
+{% if organizations_available %}
   <div class="control-group">
     {% set groups = h.dict_list_reduce(data.groups, 'id') %}
-    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
+    <label for="field-organizations" class="control-label">{{ _('Add to Organization') }}</label>
     <div class="controls">
-      <select id="field-groups" name="groups__{{ groups | count }}__id" data-module="autocomplete">
-        <option value="">{{ _('Select a group...') }}</option>
-        {% for group in groups_available %}
-        <option value="{{ group.id }}" {% if group.id in groups %}selected="selected"{% endif %}>{{ group.name }}</option>
+      <select id="field-organizations" name="groups__{{ groups | count }}__id" data-module="autocomplete">
+        <option value="">{{ _('Select an organization...') }}</option>
+        {% for organization in organizations_available %}
+        <option value="{{ organization.id }}" {% if organization.id in groups %}selected="selected"{% endif %}>{{ organization.name }}</option>
         {% endfor %}
       </select>
     </div>
