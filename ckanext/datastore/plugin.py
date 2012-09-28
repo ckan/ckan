@@ -51,7 +51,7 @@ class DatastorePlugin(p.SingletonPlugin):
             # so that no harmful queries can be made
             if not ('debug' in config and config['debug']):
                 self._check_separate_db()
-                self._check_read_permissions()
+            self._check_read_permissions()
 
             self._create_alias_table()
         else:
@@ -155,7 +155,10 @@ class DatastorePlugin(p.SingletonPlugin):
                         raise
                 else:
                     log.info("Connection url {0}".format(self.read_url))
-                    raise Exception("We have write permissions on the read-only database.")
+                    if 'debug' in self.config and self.config['debug']:
+                        log.critical("We have write permissions on the read-only database.")
+                    else:
+                        raise Exception("We have write permissions on the read-only database.")
                 finally:
                     read_trans.rollback()
         except Exception:
