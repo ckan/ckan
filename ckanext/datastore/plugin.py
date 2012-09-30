@@ -75,7 +75,7 @@ class DatastorePlugin(p.SingletonPlugin):
             try:
                 connection = engine.connect()
                 result = connection.execute(
-                    'SELECT 1 FROM pg_tables WHERE tablename = %s',
+                    'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
                     new_data_dict['id']
                 ).fetchone()
                 if result:
