@@ -101,6 +101,8 @@ The JSON must be in the following form::
     indexes: # indexes on table
  }
 
+See :ref:`valid-types` for details on which types are valid.
+
 
 datastore_delete
 ~~~~~~~~~~~~~~~~
@@ -175,6 +177,24 @@ The datastore_search_htsql API endpoint allows a user to search data at a resour
  {
     htsql: # a htsql query statement.
  }
+
+.. _valid-types:
+
+Field types
+-----------
+
+The datastore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
+
+.. _documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
+
+
+ * ``text`` for arbitrary text data
+ * ``date`` date without time
+ * ``time`` time without date
+ * ``timestamp`` date and time
+ * ``int4`` for integer numbers
+ * ``float8`` for floats
+ * ``bool`` for boolean values
 
 
 Table aliases
