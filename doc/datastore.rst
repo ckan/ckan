@@ -189,13 +189,20 @@ The datastore supports all types supported by PostgreSQL as well as a few additi
 .. _documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
 
 
- * ``text`` for arbitrary text data
- * ``date`` date without time
- * ``time`` time without date
- * ``timestamp`` date and time
- * ``int4`` for integer numbers
- * ``float8`` for floats
- * ``bool`` for boolean values
+text
+    Arbitrary text data, e.g. *I'm a text*.
+date
+    Date without time, e.g *2012-5-25*
+time
+    Time without date, e.g *12:42*
+timestamp
+    Date and time, e.g *2012-10-01T02:43Z*.
+int4
+    Integer numbers, e.g *42*, *7*.
+float8
+    Floats, e.g. *1.61803*.
+bool
+    Boolen values, e.g. *true*, *0*
 
 
 Table aliases
