@@ -2,7 +2,7 @@ body {
   background-color: #fff;
 }
 
-.recline-data-explorer, #wrapper {
+.recline-data-explorer{
   position: relative;
   overflow: auto;
 }
