@@ -1157,8 +1157,9 @@ class PackageController(BaseController):
                 get_license_register()[license_id].isopen()
         except KeyError:
             c.package['isopen'] = False
-        c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
-                                    qualified=True)
+
+        # TODO: find a nicer way of doing this
+        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
