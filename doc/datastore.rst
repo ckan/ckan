@@ -3,32 +3,8 @@ DataStore and the Data API
 ==========================
 
 The CKAN DataStore provides a database for structured storage of data together
-with a powerful Web-accesible Data API, all seamlessly integrated into the CKAN
+with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
-
-Relationship to FileStore
-=========================
-
-The DataStore is distinct but complementary to the FileStore (see
-:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
-storage of whole files with no way to access or query parts of that file, the
-DataStore is like a database in which individual data elements are accessible
-and queryable. To illustrate this distinction consider storing a spreadsheet
-file like a CSV or Excel document. In the FileStore this filed would be stored
-directly. To access it you would download the file as a whole. By contrast, if
-the spreadsheet data is stored in the DataStore one would be able to access
-individual spreadsheet rows via a simple web-api as well as being able to make
-queries over the spreadsheet contents.
-
-The DataStore Data API
-======================
-
-The DataStore's Data API, which derives from the underlying data-table,
-is RESTful and JSON-based with extensive query capabilities.
-
-Each resource in a CKAN instance can have an associated DataStore 'table'. The
-basic API for accessing the DataStore is detailed below. For a detailed
-tutorial on using this API see :doc:`using-data-api`.
 
 Installation and Configuration
 ==============================
@@ -40,7 +16,7 @@ but that is no more, as it the relational database management system PostgreSQL.
 However, you should set-up a  separate database for the datastore
 and create a read-only user to make your CKAN installation save.
 
-In your config file ensure that the datastore extension is enabled::
+In your ``config`` file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
 
@@ -64,6 +40,21 @@ To test the setup you can create a new datastore, so on linux command line do::
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
 
+Relationship to FileStore
+=========================
+
+The DataStore is distinct but complementary to the FileStore (see
+:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
+storage of whole files with no way to access or query parts of that file, the
+DataStore is like a database in which individual data elements are accessible
+and queryable. To illustrate this distinction consider storing a spreadsheet
+file like a CSV or Excel document. In the FileStore this filed would be stored
+directly. To access it you would download the file as a whole. By contrast, if
+the spreadsheet data is stored in the DataStore one would be able to access
+individual spreadsheet rows via a simple web-api as well as being able to make
+queries over the spreadsheet contents.
+
+
 DataStorer: Automatically Add Data to the DataStore
 ===================================================
 
@@ -75,15 +66,25 @@ and to add it to the DataStore in the format the DataStore can handle.
 This task of automatically parsing and then adding data to the datastore is
 performed by a DataStorer, a queue process that runs asynchronously and can be
 triggered by uploads or other activities. The DataStorer is an extension and can
-be found, along with installation instructions, at:
+be found, along with installation instructions, at: https://github.com/okfn/ckanext-datastorer
 
-.. _datastorer: https://github.com/okfn/ckanext-datastorer
+
+The DataStore Data API
+======================
+
+The DataStore's Data API, which derives from the underlying data-table,
+is RESTful and JSON-based with extensive query capabilities.
+
+Each resource in a CKAN instance can have an associated DataStore 'table'. The
+basic API for accessing the DataStore is detailed below. For a detailed
+tutorial on using this API see :doc:`using-data-api`.
 
 
 API Reference
 -------------
 
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``foo, bar``, ``"foo", "bar"`` and ``foo``.
+
 
 datastore_create
 ~~~~~~~~~~~~~~~~
