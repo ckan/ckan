@@ -2,6 +2,11 @@ body {
   background-color: #fff;
 }
 
+.recline-data-explorer{
+  position: relative;
+  overflow: auto;
+}
+
 .recline-query-editor form, .recline-query-editor .text-query {
   height: 28px;
 }
@@ -56,7 +61,6 @@ body {
 
 .loading-dialog {
   width: 120px;
-
 }
 
 .loading-spinner {
