@@ -103,6 +103,7 @@ The datastore_create API endpoint allows a user to post JSON data to be stored a
 See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
 
+
 datastore_delete
 ~~~~~~~~~~~~~~~~
 
@@ -136,6 +137,8 @@ insert
 update
     Update only. Exception will occur if the key that should be updated does not exist. Requires unique key.
 
+.. _datastore_search:
+
 datastore_search
 ~~~~~~~~~~~~~~~~
 
@@ -155,6 +158,8 @@ The JSON for searching must be in the following form::
      sort: # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
  }
 
+.. _datastore_search_sql:
+
 datastore_search_sql
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -164,6 +169,8 @@ The datastore_search_sql API endpoint allows a user to search data at a resource
     sql: # a single sql select statement
  }
 
+
+.. _datastore_search_htsql:
 
 datastore_search_htsql
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -263,14 +270,14 @@ Comparison of different querying methods
 
 The datastore supports querying with the datastore_search and datastore_search_sql API endpoint. They are similar but support different features. The following list gives an overview on the different methods.
 
-==============================  =======================  =====================  ======================
-..                              datastore_search         datastore_search_sql   datastore_search_htsql
-..                                                       SQL                    HTSQL
-==============================  =======================  =====================  ======================
-**Status**                      Stable                   Stable                 Available as extension
-**Ease of use**                 Easy                     Complex                Medium
-**Flexibility**                 Low                      High                   Medium
-**Query language**              Custom (JSON)            SQL                    HTSQL
-**Connect multiple resources**  No                       Yes                    Not yet
-**Use aliases**                 Yes                      Yes                    Yes
-==============================  =======================  =====================  ======================
+==============================  =======================  ===========================  =============================
+..                              :ref:`datastore_search`  :ref:`datastore_search_sql`  :ref:`datastore_search_htsql`
+..                                                       SQL                          HTSQL
+==============================  =======================  ===========================  =============================
+**Status**                      Stable                   Stable                       Available as extension
+**Ease of use**                 Easy                     Complex                      Medium
+**Flexibility**                 Low                      High                         Medium
+**Query language**              Custom (JSON)            SQL                          HTSQL
+**Connect multiple resources**  No                       Yes                          Not yet
+**Use aliases**                 Yes                      Yes                          Yes
+==============================  =======================  ===========================  =============================
