@@ -56,7 +56,7 @@ this.ckan.module('data-viewer', function (jQuery) {
 
     // firefox caches iframes so force it to get fresh content
     _FirefoxFix: function() {
-      if(/#$/.test(this.el.src)){
+      if(/#$/.test(this.el.src)) {
         this.el.src = this.el.src.substr(0, this.src.length - 1);
       } else {
         this.el.src = this.el.src + '#';
