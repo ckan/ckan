@@ -89,9 +89,7 @@ API Reference
 datastore_create
 ~~~~~~~~~~~~~~~~
 
-The datastore_create API endpoint allows a user to post JSON data to
-be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion.
-The JSON must be in the following form::
+The datastore_create API endpoint allows a user to post JSON data to be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion. The JSON must be in the following form::
 
  {
     resource_id: resource_id, # the data is going to be stored against.
@@ -102,14 +100,13 @@ The JSON must be in the following form::
     indexes: # indexes on table
  }
 
-See :ref:`valid-types` for details on which types are valid.
+See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
 
 datastore_delete
 ~~~~~~~~~~~~~~~~
 
-The datastore_delete API endpoint allows a user to delete from a resource.
-The JSON for searching must be in the following form::
+The datastore_delete API endpoint allows a user to delete from a resource. The JSON for searching must be in the following form::
 
  {
     resource_id: resource_id # the data that is going to be deleted.
@@ -171,13 +168,64 @@ The datastore_search_sql API endpoint allows a user to search data at a resource
 datastore_search_htsql
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. note:: HTSQL is not in the core datastore and has to be installed as a plugin.
+.. note:: HTSQL is not in the core datastore and has to be installed as an extension. The extension is available on https://github.com/okfn/ckanext-htsql.
 
 The datastore_search_htsql API endpoint allows a user to search data at a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. The JSON for searching must be in the following form::
 
  {
     htsql: # a htsql query statement.
  }
+
+.. _fields:
+
+Fields
+~~~~~~
+
+Fields define the column names and the type of the data in a column. They are defined as an array of fields. One field is defined as follows::
+
+    {
+        "id": # a string which defines the column name
+        "type": # the data type for the column
+    }
+
+Field **types are optional** and will be guessed by the provided data. However, setting the types ensures that future inserts to not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
+
+Example::
+
+    [
+        {
+            "id": "foo",
+            "type": "int4"
+        },
+        {
+            "id": "bar"
+            # type is optional
+        }
+    ]
+
+.. _records:
+
+Records
+~~~~~~~
+
+Records are defined as an array of records. One record is the data to be inserted in a table and is defined as follows::
+
+    {
+        "<id>": # data to be set
+        # .. more data
+    }
+
+Example::
+
+    [
+        {
+            "foo": 100,
+            "bar": "I'm a text."
+        },
+        {
+            "foo": 42
+        }
+    ]
 
 .. _valid-types:
 
@@ -190,19 +238,19 @@ The datastore supports all types supported by PostgreSQL as well as a few additi
 
 
 text
-    Arbitrary text data, e.g. *I'm a text*.
+    Arbitrary text data, e.g. ``I'm a text``.
 date
-    Date without time, e.g *2012-5-25*
+    Date without time, e.g ``2012-5-25``
 time
-    Time without date, e.g *12:42*
+    Time without date, e.g ``12:42``
 timestamp
-    Date and time, e.g *2012-10-01T02:43Z*.
+    Date and time, e.g ``2012-10-01T02:43Z``.
 int4
-    Integer numbers, e.g *42*, *7*.
+    Integer numbers, e.g ``42``, ``7``.
 float8
-    Floats, e.g. *1.61803*.
+    Floats, e.g. ``1.61803``.
 bool
-    Boolen values, e.g. *true*, *0*
+    Boolen values, e.g. ``true``, ``0``
 
 
 Table aliases
@@ -219,10 +267,10 @@ The datastore supports querying with the datastore_search and datastore_search_s
 ..                              datastore_search         datastore_search_sql   datastore_search_htsql
 ..                                                       SQL                    HTSQL
 ==============================  =======================  =====================  ======================
-**Status**                      Stable                   Stable                 Will be available as plugin
+**Status**                      Stable                   Stable                 Available as extension
 **Ease of use**                 Easy                     Complex                Medium
 **Flexibility**                 Low                      High                   Medium
 **Query language**              Custom (JSON)            SQL                    HTSQL
-**Connect multiple resources**  No                       Yes                    Yes
+**Connect multiple resources**  No                       Yes                    Not yet
 **Use aliases**                 Yes                      Yes                    Yes
 ==============================  =======================  =====================  ======================
