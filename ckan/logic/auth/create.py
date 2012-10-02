@@ -168,10 +168,19 @@ def tag_create(context, data_dict):
 
 def group_create(context, data_dict=None):
     user = context['user']
-    print user
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and asbool(config.get('ckan.auth.user_create_groups', False)):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create groups') % user}
+
+
+def group_create(context, data_dict=None):
+    user = context['user']
     user = new_authz.get_user_id_for_username(user, allow_none=True)
 
     if user and asbool(config.get('ckan.auth.user_create_organizations', False)):
         return {'success': True}
     return {'success': False,
-            'msg': _('User %s not authorized to create groups') % str(user)}
+            'msg': _('User %s not authorized to create organizations') % user}
