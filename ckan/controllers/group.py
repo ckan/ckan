@@ -120,6 +120,12 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
+        # pass user info to context as needed to view private datasets of
+        # orgs correctly
+        if c.userobj:
+            context['user_id'] = c.userobj.id
+            context['user_is_admin'] = c.userobj.sysadmin
+
         results = self._action('group_list')(context, data_dict)
 
         c.page = Page(
