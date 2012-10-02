@@ -809,7 +809,7 @@ def search_data(context, data_dict):
             ts_query=ts_query,
             where=where_clause,
             sort=sort, limit=limit, offset=offset)
-    results = context['connection'].execute(sql_string, where_values)
+    results = context['connection'].execute(sql_string, [where_values])
 
     _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
