@@ -1,6 +1,11 @@
+from pylons import config
+from paste.deploy.converters import asbool
+
 import ckan.logic as logic
 from ckan.authz import Authorizer
 from ckan.lib.base import _
+import ckan.new_authz as new_authz
+
 
 def package_create(context, data_dict=None):
     model = context['model']
@@ -72,15 +77,6 @@ def package_relationship_create(context, data_dict):
     else:
         return {'success': True}
 
-def group_create(context, data_dict=None):
-    model = context['model']
-    user = context['user']
-
-    authorized = logic.check_access_old(model.System(), model.Action.GROUP_CREATE, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
-    else:
-        return {'success': True}
 
 def rating_create(context, data_dict):
     # No authz check in the logic function
@@ -164,3 +160,18 @@ def activity_create(context, data_dict):
 def tag_create(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}
+
+#######################################################
+
+# Update auth functions start here
+
+
+def group_create(context, data_dict=None):
+    user = context['user']
+    print user
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and asbool(config.get('ckan.auth.user_create_organizations', False)):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create groups') % str(user)}
