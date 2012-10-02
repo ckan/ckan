@@ -1708,9 +1708,6 @@ class MinifyCommand(CkanCommand):
         file, or it's some other type of file entirely) it will not be
         minifed.
 
-        If the minified version of the file already exists and is newer than
-        the source file, the file will not be minified.
-
         :param path: The path to the .js or .css file to minify
 
         '''
@@ -1725,11 +1722,6 @@ class MinifyCommand(CkanCommand):
             return
 
         path_min = fanstatic_resources.min_path(path)
-
-        if os.path.exists(path_min) and (
-                os.path.getmtime(path) < os.path.getmtime(path_min)):
-            # Minified file exists and is newer than source file.
-            return
 
         source = open(path, 'r').read()
         if path.endswith('.css'):
