@@ -12,6 +12,16 @@ import ckan.lib.fanstatic_extensions as fanstatic_extensions
 log = logging.getLogger(__name__)
 
 
+def min_path(path):
+    '''Return the .min.* filename for the given .js or .css file.
+
+    For example moo.js -> moo.min.js
+
+    '''
+    path, ext = os.path.splitext(path)
+    return path + '.min' + ext
+
+
 def create_library(name, path, depend_base=True):
     ''' Creates a fanstatic library `name` with the contents of a
     directory `path` using resource.config if found.'''
@@ -24,13 +34,6 @@ def create_library(name, path, depend_base=True):
         except AttributeError:
             res = getattr(module, '%s' % resource_name)
         return res
-
-    def min_path(path):
-        ''' return the .min filename eg moo.js -> moo.min.js '''
-        if path.endswith('.js'):
-            return path[:-3] + '.min.js'
-        if path.endswith('.css'):
-            return path[:-4] + '.min.css'
 
     def create_resource(path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''

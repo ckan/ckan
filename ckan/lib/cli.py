@@ -6,6 +6,7 @@ from pprint import pprint
 import re
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
+import ckan.lib.fanstatic_resources as fanstatic_resources
 
 import paste.script
 from paste.registry import Registry
@@ -1700,15 +1701,6 @@ class MinifyCommand(CkanCommand):
                 # Path is neither a file or a dir?
                 continue
 
-    def min_path(self, path):
-        '''Return the .min.* filename for the given .js or .css file.
-
-        For example moo.js -> moo.min.js
-
-        '''
-        path, ext = os.path.splitext(path)
-        return path + '.min' + ext
-
     def minify_file(self, path):
         '''Create the minified version of the given file.
 
@@ -1732,7 +1724,7 @@ class MinifyCommand(CkanCommand):
             # This is not a js or css file.
             return
 
-        path_min = self.min_path(path)
+        path_min = fanstatic_resources.min_path(path)
 
         if os.path.exists(path_min) and (
                 os.path.getmtime(path) < os.path.getmtime(path_min)):
