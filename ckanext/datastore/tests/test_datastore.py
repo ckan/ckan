@@ -13,6 +13,7 @@ import ckan.tests as tests
 import ckan.lib.cli as cli
 import ckanext.datastore.db as db
 
+
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
 
@@ -452,7 +453,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
                        {'id': 'characters', 'type': '_text'}],  # this is an array of strings
             'records': [{'boo%k': 'the hobbit',
                          'author': ['tolkien'], 'characters': ['Bilbo', 'Gandalf']}],
-            'indexes': ['rating']
+            'indexes': ['characters']
         }
 
         postparams = '%s=1' % json.dumps(data6)
