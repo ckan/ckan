@@ -185,14 +185,35 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return [{"id":idf, "name": name, "title": title}
                 for idf, name, title in results]
 
-    def active_packages(self, load_eager=True, with_private=False):
+    def active_packages(self, load_eager=True, with_private=False, context=None):
+        # see if an this is an organization and we have membership or are
+        # sysadmin
+        user_is_org_member = False
+        context = context or {}
+        user_is_admin = context.get('user_is_admin', False)
+        user_id = context.get('user_id')
+        if user_is_admin:
+            user_is_org_member = True
+        elif self.is_organization and user_id:
+            query = meta.Session.query(Member) \
+                    .filter(Member.state == 'active') \
+                    .filter(Member.table_name == 'user') \
+                    .filter(Member.group_id == self.id) \
+                    .filter(Member.table_id == user_id)
+            user_is_org_member = len(query.all()) != 0
+
+
         query = meta.Session.query(_package.Package).\
             filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 
-        if not with_private:
-            query = query.filter(member_table.c.capacity == 'public')
+        # orgs do not show private datasets unless the user is a member
+        if self.is_organization and not user_is_org_member:
+            query = query.filter(_package.Package.private == False)
+        # groups (not orgs) never show private datasets
+        if not self.is_organization:
+            query = query.filter(_package.Package.private == False)
 
         query = query.join(member_table, member_table.c.table_id ==
                            _package.Package.id).\
