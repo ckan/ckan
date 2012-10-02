@@ -236,11 +236,15 @@ def check_fields(context, fields):
             })
 
 
-def convert(data, type):
+def convert(data, type_name):
     if data is None:
         return None
-    if type == 'nested':
+    if type_name == 'nested':
         return json.loads(data[0])
+    # array type
+    if type_name.startswith('_'):
+        sub_type = type_name[1:]
+        return [convert(item, sub_type) for item in data]
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
