@@ -1,3 +1,12 @@
+body {
+  background-color: #fff;
+}
+
+.recline-data-explorer{
+  position: relative;
+  overflow: auto;
+}
+
 .recline-query-editor form, .recline-query-editor .text-query {
   height: 28px;
 }
@@ -36,7 +45,6 @@
   border-radius: 0 3px 3px 0;
 }
 
-
 .recline-slickgrid {
   height: 550px;
 }
@@ -51,8 +59,13 @@
   vertical-align: top;
 }
 
-#ckanext-datapreview iframe {
-  min-height: 480px;
-  border: 1px solid #ccc;
-  padding: 7px;
+.loading-dialog {
+  width: 120px;
+}
+
+.loading-spinner {
+  float: right;
+  background-image: url('../img/ajaxload-circle.gif');
+  width: 32px;
+  height: 32px;
 }

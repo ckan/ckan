@@ -13,6 +13,35 @@ from paste.script.util.logging_config import fileConfig
 #   i.e. do the imports in methods, after _load_config is called.
 #   Otherwise loggers get disabled.
 
+
+def parse_db_config(config_key='sqlalchemy.url'):
+    ''' Takes a config key for a database connection url and parses it into
+    a dictionary. Expects a url like:
+
+    'postgres://tester:pass@localhost/ckantest3'
+    '''
+    from pylons import config
+    url = config[config_key]
+    regex = [
+        '^\s*(?P<db_type>\w*)',
+        '://',
+        '(?P<db_user>[^:]*)',
+        ':?',
+        '(?P<db_pass>[^@]*)',
+        '@',
+        '(?P<db_host>[^/:]*)',
+        ':?',
+        '(?P<db_port>[^/]*)',
+        '/',
+        '(?P<db_name>[\w.-]*)'
+    ]
+    db_details_match = re.match(''.join(regex), url)
+    if not db_details_match:
+        raise Exception('Could not extract db details from url: %r' % url)
+    db_details = db_details_match.groupdict()
+    return db_details
+
+
 class MockTranslator(object):
     def gettext(self, value):
         return value
@@ -134,14 +163,7 @@ class ManageDb(CkanCommand):
             sys.exit(1)
 
     def _get_db_config(self):
-        from pylons import config
-        url = config['sqlalchemy.url']
-        # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
-        if not db_details_match:
-            raise Exception('Could not extract db details from url: %r' % url)
-        db_details = db_details_match.groupdict()
-        return db_details
+        return parse_db_config()
 
     def _get_postgres_cmd(self, command):
         self.db_details = self._get_db_config()
