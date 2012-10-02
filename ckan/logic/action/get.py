@@ -4,6 +4,7 @@ import json
 
 from pylons import config
 from pylons.i18n import _
+from pylons import c
 import sqlalchemy
 
 import ckan.authz
@@ -47,6 +48,13 @@ def _package_list_with_resources(context, package_revision_list):
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
+
+def _get_user_id_for_username(user_name):
+    ''' Helper function toget user id '''
+    # FIXME needs completing
+    if c.userobj and c.userobj.name == user_name:
+        return c.userobj.id
+    raise Exception('Not logged in user')
 
 def site_read(context,data_dict=None):
     '''Return ``True``.
@@ -417,7 +425,7 @@ def organization_list_for_user(context, data_dict):
 
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.table_id == get_user_id_for_username(user))
+        .filter(model.Member.table_id == _get_user_id_for_username(user))
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
