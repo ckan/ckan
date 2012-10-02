@@ -7,7 +7,9 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Add Organization'), controller='organization', action='new', class_='btn', icon='plus' %}</li>
+  {% if h.check_access('organization_create') %}
+    <li>{% link_for _('Add Organization'), controller='organization', action='new', class_='btn', icon='plus' %}</li>
+  {% endif %}
 {% endblock %}
 
 {% block primary_content %}
