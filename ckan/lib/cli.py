@@ -1724,13 +1724,10 @@ class MinifyCommand(CkanCommand):
         path_min = fanstatic_resources.min_path(path)
 
         source = open(path, 'r').read()
+        f = open(path_min, 'w')
         if path.endswith('.css'):
-            f = open(path_min, 'w')
             f.write(rcssmin.cssmin(source))
-            f.close()
-            print "Minified file '{0}'".format(path)
         elif path.endswith('.js'):
-            f = open(path_min, 'w')
             f.write(rjsmin.jsmin(source))
-            f.close()
-            print "Minified file '{0}'".format(path)
+        f.close()
+        print "Minified file '{0}'".format(path)
