@@ -27,6 +27,17 @@ def is_authorized(action, context,data_dict=None):
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
+
+def get_user_id_for_username(user_name, allow_none=False):
+    ''' Helper function to get user id '''
+    # first check if we have the user object already and get from there
+    if c.userobj and c.userobj.name == user_name:
+        return c.userobj.id
+    # FIXME needs completing for if we have no user in session
+    if allow_none:
+        return None
+    raise Exception('Not logged in user')
+
 def _get_auth_function(action, profile=None):
     from pylons import config
 
