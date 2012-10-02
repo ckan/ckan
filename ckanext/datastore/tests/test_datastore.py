@@ -1189,9 +1189,11 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             'aliases': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
-                       {'id': 'published'}],
+                       {'id': 'published'},
+                       {'id': u'characters', u'type': u'_text'}],
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
+                        u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a':'b'}}
                        ]
@@ -1205,20 +1207,27 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
                                  u'_id': 1,
-                                 u'nested':
-                                    [u'b', {u'moo': u'moo'}],
-                                    u'b\xfck': u'annakarenina',
-                                    u'author': u'tolstoy'},
+                                 u'nested': [u'b', {u'moo': u'moo'}],
+                                 u'b\xfck': u'annakarenina',
+                                 u'author': u'tolstoy',
+                                 u'characters': [u'Princess Anna', u'Sergius']},
                                 {u'published': None,
                                  u'_id': 2,
-                                 u'nested':
-                                    {u'a': u'b'},
-                                    u'b\xfck': u'warandpeace',
-                                    u'author': u'tolstoy'}]
+                                 u'nested': {u'a': u'b'},
+                                 u'b\xfck': u'warandpeace',
+                                 u'author': u'tolstoy',
+                                 u'characters': None}]
+
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -1230,7 +1239,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == self.expected_records
+        assert result['records'] == self.expected_records, result['records']
 
     def test_search_alias(self):
         data = {'resource_id': self.data['aliases']}
@@ -1241,7 +1250,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict_alias = json.loads(res.body)
         result = res_dict_alias['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == self.expected_records
+        assert result['records'] == self.expected_records, result['records']
 
     def test_search_invalid_field(self):
         data = {'resource_id': self.data['resource_id'],
@@ -1380,8 +1389,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
 
         results = [extract(result['records'][0],
-            [u'_id', u'author', u'b\xfck', u'nested', u'published'])]
-        assert results == [self.expected_records[0]]
+            [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters'])]
+        assert results == [self.expected_records[0]], result['records']
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -1394,7 +1403,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
         results = [extract(
                 record,
-                [u'_id', u'author', u'b\xfck', u'nested', u'published']
+                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
             ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
@@ -1420,7 +1429,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         results = [extract(
                 result['records'][0],
-                [u'_id', u'author', u'b\xfck', u'nested', u'published']
+                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
             )]
         assert results == [self.expected_records[0]], result['records']
 
