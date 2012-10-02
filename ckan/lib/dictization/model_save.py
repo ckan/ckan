@@ -216,7 +216,9 @@ def package_membership_list_save(group_dicts, package, context):
     session = context["session"]
     pending = context.get('pending')
 
-    members = session.query(model.Member).filter_by(table_id = package.id)
+    members = session.query(model.Member) \
+            .filter(model.Member.table_id == package.id) \
+            .filter(model.Member.capacity != 'organization')
 
     group_member = dict((member.group, member)
                          for member in
