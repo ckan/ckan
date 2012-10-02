@@ -1302,6 +1302,19 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         assert result['records'] == [self.expected_records[0]]
 
+    def test_search_array_filters(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {u'characters': [u'Princess Anna', u'Sergius']}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [self.expected_records[0]]
+
     def test_search_sort(self):
         data = {'resource_id': self.data['resource_id'],
                 'sort': u'b\xfck asc, author desc'}
