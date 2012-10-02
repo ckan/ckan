@@ -1004,7 +1004,9 @@ def package_owner_org_update(context, data_dict):
         pkg.owner_org = None
 
 
-    members = model.Session.query(model.Member).filter(model.Member.table_id == pkg.id).filter(model.Member.capacity == 'organization')
+    members = model.Session.query(model.Member) \
+            .filter(model.Member.table_id == pkg.id) \
+            .filter(model.Member.capacity == 'organization')
 
     need_update = True
     for member_obj in members:
