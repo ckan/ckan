@@ -126,6 +126,7 @@ def default_package_schema():
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
         'extras': default_extras_schema(),
+        'owner_org': [ignore_missing, unicode],
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
