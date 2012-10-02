@@ -4,6 +4,8 @@ import sys
 import logging
 from pprint import pprint
 import re
+import ckan.include.rjsmin as rjsmin
+import ckan.include.rcssmin as rcssmin
 
 import paste.script
 from paste.registry import Registry
@@ -1665,3 +1667,86 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         po.save(out_po)
         po.save_as_mofile(out_mo)
         print 'zh_TW has been mangled'
+
+
+class MinifyCommand(CkanCommand):
+    '''Create minified versions of the given Javascript and CSS files.
+
+    Usage:
+
+        paster minify [FILE|DIRECTORY] ...
+
+    for example:
+
+        paster minify ckan/public/base
+        paster minify ckan/public/base/css/*.css
+        paster minify ckan/public/base/css/red.css
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        for base_path in self.args:
+            if os.path.isfile(base_path):
+                self.minify_file(base_path)
+            elif os.path.isdir(base_path):
+                for root, dirs, files in os.walk(base_path):
+                    for filename in files:
+                        path = os.path.join(root, filename)
+                        self.minify_file(path)
+            else:
+                # Path is neither a file or a dir?
+                continue
+
+    def min_path(self, path):
+        '''Return the .min.* filename for the given .js or .css file.
+
+        For example moo.js -> moo.min.js
+
+        '''
+        path, ext = os.path.splitext(path)
+        return path + '.min' + ext
+
+    def minify_file(self, path):
+        '''Create the minified version of the given file.
+
+        If the file is not a .js or .css file (e.g. it's a .min.js or .min.css
+        file, or it's some other type of file entirely) it will not be
+        minifed.
+
+        If the minified version of the file already exists and is newer than
+        the source file, the file will not be minified.
+
+        :param path: The path to the .js or .css file to minify
+
+        '''
+        path_only, extension = os.path.splitext(path)
+
+        if path_only.endswith('.min'):
+            # This is already a minified file.
+            return
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        path_min = self.min_path(path)
+
+        if os.path.exists(path_min) and (
+                os.path.getmtime(path) < os.path.getmtime(path_min)):
+            # Minified file exists and is newer than source file.
+            return
+
+        source = open(path, 'r').read()
+        if path.endswith('.css'):
+            f = open(path_min, 'w')
+            f.write(rcssmin.cssmin(source))
+            f.close()
+            print "Minified file '{0}'".format(path)
+        elif path.endswith('.js'):
+            f = open(path_min, 'w')
+            f.write(rjsmin.jsmin(source))
+            f.close()
+            print "Minified file '{0}'".format(path)
