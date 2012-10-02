@@ -152,6 +152,10 @@ def package_create(context, data_dict):
     # Needed to let extensions know the package id
     model.Session.flush()
 
+    _get_action('package_owner_org_update')(context,
+                                            {'id': pkg.id,
+                                             'organization_id': pkg.owner_org})
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 

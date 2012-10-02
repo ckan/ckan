@@ -269,6 +269,10 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
+    _get_action('package_owner_org_update')(context,
+                                            {'id': pkg.id,
+                                             'organization_id': pkg.owner_org})
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
