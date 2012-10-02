@@ -27,11 +27,15 @@ this.ckan.module('user-context', function($, _) {
 			loading: false,
 			authed: false,
 			url: '',
-			template: '<div class="profile-info">{{ about }}<div class="btn-group">{{ buttons }}</div><div class="nums"><dl><dt>Followers</dt><dd>{{ followers }}</dd></dl><dl><dt>Datasets</dt><dd>{{ datasets }}</dd></dl><dl><dt>Edits</dt><dd>{{ edits }}</dd></dl></div></div>',
+			template: '<div class="profile-info">{{ about }}<div class="btn-group">{{ buttons }}</div><div class="nums"><dl><dt>{{ lang.followers }}</dt><dd>{{ followers }}</dd></dl><dl><dt>{{ lang.datasets }}</dt><dd>{{ datasets }}</dd></dl><dl><dt>{{ lang.edits }}</dt><dd>{{ edits }}</dd></dl></div></div>',
 			i18n: {
 				follow: _('Follow'),
 				unfollow: _('Unfollow'),
-				loading: _('Loading...')
+				loading: _('Loading...'),
+				followers: _('Followers'),
+				datasets: _('Datasets'),
+				edits: _('Edits'),
+				view_profile: _('View profile')
 			}
 		},
 
@@ -111,7 +115,10 @@ this.ckan.module('user-context', function($, _) {
 						.replace('{{ followers }}', user.number_of_followers)
 						.replace('{{ datasets }}', user.number_administered_packages)
 						.replace('{{ edits }}', user.number_of_edits)
-						.replace('{{ buttons }}', this._getButtons(user));
+						.replace('{{ buttons }}', this._getButtons(user))
+						.replace('{{ lang.followers }}', this.i18n('followers'))
+						.replace('{{ lang.datasets }}', this.i18n('datasets'))
+						.replace('{{ lang.edits }}', this.i18n('edits'));
 					$('.popover-title', tip).html('<a href="javascript:;" class="popover-close">&times;</a>' + user.display_name);
 					$('.popover-content', tip).html(template);
 					$('.popover-close', tip).on('click', this._onClickPopoverClose);
@@ -179,7 +186,7 @@ this.ckan.module('user-context', function($, _) {
 					html = '<a href="javascript:;" class="btn btn-success" data-module="follow" data-module-type="user" data-module-id="' + user.id + '" data-module-action="follow"><i class="icon-plus-sign"></i> ' + this.i18n('follow') + '</a>';
 				}	
 			}
-			html += '<a href="' + this.options.url + '" class="btn"><i class="icon-user"></i> View profile</a>';
+			html += '<a href="' + this.options.url + '" class="btn"><i class="icon-user"></i> ' + this.i18n('view_profile') + '</a>';
 			return html;
 		}
 	};
