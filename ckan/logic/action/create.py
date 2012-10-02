@@ -545,7 +545,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
         'object_type': 'user',
         'capacity': 'admin',
     }
-    logic.action_get('member_create')(context, member_dict)
+    logic.get_action('member_create')(context, member_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
