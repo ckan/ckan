@@ -25,10 +25,9 @@ this.ckan.module('follow', function($, _) {
 			) {
 				var client = this.sandbox.client;
 				var path = options.action + '_' + options.type;
-				var data = JSON.stringify({ id : options.id });
 				options.loading = true;
 				this.el.addClass('disabled');
-				client.action(path, data, this._onClickLoaded);
+				client.call('POST', path, { id : options.id }, this._onClickLoaded);
 			}
 			return false;
 		},

@@ -25,17 +25,23 @@
       return path;
     },
 
-    action: function(path, data, fn) {
+    call: function(type, path, data, fn) {
       var url = this.url('/api/action/' + path);
-      jQuery.ajax({
+      var options = {
         contentType: 'application/json',
         url: url,
-        data: data,
         dataType: 'json',
         processData: false,
-        type: 'POST',
         success: fn
-      });
+      };
+      if (type == 'POST') {
+        options.type = 'POST';
+        options.data = JSON.stringify(data);
+      } else {
+        options.type = 'GET';
+        options.url += data;
+      }
+      jQuery.ajax(options);
     },
 
     /* Requests a block of HTML from the snippet API endpoint. Optional
