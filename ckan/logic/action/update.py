@@ -968,3 +968,56 @@ def user_role_bulk_update(context, data_dict):
                          'domain_object': data_dict['domain_object']}
         user_role_update(context, uro_data_dict)
     return _get_action('roles_show')(context, data_dict)
+
+
+def package_owner_org_update(context, data_dict):
+    '''Update the owning organization of a dataset
+
+    :param id: the name or id of the dataset to update
+    :type id: string
+
+    :param organization_id: the name or id of the owning organization
+    :type id: string
+    '''
+    model = context['model']
+    name_or_id = data_dict.get('id')
+    organization_id = data_dict.get('organization_id')
+
+    # FIXME auth
+
+    pkg = model.Package.get(name_or_id)
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
+    if organization_id:
+        org = model.Group.get(organization_id)
+        if org is None or not org.is_organization:
+            raise NotFound(_('Organization was not found.'))
+
+        # FIXME check we are in that org
+        pkg.owner_org = org.id
+    else:
+        org = None
+        pkg.owner_org = None
+
+
+    members = model.Session.query(model.Member).filter(model.Member.table_id == pkg.id).filter(model.Member.capacity == 'organization')
+
+    need_update = True
+    for member_obj in members:
+        if member_obj.group_id == org.id:
+            need_update = False
+        else:
+            member_obj.state = 'deleted'
+            member_obj.save()
+
+    # add the organization to memeber table
+    if org and need_update:
+        member_obj = model.Member(table_id=pkg.id,
+                                  table_name='package',
+                                  group=org,
+                                  capacity='organization',
+                                  group_id=org.id,
+                                  state='active')
+        model.Session.add(member_obj)
+
+    model.Session.commit()
