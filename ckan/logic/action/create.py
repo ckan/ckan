@@ -538,6 +538,15 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict, ignore_auth=True)
 
+    # creator of group/org becomes an admin
+    member_dict = {
+        'id': group.id,
+        'object': user,
+        'object_type': 'user',
+        'capacity': 'admin',
+    }
+    logic.action_get('member_create')(context, member_dict)
+
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
