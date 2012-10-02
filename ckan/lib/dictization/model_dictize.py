@@ -244,6 +244,17 @@ def package_dictize(pkg, context):
                 .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = d.obj_list_dictize(result, context)
+    #owning organization
+    group_rev = model.group_revision_table
+    q = select([group_rev]
+               ).where(group_rev.c.id == pkg.owner_org) \
+                .where(group_rev.c.state == 'active')
+    result = _execute_with_revision(q, group_rev, context)
+    organizations = d.obj_list_dictize(result, context)
+    if organizations:
+        result_dict["organization"] = organizations[0]
+    else:
+        result_dict["organization"] = None
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
