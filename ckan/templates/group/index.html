@@ -7,7 +7,9 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Add Group'), controller='group', action='new', class_='btn', icon='plus' %}</li>
+  {% if h.check_access('group_create') %}
+    <li>{% link_for _('Add Group'), controller='group', action='new', class_='btn', icon='plus' %}</li>
+  {% endif %}
 {% endblock %}
 
 {% block primary_content %}
