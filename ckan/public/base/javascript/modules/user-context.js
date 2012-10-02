@@ -1,6 +1,27 @@
+/* User context hover/popovers
+ * These appear when someone hovers over a avatar in a activity stream to
+ * give the user more context into that particular user. It also allows for people to
+ * follow and unfollow quickly from within the popover
+ *
+ * id - The user_id of user
+ * url - The URL of the profile for that user
+ * loading - Loading sat helper
+ * authed - Is the current user authed ... if so what's their user_id
+ * template - Simple string-replace template for content of popover
+ *
+ * Examples
+ *
+ *   <a data-module="user-context" data-module-id="{user_id}">A user</a>
+ *
+ */
+
+// Global dictionary store for users
 window.user_context_dict = {};
+
 this.ckan.module('user-context', function($, _) {
 	return {
+
+		/* options object can be extended using data-module-* attributes */
 		options : {
 			id: null,
 			loading: false,
@@ -13,6 +34,11 @@ this.ckan.module('user-context', function($, _) {
 				loading: _('Loading...')
 			}
 		},
+
+		/* Initialises the module setting up elements and event listeners.
+		 *
+		 * Returns nothing.
+		 */
 		initialize: function () {
 			if (
 				this.options.id != true
@@ -30,8 +56,23 @@ this.ckan.module('user-context', function($, _) {
 				this.el.on('mouseover', this._onMouseOver);	
 			}
 		},
+
+		/* Handles the showing of the popover on hover (also hides other active popovers)
+		 *
+		 * Returns nothing.
+		 */
+		_onMouseOver: function() {
+			$('[data-module="user-context"]').popover('hide');
+			this.el.popover('show');
+			this.getUserData();
+		},
+
+		/* Get's the user data from the ckan api
+		 *
+		 * Returns nothing.
+		 */
 		getUserData: function() {
-			if (!this.loading) {
+			if (!this.options.loading) {
 				var id = this.options.id;
 				if (typeof window.user_context_dict[id] == 'undefined') {
 					var client = this.sandbox.client;
@@ -42,11 +83,11 @@ this.ckan.module('user-context', function($, _) {
 				}
 			}
 		},
-		_onMouseOver: function(e) {
-			$('[data-module="user-context"]').popover('hide');
-			this.el.popover('show');
-			this.getUserData();
-		},
+
+		/* Callback from getting the user_show from the ckan api
+		 *
+		 * Returns nothing.
+		 */
 		_onHandleUserData: function(json) {
 			this.loading = false;
 			if (json.success) {
@@ -73,7 +114,7 @@ this.ckan.module('user-context', function($, _) {
 						.replace('{{ buttons }}', this._getButtons(user));
 					$('.popover-title', tip).html('<a href="javascript:;" class="popover-close">&times;</a>' + user.display_name);
 					$('.popover-content', tip).html(template);
-					$('.popover-close', tip).on('click', this._onHandlePopoverClose);
+					$('.popover-close', tip).on('click', this._onClickPopoverClose);
 					var follow_check = $('[data-module="follow"]', tip);
 					if (follow_check.length > 0) {
 						ckan.module.initializeElement(follow_check[0]);
@@ -82,19 +123,46 @@ this.ckan.module('user-context', function($, _) {
 				window.user_context_dict[this.options.id] = json;
 			}
 		},
-		_onHandlePopoverClose: function() {
+
+		/* Handles closing the currently open popover
+		 *
+		 * Returns nothing.
+		 */
+		_onClickPopoverClose: function() {
 			this.el.popover('hide');
 		},
+
+		/* Callback from getting the number of followers for given user
+		 *
+		 * json - user dict
+		 *
+		 * Returns nothing.
+		 */
 		_onHandleUserFollowersData: function(json) {
 			var data = window.user_context_dict[this.options.id];
 			data.result.number_of_followers = json.result;
 			this._onHandleUserData(data);
 		},
+
+		/* Callback from getting whether the currently authed user is following
+		 * said user
+		 * 
+		 * json - user dict
+		 *
+		 * Returns nothing.
+		 */
 		_onHandleAmFollowingData: function(json) {
 			var data = window.user_context_dict[this.options.id];
 			data.result.am_following_user = json.result;
 			this._onHandleUserData(data);
 		},
+
+		/* Returns the HTML associated to the button controls
+		 *
+		 * user = user dict
+		 *
+		 * Returns nothing.
+		 */
 		_getButtons: function(user) {
 			var html = '';
 			if (

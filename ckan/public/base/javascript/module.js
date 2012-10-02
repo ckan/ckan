@@ -268,6 +268,16 @@ this.ckan = this.ckan || {};
     return module;
   };
 
+  /* Initializes an individual dom modules element
+   *
+   * element = DOM node you want to initialize (not jQuery collection)
+   * 
+   * Examples
+   *
+   *    ckan.module.initializeElement(jQuery('[data-module="foo"]')[0])
+   *
+   * Returns nothing
+   */
   module.initializeElement = function(element) {
     var registry = module.registry;
     var names = jQuery.trim(element.getAttribute(MODULE_PREFIX)).split(' ');

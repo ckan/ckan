@@ -25,6 +25,18 @@
       return path;
     },
 
+    /* Simple helper function for both GET's and POST's to the ckan API
+     * 
+     * type - GET or POST
+     * path - The API endpoint
+     * data - Any data you need passing to the endpoint
+     * fn - The callback function that you want the result data passed to
+     *
+     * Examples
+     *
+     *    client.call('GET', 'user_show', { id: 'some-long-id' }, function(json) { console.log(json) })
+     *
+     */
     call: function(type, path, data, fn) {
       var url = this.url('/api/action/' + path);
       var options = {

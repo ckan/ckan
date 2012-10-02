@@ -1,5 +1,19 @@
+/* Follow buttons
+ * Handles calling the API to follow the current user
+ *
+ * action - This being the action that the button should perform. Currently: "follow" or "unfollow"
+ * type - The being the type of object the user is trying to support. Currently: "user" or "group"
+ * id - id of the objec the user is trying to follow
+ * loading - State management helper
+ *
+ * Examples
+ *
+ *   <a data-module="follow" data-module-action="follow" data-module-type="user" data-module-id="{user_id}">Follow User</a>
+ *
+ */
 this.ckan.module('follow', function($, _) {
 	return {
+		/* options object can be extended using data-module-* attributes */
 		options : {
 			action: null,
 			type: null,
@@ -10,27 +24,45 @@ this.ckan.module('follow', function($, _) {
 				unfollow: _('Unfollow')
 			}
 		},
+
+		/* Initialises the module setting up elements and event listeners.
+		 *
+		 * Returns nothing.
+		 */
 		initialize: function () {
 			$.proxyAll(this, /_on/);
 			this.el.on('click', this._onClick);
 		},
-		_onClick: function(e) {
+
+		/* Handles the clicking of the follow button
+		 *
+		 * event - An event object.
+		 *
+		 * Returns nothing.
+		 */
+		_onClick: function(event) {
 			var options = this.options;
-			e.preventDefault();
 			if (
 				options.action
 				&& options.type
 				&& options.id
 				&& !options.loading
 			) {
+				event.preventDefault();
 				var client = this.sandbox.client;
 				var path = options.action + '_' + options.type;
 				options.loading = true;
 				this.el.addClass('disabled');
 				client.call('POST', path, { id : options.id }, this._onClickLoaded);
 			}
-			return false;
 		},
+
+		/* Fired after the call to the API to either follow or unfollow
+		 *
+		 * json - The return json from the follow / unfollow API call
+		 *
+		 * Returns nothing.
+		 */
 		_onClickLoaded: function(json) {
 			var options = this.options;
 			options.loading = false;
