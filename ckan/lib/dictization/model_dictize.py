@@ -32,7 +32,8 @@ def group_list_dictize(obj_list, context,
         group_dict['display_name'] = obj.display_name
 
         group_dict['packages'] = \
-                len(obj.active_packages(with_private=with_private).all())
+                len(obj.active_packages(with_private=with_private,
+                                        context=context).all())
 
         if context.get('for_view'):
             for item in plugins.PluginImplementations(
