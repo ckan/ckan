@@ -416,7 +416,7 @@ def alter_table(context, data_dict):
     new_fields = []
 
     for num, field in enumerate(supplied_fields):
-        # check to see if field definition is the same or an
+        # check to see if field definition is the same or and
         # extension of current fields
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:

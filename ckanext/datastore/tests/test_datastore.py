@@ -417,7 +417,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data5 = {
             'resource_id': resource.id,
             'aliases': 'another_alias',  # replaces aliases
-            'records': [{'book': 'warandpeace'}],
+            'records': [{'boo%k': 'warandpeace'}],
             'primary_key': ''
         }
 
@@ -442,6 +442,26 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         results = c.execute(sql)
         assert results.rowcount == 1
         self.Session.remove()
+
+        #######  insert array type
+        data6 = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'json'},
+                       {'id': 'rating', 'type': 'text'},
+                       {'id': 'characters', 'type': '_text'}],  # this is an array of strings
+            'records': [{'boo%k': 'the hobbit',
+                         'author': ['tolkien'], 'characters': ['Bilbo', 'Gandalf']}],
+            'indexes': ['rating']
+        }
+
+        postparams = '%s=1' % json.dumps(data6)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
@@ -609,7 +629,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert results.rowcount == 2
         self.Session.remove()
 
-        hhguide = u"hitchhikers guide to the galaxy"
+        hhguide = u"hitchhiker's guide to the galaxy"
 
         data = {
             'resource_id': self.data['resource_id'],
