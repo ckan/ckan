@@ -18,6 +18,7 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
+import ckan.new_authz as new_authz
 
 log = logging.getLogger('ckan.logic')
 
@@ -425,7 +426,7 @@ def organization_list_for_user(context, data_dict):
 
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.table_id == _get_user_id_for_username(user))
+        .filter(model.Member.table_id == new_authz.get_user_id_for_username(user))
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
