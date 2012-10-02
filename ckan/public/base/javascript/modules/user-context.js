@@ -74,6 +74,10 @@ this.ckan.module('user-context', function($, _) {
 					$('.popover-title', tip).html('<a href="javascript:;" class="popover-close">&times;</a>' + user.display_name);
 					$('.popover-content', tip).html(template);
 					$('.popover-close', tip).on('click', this._onHandlePopoverClose);
+					var follow_check = $('[data-module="follow"]', tip);
+					if (follow_check.length > 0) {
+						ckan.module.initializeElement(follow_check[0]);
+					}
 				}
 				window.user_context_dict[this.options.id] = json;
 			}
@@ -101,10 +105,10 @@ this.ckan.module('user-context', function($, _) {
 					if (user.am_following_user == 'disabled') {
 						html = '<a href="javascript:;" class="btn disabled">' + this.i18n('loading') + '</a>';
 					} else {
-						html = '<a href="javascript:;" class="btn btn-danger"><i class="icon-remove-sign"></i> ' + this.i18n('unfollow') + '</a>';	
+						html = '<a href="javascript:;" class="btn btn-danger" data-module="follow" data-module-type="user" data-module-id="' + user.id + '" data-module-action="unfollow"><i class="icon-remove-sign"></i> ' + this.i18n('unfollow') + '</a>';	
 					}
 				} else {
-					html = '<a href="javascript:;" class="btn btn-success"><i class="icon-plus-sign"></i> ' + this.i18n('follow') + '</a>';
+					html = '<a href="javascript:;" class="btn btn-success" data-module="follow" data-module-type="user" data-module-id="' + user.id + '" data-module-action="follow"><i class="icon-plus-sign"></i> ' + this.i18n('follow') + '</a>';
 				}	
 			}
 			html += '<a href="' + this.options.url + '" class="btn"><i class="icon-user"></i> View profile</a>';
