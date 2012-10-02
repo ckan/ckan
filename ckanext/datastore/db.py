@@ -139,6 +139,22 @@ def _cache_types(context):
         psycopg2.extras.register_composite('nested', connection.connection, True)
 
 
+def _is_valid_pg_type(context, type_name):
+    if type_name in _type_names:
+        return True
+    else:
+        connection = context['connection']
+        try:
+            connection.execute('select %s::regtype', type_name)
+        except ProgrammingError, e:
+            if 'invalid type name' in str(e) or 'does not exist' in str(e):
+                return False
+            else:
+                raise
+        else:
+            return True
+
+
 def _get_type(context, oid):
     _cache_types(context)
     return _pg_types[oid]
@@ -226,7 +242,7 @@ def json_get_values(obj, current_list=None):
 def check_fields(context, fields):
     'Check if field types are valid.'
     for field in fields:
-        if field.get('type') and not field['type'] in _type_names:
+        if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
                 'fields': ['{0} is not a valid field type'.format(field['type'])]
             })
@@ -953,7 +969,7 @@ def delete(context, data_dict):
         # check if table exists
         trans = context['connection'].begin()
         result = context['connection'].execute(
-            u'select 1 from pg_tables where tablename = %s',
+            u'SELECT 1 FROM pg_tables WHERE tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:

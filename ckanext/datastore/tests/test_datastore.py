@@ -144,7 +144,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'INVALID'},
+            'fields': [{'id': 'book', 'type': 'int['},  # this is invalid
                        {'id': 'author', 'type': 'INVALID'}]
         }
         postparams = '%s=1' % json.dumps(data)
@@ -372,7 +372,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data3 = {
             'resource_id': resource.id,
             'records': [{'boo%k': 'crime and punsihment',
-                         'author': ['dostoevsky'], 'rating': 'good'}],
+                         'author': ['dostoevsky'], 'rating': 2}],
             'indexes': ['rating']
         }
 
@@ -449,7 +449,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'json'},
-                       {'id': 'rating', 'type': 'text'},
+                       {'id': 'rating', 'type': 'int'},
                        {'id': 'characters', 'type': '_text'}],  # this is an array of strings
             'records': [{'boo%k': 'the hobbit',
                          'author': ['tolkien'], 'characters': ['Bilbo', 'Gandalf']}],
@@ -457,6 +457,27 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         }
 
         postparams = '%s=1' % json.dumps(data6)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
+
+        #######  insert type that requires additional lookup
+        data7 = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'json'},
+                       {'id': 'rating', 'type': 'int'},
+                       {'id': 'characters', 'type': '_text'},
+                       {'id': 'location', 'type': 'int[2]'}],
+            'records': [{'boo%k': 'lord of the rings',
+                         'author': ['tolkien'], 'location': [3, -42]}],
+            'indexes': ['characters']
+        }
+
+        postparams = '%s=1' % json.dumps(data7)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, expect_errors=True)
