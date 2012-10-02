@@ -239,25 +239,33 @@ Example::
 Field types
 -----------
 
-The datastore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
+The datastore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `type section of the documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
 
-.. _documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
+.. _type section of the documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
 
 
 text
     Arbitrary text data, e.g. ``I'm a text``.
+json
+    Arbitrary nested json data, e.g ``{"foo": 42, "bar": [1, 2, 3]}``.
+    Please note that this type is a custom type that is wrapped by the datastore.
 date
-    Date without time, e.g ``2012-5-25``
+    Date without time, e.g ``2012-5-25``.
 time
-    Time without date, e.g ``12:42``
+    Time without date, e.g ``12:42``.
 timestamp
     Date and time, e.g ``2012-10-01T02:43Z``.
-int4
+int
     Integer numbers, e.g ``42``, ``7``.
-float8
+float
     Floats, e.g. ``1.61803``.
 bool
     Boolen values, e.g. ``true``, ``0``
+
+
+You can find more information about the formatting of dates in the `date/time types section of the documentation`_.
+
+.. _date/time types section of the documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
 
 Table aliases
