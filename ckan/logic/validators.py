@@ -31,6 +31,11 @@ def int_validator(value, context):
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
 
+def boolean_validator(value, context):
+    if value.lower() in ['true', 'yes', 't', 'y', '1']:
+        return True
+    return False
+
 def isodate(value, context):
     if isinstance(value, datetime.datetime):
         return value
