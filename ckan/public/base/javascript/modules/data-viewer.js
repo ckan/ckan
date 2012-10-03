@@ -4,7 +4,8 @@ this.ckan.module('data-viewer', function (jQuery) {
   return {
     options: {
       timeout: 200,
-      minHeight: 400
+      minHeight: 400,
+      padding: 30
     },
 
     initialize: function () {
@@ -28,10 +29,12 @@ this.ckan.module('data-viewer', function (jQuery) {
     },
 
     _recalibrate: function() {
-      // save reference to this to use in timeout
-      var height = this.el.contents().find('body').outerHeight();
+      var height = this.el.contents().find('body').outerHeight(true);
       height = Math.max(height, this.options.minHeight);
-      this.el.css('height', height);
+      var deltaHeight = height - (this.el.height() - this.options.padding);
+      if (deltaHeight > 1 || deltaHeight < -10) {
+        this.el.css('height', height + this.options.padding);
+      }
     },
 
     // firefox caches iframes so force it to get fresh content
