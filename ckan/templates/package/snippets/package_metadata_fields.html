@@ -15,6 +15,17 @@
   </div>
 {% endif %}
 
+<div class="control-group">
+  <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+  <div class="controls">
+    <select id="field-private" name="private" data-module="autocomplete">
+      {% for option in [(true, 'Private'), (false, 'Public')] %}
+      <option value="{{ option[0] }}" {% if option[0] == data.private%}selected="selected"{% endif %}>{{ option[1] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
 {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
 {{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
