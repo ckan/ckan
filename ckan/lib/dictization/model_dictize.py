@@ -36,8 +36,11 @@ def group_list_dictize(obj_list, context,
                                         context=context).all())
 
         if context.get('for_view'):
-            for item in plugins.PluginImplementations(
-                    plugins.IGroupController):
+            if group_dict['is_organization']:
+                plugin = plugins.IOrganizationController
+            else:
+                plugin = plugins.IGroupController
+            for item in plugins.PluginImplementations(plugin):
                 group_dict = item.before_view(group_dict)
 
         result_list.append(group_dict)
@@ -335,7 +338,11 @@ def group_dictize(group, context):
     context['with_capacity'] = False
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(plugins.IGroupController):
+        if result_dict['is_organization']:
+            plugin = plugins.IOrganizationController
+        else:
+            plugin = plugins.IGroupController
+        for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
     return result_dict
