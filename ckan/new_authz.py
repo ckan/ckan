@@ -14,6 +14,8 @@ class AuthFunctions:
     _functions = {}
 
 def is_authorized(action, context,data_dict=None):
+    if context.get('ignore_auth'):
+        return {'success': True}
 
     # sysadmins can do anything
     user = context.get('user')
