@@ -1,6 +1,6 @@
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan.authz import Authorizer
-import ckan.new_authz
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object, get_related_object)
@@ -89,24 +89,24 @@ def package_relationships_list(context, data_dict):
         return {'success': True}
 
 def package_show(context, data_dict):
-    model = context['model']
-    user = context.get('user')
     package = get_package_object(context, data_dict)
-
-    authorized = logic.check_access_old(package, model.Action.READ, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    # draft state indicates package is still in the creation process
+    # so we need to check we have creation rights.
+    if package.state.startswith('draft'):
+        auth = new_authz.is_authorized('package_update',
+                                       context, data_dict)
+        authorized = auth.get('success')
     else:
-        # draft state indicates package is still in the creation process
-        # so we need to check we have creation rights.
-        if package.state.startswith('draft'):
-            auth = ckan.new_authz.is_authorized('package_update',
-                                                context, data_dict)
-            if not auth.get('success'):
-                msg = _('User %s not authorized to read package %s') \
-                        % (str(user),package.id)
-                return {'success': False, 'msg': msg}
-
+        # anyone can see a public package
+        if not package.private:
+            return {'success': True}
+        user = context.get('user')
+        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        authorized = new_authz.has_user_permission_for_group_or_org(
+            package.owner_org, user_id, 'read')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to read package %s') % (user, package.id)}
+    else:
         return {'success': True}
 
 def related_show(context, data_dict=None):
