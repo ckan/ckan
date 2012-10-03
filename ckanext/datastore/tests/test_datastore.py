@@ -601,14 +601,15 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'characters', 'type': 'json'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
+                        'characters': {'a':'b'}}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -656,7 +657,10 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'upsert',
-            'records': [{'author': 'adams', u'b\xfck': hhguide}]
+            'records': [{
+                'author': 'adams',
+                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -674,6 +678,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
+        assert records[2].characters == None
         self.Session.remove()
 
         c = self.Session.connection()
@@ -816,14 +821,15 @@ class TestDatastoreInsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'characters', 'type': 'json'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
+                        'characters': {'a':'b'}}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -843,10 +849,14 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         rebuild_all_dbs(cls.Session)
 
     def test_insert_basic(self):
+        hhguide = u"hitchhiker's guide to the galaxy"
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'insert',
-            'records': [{u'b\xfck': 'hitchhikers guide to the galaxy', 'author': 'tolstoy'}]
+            'records': [{
+                'author': 'adams',
+                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -895,15 +905,15 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'characters', 'type': 'json'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}},
-                        {u'b\xfck': 'hitchhikers guide to the galaxy', 'author': 'tolstoy'}
+                        'characters': {'a':'b'}}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -928,12 +938,14 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         assert results.rowcount == 3
         self.Session.remove()
 
-        hhguide = u"hitchhikers guide to the galaxy"
-
+        hhguide = u"hitchhiker's guide to the galaxy"
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'update',
-            'records': [{'author': 'adams', u'b\xfck': hhguide}]
+            'records': [{
+                'author': 'adams',
+                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
