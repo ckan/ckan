@@ -1,4 +1,5 @@
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan.logic.auth import get_package_object, get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
 from ckan.logic.auth.create import package_relationship_create
@@ -81,16 +82,26 @@ def package_relationship_delete(context, data_dict):
         return {'success': True}
 
 def group_delete(context, data_dict):
-    model = context['model']
-    user = context['user']
     group = get_group_object(context, data_dict)
-
-    authorized = logic.check_access_old(group, model.Action.PURGE, context)
+    user = context['user']
+    user_id = new_authz.get_user_id_for_username(user)
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user_id, 'delete')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
     else:
         return {'success': True}
 
+def organization_delete(context, data_dict):
+    group = get_group_object(context, data_dict)
+    user = context['user']
+    user_id = new_authz.get_user_id_for_username(user)
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user_id, 'delete')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (str(user),group.id)}
+    else:
+        return {'success': True}
 def revision_undelete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
