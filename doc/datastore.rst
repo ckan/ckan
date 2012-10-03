@@ -32,8 +32,8 @@ A few things have to be kept in mind
 
 To create a new database and a read-only user, use the provided paster commands after you have set the right database URLs.::
 
- paster --plugin=ckan datastore create-db SQL_SUPER_USER
- paster --plugin=ckan datastore create-read-only-user SQL_SUPER_USER
+ paster datastore create-db SQL_SUPER_USER
+ paster datastore create-read-only-user SQL_SUPER_USER
 
 To test the setup you can create a new datastore, so on linux command line do::
 
