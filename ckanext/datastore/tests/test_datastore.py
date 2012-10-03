@@ -901,6 +901,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         resource = model.Package.get('annakarenina').resources[0]
+        hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
@@ -911,7 +912,10 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'characters': {'a':'b'}}
+                        'characters': {'a':'b'}},
+                        {'author': 'adams',
+                        'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                        u'b\xfck': hhguide}
                        ]
             }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -935,7 +939,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
     def test_update_basic(self):
         c = self.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
+        assert results.rowcount == 3, results.rowcount
         self.Session.remove()
 
         hhguide = u"hitchhiker's guide to the galaxy"
