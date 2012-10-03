@@ -539,10 +539,18 @@ def upsert_data(context, data_dict):
                     'key': [u'fields "{0}" are missing but needed as key'.format(
                         ', '.join(missing_fields))]
                 })
+
+            for field in fields:
+                value = record.get(field['id'])
+                if value and field['type'].lower() == 'nested':
+                    ## a tuple with an empty second value
+                    record[field['id']] = (json.dumps(value), '')
+
             unique_values = [record[key] for key in unique_keys]
 
             used_field_names = record.keys()
             used_values = [record[field] for field in used_field_names]
+
             full_text = _to_full_text(fields, record)
 
             non_existing_filed_names = [field for field in used_field_names
