@@ -29,7 +29,8 @@ GRANT CONNECT ON DATABASE "{datastore}" TO "{readonlyuser}";
 GRANT USAGE ON SCHEMA public TO "{readonlyuser}";
 
 -- grant access to current tables and views
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{readonlyuser}";
+-- curretly disabled because ALL is not available in < PG 9.0
+-- GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{readonlyuser}";
 
 -- grant access to new tables and views by default
 ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
