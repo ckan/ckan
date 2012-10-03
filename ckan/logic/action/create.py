@@ -538,7 +538,13 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict, ignore_auth=True)
 
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    context["group"] = group
+    context["id"] = group.id
+
     # creator of group/org becomes an admin
+    # this needs to be after the repo.commit or else revisions break
     member_dict = {
         'id': group.id,
         'object': user,
@@ -547,10 +553,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(context, member_dict)
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-    context["group"] = group
-    context["id"] = group.id
     log.debug('Created object %s' % str(group.name))
     return model_dictize.group_dictize(group, context)
 
