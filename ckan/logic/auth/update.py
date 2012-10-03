@@ -106,10 +106,7 @@ def related_update(context, data_dict):
         return {'success': False, 'msg': _('Only the owner can update a related item')}
 
     # Only sysadmins can change the featured field.
-    if ('featured' in data_dict and
-        data_dict['featured'] != related.featured and
-        not Authorizer().is_sysadmin(unicode(user))):
-
+    if ('featured' in data_dict and data_dict['featured'] != related.featured):
         return {'success': False,
                 'msg': _('You must be a sysadmin to change a related item\'s '
                          'featured field.')}
@@ -145,7 +142,7 @@ def user_update(context, data_dict):
     user = context['user']
     user_obj = get_user_object(context, data_dict)
 
-    if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name) and \
+    if not (user == user_obj.name) and \
        not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj.reset_key):
         return {'success': False, 'msg': _('User %s not authorized to edit user %s') % (str(user), user_obj.id)}
 
@@ -162,34 +159,18 @@ def revision_change_state(context, data_dict):
         return {'success': True}
 
 def task_status_update(context, data_dict):
-    model = context['model']
+    # sysadmins only
     user = context['user']
-
-    if 'ignore_auth' in context and context['ignore_auth']:
-        return {'success': True}
-
-    authorized =  Authorizer().is_sysadmin(unicode(user))
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to update task_status table') % str(user)}
-    else:
-        return {'success': True}
+    return {'success': False, 'msg': _('User %s not authorized to update task_status table') % user}
 
 def vocabulary_update(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def term_translation_update(context, data_dict):
-
+    # sysadmins only
     user = context['user']
-
-    if 'ignore_auth' in context and context['ignore_auth']:
-        return {'success': True}
-
-    authorized =  Authorizer().is_sysadmin(unicode(user))
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % str(user)}
-    else:
-        return {'success': True}
+    return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % user}
 
 ## Modifications for rest api
 
