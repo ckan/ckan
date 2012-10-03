@@ -18,8 +18,6 @@ this.ckan.module('data-viewer', function (jQuery) {
       var loc = $('body').data('site-root');
       // see if page is in part of the same domain
       if (this.el.attr('src').substring(0, loc.length) === loc) {
-        // hide the scrollbar to prevent jumping
-        $('<style>body{overflow:hidden}</style>').appendTo(this.el.contents().find('body'));
         this._recalibrate();
         setInterval(function() {
           self._recalibrate();
