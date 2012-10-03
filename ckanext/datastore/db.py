@@ -546,20 +546,24 @@ def upsert_data(context, data_dict):
                     ## a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
-            unique_values = [record[key] for key in unique_keys]
-
-            used_field_names = record.keys()
-            used_values = [record[field] for field in used_field_names]
-
-            full_text = _to_full_text(fields, record)
-
-            non_existing_filed_names = [field for field in used_field_names
+            non_existing_filed_names = [field for field in record.keys()
                 if field not in field_names]
             if non_existing_filed_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
                         ', '.join(missing_fields))]
                 })
+
+            unique_values = [record[key] for key in unique_keys]
+
+            used_fields = [field for field in fields
+                                    if field['id'] in record.keys()]
+
+            used_field_names = _pluck('id', used_fields)
+
+            used_values = [record[field] for field in used_field_names]
+
+            full_text = _to_full_text(fields, record)
 
             if method == UPDATE:
                 sql_string = u'''
@@ -594,7 +598,7 @@ def upsert_data(context, data_dict):
                 '''.format(
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
-                    values=u', '.join(['%s' for _ in used_field_names]),
+                    values=u', '.join(['%s::nested' if field['type'] == 'nested' else '%s' for field in used_fields]),
                     primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )

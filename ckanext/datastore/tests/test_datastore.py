@@ -678,7 +678,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
-        assert records[2].characters == None
+        assert json.loads(records[2].characters.json) == {'main': 'Arthur Dent', 'other': 'Marvin'}
         self.Session.remove()
 
         c = self.Session.connection()
@@ -915,8 +915,7 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
                         'characters': {'a':'b'}},
                         {'author': 'adams',
                         'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
-                        u'b\xfck': hhguide}
-                       ]
+                        u'b\xfck': hhguide}]
             }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
