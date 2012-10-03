@@ -51,6 +51,13 @@ def group_list_authz(context, data_dict):
 def group_list_available(context, data_dict):
     return group_list(context, data_dict)
 
+def organization_list(context, data_dict):
+    # List of all active organizations are visible by default
+    return {'success': True}
+
+def organization_list_for_user(context, data_dict):
+    return {'success': True}
+
 def licence_list(context, data_dict):
     # Licences list is visible by default
     return {'success': True}
