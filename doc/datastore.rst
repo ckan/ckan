@@ -35,9 +35,15 @@ To create a new database and a read-only user, use the provided paster commands 
  paster --plugin=ckan datastore create-db SQL_SUPER_USER
  paster --plugin=ckan datastore create-read-only-user SQL_SUPER_USER
 
-To test the setup you can create a new datastore, so on linux command line do::
+To test the setup you can create a new datastore, to do so you can run the following command::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
+
+A table named after the resource id should have been created on your datastore
+database, and visiting this URL should return a response from the datastore with
+the previous records::
+
+ http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
 
 
 Relationship to FileStore
