@@ -1,30 +1,34 @@
 {% import 'macros/form.html' as form %}
 
-{% set organizations_available = h.organizations_available() %}
-{% if organizations_available %}
+{% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') %}
+  {% set organizations_available = h.organizations_available() %}
+  {% if organizations_available %}
+    <div class="control-group">
+      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <div class="controls">
+        <select id="field-organizations" name="owner_org" data-module="autocomplete">
+          <option value="">{{ _('Select an organization...') }}</option>
+          {% for organization in organizations_available %}
+          <option value="{{ organization.id }}" {% if organization.id == data.owner_org%}selected="selected"{% endif %}>{{ organization.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% if data.owner_org %}
   <div class="control-group">
-    <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+    <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
     <div class="controls">
-      <select id="field-organizations" name="owner_org" data-module="autocomplete">
-        <option value="">{{ _('Select an organization...') }}</option>
-        {% for organization in organizations_available %}
-        <option value="{{ organization.id }}" {% if organization.id == data.owner_org%}selected="selected"{% endif %}>{{ organization.name }}</option>
+      <select id="field-private" name="private" data-module="autocomplete">
+        {% for option in [(true, 'Private'), (false, 'Public')] %}
+        <option value="{{ option[0] }}" {% if option[0] == data.private%}selected="selected"{% endif %}>{{ option[1] }}</option>
         {% endfor %}
       </select>
     </div>
   </div>
 {% endif %}
-
-<div class="control-group">
-  <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-  <div class="controls">
-    <select id="field-private" name="private" data-module="autocomplete">
-      {% for option in [(true, 'Private'), (false, 'Public')] %}
-      <option value="{{ option[0] }}" {% if option[0] == data.private%}selected="selected"{% endif %}>{{ option[1] }}</option>
-      {% endfor %}
-    </select>
-  </div>
-</div>
 
 {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
