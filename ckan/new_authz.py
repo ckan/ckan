@@ -5,6 +5,7 @@ from ckan.plugins import implements, SingletonPlugin
 from ckan.plugins import IAuthFunctions
 from ckan.plugins import PluginImplementations
 from ckan.lib.base import _
+import ckan.model as model
 
 log = getLogger(__name__)
 
@@ -29,6 +30,29 @@ def is_authorized(action, context,data_dict=None):
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
+# these are the premissions that roles have
+ROLE_PERMISSIONS = {
+    'admin': ['admin'],
+    'editor': ['read'],
+    'member': [''],
+}
+
+def has_user_permission_for_group_or_org(group_id, user_id, permission):
+    ''' Check if the user has the given permission for the group '''
+    if not user_id:
+        return False
+    # get any roles the user has for the group
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.group_id == group_id) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.table_id == user_id)
+    # see if any role has the required permission
+    # admin permission allows anything for the group
+    for row in q.all():
+        perms = ROLE_PERMISSIONS.get(row.capacity, [])
+        if 'admin' in perms or permission in perms:
+            return True
+    return False
 
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
