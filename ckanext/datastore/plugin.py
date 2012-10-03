@@ -37,7 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
         import sys
-        if sys.argv[0].split('/')[-1] == 'paster' and sys.argv[1] == "datastore":
+        if sys.argv[0].split('/')[-1] == 'paster' and "datastore" in [sys.argv[1], sys.argv[2]]:
             log.warn("Omitting permission checks because you are "
                         "running paster commands.")
             return
