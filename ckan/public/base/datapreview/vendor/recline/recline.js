@@ -93,11 +93,8 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
 
   var CKAN_TYPES_MAP = {
     'int4': 'integer',
-    'int8': 'integer',
     'float8': 'float',
-    'text': 'string',
-    'json': 'object',
-    'timestamp': 'date'
+    'text': 'string'
   };
 
 }(jQuery, this.recline.Backend.Ckan));
@@ -1035,20 +1032,23 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
     this._applyFreeTextQuery = function(results, queryObj) {
       if (queryObj.q) {
         var terms = queryObj.q.split(' ');
+        var patterns=_.map(terms, function(term) {
+          return new RegExp(term.toLowerCase());;
+          });
         results = _.filter(results, function(rawdoc) {
           var matches = true;
-          _.each(terms, function(term) {
+          _.each(patterns, function(pattern) {
             var foundmatch = false;
             _.each(self.fields, function(field) {
               var value = rawdoc[field.id];
-              if (value !== null) { 
+              if ((value !== null) && (value !== undefined)) { 
                 value = value.toString();
               } else {
                 // value can be null (apparently in some cases)
                 value = '';
               }
               // TODO regexes?
-              foundmatch = foundmatch || (value.toLowerCase() === term.toLowerCase());
+              foundmatch = foundmatch || (pattern.test(value.toLowerCase()));
               // TODO: early out (once we are true should break to spare unnecessary testing)
               // if (foundmatch) return true;
             });
@@ -2521,11 +2521,21 @@ my.Map = Backbone.View.extend({
         geomField: null,
         lonField: null,
         latField: null,
-        autoZoom: true
+        autoZoom: true,
+        cluster: false
       },
       options.state
     );
     this.state = new recline.Model.ObjectState(stateData);
+
+    this._clusterOptions = {
+      zoomToBoundsOnClick: true,
+      //disableClusteringAtZoom: 10,
+      maxClusterRadius: 80,
+      singleMarkerMode: false,
+      skipDuplicateAddTesting: true,
+      animateAddingMarkers: false
+    };
 
     // Listen to changes in the fields
     this.model.fields.bind('change', function() {
@@ -2550,6 +2560,9 @@ my.Map = Backbone.View.extend({
       self.state.set(self.menu.state.toJSON());
       self.redraw();
     });
+    this.state.bind('change', function() {
+      self.redraw();
+    });
     this.elSidebar = this.menu.el;
   },
 
@@ -2561,7 +2574,7 @@ my.Map = Backbone.View.extend({
   // ### infobox
   //
   // Function to create infoboxes used in popups. The default behaviour is very simple and just lists all attributes.
-  // 
+  //
   // Users should override this function to customize behaviour i.e.
   //
   //     view = new View({...});
@@ -2614,20 +2627,45 @@ my.Map = Backbone.View.extend({
     }
 
     if (this._geomReady() && this.mapReady){
-      if (action == 'reset' || action == 'refresh'){
+      // removing ad re-adding the layer enables faster bulk loading
+      this.map.removeLayer(this.features);
+      this.map.removeLayer(this.markers);
+
+      var countBefore = 0;
+      this.features.eachLayer(function(){countBefore++;});
+
+      if (action == 'refresh' || action == 'reset') {
         this.features.clearLayers();
+        // recreate cluster group because of issues with clearLayer
+        this.map.removeLayer(this.markers);
+        this.markers = new L.MarkerClusterGroup(this._clusterOptions);
         this._add(this.model.records.models);
       } else if (action == 'add' && doc){
         this._add(doc);
       } else if (action == 'remove' && doc){
         this._remove(doc);
       }
+
+      // enable clustering if there is a large number of markers
+      var countAfter = 0;
+      this.features.eachLayer(function(){countAfter++;});
+      var sizeIncreased = countAfter - countBefore > 0;
+      if (!this.state.get('cluster') && countAfter > 64 && sizeIncreased) {
+        this.state.set({cluster: true});
+        return;
+      }
+
       if (this.state.get('autoZoom')){
         if (this.visible){
           this._zoomToFeatures();
         } else {
           this._zoomPending = true;
         }
+      }
+      if (this.state.get('cluster')) {
+        this.map.addLayer(this.markers);
+      } else {
+        this.map.addLayer(this.features);
       }
     }
   },
@@ -2684,10 +2722,6 @@ my.Map = Backbone.View.extend({
 
         try {
           self.features.addData(feature);
-
-          if (feature.properties && feature.properties.popupContent) {
-            self.features.bindPopup(feature.properties.popupContent);
-          }
         } catch (except) {
           wrongSoFar += 1;
           var msg = 'Wrong geometry value';
@@ -2706,7 +2740,7 @@ my.Map = Backbone.View.extend({
     });
   },
 
-  // Private: Remove one or n features to the map
+  // Private: Remove one or n features from the map
   //
   _remove: function(docs){
 
@@ -2815,7 +2849,7 @@ my.Map = Backbone.View.extend({
   //
   _zoomToFeatures: function(){
     var bounds = this.features.getBounds();
-    if (bounds.getNorthEast()){
+    if (bounds && bounds.getNorthEast() && bounds.getSouthWest()){
       this.map.fitBounds(bounds);
     } else {
       this.map.setView([0, 0], 2);
@@ -2828,6 +2862,7 @@ my.Map = Backbone.View.extend({
   // on [OpenStreetMap](http://openstreetmap.org).
   //
   _setupMap: function(){
+    var self = this;
     this.map = new L.Map(this.$map.get(0));
 
     var mapUrl = "http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png";
@@ -2835,8 +2870,16 @@ my.Map = Backbone.View.extend({
     var bg = new L.TileLayer(mapUrl, {maxZoom: 18, attribution: osmAttribution ,subdomains: '1234'});
     this.map.addLayer(bg);
 
-    this.features = new L.GeoJSON();
-    this.map.addLayer(this.features);
+    this.markers = new L.MarkerClusterGroup(this._clusterOptions);
+
+    this.features = new L.GeoJSON(null,{
+        pointToLayer: function (feature, latlng) {
+          var marker = new L.marker(latlng);
+          marker.bindPopup(feature.properties.popupContent);
+          self.markers.addLayer(marker);
+          return marker;
+        }
+    });
 
     this.map.setView([0, 0], 2);
 
@@ -2909,19 +2952,23 @@ my.MapMenu = Backbone.View.extend({
       </div> \
       <div class="editor-options" > \
         <label class="checkbox"> \
-          <input type="checkbox" id="editor-auto-zoom" checked="checked" /> \
+          <input type="checkbox" id="editor-auto-zoom" value="autozoom" checked="checked" /> \
           Auto zoom to features</label> \
+        <label class="checkbox"> \
+          <input type="checkbox" id="editor-cluster" value="cluster"/> \
+          Cluster markers</label> \
       </div> \
       <input type="hidden" class="editor-id" value="map-1" /> \
       </div> \
     </form> \
-',
+  ',
 
   // Define here events for UI elements
   events: {
     'click .editor-update-map': 'onEditorSubmit',
     'change .editor-field-type': 'onFieldTypeChange',
-    'click #editor-auto-zoom': 'onAutoZoomChange'
+    'click #editor-auto-zoom': 'onAutoZoomChange',
+    'click #editor-cluster': 'onClusteringChange'
   },
 
   initialize: function(options) {
@@ -2954,9 +3001,13 @@ my.MapMenu = Backbone.View.extend({
     }
     if (this.state.get('autoZoom')) {
       this.el.find('#editor-auto-zoom').attr('checked', 'checked');
-    }
-    else {
+    } else {
       this.el.find('#editor-auto-zoom').removeAttr('checked');
+    }
+    if (this.state.get('cluster')) {
+      this.el.find('#editor-cluster').attr('checked', 'checked');
+    } else {
+      this.el.find('#editor-cluster').removeAttr('checked');
     }
     return this;
   },
@@ -3006,6 +3057,10 @@ my.MapMenu = Backbone.View.extend({
 
   onAutoZoomChange: function(e){
     this.state.set({autoZoom: !this.state.get('autoZoom')});
+  },
+
+  onClusteringChange: function(e){
+    this.state.set({cluster: !this.state.get('cluster')});
   },
 
   // Private: Helper function to select an option from a select list
