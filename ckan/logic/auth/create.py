@@ -77,6 +77,24 @@ def package_relationship_create(context, data_dict):
     else:
         return {'success': True}
 
+def group_create(context, data_dict=None):
+    user = context['user']
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and asbool(config.get('ckan.auth.user_create_groups', False)):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create groups') % user}
+
+
+def organization_create(context, data_dict=None):
+    user = context['user']
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and asbool(config.get('ckan.auth.user_create_organizations', False)):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create organizations') % user}
 
 def rating_create(context, data_dict):
     # No authz check in the logic function
@@ -160,27 +178,3 @@ def activity_create(context, data_dict):
 def tag_create(context, data_dict):
     user = context['user']
     return {'success': Authorizer.is_sysadmin(user)}
-
-#######################################################
-
-# Update auth functions start here
-
-
-def group_create(context, data_dict=None):
-    user = context['user']
-    user = new_authz.get_user_id_for_username(user, allow_none=True)
-
-    if user and asbool(config.get('ckan.auth.user_create_groups', False)):
-        return {'success': True}
-    return {'success': False,
-            'msg': _('User %s not authorized to create groups') % user}
-
-
-def organization_create(context, data_dict=None):
-    user = context['user']
-    user = new_authz.get_user_id_for_username(user, allow_none=True)
-
-    if user and asbool(config.get('ckan.auth.user_create_organizations', False)):
-        return {'success': True}
-    return {'success': False,
-            'msg': _('User %s not authorized to create organizations') % user}
