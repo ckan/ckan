@@ -6,6 +6,7 @@ import ckan.lib.app_globals as app_globals
 import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
+import ckan.logic
 
 from ckan.model.authz import Role
 roles = Role.get_all()
@@ -17,14 +18,16 @@ request = base.request
 _ = base._
 
 def get_sysadmins():
-    q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
-    return [uor.user for uor in q.all() if uor.user]
+    q = model.Session.query(model.User).filter(model.User.sysadmin==True)
+    return q.all()
 
 
 class AdminController(base.BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
-        if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
+        context = {'model': model,
+                   'user': c.user}
+        if not ckan.logic.check_access('sysadmin', context, {}):
             base.abort(401, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = (
             c.user and self.authorizer.is_authorized(c.user,
