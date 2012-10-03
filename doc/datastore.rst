@@ -6,6 +6,8 @@ The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
+.. note:: The DataStore requires PostgreSQL 9.0 or later.
+
 Installation and Configuration
 ==============================
 
