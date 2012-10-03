@@ -145,7 +145,11 @@ class PackageSearchIndex(SearchIndex):
         # add groups
         groups = pkg_dict.pop('groups', [])
 
-        pkg_dict['capacity'] = 'public'
+        # we use the capacity to make things private in the search index
+        if pkg_dict['private']:
+            pkg_dict['capacity'] = 'private'
+        else:
+            pkg_dict['capacity'] = 'public'
 
         pkg_dict['groups'] = [group['name'] for group in groups]
 
