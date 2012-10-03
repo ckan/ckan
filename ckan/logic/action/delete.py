@@ -187,7 +187,7 @@ def member_delete(context, data_dict=None):
         member.delete()
         model.repo.commit()
 
-def group_delete(context, data_dict):
+def _group_or_org_delete(context, data_dict, is_org):
     '''Delete a group.
 
     You must be authorized to delete the group.
@@ -207,7 +207,15 @@ def group_delete(context, data_dict):
 
     revisioned_details = 'Group: %s' % group.name
 
-    _check_access('group_delete', context, data_dict)
+    if is_org:
+        _check_access('organization_delete', context, data_dict)
+    else:
+        _check_access('group_delete', context, data_dict)
+
+    # organization delete will delete all datasets for that org
+    if is_org:
+        for pkg in group.active_packages().all():
+            _get_action('package_delete')(context, {id: pkg.id})
 
     rev = model.repo.new_revision()
     rev.author = user
@@ -223,6 +231,28 @@ def group_delete(context, data_dict):
         item.delete(group)
 
     model.repo.commit()
+
+def group_delete(context, data_dict):
+    '''Delete a group.
+
+    You must be authorized to delete the group.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict)
+
+def organization_delete(context, data_dict):
+    '''Delete a organization.
+
+    You must be authorized to delete the organization.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict, is_org=True)
 
 def task_status_delete(context, data_dict):
     '''Delete a task status.
