@@ -1,4 +1,5 @@
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan.logic.auth import (get_package_object, get_resource_object,
                             get_group_object, get_user_object,
                             get_resource_object, get_related_object)
@@ -72,13 +73,24 @@ def package_edit_permissions(context, data_dict):
         return {'success': True}
 
 def group_update(context, data_dict):
-    model = context['model']
-    user = context['user']
     group = get_group_object(context, data_dict)
-
-    authorized = logic.check_access_old(group, model.Action.EDIT, context)
+    user = context['user']
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user_id, 'update')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
+    else:
+        return {'success': True}
+
+def organization_update(context, data_dict):
+    group = get_group_object(context, data_dict)
+    user = context['user']
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user_id, 'update')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to edit organization %s') % (user, group.id)}
     else:
         return {'success': True}
 
