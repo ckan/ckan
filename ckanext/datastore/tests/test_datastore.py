@@ -601,13 +601,14 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
-                       {'id': 'characters', 'type': 'json'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'characters': {'a':'b'}}
+                        'nested': {'a':'b'}}
                        ]
             }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -659,7 +660,9 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
             'method': 'upsert',
             'records': [{
                 'author': 'adams',
-                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                'nested': {'a': 2, 'b': {'c': 'd'}},
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'foo': 'bar'},
                 u'b\xfck': hhguide}]
         }
 
@@ -678,7 +681,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
-        assert json.loads(records[2].characters.json) == {'main': 'Arthur Dent', 'other': 'Marvin'}
+        assert records[2].characters == ['Arthur Dent', 'Marvin']
+        assert json.loads(records[2].nested.json) == {'foo': 'bar'}
         self.Session.remove()
 
         c = self.Session.connection()
@@ -821,13 +825,14 @@ class TestDatastoreInsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
-                       {'id': 'characters', 'type': 'json'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'characters': {'a':'b'}}
+                        'nested': {'a':'b'}}
                        ]
             }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -855,7 +860,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
             'method': 'insert',
             'records': [{
                 'author': 'adams',
-                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'foo': 'bar', 'baz': 3},
                 u'b\xfck': hhguide}]
         }
 
@@ -906,16 +912,19 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
-                       {'id': 'characters', 'type': 'json'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'characters': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'characters': {'a':'b'}},
+                        'nested': {'a':'b'}},
                         {'author': 'adams',
-                        'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
-                        u'b\xfck': hhguide}]
+                        'characters': ['Arthur Dent', 'Marvin'],
+                        'nested': {'foo': 'bar'},
+                        u'b\xfck': hhguide}
+                       ]
             }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
@@ -947,7 +956,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
             'method': 'update',
             'records': [{
                 'author': 'adams',
-                'characters': {'main': 'Arthur Dent', 'other': 'Marvin'},
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'baz': 3},
                 u'b\xfck': hhguide}]
         }
 
