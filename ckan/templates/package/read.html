@@ -79,6 +79,12 @@
     {% endif %}
   {% endblock %}
 
+  {% block package_private %}
+    {% if pkg.private %}
+      {% snippet "snippets/private.html" %}
+    {% endif %}
+  {% endblock %}
+
   {% block package_groups %}
     {% for group in pkg.groups %}
       {% snippet "snippets/group.html", group=group, truncate=70 %}
