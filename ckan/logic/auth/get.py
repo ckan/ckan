@@ -6,6 +6,11 @@ from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object, get_related_object)
 
 
+def sysadmin(context, data_dict):
+    ''' This is a pseudo check if we are a sysadmin all checks are true '''
+    return {'success': False, 'msg': _('Not authorized')}
+
+
 def site_read(context, data_dict):
     """\
     This function should be deprecated. It is only here because we couldn't
