@@ -32,9 +32,7 @@ def related_create(context, data_dict=None):
     userobj = model.User.get( user )
 
     if userobj:
-        if (data_dict.get('featured', 0) != 0 and
-            not Authorizer().is_sysadmin(unicode(user))):
-
+        if data_dict.get('featured', 0) != 0:
             return {'success': False,
                     'msg': _('You must be a sysadmin to create a featured '
                              'related item')}
@@ -168,13 +166,13 @@ def group_create_rest(context, data_dict):
     return group_create(context, data_dict)
 
 def vocabulary_create(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def activity_create(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def tag_create(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
