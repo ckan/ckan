@@ -1225,6 +1225,21 @@ def organizations_available():
                'user': c.user}
     return logic.get_action('organization_list_for_user')(context, {})
 
+def user_in_org_or_group(group_id):
+    ''' Check if user is in a group or organization '''
+    # we need a user
+    if not c.userobj:
+        return False
+    # sysadmins can do anything
+    if c.userobj.sysadmin:
+        return True
+    query = model.Session.query(model.Member) \
+            .filter(model.Member.state == 'active') \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.group_id == group_id) \
+            .filter(model.Member.table_id == c.userobj.id)
+    return len(query.all()) != 0
+
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
 
@@ -1386,6 +1401,7 @@ __allowed_functions__ = [
            'add_url_param',
            'groups_available',
            'organizations_available',
+           'user_in_org_or_group',
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
