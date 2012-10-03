@@ -140,15 +140,12 @@ def revision_show(context, data_dict):
     return {'success': True}
 
 def group_show(context, data_dict):
-    model = context['model']
-    user = context.get('user')
-    group = get_group_object(context, data_dict)
+    # anyone can see a group
+    return {'success': True}
 
-    authorized =  logic.check_access_old(group, model.Action.READ, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read group %s') % (str(user),group.id)}
-    else:
-        return {'success': True}
+def organization_show(context, data_dict):
+    # anyone can see a organization
+    return {'success': True}
 
 def tag_show(context, data_dict):
     # No authz check in the logic function
