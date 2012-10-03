@@ -666,24 +666,24 @@ def _where(field_ids, data_dict):
 
     # add full-text search where clause
     if data_dict.get('q'):
-        where_clauses.append('_full_text @@ query')
+        where_clauses.append(u'_full_text @@ query')
 
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = u' AND '.join(where_clauses)
     if where_clause:
-        where_clause = 'WHERE ' + where_clause
+        where_clause = u'WHERE ' + where_clause
     return where_clause, values
 
 
 def _textsearch_query(data_dict):
     q = data_dict.get('q')
-    lang = data_dict.get('language', 'english')
+    lang = data_dict.get(u'language', u'english')
     if q:
         if (_get_bool(data_dict.get('plain'), True)):
-            statement = ", plainto_tsquery('{lang}', '{query}') query"
+            statement = u", plainto_tsquery('{lang}', '{query}') query"
         else:
-            statement = ", to_tsquery('{lang}', '{query}') query"
+            statement = u", to_tsquery('{lang}', '{query}') query"
 
-        rank_column = ', ts_rank(_full_text, query, 32) AS rank'
+        rank_column = u', ts_rank(_full_text, query, 32) AS rank'
         return statement.format(lang=lang, query=q), rank_column
     return '', ''
 
@@ -692,9 +692,9 @@ def _sort(context, data_dict, field_ids):
     sort = data_dict.get('sort')
     if not sort:
         if data_dict.get('q'):
-            return 'ORDER BY rank'
+            return u'ORDER BY rank'
         else:
-            return ''
+            return u''
 
     clauses = _get_list(sort, False)
 
