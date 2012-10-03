@@ -140,7 +140,7 @@ class _Globals(object):
 
     def _init(self):
         self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
-        facets = config.get('search.facets', 'groups tags res_format license')
+        facets = config.get('search.facets', 'groups tags res_format license capacity')
         self.facets = facets.split()
 
         # has been setup in load_environment():

@@ -36,6 +36,10 @@
     </ul>
   </section>
 
+  {% if h.user_in_org_or_group(c.group_dict.id) %}
+    {{ h.snippet('snippets/facet_list.html', title='Visibility', name='capacity', extras={'id':c.group_dict.id}) }}
+  {% endif %}
+
   {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
   {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}
