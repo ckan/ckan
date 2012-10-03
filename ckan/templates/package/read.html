@@ -85,11 +85,13 @@
     {% endif %}
   {% endblock %}
 
-  {% block package_groups %}
-    {% for group in pkg.groups %}
-      {% snippet "snippets/group.html", group=group, truncate=70 %}
-    {% endfor %}
-  {% endblock %}
+  {% if not pkg.private %}
+    {% block package_groups %}
+      {% for group in pkg.groups %}
+        {% snippet "snippets/group.html", group=group, truncate=70 %}
+      {% endfor %}
+    {% endblock %}
+  {% endif %}
 
   {% block package_social %}
     {% snippet "snippets/social.html" %}
