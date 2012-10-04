@@ -274,7 +274,6 @@ html[dir='rtl'] #toolbarViewerRight {
 
 html[dir='ltr'] #toolbarViewerLeft,
 html[dir='rtl'] #toolbarViewerRight {
-  position: absolute;
   top: 0;
   left: 0;
 }
