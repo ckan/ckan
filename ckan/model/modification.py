@@ -3,6 +3,7 @@ import logging
 import ckan.plugins as plugins
 import extension
 import domain_object
+import group
 import package as _package
 import resource
 
@@ -33,13 +34,13 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.Obser
         deleted = obj_cache['deleted']
 
         for obj in set(new):
-            if isinstance(obj, (_package.Package, resource.Resource)):
+            if isinstance(obj, (_package.Package, resource.Resource, group.Group)):
                 self.notify(obj, domain_object.DomainObjectOperation.new)
         for obj in set(deleted):
-            if isinstance(obj, (_package.Package, resource.Resource)):
+            if isinstance(obj, (_package.Package, resource.Resource, group.Group)):
                 self.notify(obj, domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
-            if isinstance(obj, resource.Resource):
+            if isinstance(obj, (resource.Resource, group.Group)):
                 self.notify(obj, domain_object.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):

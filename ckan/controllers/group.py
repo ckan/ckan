@@ -340,15 +340,6 @@ class GroupController(BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
 
-    def _force_reindex(self, grp):
-        ''' When the group name has changed, we need to force a reindex
-        of the datasets within the group, otherwise they will stop
-        appearing on the read page for the group (as they're connected via
-        the group name)'''
-        group = model.Group.get(grp['name'])
-        for dataset in group.active_packages().all():
-            search.rebuild(dataset.name)
-
     def _save_edit(self, id, context):
         try:
             data_dict = clean_dict(unflatten(
@@ -357,9 +348,6 @@ class GroupController(BaseController):
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = get_action('group_update')(context, data_dict)
-
-            if id != group['name']:
-                self._force_reindex(group)
 
             h.redirect_to('%s_read' % str(group['type']), id=group['name'])
         except NotAuthorized:

@@ -115,6 +115,19 @@ class SynchronousSearchPlugin(SingletonPlugin):
     implements(IDomainObjectModification, inherit=True)
 
     def notify(self, entity, operation):
+
+        if (isinstance(entity, model.Group) and
+                operation == domain_object.DomainObjectOperation.changed):
+            if 'name' in entity.diff():
+                for dataset in entity.active_packages().all():
+                    dispatch_by_operation(
+                            dataset.__class__.__name__,
+                            get_action('package_show')(
+                                {'model': model, 'ignore_auth': True, 'validate': False},
+                                {'id': dataset.id}),
+                            operation
+                    )
+
         if not isinstance(entity, model.Package):
             return
         if operation != domain_object.DomainObjectOperation.deleted:
