@@ -8,6 +8,10 @@
   <li class="active">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg.name %}</li>
 {% endblock %}
 
+{% block resources_module %}
+  {% snippet 'package/snippets/resources.html', pkg=pkg, action='resource_edit' %}
+{% endblock %}
+
 {% block actions_content %}
   {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
 {% endblock %}
