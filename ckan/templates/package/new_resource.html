@@ -11,14 +11,16 @@
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=logged_in %}{% endblock %}
 
 {% block secondary_content %}
-  <section class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What is data?') }}</h2>
-    <div class="module-content">
-      <p>{{ _('Data can be any file or link to a file containing useful data.') }}</p>
-    </div>
-  </section>
-
-  {% snippet 'package/snippets/resources.html', pkg=pkg_dict, action='resource_edit', active=data.id %}
+  {% if pkg_dict %}
+    {% snippet 'package/snippets/info.html', pkg=pkg_dict, action='resource_new' %}
+  {% else %}  
+    <section class="module module-narrow module-shallow">
+      <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What\'s a resource?') }}</h2>
+      <div class="module-content">
+        <p>{{ _('A resource can be any file or link to a file containing useful data.') }}</p>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

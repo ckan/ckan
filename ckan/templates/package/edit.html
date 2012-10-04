@@ -15,3 +15,7 @@
 {% block actions_content %}
   {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
 {% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/info.html', pkg=pkg, action='package_edit' %}
+{% endblock %}
