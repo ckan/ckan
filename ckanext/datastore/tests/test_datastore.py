@@ -13,6 +13,7 @@ import ckan.tests as tests
 import ckan.lib.cli as cli
 import ckanext.datastore.db as db
 
+
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
 
@@ -143,7 +144,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
             'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'INVALID'},
+            'fields': [{'id': 'book', 'type': 'int['},  # this is invalid
                        {'id': 'author', 'type': 'INVALID'}]
         }
         postparams = '%s=1' % json.dumps(data)
@@ -371,7 +372,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data3 = {
             'resource_id': resource.id,
             'records': [{'boo%k': 'crime and punsihment',
-                         'author': ['dostoevsky'], 'rating': 'good'}],
+                         'author': ['dostoevsky'], 'rating': 2}],
             'indexes': ['rating']
         }
 
@@ -417,7 +418,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data5 = {
             'resource_id': resource.id,
             'aliases': 'another_alias',  # replaces aliases
-            'records': [{'book': 'warandpeace'}],
+            'records': [{'boo%k': 'warandpeace'}],
             'primary_key': ''
         }
 
@@ -442,6 +443,47 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         results = c.execute(sql)
         assert results.rowcount == 1
         self.Session.remove()
+
+        #######  insert array type
+        data6 = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'json'},
+                       {'id': 'rating', 'type': 'int'},
+                       {'id': 'characters', 'type': '_text'}],  # this is an array of strings
+            'records': [{'boo%k': 'the hobbit',
+                         'author': ['tolkien'], 'characters': ['Bilbo', 'Gandalf']}],
+            'indexes': ['characters']
+        }
+
+        postparams = '%s=1' % json.dumps(data6)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
+
+        #######  insert type that requires additional lookup
+        data7 = {
+            'resource_id': resource.id,
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'json'},
+                       {'id': 'rating', 'type': 'int'},
+                       {'id': 'characters', 'type': '_text'},
+                       {'id': 'location', 'type': 'int[2]'}],
+            'records': [{'boo%k': 'lord of the rings',
+                         'author': ['tolkien'], 'location': [3, -42]}],
+            'indexes': ['characters']
+        }
+
+        postparams = '%s=1' % json.dumps(data7)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
@@ -559,6 +601,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
@@ -566,7 +610,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a':'b'}}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -609,12 +653,17 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         assert results.rowcount == 2
         self.Session.remove()
 
-        hhguide = u"hitchhikers guide to the galaxy"
+        hhguide = u"hitchhiker's guide to the galaxy"
 
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'upsert',
-            'records': [{'author': 'adams', u'b\xfck': hhguide}]
+            'records': [{
+                'author': 'adams',
+                'nested': {'a': 2, 'b': {'c': 'd'}},
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'foo': 'bar'},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -632,6 +681,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         records = results.fetchall()
         assert records[2][u'b\xfck'] == hhguide
         assert records[2].author == 'adams'
+        assert records[2].characters == ['Arthur Dent', 'Marvin']
+        assert json.loads(records[2].nested.json) == {'foo': 'bar'}
         self.Session.remove()
 
         c = self.Session.connection()
@@ -774,6 +825,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
@@ -781,7 +834,7 @@ class TestDatastoreInsert(tests.WsgiAppCase):
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a':'b'}}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -801,10 +854,15 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         rebuild_all_dbs(cls.Session)
 
     def test_insert_basic(self):
+        hhguide = u"hitchhiker's guide to the galaxy"
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'insert',
-            'records': [{u'b\xfck': 'hitchhikers guide to the galaxy', 'author': 'tolstoy'}]
+            'records': [{
+                'author': 'adams',
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'foo': 'bar', 'baz': 3},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -849,19 +907,25 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         resource = model.Package.get('annakarenina').resources[0]
+        hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {
             'resource_id': resource.id,
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
+                       {'id': 'nested', 'type': 'json'},
+                       {'id': 'characters', 'type': 'text[]'},
                        {'id': 'published'}],
             'primary_key': u'b\xfck',
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a':'b'}},
-                        {u'b\xfck': 'hitchhikers guide to the galaxy', 'author': 'tolstoy'}
+                        {'author': 'adams',
+                        'characters': ['Arthur Dent', 'Marvin'],
+                        'nested': {'foo': 'bar'},
+                        u'b\xfck': hhguide}
                        ]
-        }
+            }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
         res = cls.app.post('/api/action/datastore_create', params=postparams,
@@ -883,15 +947,18 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
     def test_update_basic(self):
         c = self.Session.connection()
         results = c.execute('select 1 from "{0}"'.format(self.data['resource_id']))
-        assert results.rowcount == 3
+        assert results.rowcount == 3, results.rowcount
         self.Session.remove()
 
-        hhguide = u"hitchhikers guide to the galaxy"
-
+        hhguide = u"hitchhiker's guide to the galaxy"
         data = {
             'resource_id': self.data['resource_id'],
             'method': 'update',
-            'records': [{'author': 'adams', u'b\xfck': hhguide}]
+            'records': [{
+                'author': 'adams',
+                'characters': ['Arthur Dent', 'Marvin'],
+                'nested': {'baz': 3},
+                u'b\xfck': hhguide}]
         }
 
         postparams = '%s=1' % json.dumps(data)
@@ -1169,9 +1236,11 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             'aliases': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
-                       {'id': 'published'}],
+                       {'id': 'published'},
+                       {'id': u'characters', u'type': u'_text'}],
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
+                        u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a':'b'}}
                        ]
@@ -1185,20 +1254,27 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
                                  u'_id': 1,
-                                 u'nested':
-                                    [u'b', {u'moo': u'moo'}],
-                                    u'b\xfck': u'annakarenina',
-                                    u'author': u'tolstoy'},
+                                 u'nested': [u'b', {u'moo': u'moo'}],
+                                 u'b\xfck': u'annakarenina',
+                                 u'author': u'tolstoy',
+                                 u'characters': [u'Princess Anna', u'Sergius']},
                                 {u'published': None,
                                  u'_id': 2,
-                                 u'nested':
-                                    {u'a': u'b'},
-                                    u'b\xfck': u'warandpeace',
-                                    u'author': u'tolstoy'}]
+                                 u'nested': {u'a': u'b'},
+                                 u'b\xfck': u'warandpeace',
+                                 u'author': u'tolstoy',
+                                 u'characters': None}]
+
+        import pylons
+        engine = db._get_engine(
+                None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}
+            )
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -1210,7 +1286,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == self.expected_records
+        assert result['records'] == self.expected_records, result['records']
 
     def test_search_alias(self):
         data = {'resource_id': self.data['aliases']}
@@ -1221,7 +1297,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict_alias = json.loads(res.body)
         result = res_dict_alias['result']
         assert result['total'] == len(self.data['records'])
-        assert result['records'] == self.expected_records
+        assert result['records'] == self.expected_records, result['records']
 
     def test_search_invalid_field(self):
         data = {'resource_id': self.data['resource_id'],
@@ -1263,6 +1339,19 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'b\xfck': 'annakarenina'}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [self.expected_records[0]]
+
+    def test_search_array_filters(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {u'characters': [u'Princess Anna', u'Sergius']}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -1360,8 +1449,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
 
         results = [extract(result['records'][0],
-            [u'_id', u'author', u'b\xfck', u'nested', u'published'])]
-        assert results == [self.expected_records[0]]
+            [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters'])]
+        assert results == [self.expected_records[0]], result['records']
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -1374,7 +1463,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
         results = [extract(
                 record,
-                [u'_id', u'author', u'b\xfck', u'nested', u'published']
+                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
             ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
@@ -1400,7 +1489,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         results = [extract(
                 result['records'][0],
-                [u'_id', u'author', u'b\xfck', u'nested', u'published']
+                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
             )]
         assert results == [self.expected_records[0]], result['records']
 

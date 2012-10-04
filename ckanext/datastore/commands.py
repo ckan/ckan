@@ -43,11 +43,11 @@ class SetupDatastoreCommand(cli.CkanCommand):
 
     Usage::
 
-        paster datastore create-db <sql-super-user>
-        paster datastore create-read-only-user <sql-super-user>
+        paster datastore create-db SQL_SUPER_USER
+        paster datastore create-read-only-user SQL_SUPER_USER
 
     Where:
-        <sql-super-user> is the name of a postgres user with sufficient
+        SQL_SUPER_USER is the name of a postgres user with sufficient
                          permissions to create new tables, users, and grant
                          and revoke new permissions.  Typically, this would
                          be the "postgres" user.

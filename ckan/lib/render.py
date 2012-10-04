@@ -18,8 +18,16 @@ def template_type(template_path):
     returns 'jinja2', 'genshi', 'genshi-text' '''
     if template_path.endswith('.txt'):
         return 'genshi-text'
-    f = open(template_path, 'r')
+    try:
+        f = open(template_path, 'r')
+    except IOError:
+        # do the import here due to circular import hell functions like
+        # abort should be in a none circular importing file but that
+        # refactor has not yet happened
+        import ckan.lib.base as base
+        base.abort(404)
     source = f.read()
+    f.close()
     if re.search('genshi\.edgewall\.org', source):
         return 'genshi'
     return 'jinja2'

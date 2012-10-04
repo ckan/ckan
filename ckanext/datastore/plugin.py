@@ -37,7 +37,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
         import sys
-        if sys.argv[0].split('/')[-1] == 'paster' and sys.argv[1] == "datastore":
+        if sys.argv[0].split('/')[-1] == 'paster' and "datastore" in [sys.argv[1], sys.argv[2]]:
             log.warn("Omitting permission checks because you are "
                         "running paster commands.")
             return
@@ -49,7 +49,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if not self._is_read_only_database():
             # Make sure that the right permissions are set
             # so that no harmful queries can be made
-            if not config['debug']:
+            if not ('debug' in config and config['debug']):
                 self._check_separate_db()
             self._check_read_permissions()
 
@@ -75,7 +75,7 @@ class DatastorePlugin(p.SingletonPlugin):
             try:
                 connection = engine.connect()
                 result = connection.execute(
-                    'SELECT 1 FROM pg_tables WHERE tablename = %s',
+                    'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
                     new_data_dict['id']
                 ).fetchone()
                 if result:
@@ -155,7 +155,10 @@ class DatastorePlugin(p.SingletonPlugin):
                         raise
                 else:
                     log.info("Connection url {0}".format(self.read_url))
-                    raise Exception("We have write permissions on the read-only database.")
+                    if 'debug' in self.config and self.config['debug']:
+                        log.critical("We have write permissions on the read-only database.")
+                    else:
+                        raise Exception("We have write permissions on the read-only database.")
                 finally:
                     read_trans.rollback()
         except Exception:

@@ -68,7 +68,7 @@ DataStore. In these cases the following additional attributes are used:
 
 * cache_last_updated: timestamp when cached version was created
 
-* webstore_url: set to non-empty value if data is in the doc:`datastore` (note
+* webstore_url: set to non-empty value if data is in the :doc:`datastore` (note
   unusual naming is a holdover from previous usage)
 * webstore_last_updated: timestamp when webstore was last updated
 
