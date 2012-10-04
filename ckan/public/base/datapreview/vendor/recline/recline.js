@@ -93,8 +93,11 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
 
   var CKAN_TYPES_MAP = {
     'int4': 'integer',
+    'int8': 'integer',
     'float8': 'float',
-    'text': 'string'
+    'text': 'string',
+    'json': 'object',
+    'timestamp': 'date'
   };
 
 }(jQuery, this.recline.Backend.Ckan));
@@ -526,7 +529,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     //
     // @param {Object} id id of object to delete
     // @return deferred supporting promise API
-    this.delete = function(id) {
+    this.remove = function(id) {
       url = this.endpoint;
       url += '/' + id;
       return makeRequest({
@@ -666,7 +669,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     else if (changes.updates.length >0) {
       return es.upsert(changes.updates[0]);
     } else if (changes.deletes.length > 0) {
-      return es.delete(changes.deletes[0].id);
+      return es.remove(changes.deletes[0].id);
     }
   };
 
@@ -677,7 +680,7 @@ this.recline.Backend.ElasticSearch = this.recline.Backend.ElasticSearch || {};
     var jqxhr = es.query(queryObj);
     jqxhr.done(function(results) {
       var out = {
-        total: results.hits.total,
+        total: results.hits.total
       };
       out.hits = _.map(results.hits.hits, function(hit) {
         if (!('id' in hit._source) && hit._id) {
@@ -914,7 +917,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
     } else {
       if (data) {
         this.fields = _.map(data[0], function(value, key) {
-          return {id: key};
+          return {id: key, type: 'string'};
         });
       }
     }
@@ -927,7 +930,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
       });
     };
 
-    this.delete = function(doc) {
+    this.remove = function(doc) {
       var newdocs = _.reject(self.data, function(internalDoc) {
         return (doc.id === internalDoc.id);
       });
@@ -942,7 +945,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
         self.update(record);
       });
       _.each(changes.deletes, function(record) {
-        self.delete(record);
+        self.remove(record);
       });
       dfd.resolve();
       return dfd.promise();
@@ -989,10 +992,20 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
         geo_distance : geo_distance
       };
       var dataParsers = {
-        number : function (e) { return parseFloat(e, 10); },
+        integer: function (e) { return parseFloat(e, 10); },
+        'float': function (e) { return parseFloat(e, 10); },
         string : function (e) { return e.toString() },
-        date   : function (e) { return new Date(e).valueOf() }
+        date   : function (e) { return new Date(e).valueOf() },
+        datetime   : function (e) { return new Date(e).valueOf() }
       };
+      var keyedFields = {};
+      _.each(self.fields, function(field) {
+        keyedFields[field.id] = field;
+      });
+      function getDataParser(filter) {
+        var fieldType = keyedFields[filter.field].type || 'string';
+        return dataParsers[fieldType];
+      }
 
       // filter records
       return _.filter(results, function (record) {
@@ -1005,9 +1018,8 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
       });
 
       // filters definitions
-
       function term(record, filter) {
-        var parse = dataParsers[filter.fieldType];
+        var parse = getDataParser(filter);
         var value = parse(record[filter.field]);
         var term  = parse(filter.term);
 
@@ -1015,7 +1027,7 @@ this.recline.Backend.Memory = this.recline.Backend.Memory || {};
       }
 
       function range(record, filter) {
-        var parse = dataParsers[filter.fieldType];
+        var parse = getDataParser(filter);
         var value = parse(record[filter.field]);
         var start = parse(filter.start);
         var stop  = parse(filter.stop);
@@ -1177,7 +1189,73 @@ my.Transform.mapDocs = function(docs, editFunc) {
 };
 
 }(this.recline.Data))
-// # Recline Backbone Models
+// This file adds in full array method support in browsers that don't support it
+// see: http://stackoverflow.com/questions/2790001/fixing-javascript-array-functions-in-internet-explorer-indexof-foreach-etc
+
+// Add ECMA262-5 Array methods if not supported natively
+if (!('indexOf' in Array.prototype)) {
+    Array.prototype.indexOf= function(find, i /*opt*/) {
+        if (i===undefined) i= 0;
+        if (i<0) i+= this.length;
+        if (i<0) i= 0;
+        for (var n= this.length; i<n; i++)
+            if (i in this && this[i]===find)
+                return i;
+        return -1;
+    };
+}
+if (!('lastIndexOf' in Array.prototype)) {
+    Array.prototype.lastIndexOf= function(find, i /*opt*/) {
+        if (i===undefined) i= this.length-1;
+        if (i<0) i+= this.length;
+        if (i>this.length-1) i= this.length-1;
+        for (i++; i-->0;) /* i++ because from-argument is sadly inclusive */
+            if (i in this && this[i]===find)
+                return i;
+        return -1;
+    };
+}
+if (!('forEach' in Array.prototype)) {
+    Array.prototype.forEach= function(action, that /*opt*/) {
+        for (var i= 0, n= this.length; i<n; i++)
+            if (i in this)
+                action.call(that, this[i], i, this);
+    };
+}
+if (!('map' in Array.prototype)) {
+    Array.prototype.map= function(mapper, that /*opt*/) {
+        var other= new Array(this.length);
+        for (var i= 0, n= this.length; i<n; i++)
+            if (i in this)
+                other[i]= mapper.call(that, this[i], i, this);
+        return other;
+    };
+}
+if (!('filter' in Array.prototype)) {
+    Array.prototype.filter= function(filter, that /*opt*/) {
+        var other= [], v;
+        for (var i=0, n= this.length; i<n; i++)
+            if (i in this && filter.call(that, v= this[i], i, this))
+                other.push(v);
+        return other;
+    };
+}
+if (!('every' in Array.prototype)) {
+    Array.prototype.every= function(tester, that /*opt*/) {
+        for (var i= 0, n= this.length; i<n; i++)
+            if (i in this && !tester.call(that, this[i], i, this))
+                return false;
+        return true;
+    };
+}
+if (!('some' in Array.prototype)) {
+    Array.prototype.some= function(tester, that /*opt*/) {
+        for (var i= 0, n= this.length; i<n; i++)
+            if (i in this && tester.call(that, this[i], i, this))
+                return true;
+        return false;
+    };
+}// # Recline Backbone Models
 this.recline = this.recline || {};
 this.recline.Model = this.recline.Model || {};
 
@@ -1649,16 +1727,15 @@ my.Query = Backbone.Model.extend({
       }
     }
   },  
-  // ### addFilter
+  // ### addFilter(filter)
   //
-  // Add a new filter (appended to the list of filters)
+  // Add a new filter specified by the filter hash and append to the list of filters
   //
   // @param filter an object specifying the filter - see _filterTemplates for examples. If only type is provided will generate a filter by cloning _filterTemplates
   addFilter: function(filter) {
     // crude deep copy
     var ourfilter = JSON.parse(JSON.stringify(filter));
-    // not full specified so use template and over-write
-    // 3 as for 'type', 'field' and 'fieldType'
+    // not fully specified so use template and over-write
     if (_.keys(filter).length <= 3) {
       ourfilter = _.extend(this._filterTemplates[filter.type], ourfilter);
     }
@@ -1971,7 +2048,7 @@ my.Graph = Backbone.View.extend({
           horizontal: true,
           shadowSize: 0,
           barWidth: 0.8         
-        },
+        }
       },
       columns: {
         legend: legend,
@@ -1992,9 +2069,9 @@ my.Graph = Backbone.View.extend({
             horizontal: false,
             shadowSize: 0,
             barWidth: 0.8         
-        },
+        }
       },
-      grid: { hoverable: true, clickable: true },
+      grid: { hoverable: true, clickable: true }
     };
     return optionsPerGraphType[typeId];
   },
@@ -2174,7 +2251,7 @@ my.GraphControls = Backbone.View.extend({
   addSeries: function (idx) {
     var data = _.extend({
       seriesIndex: idx,
-      seriesName: String.fromCharCode(idx + 64 + 1),
+      seriesName: String.fromCharCode(idx + 64 + 1)
     }, this.model.toTemplateJSON());
 
     var htmls = Mustache.render(this.templateSeriesEditor, data);
@@ -3180,7 +3257,7 @@ my.MultiView = Backbone.View.extend({
   <div class="recline-data-explorer"> \
     <div class="alert-messages"></div> \
     \
-    <div class="header"> \
+    <div class="header clearfix"> \
       <div class="navigation"> \
         <div class="btn-group" data-toggle="buttons-radio"> \
         {{#views}} \
@@ -3199,7 +3276,6 @@ my.MultiView = Backbone.View.extend({
         </div> \
       </div> \
       <div class="query-editor-here" style="display:inline;"></div> \
-      <div class="clearfix"></div> \
     </div> \
     <div class="data-view-sidebar"></div> \
     <div class="data-view-container"></div> \
@@ -4233,20 +4309,27 @@ this.recline.View = this.recline.View || {};
 
 (function($, my) {
 
+// ## FacetViewer
+//
+// Widget for displaying facets 
+//
+// Usage:
+//
+//      var viewer = new FacetViewer({
+//        model: dataset
+//      });
 my.FacetViewer = Backbone.View.extend({
-  className: 'recline-facet-viewer well', 
+  className: 'recline-facet-viewer', 
   template: ' \
-    <a class="close js-hide" href="#">&times;</a> \
-    <div class="facets row"> \
-      <div class="span1"> \
-        <h3>Facets</h3> \
-      </div> \
+    <div class="facets"> \
       {{#facets}} \
-      <div class="facet-summary span2 dropdown" data-facet="{{id}}"> \
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-chevron-down"></i> {{id}} {{label}}</a> \
-        <ul class="facet-items dropdown-menu"> \
+      <div class="facet-summary" data-facet="{{id}}"> \
+        <h3> \
+          {{id}} \
+        </h3> \
+        <ul class="facet-items"> \
         {{#terms}} \
-          <li><a class="facet-choice js-facet-filter" data-value="{{term}}">{{term}} ({{count}})</a></li> \
+          <li><a class="facet-choice js-facet-filter" data-value="{{term}}" href="#{{term}}">{{term}} ({{count}})</a></li> \
         {{/terms}} \
         {{#entries}} \
           <li><a class="facet-choice js-facet-filter" data-value="{{time}}">{{term}} ({{count}})</a></li> \
@@ -4258,7 +4341,6 @@ my.FacetViewer = Backbone.View.extend({
   ',
 
   events: {
-    'click .js-hide': 'onHide',
     'click .js-facet-filter': 'onFacetFilter'
   },
   initialize: function(model) {
@@ -4270,10 +4352,9 @@ my.FacetViewer = Backbone.View.extend({
   },
   render: function() {
     var tmplData = {
-      facets: this.model.facets.toJSON(),
       fields: this.model.fields.toJSON()
     };
-    tmplData.facets = _.map(tmplData.facets, function(facet) {
+    tmplData.facets = _.map(this.model.facets.toJSON(), function(facet) {
       if (facet._type === 'date_histogram') {
         facet.entries = _.map(facet.entries, function(entry) {
           entry.term = new Date(entry.time).toDateString();
@@ -4296,10 +4377,13 @@ my.FacetViewer = Backbone.View.extend({
     this.el.hide();
   },
   onFacetFilter: function(e) {
+    e.preventDefault();
     var $target= $(e.target);
     var fieldId = $target.closest('.facet-summary').attr('data-facet');
     var value = $target.attr('data-value');
-    this.model.queryState.addTermFilter(fieldId, value);
+    this.model.queryState.addFilter({type: 'term', field: fieldId, term: value});
+    // have to trigger explicitly for some reason
+    this.model.query();
   }
 });
 
@@ -4545,8 +4629,7 @@ my.FilterEditor = Backbone.View.extend({
     $target.hide();
     var filterType = $target.find('select.filterType').val();
     var field      = $target.find('select.fields').val();
-    var fieldType  = this.model.fields.find(function (e) { return e.get('id') === field }).get('type');
-    this.model.queryState.addFilter({type: filterType, field: field, fieldType: fieldType});
+    this.model.queryState.addFilter({type: filterType, field: field});
     // trigger render explicitly as queryState change will not be triggered (as blank value for filter)
     this.render();
   },
