@@ -65,19 +65,25 @@
 		padding-top: 10px;
 		padding-bottom: 0;
 		border-top: 1px dotted #DDD;
-		dl {
+		.num {
 			float: left;
 			width: 33%;
 			margin: 5px 0 0 0;
-			dt {
+			color: @layoutTextColor;
+			strong {
+				display: block;
 				font-weight: 300;
 			}
-			dd {
+			span {
+				display: block;
 				font-size: 30px;
 				font-weight: 700;
 				line-height: 1.2;
 				margin-left: 0;
 			}
+		}
+		a.num {
+			color: @layoutLinkColor;
 		}
 	}
 }

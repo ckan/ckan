@@ -74,18 +74,18 @@
       </p>
     {% endif %}
     <div class="nums">
-      <dl>
-        <dt>{{ _('Followers') }}</dt>
-        <dd>{{ c.num_followers }}</dd>
-      </dl>
-      <dl>
-        <dt>{{ _('Datasets') }}</dt>
-        <dd>{{ user.number_administered_packages }}</dd>
-      </dl>
-      <dl>
-        <dt>{{ _('Edits') }}</dt>
-        <dd>{{ user.number_of_edits }}</dd>
-      </dl>
+      <a href="{{ h.url_for(controller='user', action='followers', id=user.name) }}" class="num">
+        <strong>{{ _('Followers') }}</strong>
+        <span>{{ c.num_followers }}</span>
+      </a>
+      <a href="{{ h.url_for(controller='user', action='read', id=user.name) }}" class="num">
+        <strong>{{ _('Datasets') }}</strong>
+        <span>{{ user.number_administered_packages }}</span>
+      </a>
+      <span class="num">
+        <strong>{{ _('Edits') }}</strong>
+        <span>{{ user.number_of_edits }}</span>
+      </span>
     </div>
     <div class="info">
       <dl>
