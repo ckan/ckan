@@ -72,21 +72,27 @@ def package_name_exists(value, context):
         raise Invalid(_('Not found') + ': %r' % str(value))
     return value
 
-def package_id_or_name_exists(value, context):
+def package_id_or_name_exists(package_id_or_name, context):
+    '''Return the given package_id_or_name if such a package exists.
 
+    :raises: ckan.lib.navl.dictization_functions.Invalid if there is no
+        package with the given id or name
+
+    '''
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Package).get(value)
+    result = session.query(model.Package).get(package_id_or_name)
     if result:
-        return value
+        return package_id_or_name
 
-    result = session.query(model.Package).filter_by(name=value).first()
+    result = session.query(model.Package).filter_by(
+            name=package_id_or_name).first()
 
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
 
-    return result.id
+    return package_id_or_name
 
 def user_id_exists(user_id, context):
     """Raises Invalid if the given user_id does not exist in the model given
