@@ -3,44 +3,22 @@ DataStore and the Data API
 ==========================
 
 The CKAN DataStore provides a database for structured storage of data together
-with a powerful Web-accesible Data API, all seamlessly integrated into the CKAN
+with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
-Relationship to FileStore
-=========================
-
-The DataStore is distinct but complementary to the FileStore (see
-:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
-storage of whole files with no way to access or query parts of that file, the
-DataStore is like a database in which individual data elements are accessible
-and queryable. To illustrate this distinction consider storing a spreadsheet
-file like a CSV or Excel document. In the FileStore this filed would be stored
-directly. To access it you would download the file as a whole. By contrast, if
-the spreadsheet data is stored in the DataStore one would be able to access
-individual spreadsheet rows via a simple web-api as well as being able to make
-queries over the spreadsheet contents.
-
-The DataStore Data API
-======================
-
-The DataStore's Data API, which derives from the underlying data-table,
-is RESTful and JSON-based with extensive query capabilities.
-
-Each resource in a CKAN instance can have an associated DataStore 'table'. The
-basic API for accessing the DataStore is detailed below. For a detailed
-tutorial on using this API see :doc:`using-data-api`.
+.. note:: The DataStore requires PostgreSQL 9.0 or later.
 
 Installation and Configuration
 ==============================
 
-.. warning:: Even though the datastore verifies the permissions make sure that all settings are correct.
+.. warning:: Make sure that you follow the steps below and make sure that the settings are correct. Wrong settings could lead to serious security issues.
 
 The DataStore in previous lives required a custom setup of ElasticSearch and Nginx,
-but that is no more, as it can use any relational database management system
-(PostgreSQL for example). However, you should set-up a  separate database for the datastore
-and create a read-only user to make you CKAN installation save.
+but that is no more, as it the relational database management system PostgreSQL.
+However, you should set-up a  separate database for the datastore
+and create a read-only user to make your CKAN installation save.
 
-In your config file ensure that the datastore extension is enabled::
+In your ``config`` file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
 
@@ -56,12 +34,33 @@ A few things have to be kept in mind
 
 To create a new database and a read-only user, use the provided paster commands after you have set the right database URLs.::
 
- paster --plugin=ckan datastore create-db <sql-user-user>
- paster --plugin=ckan datastore create-read-only-user <sql-user-user>
+ paster datastore create-db SQL_SUPER_USER
+ paster datastore create-read-only-user SQL_SUPER_USER
 
-To test the setup you can create a new datastore, so on linux command line do::
+To test the setup you can create a new datastore, to do so you can run the following command::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
+
+A table named after the resource id should have been created on your datastore
+database, and visiting this URL should return a response from the datastore with
+the previous records::
+
+ http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
+
+
+Relationship to FileStore
+=========================
+
+The DataStore is distinct but complementary to the FileStore (see
+:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
+storage of whole files with no way to access or query parts of that file, the
+DataStore is like a database in which individual data elements are accessible
+and queryable. To illustrate this distinction consider storing a spreadsheet
+file like a CSV or Excel document. In the FileStore this filed would be stored
+directly. To access it you would download the file as a whole. By contrast, if
+the spreadsheet data is stored in the DataStore one would be able to access
+individual spreadsheet rows via a simple web-api as well as being able to make
+queries over the spreadsheet contents.
 
 
 DataStorer: Automatically Add Data to the DataStore
@@ -75,9 +74,18 @@ and to add it to the DataStore in the format the DataStore can handle.
 This task of automatically parsing and then adding data to the datastore is
 performed by a DataStorer, a queue process that runs asynchronously and can be
 triggered by uploads or other activities. The DataStorer is an extension and can
-be found, along with installation instructions, at:
+be found, along with installation instructions, at: https://github.com/okfn/ckanext-datastorer
 
-.. _datastorer: https://github.com/okfn/ckanext-datastorer
+
+The DataStore Data API
+======================
+
+The DataStore's Data API, which derives from the underlying data-table,
+is RESTful and JSON-based with extensive query capabilities.
+
+Each resource in a CKAN instance can have an associated DataStore 'table'. The
+basic API for accessing the DataStore is detailed below. For a detailed
+tutorial on using this API see :doc:`using-data-api`.
 
 
 API Reference
@@ -85,12 +93,11 @@ API Reference
 
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``foo, bar``, ``"foo", "bar"`` and ``foo``.
 
+
 datastore_create
 ~~~~~~~~~~~~~~~~
 
-The datastore_create API endpoint allows a user to post JSON data to
-be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion.
-The JSON must be in the following form::
+The datastore_create API endpoint allows a user to post JSON data to be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion. The JSON must be in the following form::
 
  {
     resource_id: resource_id, # the data is going to be stored against.
@@ -101,12 +108,14 @@ The JSON must be in the following form::
     indexes: # indexes on table
  }
 
+See :ref:`fields` and :ref:`records` for details on how to lay out records.
+
+
 
 datastore_delete
 ~~~~~~~~~~~~~~~~
 
-The datastore_delete API endpoint allows a user to delete from a resource.
-The JSON for searching must be in the following form::
+The datastore_delete API endpoint allows a user to delete from a resource. The JSON for searching must be in the following form::
 
  {
     resource_id: resource_id # the data that is going to be deleted.
@@ -136,6 +145,8 @@ insert
 update
     Update only. Exception will occur if the key that should be updated does not exist. Requires unique key.
 
+.. _datastore_search:
+
 datastore_search
 ~~~~~~~~~~~~~~~~
 
@@ -155,6 +166,8 @@ The JSON for searching must be in the following form::
      sort: # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
  }
 
+.. _datastore_search_sql:
+
 datastore_search_sql
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -165,16 +178,102 @@ The datastore_search_sql API endpoint allows a user to search data at a resource
  }
 
 
-datastore_search_htsql
-~~~~~~~~~~~~~~~~~~~~
+.. _datastore_search_htsql:
 
-.. note:: HTSQL is not in the core datastore and has to be installed as a plugin.
+datastore_search_htsql
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. note:: HTSQL is not in the core datastore and has to be installed as an extension. The extension is available on https://github.com/okfn/ckanext-htsql.
 
 The datastore_search_htsql API endpoint allows a user to search data at a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. The JSON for searching must be in the following form::
 
  {
     htsql: # a htsql query statement.
  }
+
+.. _fields:
+
+Fields
+~~~~~~
+
+Fields define the column names and the type of the data in a column. They are defined as an array of fields. One field is defined as follows::
+
+    {
+        "id": # a string which defines the column name
+        "type": # the data type for the column
+    }
+
+Field **types are optional** and will be guessed by the provided data. However, setting the types ensures that future inserts to not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
+
+Example::
+
+    [
+        {
+            "id": "foo",
+            "type": "int4"
+        },
+        {
+            "id": "bar"
+            # type is optional
+        }
+    ]
+
+.. _records:
+
+Records
+~~~~~~~
+
+Records are defined as an array of records. One record is the data to be inserted in a table and is defined as follows::
+
+    {
+        "<id>": # data to be set
+        # .. more data
+    }
+
+Example::
+
+    [
+        {
+            "foo": 100,
+            "bar": "I'm a text."
+        },
+        {
+            "foo": 42
+        }
+    ]
+
+.. _valid-types:
+
+Field types
+-----------
+
+The datastore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `type section of the documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
+
+.. _type section of the documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
+
+
+text
+    Arbitrary text data, e.g. ``I'm a text``.
+json
+    Arbitrary nested json data, e.g ``{"foo": 42, "bar": [1, 2, 3]}``.
+    Please note that this type is a custom type that is wrapped by the datastore.
+date
+    Date without time, e.g ``2012-5-25``.
+time
+    Time without date, e.g ``12:42``.
+timestamp
+    Date and time, e.g ``2012-10-01T02:43Z``.
+int
+    Integer numbers, e.g ``42``, ``7``.
+float
+    Floats, e.g. ``1.61803``.
+bool
+    Boolen values, e.g. ``true``, ``0``
+
+
+You can find more information about the formatting of dates in the `date/time types section of the documentation`_.
+
+.. _date/time types section of the documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
 
 Table aliases
@@ -187,14 +286,14 @@ Comparison of different querying methods
 
 The datastore supports querying with the datastore_search and datastore_search_sql API endpoint. They are similar but support different features. The following list gives an overview on the different methods.
 
-==============================  =======================  =====================  ======================
-..                              datastore_search         datastore_search_sql   datastore_search_htsql
-..                                                       SQL                    HTSQL
-==============================  =======================  =====================  ======================
-**Status**                      Stable                   Stable                 Will be available as plugin
-**Ease of use**                 Easy                     Complex                Medium
-**Flexibility**                 Low                      High                   Medium
-**Query language**              Custom (JSON)            SQL                    HTSQL
-**Connect multiple resources**  No                       Yes                    Yes
-**Use aliases**                 Yes                      Yes                    Yes
-==============================  =======================  =====================  ======================
+==============================  =======================  ===========================  =============================
+..                              :ref:`datastore_search`  :ref:`datastore_search_sql`  :ref:`datastore_search_htsql`
+..                                                       SQL                          HTSQL
+==============================  =======================  ===========================  =============================
+**Status**                      Stable                   Stable                       Available as extension
+**Ease of use**                 Easy                     Complex                      Medium
+**Flexibility**                 Low                      High                         Medium
+**Query language**              Custom (JSON)            SQL                          HTSQL
+**Connect multiple resources**  No                       Yes                          Not yet
+**Use aliases**                 Yes                      Yes                          Yes
+==============================  =======================  ===========================  =============================
