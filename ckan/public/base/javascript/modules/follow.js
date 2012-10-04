@@ -65,8 +65,10 @@ this.ckan.module('follow', function($, _) {
 		 */
 		_onClickLoaded: function(json) {
 			var options = this.options;
+			var sandbox = this.sandbox;
 			options.loading = false;
 			this.el.removeClass('disabled');
+			sandbox.publish('follow-' + options.action + '-' + options.id);
 			if (options.action == 'follow') {
 				options.action = 'unfollow';
 				this.el.html('<i class="icon-remove-sign"></i> ' + this.i18n('unfollow')).removeClass('btn-success').addClass('btn-danger');

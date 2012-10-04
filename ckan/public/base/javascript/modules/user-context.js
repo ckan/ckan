@@ -57,7 +57,9 @@ this.ckan.module('user-context', function($, _) {
 					content: this.i18n('loading'),
 					placement: 'bottom'
 				});
-				this.el.on('mouseover', this._onMouseOver);	
+				this.el.on('mouseover', this._onMouseOver);
+				this.sandbox.subscribe('follow-follow-' + this.options.id, this._onHandleFollow);
+				this.sandbox.subscribe('follow-unfollow-' + this.options.id, this._onHandleUnFollow);
 			}
 		},
 
@@ -98,7 +100,6 @@ this.ckan.module('user-context', function($, _) {
 				var id = this.options.id;
 				var client = this.sandbox.client;
 				var user = json.result;
-				var popover = this.el.data('popover');
 				if (typeof user.number_of_followers == 'undefined') {
 					user.number_of_followers = '...';
 					client.call('GET', 'user_follower_count', '?id=' + id, this._onHandleUserFollowersData);
@@ -107,27 +108,37 @@ this.ckan.module('user-context', function($, _) {
 					user.am_following_user = 'disabled';
 					client.call('GET', 'am_following_user', '?id=' + id, this._onHandleAmFollowingData);
 				}
-				if (typeof popover.$tip != 'undefined') {
-					var tip	= popover.$tip;
-					var about = user.about ? '<p class="about">' + user.about + '</p>' : '';
-					var template = this.options.template
-						.replace('{{ about }}', about)
-						.replace('{{ followers }}', user.number_of_followers)
-						.replace('{{ datasets }}', user.number_administered_packages)
-						.replace('{{ edits }}', user.number_of_edits)
-						.replace('{{ buttons }}', this._getButtons(user))
-						.replace('{{ lang.followers }}', this.i18n('followers'))
-						.replace('{{ lang.datasets }}', this.i18n('datasets'))
-						.replace('{{ lang.edits }}', this.i18n('edits'));
-					$('.popover-title', tip).html('<a href="javascript:;" class="popover-close">&times;</a>' + user.display_name);
-					$('.popover-content', tip).html(template);
-					$('.popover-close', tip).on('click', this._onClickPopoverClose);
-					var follow_check = $('[data-module="follow"]', tip);
-					if (follow_check.length > 0) {
-						ckan.module.initializeElement(follow_check[0]);
-					}
-				}
 				window.user_context_dict[this.options.id] = json;
+				this._onRenderPopover();
+			}
+		},
+
+		/* Renders the contents of the popover
+		 *
+		 * Returns nothing.
+		 */
+		_onRenderPopover: function() {
+			var user = window.user_context_dict[this.options.id].result;
+			var popover = this.el.data('popover');
+			if (typeof popover.$tip != 'undefined') {
+				var tip	= popover.$tip;
+				var about = user.about ? '<p class="about">' + user.about + '</p>' : '';
+				var template = this.options.template
+					.replace('{{ about }}', about)
+					.replace('{{ followers }}', user.number_of_followers)
+					.replace('{{ datasets }}', user.number_administered_packages)
+					.replace('{{ edits }}', user.number_of_edits)
+					.replace('{{ buttons }}', this._getButtons(user))
+					.replace('{{ lang.followers }}', this.i18n('followers'))
+					.replace('{{ lang.datasets }}', this.i18n('datasets'))
+					.replace('{{ lang.edits }}', this.i18n('edits'));
+				$('.popover-title', tip).html('<a href="javascript:;" class="popover-close">&times;</a>' + user.display_name);
+				$('.popover-content', tip).html(template);
+				$('.popover-close', tip).on('click', this._onClickPopoverClose);
+				var follow_check = $('[data-module="follow"]', tip);
+				if (follow_check.length > 0) {
+					ckan.module.initializeElement(follow_check[0]);
+				}
 			}
 		},
 
@@ -162,6 +173,27 @@ this.ckan.module('user-context', function($, _) {
 			var data = window.user_context_dict[this.options.id];
 			data.result.am_following_user = json.result;
 			this._onHandleUserData(data);
+		},
+
+		/* Callback from when you follow a specified user... this is used to ensure
+		 * all popovers associated to that user get re-populated
+		 *
+		 * Returns nothing.
+		 */
+		_onHandleFollow: function() {
+			var data = window.user_context_dict[this.options.id];
+			data.result.am_following_user = true;
+			this._onRenderPopover();
+		},
+
+		/* As above... but with unfollow
+		 *
+		 * Returns nothing.
+		 */
+		_onHandleUnFollow: function(json) {
+			var data = window.user_context_dict[this.options.id];
+			data.result.am_following_user = false;
+			this._onRenderPopover();
 		},
 
 		/* Returns the HTML associated to the button controls
