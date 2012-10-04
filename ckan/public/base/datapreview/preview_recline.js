@@ -1,5 +1,5 @@
 // recline preview module
-ckan.module('reclinepreview', function (jQuery, _) {
+this.ckan.module('reclinepreview', function (jQuery, _) {
   return {
     options: {
       i18n: {
@@ -9,7 +9,13 @@ ckan.module('reclinepreview', function (jQuery, _) {
         previewNotAvailableForDataType: "Preview not available for data type: "
       }
     },
+
     initialize: function () {
+      jQuery.proxyAll(this, /_on/);
+      this.el.ready(this._onReady);
+    },
+
+    _onReady: function() {
       this.loadPreviewDialog(preload_resource);
     },
 
@@ -127,7 +133,7 @@ ckan.module('reclinepreview', function (jQuery, _) {
 
       // Hide the fields control by default
       // (This should be done in recline!)
-      jQuery('.menu-right a[data-action="fields"]', self.el).click();
+      // jQuery('.menu-right a[data-action="fields"]', self.el).click();
     },
     normalizeFormat: function (format) {
       var out = format.toLowerCase();
@@ -141,89 +147,6 @@ ckan.module('reclinepreview', function (jQuery, _) {
       } else {
         return url;
       }
-    },
-
-    // **Public: Creates a link to the embeddable page.
-    //
-    // For a given DataExplorer state, this function constructs and returns the
-    // url to the embeddable view of the current dataexplorer state.
-    makeEmbedLink: function (explorerState) {
-      var state = explorerState.toJSON();
-      state.state_version = 1;
-
-      var queryString = '?';
-      var items = [];
-      jQuery.each(state, function(key, value) {
-        if (typeof(value) === 'object') {
-          value = JSON.stringify(value);
-        }
-        items.push(key + '=' + escape(value));
-      });
-      queryString += items.join('&');
-
-      // iframeWidth and iframeHeight control the width and height parameters
-      // used to construct the iframe, and are also used in the link.
-      var iframeWidth = jQuery('.iframe-width', self.el);
-      var iframeHeight = jQuery('.iframe-height', self.el);
-      var width = iframeWidth.val();
-      var height = iframeHeight.val();
-
-      var link = embedPath + queryString;
-      link += '&width='+width+'&height='+height;
-
-      return link;
-    },
-
-    // **Public: Loads a data previewer for an embedded page**
-    //
-    // Uses the provided reclineState to restore the Dataset.  Creates a single
-    // view for the Dataset (the one defined by reclineState.currentView).  And
-    // then passes the constructed Dataset, the constructed View, and the
-    // reclineState into the DataExplorer constructor.
-    loadEmbeddedPreview: function (resourceData, reclineState) {
-      var self = this;
-      // Restore the Dataset from the given reclineState.
-      var dataset = recline.Model.Dataset.restore(reclineState);
-
-      // Only create the view defined in reclineState.currentView.
-      // TODO: tidy this up.
-      var views = null;
-      if (reclineState.currentView === 'grid') {
-        views = [ {
-          id: 'grid',
-          label: 'Grid',
-          view: new recline.View.SlickGrid({
-            model: dataset,
-            state: reclineState['view-grid']
-          })
-        }];
-      } else if (reclineState.currentView === 'graph') {
-        views = [ {
-          id: 'graph',
-          label: 'Graph',
-          view: new recline.View.Graph({
-            model: dataset,
-            state: reclineState['view-graph']
-          })
-        }];
-      } else if (reclineState.currentView === 'map') {
-        views = [ {
-          id: 'map',
-          label: 'Map',
-          view: new recline.View.Map({
-            model: dataset,
-            state: reclineState['view-map']
-          })
-        }];
-      }
-
-      // Finally, construct the DataExplorer.  Again, passing in the reclineState.
-      var dataExplorer = new recline.View.MultiView({
-        el: self.el,
-        model: dataset,
-        state: reclineState,
-        views: views
-      });
     }
   };
 });
