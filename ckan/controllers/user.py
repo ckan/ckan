@@ -481,3 +481,20 @@ class UserController(BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard.html')
+
+    def follow(self, id):
+        '''Start following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('follow_user')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(id))
+        except ValidationError as e:
+            error_message = (e.extra_msg or e.message or e.error_summary
+                    or e.error_dict)
+            h.flash_error(error_message)
+        except NotAuthorized as e:
+            h.flash_error(e.extra_msg)
+        h.redirect_to(controller='user', action='read', id=id)
