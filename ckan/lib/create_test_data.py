@@ -46,7 +46,10 @@ class CreateTestData(object):
             tester = model.User(name=u'tester', apikey=u'tester',
                 password=u'tester')
             model.Session.add(tester)
-            model.Session.commit()
+
+        model.add_user_to_role(tester, model.Role.ADMIN, model.System())
+        model.Session.commit()
+
         model.Session.remove()
         cls.user_refs.append(u'tester')
 
@@ -60,6 +63,7 @@ class CreateTestData(object):
         rev.message = u'Creating test translations.'
 
         sysadmin_user = ckan.model.User.get('testsysadmin')
+        model.add_user_to_role(sysadmin_user, model.Role.ADMIN, model.System())
         package = ckan.model.Package.get('annakarenina')
 
         # Add some new tags to the package.
@@ -95,6 +99,8 @@ class CreateTestData(object):
         sysadmin_user = ckan.model.User.get('testsysadmin')
         annakarenina = ckan.model.Package.get('annakarenina')
         warandpeace = ckan.model.Package.get('warandpeace')
+
+        model.add_user_to_role(sysadmin_user, model.Role.ADMIN, model.System())
 
         # Create a couple of vocabularies.
         context = {
@@ -467,6 +473,7 @@ left arrow <
             model.User(name=u'russianfan', password=u'russianfan'),
             model.User(name=u'testsysadmin', password=u'testsysadmin'),
             ])
+
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
@@ -497,6 +504,7 @@ left arrow <
             user = cls._create_user_without_commit(**user_dict)
             if user:
                 needs_commit = True
+                model.add_user_to_role(user, model.Role.ADMIN, model.System())
         if needs_commit:
             model.repo.commit_and_remove()
 

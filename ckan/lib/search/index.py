@@ -21,7 +21,7 @@ TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
 KEY_CHARS = string.digits + string.letters + "_-"
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
-RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description",
+RESERVED_FIELDS = SOLR_FIELDS + ["tags", "organizations", "res_description",
                                  "res_format", "res_url"]
 RELATIONSHIP_TYPES = PackageRelationship.types
 
@@ -142,18 +142,20 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['tags'] = non_vocab_tag_names
 
-        # add groups
-        groups = pkg_dict.pop('groups', [])
+        # add organizations
+        organizations = pkg_dict.pop('organizations', [])
 
         # Capacity is different to the default only if using organizations
-        # where the dataset is only in one group. We will add the capacity
+        # where the dataset is only in one organization. We will add the capacity
         # from the single group that it is a part of if we have a group
-        if len(groups):
-            pkg_dict['capacity'] = groups[0].get('capacity', 'public')
+        if len(organizations):
+            pkg_dict['capacity'] = organizations[0].get('capacity', 'public')
         else:
             pkg_dict['capacity'] = 'public'
 
-        pkg_dict['groups'] = [group['name'] for group in groups]
+        pkg_dict['organizations'] = [organization['name'] for organization in organizations]
+        if pkg_dict['organizations']:  # Take the first organization only
+            pkg_dict['organizations'] = pkg_dict['organizations'][0]
 
         # tracking
         tracking_summary = pkg_dict.pop('tracking_summary', None)

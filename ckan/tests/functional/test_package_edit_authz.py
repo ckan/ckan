@@ -8,6 +8,9 @@ from test_edit_authz import check_and_set_checkbox
 class TestPackageEditAuthz(TestController):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # for the authorization editing tests we set up test data so:
         # three users, madeup-sysadmin , madeup-administrator, and madeup-another
         # two packages test6 and test6a, m-a is admin on both

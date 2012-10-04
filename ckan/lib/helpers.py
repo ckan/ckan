@@ -452,8 +452,11 @@ _menu_items = {
     'search' : dict(controller='package',
                     action='search',
                     highlight_actions = 'index search'),
-    'default_group': dict(name='%s_index' % default_group_type(),
+    'default_group': dict(name='group_index',
                           controller='group',
+                          highlight_actions='index search'),
+    'default_organization': dict(name='organization_index',
+                          controller='organization',
                           highlight_actions='index search'),
     'about' : dict(controller='home', action='about'),
     'login' : dict(controller='user', action='login'),
@@ -960,6 +963,10 @@ def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     return link_to(group['name'], url)
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
 
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
@@ -1241,6 +1248,21 @@ def groups_available():
     data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
 
+def organizations_available():
+    ''' return a list of available organizations '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user or c.author}
+    data_dict = {'available_only': True}
+    return logic.get_action('organization_list_authz')(context, data_dict)
+
+def dataset_organization(dataset):
+    organization = None
+    if dataset.get('organizations'):
+        organization = dataset.get('organizations')[0]
+    return organization
+
+
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
 
@@ -1425,6 +1447,7 @@ __allowed_functions__ = [
            'related_item_link',
            'tag_link',
            'group_link',
+           'organization_link',
            'dump_json',
            'auto_log_message',
            'snippet',
@@ -1449,6 +1472,8 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'organizations_available',
+           'dataset_organization',
            'dashboard_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',

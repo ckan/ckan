@@ -10,6 +10,9 @@ import ckan.model as model
 class TestStorageController:
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         config = appconfig('config:test.ini', relative_to=conf_dir)
         config.local_conf['ckan.storage.directory'] = '/tmp'
         wsgiapp = make_app(config.global_conf, **config.local_conf)
@@ -26,7 +29,7 @@ class TestStorageController:
         import ckan.model as model
         import ckan.authz as authz
 
-        is_authorized = authz.Authorizer.is_authorized(u'tester', Action.UPLOAD_ACTION, model.System()) 
+        is_authorized = authz.Authorizer.is_authorized(u'tester', Action.UPLOAD_ACTION, model.System())
         assert is_authorized
 
     def test_03_authorization_wui(self):
@@ -49,7 +52,7 @@ class TestStorageController:
 
         url = url_for('storage_upload', filepath='xyz.txt')
         out = self.app.get(url, extra_environ=extra_environ)
-        assert 'file/xyz.txt' in out, out        
-    
+        assert 'file/xyz.txt' in out, out
+
     # TODO: test file upload itself
 

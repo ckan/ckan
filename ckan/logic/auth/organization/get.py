@@ -1,8 +1,9 @@
 import ckan.logic as logic
-from ckan.logic.auth import get_package_object, get_group_object, \
-    get_user_object, get_resource_object, get_related_object
+from ckan.logic.auth import (get_package_object, get_group_object,
+                             get_user_object, get_resource_object,
+                             get_related_object, get_organization_object)
 from ckan.lib.base import _
-from ckan.logic.auth.publisher import _groups_intersect
+from ckan.logic.auth.organization import _groups_intersect
 from ckan.authz import Authorizer
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
 
@@ -33,6 +34,10 @@ def revision_list(context, data_dict):
 def group_revision_list(context, data_dict):
     return group_show(context, data_dict)
 
+def organization_revision_list(context, data_dict):
+    return organization_show(context, data_dict)
+
+
 def package_revision_list(context, data_dict):
     return package_show(context, data_dict)
 
@@ -40,11 +45,22 @@ def group_list(context, data_dict):
     # List of all active groups is visible by default
     return {'success': True}
 
+def organization_list(context, data_dict):
+    # List of all active organizations is visible by default
+    return {'success': True}
+
 def group_list_authz(context, data_dict):
     return group_list(context, data_dict)
 
 def group_list_available(context, data_dict):
     return group_list(context, data_dict)
+
+def organization_list_authz(context, data_dict):
+    return organization_list(context, data_dict)
+
+def organization_list_available(context, data_dict):
+    return organization_list(context, data_dict)
+
 
 def licence_list(context, data_dict):
     # Licences list is visible by default
@@ -83,6 +99,8 @@ def package_show(context, data_dict):
 
         if not _groups_intersect( userobj.get_groups(), package.get_groups() ):
             return {'success': False, 'msg': _('User %s not authorized to read package %s') % (str(user),package.id)}
+    elif package.state == 'draft':
+        return {'success': True}
 
     # If package is in a private group then we require:
     #   1. Logged in user
@@ -124,6 +142,25 @@ def revision_show(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+def organization_show(context, data_dict):
+    """ Organization show permission checks the user organization if the state is deleted """
+    model = context['model']
+    user = context.get('user')
+    org = get_organization_object(context, data_dict)
+    userobj = model.User.get( user )
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
+    if org.state == 'deleted':
+        if not user or \
+           not _groups_intersect(userobj.get_groups('organization'), org.get_groups('organization')):
+            return {'success': False,
+                    'msg': _('User %s not authorized to show organization %s') % (str(user), org.id)}
+
+    return {'success': True}
+
+
+
 def group_show(context, data_dict):
     """ Group show permission checks the user group if the state is deleted """
     model = context['model']
@@ -135,7 +172,7 @@ def group_show(context, data_dict):
 
     if group.state == 'deleted':
         if not user or \
-           not _groups_intersect( userobj.get_groups('organization'), group.get_groups('organization') ):
+           not _groups_intersect( userobj.get_groups(), group.get_groups() ):
             return {'success': False, 'msg': _('User %s not authorized to show group %s') % (str(user),group.id)}
 
     return {'success': True}
@@ -154,6 +191,9 @@ def package_autocomplete(context, data_dict):
 
 def group_autocomplete(context, data_dict):
     return group_list(context, data_dict)
+
+def organization_autocomplete(context, data_dict):
+    return organization_list(context, data_dict)
 
 def tag_autocomplete(context, data_dict):
     return tag_list(context, data_dict)
@@ -177,6 +217,10 @@ def package_show_rest(context, data_dict):
 
 def group_show_rest(context, data_dict):
     return group_show(context, data_dict)
+
+def organization_show_rest(context, data_dict):
+    return organization_show(context, data_dict)
+
 
 def tag_show_rest(context, data_dict):
     return tag_show(context, data_dict)

@@ -193,7 +193,9 @@ class PackageController(BaseController):
             # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
+
+            # Only show public datasets
+            fq = 'capacity:"public"'
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
@@ -241,7 +243,7 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-        c.facet_titles = {'groups': _('Groups'),
+        c.facet_titles = {'groups': _('Organizations'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
@@ -380,8 +382,6 @@ class PackageController(BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
                                                                   data_dict)
-            #TODO: remove
-            # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
 
         except NotAuthorized:
@@ -471,10 +471,11 @@ class PackageController(BaseController):
         elif data.get('state') == 'draft-complete':
             stage = ['active', 'complete', 'complete']
 
-        # if we are creating from a group then this allows the group to be
+        # if we are creating from an organization then this allows the group to be
         # set automatically
-        data['group_id'] = request.params.get('group') or \
-            request.params.get('groups__0__id')
+        # FIXME: This needs fixing as it doesn't work with new templates
+        data['organization_id'] = request.params.get('organization') or \
+            request.params.get('organization__0__id')
 
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
@@ -602,6 +603,7 @@ class PackageController(BaseController):
 
             data['package_id'] = id
             try:
+                context['ignore_auth'] = True
                 if resource_id:
                     data['id'] = resource_id
                     get_action('resource_update')(context, data)
@@ -672,6 +674,7 @@ class PackageController(BaseController):
             context['allow_state_change'] = True
             data_dict.update(data)
             try:
+                context['ignore_auth'] = True
                 get_action('package_update')(context, data_dict)
             except ValidationError, e:
                 errors = e.error_dict

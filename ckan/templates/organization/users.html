@@ -1,0 +1,27 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ c.organization.display_name }}{% endblock %}
+
+{% block breadcrumb_content %}
+	<li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
+	<li class="active">{% link_for c.organization.display_name|truncate(35), controller='organization', action='users', id=c.organization.name %}</li>
+{% endblock %}
+
+{% block actions_content %}
+	<li id="organizations-back">{% link_for _('Back to organization'), controller='organization', action='read', id=c.organization.name, class_='btn', icon='caret-left' %}</li>
+{% endblock %}
+
+{% block primary_content %}
+	<section class="module">
+		<div class="module-content">
+			<h1 class="page-heading">{% block page_heading %}{{ _('Manage Users') }}{% endblock %}</h1>
+			{% block form %}
+				{{ c.form | safe }}
+			{% endblock %}
+		</div>
+	</section>
+{% endblock %}
+
+{% block secondary_content %}
+	{% snippet 'snippets/organization.html', organization=c.organization %}
+{% endblock %}

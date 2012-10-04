@@ -120,10 +120,23 @@ def group_id_exists(group_id, context):
     model = context['model']
     session = context['session']
 
-    result = session.query(model.Group).get(group_id)
+    result = session.query(model.Group).filter(model.Group.id==group_id).first()
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
+
+def organization_id_exists(organization_id, context):
+    """Raises Invalid if the given organization_id does not exist in the model given
+    in the context, otherwise returns the given organization_id.
+
+    """
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Group).filter(model.Group.id==organization_id).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Organization')))
+    return organization_id
 
 
 def related_id_exists(related_id, context):
@@ -173,8 +186,11 @@ object_id_validators = {
     'changed user' : user_id_exists,
     'follow user' : user_id_exists,
     'new group' : group_id_exists,
+    'new organization' : organization_id_exists,
     'changed group' : group_id_exists,
+    'changed organization' : organization_id_exists,
     'deleted group' : group_id_exists,
+    'deleted organization' : organization_id_exists,
     'new related item': related_id_exists,
     'deleted related item': related_id_exists
     }
@@ -269,19 +285,41 @@ def duplicate_extras_key(key, data, errors, context):
     if extras_keys:
         errors[key].append(_('Duplicate key "%s"') % extras_keys[0])
 
+def organization_required(key, data, errors, context):
+    """ We want at least a group in the data we are provided """
+    has_group = ('organization', 0, 'id') in data
+    if not has_group:
+        errors[('Organizations', '')] = \
+            [_('Please choose an organization to add the dataset to')]
+
+
+def organization_name_validator(key, data, errors, context):
+    model = context['model']
+    session = context['session']
+    organization = context.get('organization')
+
+    if organization:  # This is part of an update
+        result =  session.query(model.Group).filter(model.Group.name==data[key]).first()
+        if result and result.id == organization.id:
+            result = None
+    else:
+        result = session.query(model.Group).filter(model.Group.name == data.get(key[:-1] + ('name',))).first()
+
+    if result:
+        errors[key].append(_('Organization name already exists in database'))
+
 def group_name_validator(key, data, errors, context):
     model = context['model']
     session = context['session']
     group = context.get('group')
 
-    query = session.query(model.Group.name).filter_by(name=data[key])
-    if group:
-        group_id = group.id
+    if group:  # This is part of an update
+        result =  session.query(model.Group).filter(model.Group.name==data[key]).first()
+        if result and result.id == group.id:
+            result = None
     else:
-        group_id = data.get(key[:-1] + ('id',))
-    if group_id and group_id is not missing:
-        query = query.filter(model.Group.id <> group_id)
-    result = query.first()
+        result = session.query(model.Group).filter(model.Group.name == data.get(key[:-1] + ('name',))).first()
+
     if result:
         errors[key].append(_('Group name already exists in database'))
 

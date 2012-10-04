@@ -342,6 +342,70 @@ def group_list(context, data_dict):
 
     return group_list
 
+def organization_list(context, data_dict):
+    '''Return a list of the names of the site's organizations.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param organizations: a list of names of the organizations to return, if given only
+        organizations whose names are in this list will be returned (optional)
+    :type organizations: list of strings
+    :param all_fields: return full organization dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
+
+    model = context['model']
+    api = context.get('api_version')
+    organizations = data_dict.get('groups')
+    ref_group_by = 'id' if api == 2 else 'name';
+
+    sort = data_dict.get('sort', 'name')
+    # order_by deprecated in ckan 1.8
+    # if it is supplied and sort isn't use order_by and raise a warning
+    order_by = data_dict.get('order_by')
+    if order_by:
+        log.warn('`order_by` deprecated please use `sort`')
+        if not data_dict.get('sort'):
+            sort = order_by
+    # if the sort is packages and no sort direction is supplied we want to do a
+    # reverse sort to maintain compatibility.
+    if sort.strip() == 'packages':
+        sort = 'packages desc'
+
+    sort_info = _unpick_search(sort,
+                               allowed_fields=['name', 'packages'],
+                               total=1)
+
+    all_fields = data_dict.get('all_fields', None)
+
+    _check_access('organization_list', context, data_dict)
+
+    query = model.Session.query(model.Group).join(model.GroupRevision)
+    query = query.filter(model.GroupRevision.state=='active')
+    query = query.filter(model.GroupRevision.current==True)
+    if organizations:
+        query = query.filter(model.GroupRevision.name.in_(organizations))
+
+    organizations = query.all()
+    organization_list = model_dictize.organizations_list_dictize(organizations, context,
+                                                  lambda x:x[sort_info[0][0]],
+                                                  sort_info[0][1] == 'desc')
+
+    if not all_fields:
+        organization_list = [organization[ref_group_by] for group in organization_list]
+
+    return organization_list
+
+
 def group_list_authz(context, data_dict):
     '''Return the list of groups that the user is authorized to edit.
 
@@ -369,6 +433,33 @@ def group_list_authz(context, data_dict):
 
     return [{'id':group.id,'name':group.name} for group in groups]
 
+def organization_list_authz(context, data_dict):
+    '''Return the list of organizations that the user is authorized to add to.
+
+    :param available_only: remove the existing orgsin the package
+      (optional, default: ``False``)
+    :type available_only: boolean
+
+    :returns: the names of orgs that the user is authorized to add to
+    :rtype: list of strings
+
+    '''
+    model = context['model']
+    user = context['user']
+    available_only = data_dict.get('available_only',False)
+
+    _check_access('organization_list_authz',context, data_dict)
+
+    userobj = model.User.get(user)
+    organizations = userobj.get_groups('organization')
+
+    if available_only:
+        package = context.get('package')
+        if package:
+            organizations = organizations - set(package.get_groups())
+
+    return [{'id':organization.id,'name':organization.name} for organization in organizations]
+
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
 
@@ -388,6 +479,30 @@ def group_revision_list(context, data_dict):
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
+        revision_dicts.append(model.revision_as_dict(revision,
+                                                     include_packages=False,
+                                                     include_groups=False))
+    return revision_dicts
+
+def organization_revision_list(context, data_dict):
+    '''Return a organization's revisions.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+    organization = model.Group.get(id)
+    if organization is None:
+        raise NotFound
+
+    _check_access('organization_revision_list',context, data_dict)
+
+    revision_dicts = []
+    for revision, object_revisions in organization.all_related_revisions:
         revision_dicts.append(model.revision_as_dict(revision,
                                                      include_packages=False,
                                                      include_groups=False))
@@ -724,6 +839,47 @@ def group_show(context, data_dict):
         group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
 
+def organization_show(context, data_dict):
+    '''Return the details of a organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    organization = model.Group.get(id)
+    context['organization'] = organization
+
+    if organization is None:
+        raise NotFound
+
+    _check_access('organization_show',context, data_dict)
+
+    organization_dict = model_dictize.group_dictize(organization, context)
+
+    for item in plugins.PluginImplementations(plugins.IGroupController):
+        item.read(organization)
+
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization_dict['type'])
+    try:
+        schema = organization_plugin.db_to_form_schema_options({
+            'type':'show',
+            'api': 'api_version' in context,
+            'context': context })
+    except AttributeError:
+        schema = organization_plugin.db_to_form_schema()
+    if schema:
+        organization_dict, errors = _validate(organization_dict, schema,
+                context=context)
+
+    return organization_dict
+
+
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
 
@@ -746,6 +902,49 @@ def group_package_show(context, data_dict):
         raise NotFound
 
     _check_access('group_show', context, data_dict)
+
+    query = model.Session.query(model.PackageRevision)\
+        .filter(model.PackageRevision.state=='active')\
+        .filter(model.PackageRevision.current==True)\
+        .join(model.Member, model.Member.table_id==model.PackageRevision.id)\
+        .join(model.Group, model.Group.id==model.Member.group_id)\
+        .filter_by(id=group.id)\
+        .order_by(model.PackageRevision.name)
+
+    if limit:
+        query = query.limit(limit)
+
+    if context.get('return_query'):
+        return query
+
+    result = []
+    for pkg_rev in query.all():
+        result.append(model_dictize.package_dictize(pkg_rev, context))
+
+    return result
+
+def organization_package_show(context, data_dict):
+    '''Return the datasets (packages) of a organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param limit: the maximum number of datasets to return (optional)
+    :type limit: int
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context["model"]
+    user = context["user"]
+    id = _get_or_bust(data_dict, 'id')
+    limit = data_dict.get("limit")
+
+    organization = model.Group.get(id)
+    context['organization'] = organization
+    if organization is None:
+        raise NotFound
+
+    _check_access('organization_show', context, data_dict)
 
     query = model.Session.query(model.PackageRevision)\
         .filter(model.PackageRevision.state=='active')\
@@ -875,6 +1074,14 @@ def group_show_rest(context, data_dict):
     group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
+
+def organization_show_rest(context, data_dict):
+    _check_access('organization_show_rest',context, data_dict)
+    logic.get_action('organization_show')(context, data_dict)
+    organization = context['organization']
+    organization_dict = model_dictize.group_to_api(organization, context)
+    return organization_dict
+
 
 def tag_show_rest(context, data_dict):
     _check_access('tag_show_rest',context, data_dict)
@@ -1754,6 +1961,25 @@ def group_activity_list(context, data_dict):
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+def organization_activity_list(context, data_dict):
+    '''Return a organization's activity stream.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    model = context['model']
+    organization_id = _get_or_bust(data_dict, 'id')
+    query = model.Session.query(model.Activity)
+    query = query.filter_by(object_id=organization_id)
+    query = query.order_by(_desc(model.Activity.timestamp))
+    query = query.limit(15)
+    activity_objects = query.all()
+    return model_dictize.activity_list_dictize(activity_objects, context)
+
+
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
@@ -1828,6 +2054,22 @@ def group_activity_list_html(context, data_dict):
     '''
     activity_stream = group_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
+
+def organization_activity_list_html(context, data_dict):
+    '''Return a organization's activity stream as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: string
+
+    '''
+    activity_stream = group_activity_list(context, data_dict)
+    return activity_streams.activity_list_to_html(context, activity_stream)
+
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.

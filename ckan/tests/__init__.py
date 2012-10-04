@@ -45,6 +45,7 @@ __all__ = ['url_for',
            'CkanServerCase',
         ]
 
+
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
@@ -66,10 +67,14 @@ if model.engine_is_sqlite():
 class BaseCase(object):
 
     def setup(self):
-        pass
+        self.set_auth_profile('deprecated')
+
+    def set_auth_profile(self, profile):
+        from ckan.new_authz import set_auth_profile
+        set_auth_profile(profile)
 
     def teardown(self):
-        pass
+        self.set_auth_profile('deprecated')
 
     @staticmethod
     def _system(cmd):
@@ -399,4 +404,5 @@ class StatusCodes:
     STATUS_403_ACCESS_DENIED = 403
     STATUS_404_NOT_FOUND = 404
     STATUS_409_CONFLICT = 409
+
 

@@ -15,10 +15,15 @@ _package_plugins = {}
 # The fallback behaviour
 _default_package_plugin = None
 
-# Mapping from group-type strings to IDatasetForm instances
+# Mapping from group-type strings to IGroupForm instances
 _group_plugins = {}
 # The fallback behaviour
 _default_group_plugin = None
+
+# Mapping from organization_type strings to IOrganizationForm instances
+_organization_plugins = {}
+# The fallback behaviour
+_default_organization_plugin = None
 
 
 def lookup_package_plugin(package_type=None):
@@ -43,6 +48,19 @@ def lookup_group_plugin(group_type=None):
     if group_type is None:
         return _default_group_plugin
     return _group_plugins.get(group_type, _default_group_plugin)
+
+
+def lookup_organization_plugin(organization_type=None):
+    '''Return the IOrganizationForm plugin for the given organization_type.
+
+    If organization_type is None or if no plugin is registered for the given
+    organization_type, then the fallback plugin is returned.
+
+    '''
+    if organization_type is None:
+        return _default_organization_plugin
+    return _organization_plugins.get(organization_type,
+            _default_organization_plugin)
 
 
 def register_package_plugins(map):
@@ -150,6 +168,63 @@ def register_group_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
+
+
+def register_organization_plugins(map):
+    '''Register all the IOrganizationForm plugins.
+
+    Setup the mappings between organization_type strings and IOrganizationForm
+    implementations.
+
+    '''
+    global _default_organization_plugin
+
+    if _default_organization_plugin is not None:
+        # Looks like the plugins are already registered.
+        return
+
+    for plugin in plugins.PluginImplementations(plugins.IOrganizationForm):
+
+        # Register this plugin as the fallback plugin, if the plugin wants.
+        if plugin.is_fallback():
+            if _default_organization_plugin is not None:
+                raise ValueError("More than one fallback IOrganizationForm "
+                                 "plugin has been registered")
+            _default_organization_plugin = plugin
+
+        for organization_type in plugin.organization_types():
+
+            # Register this plugin with the organization_types it wants.
+            if organization_type in _organization_plugins:
+                raise ValueError("An existing IOrganizationForm is already "
+                                 "associated with the organization type "
+                                 "'{0}'".format(organization_type))
+            _organization_plugins[organization_type] = plugin
+
+            # Create new routes based on organization_type.
+            map.connect('{0}_index'.format(organization_type),
+                        '/{0}'.format(organization_type),
+                        controller='organization',
+                        action='index')
+            map.connect('{0}_new'.format(organization_type),
+                        '/{0}/new'.format(organization_type),
+                        controller='organization',
+                        action='new')
+            map.connect('{0}_read'.format(organization_type),
+                        '/{0}/{{id}}'.format(organization_type),
+                        controller='organization',
+                        action='read')
+            map.connect('{0}_action'.format(organization_type),
+                        '/{0}/{{action}}/{{id}}'.format(organization_type),
+                        controller='organization',
+                        requirements=dict(
+                            action='|'.join(['edit', 'authz', 'history']))
+            )
+
+    # Register the default fallback plugin, if a custom one hasn't been
+    # registered already.
+    if _default_organization_plugin is None:
+        _default_organization_plugin = DefaultOrganizationForm()
 
 
 class DefaultDatasetForm(object):
@@ -422,6 +497,108 @@ class DefaultGroupForm(object):
             raise DataError(data_dict)
         '''
         pass
+
+    def setup_template_variables(self, context, data_dict):
+        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+
+        ## This is messy as auths take domain object not data_dict
+        context_group = context.get('group', None)
+        group = context_group or c.group
+        if group:
+            try:
+                if not context_group:
+                    context['group'] = group
+                logic.check_access('group_change_state', context)
+                c.auth_for_change_state = True
+            except logic.NotAuthorized:
+                c.auth_for_change_state = False
+
+
+class DefaultOrganizationForm(object):
+    '''The default implementation of IOrganizationForm.
+
+    This class has 2 purposes:
+
+     1. It provides a base class for IOrganizationForm plugins to inherit
+        from, if they only want to implement a subset of the interface's
+        method themselves.
+
+     2. It is the default IOrganizationForm plugin the OrganizationController
+        delegates to when no IOrganizationForm plugin matches the
+        organization_type of the organization in question and no plugin
+        provides the fallback behaviour.
+
+    Note - DefaultDatasetForm does not call implements(IOrganizationForm),
+           this is because we don't want it to be registered as a plugin.
+
+    '''
+    def new_template(self):
+        return 'organization/new.html'
+
+    def index_template(self):
+        return 'organization/index.html'
+
+    def read_template(self):
+        return 'organization/read.html'
+
+    def history_template(self):
+        return 'organization/history.html'
+
+    def edit_template(self):
+        return 'organization/edit.html'
+
+    def organization_form(self):
+        return 'organization/form.html'
+
+    def form_to_db_schema_options(self, options):
+        '''Return the schema for mapping organizations from form to database.
+
+        If a context dict is provided in `options` and it contains a schema,
+        return that schema.
+
+        Otherwise call one of form_to_db_schema_api_create() or
+        form_to_db_schema_api_update() if the request is via the API or call
+        form_to_db_schema() if the request is via the web form.
+
+        '''
+        schema = options.get('context', {}).get('schema', None)
+        if schema:
+            return schema
+
+        if options.get('api'):
+            if options.get('type') == 'create':
+                return self.form_to_db_schema_api_create()
+            else:
+                return self.form_to_db_schema_api_update()
+        else:
+            return self.form_to_db_schema()
+
+    def form_to_db_schema_api_create(self):
+        return logic.schema.default_group_schema()
+
+    def form_to_db_schema_api_update(self):
+        return logic.schema.default_update_group_schema()
+
+    def form_to_db_schema(self):
+        return logic.schema.group_form_schema()
+
+    def db_to_form_schema(self):
+        return None
+
+    def db_to_form_schema_options(self, options):
+        '''Return the schema for mapping organizations from database to form.
+
+        If a context dict is provided in `options` and it contains a schema,
+        return that schema. Otherwise return db_to_form_schema().
+
+        '''
+        schema = options.get('context', {}).get('schema', None)
+        if schema:
+            return schema
+        return self.db_to_form_schema()
+
+    def check_data_dict(self, data_dict, schema):
+        return True
 
     def setup_template_variables(self, context, data_dict):
         c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)

@@ -15,7 +15,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.logic.auth as auth
 
 # FIXME this looks nasty and should be shared better
-from ckan.logic.action.update import _update_package_relationship
+from ckan.logic.action.update import _update_package_relationship\
 
 log = logging.getLogger(__name__)
 
@@ -588,6 +588,140 @@ def group_create(context, data_dict):
     log.debug('Created object %s' % str(group.name))
     return model_dictize.group_dictize(group, context)
 
+def organization_create(context, data_dict):
+    '''Create a new organization.
+
+    You must be authorized to create organizations.
+
+    :param name: the name of the group, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the organization (optional)
+    :type id: string
+    :param title: the title of the organization (optional)
+    :type title: string
+    :param description: the description of the group (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the organizations's page
+        (optional)
+    :type image_url: string
+    :param state: the current state of the organization, e.g. ``'active'`` or
+        ``'deleted'``, only active organizations show up in search results and
+        other lists of organizations, this parameter will be ignored if you are not
+        authorized to change the state of the organization (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the organization's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to groups, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the organization, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+    :param organization: the organization that belong to the organization,
+        a list of dictionaries each with key ``'name'`` (string, the id or
+        name of the group) and optionally ``'capacity'`` (string, the capacity
+        in which the group is a member of the group)
+    :type organizations: list of dictionaries
+    :param users: the users that belong to the organization, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the organization)
+    :type users: list of dictionaries
+
+    :returns: the newly created organization
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    user = context['user']
+    session = context['session']
+    parent = context.get('parent', None)
+
+    _check_access('organization_create', context, data_dict)
+
+    # Get the schema
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization_type=data_dict.get('type'))
+    try:
+        schema = organization_plugin.form_to_db_schema_options({
+            'type':'create',
+            'api':'api_version' in context,
+            'context': context})
+    except AttributeError:
+        schema = organization_plugin.form_to_db_schema()
+
+    if 'api_version' not in context:
+        organization_plugin.check_data_dict(data_dict, schema)
+
+    data, errors = _validate(data_dict, schema, context)
+    log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
+              errors, context.get('user'), data_dict.get('name'), data_dict)
+
+    if errors:
+        session.rollback()
+        raise ValidationError(errors)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Create object %s') % data.get("name")
+
+    organization = model_save.group_dict_save(data, context)
+
+    if parent:
+        parent_group = model.Group.get( parent )
+        if parent_group:
+            member = model.Member(group=parent_group, table_id=organization.id, table_name='group')
+            session.add(member)
+            log.debug('Organization %s is made child of organization %s',
+                      group.name, parent_group.name)
+
+    if user:
+        admins = [model.User.by_name(user.decode('utf8'))]
+    else:
+        admins = []
+
+    # Needed to let extensions know the group id
+    session.flush()
+
+    for item in plugins.PluginImplementations(plugins.IGroupController):
+        item.create(organization)
+
+    activity_dict = {
+            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'object_id': organization.id,
+            'activity_type': 'new organization',
+            }
+    activity_dict['data'] = {
+            'organization': ckan.lib.dictization.table_dictize(organization, context)
+            }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    context["organization"] = organization
+    context["id"] = organization.id
+    log.debug(u'Created object %s' % organization.name)
+    return model_dictize.group_dictize(organization, context)
+
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
 
@@ -744,6 +878,22 @@ def group_create_rest(context, data_dict):
     data_dict['id'] = group.id
 
     return group_dict
+
+def organization_create_rest(context, data_dict):
+
+    _check_access('organization_create_rest', context, data_dict)
+
+    dictized_organization = model_save.group_api_to_dict(data_dict, context)
+    dictized_after = _get_action('organization_create')(context, dictized_organization)
+
+    organization = context['organization']
+
+    organization_dict = model_dictize.group_to_api(group, context)
+
+    data_dict['id'] = organization.id
+
+    return organization_dict
+
 
 def vocabulary_create(context, data_dict):
     '''Create a new tag vocabulary.

@@ -511,6 +511,132 @@ def group_update(context, data_dict):
 
     return model_dictize.group_dictize(group, context)
 
+def organization_update(context, data_dict):
+    '''Update an organization
+
+    You must be authorized to edit the organization.
+
+    Plugins may change the parameters of this function depending on the value
+    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+
+    For further parameters see ``group_create()``.
+
+    :param id: the name or id of the group to update
+    :type id: string
+
+    :returns: the updated group
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    user = context['user']
+    session = context['session']
+    id = _get_or_bust(data_dict, 'id')
+    parent = context.get('parent', None)
+
+    organization = model.Group.get(id)
+    context["organization"] = organization
+    if organization is None:
+        raise NotFound('Organization was not found.')
+
+    # Get the schema.
+    organization_plugin = lib_plugins.lookup_organization_plugin(
+            organization.type)
+    try:
+        schema = organization_plugin.form_to_db_schema_options({
+            'type':'update',
+            'api':'api_version' in context,
+            'context': context})
+    except AttributeError:
+        schema = organization_plugin.form_to_db_schema()
+
+    _check_access('organization_update', context, data_dict)
+
+    if 'api_version' not in context:
+        organization_plugin.check_data_dict(data_dict, schema)
+
+    data, errors = _validate(data_dict, schema, context)
+    log.debug('organization_update validate_errs=%r user=%s organization=%s data_dict=%r',
+              errors, context.get('user'),
+              context.get('organization').name if context.get('organization') else '',
+              data_dict)
+
+    if errors:
+        session.rollback()
+        raise ValidationError(errors)
+
+    rev = model.repo.new_revision()
+    rev.author = user
+
+    if 'message' in context:
+        rev.message = context['message']
+    else:
+        rev.message = _(u'REST API: Update object %s') % data.get("name")
+
+    organization = model_save.group_dict_save(data, context)
+
+    if parent:
+        parent_organization = model.Group.get( parent )
+        if parent_organization and not organization_group in organization.get_groups('organization'):
+            # Delete all of this groups memberships
+            current = session.query(model.Member).\
+               filter(model.Member.table_id == group.id).\
+               filter(model.Member.table_name == "group").all()
+            if current:
+                log.debug('Parents of organization %s deleted: %r', organization.name,
+                          [membership.group.name for membership in current])
+            for c in current:
+                session.delete(c)
+            member = model.Member(group=parent_organization, table_id=organization.id, table_name='group')
+            session.add(member)
+            log.debug('Organization %s is made child of organization %s',
+                      organization.name, parent_organization.name)
+
+    for item in plugins.PluginImplementations(plugins.IGroupController):
+        item.edit(organization)
+
+    activity_dict = {
+            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'object_id': organization.id,
+            'activity_type': 'changed organization',
+            }
+    # Handle 'deleted' groups.
+    # When the user marks a group as deleted this comes through here as
+    # a 'changed' group activity. We detect this and change it to a 'deleted'
+    # activity.
+    if organization.state == u'deleted':
+        if session.query(ckan.model.Activity).filter_by(
+                object_id=organization.id, activity_type='deleted').all():
+            # A 'deleted group' activity for this group has already been
+            # emitted.
+            # FIXME: What if the group was deleted and then activated again?
+            activity_dict = None
+        else:
+            # We will emit a 'deleted group' activity.
+            activity_dict['activity_type'] = 'deleted organization'
+
+    if activity_dict is not None:
+        activity_dict['data'] = {
+                'organization': ckan.lib.dictization.table_dictize(organization, context)
+                }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit':True,
+            'session': session,
+            'organization_id': organization.id
+        }
+
+        # FIXME: Re-enable
+        _get_action('activity_create')(activity_create_context, activity_dict,
+                    ignore_auth=True)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return model_dictize.organization_dictize(organization, context)
+
+
 def user_update(context, data_dict):
     '''Update a user account.
 
@@ -775,6 +901,25 @@ def group_update_rest(context, data_dict):
     group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
+
+def organization_update_rest(context, data_dict):
+
+    model = context['model']
+    id = _get_or_bust(data_dict, "id")
+    organization = model.Group.get(id)
+    context["organization"] = organization
+    context["allow_partial_update"] = True
+    dictized_organization = model_save.group_api_to_dict(data_dict, context)
+
+    _check_access('organization_update_rest', context, dictized_organization)
+
+    dictized_after = _get_action('organization_update')(context, dictized_organization)
+
+    organization = context['organization']
+
+    organization_dict = model_dictize.group_to_api(organization, context)
+
+    return organization_dict
 
 def vocabulary_update(context, data_dict):
     '''Update a tag vocabulary.

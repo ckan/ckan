@@ -1,0 +1,7 @@
+{% extends "organization/base_form_page.html" %}
+
+{% block subtitle %}{{ _('Edit an Organization') }}{% endblock %}
+
+{% block breadcrumb_link %}{% link_for _('Edit Organization'), controller='organization', action='edit', id=c.organization.name %}{% endblock %}
+
+{% block page_heading %}{{ _('Edit an Organization') }}{% endblock %}

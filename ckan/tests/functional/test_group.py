@@ -51,6 +51,9 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         CreateTestData.create()
 
@@ -230,6 +233,9 @@ class TestGroupWithSearch(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
@@ -244,6 +250,14 @@ class TestGroupWithSearch(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
+        pkg = model.Package.by_name(pkgname)
+        member = model.Member(group=group, group_id=group.id, table_id=pkg.id,
+                        table_name='package',
+                        capacity='public')
+        model.repo.new_revision()
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)
@@ -265,6 +279,9 @@ class TestEdit(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         model.Session.remove()
         CreateTestData.create()
@@ -489,6 +506,9 @@ class TestNew(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         CreateTestData.create()
 
@@ -606,6 +626,9 @@ class TestNew(FunctionalTestCase):
 class TestRevisions(FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         CreateTestData.create()
         self.name = u'revisiontest1'
@@ -681,6 +704,10 @@ class TestRevisions(FunctionalTestCase):
 
 class TestOrganizationGroup(FunctionalTestCase):
 
+
+    def setup(self):
+        self.set_auth_profile('organization')
+
     @classmethod
     def setup_class(self):
         model.Session.remove()
@@ -692,13 +719,10 @@ class TestOrganizationGroup(FunctionalTestCase):
 
     def test_index(self):
         from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
 
-        offset = url_for(controller='group', action='index')
+        offset = url_for(controller='organization', action='index')
         res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
+        assert 'Organizations' in res, res
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
@@ -709,13 +733,9 @@ class TestOrganizationGroup(FunctionalTestCase):
                                  group_description)
         res = res.click(group_title)
         assert groupname in res
-        assert 'organization' == group.type, group.type
 
     def test_read(self):
         from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
 
         # Relies on the search index being available
         setup_test_search_index()
@@ -723,7 +743,6 @@ class TestOrganizationGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         group = model.Group.by_name(name)
-        assert 'organization' == group.type
         for group_ref in (group.name, group.id):
             offset = url_for(controller='group', action='read', id=group_ref)
             res = self.app.get(offset)
@@ -735,16 +754,11 @@ class TestOrganizationGroup(FunctionalTestCase):
             assert '0 datasets found.' in self.strip_tags(main_res), main_res
 
     def test_read_and_not_authorized_to_edit(self):
-        from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
-
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='edit', id=name)
-        res = self.app.get(offset,  status=200,
+        res = self.app.get(offset,  status=401,
                            extra_environ={'REMOTE_USER': 'russianfan'})
 
 

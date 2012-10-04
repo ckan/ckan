@@ -136,7 +136,7 @@ class TestSearch(TestController):
     def dont_test_tags_field_with_basic_unicode(self):
         result = search.query_for(model.Package).run({'q': u'greek omega \u03a9'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
-        
+
     def test_tags_token_simple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
@@ -146,7 +146,7 @@ class TestSearch(TestController):
     def test_tags_token_with_multi_word_tag(self):
         result = search.query_for(model.Package).run({'q': u'tags:"todo split"'})
         assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
-    
+
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
         result = search.query_for(model.Package).run({'q': u'tags:registry'})
@@ -287,7 +287,7 @@ class TestSearch(TestController):
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
-        
+
     def test_search_foreign_chars(self):
         result = search.query_for(model.Package).run({'q': 'umlaut'})
         assert result['results'] == ['gils'], result['results']
@@ -297,11 +297,11 @@ class TestSearch(TestController):
         assert result['results'] == ['gils'], result['results']
 
     def test_groups(self):
-        result = search.query_for(model.Package).run({'q': u'groups:random'})
+        result = search.query_for(model.Package).run({'q': u'organizations:random'})
         assert self._pkg_names(result) == '', self._pkg_names(result)
-        result = search.query_for(model.Package).run({'q': u'groups:ukgov'})
+        result = search.query_for(model.Package).run({'q': u'organizations:ukgov'})
         assert result['count'] == 4, self._pkg_names(result)
-        result = search.query_for(model.Package).run({'q': u'groups:ukgov tags:us'})
+        result = search.query_for(model.Package).run({'q': u'organizations:ukgov tags:us'})
         assert result['count'] == 2, self._pkg_names(result)
 
 class TestSearchOverall(TestController):
@@ -319,20 +319,20 @@ class TestSearchOverall(TestController):
         check_search_results('annakarenina', 1, ['annakarenina'])
         check_search_results('warandpeace', 1, ['warandpeace'])
         check_search_results('', 2)
-        
+
         check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
         check_search_results('title:Novel', 1, ['annakarenina'])
         check_search_results('title:peace', 0)
         check_search_results('name:warandpeace', 1)
-        check_search_results('groups:david', 2)
-        check_search_results('groups:roger', 1)
-        check_search_results('groups:lenny', 0)
+        check_search_results('organizations:david', 2)
+        check_search_results('organizations:roger', 0)
+        check_search_results('organizations:lenny', 0)
         check_search_results('tags:"russian"', 2)
         check_search_results(u'tags:"Flexible \u30a1"', 2)
         check_search_results(u'Flexible \u30a1', 2)
         check_search_results(u'Flexible', 2)
         check_search_results(u'flexible', 2)
-        
+
 
 class TestGeographicCoverage(TestController):
     @classmethod
@@ -356,7 +356,7 @@ class TestGeographicCoverage(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, q, expected_pkgs, count=None):
         query = {
             'q': q,
@@ -390,7 +390,7 @@ class TestGeographicCoverage(TestController):
         self._do_search(u'great britain', ['gb'], 1)
 
     def test_1_filtered(self):
-        # TODO: solr is not currently set up to allow partial matches 
+        # TODO: solr is not currently set up to allow partial matches
         #       and extras are not saved as multivalued so this
         #       test will fail. Make multivalued or remove?
         from ckan.tests import SkipTest
@@ -420,7 +420,7 @@ class TestExtraFields(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, department, expected_pkgs, count=None):
         result = search.query_for(model.Package).run({'q': 'department: %s' % department})
         pkgs = result['results']
@@ -465,7 +465,7 @@ class TestRank(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, q, wanted_results):
         query = {
             'q': q,

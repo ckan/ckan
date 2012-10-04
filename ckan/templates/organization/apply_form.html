@@ -1,0 +1,33 @@
+{% import 'macros/form.html' as form %}
+
+<form class="form-horizontal" action="" method="post">
+
+	<input type="hidden" name="type" value="publisher">
+
+	{{ form.errors(error_summary) }}
+
+	<div class="control-group">
+		<label for="parent" class="control-label">{{ _('Organization') }}</label>
+		<div class="controls">
+			<select id="parent" name="parent" data-module="autocomplete">
+				<option>{{ ('Please choose an organization') }}</option>
+				{% for parent in c.possible_parents %}
+				<option value="{{ parent.id }}"{{" selected" if c.organization and parent.id == c.organization.id else ""}}>{{ parent.title }}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+
+	<div class="control-group">
+		<label for="reason" class="control-label">{{ _('Reason') }}</label>
+		<div class="controls">
+			<textarea id="reason" name="reason" rows="8" class="span6">{{ data.reason }}</textarea>
+			<span class="help-block">{{ _('Please explain to the owner your reasons for wishing to become an editor of this organization') }}</span>
+		</div>
+	</div>
+
+	<div class="form-actions">
+		<button type="submit" name="save" class="btn btn-primary">{{ _('Send request') }}</button>
+	</div>
+
+</form>

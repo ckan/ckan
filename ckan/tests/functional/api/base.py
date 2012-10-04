@@ -101,7 +101,7 @@ class ApiTestCase(object):
         assert '"plain text"' in msg, msg
         assert '"Index of the novel"' in msg, msg
         assert '"id": "%s"' % self.anna.id in msg, msg
-        expected = '"groups": ['
+        expected = '"organizations": ['
         assert expected in msg, (expected, msg)
         expected = self.group_ref_from_name('roger')
         assert expected in msg, (expected, msg)

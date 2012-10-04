@@ -18,6 +18,9 @@ class TestSearch(FunctionalTestCase):
 
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         model.Session.remove()
         setup_test_search_index()
         CreateTestData.create_search_test_data()
@@ -73,6 +76,9 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         PylonsTestCase.setup_class()
         setup_test_search_index()
         CreateTestData.create()
@@ -128,6 +134,9 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 class TestNonActivePackages(FunctionalTestCase):
     @classmethod
     def setup_class(self):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         CreateTestData.create()
         self.non_active_name = u'test_nonactive'
@@ -141,11 +150,11 @@ class TestNonActivePackages(FunctionalTestCase):
         model.setup_default_user_roles(pkg, [admin])
         model.repo.commit_and_remove()
 
-        model.repo.new_revision()        
+        model.repo.new_revision()
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         pkg.delete() # becomes non active
         model.repo.commit_and_remove()
-        
+
 
     @classmethod
     def teardown_class(self):

@@ -15,6 +15,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    package_name_validator,
                                    package_version_validator,
                                    group_name_validator,
+                                   organization_name_validator,
+                                   organization_required,
                                    tag_length_validator,
                                    tag_name_validator,
                                    tag_string_convert,
@@ -128,8 +130,9 @@ def default_package_schema():
         'extras': default_extras_schema(),
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
-        'groups': {
+        'organizations': {
             'id': [ignore_missing, unicode],
+            'capacity': [ignore_missing, unicode],
             'name': [ignore_missing, unicode],
             'title': [ignore_missing, unicode],
             '__extras': [ignore],
@@ -163,8 +166,9 @@ def form_to_db_package_schema():
     schema = default_package_schema()
     ##new
     schema['log_message'] = [ignore_missing, unicode, no_http]
-    schema['groups'] = {
+    schema['organizations'] = {
             'id': [ignore_missing, unicode],
+            'capacity': [ignore_missing, unicode],
             '__extras': [ignore],
     }
     schema['tag_string'] = [ignore_missing, tag_string_convert]
@@ -172,7 +176,7 @@ def form_to_db_package_schema():
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
     schema['type'] = [ignore_missing, unicode]
-
+    schema['__after'] = [organization_required]
     ##changes
     schema.pop("id")
     schema.pop('tags')
@@ -201,6 +205,41 @@ def db_to_form_package_schema():
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
     })
     return schema
+
+def default_organization_schema():
+
+    schema = {
+        'id': [ignore_missing, unicode],
+        'revision_id': [ignore],
+        'name': [not_empty, unicode, name_validator, organization_name_validator],
+        'title': [ignore_missing, unicode],
+        'description': [ignore_missing, unicode],
+        'image_url': [ignore_missing, unicode],
+        'type': [ignore_missing, unicode],
+        'state': [ignore_not_group_admin, ignore_missing],
+        'created': [ignore],
+        'approval_status': [ignore_missing, unicode],
+        'extras': default_extras_schema(),
+        '__extras': [ignore],
+        'packages': {
+            "id": [not_empty, unicode, package_id_or_name_exists],
+            "title":[ignore_missing, unicode],
+            "name":[ignore_missing, unicode],
+            "__extras": [ignore]
+        },
+         'organizations': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        },
+        'users': {
+            "name": [not_empty, unicode],
+            "capacity": [ignore_missing],
+            "__extras": [ignore]
+        }
+    }
+    return schema
+
 
 def default_group_schema():
 
@@ -241,6 +280,23 @@ def default_group_schema():
     }
     return schema
 
+def organization_form_schema():
+    schema = default_organization_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['packages'] = {
+        "name": [not_empty, unicode],
+        "title": [ignore_missing],
+        "__extras": [ignore]
+    }
+    schema['users'] = {
+        "name": [not_empty, unicode],
+        "capacity": [ignore_missing],
+        "__extras": [ignore]
+    }
+    schema['display_name'] = [ignore_missing]
+    return schema
+
+
 def group_form_schema():
     schema = default_group_schema()
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
@@ -255,6 +311,12 @@ def group_form_schema():
         "__extras": [ignore]
     }
     schema['display_name'] = [ignore_missing]
+    return schema
+
+
+def default_update_organization_schema():
+    schema = default_organization_schema()
+    schema["name"] = [ignore_missing, organiztion_name_validator, unicode]
     return schema
 
 

@@ -14,6 +14,9 @@ from ckan.lib.mailer import get_reset_link, create_reset_key
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         smtp_server = config.get('test_smtp_server')
         if smtp_server:
             host, port = smtp_server.split(':')

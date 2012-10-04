@@ -42,6 +42,40 @@ def group_list_dictize(obj_list, context,
         result_list.append(group_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
+def organizations_list_dictize(obj_list, context,
+                              sort_key=lambda x:x['display_name'],
+                              reverse=False):
+
+    active = context.get('active', True)
+    with_private = context.get('include_private_packages', False)
+    result_list = []
+
+    for obj in obj_list:
+        if context.get('with_capacity'):
+            obj, capacity = obj
+            organization_dict = d.table_dictize(obj, context, capacity=capacity)
+        else:
+            organization_dict = d.table_dictize(obj, context)
+        organization_dict.pop('created')
+        if active and obj.state not in ('active', 'pending'):
+            continue
+
+        organization_dict['display_name'] = obj.display_name
+
+        organization_dict['packages'] = \
+                len(obj.active_packages(with_private=with_private).all())
+        organization_dict['users'] = \
+                obj.members_of_type(ckan.model.User).count()
+
+        if context.get('for_view'):
+            for item in plugins.PluginImplementations(
+                    plugins.IGroupController):
+                organization_dict = item.before_view(organization_dict)
+
+        result_list.append(organization_dict)
+    return sorted(result_list, key=sort_key, reverse=reverse)
+
+
 def resource_list_dictize(res_list, context):
 
     active = context.get('active', True)
@@ -241,7 +275,7 @@ def package_dictize(pkg, context):
                ).where(member_rev.c.table_id == pkg.id)\
                 .where(member_rev.c.state == 'active')
     result = _execute_with_revision(q, member_rev, context)
-    result_dict["groups"] = d.obj_list_dictize(result, context)
+    result_dict["organizations"] = d.obj_list_dictize(result, context)
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
@@ -326,6 +360,43 @@ def group_dictize(group, context):
             result_dict = item.before_view(result_dict)
 
     return result_dict
+
+
+def organization_dictize(organization, context):
+    model = context['model']
+    result_dict = d.table_dictize(organization, context)
+
+    result_dict['display_name'] = organization.display_name
+
+    result_dict['extras'] = extras_dict_dictize(
+        organization._extras, context)
+
+    context['with_capacity'] = True
+
+    result_dict['packages'] = d.obj_list_dictize(
+        _get_members(context, organization, 'packages'),
+        context)
+
+    result_dict['tags'] = tag_list_dictize(
+        _get_members(context, organization, 'tags'),
+        context)
+
+    result_dict['organizations'] = group_list_dictize(
+        _get_members(context, organization, 'groups'),
+        context)
+
+    result_dict['users'] = user_list_dictize(
+        _get_members(context, organization, 'users'),
+        context)
+
+    context['with_capacity'] = False
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IGroupController):
+            result_dict = item.before_view(result_dict)
+
+    return result_dict
+
 
 def tag_list_dictize(tag_list, context):
 
@@ -484,13 +555,15 @@ def package_to_api(pkg, context):
 
     if api_version == 1:
         api_fn = make_api_1
-        dictized["groups"] = [group["name"] for group in dictized["groups"]]
+        if dictized.get("organizations"):
+            dictized["organizations"] = [organization["name"] for organization in dictized["organizations"]]
         # FIXME why is this just for version 1?
         if pkg.resources:
             dictized['download_url'] = pkg.resources[0].url
     else:
         api_fn = make_api_2
-        dictized["groups"] = [group["id"] for group in dictized["groups"]]
+        if dictized.get("organizations"):
+            dictized["organizations"] = [organization["id"] for organization in dictized["organizations"]]
 
     subjects = dictized.pop("relationships_as_subject")
     objects = dictized.pop("relationships_as_object")

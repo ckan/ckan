@@ -306,7 +306,7 @@ def package_dict_save(pkg_dict, context):
 
     package_resource_list_save(pkg_dict.get("resources"), pkg, context)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
-    package_membership_list_save(pkg_dict.get("groups"), pkg, context)
+    package_membership_list_save(pkg_dict.get("organizations"), pkg, context)
 
     # relationships are not considered 'part' of the package, so only
     # process this if the key is provided

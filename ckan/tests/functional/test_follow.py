@@ -9,6 +9,9 @@ class TestFollow(HtmlCheckMethods):
 
     @classmethod
     def setupClass(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         ckan.tests.CreateTestData.create()
         cls.testsysadmin = ckan.model.User.get('testsysadmin')
         cls.annafan = ckan.model.User.get('annafan')
@@ -66,8 +69,8 @@ class TestFollow(HtmlCheckMethods):
         assert 'href="/dataset/followers/annakarenina"' in result
         assert 'Followers (3)' in result
         assert 'id="dataset_follow_button"' not in result
-    
-    def test_dataset_followers_not_logged_in(self): 
+
+    def test_dataset_followers_not_logged_in(self):
         offset = url_for(controller='package', action='followers',
                 id='warandpeace')
         result = self.app.get(offset)
@@ -101,7 +104,7 @@ class TestFollow(HtmlCheckMethods):
         assert 'href="/user/followers/annafan"' in result
         assert 'Followers (2)' in result
         assert 'id="user_follow_button"' not in result
-    
+
     def test_user_followers_not_logged_in(self):
         offset = url_for(controller='user', action='followers',
                 id='joeadmin')
@@ -137,7 +140,7 @@ class TestFollow(HtmlCheckMethods):
         assert 'href="/user/followers/annafan"' in result
         assert 'My Followers (2)' in result
         assert 'id="user_follow_button"' not in result
-    
+
     def test_own_user_followers_logged_in(self):
         offset = url_for(controller='user', action='followers',
                 id='joeadmin')
@@ -205,7 +208,7 @@ class TestFollow(HtmlCheckMethods):
         extra_environ = {'Authorization': str(self.joeadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'Unfollow' in result
-        
+
     def test_user_read_logged_in(self):
         offset = url_for(controller='user', action='read',
                 id='joeadmin')

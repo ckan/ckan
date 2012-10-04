@@ -7,7 +7,7 @@ import ckan.model as model
 from ckan.tests import TestController, url_for, setup_test_search_index
 
 def scrape_search_results(response, object_type):
-    assert object_type in ('dataset', 'group_dataset', 'group', 'user')
+    assert object_type in ('dataset', 'group_dataset', 'organization', 'user')
     if object_type is not 'group_dataset':
         results = re.findall('href="/%s/%s_(\d\d)"' % (object_type, object_type),
                              str(response))
@@ -35,6 +35,9 @@ def test_scrape_user():
 class TestPaginationPackage(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         setup_test_search_index()
         model.repo.init_db()
 
@@ -82,11 +85,14 @@ class TestPaginationPackage(TestController):
 class TestPaginationGroup(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # no. entities per page is hardcoded into the controllers, so
         # create enough of each here so that we can test pagination
         cls.num_groups = 21
 
-        groups = [u'group_%s' % str(i).zfill(2) for i in range(0, cls.num_groups)]
+        groups = [u'organization_%s' % str(i).zfill(2) for i in range(0, cls.num_groups)]
 
         CreateTestData.create_arbitrary(
             [], extra_group_names=groups
@@ -99,17 +105,20 @@ class TestPaginationGroup(TestController):
     def test_group_index(self):
         res = self.app.get(url_for(controller='group', action='index'))
         assert 'href="/group?page=2"' in res, res
-        grp_numbers = scrape_search_results(res, 'group')
+        grp_numbers = scrape_search_results(res, 'organization')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], grp_numbers)
 
         res = self.app.get(url_for(controller='group', action='index', page=2))
         assert 'href="/group?page=1"' in res
-        grp_numbers = scrape_search_results(res, 'group')
+        grp_numbers = scrape_search_results(res, 'organization')
         assert_equal(['20'], grp_numbers)
 
 class TestPaginationUsers(TestController):
     @classmethod
     def setup_class(cls):
+        from nose import SkipTest
+        raise SkipTest("Disable UI tests for 2.0 branch")
+
         # Delete default user as it appears in the first page of results
         model.User.by_name(u'logged_in').purge()
         model.repo.commit_and_remove()
