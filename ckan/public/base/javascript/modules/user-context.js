@@ -27,7 +27,7 @@ this.ckan.module('user-context', function($, _) {
 			loading: false,
 			authed: false,
 			url: '',
-			template: '<div class="profile-info">{{ about }}<div class="btn-group">{{ buttons }}</div><div class="nums"><dl><dt>{{ lang.followers }}</dt><dd>{{ followers }}</dd></dl><dl><dt>{{ lang.datasets }}</dt><dd>{{ datasets }}</dd></dl><dl><dt>{{ lang.edits }}</dt><dd>{{ edits }}</dd></dl></div></div>',
+			template: '<div class="profile-info">{{ about }}<div class="btn-group">{{ buttons }}</div><div class="nums"><span class="num"><strong>{{ lang.followers }}</strong><span>{{ followers }}</span></span><span class="num"><strong>{{ lang.datasets }}</strong><span>{{ datasets }}</span></span><span class="num"><strong>{{ lang.edits }}</strong><span>{{ edits }}</span></span></div></div>',
 			i18n: {
 				follow: _('Follow'),
 				unfollow: _('Unfollow'),
