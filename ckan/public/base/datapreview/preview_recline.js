@@ -60,10 +60,12 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       // CKAN DataStore)
       recline.Backend.Ckan.API_ENDPOINT = jQuery('body').data('site-root') + 'api';
 
+      var errorMsg, dataset;
+
       if (resourceData.datastore_active) {
         resourceData.backend =  'ckan';
-        var dataset = new recline.Model.Dataset(resourceData);
-        var errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
+        dataset = new recline.Model.Dataset(resourceData);
+        errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
         dataset.fetch()
           .done(function(dataset){
               self.initializeDataExplorer(dataset);
@@ -77,8 +79,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         // set format as this is used by Recline in setting format for DataProxy
         resourceData.format = resourceData.formatNormalized;
         resourceData.backend = 'dataproxy';
-        var dataset = new recline.Model.Dataset(resourceData);
-        var errorMsg = this.options.i18n.errorLoadingPreview + ': ' +this.options.i18n.errorDataProxy;
+        dataset = new recline.Model.Dataset(resourceData);
+        errorMsg = this.options.i18n.errorLoadingPreview + ': ' +this.options.i18n.errorDataProxy;
         dataset.fetch()
           .done(function(dataset){
 
