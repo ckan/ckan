@@ -95,7 +95,7 @@
 {%- endblock -%}
 
 {%- block scripts %}
-    {% resource 'base/main' %}
+    {% resource 'base/ckan' %}
     {% resource 'vendor/vendor' %}
     {% if config.get('ckan.tracking_enabled', 'false') %}
         {% resource 'base/tracking.js' %}
