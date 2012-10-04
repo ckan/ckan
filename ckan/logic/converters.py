@@ -105,3 +105,28 @@ def convert_user_name_or_id_to_id(user_name_or_id, context):
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('User')))
     return result.id
+
+def convert_package_name_or_id_to_id(package_name_or_id, context):
+    '''Return the package id for the given package name or id.
+
+    The point of this function is to convert package names to ids. If you have
+    something that may be a package name or id you can pass it into this
+    function and get the id out either way.
+
+    Also validates that a package with the given name or id exists.
+
+    :returns: the id of the package with the given name or id
+    :rtype: string
+    :raises: ckan.lib.navl.dictization_functions.Invalid if there is no
+        package with the given name or id
+
+    '''
+    session = context['session']
+    result = session.query(model.Package).filter_by(
+            id=package_name_or_id).first()
+    if not result:
+        result = session.query(model.Package).filter_by(
+                name=package_name_or_id).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+    return result.id
