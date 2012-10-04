@@ -104,5 +104,4 @@ def convert_user_name_or_id_to_id(user_name_or_id, context):
                 name=user_name_or_id).first()
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('User')))
-    else:
-        return result.id
+    return result.id
