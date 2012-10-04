@@ -498,3 +498,21 @@ class UserController(BaseController):
         except NotAuthorized as e:
             h.flash_error(e.extra_msg)
         h.redirect_to(controller='user', action='read', id=id)
+
+    def unfollow(self, id):
+        '''Stop following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('unfollow_user')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(id))
+        except (NotFound, NotAuthorized) as e:
+            error_message = e.extra_msg or e.message
+            h.flash_error(error_message)
+        except ValidationError as e:
+            error_message = (e.error_summary or e.message or e.extra_msg
+                    or e.error_dict)
+            h.flash_error(error_message)
+        h.redirect_to(controller='user', action='read', id=id)

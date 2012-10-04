@@ -258,6 +258,7 @@ def make_map():
         # in the route.
         m.connect('/user/dashboard', action='dashboard')
         m.connect('/user/follow/{id}', action='follow')
+        m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('/user/followers/{id:.*}', action='followers')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
