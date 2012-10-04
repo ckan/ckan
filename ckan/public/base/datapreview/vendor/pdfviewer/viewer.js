@@ -15,6 +15,24 @@
  * limitations under the License.
  */
 
+/*
+
+How to update the pdf.js in CKAN
+================================
+
+- replace pdf.js file
+- remove the kDefaultURL from the viwer.js
+- move all content from
+    `document.addEventListener('DOMContentLoaded', function webViewerLoad(evt){...})
+    to the function `loadPdfJsView` in the viewer.js
+- upgrade the viewer.css
+- remove the `position: absolute;` from the `#toolbarViewerLeft` and `#toolbarViewerRight`
+    since it causes issues in webkit
+- upgarde the html, don't forget to keep the `data-module`
+- try to work out the remaining issues (Sorry, it's not that easy).
+
+*/
+
 'use strict';
 
 var kDefaultScale = 'auto';
