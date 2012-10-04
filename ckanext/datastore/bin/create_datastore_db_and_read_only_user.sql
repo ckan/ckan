@@ -16,6 +16,7 @@ To run the script, execute:
 \set datastoredb datastore
 \set ckanuser ckanuser
 \set rouser readonlyuser
+\set ropwd 'pass'
 
 -- create the datastore database
 create database :datastoredb;
@@ -38,7 +39,7 @@ GRANT CREATE ON SCHEMA public TO :ckanuser;
 GRANT USAGE ON SCHEMA public TO :ckanuser;
 
 -- create new read only user
-CREATE USER :rouser NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
+CREATE USER :rouser WITH PASSWORD :ropwd NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN;
 
 -- take connect permissions from main db
 REVOKE CONNECT ON DATABASE :maindb FROM :rouser;

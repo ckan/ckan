@@ -9,16 +9,22 @@ import fanstatic.core as core
 # This imports patches fanstatic
 import ckan.lib.fanstatic_extensions as fanstatic_extensions
 
-from ckan.include.rjsmin import jsmin
-from ckan.include.rcssmin import cssmin
-
 log = logging.getLogger(__name__)
+
+
+def min_path(path):
+    '''Return the .min.* filename for the given .js or .css file.
+
+    For example moo.js -> moo.min.js
+
+    '''
+    path, ext = os.path.splitext(path)
+    return path + '.min' + ext
 
 
 def create_library(name, path, depend_base=True):
     ''' Creates a fanstatic library `name` with the contents of a
-    directory `path` using resource.config if found. Files are minified
-    if needed. '''
+    directory `path` using resource.config if found.'''
 
     def get_resource(lib_name, resource_name):
         ''' Attempt to get the resource from the current lib or if not try
@@ -28,31 +34,6 @@ def create_library(name, path, depend_base=True):
         except AttributeError:
             res = getattr(module, '%s' % resource_name)
         return res
-
-    def min_path(path):
-        ''' return the .min filename eg moo.js -> moo.min.js '''
-        if path.endswith('.js'):
-            return path[:-3] + '.min.js'
-        if path.endswith('.css'):
-            return path[:-4] + '.min.css'
-
-    def minify(filename, resource_path, min_function):
-        ''' Minify file path using min_function. '''
-        # if the minified file was modified after the source file we can
-        # assume that it is up-to-date
-        path = os.path.join(resource_path, filename)
-        path_min = min_path(path)
-        op = os.path
-        if op.exists(path_min) and op.getmtime(path) < op.getmtime(path_min):
-            return
-        source = open(path, 'r').read()
-        try:
-            f = open(path_min, 'w')
-            f.write(min_function(source))
-            f.close()
-            log.debug('minified %s' % path)
-        except IOError:
-            pass
 
     def create_resource(path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''
@@ -186,12 +167,10 @@ def create_library(name, path, depend_base=True):
             if rel_path:
                 rel_path = rel_path[1:]
             filepath = os.path.join(rel_path, f)
-            if f.endswith('.js') and not f.endswith('.min.js'):
-                minify(f, dirname, jsmin)
-                resource_list.append(filepath)
-            if f.endswith('.css') and not f.endswith('.min.css'):
-                minify(f, dirname, cssmin)
-                resource_list.append(filepath)
+            filename_only, extension = os.path.splitext(f)
+            if extension in ('.css', '.js') and (
+                not filename_only.endswith('.min')):
+              resource_list.append(filepath)
 
     # if groups are defined make sure the order supplied there is honored
     for group in groups:

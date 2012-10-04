@@ -74,12 +74,18 @@ def datastore_upsert(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
-    id = _get_or_bust(data_dict, 'resource_id')
+    res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(id):
+    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+
+    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
+                                        WHERE name = :id AND alias_of IS NULL''')
+    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    res_exists = results.rowcount > 0
+
+    if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(id)
+            'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
@@ -104,12 +110,18 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
-    id = _get_or_bust(data_dict, 'resource_id')
+    res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(id):
+    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+
+    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
+                                        WHERE name = :id AND alias_of IS NULL''')
+    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    res_exists = results.rowcount > 0
+
+    if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(id)
+            'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_delete', context, data_dict)

@@ -2,6 +2,9 @@ import json
 import datetime
 import shlex
 import os
+import urllib
+import urllib2
+import urlparse
 import logging
 import pprint
 import sqlalchemy
@@ -136,6 +139,22 @@ def _cache_types(context):
         psycopg2.extras.register_composite('nested', connection.connection, True)
 
 
+def _is_valid_pg_type(context, type_name):
+    if type_name in _type_names:
+        return True
+    else:
+        connection = context['connection']
+        try:
+            connection.execute('select %s::regtype', type_name)
+        except ProgrammingError, e:
+            if 'invalid type name' in str(e) or 'does not exist' in str(e):
+                return False
+            else:
+                raise
+        else:
+            return True
+
+
 def _get_type(context, oid):
     _cache_types(context)
     return _pg_types[oid]
@@ -223,7 +242,7 @@ def json_get_values(obj, current_list=None):
 def check_fields(context, fields):
     'Check if field types are valid.'
     for field in fields:
-        if field.get('type') and not field['type'] in _type_names:
+        if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
                 'fields': ['{0} is not a valid field type'.format(field['type'])]
             })
@@ -233,11 +252,15 @@ def check_fields(context, fields):
             })
 
 
-def convert(data, type):
+def convert(data, type_name):
     if data is None:
         return None
-    if type == 'nested':
+    if type_name == 'nested':
         return json.loads(data[0])
+    # array type
+    if type_name.startswith('_'):
+        sub_type = type_name[1:]
+        return [convert(item, sub_type) for item in data]
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -413,7 +436,7 @@ def alter_table(context, data_dict):
     new_fields = []
 
     for num, field in enumerate(supplied_fields):
-        # check to see if field definition is the same or an
+        # check to see if field definition is the same or and
         # extension of current fields
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:
@@ -516,19 +539,31 @@ def upsert_data(context, data_dict):
                     'key': [u'fields "{0}" are missing but needed as key'.format(
                         ', '.join(missing_fields))]
                 })
-            unique_values = [record[key] for key in unique_keys]
 
-            used_field_names = record.keys()
-            used_values = [record[field] for field in used_field_names]
-            full_text = _to_full_text(fields, record)
+            for field in fields:
+                value = record.get(field['id'])
+                if value and field['type'].lower() == 'nested':
+                    ## a tuple with an empty second value
+                    record[field['id']] = (json.dumps(value), '')
 
-            non_existing_filed_names = [field for field in used_field_names
+            non_existing_filed_names = [field for field in record.keys()
                 if field not in field_names]
             if non_existing_filed_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
                         ', '.join(missing_fields))]
                 })
+
+            unique_values = [record[key] for key in unique_keys]
+
+            used_fields = [field for field in fields
+                                    if field['id'] in record.keys()]
+
+            used_field_names = _pluck('id', used_fields)
+
+            used_values = [record[field] for field in used_field_names]
+
+            full_text = _to_full_text(fields, record)
 
             if method == UPDATE:
                 sql_string = u'''
@@ -563,7 +598,7 @@ def upsert_data(context, data_dict):
                 '''.format(
                     res_id=data_dict['resource_id'],
                     columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
-                    values=u', '.join(['%s' for _ in used_field_names]),
+                    values=u', '.join(['%s::nested' if field['type'] == 'nested' else '%s' for field in used_fields]),
                     primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
@@ -643,24 +678,24 @@ def _where(field_ids, data_dict):
 
     # add full-text search where clause
     if data_dict.get('q'):
-        where_clauses.append('_full_text @@ query')
+        where_clauses.append(u'_full_text @@ query')
 
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = u' AND '.join(where_clauses)
     if where_clause:
-        where_clause = 'WHERE ' + where_clause
+        where_clause = u'WHERE ' + where_clause
     return where_clause, values
 
 
 def _textsearch_query(data_dict):
     q = data_dict.get('q')
-    lang = data_dict.get('language', 'english')
+    lang = data_dict.get(u'language', u'english')
     if q:
         if (_get_bool(data_dict.get('plain'), True)):
-            statement = ", plainto_tsquery('{lang}', '{query}') query"
+            statement = u", plainto_tsquery('{lang}', '{query}') query"
         else:
-            statement = ", to_tsquery('{lang}', '{query}') query"
+            statement = u", to_tsquery('{lang}', '{query}') query"
 
-        rank_column = ', ts_rank(_full_text, query, 32) AS rank'
+        rank_column = u', ts_rank(_full_text, query, 32) AS rank'
         return statement.format(lang=lang, query=q), rank_column
     return '', ''
 
@@ -669,9 +704,9 @@ def _sort(context, data_dict, field_ids):
     sort = data_dict.get('sort')
     if not sort:
         if data_dict.get('q'):
-            return 'ORDER BY rank'
+            return u'ORDER BY rank'
         else:
-            return ''
+            return u''
 
     clauses = _get_list(sort, False)
 
@@ -705,6 +740,43 @@ def _sort(context, data_dict, field_ids):
 
     if clause_parsed:
         return "order by " + ", ".join(clause_parsed)
+
+
+def _insert_links(data_dict, limit, offset):
+    ''' Adds link to the next/prev part (same limit, offset=offset+limit)
+    and the resource page.
+    '''
+    data_dict['_links'] = {}
+
+    # get the url from the request
+    import ckan.plugins.toolkit as toolkit
+    urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+
+    # change the offset in the url
+    parsed = list(urlparse.urlparse(urlstring))
+    query = urllib2.unquote(parsed[4])
+
+    arguments = dict(urlparse.parse_qsl(query))
+    arguments_start = dict(arguments)
+    arguments_prev = dict(arguments)
+    arguments_next = dict(arguments)
+    if 'offset' in arguments_start:
+        arguments_start.pop('offset')
+    arguments_next['offset'] = int(offset) + int(limit)
+    arguments_prev['offset'] = int(offset) - int(limit)
+
+    parsed_start = parsed[:]
+    parsed_prev = parsed[:]
+    parsed_next = parsed[:]
+    parsed_start[4] = urllib.urlencode(arguments_start)
+    parsed_next[4] = urllib.urlencode(arguments_next)
+    parsed_prev[4] = urllib.urlencode(arguments_prev)
+
+    # add the links to the data dict
+    data_dict['_links']['start'] = urlparse.urlunparse(parsed_start)
+    data_dict['_links']['next'] = urlparse.urlunparse(parsed_next)
+    if int(offset) - int(limit) > 0:
+        data_dict['_links']['prev'] = urlparse.urlunparse(parsed_prev)
 
 
 def delete_data(context, data_dict):
@@ -765,7 +837,9 @@ def search_data(context, data_dict):
             ts_query=ts_query,
             where=where_clause,
             sort=sort, limit=limit, offset=offset)
-    results = context['connection'].execute(sql_string, where_values)
+    results = context['connection'].execute(sql_string, [where_values])
+
+    _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
 
 
@@ -790,6 +864,7 @@ def format_results(context, results, data_dict):
         records.append(converted_row)
     data_dict['records'] = records
     data_dict['fields'] = result_fields
+
     return _unrename_json_field(data_dict)
 
 
@@ -906,7 +981,7 @@ def delete(context, data_dict):
         # check if table exists
         trans = context['connection'].begin()
         result = context['connection'].execute(
-            u'select 1 from pg_tables where tablename = %s',
+            u'SELECT 1 FROM pg_tables WHERE tablename = %s',
              data_dict['resource_id']
         ).fetchone()
         if not result:
