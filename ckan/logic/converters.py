@@ -82,3 +82,27 @@ def convert_from_tags(vocab):
         data[key] = tags
     return callable
 
+def convert_user_name_or_id_to_id(user_name_or_id, context):
+    '''Return the user id for the given user name or id.
+
+    The point of this function is to convert user names to ids. If you have
+    something that may be a user name or a user id you can pass it into this
+    function and get the user id out either way.
+
+    Also validates that a user with the given name or id exists.
+
+    :returns: the id of the user with the given user name or id
+    :rtype: string
+    :raises: ckan.lib.navl.dictization_functions.Invalid if no user can be
+        found with the given id or user name
+
+    '''
+    session = context['session']
+    result = session.query(model.User).filter_by(id=user_name_or_id).first()
+    if not result:
+        result = session.query(model.User).filter_by(
+                name=user_name_or_id).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+    else:
+        return result.id

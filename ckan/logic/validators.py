@@ -102,6 +102,12 @@ def user_id_exists(user_id, context):
     return user_id
 
 def user_id_or_name_exists(user_id_or_name, context):
+    '''Return the given user_id_or_name if such a user exists.
+
+    :raises: ckan.lib.navl.dictization_functions.Invalid if no user can be
+        found with the given id or user name
+
+    '''
     model = context['model']
     session = context['session']
     result = session.query(model.User).get(user_id_or_name)
@@ -110,7 +116,7 @@ def user_id_or_name_exists(user_id_or_name, context):
     result = session.query(model.User).filter_by(name=user_id_or_name).first()
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('User')))
-    return result.id
+    return user_id_or_name
 
 def group_id_exists(group_id, context):
     """Raises Invalid if the given group_id does not exist in the model given
