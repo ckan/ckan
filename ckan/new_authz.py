@@ -68,9 +68,15 @@ def has_user_permission_for_group_or_org(group_id, user_id, permission):
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
-    if c.userobj and c.userobj.name == user_name:
-        return c.userobj.id
-    # FIXME needs completing for if we have no user in session
+    try:
+        if c.userobj and c.userobj.name == user_name:
+            return c.userobj.id
+    except TypeError:
+        # c is not available
+        pass
+    user = model.User.get(user_name)
+    if user:
+        return user.id
     if allow_none:
         return None
     raise Exception('Not logged in user')
