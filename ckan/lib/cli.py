@@ -956,7 +956,7 @@ class Tracking(CkanCommand):
                    COALESCE(SUM(s.count), 0) AS total_views
                FROM package AS p
                LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
-               GROUP BY p.id
+               GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
 
@@ -971,7 +971,7 @@ class Tracking(CkanCommand):
                FROM package AS p
                LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
                WHERE s.tracking_date >= %(measure_from)s
-               GROUP BY p.id
+               GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
 
