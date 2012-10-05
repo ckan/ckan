@@ -788,10 +788,10 @@ class PackageController(BaseController):
                 get_license_register()[license_id].isopen()
         except KeyError:
             c.package['isopen'] = False
-        c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
-                                    qualified=True)
 
-        c.related_count = c.pkg.related_count
+        #TODO: find a nicer way of doing this
+        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
+
         return render('package/resource_read.html')
 
     def resource_download(self, id, resource_id):

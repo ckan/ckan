@@ -79,20 +79,19 @@
           </py:otherwise>
         </py:choose>
       </a>
-      <py:if test="config.get('ckan.datastore.enabled', False)">
-        <py:if test="c.resource.get('webstore_url')">
+      <py:if test="'datastore' in config.get('ckan.plugins')">
+        <py:if test="c.resource.get('datastore_active')">
           <a class="btn btn-success" data-toggle="modal" href=".modal-data-api-help">Data API</a>
         </py:if>
-        <py:if test="not c.resource.get('webstore_url')">
+        <py:if test="not c.resource.get('datastore_active')">
           <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
         </py:if>
       </py:if>
     </div>
 
-  <py:if test="config.get('ckan.datastore.enabled', False)">
-    ${data_api_help(c.datastore_api)}
+  <py:if test="'datastore' in config.get('ckan.plugins')">
+    ${data_api_help(c.datastore_api, c.resource['id'])}
   </py:if>
-
   ${data_viewer_embed_dialog()}
 
     <div class="quick-info">
