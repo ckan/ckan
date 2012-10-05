@@ -258,6 +258,34 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+    def test_create_alias_twice(self):
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'aliases': 'new_alias',
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True, res_dict
+
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'aliases': 'new_alias',
+            'fields': [{'id': 'more books', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False, res_dict
+
     def test_create_basic(self):
         resource = model.Package.get('annakarenina').resources[0]
         aliases = [u'great_list_of_books', u'another_list_of_b\xfcks']
@@ -487,6 +515,16 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
+
+        data = {
+            'resource_id': resource.id
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth, status="*")  # ignore status
+        res_dict = json.loads(res.body)
+
         data = {
             'resource_id': resource.id,
             'fields': [{'id': 'author', 'type': 'json'},
@@ -853,6 +891,36 @@ class TestDatastoreInsert(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
 
+    def test_insert_non_existing_field(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'insert',
+            'records': [{u'b\xfck': 'the hobbit', 'dummy': 'tolkien'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
+    def test_insert_with_index_violation(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'insert',
+            'records': [{u'b\xfck': 'annakarenina'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+
     def test_insert_basic(self):
         hhguide = u"hitchhiker's guide to the galaxy"
         data = {
@@ -878,21 +946,6 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         self.Session.remove()
 
         assert results.rowcount == 3
-
-    def test_insert_non_existing_field(self):
-        data = {
-            'resource_id': self.data['resource_id'],
-            'method': 'insert',
-            'records': [{u'b\xfck': 'annakarenina', 'dummy': 'tolkien'}]
-        }
-
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_upsert', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is False
 
 
 class TestDatastoreUpdate(tests.WsgiAppCase):
