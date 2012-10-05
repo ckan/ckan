@@ -377,6 +377,8 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         # user logged in.
         cls.user = model.User.by_name(user_name)
         cls.extra_environ={'Authorization' : str(cls.user.apikey)}
+        cls.adminuser = model.User.by_name('testsysadmin')
+        cls.admin_extra_environ={'Authorization' : str(cls.adminuser.apikey)}
 
     def post_json(self, offset, data, status=None, extra_environ=None):
         ''' Posts data in the body in application/json format, used by
@@ -424,3 +426,8 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         self.app._set_headers({}, environ)
         req = TestRequest(offset, environ, expect_errors=False)
         return self.app.do_request(req, status=status)
+
+    def set_env(self, extra_environ):
+        ''' used to reset env when admin has been forced etc '''
+        environ = self.app._make_environ()
+        environ.update(extra_environ)
