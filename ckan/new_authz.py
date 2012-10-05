@@ -44,7 +44,7 @@ def is_authorized(action, context, data_dict=None):
 # these are the premissions that roles have
 ROLE_PERMISSIONS = {
     'admin': ['admin'],
-    'editor': ['read'],
+    'editor': ['read', 'update'],
     'member': [''],
 }
 
