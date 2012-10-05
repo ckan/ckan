@@ -787,7 +787,7 @@ class TestEdit(TestPackageForm):
 
             # Edit it
             offset = url_for(controller='package', action='edit', id=pkg.name)
-            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
+            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
             assert 'Edit - Datasets' in res, res
 
             # Check form is correctly filled
@@ -1377,7 +1377,7 @@ class TestNonActivePackages(TestPackageBase):
 
     def test_read_as_admin(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'joeadmin'})
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
 
 
 class TestRevisions(TestPackageBase):
