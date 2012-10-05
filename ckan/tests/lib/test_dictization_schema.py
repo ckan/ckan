@@ -99,6 +99,7 @@ class TestBasicDictize:
                                           {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
                                  'url': u'http://www.annakarenina.com',
+                                 'private': False,
                                  'version': u'0.7a'}, pformat(converted_data)
 
 
@@ -155,6 +156,7 @@ class TestBasicDictize:
         expected = {'description': u'These are books that David likes.',
                                  'id': group.id,
                                  'name': u'david',
+                                 'is_organization': False,
                                  'type': u'group',
                                  'image_url': u'',
                                  'packages': sorted([{'id': group_pack[0].id,
