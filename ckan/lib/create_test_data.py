@@ -460,12 +460,14 @@ left arrow <
         model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
         model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
         # authz
+        sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
+        sysadmin.sysadmin = True
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
             model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
-            model.User(name=u'testsysadmin', password=u'testsysadmin'),
+            sysadmin,
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
@@ -483,8 +485,6 @@ left arrow <
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
-        testsysadmin = model.User.by_name(u'testsysadmin')
-        model.add_user_to_role(testsysadmin, model.Role.ADMIN, model.System())
 
         model.repo.commit_and_remove()
 
