@@ -127,8 +127,6 @@ def default_package_schema():
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
         'extras': default_extras_schema(),
-        'owner_org': [ignore_missing, unicode],
-        'private': [ignore_missing, boolean_validator],
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
@@ -154,6 +152,8 @@ def default_update_package_schema():
     schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
 
+    schema['owner_org'] = [ignore_missing, unicode]
+    schema['private'] = [ignore_missing, boolean_validator]
     return schema
 
 def package_form_schema():
