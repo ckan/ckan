@@ -103,7 +103,7 @@ def package_show(context, data_dict):
         authorized = auth.get('success')
     else:
         # anyone can see a public package
-        if not package.private:
+        if not package.private and package.state == 'active':
             return {'success': True}
         user = context.get('user')
         user_id = new_authz.get_user_id_for_username(user, allow_none=True)
