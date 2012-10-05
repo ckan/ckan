@@ -187,7 +187,7 @@ def member_delete(context, data_dict=None):
         member.delete()
         model.repo.commit()
 
-def _group_or_org_delete(context, data_dict, is_org):
+def _group_or_org_delete(context, data_dict, is_org=False):
     '''Delete a group.
 
     You must be authorized to delete the group.
