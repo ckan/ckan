@@ -853,6 +853,10 @@ def user_show(context, data_dict):
             continue
         user_dict['datasets'].append(dataset_dict)
 
+    user_dict['num_followers'] = logic.get_action('user_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': user_dict['id']})
+
     return user_dict
 
 def package_show_rest(context, data_dict):
