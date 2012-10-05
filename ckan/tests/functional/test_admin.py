@@ -25,8 +25,8 @@ class TestAdminController(WsgiAppCase):
                 extra_environ={'REMOTE_USER': username})
         assert 'Administration' in response, response
 
-
-class TestAdminAuthzController(WsgiAppCase):
+##   This is no longer used
+class _TestAdminAuthzController(WsgiAppCase):
     @classmethod
     def setup_class(cls):
         # setup test data including testsysadmin user
