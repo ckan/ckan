@@ -20,6 +20,10 @@ def package_delete(context, data_dict):
     package = get_package_object(context, data_dict)
     userobj = model.User.get( user )
 
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
+
     if not userobj or \
        not _groups_intersect( userobj.get_groups('organization'), package.get_groups('organization') ):
         return {'success': False,
