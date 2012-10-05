@@ -62,7 +62,7 @@ class TestGroup(FunctionalTestCase):
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': []}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         offset = url_for(controller='feed', action='group',
                          id=group_name)
@@ -82,7 +82,7 @@ class TestGroup(FunctionalTestCase):
                                        'packages': []},
                                        {'name': "parent_group",
                                        'packages': []}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         parent = model.Group.by_name("parent_group")
         group = model.Group.by_name(group_name)
@@ -97,7 +97,7 @@ class TestGroup(FunctionalTestCase):
 
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         main_res = self.main_div(res)
         assert 'Edit: %s' % group.title in main_res, main_res
         assert 'value="active" selected' in main_res, main_res
@@ -109,7 +109,7 @@ class TestGroup(FunctionalTestCase):
         form = res.forms['group-edit']
         form['state'] = 'deleted'
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         group = model.Group.by_name(group_name)
         assert_equal(group.state, 'deleted')
@@ -131,10 +131,10 @@ class TestGroup(FunctionalTestCase):
                                        {'name': "delta",
                                         'packages': ["pkg1"]},
                                        {'name': "gamma", 'packages': []}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         context = {'model': model, 'session': model.Session,
-                   'user': 'russianfan', 'for_view': True,
+                   'user': 'testsysadmin', 'for_view': True,
                    'with_private': False}
         data_dict = {'all_fields': True}
         results = get_action('group_list')(context, data_dict)
@@ -206,7 +206,7 @@ class TestGroup(FunctionalTestCase):
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert plugin.calls['read'] == 1, plugin.calls
         plugins.unload(plugin)
 
@@ -215,14 +215,14 @@ class TestGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert title in res, res
         assert 'edit' in res
         assert name in res
 
     def test_new_page(self):
         offset = url_for(controller='group', action='new')
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
+        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
 
 
@@ -293,7 +293,7 @@ class TestEdit(FunctionalTestCase):
         offset = url_for(controller='group', action='edit', id=self.groupname)
         print offset
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Edit: %s' % group.title in res, res
 
         form = res.forms['group-edit']
@@ -311,7 +311,7 @@ Ho ho ho
         form['packages__2__name'] = pkg.name
 
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
 
@@ -327,7 +327,7 @@ Ho ho ho
         # check for dataset in autocomplete
         offset = url_for(controller='package', action='autocomplete', q='an')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'annakarenina' in res, res
         assert not 'newone' in res, res
         model.repo.new_revision()
@@ -337,12 +337,12 @@ Ho ho ho
 
         model.repo.new_revision()
         pkg = model.Package.by_name(u'anewone')
-        user = model.User.by_name(u'russianfan')
+        user = model.User.by_name(u'testsysadmin')
         model.setup_default_user_roles(pkg, [user])
         model.repo.commit_and_remove()
 
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
 
@@ -353,16 +353,16 @@ Ho ho ho
         group_name = u'testgrp4'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         # Add same package again
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         fv = res.forms['group-edit']
         fv['packages__1__name'] = self.packagename
         res = fv.submit('save', status=302,
-                        extra_environ={'REMOTE_USER': 'russianfan'})
+                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         res = res.follow()
         assert group_name in res, res
         model.Session.remove()
@@ -377,12 +377,12 @@ Ho ho ho
         plugins.load(plugin)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
 
@@ -390,13 +390,13 @@ Ho ho ho
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         form = res.forms['group-edit']
         image_url = u'http://url.to/image_url'
         form['image_url'] = image_url
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         model.Session.remove()
         group = model.Group.by_name(self.groupname)
@@ -406,7 +406,7 @@ Ho ho ho
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Edit: %s' % group.title in res, res
 
         def update_group(res, name, with_pkg=True):
@@ -426,7 +426,7 @@ Ho ho ho
                 form['packages__2__name'] = pkg.name
 
             res = form.submit('save', status=302,
-                              extra_environ={'REMOTE_USER': 'russianfan'})
+                              extra_environ={'REMOTE_USER': 'testsysadmin'})
         update_group(res, self.groupname, True)
         update_group(res, 'newname', False)
 
@@ -439,7 +439,7 @@ Ho ho ho
 
         offset = url_for(controller='group', action='read', id='newname')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         ds = res.body
         ds = ds[ds.index('datasets') - 10: ds.index('datasets') + 10]
@@ -448,7 +448,7 @@ Ho ho ho
         # reset the group to how we found it
         offset = url_for(controller='group', action='edit', id='newname')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         update_group(res, self.groupname, True)
 
@@ -461,12 +461,12 @@ Ho ho ho
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         group = model.Group.by_name(group_name)
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         main_res = self.main_div(res)
         assert 'Edit: %s' % group.title in main_res, main_res
         assert 'value="active" selected' in main_res, main_res
@@ -475,7 +475,7 @@ Ho ho ho
         form = res.forms['group-edit']
         form['state'] = 'deleted'
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         group = model.Group.by_name(group_name)
         assert_equal(group.state, 'deleted')
@@ -519,7 +519,7 @@ class TestNew(FunctionalTestCase):
         # Open 'Add A Group' page
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix + 'name'].value == '', fv.fields
@@ -535,7 +535,7 @@ class TestNew(FunctionalTestCase):
         pkg = model.Package.by_name(self.packagename)
         fv['packages__0__name'] = pkg.name
         res = fv.submit('save', status=302,
-                        extra_environ={'REMOTE_USER': 'russianfan'})
+                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         res = res.follow()
         assert '%s' % group_title in res, res
 
@@ -554,13 +554,13 @@ class TestNew(FunctionalTestCase):
         group_name = u'testgrp1'
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix + 'name'].value == '', fv.fields
         fv[prefix + 'name'] = group_name
         res = fv.submit('save', status=302,
-                        extra_environ={'REMOTE_USER': 'russianfan'})
+                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         res = res.follow()
         assert group_name in res, res
         model.Session.remove()
@@ -569,13 +569,13 @@ class TestNew(FunctionalTestCase):
         group_name = u'testgrp1'
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
         fv = res.forms['group-edit']
         assert fv[prefix + 'name'].value == '', fv.fields
         fv[prefix + 'name'] = group_name
         res = fv.submit('save', status=200,
-                        extra_environ={'REMOTE_USER': 'russianfan'})
+                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Group name already exists' in res, res
         self.check_tag(res, '<form', 'has-errors')
         assert 'class="field_error"' in res, res
@@ -585,12 +585,12 @@ class TestNew(FunctionalTestCase):
         plugins.load(plugin)
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         form = res.forms['group-edit']
         form['name'] = "hahaha"
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
 
@@ -598,7 +598,7 @@ class TestNew(FunctionalTestCase):
         offset = url_for(controller='group', action='new',
                          __bad_parameter='value')
         res = self.app.post(offset, {'save': '1'},
-                            extra_environ={'REMOTE_USER': 'russianfan'},
+                            extra_environ={'REMOTE_USER': 'testsysadmin'},
                             status=400)
         assert 'Integrity Error' in res.body
 
@@ -730,7 +730,7 @@ class TestOrganizationGroup(FunctionalTestCase):
             main_res = self.main_div(res)
             assert title in res, res
             assert 'Administrators' in res, res
-            assert 'russianfan' in main_res, main_res
+            assert 'testsysadmin' in main_res, main_res
             assert name in res, res
             assert '0 datasets found.' in self.strip_tags(main_res), main_res
 
@@ -745,7 +745,7 @@ class TestOrganizationGroup(FunctionalTestCase):
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='edit', id=name)
         res = self.app.get(offset,  status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
 
 
 class TestPublisherEdit(FunctionalTestCase):
@@ -789,10 +789,10 @@ class TestPublisherEdit(FunctionalTestCase):
 
         group = model.Group.by_name(self.groupname)
         offset = url_for(controller='group', action='edit', id=self.groupname)
-        user = model.User.get('russianfan')
+        user = model.User.get('testsysadmin')
 
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Edit: %s' % group.title in res, res
 
         form = res.forms['group-edit']
@@ -810,7 +810,7 @@ Ho ho ho
         form['packages__2__name'] = pkg.name
 
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
         # should be read page
         # assert 'Groups - %s' % self.groupname in res, res
 
@@ -826,7 +826,7 @@ Ho ho ho
         # check for dataset in autocomplete
         offset = url_for(controller='package', action='autocomplete', q='an')
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'annakarenina' in res, res
         assert not 'newone' in res, res
         model.repo.new_revision()
@@ -836,12 +836,12 @@ Ho ho ho
 
         model.repo.new_revision()
         pkg = model.Package.by_name(u'anewone')
-        user = model.User.by_name(u'russianfan')
+        user = model.User.by_name(u'testsysadmin')
         model.setup_default_user_roles(pkg, [user])
         model.repo.commit_and_remove()
 
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'annakarenina' in res, res
         assert 'newone' in res
 
@@ -852,16 +852,16 @@ Ho ho ho
         group_name = u'testgrp4'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         # Add same package again
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         fv = res.forms['group-edit']
         fv['packages__1__name'] = self.packagename
         res = fv.submit('save', status=302,
-                        extra_environ={'REMOTE_USER': 'russianfan'})
+                        extra_environ={'REMOTE_USER': 'testsysadmin'})
         res = res.follow()
         assert group_name in res, res
         model.Session.remove()
@@ -876,12 +876,12 @@ Ho ho ho
         plugins.load(plugin)
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         form = res.forms['group-edit']
         group = model.Group.by_name(self.groupname)
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert plugin.calls['edit'] == 1, plugin.calls
         plugins.unload(plugin)
 
@@ -892,7 +892,7 @@ Ho ho ho
 
     def test_edit_fail_auth(self):
         context = {'group': model.Group.by_name(self.groupname),
-                   'model': model, 'user': 'russianfan'}
+                   'model': model, 'user': 'testsysadmin'}
         try:
             if self.auth.check_access('group_update', context, {}):
                 assert False, "Check access said incorrectly said allowed"
@@ -900,7 +900,7 @@ Ho ho ho
             pass  # Do nothing as this is what we expected
 
     def test_edit_success_auth(self):
-        userobj = model.User.get('russianfan')
+        userobj = model.User.get('testsysadmin')
         grp = model.Group.by_name(self.groupname)
 
         # Monkey patch
@@ -909,7 +909,7 @@ Ho ho ho
             return [grp]
         model.User.get_groups = gg
         try:
-            context = { 'group': grp, 'model': model, 'user': 'russianfan' }
+            context = { 'group': grp, 'model': model, 'user': 'testsysadmin' }
             try:
                 self.auth.check_access('group_update',context, {})
             except NotAuthorized, e:
@@ -921,12 +921,12 @@ Ho ho ho
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': [self.packagename]}],
-                                     admin_user_name='russianfan')
+                                     admin_user_name='testsysadmin')
 
         group = model.Group.by_name(group_name)
         offset = url_for(controller='group', action='edit', id=group_name)
         res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'russianfan'})
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         main_res = self.main_div(res)
         assert 'Edit: %s' % group.title in main_res, main_res
         assert 'value="active" selected' in main_res, main_res
@@ -935,7 +935,7 @@ Ho ho ho
         form = res.forms['group-edit']
         form['state'] = 'deleted'
         res = form.submit('save', status=302,
-                          extra_environ={'REMOTE_USER': 'russianfan'})
+                          extra_environ={'REMOTE_USER': 'testsysadmin'})
 
         group = model.Group.by_name(group_name)
         assert_equal(group.state, 'deleted')
