@@ -114,14 +114,17 @@ class SetupDatastoreCommand(cli.CkanCommand):
         if self.verbose:
             print "Executing: \n#####\n", sql, "\n####\nOn database:", database
         if not self.simulate:
-            self._run_cmd("psql --username='{username}' --dbname='{database}' -W".format(
+            self._run_cmd("sudo -u '{username}' psql --dbname='{database}' -W".format(
                 username=as_sql_user,
                 database=database
             ), inputstring=sql)
 
     def create_db(self):
-        sql = 'create database "{0}"'.format(self.db_write_url_parts['db_name'])
-        self._run_sql(sql, as_sql_user=self.sql_superuser)
+        cmd = "sudo -u {pg_user} createdb -O '{ckan_user}' '{db}'".format(
+        pg_user=self.sql_superuser,
+        db=self.db_write_url_parts['db_name'],
+        ckan_user=self.db_ckan_url_parts['db_user'])
+        self._run_cmd(cmd)
 
     def create_read_only_user(self):
         password = self.db_read_url_parts['db_pass']
