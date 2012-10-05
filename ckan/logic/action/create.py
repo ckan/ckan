@@ -521,8 +521,10 @@ def _group_or_org_create(context, data_dict, is_org=False):
     else:
         activity_type = 'new group'
 
+    user_id = model.User.by_name(user.decode('utf8')).id
+
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'user_id': user_id,
             'object_id': group.id,
             'activity_type': activity_type,
             }
@@ -547,11 +549,17 @@ def _group_or_org_create(context, data_dict, is_org=False):
     # this needs to be after the repo.commit or else revisions break
     member_dict = {
         'id': group.id,
-        'object': user,
+        'object': user_id,
         'object_type': 'user',
         'capacity': 'admin',
     }
-    logic.get_action('member_create')(context, member_dict)
+    member_create_context = {
+        'model': model,
+        'user': user,
+        'ignore_auth': True, # we are not a member of the group at this point
+        'session': session
+    }
+    logic.get_action('member_create')(member_create_context, member_dict)
 
     log.debug('Created object %s' % str(group.name))
     return model_dictize.group_dictize(group, context)
