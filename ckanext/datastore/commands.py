@@ -32,7 +32,7 @@ GRANT USAGE ON SCHEMA public TO "{readonlyuser}";
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{readonlyuser}";
 
 -- grant access to new tables and views by default
-ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
+ALTER DEFAULT PRIVILEGES FOR USER "{writeuser}" IN SCHEMA public
    GRANT SELECT ON TABLES TO "{readonlyuser}";
 '''
 
@@ -40,11 +40,15 @@ ALTER DEFAULT PRIVILEGES FOR USER "{ckanuser}" IN SCHEMA public
 class SetupDatastoreCommand(cli.CkanCommand):
     '''Perform commands to set up the datastore.
     Make sure that the datastore urls are set properly before you run these commands.
+    `create-all` will run create-write-user, create-db and create-read-only-user.
 
     Usage::
 
+        paster datastore create-write-user SQL_SUPER_USER
         paster datastore create-db SQL_SUPER_USER
         paster datastore create-read-only-user SQL_SUPER_USER
+
+        paster datastore create-all SQL_SUPER_USER
 
     Where:
         SQL_SUPER_USER is the name of a postgres user with sufficient
@@ -77,38 +81,48 @@ class SetupDatastoreCommand(cli.CkanCommand):
 
         assert self.db_write_url_parts['db_name'] == self.db_read_url_parts['db_name'], "write and read db should be the same"
 
+        if len(self.args) != 2:
+            print self.usage
+            return
+        self.sql_superuser = self.args[1]
+
         if cmd == 'create-db':
-            if len(self.args) != 2:
-                print self.usage
-                return
-            self.sql_superuser = self.args[1]
             self.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
         elif cmd == 'create-read-only-user':
-            if len(self.args) != 2:
-                print self.usage
-                return
-            self.sql_superuser = self.args[1]
             self.create_read_only_user()
             if self.verbose:
                 print 'Creating read-only user: SUCCESS'
+        elif cmd == 'create-write-user':
+            self.create_write_user()
+            if self.verbose:
+                print 'Creating write user: SUCCESS'
+        elif cmd == 'create-all':
+            self.create_db()
+            self.create_write_user()
+            self.create_read_only_user()
+            if self.verbose:
+                print 'Creating db and users for datastore: SUCCESS'
         else:
             print self.usage
             log.error('Command "%s" not recognized' % (cmd,))
             return
 
     def _run_cmd(self, command_line, inputstring=''):
+        if self.verbose:
+            print "Running:", command_line
         import subprocess
-        p = subprocess.Popen(
-            command_line, shell=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        stdout_value, stderr_value = p.communicate(input=inputstring)
-        if stderr_value:
-            print '\nAn error occured: {0}'.format(stderr_value)
-            sys.exit(1)
+        if not self.simulate:
+            p = subprocess.Popen(
+                command_line, shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            stdout_value, stderr_value = p.communicate(input=inputstring)
+            if stderr_value:
+                print '\nAn error occured: {0}'.format(stderr_value)
+                sys.exit(1)
 
     def _run_sql(self, sql, as_sql_user, database='postgres'):
         if self.verbose:
@@ -124,6 +138,13 @@ class SetupDatastoreCommand(cli.CkanCommand):
         pg_user=self.sql_superuser,
         db=self.db_write_url_parts['db_name'],
         ckan_user=self.db_ckan_url_parts['db_user'])
+        self._run_cmd(cmd)
+
+    def create_write_user(self):
+        cmd = "sudo -u {pg_user} createuser \
+            --no-createdb --no-createrole --no-superuser '{write_user}'".format(
+        pg_user=self.sql_superuser,
+        write_user=self.db_write_url_parts['db_user'])
         self._run_cmd(cmd)
 
     def create_read_only_user(self):
