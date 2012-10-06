@@ -99,12 +99,12 @@ datastore_create
 The datastore_create API endpoint allows a user to post JSON data to be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion. The JSON must be in the following form::
 
  {
-    resource_id: resource_id, # the data is going to be stored against.
-    aliases: # list of names for read only aliases to the resource
-    fields: [] # a list of dictionaries of fields/columns and their extra metadata.
-    records: [] # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
-    primary_key: # list of fields that represent a unique key
-    indexes: # indexes on table
+    resource_id:  # the data is going to be stored against.
+    aliases:      # list of names for read only aliases to the resource
+    fields:       # a list of dictionaries of fields/columns and their extra metadata.
+    records:      # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
+    primary_key:  # list of fields that represent a unique key
+    indexes:      # indexes on table
  }
 
 See :ref:`fields` and :ref:`records` for details on how to lay out records.
@@ -117,10 +117,10 @@ datastore_delete
 The datastore_delete API endpoint allows a user to delete records from a resource. The JSON for searching must be in the following form::
 
  {
-    resource_id: resource_id # the data that is going to be deleted.
-    filter: # dictionary of matching conditions to delete
-            # e.g  {'key1': 'a', 'key2': 'b'}
-            # this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
+    resource_id: # the data that is going to be deleted.
+    filter:      # dictionary of matching conditions to delete
+                 # e.g  {'key1': 'a', 'key2': 'b'}
+                 # this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
  }
 
 
@@ -131,10 +131,10 @@ The datastore_upsert API endpoint allows a user to add or edit records in an exi
 The JSON for searching must be in the following form::
 
  {
-    resource_id: resource_id # resource id that the data is going to be stored under.
-    records: [] # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
-    method: # the method to use to put the data into the datastore
-            # possible options: upsert (default), insert, update
+    resource_id: # resource id that the data is going to be stored under.
+    records:     #  a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
+    method:      #  the method to use to put the data into the datastore
+                 #  possible options: upsert (default), insert, update
  }
 
 ``upsert``
@@ -153,16 +153,16 @@ The datastore_search API endpoint allows a user to search data in a resource.
 The JSON for searching must be in the following form::
 
  {
-     resource_id: # the resource id to be searched against
-     filters : # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}
-        # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
-     q: # full text query
-     plain: # treat as plain text query (default: true)
-     language: # language of the full text query (default: english)
-     limit: # limit the amount of rows to size (default: 100)
-     offset: # offset the amount of rows
-     fields:  # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
-     sort: # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
+     resource_id:  # the resource id to be searched against
+     filters :     # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}
+                   # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
+     q:            # full text query
+     plain:        # treat as plain text query (default: true)
+     language:     # language of the full text query (default: english)
+     limit:        # limit the amount of rows to size (default: 100)
+     offset:       # offset the amount of rows
+     fields:       # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
+     sort:         # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
  }
 
 .. _datastore_search_sql:
@@ -173,7 +173,7 @@ datastore_search_sql
 The datastore_search_sql API endpoint allows a user to search data in a resource or connect multiple resources with join expressions. The underlying SQL engine is the `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_. The JSON for searching must be in the following form::
 
  {
-    sql: # a single sql select statement
+    sql:  # a single sql select statement
  }
 
 
@@ -187,7 +187,7 @@ datastore_search_htsql
 The datastore_search_htsql API endpoint allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. The JSON for searching must be in the following form::
 
  {
-    htsql: # a htsql query statement.
+    htsql:  # a htsql query statement.
  }
 
 .. _fields:
@@ -198,8 +198,8 @@ Fields
 Fields define the column names and the type of the data in a column. A field is defined as follows::
 
     {
-        "id": # a string which defines the column name
-        "type": # the data type for the column
+        "id":    # a string which defines the column name
+        "type":  # the data type for the column
     }
 
 Field **types are optional** and will be guessed by the DataStore from the provided data. However, setting the types ensures that future inserts will not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
@@ -225,7 +225,7 @@ Records
 A record is the data to be inserted in a table and is defined as follows::
 
     {
-        "<id>": # data to be set
+        "<id>":  # data to be set
         # .. more data
     }
 
@@ -247,6 +247,8 @@ Field types
 -----------
 
 The DataStore supports all types supported by PostgreSQL as well as a few additions. A list of the PostgreSQL types can be found in the `type section of the documentation`_. Below you can find a list of the most common data types. The ``json`` type has been added as a storage for nested data.
+
+In addition to the listed types below, you can also use array types. They are defines by prepending a ``_`` or appending ``[]`` or ``[n]`` where n denotes the length of the array. An arbitrarily long array of integers would be defined as ``int[]``.
 
 .. _type section of the documentation: http://www.postgresql.org/docs/9.1/static/datatype.html
 
