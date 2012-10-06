@@ -134,17 +134,17 @@ class SetupDatastoreCommand(cli.CkanCommand):
             ), inputstring=sql)
 
     def create_db(self):
-        cmd = "sudo -u {pg_user} createdb -O '{ckan_user}' '{db}'".format(
-        pg_user=self.sql_superuser,
+        cmd = "sudo -u {pguser} createdb -O '{ckanuser}' '{db}'".format(
+        pguser=self.sql_superuser,
         db=self.db_write_url_parts['db_name'],
-        ckan_user=self.db_ckan_url_parts['db_user'])
+        ckanuser=self.db_ckan_url_parts['db_user'])
         self._run_cmd(cmd)
 
     def create_write_user(self):
-        cmd = "sudo -u {pg_user} createuser \
-            --no-createdb --no-createrole --no-superuser '{write_user}'".format(
-        pg_user=self.sql_superuser,
-        write_user=self.db_write_url_parts['db_user'])
+        cmd = "sudo -u {pguser} createuser \
+            --no-createdb --no-createrole --no-superuser '{writeuser}'".format(
+        pguser=self.sql_superuser,
+        writeuser=self.db_write_url_parts['db_user'])
         self._run_cmd(cmd)
 
     def create_read_only_user(self):
