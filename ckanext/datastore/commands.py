@@ -100,7 +100,8 @@ class SetupDatastoreCommand(cli.CkanCommand):
                 print 'Creating write user: SUCCESS'
         elif cmd == 'create-all':
             self.create_db()
-            self.create_write_user()
+            if self.db_ckan_url_parts['db_user'] != self.db_write_url_parts['db_user']:
+                self.create_write_user()
             self.create_read_only_user()
             if self.verbose:
                 print 'Creating db and users for datastore: SUCCESS'
