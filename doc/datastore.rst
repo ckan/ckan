@@ -8,6 +8,8 @@ interface and authorization system.
 
 .. note:: The DataStore requires PostgreSQL 9.0 or later.
 
+.. warning:: The DataStore does not support hiding resources in a private dataset.
+
 Installation and Configuration
 ==============================
 
