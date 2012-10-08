@@ -14,26 +14,33 @@ log = getLogger(__name__)
 class AuthFunctions:
     _functions = {}
 
+def is_sysadmin(username):
+    ''' returns True is username is a sysadmin '''
+    if not username:
+        return False
+    # see if we can authorise without touching the database
+    try:
+        if c.userobj and c.userobj.name == username:
+            if c.userobj.sysadmin:
+                return True
+            return False
+    except TypeError:
+        # c is not available
+        pass
+    # get user from the database
+    u = model.User.get(username)
+    if u and u.sysadmin:
+        return True
+    return False
+
+
 def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
     # sysadmins can do anything
-    user = context.get('user')
-    # see if we can authorise without touching the database
-    admin_tested = False
-    try:
-        if user and c.userobj and c.userobj.name == user:
-            if c.userobj.sysadmin:
-                return {'success': True}
-            admin_tested = True
-    except TypeError:
-        # c is not available
-        pass
-    if user and not admin_tested:
-        u = model.User.get(user)
-        if u and u.sysadmin:
-            return {'success': True}
+    if is_sysadmin(context.get('user')):
+        return {'success': True}
 
     auth_function = _get_auth_function(action)
     if auth_function:
