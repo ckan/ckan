@@ -1,10 +1,9 @@
-from pylons import c
-
 from logging import getLogger
-from ckan.plugins import implements, SingletonPlugin
-from ckan.plugins import IAuthFunctions
-from ckan.plugins import PluginImplementations
-from ckan.lib.base import _
+
+from pylons import c
+from pylons.i18n import _
+
+import ckan.plugins as p
 import ckan.model as model
 
 log = getLogger(__name__)
@@ -130,7 +129,7 @@ def _get_auth_function(action, profile=None):
     # Then overwrite them with any specific ones in the plugins:
     resolved_auth_function_plugins = {}
     fetched_auth_functions = {}
-    for plugin in PluginImplementations(IAuthFunctions):
+    for plugin in p.PluginImplementations(p.IAuthFunctions):
         for name, auth_function in plugin.get_auth_functions().items():
             if name in resolved_auth_function_plugins:
                 raise Exception(
