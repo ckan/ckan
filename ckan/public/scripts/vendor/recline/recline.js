@@ -3112,8 +3112,9 @@ my.MultiView = Backbone.View.extend({
       </div> \
       <div class="menu-right"> \
         <div class="btn-group" data-toggle="buttons-checkbox"> \
-          <a href="#" class="btn active" data-action="filters">Filters</a> \
-          <a href="#" class="btn active" data-action="fields">Fields</a> \
+          {{#sidebarViews}} \
+          <a href="#" data-action="{{id}}" class="btn active">{{label}}</a> \
+          {{/sidebarViews}} \
         </div> \
       </div> \
       <div class="query-editor-here" style="display:inline;"></div> \
@@ -3247,6 +3248,7 @@ my.MultiView = Backbone.View.extend({
   render: function() {
     var tmplData = this.model.toTemplateJSON();
     tmplData.views = this.pageViews;
+    tmplData.sidebarViews = this.sidebarViews;
     var template = Mustache.render(this.template, tmplData);
     $(this.el).html(template);
 
@@ -3266,7 +3268,7 @@ my.MultiView = Backbone.View.extend({
     _.each(this.sidebarViews, function(view) {
       this['$'+view.id] = view.view.el;
       $dataSidebar.append(view.view.el);
-    });
+    }, this);
 
     var pager = new recline.View.Pager({
       model: this.model.queryState
@@ -3309,13 +3311,7 @@ my.MultiView = Backbone.View.extend({
   _onMenuClick: function(e) {
     e.preventDefault();
     var action = $(e.target).attr('data-action');
-    if (action === 'filters') {
-      this.$filterEditor.toggle();
-    } else if (action === 'fields') {
-      this.$fieldsView.toggle();
-    } else if (action === 'transform') {
-      this.transformView.el.toggle();
-    }
+    this['$'+action].toggle();
   },
 
   _onSwitchView: function(e) {
