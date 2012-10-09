@@ -76,7 +76,7 @@
     <div class="nums">
       <a href="{{ h.url_for(controller='user', action='followers', id=user.name) }}" class="num">
         <strong>{{ _('Followers') }}</strong>
-        <span>{{ c.num_followers }}</span>
+        <span>{{ user.num_followers }}</span>
       </a>
       <a href="{{ h.url_for(controller='user', action='read', id=user.name) }}" class="num">
         <strong>{{ _('Datasets') }}</strong>
