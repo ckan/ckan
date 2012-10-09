@@ -466,40 +466,6 @@ class BaseController(WSGIController):
 
         return path
 
-    @classmethod
-    def _get_user_editable_groups(cls):
-        # get editable groups for current user
-        return h.groups_available()
-
-    def _get_package_dict(self, *args, **kwds):
-        import ckan.forms
-        user_editable_groups = self._get_user_editable_groups()
-        package_dict = ckan.forms.get_package_dict(
-            user_editable_groups=user_editable_groups,
-            *args, **kwds
-        )
-        return package_dict
-
-    def _edit_package_dict(self, *args, **kwds):
-        import ckan.forms
-        return ckan.forms.edit_package_dict(*args, **kwds)
-
-    @classmethod
-    def _get_package_fieldset(cls, is_admin=False, **kwds):
-        kwds.update(request.params)
-        kwds['user_editable_groups'] = cls._get_user_editable_groups()
-        kwds['is_admin'] = is_admin
-        from ckan.forms import GetPackageFieldset
-        return GetPackageFieldset(**kwds).fieldset
-
-    def _get_standard_package_fieldset(self):
-        import ckan.forms
-        user_editable_groups = self._get_user_editable_groups()
-        fieldset = ckan.forms.get_standard_fieldset(
-            user_editable_groups=user_editable_groups
-        )
-        return fieldset
-
     def _handle_update_of_authz(self, domain_object):
         '''In the event of a post request to a domain object\'s authz form,
         work out which of the four possible actions is to be done,
