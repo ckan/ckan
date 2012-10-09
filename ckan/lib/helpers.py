@@ -608,7 +608,7 @@ def linked_user(user, maxlength=0, avatar=20):
             return user_name
     if user:
         name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        icon = gravatar(user.email_hash, avatar, None, user.id)
+        icon = gravatar(email_hash=user.email_hash, size=avatar, user_id=user.id)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
