@@ -575,14 +575,6 @@ def sorted_extras(list_):
         output.append((k, v))
     return output
 
-@deprecated('Please use check_access instead.')
-def am_authorized(c, action, domain_object=None):
-    ''' Deprecated. Please use check_access instead'''
-    from ckan.authz import Authorizer
-    if domain_object is None:
-        domain_object = model.System()
-    return Authorizer.am_authorized(c, action, domain_object)
-
 
 def check_access(action, data_dict=None):
     from ckan.logic import check_access as check_access_logic, NotAuthorized
