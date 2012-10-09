@@ -6,11 +6,10 @@ from ckan.logic.auth.create import package_relationship_create
 from ckan.lib.base import _
 
 def package_delete(context, data_dict):
-    model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    authorized = logic.check_access_old(package, model.Action.PURGE, context)
+    authorized = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'delete_dataset')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (str(user),package.id)}
     else:
