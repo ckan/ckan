@@ -95,7 +95,6 @@ this.ckan.module('user-context', function($, _) {
 		 * Returns nothing.
 		 */
 		_onHandleUserData: function(json) {
-			console.log(json);
 			this.loading = false;
 			if (json.success) {
 				var id = this.options.id;
