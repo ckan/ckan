@@ -16,6 +16,7 @@ from ckan.logic import tuplize_dict, clean_dict, parse_params
 import ckan.forms
 import ckan.logic.action.get
 import ckan.lib.search as search
+import ckan.new_authz
 
 from ckan.lib.plugins import lookup_group_plugin
 
@@ -167,7 +168,7 @@ class GroupController(BaseController):
                         _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
 
-        c.group_admins = self.authorizer.get_admins(c.group)
+        c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
         context['return_query'] = True
 
