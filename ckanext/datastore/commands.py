@@ -49,11 +49,10 @@ class SetupDatastoreCommand(cli.CkanCommand):
         if len(self.args) != 2:
             print self.usage
             return
-        self.sql_superuser = self.args[1]
 
         if cmd == 'set-permissions':
             setup.set_permissions(
-                pguser=self.sql_superuser,
+                pguser=self.args[1],
                 ckandb=self.db_ckan_url_parts['db_name'],
                 datastoredb=self.db_write_url_parts['db_name'],
                 ckanuser=self.db_ckan_url_parts['db_user'],
