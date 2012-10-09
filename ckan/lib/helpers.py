@@ -1219,7 +1219,7 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 def organizations_available():
-    ''' return a list of available groups '''
+    ''' return a list of available organizations '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user}
