@@ -99,7 +99,6 @@ class TestBasicDictize:
                                           {'name': u'tolstoy'}],
                                  'title': u'A Novel By Tolstoy',
                                  'url': u'http://www.annakarenina.com',
-                                 'private': False,
                                  'version': u'0.7a'}, pformat(converted_data)
 
 
