@@ -421,7 +421,7 @@ def user_dictize(user, context):
 
     requester = context['user']
 
-    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+    if not (ckan.new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
