@@ -469,12 +469,8 @@ class BaseController(WSGIController):
 
     @classmethod
     def _get_user_editable_groups(cls):
-        if not hasattr(c, 'user'):
-            c.user = model.PSEUDO_USER__VISITOR
-        import ckan.authz   # Todo: Move import to top of this file?
-        groups = ckan.authz.Authorizer.authorized_query(
-            c.user, model.Group, action=model.Action.EDIT).all()
-        return [g for g in groups if g.state == model.State.ACTIVE]
+        # get editable groups for current user
+        return h.groups_available()
 
     def _get_package_dict(self, *args, **kwds):
         import ckan.forms
