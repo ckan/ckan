@@ -27,32 +27,37 @@
   <article class="module profile">
     <header class="module-content">
       <ul class="nav nav-tabs">
-        <li class="active"><a href="#datasets" data-toggle="tab"><i class="icon-sitemap"></i>{{ _('Datasets') }}</a></li>
-        <li><a href="#activity" data-toggle="tab"><i class="icon-time"></i>{{ _('Activity Stream') }}</a></li>
+        <li{% if c.action == 'read' or c.action == 'me' %} class="active"{% endif %}>
+          {% link_for _('Datasets'), controller='user', action='read', id=user.name, icon='sitemap' %}
+        </li>
+        <li{% if c.action == 'activity' %} class="active"{% endif %}>
+          {% link_for _('Activity Stream'), controller='user', action='activity', id=user.name, icon='time' %}
+        </li>
+        <li{% if c.action == 'followers' %} class="active"{% endif %}>
+          {% link_for _('Followers'), controller='user', action='followers', id=user.name, icon='group' %}
+        </li>
       </ul>
     </header>
-    <section id="datasets" class="module-content tab-content active clearfix">
-      <h2 class="tab-heading">{{ _('Datasets') }}</h2>
-      {% if user.datasets %}
-        {% snippet 'snippets/package_list.html', packages=user.datasets %}
-      {% else %}
-
-        {% if c.is_myself %}
-          <p class="empty">
-            {{ _('You haven\'t created any datasets.') }}
-            {% link_for _('Create one now?'), controller='package', action='new' %}.
-          </p>
+    <section class="module-content">
+      {% block primary_content_inner %}
+        <h2 class="tab-heading">{{ _('Datasets') }}</h2>
+        {% if user.datasets %}
+          {% snippet 'snippets/package_list.html', packages=user.datasets %}
         {% else %}
-          <p class="empty">
-            {{ _('User hasn\'t created any datasets.') }}
-          </p>
-        {% endif %}
 
-      {% endif %}
-    </section>
-    <section id="activity" class="module-content module-activity tab-content">
-      <h2 class="tab-heading">{{ _('Activity Stream') }}</h2>
-      {{ c.user_activity_stream | safe }}
+          {% if c.is_myself %}
+            <p class="empty">
+              {{ _('You haven\'t created any datasets.') }}
+              {% link_for _('Create one now?'), controller='package', action='new' %}.
+            </p>
+          {% else %}
+            <p class="empty">
+              {{ _('User hasn\'t created any datasets.') }}
+            </p>
+          {% endif %}
+
+        {% endif %}
+      {% endblock %}
     </section>
   </article>
 {% endblock %}
@@ -74,18 +79,18 @@
       </p>
     {% endif %}
     <div class="nums">
-      <a href="{{ h.url_for(controller='user', action='followers', id=user.name) }}" class="num">
-        <strong>{{ _('Followers') }}</strong>
-        <span>{{ user.num_followers }}</span>
-      </a>
-      <a href="{{ h.url_for(controller='user', action='read', id=user.name) }}" class="num">
-        <strong>{{ _('Datasets') }}</strong>
-        <span>{{ user.number_administered_packages }}</span>
-      </a>
-      <span class="num">
-        <strong>{{ _('Edits') }}</strong>
-        <span>{{ user.number_of_edits }}</span>
-      </span>
+      <dl href="{{ h.url_for(controller='user', action='followers', id=user.name) }}">
+        <dt>{{ _('Followers') }}</dt>
+        <dd>{{ user.num_followers }}</dd>
+      </dl>
+      <dl href="{{ h.url_for(controller='user', action='read', id=user.name) }}">
+        <dt>{{ _('Datasets') }}</dt>
+        <dd>{{ user.number_administered_packages }}</dd>
+      </dl>
+      <dl>
+        <dt>{{ _('Edits') }}</dt>
+        <dd>{{ user.number_of_edits }}</dd>
+      </dl>
     </div>
     <div class="info">
       <dl>
