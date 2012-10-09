@@ -6,7 +6,7 @@ The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
-.. note:: The DataStore requires PostgreSQL 9.0 or later.
+.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on verions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. See :ref:`old_pg` for mroe details.
 
 .. warning:: The DataStore does not support hiding resources in a private dataset.
 
@@ -20,25 +20,92 @@ but that is no more, as it now uses the relational database management system Po
 However, you should set up a separate database for the DataStore
 and create a read-only user to make your CKAN and DataStore installation safe.
 
+1. Enable the plugin
+--------------------
+
 In your ``config`` file ensure that the datastore extension is enabled::
 
  ckan.plugins = datastore
 
-Also ensure that the ``ckan.datastore.write_url`` and ``datastore.read_url`` variables are set::
+2. Set-up the database
+----------------------
 
- ckan.datastore.write_url = postgresql://writeuser:pass@localhost/datastore
- ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+The datastore requires a separate postgres database to save the resources to.
+
+List existing databases::
+
+ sudo -u postgres psql -l
+
+Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the CKAN install.
+
+Next you’ll need to create a two database users for the datastore. One user will be the *write* user that can create, edit and delete resources. The second user will be a *read-only* user who can only read resources.
 
 A few things have to be kept in mind:
 
 * The DataStore cannot be on the CKAN database (except for testing)
 * The write user (i.e. ``writeuser``) and read-only user (i.e. ``readonlyuser``) cannot be the same
 
-To create a new database with a write user and read-only user, use this paster command::
+Create users and databases
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a write user called ``writeuser``, and enter pass for the password when prompted::
+
+ sudo -u postgres createuser -S -D -R -P -l writeuser
+
+Create a read-only user called ``readonlyuser``, and enter pass for the password when prompted::
+
+ sudo -u postgres createuser -S -D -R -P -l readonlyuser
+
+Create the database (owned by ``writeuser``), which we’ll call ``datastore``::
+
+ sudo -u postgres createdb -O writeuser datastore
+
+Set URLs
+~~~~~~~~
+
+Now, ensure that the ``ckan.datastore.write_url`` and ``datastore.read_url`` variables are set::
+
+ ckan.datastore.write_url = postgresql://writeuser:pass@localhost/datastore
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+
+Set permissions
+~~~~~~~~~~~~~~~
+
+Once the datastore database and the users are created, the permissions on the datastore and CKAN database have to be set. Since there are different set-ups, there are different ways of setting the permissions. Only one of ther optins should be used.
+
+1. Use the **paster command** if CKAN and Postgres are on the same server
+
+To set the permissions, use this paster command after you've set the database urls::
 
  paster datastore create-all SQL_SUPER_USER
 
-To test the set-up you can create a new DataStore. To do so you can run the following command::
+
+2. Use the **command line tool** in ``datastore/bin/datastore_setup.py``
+
+.. note:: This option should be used if the ckan server is different from the database server.
+
+Copy the content from the ``datastore/bin/`` directory to the database server. Then run the command line tool to set the permissions on the database. To see all available options, run::
+
+ python datastore_setup.py -h
+
+Once you are confident that you know the right names, set the permissions (assuming that the CKAN database is called ``ckan`` and the CKAN PostgreSQL user is called ``ckanuser``)::
+
+ python datastore_setup.py ckan datastore ckanuser writeuser readonlyuser -p postgres
+
+
+3. Run the **SQL commands** manually on the database
+
+.. note:: This option is for more complex set-ups and requires understanding of SQL and PostgreSQL.
+
+Copy the ``set_permissions.sql`` file to the server that the database runs on. Make sure you set all variables in the file correctly and comment out the parts that are not needed for you setup. Then, run the script::
+
+ sudo -u postgres psql postgres -f set_permissions.sql
+
+
+3. Test the set-up
+------------------
+
+The datastore is now set-up. To test the set-up you can create a new DataStore. To do so you can run the following command::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
@@ -48,6 +115,13 @@ the records inserted above::
 
  http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
 
+
+.. _old_pg:
+
+Notes on how to install the DataStore on old PostgreSQL versions
+----------------------------------------------------------------
+
+To be continued...
 
 Relationship to FileStore
 =========================
@@ -102,7 +176,7 @@ The datastore_create API endpoint allows a user to post JSON data to be stored a
 
  {
     resource_id:  # the data is going to be stored against.
-    aliases:      # list of names for read only aliases to the resource
+    aliases:      # list of names for read-only aliases to the resource
     fields:       # a list of dictionaries of fields/columns and their extra metadata.
     records:      # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
     primary_key:  # list of fields that represent a unique key
