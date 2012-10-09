@@ -204,7 +204,6 @@ class ValidationException(Exception):
 
 class BaseController(WSGIController):
     repo = model.repo
-    authorizer = authz.Authorizer()
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):

@@ -113,7 +113,6 @@ class PackageController(BaseController):
 
         return pt
 
-    authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
