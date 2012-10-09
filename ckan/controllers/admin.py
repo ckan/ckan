@@ -30,10 +30,7 @@ class AdminController(base.BaseController):
                    'user': c.user}
         if not ckan.new_authz.is_authorized('sysadmin', context, {})['success']:
             base.abort(401, _('Need to be system administrator to administer'))
-        c.revision_change_state_allowed = (
-            c.user and self.authorizer.is_authorized(c.user,
-                                                     model.Action.CHANGE_STATE,
-                                                     model.Revision))
+        c.revision_change_state_allowed = True
 
     def _get_config_form_items(self):
         # Styles for use in the form.select() macro.
