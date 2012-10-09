@@ -8,7 +8,7 @@ import ckan.misc
 import ckan.lib.i18n
 from ckan.lib.base import *
 from ckan.lib import mailer
-from ckan.authz import Authorizer
+import ckan.new_authz
 from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
@@ -49,7 +49,7 @@ class UserController(BaseController):
         into a format suitable for the form (optional)'''
 
     def _setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
@@ -154,7 +154,7 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -230,7 +230,7 @@ class UserController(BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user))
+        if not (ckan.new_authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
