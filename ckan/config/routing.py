@@ -152,10 +152,6 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/package/new', controller='package_formalchemy', action='new')
-    ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
-
     with SubMapper(map, controller='related') as m:
         m.connect('related_new',  '/dataset/{id}/related/new', action='new')
         m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
