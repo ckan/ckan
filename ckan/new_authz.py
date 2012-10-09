@@ -32,6 +32,12 @@ def is_sysadmin(username):
         return True
     return False
 
+def get_group_or_org_admin_ids(group_id):
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.group_id == group_id) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.capacity == 'admin')
+    return [a.table_id for a in q.all()]
 
 def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
