@@ -13,7 +13,6 @@ from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
-import ckan.forms
 import ckan.logic.action.get
 import ckan.lib.search as search
 import ckan.new_authz
@@ -540,7 +539,6 @@ class GroupController(BaseController):
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.get_package_group_fieldset()
         return render('group/edit_form.html')
 
     def _update(self, fs, group_name, group_id):
