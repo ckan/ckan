@@ -14,15 +14,15 @@ To run the script, execute:
 */
 
 -- name of the main CKAN database
-\set maindb "{ckandb}"
+\set maindb '{ckandb}'
 -- the name of the datastore database
 \set datastoredb '{datastoredb}'
 -- username of the ckan postgres user
-\set ckanuser '{ckanuser}'
+\set ckanuser "{ckanuser}"
 -- username of the datastore user that can write
-\set wuser '{writeuser}'
+\set wuser "{writeuser}"
 -- username of the datastore user who has only read permissions
-\set rouser '{readonlyuser}'
+\set rouser "{readonlyuser}"
 
 -- revoke permissions for the read-only user
 ---- this step can be ommitted if the datastore not
@@ -33,8 +33,8 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO :ckanuser;
 GRANT USAGE ON SCHEMA public TO :ckanuser;
 
-GRANT CREATE ON SCHEMA public TO :ckanuser;
-GRANT USAGE ON SCHEMA public TO :ckanuser;
+GRANT CREATE ON SCHEMA public TO :wuser;
+GRANT USAGE ON SCHEMA public TO :wuser;
 
 -- take connect permissions from main CKAN db
 ---- again, this can be ommited if the read-only user can never have

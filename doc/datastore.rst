@@ -6,7 +6,7 @@ The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
-.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on verions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. See :ref:`old_pg` for mroe details.
+.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on verions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`old_pg` for more details.
 
 .. warning:: The DataStore does not support hiding resources in a private dataset.
 
@@ -48,6 +48,8 @@ A few things have to be kept in mind:
 Create users and databases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. tip:: The write user does not have to be created since you can also use the CKAN user. However, this might not be possible if the CKAN database and the DataStore database are on different servers. We recommend that you use the same user for CKAN and the write datastore user if possible.
+
 Create a write user called ``writeuser``, and enter pass for the password when prompted::
 
  sudo -u postgres createuser -S -D -R -P -l writeuser
@@ -77,12 +79,12 @@ Once the datastore database and the users are created, the permissions on the da
 
 To set the permissions, use this paster command after you've set the database urls::
 
- paster datastore create-all SQL_SUPER_USER
+ paster datastore set-permissions SQL_SUPER_USER
 
 
 2. Use the **command line tool** in ``datastore/bin/datastore_setup.py``
 
-.. note:: This option should be used if the ckan server is different from the database server.
+.. note:: This option should be used if the CKAN server is different from the database server.
 
 Copy the content from the ``datastore/bin/`` directory to the database server. Then run the command line tool to set the permissions on the database. To see all available options, run::
 
