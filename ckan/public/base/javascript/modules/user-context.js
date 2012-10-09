@@ -95,15 +95,12 @@ this.ckan.module('user-context', function($, _) {
 		 * Returns nothing.
 		 */
 		_onHandleUserData: function(json) {
+			console.log(json);
 			this.loading = false;
 			if (json.success) {
 				var id = this.options.id;
 				var client = this.sandbox.client;
 				var user = json.result;
-				if (typeof user.number_of_followers == 'undefined') {
-					user.number_of_followers = '...';
-					client.call('GET', 'user_follower_count', '?id=' + id, this._onHandleUserFollowersData);
-				}
 				if (typeof user.am_following_user == 'undefined') {
 					user.am_following_user = 'disabled';
 					client.call('GET', 'am_following_user', '?id=' + id, this._onHandleAmFollowingData);
@@ -125,7 +122,7 @@ this.ckan.module('user-context', function($, _) {
 				var about = user.about ? '<p class="about">' + user.about + '</p>' : '';
 				var template = this.options.template
 					.replace('{{ about }}', about)
-					.replace('{{ followers }}', user.number_of_followers)
+					.replace('{{ followers }}', user.num_followers)
 					.replace('{{ datasets }}', user.number_administered_packages)
 					.replace('{{ edits }}', user.number_of_edits)
 					.replace('{{ buttons }}', this._getButtons(user))
@@ -148,18 +145,6 @@ this.ckan.module('user-context', function($, _) {
 		 */
 		_onClickPopoverClose: function() {
 			this.el.popover('hide');
-		},
-
-		/* Callback from getting the number of followers for given user
-		 *
-		 * json - user dict
-		 *
-		 * Returns nothing.
-		 */
-		_onHandleUserFollowersData: function(json) {
-			var data = window.user_context_dict[this.options.id];
-			data.result.number_of_followers = json.result;
-			this._onHandleUserData(data);
 		},
 
 		/* Callback from getting whether the currently authed user is following
