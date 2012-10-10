@@ -204,7 +204,10 @@ class TestActivity(HtmlCheckMethods):
                 in stripped, stripped
 
         # Delete the package.
+        # we need to get round the delete permission
+        context['ignore_auth'] = True
         package_delete(context, package)
+        del context['ignore_auth']
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s deleted the dataset %s' % \
