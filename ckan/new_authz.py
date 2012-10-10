@@ -39,6 +39,12 @@ def get_group_or_org_admin_ids(group_id):
         .filter(model.Member.capacity == 'admin')
     return [a.table_id for a in q.all()]
 
+def is_authorized_boolean(action, context, data_dict=None):
+    ''' runs the auth function but just returns True if allowed else False
+    '''
+    outcome = is_authorized(action, context, data_dict=data_dict)
+    return outcome.get('success', False)
+
 def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
