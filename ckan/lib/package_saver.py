@@ -32,16 +32,33 @@ class PackageSaver(object):
         url = pkg.get('url', '')
         c.pkg_url_link = h.link_to(url, url, rel='foaf:homepage', target='_blank') \
                 if url else _("No web page given")
-        if pkg.get('author_email', False):
-            c.pkg_author_link = cls._person_email_link(pkg.get('author', ''), pkg.get('author_email', ''), "Author")
+
+        if pkg.get('author') and pkg.get('author_email'):
+            c.pkg_author_link = cls._person_email_link(
+                    name=pkg['author'], email=pkg['author_email'],
+                    reference="Author")
+        elif pkg.get('author'):
+            c.pkg_author_link = pkg['author']
+        elif pkg.get('author_email'):
+            c.pkg_author_link = cls._person_email_link(
+                    name=pkg['author_email'], email=pkg['author_email'],
+                    reference="Author")
         else:
             c.pkg_author_link = _("Author not given")
-        maintainer = pkg.get('maintainer', '')
-        maintainer_email = pkg.get('maintainer_email', '')
-        if maintainer_email:
-            c.pkg_maintainer_link = cls._person_email_link(maintainer, maintainer_email, "Maintainer")
+
+        if pkg.get('maintainer') and pkg.get('maintainer_email'):
+            c.pkg_maintainer_link = cls._person_email_link(
+                    name=pkg['maintainer'], email=pkg['maintainer_email'],
+                    reference="Maintainer")
+        elif pkg.get('maintainer'):
+            c.pkg_maintainer_link = pkg['maintainer']
+        elif pkg.get('maintainer_email'):
+            c.pkg_maintainer_link = cls._person_email_link(
+                    name=pkg['maintainer_email'],
+                    email=pkg['maintainer_email'], reference="Maintainer")
         else:
             c.pkg_maintainer_link = _("Maintainer not given")
+
         c.package_relationships = context['package'].get_relationships_printable()
         c.pkg_extras = []
         for extra in sorted(pkg.get('extras',[]), key=lambda x:x['key']):
