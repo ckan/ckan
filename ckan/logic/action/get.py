@@ -402,8 +402,23 @@ def group_list_authz(context, data_dict):
 
     _check_access('group_list_authz',context, data_dict)
 
-    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
-    groups = set(query.all())
+    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+
+
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.capacity.in_(roles)) \
+        .filter(model.Member.table_id == new_authz.get_user_id_for_username(user))
+    group_ids = []
+    for row in q.all():
+        group_ids.append(row.group_id)
+
+    q = model.Session.query(model.Group) \
+        .filter(model.Group.id.in_(group_ids)) \
+        .filter(model.Group.is_organization == False) \
+        .filter(model.Group.state == 'active')
+
+    groups = q.all()
 
     if available_only:
         package = context.get('package')
