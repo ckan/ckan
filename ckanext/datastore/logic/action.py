@@ -76,7 +76,7 @@ def datastore_upsert(context, data_dict):
     '''
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
@@ -89,8 +89,6 @@ def datastore_upsert(context, data_dict):
         ))
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
-
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     result = db.upsert(context, data_dict)
     result.pop('id')
@@ -112,7 +110,7 @@ def datastore_delete(context, data_dict):
     '''
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
@@ -125,8 +123,6 @@ def datastore_delete(context, data_dict):
         ))
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
-
-    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     result = db.delete(context, data_dict)
     result.pop('id')
@@ -172,7 +168,8 @@ def datastore_search(context, data_dict):
     '''
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
+            pylons.config['ckan.datastore.write_url'])
 
     resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
