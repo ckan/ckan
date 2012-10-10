@@ -34,6 +34,11 @@ class DatastorePlugin(p.SingletonPlugin):
             error_msg = 'ckan.datastore.read_url not found in config'
             raise DatastoreException(error_msg)
 
+        # Legacy mode means that we have no read url. Consequently sql search is not
+        # available and permissions do not have to be changed. In legacy mode, the
+        # datastore runs on PG prior to 9.0 (for example 8.4).
+        self.legacy_mode = 'ckan.datastore.read_url' not in self.config
+
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
         import sys
@@ -192,11 +197,13 @@ class DatastorePlugin(p.SingletonPlugin):
         connection.execute(create_alias_table_sql)
 
     def get_actions(self):
-        return {'datastore_create': action.datastore_create,
+        actions = {'datastore_create': action.datastore_create,
                 'datastore_upsert': action.datastore_upsert,
                 'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search,
-                'datastore_search_sql': action.datastore_search_sql}
+                'datastore_search': action.datastore_search}
+        if not self.legacy_mode:
+            actions['datastore_search_sql'] = action.datastore_search_sql
+        return actions
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
