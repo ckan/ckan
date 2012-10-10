@@ -5,7 +5,6 @@ import re
 from pylons.i18n import _
 
 from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
-from ckan.authz import Authorizer
 from ckan.logic import check_access, NotAuthorized
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
@@ -13,6 +12,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
+import ckan.new_authz
 
 def package_id_not_changed(value, context):
 
@@ -357,7 +357,7 @@ def ignore_not_package_admin(key, data, errors, context):
     if 'ignore_auth' in context:
         return
 
-    if user and Authorizer.is_sysadmin(user):
+    if user and ckan.new_authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -384,7 +384,7 @@ def ignore_not_group_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
-    if user and Authorizer.is_sysadmin(user):
+    if user and ckan.new_authz.is_sysadmin(user):
         return
 
     authorized = False
