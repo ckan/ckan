@@ -127,7 +127,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
 
         test_groups = [u'david']
-        user = model.User.by_name(u'russianfan')
+        user = model.User.by_name(u'testsysadmin')
 
         groups = self.get_groups_identifiers(test_groups,[user])
 
@@ -340,7 +340,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         # use russianfan now because he has rights to add this package to
         # the 'david' group.
-        extra_environ = {'REMOTE_USER': 'russianfan'}
+        extra_environ = {'REMOTE_USER': 'testsysadmin'}
         res = self.app.post(self.package_offset(), params=postparams,
                             status=self.STATUS_201_CREATED,
                             extra_environ=extra_environ)
