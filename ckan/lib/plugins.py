@@ -273,7 +273,6 @@ class DefaultDatasetForm(object):
             raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
-        from pylons import config
 
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
