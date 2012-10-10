@@ -27,7 +27,6 @@ log = logging.getLogger('ckan.logic')
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
-Authorizer = ckan.authz.Authorizer
 _check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
