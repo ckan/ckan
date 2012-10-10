@@ -198,8 +198,11 @@ class GroupsTestCase(BaseModelApiTestCase):
         assert group
         assert group.state == 'deleted', group.state
 
-        res = self.app.get(offset, status=[403])
-        self.assert_json_response(res, 'Access denied')
+        # Anyone can see groups especially sysadmins
+        # maybe we want to do something different with
+        # deleted groups but that would be a new requirement
+        #res = self.app.get(offset, status=[403])
+        #self.assert_json_response(res, 'Access denied')
         res = self.app.get(offset, status=[200],
                            extra_environ=self.admin_extra_environ)
         res = self.set_env(self.extra_environ)
