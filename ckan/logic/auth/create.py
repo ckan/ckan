@@ -50,20 +50,19 @@ def resource_create(context, data_dict):
     return new_authz.is_authorized('package_create', context, data_dict)
 
 def package_relationship_create(context, data_dict):
-    model = context['model']
     user = context['user']
 
     id = data_dict['subject']
     id2 = data_dict['object']
-    pkg1 = model.Package.get(id)
-    pkg2 = model.Package.get(id2)
 
-    authorized = Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.EDIT)
+    # If we can update each package we can see the relationships
+    authorized1 = new_authz.is_authorized_boolean(
+        'package_update', context, {'id': id})
+    authorized2 = new_authz.is_authorized_boolean(
+        'package_update', context, {'id': id2})
 
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % str(user)}
+    if not authorized1 and authorized2:
+        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
 
