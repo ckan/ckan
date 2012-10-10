@@ -3,7 +3,6 @@ from pylons.i18n import _
 from paste.deploy.converters import asbool
 
 import ckan.logic as logic
-from ckan.authz import Authorizer
 import ckan.new_authz as new_authz
 
 
