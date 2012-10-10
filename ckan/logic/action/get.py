@@ -1694,7 +1694,8 @@ def get_site_user(context, data_dict):
         user = model.User(name=site_id,
                           password=apikey,
                           apikey=apikey)
-        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        # make sysadmin
+        user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
         if not context.get('defer_commit'):
