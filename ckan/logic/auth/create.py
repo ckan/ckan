@@ -43,19 +43,11 @@ def related_create(context, data_dict=None):
 def resource_create(context, data_dict):
     # resource_create runs through package_update, no need to
     # check users eligibility to add resource to package here.
-    model = context['model']
-    user = context['user']
-    check1 = logic.check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
 
-    if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
-    else:
-
-        check2 = _check_group_auth(context,data_dict)
-        if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
-
-    return {'success': True}
+    # FIXME This is identical behaviour to what existed but feels like we
+    # should be using package_update permissions and have better errors.  I
+    # am also not sure about the need for the group issue
+    return new_authz.is_authorized('package_create', context, data_dict)
 
 def package_relationship_create(context, data_dict):
     model = context['model']
