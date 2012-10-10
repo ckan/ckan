@@ -433,7 +433,7 @@ def group_list_authz(context, data_dict):
     if available_only:
         package = context.get('package')
         if package:
-            groups = groups - set(package.get_groups())
+            groups = set(groups) - set(package.get_groups())
 
     return [{'id':group.id,'name':group.name} for group in groups]
 
