@@ -103,6 +103,7 @@ def _check_group_auth(context, data_dict):
         return True
 
     model = context['model']
+    user = context['user']
     pkg = context.get("package")
 
     api_version = context.get('api_version') or '1'
@@ -131,7 +132,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not logic.check_access_old(group, model.Action.EDIT, context):
+        if not new_authz.has_user_permission_for_group_or_org(group['id'], user, 'update'):
             return False
 
     return True
