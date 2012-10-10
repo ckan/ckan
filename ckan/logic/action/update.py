@@ -915,13 +915,13 @@ def user_role_update(context, data_dict):
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
-    if isinstance(domain_object, model.Package):
-        _check_access('package_edit_permissions', context, data_dict)
-    elif isinstance(domain_object, model.Group):
-        _check_access('group_edit_permissions', context, data_dict)
-    # Todo: 'system' object
-    else:
-        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
+#    if isinstance(domain_object, model.Package):
+#        _check_access('package_edit_permissions', context, data_dict)
+#    elif isinstance(domain_object, model.Group):
+#        _check_access('group_edit_permissions', context, data_dict)
+#    # Todo: 'system' object
+#    else:
+#        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
