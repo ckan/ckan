@@ -136,14 +136,10 @@ def user_update(context, data_dict):
     return {'success': True}
 
 def revision_change_state(context, data_dict):
-    model = context['model']
+    # FIXME currently only sysadmins can change state
     user = context['user']
 
-    authorized = Authorizer().is_authorized(user, model.Action.CHANGE_STATE, model.Revision)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to change state of revision' ) % str(user)}
-    else:
-        return {'success': True}
+    return {'success': False, 'msg': _('User %s not authorized to change state of revision' ) % user}
 
 def task_status_update(context, data_dict):
     # sysadmins only
