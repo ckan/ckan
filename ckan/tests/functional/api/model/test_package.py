@@ -718,7 +718,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.app.delete(offset, status=self.STATUS_200_OK,
-                              extra_environ=self.extra_environ)
+                              extra_environ=self.admin_extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()
@@ -731,7 +731,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.delete_request(offset, status=self.STATUS_200_OK,
-                                  extra_environ=self.extra_environ)
+                                  extra_environ=self.admin_extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()
