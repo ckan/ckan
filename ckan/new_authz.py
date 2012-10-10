@@ -99,6 +99,9 @@ def has_user_permission_for_some_org(user_id, permission):
     if not user_id:
         return False
     roles = get_roles_with_permission(permission)
+
+    if not roles:
+        return False
     # get any groups the user has with the needed role
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
