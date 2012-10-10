@@ -8,9 +8,6 @@
 
   <div py:match="content">
     <h3>Current Sysadmins</h3>
-    <p>You can change sysadmins on the <a
-      href="${h.url_for('ckanadmin',
-      action='authz')}">authorization page</a>.</p>
     <ul>
       <li py:for="user in c.sysadmins">
         ${h.linked_user(user)}
