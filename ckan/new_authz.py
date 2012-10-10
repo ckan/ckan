@@ -27,8 +27,8 @@ def is_sysadmin(username):
         # c is not available
         pass
     # get user from the database
-    u = model.User.get(username)
-    if u and u.sysadmin:
+    user = model.User.get(username)
+    if user and user.sysadmin:
         return True
     return False
 
