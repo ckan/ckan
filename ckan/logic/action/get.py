@@ -402,15 +402,22 @@ def group_list_authz(context, data_dict):
     _check_access('group_list_authz',context, data_dict)
 
     roles = ckan.new_authz.get_roles_with_permission('edit_group')
-
+    if not roles:
+        return []
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    if not user_id:
+        return []
 
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.capacity.in_(roles)) \
-        .filter(model.Member.table_id == new_authz.get_user_id_for_username(user))
+        .filter(model.Member.table_id == user_id)
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
+
+    if not group_ids:
+        return []
 
     q = model.Session.query(model.Group) \
         .filter(model.Group.id.in_(group_ids)) \
@@ -440,13 +447,22 @@ def organization_list_for_user(context, data_dict):
 
     roles = ckan.new_authz.get_roles_with_permission('edit_group')
 
+    if not roles:
+        return []
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    if not user_id:
+        return []
+
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.capacity.in_(roles)) \
-        .filter(model.Member.table_id == new_authz.get_user_id_for_username(user))
+        .filter(model.Member.table_id == user_id)
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
+
+    if not group_ids:
+        return []
 
     q = model.Session.query(model.Group) \
         .filter(model.Group.id.in_(group_ids)) \
