@@ -61,17 +61,6 @@ def package_change_state(context, data_dict):
     else:
         return {'success': True}
 
-def package_edit_permissions(context, data_dict):
-    model = context['model']
-    user = context['user']
-    package = get_package_object(context, data_dict)
-
-    authorized = logic.check_access_old(package, model.Action.EDIT_PERMISSIONS, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit permissions of package %s') % (str(user),package.id)}
-    else:
-        return {'success': True}
-
 def group_update(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
