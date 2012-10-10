@@ -80,10 +80,13 @@ def package_relationships_list(context, data_dict):
     # If we can see each package we can see the relationships
     authorized1 = new_authz.is_authorized_boolean(
         'package_show', context, {'id': id})
-    authorized2 = new_authz.is_authorized_boolean(
-        'package_show', context, {'id': id2})
+    if id2:
+        authorized2 = new_authz.is_authorized_boolean(
+            'package_show', context, {'id': id2})
+    else:
+        authorized2 = True
 
-    if not authorized1 and authorized2:
+    if not (authorized1 and authorized2):
         return {'success': False, 'msg': _('User %s not authorized to read these packages') % user}
     else:
         return {'success': True}
