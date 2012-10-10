@@ -131,7 +131,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not new_authz.has_user_permission_for_group_or_org(group['id'], user, 'update'):
+        if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
             return False
 
     return True
