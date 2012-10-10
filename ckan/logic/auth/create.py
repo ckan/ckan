@@ -90,12 +90,10 @@ def rating_create(context, data_dict):
     return {'success': True}
 
 def user_create(context, data_dict=None):
-    model = context['model']
     user = context['user']
 
-    authorized = logic.check_access_old(model.System(), model.Action.USER_CREATE, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to create users') % str(user)}
+    if not asbool(config.get('ckan.auth.create_user', True)):
+        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
     else:
         return {'success': True}
 
