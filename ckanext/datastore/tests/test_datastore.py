@@ -33,7 +33,7 @@ def rebuild_all_dbs(Session):
     ''' If the tests are running on the same db, we have to make sure that
     the ckan tables are recrated.
     '''
-    db_read_url_parts = cli.parse_db_config('ckan.datastore.read_url')
+    db_read_url_parts = cli.parse_db_config('ckan.datastore.write_url')
     db_ckan_url_parts = cli.parse_db_config('sqlalchemy.url')
     same_db = db_read_url_parts['db_name'] == db_ckan_url_parts['db_name']
 
