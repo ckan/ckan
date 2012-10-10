@@ -111,8 +111,6 @@ class UserController(BaseController):
         self._setup_template_variables(context, data_dict)
 
         c.about_formatted = self._format_about(c.user_dict['about'])
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):
