@@ -73,20 +73,19 @@ def user_list(context, data_dict):
     return {'success': True}
 
 def package_relationships_list(context, data_dict):
-    model = context['model']
     user = context.get('user')
 
     id = data_dict['id']
     id2 = data_dict.get('id2')
-    pkg1 = model.Package.get(id)
-    pkg2 = model.Package.get(id2)
 
-    authorized = Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.READ)
+    # If we can see each package we can see the relationships
+    authorized1 = new_authz.is_authorized_boolean(
+        'package_show', context, {'id': id})
+    authorized2 = new_authz.is_authorized_boolean(
+        'package_show', context, {'id': id2})
 
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read these packages') % str(user)}
+    if not authorized1 and authorized2:
+        return {'success': False, 'msg': _('User %s not authorized to read these packages') % user}
     else:
         return {'success': True}
 
