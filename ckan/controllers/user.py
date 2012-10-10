@@ -58,6 +58,7 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
+        c.about_formatted = self._format_about(user_dict['about'])
 
     ## end hooks
 
@@ -110,7 +111,6 @@ class UserController(BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        c.about_formatted = self._format_about(c.user_dict['about'])
         return render('user/read.html')
 
     def me(self, locale=None):
