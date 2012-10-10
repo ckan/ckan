@@ -33,31 +33,12 @@ class PackageSaver(object):
         c.pkg_url_link = h.link_to(url, url, rel='foaf:homepage', target='_blank') \
                 if url else _("No web page given")
 
-        if pkg.get('author') and pkg.get('author_email'):
-            c.pkg_author_link = cls._person_email_link(
-                    name=pkg['author'], email=pkg['author_email'],
-                    reference="Author")
-        elif pkg.get('author'):
-            c.pkg_author_link = pkg['author']
-        elif pkg.get('author_email'):
-            c.pkg_author_link = cls._person_email_link(
-                    name=pkg['author_email'], email=pkg['author_email'],
-                    reference="Author")
-        else:
-            c.pkg_author_link = _("Author not given")
-
-        if pkg.get('maintainer') and pkg.get('maintainer_email'):
-            c.pkg_maintainer_link = cls._person_email_link(
-                    name=pkg['maintainer'], email=pkg['maintainer_email'],
-                    reference="Maintainer")
-        elif pkg.get('maintainer'):
-            c.pkg_maintainer_link = pkg['maintainer']
-        elif pkg.get('maintainer_email'):
-            c.pkg_maintainer_link = cls._person_email_link(
-                    name=pkg['maintainer_email'],
-                    email=pkg['maintainer_email'], reference="Maintainer")
-        else:
-            c.pkg_maintainer_link = _("Maintainer not given")
+        c.pkg_author_link = cls._person_email_link(
+                name=pkg.get('author'), email=pkg.get('author_email'),
+                fallback=_("Author not given"))
+        c.pkg_maintainer_link = cls._person_email_link(
+                name=pkg.get('maintainer'), email=pkg.get('maintainer_email'),
+                fallback=_("Maintainer not given"))
 
         c.package_relationships = context['package'].get_relationships_printable()
         c.pkg_extras = []
@@ -119,9 +100,12 @@ class PackageSaver(object):
         return errors
 
     @classmethod
-    def _person_email_link(cls, name, email, reference):
-        assert email
-        return h.mail_to(email_address=email, name=name or email, encode='hex')
+    def _person_email_link(cls, name, email, fallback):
+        if email:
+            return h.mail_to(email_address=email, name=name or email,
+                    encode='hex')
+        else:
+            return name or fallback
 
 class WritePackageFromBoundFieldset(object):
 
