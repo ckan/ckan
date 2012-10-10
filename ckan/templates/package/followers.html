@@ -1,4 +1,4 @@
-{% extends "page.html" %}
+{% extends "package/read.html" %}
 
 {% block subtitle %}{{ _('Followers') }} - {{ c.pkg_dict.title or c.pkg_dict.name }}{% endblock %}
 
@@ -7,7 +7,7 @@
     <div class="module-content">
       <h1 class="page-heading">{{ _('Followers') }}</h1>
       {% if c.followers %}
-        <ul class="userlist">
+        <ul class="unstyled userlist">
           {% for follower in c.followers %}
             <li>{{ h.linked_user(follower['name'], maxlength=20) }}</li>
           {% endfor %}

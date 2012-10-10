@@ -111,8 +111,6 @@ class UserController(BaseController):
         self._setup_template_variables(context, data_dict)
 
         c.about_formatted = self._format_about(c.user_dict['about'])
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
         return render('user/read.html')
 
     def me(self, locale=None):
@@ -475,9 +473,62 @@ class UserController(BaseController):
         c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
 
+    def activity(self, id):
+        '''Render this user's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
+        try:
+            check_access('user_show', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
+        self._setup_template_variables(context, data_dict)
+
+        c.user_activity_stream = get_action('user_activity_list_html')(
+            context, {'id': c.user_dict['id']})
+
+        return render('user/activity_stream.html')
+
     def dashboard(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard.html')
+
+    def follow(self, id):
+        '''Start following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('follow_user')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(id))
+        except ValidationError as e:
+            error_message = (e.extra_msg or e.message or e.error_summary
+                    or e.error_dict)
+            h.flash_error(error_message)
+        except NotAuthorized as e:
+            h.flash_error(e.extra_msg)
+        h.redirect_to(controller='user', action='read', id=id)
+
+    def unfollow(self, id):
+        '''Stop following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('unfollow_user')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(id))
+        except (NotFound, NotAuthorized) as e:
+            error_message = e.extra_msg or e.message
+            h.flash_error(error_message)
+        except ValidationError as e:
+            error_message = (e.error_summary or e.message or e.extra_msg
+                    or e.error_dict)
+            h.flash_error(error_message)
+        h.redirect_to(controller='user', action='read', id=id)

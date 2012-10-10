@@ -16,7 +16,7 @@
     </hgroup>
     <div class="content">
       {% if c.userobj %}
-        <div class="account section avatar">
+        <div class="account section avatar authed" data-me="{{ c.userobj.id }}">
           <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
             {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
           </a>

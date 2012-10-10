@@ -1,6 +1,5 @@
+<ul class="activity">
 {% for activity in activities %}
-  <div class="activity">
-    {{    h.literal(activity.msg.format(**activity.data))  }}
-    <span class="date">{{ h.render_datetime(activity.timestamp) }}</span>
-  </div>
+	{% snippet 'snippets/activity_item.html', activity=activity %}
 {% endfor %}
+</ul>
