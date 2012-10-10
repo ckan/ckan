@@ -601,7 +601,7 @@ class TestEdit(TestPackageForm):
         self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
-        self.admin = model.User.by_name(u'testadmin')
+        self.admin = model.User.by_name(u'testsysadmin')
 
         self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
         self.extra_environ_russianfan = {'REMOTE_USER': 'russianfan'}
@@ -837,7 +837,7 @@ class TestEdit(TestPackageForm):
                        extra_new,
                        ('key3', extras['key3'], True))
 
-            res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'testsysadmin'})
 
             # Check dataset page
             assert not 'Error' in res, res
@@ -867,7 +867,7 @@ class TestEdit(TestPackageForm):
 
             # for some reason environ['REMOTE_ADDR'] is undefined
             rev = model.Revision.youngest(model.Session)
-            assert rev.author == 'testadmin', rev.author
+            assert rev.author == 'testsysadmin', rev.author
             assert rev.message == log_message
             # TODO: reinstate once fixed in code
             exp_log_message = u'Creating dataset %s' % name
