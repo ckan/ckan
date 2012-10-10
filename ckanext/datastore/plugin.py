@@ -23,6 +23,8 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
 
+    legacy_mode = False
+
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
