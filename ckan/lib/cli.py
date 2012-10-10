@@ -4,6 +4,9 @@ import sys
 import logging
 from pprint import pprint
 import re
+import ckan.include.rjsmin as rjsmin
+import ckan.include.rcssmin as rcssmin
+import ckan.lib.fanstatic_resources as fanstatic_resources
 
 import paste.script
 from paste.registry import Registry
@@ -12,6 +15,35 @@ from paste.script.util.logging_config import fileConfig
 #NB No CKAN imports are allowed until after the config file is loaded.
 #   i.e. do the imports in methods, after _load_config is called.
 #   Otherwise loggers get disabled.
+
+
+def parse_db_config(config_key='sqlalchemy.url'):
+    ''' Takes a config key for a database connection url and parses it into
+    a dictionary. Expects a url like:
+
+    'postgres://tester:pass@localhost/ckantest3'
+    '''
+    from pylons import config
+    url = config[config_key]
+    regex = [
+        '^\s*(?P<db_type>\w*)',
+        '://',
+        '(?P<db_user>[^:]*)',
+        ':?',
+        '(?P<db_pass>[^@]*)',
+        '@',
+        '(?P<db_host>[^/:]*)',
+        ':?',
+        '(?P<db_port>[^/]*)',
+        '/',
+        '(?P<db_name>[\w.-]*)'
+    ]
+    db_details_match = re.match(''.join(regex), url)
+    if not db_details_match:
+        raise Exception('Could not extract db details from url: %r' % url)
+    db_details = db_details_match.groupdict()
+    return db_details
+
 
 class MockTranslator(object):
     def gettext(self, value):
@@ -134,14 +166,7 @@ class ManageDb(CkanCommand):
             sys.exit(1)
 
     def _get_db_config(self):
-        from pylons import config
-        url = config['sqlalchemy.url']
-        # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
-        if not db_details_match:
-            raise Exception('Could not extract db details from url: %r' % url)
-        db_details = db_details_match.groupdict()
-        return db_details
+        return parse_db_config()
 
     def _get_postgres_cmd(self, command):
         self.db_details = self._get_db_config()
@@ -1642,3 +1667,66 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         po.save(out_po)
         po.save_as_mofile(out_mo)
         print 'zh_TW has been mangled'
+
+
+class MinifyCommand(CkanCommand):
+    '''Create minified versions of the given Javascript and CSS files.
+
+    Usage:
+
+        paster minify [FILE|DIRECTORY] ...
+
+    for example:
+
+        paster minify ckan/public/base
+        paster minify ckan/public/base/css/*.css
+        paster minify ckan/public/base/css/red.css
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        for base_path in self.args:
+            if os.path.isfile(base_path):
+                self.minify_file(base_path)
+            elif os.path.isdir(base_path):
+                for root, dirs, files in os.walk(base_path):
+                    for filename in files:
+                        path = os.path.join(root, filename)
+                        self.minify_file(path)
+            else:
+                # Path is neither a file or a dir?
+                continue
+
+    def minify_file(self, path):
+        '''Create the minified version of the given file.
+
+        If the file is not a .js or .css file (e.g. it's a .min.js or .min.css
+        file, or it's some other type of file entirely) it will not be
+        minifed.
+
+        :param path: The path to the .js or .css file to minify
+
+        '''
+        path_only, extension = os.path.splitext(path)
+
+        if path_only.endswith('.min'):
+            # This is already a minified file.
+            return
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        path_min = fanstatic_resources.min_path(path)
+
+        source = open(path, 'r').read()
+        f = open(path_min, 'w')
+        if path.endswith('.css'):
+            f.write(rcssmin.cssmin(source))
+        elif path.endswith('.js'):
+            f.write(rjsmin.jsmin(source))
+        f.close()
+        print "Minified file '{0}'".format(path)

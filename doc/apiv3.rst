@@ -21,8 +21,6 @@ If you don't specify the version number then you will default to version 1 of th
 Action API
 ~~~~~~~~~~
 
-.. warning:: The Action API is in beta in this release. Please feed back comments and problems. There is a known issue that incorrect parameters cause unhelpful errors with status 500.
-
 Overview
 --------
 
