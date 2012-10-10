@@ -475,6 +475,24 @@ class UserController(BaseController):
         c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
 
+    def activity(self, id):
+        '''Render this user's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
+        try:
+            check_access('user_show', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
+        self._setup_template_variables(context, data_dict)
+
+        c.user_activity_stream = get_action('user_activity_list_html')(
+            context, {'id': c.user_dict['id']})
+
+        return render('user/activity_stream.html')
+
     def dashboard(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}

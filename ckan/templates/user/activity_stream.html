@@ -1,0 +1,22 @@
+{% extends "user/read.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Home'), controller='user', action='me') }}</li>
+  {% with title = _('Your Profile') if c.is_myself  else c.user_dict.display_name %}
+    <li>{% link_for title|truncate(35), controller='user', action='read', id=c.user_dict.name %}</li>
+  {% endwith %}
+  <li class="active">{{ h.nav_link(_('Activity Stream'), controller='user', action='activity', id="") }}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Activity Stream').format(name=c.user_dict.display_name) }}</h1>
+      <section>
+        {{ c.user_activity_stream | safe }}
+      </section>
+    </div>
+  </article>
+{% endblock %}
