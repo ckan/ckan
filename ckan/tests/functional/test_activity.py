@@ -229,6 +229,9 @@ class TestActivity(HtmlCheckMethods):
                 == 15
 
         # The latest 15 should also appear on the dashboard
+        # THIS TEST IS A WASTE OF SPACE AND TESTS NOTHING.  WOULDN'T WORK IF
+        # FIXED (response? result perhaps) AND USES A FEATURE (id parameter)
+        # THAT IS NOT IMPLEMENTED.  I love tests :)
         offset = url_for(controller='user', action='dashboard')
         params = {'id': user['id']}
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
