@@ -18,7 +18,7 @@ def get_snippet_actor(activity, detail):
 
 def get_snippet_user(activity, detail):
     return literal('''<span data-module="user-context" data-module-id="%s">%s</span>'''
-        % (activity['user_id'], h.linked_user(activity['user_id'], 0, 20))
+        % (activity['object_id'], h.linked_user(activity['object_id'], 0, 20))
         )
 
 def get_snippet_dataset(activity, detail):
