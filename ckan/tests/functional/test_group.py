@@ -250,8 +250,9 @@ class TestGroupWithSearch(FunctionalTestCase):
             main_res = self.main_div(res)
             assert title in res, res
             #assert 'edit' not in main_res, main_res
-            assert 'Administrators' in res, res
-            assert 'russianfan' in main_res, main_res
+           # Administrator no longer exists for the group due to auth changes
+           # assert 'Administrators' in res, res
+           # assert 'russianfan' in main_res, main_res
             assert name in res, res
             no_datasets_found = int(re.search('(\d*) datasets found',
                                     main_res).groups()[0])
