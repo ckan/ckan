@@ -37,6 +37,7 @@ class TestBasicDictize:
         cls.package_expected = {
             'author': None,
             'author_email': None,
+            'public': True,
             'extras': [
                {'key': u'genre',
                 'state': u'active',
@@ -172,7 +173,8 @@ class TestBasicDictize:
             'title': u'A Novel By Tolstoy',
             'type': None,
             'url': u'http://www.annakarenina.com',
-            'version': u'0.7a'
+            'version': u'0.7a',
+            'public': True,
         }
         assert result == expected, pprint(result)
 
@@ -906,6 +908,7 @@ class TestBasicDictize:
                     'image_url': u'',
                     'packages': [{'author': None,
                                   'author_email': None,
+                                  'public': True,
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
@@ -920,6 +923,7 @@ class TestBasicDictize:
                                  {'author': None,
                                   'author_email': None,
                                   'capacity' : 'public',
+                                  'public': True,
                                   'title': u'A Novel By Tolstoy',
                                   'license_id': u'other-open',
                                   'maintainer': None,
