@@ -177,7 +177,6 @@ def make_map():
           requirements=dict(action='|'.join([
           'read',
           'edit',
-          'authz',
           'history',
           ]))
         )
@@ -186,7 +185,6 @@ def make_map():
           'edit',
           'new_metadata',
           'new_resource',
-          'authz',
           'history',
           'read_ajax',
           'history_ajax',
@@ -229,7 +227,6 @@ def make_map():
         m.connect('group_action', '/group/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
-          'authz',
           'delete',
           'history'
           ]))
@@ -244,7 +241,6 @@ def make_map():
         m.connect('/organization/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
-          'authz',
           'delete',
           'history'
           ]))
