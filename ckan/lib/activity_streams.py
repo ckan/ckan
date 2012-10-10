@@ -12,10 +12,14 @@ import ckan.logic as logic
 # etc.
 
 def get_snippet_actor(activity, detail):
-    return h.linked_user(activity['user_id'], 0, 30)
+    return literal('''<span class="actor" data-module="user-context" data-module-id="%s">%s</span>'''
+        % (activity['user_id'], h.linked_user(activity['user_id'], 0, 30))
+        )
 
 def get_snippet_user(activity, detail):
-    return h.linked_user(activity['data']['user']['name'], 0, 30)
+    return literal('''<span data-module="user-context" data-module-id="%s">%s</span>'''
+        % (activity['user_id'], h.linked_user(activity['user_id'], 0, 20))
+        )
 
 def get_snippet_dataset(activity, detail):
     data = activity['data']

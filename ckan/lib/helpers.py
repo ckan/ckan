@@ -608,7 +608,7 @@ def linked_user(user, maxlength=0, avatar=20):
             return user_name
     if user:
         name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        icon = gravatar(user.email_hash, avatar, None, user.id)
+        icon = gravatar(email_hash=user.email_hash, size=avatar)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
@@ -679,18 +679,18 @@ def dict_list_reduce(list_, key, unique=True):
     return new_list
 
 
-def linked_gravatar(email_hash, size=100, default=None, user_id=None):
+def linked_gravatar(email_hash, size=100, default=None):
     return literal(
         '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
-        '%s</a>' % gravatar(email_hash, size, default, user_id)
+        '%s</a>' % gravatar(email_hash, size, default)
         )
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
 
 
-def gravatar(email_hash, size=100, default=None, user_id=None):
+def gravatar(email_hash, size=100, default=None):
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
 
@@ -698,14 +698,9 @@ def gravatar(email_hash, size=100, default=None, user_id=None):
         # treat the default as a url
         default = urllib.quote(default, safe='')
 
-    if user_id is None:
-        user_id = ""
-
-    url = url_for(controller='user', action='read', id=user_id)
-
     return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" width="%s" height="%s" data-module="user-context" data-module-id="%s" data-module-url="%s" />'''
-        % (email_hash, size, default, size, size, user_id, url)
+        class="gravatar" width="%s" height="%s" />'''
+        % (email_hash, size, default, size, size)
         )
 
 def pager_url(page, partial=None, **kwargs):
