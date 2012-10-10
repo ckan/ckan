@@ -1,3 +1,4 @@
+import os.path
 import logging
 import cgi
 import datetime
@@ -145,6 +146,12 @@ class ApiController(base.BaseController):
         response_data = {}
         response_data['version'] = ver
         return self._finish_ok(response_data)
+
+    def snippet(self, snippet_path, ver=None):
+        ''' Renders and returns a snippet used by ajax calls '''
+        # we only allow snippets in templates/ajax_snippets and it's subdirs
+        snippet_path = u'ajax_snippets/' + snippet_path
+        return base.render(snippet_path, extra_vars=dict(request.params))
 
     def action(self, logic_function, ver=None):
         try:
@@ -631,28 +638,6 @@ class ApiController(base.BaseController):
         out = map(convert_to_dict, query.all())
         return out
 
-    @jsonp.jsonpify
-    def authorizationgroup_autocomplete(self):
-        q = request.params.get('q', '')
-        limit = request.params.get('limit', 20)
-        try:
-            limit = int(limit)
-        except:
-            limit = 20
-        limit = min(50, limit)
-
-        query = model.AuthorizationGroup.search(q)
-
-        def convert_to_dict(user):
-            out = {}
-            for k in ['id', 'name']:
-                out[k] = getattr(user, k)
-            return out
-
-        query = query.limit(limit)
-        out = map(convert_to_dict, query.all())
-        return out
-
     def is_slug_valid(self):
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''
@@ -749,3 +734,14 @@ class ApiController(base.BaseController):
         data_dict = {}
         status = get_action('status_show')(context, data_dict)
         return self._finish_ok(status)
+
+    def i18n_js_translations(self, lang):
+        ''' translation strings for front end '''
+        ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        source = os.path.abspath(os.path.join(ckan_path, 'public',
+                                    'base', 'i18n', '%s.js' % lang))
+        response.headers['Content-Type'] = CONTENT_TYPES['json']
+        if not os.path.exists(source):
+            return '{}'
+        f = open(source, 'r')
+        return(f)

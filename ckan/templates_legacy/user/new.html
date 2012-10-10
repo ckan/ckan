@@ -1,0 +1,14 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Register - User</py:def>
+  <py:def function="page_heading">Register for a new Account</py:def>
+
+  <div py:match="content">
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

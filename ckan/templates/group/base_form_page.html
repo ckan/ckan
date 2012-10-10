@@ -1,0 +1,31 @@
+{% extends "page.html" %}
+
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
+  <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Group'), controller='group', action='new') }}{% endblock %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
+      {% block form %}
+        {{ c.form | safe }}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Groups?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        <p>Whilst tags are great at collecting datasets together, there are
+        occasions when you want to restrict users from editing a collection.</p>
+        <p>A group can be set-up to specify which users have permission to add or
+        remove datasets from it.</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}

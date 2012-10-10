@@ -52,6 +52,9 @@ class GroupController(BaseController):
     def _history_template(self, group_type):
         return lookup_group_plugin(group_type).history_template()
 
+    def _edit_template(self, group_type):
+        return lookup_group_plugin(group_type).edit_template()
+
     ## end hooks
 
     def _guess_group_type(self, expecting_name=False):
@@ -139,6 +142,8 @@ class GroupController(BaseController):
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
+        #sort_by = request.params.get('sort', 'name asc')
+        sort_by = request.params.get('sort', None)
 
         def search_url(params):
             url = h.url_for(controller='group', action='read',
@@ -148,16 +153,17 @@ class GroupController(BaseController):
             return url + u'?' + urlencode(params)
 
         def drill_down_url(**by):
-            params = list(params_nopage)
-            params.extend(by.items())
-            return search_url(set(params))
+            return h.add_url_param(alternative_url=None,
+                                   controller='group', action='read',
+                                   extras=dict(id=c.group_dict.get('name')),
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
-            params = list(params_nopage)
-            params.remove((key, value))
-            return search_url(params)
+        def remove_field(key, value=None, replace=None):
+            return h.remove_url_param(key, value=value, replace=replace,
+                                  controller='group', action='read',
+                                  extras=dict(id=c.group_dict.get('name')))
 
         c.remove_field = remove_field
 
@@ -170,7 +176,7 @@ class GroupController(BaseController):
             c.fields = []
             search_extras = {}
             for (param, value) in request.params.items():
-                if not param in ['q', 'page'] \
+                if not param in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
@@ -188,6 +194,7 @@ class GroupController(BaseController):
                 'fq': fq,
                 'facet.field': g.facets,
                 'rows': limit,
+                'sort': sort_by,
                 'start': (page - 1) * limit,
                 'extras': search_extras
             }
@@ -208,7 +215,18 @@ class GroupController(BaseController):
               'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
+            c.facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+            c.search_facets_limits = {}
+            for facet in c.facets.keys():
+                limit = int(request.params.get('_%s_limit' % facet, 10))
+                c.search_facets_limits[facet] = limit
             c.page.items = query['results']
+
+            c.sort_by_selected = sort_by
+
         except SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
@@ -243,7 +261,8 @@ class GroupController(BaseController):
         data = data or {}
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
@@ -282,11 +301,12 @@ class GroupController(BaseController):
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'edit'}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
-        return render('group/edit.html')
+        return render(self._edit_template(c.group.type))
 
     def _get_group_type(self, id):
         """
@@ -335,6 +355,7 @@ class GroupController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+            context['allow_partial_update'] = True
             group = get_action('group_update')(context, data_dict)
 
             if id != group['name']:
@@ -376,6 +397,30 @@ class GroupController(BaseController):
         self._prepare_authz_info_for_render(roles)
         return render('group/authz.html')
 
+    def delete(self, id):
+        if 'cancel' in request.params:
+            h.redirect_to(controller='group', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('group_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+
+        try:
+            if request.method == 'POST':
+                get_action('group_delete')(context, {'id': id})
+                h.flash_notice(_('Group has been deleted.'))
+                h.redirect_to(controller='group', action='index')
+            c.group_dict = get_action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return render('group/confirm_delete.html')
+
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:
@@ -394,7 +439,8 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._form_to_db_schema(),
+                   'extras_as_string': True}
         data_dict = {'id': id}
         try:
             c.group_dict = get_action('group_show')(context, data_dict)

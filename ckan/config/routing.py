@@ -58,7 +58,6 @@ def make_map():
             'tag',
             'group',
             'related',
-            'authorizationgroup',
             'revision',
             'licenses',
             'rating',
@@ -119,8 +118,6 @@ def make_map():
                   action='format_autocomplete', conditions=GET)
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
-        m.connect('/util/authorizationgroup/autocomplete',
-                  action='authorizationgroup_autocomplete')
         m.connect('/util/group/autocomplete', action='group_autocomplete')
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
@@ -128,6 +125,8 @@ def make_map():
                   action='munge_title_to_package_name')
         m.connect('/util/tag/munge', action='munge_tag')
         m.connect('/util/status', action='status')
+        m.connect('/util/snippet/{snippet_path:.*}', action='snippet')
+        m.connect('/i18n/{lang}', action='i18n_js_translations')
 
     ###########
     ## /END API
@@ -158,6 +157,11 @@ def make_map():
     ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
 
     with SubMapper(map, controller='related') as m:
+        m.connect('related_new',  '/dataset/{id}/related/new', action='new')
+        m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
+                  action='edit')
+        m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
+                  action='delete')
         m.connect('related_list', '/dataset/{id}/related', action='list')
         m.connect('related_read', '/apps/{id}', action='read')
         m.connect('related_dashboard', '/apps', action='dashboard')
@@ -184,24 +188,33 @@ def make_map():
         m.connect('/dataset/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
-          'editresources',
+          'new_metadata',
+          'new_resource',
           'authz',
           'history',
           'read_ajax',
           'history_ajax',
           'followers',
+          'delete',
+          'api_data',
           ]))
           )
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
+        m.connect('/dataset/{id}/resource_delete/{resource_id}',
+                  action='resource_delete')
+        m.connect('/dataset/{id}/resource_edit/{resource_id}',
+                  action='resource_edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
         m.connect('/dataset/{id}/resource/{resource_id}/viewer',
                   action='resource_embedded_dataviewer', width="960", height="800")
+        m.connect('/dataset/{id}/resource/{resource_id}/preview/{preview_type}',
+                  action='resource_datapreview')
 
     # group
     map.redirect('/groups', '/group')
@@ -221,6 +234,7 @@ def make_map():
           requirements=dict(action='|'.join([
           'edit',
           'authz',
+          'delete',
           'history'
           ]))
           )
@@ -228,17 +242,6 @@ def make_map():
 
     register_package_plugins(map)
     register_group_plugins(map)
-
-    # authz group
-    map.redirect('/authorizationgroups', '/authorizationgroup')
-    map.redirect('/authorizationgroups/{url:.*}', '/authorizationgroup/{url}')
-    with SubMapper(map, controller='authorization_group') as m:
-        m.connect('/authorizationgroup', action='index')
-        m.connect('/authorizationgroup/list', action='list')
-        m.connect('/authorizationgroup/new', action='new')
-        m.connect('/authorizationgroup/edit/{id}', action='edit')
-        m.connect('/authorizationgroup/authz/{id}', action='authz')
-        m.connect('/authorizationgroup/{id}', action='read')
 
     # tags
     map.redirect('/tags', '/tag')
@@ -312,10 +315,18 @@ def make_map():
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')
 
+    with SubMapper(map, controller='util') as m:
+        m.connect('/i18n/strings_{lang}.js', action='i18n_js_strings')
+        m.connect('/util/redirect', action='redirect')
+        m.connect('/testing/primer', action='primer')
+        m.connect('/testing/markup', action='markup')
 
     for plugin in routing_plugins:
         map = plugin.after_map(map)
 
+    # sometimes we get requests for favicon.ico we should redirect to
+    # the real favicon location.
+    map.redirect('/favicon.ico', config.get('ckan.favicon'))
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')

@@ -1,0 +1,16 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Edit: ${c.group.display_name}</py:def>
+  <py:def function="page_heading">Edit: ${c.group.display_name}</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+
+
+  <div py:match="content" class="group-edit-form">
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

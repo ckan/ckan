@@ -1,0 +1,66 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <xi:include href="../facets.html" />
+
+  <py:def function="page_title">${c.group_dict.display_name}</py:def>
+  <py:def function="page_heading">${c.group_dict.display_name}</py:def>
+  <py:if test="c.group.image_url">
+    <py:def function="page_logo">${c.group.image_url}</py:def>
+  </py:if>
+
+  <py:match path="primarysidebar">
+  
+    <li class="widget-container widget_text">
+      <ul class="property-list">
+        <py:if test="c.group_admins">
+        <li>
+        <h3>Administrators</h3> 
+          <ul class="no-break">
+            <li py:for="admin in c.group_admins">${h.linked_user(admin)}</li>
+          </ul>
+        </li>
+        </py:if>
+      </ul>
+    </li>
+    ${facet_div('tags', _('Tags'))}
+    ${facet_div('res_format', _('Resource Formats'))}
+  </py:match>
+
+  <py:match path="content">
+    <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
+    <div class="notes" py:if="str(c.description_formatted).strip()">
+      <div id="notes-extract">
+        ${c.description_formatted}
+      </div>
+      <div id="notes-remainder"></div>
+      <div id="notes-toggle" style="display: none;">
+        <button class="more btn"><img src="/images/chevron-down.png"/></button>
+        <button class="less btn" style="display: none;"><img src="/images/chevron-up.png"/></button>
+      </div>
+    </div>
+    <div class="group-dataset-list">
+      <h3>Datasets</h3>
+  <xi:include href="../package/search_form.html" />
+      ${field_list()}   
+
+      <p i18n:msg="query, number_of_results"><span py:if="c.q">You searched for "${c.q}". </span>${c.page.item_count} datasets found.</p>
+      ${c.page.pager()}
+      ${package_list_from_dict(c.page.items)}
+      ${c.page.pager()}
+    </div>
+  </py:match>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets in group '${c.group['title']}'"
+    href="${h.url(controller='feed', action='group', id=c.group['name'])}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
+
+  <xi:include href="layout.html" />
+</html>
+
+

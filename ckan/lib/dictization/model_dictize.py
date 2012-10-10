@@ -2,6 +2,7 @@ import datetime
 from pylons import config
 from sqlalchemy.sql import select
 import datetime
+import ckan.authz
 import ckan.model
 import ckan.misc
 import ckan.logic as logic
@@ -92,6 +93,31 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
+def _unified_resource_format(format_):
+    ''' Convert resource formats into a more uniform set.
+    eg .json, json, JSON, text/json all converted to JSON.'''
+
+    format_clean = format_.lower().split('/')[-1].replace('.', '')
+    formats = {
+        'csv' : 'CSV',
+        'zip' : 'ZIP',
+        'pdf' : 'PDF',
+        'xls' : 'XLS',
+        'json' : 'JSON',
+        'kml' : 'KML',
+        'xml' : 'XML',
+        'shape' : 'SHAPE',
+        'rdf' : 'RDF',
+        'txt' : 'TXT',
+        'text' : 'TEXT',
+        'html' : 'HTML',
+    }
+    if format_clean in formats:
+        format_new = formats[format_clean]
+    else:
+        format_new = format_.lower()
+    return format_new
+
 def resource_dictize(res, context):
     resource = d.table_dictize(res, context)
     extras = resource.pop("extras", None)
@@ -102,6 +128,7 @@ def resource_dictize(res, context):
         model = context['model']
         tracking = model.TrackingSummary.get_for_resource(res.url)
         resource['tracking_summary'] = tracking
+    resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     if not (url.startswith('http://') or url.startswith('https://')):
@@ -351,7 +378,6 @@ def user_list_dictize(obj_list, context,
 
     for obj in obj_list:
         user_dict = user_dictize(obj, context)
-        user_dict.pop('apikey')
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
@@ -372,6 +398,16 @@ def user_dictize(user, context):
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
+
+    requester = context['user']
+
+    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+            requester == user.name or
+            context.get('keep_sensitive_data', False)):
+        # If not sysadmin or the same user, strip sensible info
+        result_dict.pop('apikey', None)
+        result_dict.pop('reset_key', None)
+        result_dict.pop('email', None)
 
     model = context['model']
     session = model.Session

@@ -1,0 +1,83 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+ 
+  <py:def function="page_title">Welcome</py:def>
+
+  <div py:match="//div[@id='content']" class="front-page">
+    <div>
+      <h1 class="page_heading">Welcome to ${g.site_title}!</h1>
+    </div>
+    <div class="row">
+      <div class="span4">
+        <div class="action-box">
+          <div class="action-box-inner find clearfix">
+            <h1>Find data</h1>
+
+            <form action="${h.url_for(controller='package', action='search')}" method="GET"> 
+              <input name="q" value="" class="search-field" placeholder="${_('Find datasets')}" /> 
+            </form> 
+            <p>${g.site_title} contains <a href="${h.url_for(controller='package', action='search')}">${c.package_count} datasets</a> that you can 
+            browse, learn about and download.</p>
+          </div>
+        </div>
+      </div>
+      <div class="span4">
+        <div class="action-box">
+          <div class="action-box-inner share clearfix">
+          <h1>Share data</h1>
+
+          <p>Add your own datasets to share them with others and
+          to find other people interested in your data.</p>
+          
+          <py:choose test="h.check_access('package_create')">
+            <a py:when="" href="${h.url_for(controller='package', action='new')}" class="create-button">Create a dataset &raquo;</a>
+            <py:otherwise>
+              <a href="${h.url_for(controller='user', action='login')}" class="create-button">Sign up &raquo;</a>
+            </py:otherwise>
+          </py:choose>
+          </div>
+        </div>
+      </div>
+      <div class="span4">
+        <div class="action-box">
+          <div class="action-box-inner collaborate clearfix">
+          <h1>Collaborate</h1>
+
+          <p>Find out more about working with open data by exploring 
+          these resources:</p>
+          <ul>
+            <li><a href="http://getthedata.org">GetTheData.org</a></li>
+            <li><a href="http://datapatterns.org">DataPatterns.org</a></li>
+            <li><a href="http://opendatahandbook.org">Open Data Handbook</a></li>
+          </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div py:if="c.groups" class="row whoelse">
+      <div class="span12">
+        <h2>Who else is here?</h2>
+      </div>
+    </div>
+    <div class="row">
+      <py:for each="i, group_dict in enumerate(c.groups[:6])">
+        <div class="span4">
+          <div class="group">
+            <h3><a href="${h.url_for(controller='group', action='read', id=group_dict['name'])}">${group_dict['title']}</a></h3>
+            <p>
+              ${h.markdown_extract(group_dict['description'])}
+            </p>
+            <strong>${group_dict['title']} has ${group_dict['packages']} datasets.</strong>
+          </div>
+        </div>
+      </py:for>
+    </div>
+  </div>
+  <xi:include href="layout.html" />
+</html>
+

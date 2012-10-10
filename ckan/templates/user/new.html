@@ -1,14 +1,25 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Register - User</py:def>
-  <py:def function="page_heading">Register for a new Account</py:def>
+{% extends "page.html" %}
 
-  <div py:match="content">
-    ${Markup(c.form)}
-  </div>
+{% block subtitle %}{{ _('Register') }}{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('Registration'), controller='user', action='register') }}</li>
+{% endblock %}
 
+{% block primary_content %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Register for an Account') }}</h1>
+      {{ c.form | safe }}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _('Why Sign Up?') }}</h2>
+    <div class="module-content">
+      <p>{% trans %}Create datasets, groups and other exciting things{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}

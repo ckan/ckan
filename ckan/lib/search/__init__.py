@@ -1,5 +1,6 @@
 import logging
 from pylons import config, c
+from paste.deploy.converters import asbool
 
 from ckan import model
 from ckan.plugins import SingletonPlugin, implements, IDomainObjectModification
@@ -27,7 +28,7 @@ def text_traceback():
         ).strip()
     return res
 
-SIMPLE_SEARCH = config.get('ckan.simple_search', False)
+SIMPLE_SEARCH = asbool(config.get('ckan.simple_search', False))
 
 SUPPORTED_SCHEMA_VERSIONS = ['1.4']
 
@@ -232,7 +233,7 @@ def clear(package_reference=None):
         log.debug("Clearing search index for dataset %s..." %
                   package_reference)
         package_index.delete_package({'id': package_reference})
-    else:
+    elif not SIMPLE_SEARCH:
         log.debug("Clearing search index...")
         package_index.clear()
 

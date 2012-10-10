@@ -1,187 +1,118 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  xmlns:foaf="http://xmlns.com/foaf/0.1/"
-  xmlns:owl="http://www.w3.org/2002/07/owl#"
-  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-  xmlns:dc="http://purl.org/dc/terms/"
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:dcat="http://www.w3.org/ns/dcat#"
-  typeof="dcat:Dataset"
-  about=""
-  py:strip="">
+{% extends "page.html" %}
 
-  <xi:include href="../_snippet/data-api-help.html" />
-  <xi:include href="../snippets/data-viewer-embed-dialog.html" />
+{% set pkg = c.pkg_dict %}
+{% set res = c.resource %}
 
-  <py:def function="optional_head">
+{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
-    <xi:include href="../snippets/recline-extra-header.html" />
+{% block breadcrumb_content %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li>{% link_for h.dataset_display_name(c.package)|truncate(15), controller='package', action='read', id=c.package.get('name') %}</li>
+  <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
+{% endblock %}
 
-    <style type="text/css">
-      .resource-actions {
-        margin-right: 0;
-      }
-      .resource-actions .btn {
-        position: relative;
-        bottom: 3px;
-        padding: 8px 10px;
-      }
-      .resource-actions .download {
-        display: inline;
-      }
-      .resource-actions .download img {
-        margin: 0px 4px -4px 0;
-      }
-      .preview-header {
-        padding-bottom: 13px;
-        padding-top: 0px;
-      }
-      .preview-header h3 {
-        display: inline;
-      }
-      .preview-header .btn {
-        float: right;
-        position: relative;
-        bottom: 6px;
-        padding: 8px 15px;
-      }
-    </style>
-    <script type="text/javascript">
-      var preload_resource = ${h.literal(c.resource_json)};
-      var embedPath = "${h.url_for(controller='package', action='resource_embedded_dataviewer', id=c.package.id, resource_id=c.resource.id, qualified=True)}";
-    </script>
-  </py:def>
+{% block actions_content %}
+  {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
 
-  <py:def function="page_title">
-    ${h.dataset_display_name(c.package)} /
-    ${h.resource_display_name(c.resource)} - Dataset - Resource
-  </py:def>
+  {% if h.check_access('package_update', {'id':pkg.id }) %}
+    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+  {% endif %}
 
-  <py:def function="page_heading">
-    ${h.dataset_link(c.package)}
-    /
-    ${h.resource_display_name(c.resource)}
-  </py:def>
-
-  <div py:match="content">
-    <div class="resource-actions">
-      <a py:if="c.resource.get('url')" class="btn btn-primary resource-url-analytics resource-type-${c.resource.get('resource_type')}" href="${c.resource.get('url')}">
-        <py:choose test="c.resource.get('resource_type')">
-          <py:when test="'listing'">View</py:when>
-          <py:when test="'service'">View</py:when>
-          <py:when test="'api'">API Endpoint</py:when>
-          <py:otherwise>
-            <div class="download">
-              <img src="${h.icon_url('arrow-down-16')}"/>
-              Download
-            </div>
-          </py:otherwise>
-        </py:choose>
+  {% if res.url %}
+    <li>
+      <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+        {% if res.resource_type in ('listing', 'service') %}
+          {{ _('View') }}
+        {% elif  res.resource_type == 'api' %}
+          {{ _('API Endpoint') }}
+        {% else %}
+          <i class="icon-large icon-download"></i> {{ _('Download') }}
+        {%endif %}
       </a>
-      <py:if test="config.get('ckan.datastore.enabled', False)">
-        <py:if test="c.resource.get('webstore_url')">
-          <a class="btn btn-success" data-toggle="modal" href=".modal-data-api-help">Data API</a>
-        </py:if>
-        <py:if test="not c.resource.get('webstore_url')">
-          <a class="btn disabled" rel="tooltip" title="Data API is unavailable for this resource as DataStore is disabled">Data API</a>
-        </py:if>
-      </py:if>
-    </div>
+    </li>
+  {% endif %}
 
-  <py:if test="config.get('ckan.datastore.enabled', False)">
-    ${data_api_help(c.datastore_api)}
-  </py:if>
+  {% if 'datastore' in config.get('ckan.plugins') %}
+    <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
+  {% endif %}
+{% endblock %}
 
-  ${data_viewer_embed_dialog()}
+{% block main_content %}
+  {{ self.flash() }}
+  {{ self.toolbar() }}
 
-    <div class="quick-info">
-      <dl>
-        <dt>Last updated</dt>
-        <dd>${h.time_ago_in_words_from_str(c.resource['last_modified'], granularity='day')}</dd>
-        <dt>Format</dt>
-        <dd>
-          ${c.resource['format'] or 'Unknown'}
-        </dd>
-        <dt>Licence</dt>
-        <dd>
-          <py:choose test="">
-            <span py:when="c.pkg.license and c.pkg.license.url"><a
-                href="${c.pkg.license.url}" rel="dc:rights">${c.pkg.license.title.split('::')[-1]}</a></span>
-            <span py:when="c.pkg.license" property="dc:rights">${c.pkg.license.title}</span>
-            <span py:when="c.pkg.license_id" property="dc:rights">${c.pkg.license_id}</span>
-            <span py:when="not(c.pkg.license)">License unknown</span>
-          </py:choose>
-          <py:if test="c.pkg.isopen()">
-              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
-                <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
-              </a>
-          </py:if>
-          <py:if test="not c.pkg.isopen()">
-              <span class="closed">
-                ${h.icon('lock')}
-              </span>
-          </py:if>
-        </dd>
-      </dl>
-    </div>
-
-    <div class="notes" property="rdfs:label" py:if="c.resource.get('description')">
-      <div id="notes-extract">
-        ${ h.render_markdown(c.resource.get('description')) }
+  {% block resource %}
+    <section class="module">
+      <div class="module-content">
+        {% block resource_content %}
+          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          <div class="prose notes" property="rdfs:label">
+            {% if res.description %}
+              {{ h.render_markdown(res.description) }}
+            {% else %}
+              <p class="empty">{{ _('There is no description for this resource') }}</p>
+            {% endif %}
+            {% if not res.description and c.package.notes %}
+              <h3>{{ _('From the dataset abstract') }}</h3>
+              <blockquote>{{ h.markdown_extract(c.package.get('notes')) }}</blockquote>
+              <p>{% trans dataset=c.package.title, url=h.url_for(controller='package', action='read', id=c.package['name']) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+            {% endif %}
+          {% endblock %}
+        </div>
       </div>
-    </div>
+      {% block data_preview %}
+        {{ h.resource_preview(c.resource, c.package.id) }}
+      {% endblock %}
+    </section>
+  {% endblock %}
 
-    <div py:if="not c.resource.get('description') and c.package.get('notes')">
-      <div>
-        <strong i18n:msg="">
-          From the <a href="${h.url_for(controller='package', action='read', id=c.package['name'])}">Dataset</a>:
-        </strong>
-      </div>
-      <div class="notes">
-        <div id="notes-extract">${h.render_markdown(c.package.get('notes')) }</div>
-      </div>
-    </div>
+  {{ self.primary() }}
+  {{ self.secondary() }}
+{% endblock %}
 
-    <div class="resource-preview">
-      <div class="preview-header">
-        <h3>Preview</h3>
-        <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
-        <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
-      </div>
-      <div id="ckanext-datapreview"></div>
-    </div>
+{% block primary_content %}
+  {% block resource_additional_information %}
+    {% if res %}
+      <section class="module">
+        <div class="module-content">
+          <h2>Additional Information</h2>
+          <table class="table table-striped table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, value in h.format_resource_items(res.items()) %}
+                <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% endif %}
+  {% endblock %}
+{% endblock %}
 
-    <br/>
-    <div class="resource-information">
-      <h3>Additional Information</h3>
-      <table class="table table-bordered table-striped table-condensed">
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <py:for each="i, key in enumerate(sorted(c.resource.keys()))">
-            <tr py:if="not key=='description'">
-              <td class="dataset-label" property="rdfs:label">${_(key)}</td>
-              <td class="dataset-details" property="rdf:value">${c.resource[key]}</td>
-            </tr>
-          </py:for>
-        </tbody>
-      </table>
-    </div>
+{% block secondary_content %}
+  {% block resource_information %}
+    <section class="module module-narrow">
+      <h2 class="module-heading"><i class="icon-medium icon-info-sign"></i> Resource Information</h2>
+      <ul class="simple-list">
+        <li><i class="ckan-icon ckan-icon-calendar"></i> Last Updated: {{ h.render_datetime(res.last_modified) or _("unknown") }}</li>
+        <li><i class="ckan-icon ckan-icon-file"></i> Format: {{ res.mimetype_inner or res.mimetype or _("unknown") }}</li>
+        <li><i class="ckan-icon ckan-icon-lock"></i> {% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</li>
+      </ul>
+    </section>
+  {% endblock %}
 
-    <span class="insert-comment-thread"></span>
-  </div>
+  {% block resources_list %}
+    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}
+  {% endblock %}
 
-  <py:def function="optional_footer">
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
-
-    <xi:include href="../snippets/recline-extra-footer.html" />
-  </py:def>
-
-  <xi:include href="layout.html" />
-</html>
+  {% block resource_license %}
+    {% snippet "snippets/social.html" %}
+  {% endblock %}
+{% endblock %}
 

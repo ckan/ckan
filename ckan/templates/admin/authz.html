@@ -1,53 +1,157 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
+{% extends "page.html" %}
 
-  <py:def function="page_title">Administration - Authorization</py:def>
-  <py:def function="page_heading">Administration - Authorization</py:def>
+{% block subtitle %}{{ _('Administration - Authorization') }}{% endblock %}
 
-  <div py:match="content">
-    <h3>Update Existing Roles</h3>
+{% block breadcrumb_content %}
+{% endblock %}
 
-    <form id="theform" method="POST">
-      ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
-      <button type="submit" name="save" class="btn btn-primary">
-        Save Changes
-      </button>
-      <div class="clear"></div>
-    </form>
-
-    <h3>Add Roles for Any User</h3>
-    <form id="addform" method="POST">
-      ${authz_add_table(c.roles)}
-      <button type="submit" name="add" class="btn btn-primary">Add Role</button>
-      <div class="clear"></div>
-    </form>
-
-    <hr/>
-
-   <py:if test="c.are_any_authz_groups">
-    <h3>Existing Roles for Authorization Groups</h3>
-
-    <form id="authzgroup_form" method="POST">
-      ${authz_form_group_table('authzgroup_form', c.roles, c.authz_groups, c.authz_groups_role_dict)}
-      <button type="submit" name="authz_save" class="btn btn-primary">Save Changes</button>
-      <div class="clear"></div>
-    </form>
-
-    <h3>Add Roles for Any Authorization Group</h3>
-
-    <form id="authzgroup_addform" method="POST">
-      ${authz_add_group_table(c.roles)}
-      <button type="submit" name="authz_add" class="btn btn-primary">Add Role</button>
-      <div class="clear"></div>
-    </form>
-   </py:if>
+{% macro authz_form_table(id, roles, users, user_role_dict) %}
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
+    <tr>
+      <th>{{ _('User') }}</th>
+      {% for role in roles %}
+      <th> {{ role }} </th>
+      {% endfor %}
+    </tr>
+    {% for user in users %}
+      <tr>
+        <td>
+          {{ h.linked_user(user) }}
+        </td>
+          {% for role in roles %}
+            <td>
+              <input type="hidden" name="{{ h.literal( '%s$%s' % (user, role)) }}" value="submitted"/>
+              {% if user_role_dict[(user,role)] %}
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
+              {% else %}
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" class="checkbox-onown"/>
+              {% endif %}
+            </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}
 
 
+{% macro authz_add_table(roles) %}
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
+    <tr>
+      <th>{{ _('User') }}</th>
+      {% for role in roles %}
+        <th> {{ role }} </th>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td class="control-full">
+        <input type="text" name="new_user_name" class="autocomplete-user no-margin reduced-padding" />
+      </td>
+      {% for role in roles %}
+        <td>
+          <input type="hidden" name="{{ h.literal( '%s' % role) }}" value="submitted"/>
+          <input type="checkbox" name="{{ h.literal( '%s' % role) }}" class="checkbox-onown"/>
+        </td>
+      {% endfor %}
+    </tr>
+  </table>
+{% endmacro %}
 
-  </div>
+{% macro authz_form_group_table(id, roles, users, user_role_dict) %}
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
+    <tr>
+      <th>{{ _('User Group') }}</th>
+      {% for role in roles %}
+      <th> {{ role }} </th>
+      {% endfor %}
+    </tr>
+    {% for user in users %}
+      <tr>
+        <td>
+          {{ h.linked_authorization_group(user) }}
+        </td>
+      {% for role in roles %}
+          <td>
+            <input type="hidden" name="${ h.literal( '%s$%s' % (user, role)) }" value="submitted"/>
+            {% if user_role_dict[(user,role)] %}
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" checked='checked' class="checkbox-onown"/>
+                   {% else %}
+                <input type="checkbox" name="{{ h.literal( '%s$%s' % (user, role)) }}" />
+              {% endif %}
+          </td>
+      {% endfor %}
+      </tr>
+      {% endfor %}
+  </table>
+{% endmacro %}
 
-  <xi:include href="layout.html" />
-</html>
 
+{% macro authz_add_group_table(roles) %}
+  <table class="table table-bordered table-striped">
+    <colgroup>
+      <col width="50%">
+      {% for role in roles %}
+      <col width="15%">
+      {% endfor %}
+    </colgroup>
+    <tr>
+      <th>User Group</th>
+      {% for role in roles %}
+      <th> {{ role }} </th>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td class="control-full">
+        <input type="text" name="new_user_name" class="autocomplete-authzgroup no-margin reduced-padding" />
+      </td>
+      {% for role in roles %}
+        <td>
+          <input type="hidden" name="{{ h.literal( '%s' % role) }}" value="submitted"/>
+          <input type="checkbox" name="{{ h.literal( '%s' % role) }}" class="checkbox-onown"/>
+        </td>
+      {% endfor %}
+    </tr>
+  </table>
+{% endmacro %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% snippet 'admin/snippets/header.html', action=c.action %}
+
+      <h3 class="m-bottom">{{ _('Update Existing Roles') }}</h3>
+      <form id="theform" method="POST">
+        {{ authz_form_table('theform', c.roles, c.users, c.user_role_dict) }}
+        <button type="submit" name="save" class="btn btn-primary">{{ _('Save Changes') }}</button>
+        <div class="clear"></div>
+      </form>
+
+      <h3 class="m-bottom">{{ _('Add Roles for Any User') }}</h3>
+      <form id="addform" method="POST">
+        {{ authz_add_table(c.roles) }}
+        <button type="submit" name="add" class="btn btn-primary">{{ _('Add Role') }}</button>
+        <div class="clear"></div>
+      </form>
+
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

@@ -44,6 +44,11 @@ sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
+## Datastore
+## Uncommment to set the datastore urls
+#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/ckantest
+#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/ckantest
+
 # repoze.who config
 who.config_file = %(here)s/who.ini
 who.log_level = warning
@@ -92,10 +97,10 @@ package_form = standard
 ckan.site_title = CKAN
 
 ## Logo image to use on the home page
-ckan.site_logo = /img/logo_64px_wide.png
+ckan.site_logo = /base/images/ckan-logo.png
 
 ## Site tagline / description (used on front page)
-ckan.site_description = 
+ckan.site_description = DataSuite
 
 ## Used in creating some absolute urls (such as rss feeds, css files) and 
 ## dump filenames
@@ -158,10 +163,12 @@ ckan.backup_dir = %(here)s/backup
 # Locale/languages
 ckan.locale_default = en
 #ckan.locales_offered = 
-# Default order is roughly by number of people speaking it in Europe:
-# http://en.wikipedia.org/wiki/Languages_of_the_European_Union#Knowledge
-ckan.locale_order = en de fr it es pl ru nl sv no cs_CZ hu pt_BR fi bg ca sq sr sr_Latn
-ckan.locales_filtered_out = el ro lt sl
+# Languages are grouped by percentage of strings in CKAN 1.8 translated
+# (those with 100% first, then those with >=80%, then >=50%, then <50%) and
+# within these groups roughly sorted by number of worldwide native speakers
+# according to Wikipedia.
+ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
+ckan.locales_filtered_out = 
 
 ## Atom Feeds
 #
@@ -196,9 +203,33 @@ ckan.feeds.author_name =
 # If not set, then the value in `ckan.site_url` is used.
 ckan.feeds.author_link =
 
-## Webstore
-## Uncommment to enable datastore
-# ckan.datastore.enabled = 1
+## File Store
+#
+# CKAN allows users to upload files directly to file storage either on the local
+# file system or to online ‘cloud’ storage like Amazon S3 or Google Storage.
+#
+# If you are using local file storage, remember to set ckan.site_url.
+#
+# To enable cloud storage (Google or S3), first run: pip install boto
+#
+# @see http://docs.ckan.org/en/latest/filestore.html
+
+# 'Bucket' to use for file storage
+#ckan.storage.bucket = my-bucket-name
+
+# To enable local file storage:
+#ofs.impl = pairtree
+#ofs.storage_dir = /my/path/to/storage/root/directory
+
+# To enable Google cloud storage:
+#ofs.impl = google
+#ofs.gs_access_key_id =
+#ofs.gs_secret_access_key =
+
+# To enable S3 cloud storage:
+#ofs.impl = s3
+#ofs.aws_access_key_id = ....
+#ofs.aws_secret_access_key = ....
 
 ## ===================================
 ## Extensions

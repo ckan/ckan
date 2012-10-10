@@ -187,7 +187,7 @@ class StorageController(BaseController):
             fapp = FileApp(filepath, headers=None, **headers)
             return fapp(request.environ, self.start_response)
         else:
-            h.redirect_to(file_url)
+            h.redirect_to(file_url.encode('ascii','ignore'))
 
 
 class StorageAPIController(BaseController):
@@ -262,15 +262,16 @@ class StorageAPIController(BaseController):
         if storage_backend in ['google', 's3']:
             if not label.startswith("/"):
                 label = "/" + label
-            url = "https://%s/%s%s" % (self.ofs.conn.server_name(),
-                                       bucket, label)
+            url = "https://%s%s" % (
+                self.ofs.conn.calling_format.build_host(
+                    self.ofs.conn.server_name(), bucket), label)
         else:
             url = h.url_for('storage_file',
                             label=label,
                             qualified=False
                             )
             if url.startswith('/'):
-                url = config.get('ckan.site_url','').rstrip('/') + '/' + url
+                url = config.get('ckan.site_url','').rstrip('/') + url
 
         if not self.ofs.exists(bucket, label):
             abort(404)

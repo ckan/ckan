@@ -1,0 +1,51 @@
+<form id="dataset-search" class="dataset-search clearfix" method="GET" data-module="select-switch">
+  <span class="control-group search-giant">
+    <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
+    <button type="submit" value="{{ _('Search') }}">Submit</button>
+  </span>
+  {% snippet 'snippets/sort_by.html', sort=c.sort_by_selected %}
+  {% if c.fields %}
+    <span>
+      {% for key, value in c.fields %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}" />
+      {% endfor %}
+    </span>
+  {% endif %}
+  <div id="dataset-search-ext"></div>
+</form>
+<div class="results">
+  <strong>
+    {% if request.params and c.page.item_count %}
+      {{ c.page.item_count }} datasets{% if c.q %} found for &#147;{{ c.q }}&#148;{% endif %}
+    {% elif request.params and c.page.item_count == 0 %}
+      Sorry no datasets found{% if c.q %} for &#147;{{ c.q }}&#148;{% endif %}
+    {% else %}
+      All datasets
+    {% endif %}
+  </strong>
+  <div class="filter-list">
+    {% for field in c.fields_grouped %}
+      <span class="facet">{{ c.facet_titles.get(field) }}:</span>
+      {% for value in c.fields_grouped[field] %}
+        <span class="filtered pill">
+          {% if c.translated_fields and c.translated_fields.has_key((field,value)) %}
+            {{ c.translated_fields[(field,value)] }}
+          {% else %}
+            {{ value }}
+          {% endif %}
+          <a href="${c.remove_field(field, value)}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
+        </span>
+      {% endfor %}
+    {% endfor %}
+    {% if request.params and c.q and c.page.item_count == 0 %}
+      <p class="extra">Try another search term,
+      browse the datasets below or <a href="{{ h.url_for(action='new', id=None) }}">add your own data</a>.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if c.query_error %}
+  <p><strong>There was an error while searching.</strong> Please try again.</p>
+{% endif %}
+
+{{ h.snippet('snippets/package_list.html', packages=c.page.items) }}

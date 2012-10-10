@@ -1,5 +1,6 @@
 import ckan.logic as logic
 from ckan.logic.auth import get_package_object, get_group_object, get_related_object
+from ckan.logic.auth import get_resource_object
 from ckan.logic.auth.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
@@ -12,6 +13,28 @@ def package_delete(context, data_dict):
     authorized = logic.check_access_old(package, model.Action.PURGE, context)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (str(user),package.id)}
+    else:
+        return {'success': True}
+
+def resource_delete(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+    resource = get_resource_object(context, data_dict)
+
+    # check authentication against package
+    query = model.Session.query(model.Package)\
+        .join(model.ResourceGroup)\
+        .join(model.Resource)\
+        .filter(model.ResourceGroup.id == resource.resource_group_id)
+    pkg = query.first()
+    if not pkg:
+        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
+
+    pkg_dict = {'id': pkg.id}
+    authorized = package_delete(context, pkg_dict).get('success')
+
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete resource %s') % (str(user), resource.id)}
     else:
         return {'success': True}
 

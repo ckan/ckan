@@ -30,7 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
-from home import CACHE_PARAMETER
+from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
 
@@ -140,18 +140,15 @@ class PackageController(BaseController):
                          if k != 'page']
 
         def drill_down_url(alternative_url=None, **by):
-            params = set(params_nopage)
-            params |= set(by.items())
-            if alternative_url:
-                return url_with_params(alternative_url, params)
-            return search_url(params)
+            return h.add_url_param(alternative_url=alternative_url,
+                                   controller='package', action='search',
+                                   new_params=by)
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value):
-            params = list(params_nopage)
-            params.remove((key, value))
-            return search_url(params)
+        def remove_field(key, value=None, replace=None):
+            return h.remove_url_param(key, value=value, replace=replace,
+                                  controller='package', action='search')
 
         c.remove_field = remove_field
 
@@ -181,6 +178,7 @@ class PackageController(BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
+        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -191,6 +189,9 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
+            # c.fields_grouped will contain a dict of params containing
+            # a list of values eg {'tags':['tag1', 'tag2']}
+            c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
@@ -199,6 +200,10 @@ class PackageController(BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         fq += ' %s:"%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
@@ -232,6 +237,14 @@ class PackageController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+        c.search_facets_limits = {}
+        for facet in c.search_facets.keys():
+            limit = int(request.params.get('_%s_limit' % facet, 10))
+            c.search_facets_limits[facet] = limit
+        c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
         maintain.deprecate_context_item(
           'facets',
@@ -265,7 +278,7 @@ class PackageController(BaseController):
                 ctype, format, loader = "text/html; charset=utf-8", "html", \
                     MarkupTemplate
         else:
-            ctype, extension, loader = self._content_type_from_accept()
+            ctype, format, loader = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -297,7 +310,6 @@ class PackageController(BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.resources_json = json.dumps(c.pkg_dict.get('resources', []))
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -442,13 +454,31 @@ class PackageController(BaseController):
             return self._save_new(context)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
-            request.params, ignore_keys=[CACHE_PARAMETER]))))
+            request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = json.dumps(data.get('resources', []))
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(
+                h.dict_list_reduce(data.get('tags', {}), 'name'))
 
         errors = errors or {}
         error_summary = error_summary or {}
+        # in the phased add dataset we need to know that
+        # we have already completed stage 1
+        stage = ['active']
+        if data.get('state') == 'draft':
+            stage = ['active', 'complete']
+        elif data.get('state') == 'draft-complete':
+            stage = ['active', 'complete', 'complete']
+
+        # if we are creating from a group then this allows the group to be
+        # set automatically
+        data['group_id'] = request.params.get('group') or \
+            request.params.get('groups__0__id')
+
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary}
+                'error_summary': error_summary,
+                'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id})
@@ -460,7 +490,215 @@ class PackageController(BaseController):
         else:
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
-        return render(self._new_template(package_type))
+        return render(self._new_template(package_type),
+                      extra_vars={'stage': stage})
+
+    def resource_edit(self, id, resource_id, data=None, errors=None,
+                      error_summary=None):
+        if request.method == 'POST' and not data:
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+
+            data['package_id'] = id
+            try:
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.resource_edit(id, resource_id, data,
+                                          errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to edit this resource'))
+            redirect(h.url_for(controller='package', action='resource_read',
+                               id=id, resource_id=resource_id))
+
+
+        context = {'model': model, 'session': model.Session,
+                   'api_version': 3,
+                   'user': c.user or c.author,}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        if pkg_dict['state'].startswith('draft'):
+            # dataset has not yet been fully created
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+            data = {}
+            for field in fields:
+                data[field] = resource_dict[field]
+            return self.new_resource(id, data=data)
+        # resource is fully created
+        try:
+            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        c.pkg_dict = pkg_dict
+        c.resource = resource_dict
+        # set the form action
+        c.form_action = h.url_for(controller='package',
+                                  action='resource_edit',
+                                  resource_id=resource_id,
+                                  id=id)
+        data = resource_dict
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
+        return render('package/resource_edit.html', extra_vars=vars)
+
+
+
+    def new_resource(self, id, data=None, errors=None, error_summary=None):
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
+        if request.method == 'POST' and not data:
+            save_action = request.params.get('save')
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+            resource_id = data['id']
+            del data['id']
+
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+
+            # see if we have any data that we are trying to save
+            data_provided = False
+            for key, value in data.iteritems():
+                if value and key != 'resource_type':
+                    data_provided = True
+                    break
+
+            if not data_provided and save_action != "go-dataset-complete":
+                if save_action == 'go-dataset':
+                    # go to final stage of adddataset
+                    redirect(h.url_for(controller='package',
+                                       action='edit', id=id))
+                # see if we have added any resources
+                try:
+                    data_dict = get_action('package_show')(context, {'id': id})
+                except NotAuthorized:
+                    abort(401, _('Unauthorized to update dataset'))
+                if not len(data_dict['resources']):
+                    # no data so keep on page
+                    h.flash_error(_('You must add at least one data resource'))
+                    redirect(h.url_for(controller='package',
+                                       action='new_resource', id=id))
+                # we have a resource so let them add metadata
+                redirect(h.url_for(controller='package',
+                                   action='new_metadata', id=id))
+
+            data['package_id'] = id
+            try:
+                if resource_id:
+                    data['id'] = resource_id
+                    get_action('resource_update')(context, data)
+                else:
+                    get_action('resource_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.new_resource(id, data, errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to create a resource'))
+            if save_action == 'go-metadata':
+                # go to final stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='new_metadata', id=id))
+            elif save_action == 'go-dataset':
+                # go to first stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='edit', id=id))
+            elif save_action == 'go-dataset-complete':
+                # go to first stage of add dataset
+                redirect(h.url_for(controller='package',
+                                   action='read', id=id))
+            else:
+                # add more resources
+                redirect(h.url_for(controller='package',
+                                   action='new_resource', id=id))
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors,
+                'error_summary': error_summary, 'action': 'new'}
+        vars['pkg_name'] = id
+        # get resources for sidebar
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,}
+        pkg_dict = get_action('package_show')(context, {'id': id})
+        # required for nav menu
+        vars['pkg_dict'] = pkg_dict
+        if pkg_dict['state'] == 'draft':
+            vars['stage'] = ['complete', 'active']
+        elif pkg_dict['state'] == 'draft-complete':
+            vars['stage'] = ['complete', 'active', 'complete']
+        return render('package/new_resource.html', extra_vars=vars)
+
+    def new_metadata(self, id, data=None, errors=None, error_summary=None):
+        ''' FIXME: This is a temporary action to allow styling of the
+        forms. '''
+        if request.method == 'POST' and not data:
+            save_action = request.params.get('save')
+            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+                request.POST))))
+            # we don't want to include save as it is part of the form
+            del data['save']
+            context = {'model': model, 'session': model.Session,
+                       'api_version': 3,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
+            data_dict = get_action('package_show')(context, {'id': id})
+
+            data_dict['id'] = id
+            # update the state
+            if save_action == 'finish':
+                # we want this to go live when saved
+                data_dict['state'] = 'active'
+            elif save_action in ['go-resources', 'go-dataset']:
+                data_dict['state'] = 'draft-complete'
+            # allow the state to be changed
+            context['allow_state_change'] = True
+            data_dict.update(data)
+            try:
+                get_action('package_update')(context, data_dict)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+                return self.new_metadata(id, data, errors, error_summary)
+            except NotAuthorized:
+                abort(401, _('Unauthorized to update dataset'))
+            if save_action == 'go-resources':
+                # we want to go back to the add resources form stage
+                redirect(h.url_for(controller='package',
+                                   action='new_resource', id=id))
+            elif save_action == 'go-dataset':
+                # we want to go back to the add dataset stage
+                redirect(h.url_for(controller='package',
+                                   action='edit', id=id))
+
+            redirect(h.url_for(controller='package', action='read', id=id))
+
+        if not data:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author, 'extras_as_string': True,}
+            data = get_action('package_show')(context, {'id': id})
+        errors = errors or {}
+        error_summary = error_summary or {}
+        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
+        vars['pkg_name'] = id
+        return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
@@ -483,6 +721,12 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
+        # are we doing a multiphase add?
+        if data.get('state', '').startswith('draft'):
+            c.form_action = h.url_for(controller='package', action='new')
+            c.form_style = 'new'
+            return self.new(data=data, errors=errors,
+                            error_summary=error_summary)
 
         c.pkg = context.get("package")
         c.resources_json = json.dumps(data.get('resources', []))
@@ -491,15 +735,25 @@ class PackageController(BaseController):
             check_access('package_update', context)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
-
+        # convert tags if not supplied in data
+        if data and not data.get('tag_string'):
+            data['tag_string'] = ', '.join(h.dict_list_reduce(
+                c.pkg_dict.get('tags', {}), 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary}
+                'error_summary': error_summary, 'action': 'edit'}
         c.errors_json = json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
         c.related_count = c.pkg.related_count
+
+        # we have already completed stage 1
+        vars['stage'] = ['active']
+        if data.get('state') == 'draft':
+            vars['stage'] = ['active', 'complete']
+        elif data.get('state') == 'draft-complete':
+            vars['stage'] = ['active', 'complete', 'complete']
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -509,22 +763,15 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        if (c.action == u'editresources'):
-            return render('package/editresources.html')
-        else:
-            return render('package/edit.html')
-
-    def editresources(self, id, data=None, errors=None, error_summary=None):
-        '''Hook method made available for routing purposes.'''
-        return self.edit(id, data, errors, error_summary)
+        return render('package/edit.html')
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'extras_as_string': True,
-                   'schema': self._form_to_db_schema(package_type=
-                                                     package_type),
+                   'schema': self._form_to_db_schema(
+                                    package_type=package_type),
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
@@ -588,16 +835,72 @@ class PackageController(BaseController):
             return pkg.type or 'package'
         return None
 
+    def _tag_string_to_list(self, tag_string):
+        ''' This is used to change tags from a sting to a list of dicts '''
+        out = []
+        for tag in tag_string.split(','):
+            tag = tag.strip()
+            if tag:
+                out.append({'name': tag,
+                            'state': 'active'})
+        return out
+
     def _save_new(self, context, package_type=None):
+        # The staged add dataset used the new functionality when the dataset is
+        # partially created so we need to know if we actually are updating or
+        # this is a real new.
+        is_an_update = False
+        ckan_phase = request.params.get('_ckan_phase')
+        if ckan_phase:
+            # phased add dataset so use api schema for validation
+            context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if ckan_phase:
+                # prevent clearing of groups etc
+                context['allow_partial_update'] = True
+                # sort the tags
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
+                if data_dict.get('pkg_name'):
+                    is_an_update = True
+                    # This is actually an update not a save
+                    data_dict['id'] = data_dict['pkg_name']
+                    del data_dict['pkg_name']
+                    # this is actually an edit not a save
+                    pkg_dict = get_action('package_update')(context, data_dict)
+
+                    if request.params['save'] == 'go-metadata':
+                        # redirect to add metadata
+                        url = h.url_for(controller='package',
+                                        action='new_metadata',
+                                        id=pkg_dict['name'])
+                    else:
+                        # redirect to add dataset resources
+                        url = h.url_for(controller='package',
+                                        action='new_resource',
+                                        id=pkg_dict['name'])
+                    redirect(url)
+                # Make sure we don't index this dataset
+                if request.params['save'] not in ['go-resource', 'go-metadata']:
+                    data_dict['state'] = 'draft'
+                # allow the state to be changed
+                context['allow_state_change'] = True
+
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
-            pkg = get_action('package_create')(context, data_dict)
+            pkg_dict = get_action('package_create')(context, data_dict)
 
-            self._form_save_redirect(pkg['name'], 'new')
+            if ckan_phase:
+                # redirect to add dataset resources
+                url = h.url_for(controller='package',
+                                action='new_resource',
+                                id=pkg_dict['name'])
+                redirect(url)
+
+            self._form_save_redirect(pkg_dict['name'], 'new')
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -613,6 +916,14 @@ class PackageController(BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
+            if is_an_update:
+                # we need to get the state of the dataset to show the stage we
+                # are on.
+                pkg_dict = get_action('package_show')(context, data_dict)
+                data_dict['state'] = pkg_dict['state']
+                return self.edit(data_dict['id'], data_dict,
+                                 errors, error_summary)
+            data_dict['state'] = 'none'
             return self.new(data_dict, errors, error_summary)
 
     def _save_edit(self, name_or_id, context):
@@ -622,6 +933,14 @@ class PackageController(BaseController):
         try:
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
+            if '_ckan_phase' in data_dict:
+                context['api_version'] = 3
+                # we allow partial updates to not destroy existing resources
+                context['allow_partial_update'] = True
+                data_dict['tags'] = self._tag_string_to_list(
+                    data_dict['tag_string'])
+                del data_dict['_ckan_phase']
+                del data_dict['save']
             context['message'] = data_dict.get('log_message', '')
             if not context['moderated']:
                 context['pending'] = False
@@ -704,6 +1023,57 @@ class PackageController(BaseController):
 
         return render('package/authz.html')
 
+    def delete(self, id):
+
+        if 'cancel' in request.params:
+            h.redirect_to(controller='package', action='edit', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('package_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if request.method == 'POST':
+                get_action('package_delete')(context, {'id': id})
+                h.flash_notice(_('Dataset has been deleted.'))
+                h.redirect_to(controller='package', action='search')
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        return render('package/confirm_delete.html')
+
+    def resource_delete(self, id, resource_id):
+
+        if 'cancel' in request.params:
+            h.redirect_to(controller='package', action='resource_edit', resource_id=resource_id, id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            check_access('package_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete package %s') % '')
+
+        try:
+            if request.method == 'POST':
+                get_action('resource_delete')(context, {'id': resource_id})
+                h.flash_notice(_('Resource has been deleted.'))
+                h.redirect_to(controller='package', action='read', id=id)
+            c.resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            c.pkg_id = id
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete resource %s') % '')
+        except NotFound:
+            abort(404, _('Resource not found'))
+        return render('package/confirm_delete_resource.html')
+
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
@@ -775,7 +1145,6 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
             # required for nav menu
             c.pkg = context['package']
-            c.resource_json = json.dumps(c.resource)
             c.pkg_dict = c.package
         except NotFound:
             abort(404, _('Resource not found'))
@@ -788,8 +1157,9 @@ class PackageController(BaseController):
                 get_license_register()[license_id].isopen()
         except KeyError:
             c.package['isopen'] = False
-        c.datastore_api = h.url_for('datastore_read', id=c.resource.get('id'),
-                                    qualified=True)
+
+        # TODO: find a nicer way of doing this
+        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
@@ -813,6 +1183,10 @@ class PackageController(BaseController):
         if not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
+
+    def api_data(self, id=None):
+        url = h.url_for('datastore_read', id=id, qualified=True)
+        return render('package/resource_api_data.html', {'datastore_root_url': url})
 
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
@@ -890,6 +1264,12 @@ class PackageController(BaseController):
         recline_state.pop('height', None)
         recline_state['readOnly'] = True
 
+        # previous versions of recline setup used elasticsearch_url attribute
+        # for data api url - see http://trac.ckan.org/ticket/2639
+        # fix by relocating this to url attribute which is the default location
+        if 'dataset' in recline_state and 'elasticsearch_url' in recline_state['dataset']:
+            recline_state['dataset']['url'] = recline_state['dataset']['elasticsearch_url']
+
         # Ensure only the currentView is available
         # default to grid view if none specified
         if not recline_state.get('currentView', None):
@@ -899,3 +1279,21 @@ class PackageController(BaseController):
                     not k.endswith(recline_state['currentView']):
                 recline_state.pop(k)
         return recline_state
+
+    def resource_datapreview(self, id, resource_id, preview_type):
+        '''
+        Embeded page for a resource data-preview.
+        '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+            c.resource_json = json.dumps(c.resource)
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        return render('dataviewer/{type}.html'.format(type=preview_type))

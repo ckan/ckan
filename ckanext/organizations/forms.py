@@ -8,6 +8,8 @@ from ckan.lib import base
 from ckan.lib.base import c, model, abort, request
 from ckan.lib.base import redirect, _, config, h
 from ckan.lib.navl.dictization_functions import DataError
+import ckan.plugins as p
+
 from ckan.plugins import IGroupForm, IDatasetForm, IConfigurer, IRoutes
 from ckan.plugins import implements, SingletonPlugin
 from ckan.logic import check_access
@@ -64,12 +66,11 @@ class OrganizationForm(SingletonPlugin):
         This IConfigurer implementation causes CKAN to look in the
         ```templates``` directory when looking for the group_form()
         """
-        here = os.path.dirname(__file__)
-        rootdir = os.path.dirname(os.path.dirname(here))
-        template_dir = os.path.join(rootdir, 'ckanext',
-                                    'organizations', 'templates')
-        config['extra_template_paths'] = ','.\
-            join([template_dir, config.get('extra_template_paths', '')])
+        templates = 'templates'
+        if p.toolkit.asbool(config.get('ckan.legacy_templates', False)):
+                templates = 'templates_legacy'
+        p.toolkit.add_template_directory(config, templates)
+        p.toolkit.add_public_directory(config, 'public')
 
         # Override /group/* as the default groups urls
         config['ckan.default.group_type'] = 'organization'
@@ -79,35 +80,42 @@ class OrganizationForm(SingletonPlugin):
         Returns a string representing the location of the template to be
         rendered for the new page
         """
-        return 'organization_new.html'
+        return 'organizations/new.html'
 
     def index_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the index page
         """
-        return 'organization_index.html'
+        return 'organizations/index.html'
 
     def read_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the read page
         """
-        return 'organization_read.html'
+        return 'organizations/read.html'
 
     def history_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the read page
         """
-        return 'organization_history.html'
+        return 'organizations/history.html'
+
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'organization_edit.html'
 
     def group_form(self):
         """
         Returns a string representing the location of the template to be
         rendered.  e.g. "forms/group_form.html".
         """
-        return 'organization_form.html'
+        return 'organizations/form.html'
 
     def group_types(self):
         """
@@ -227,7 +235,7 @@ class OrganizationDatasetForm(SingletonPlugin):
         return 'package/history.html'
 
     def package_form(self):
-        return 'organization_package_form.html'
+        return 'organizations/package_form.html'
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database

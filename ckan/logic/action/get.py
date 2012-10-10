@@ -4,13 +4,10 @@ import json
 
 from pylons import config
 from pylons.i18n import _
-import webhelpers.html
 import sqlalchemy
 
-import ckan
 import ckan.authz
 import ckan.lib.dictization
-import ckan.lib.base
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.lib.dictization.model_dictize as model_dictize
@@ -19,6 +16,7 @@ import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
+import ckan.lib.activity_streams as activity_streams
 
 log = logging.getLogger('ckan.logic')
 
@@ -27,7 +25,6 @@ log = logging.getLogger('ckan.logic')
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
-_render = ckan.lib.base.render
 Authorizer = ckan.authz.Authorizer
 _check_access = logic.check_access
 NotFound = logic.NotFound
@@ -522,7 +519,6 @@ def user_list(context, data_dict):
 
     for user in query.all():
         result_dict = model_dictize.user_dictize(user[0], context)
-        del result_dict['apikey']
         users_list.append(result_dict)
 
     return users_list
@@ -818,7 +814,6 @@ def user_show(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     id = data_dict.get('id',None)
     provided_user = data_dict.get('user_obj',None)
@@ -835,11 +830,6 @@ def user_show(context, data_dict):
     _check_access('user_show',context, data_dict)
 
     user_dict = model_dictize.user_dictize(user_obj,context)
-
-    if not (Authorizer().is_sysadmin(unicode(user)) or user == user_obj.name):
-        # If not sysadmin or the same user, strip sensible info
-        del user_dict['apikey']
-        del user_dict['reset_key']
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
@@ -1623,13 +1613,11 @@ def get_site_user(context, data_dict):
 def roles_show(context, data_dict):
     '''Return the roles of all users and authorization groups for an object.
 
-    :param domain_object: a package, group or authorization_group name or id
+    :param domain_object: a package or group name or id
         to filter the results by
     :type domain_object: string
     :param user: a user name or id
     :type user: string
-    :param authorization_group: an authorization group name or id
-    :type authorization_group: string
 
     :rtype: list of dictionaries
 
@@ -1638,15 +1626,12 @@ def roles_show(context, data_dict):
     session = context['session']
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     user_ref = data_dict.get('user')
-    authgroup_ref = data_dict.get('authorization_group')
 
     domain_object = ckan.logic.action.get_domain_object(model, domain_object_ref)
     if isinstance(domain_object, model.Package):
         query = session.query(model.PackageRole).join('package')
     elif isinstance(domain_object, model.Group):
         query = session.query(model.GroupRole).join('group')
-    elif isinstance(domain_object, model.AuthorizationGroup):
-        query = session.query(model.AuthorizationGroupRole).join('authorization_group')
     elif domain_object is model.System:
         query = session.query(model.SystemRole)
     else:
@@ -1655,20 +1640,12 @@ def roles_show(context, data_dict):
     if not isinstance(domain_object, type):
         query = query.filter_by(id=domain_object.id)
 
-    # Filter by the user / authorized_group
+    # Filter by the user
     if user_ref:
         user = model.User.get(user_ref)
         if not user:
             raise NotFound(_('unknown user:') + repr(user_ref))
         query = query.join('user').filter_by(id=user.id)
-    if authgroup_ref:
-        authgroup = model.AuthorizationGroup.get(authgroup_ref)
-        if not authgroup:
-            raise NotFound('unknown authorization group:' + repr(authgroup_ref))
-        # we need an alias as we join to model.AuthorizationGroup table twice
-        ag = _aliased(model.AuthorizationGroup)
-        query = query.join(ag, model.AuthorizationGroupRole.authorized_group) \
-                .filter_by(id=authgroup.id)
 
     uors = query.all()
 
@@ -1679,8 +1656,6 @@ def roles_show(context, data_dict):
               'roles': uors_dictized}
     if user_ref:
         result['user'] = user.id
-    if authgroup_ref:
-        result['authorization_group'] = authgroup.id
 
     return result
 
@@ -1807,145 +1782,7 @@ def activity_detail_list(context, data_dict):
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
-def _render_new_package_activity(context, activity):
-    return _render('activity_streams/new_package.html',
-        extra_vars = {'activity': activity})
 
-def _render_deleted_package_activity(context, activity):
-    return _render('activity_streams/deleted_package.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_resource_activity(context, activity, detail):
-    return _render('activity_streams/new_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_changed_resource_activity(context, activity, detail):
-    return _render('activity_streams/changed_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_deleted_resource_activity(context, activity, detail):
-    return _render('activity_streams/deleted_resource.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_added_tag_activity(context, activity, detail):
-    return _render('activity_streams/added_tag.html',
-            extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_removed_tag_activity(context, activity, detail):
-    return _render('activity_streams/removed_tag.html',
-            extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_new_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/new_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_changed_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/changed_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_deleted_package_extra_activity(context, activity, detail):
-    return _render('activity_streams/deleted_package_extra.html',
-        extra_vars = {'activity': activity, 'detail': detail})
-
-def _render_changed_package_activity(context, activity):
-    details = activity_detail_list(context=context,
-        data_dict={'id': activity['id']})
-
-    if len(details) == 1:
-        # If an activity has only one activity detail we try to find an
-        # activity detail renderer to use instead of rendering the normal
-        # 'changed package' template.
-        detail = details[0]
-        activity_detail_renderers = {
-            'Resource': {
-              'new': _render_new_resource_activity,
-              'changed': _render_changed_resource_activity,
-              'deleted': _render_deleted_resource_activity
-              },
-            'tag': {
-              'added': _render_added_tag_activity,
-              'removed': _render_removed_tag_activity,
-              },
-            'PackageExtra': {
-                'new': _render_new_package_extra_activity,
-                'changed': _render_changed_package_extra_activity,
-                'deleted': _render_deleted_package_extra_activity
-              },
-            }
-        object_type = detail['object_type']
-        if activity_detail_renderers.has_key(object_type):
-            activity_type = detail['activity_type']
-            if activity_detail_renderers[object_type].has_key(activity_type):
-                renderer = activity_detail_renderers[object_type][activity_type]
-                return renderer(context, activity, detail)
-
-    return _render('activity_streams/changed_package.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_user_activity(context, activity):
-    return _render('activity_streams/new_user.html',
-        extra_vars = {'activity': activity})
-
-def _render_changed_user_activity(context, activity):
-    return _render('activity_streams/changed_user.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_group_activity(context, activity):
-    return _render('activity_streams/new_group.html',
-        extra_vars = {'activity': activity})
-
-def _render_changed_group_activity(context, activity):
-    return _render('activity_streams/changed_group.html',
-        extra_vars = {'activity': activity})
-
-def _render_deleted_group_activity(context, activity):
-    return _render('activity_streams/deleted_group.html',
-        extra_vars = {'activity': activity})
-
-def _render_new_related_activity(context, activity):
-    return _render('activity_streams/new_related_item.html',
-        extra_vars = {'activity': activity,
-                      'type': activity['data']['related']['type']})
-
-def _render_deleted_related_activity(context, activity):
-    return _render('activity_streams/deleted_related_item.html',
-        extra_vars = {'activity': activity})
-
-def _render_follow_dataset_activity(context, activity):
-    return _render('activity_streams/follow_dataset.html',
-        extra_vars = {'activity': activity})
-
-def _render_follow_user_activity(context, activity):
-    return _render('activity_streams/follow_user.html',
-        extra_vars = {'activity': activity})
-
-# Global dictionary mapping activity types to functions that render activity
-# dicts to HTML snippets for including in HTML pages.
-activity_renderers = {
-  'new package' : _render_new_package_activity,
-  'changed package' : _render_changed_package_activity,
-  'deleted package' : _render_deleted_package_activity,
-  'new user' : _render_new_user_activity,
-  'changed user' : _render_changed_user_activity,
-  'new group' : _render_new_group_activity,
-  'changed group' : _render_changed_group_activity,
-  'deleted group' : _render_deleted_group_activity,
-  'new related item': _render_new_related_activity,
-  'deleted related item': _render_deleted_related_activity,
-  'follow dataset': _render_follow_dataset_activity,
-  'follow user': _render_follow_user_activity,
-  }
-
-def _activity_list_to_html(context, activity_stream):
-    html = []
-    for activity in activity_stream:
-        activity_type = activity['activity_type']
-        if not activity_renderers.has_key(activity_type):
-            raise NotImplementedError, ("No activity renderer for activity "
-                "type '%s'" % str(activity_type))
-        activity_html = activity_renderers[activity_type](context, activity)
-        html.append(activity_html)
-    return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
     '''Return a user's public activity stream as HTML.
@@ -1960,7 +1797,7 @@ def user_activity_list_html(context, data_dict):
 
     '''
     activity_stream = user_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1975,7 +1812,7 @@ def package_activity_list_html(context, data_dict):
 
     '''
     activity_stream = package_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -1990,7 +1827,7 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -2004,7 +1841,7 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     '''
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def user_follower_count(context, data_dict):
     '''Return the number of followers of a user.
@@ -2263,7 +2100,7 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return _activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):

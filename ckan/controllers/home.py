@@ -9,8 +9,10 @@ from ckan.lib.search import SearchError
 from ckan.lib.base import *
 from ckan.lib.helpers import url_for
 
-CACHE_PARAMETER = '__cache'
+CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
+# horrible hack
+dirty_cached_group_stuff = None
 
 class HomeController(BaseController):
     repo = model.repo
@@ -43,13 +45,16 @@ class HomeController(BaseController):
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
-                'rows': 0,
+                'rows': 4,
                 'start': 0,
+                'sort': 'views_recent desc',
                 'fq': 'capacity:"public"'
             }
             query = ckan.logic.get_action('package_search')(
                 context, data_dict)
+            c.search_facets = query['search_facets']
             c.package_count = query['count']
+            c.datasets = query['results']
 
             c.facets = query['facets']
             maintain.deprecate_context_item(
@@ -57,6 +62,11 @@ class HomeController(BaseController):
               'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
+
+            c.facet_titles = {'groups': _('Groups'),
+                          'tags': _('Tags'),
+                          'res_format': _('Formats'),
+                          'license': _('Licence'), }
 
             data_dict = {'order_by': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
@@ -77,10 +87,10 @@ class HomeController(BaseController):
                     'https://www.google.com/accounts/o8/id')
             if not c.userobj.email and (is_google_id and
                                         not c.userobj.fullname):
-                msg = _('Please <a href="{link}">update your profile</a>'
-                        ' and add your email address and your full name. '
-                        '{site} uses your email address'
-                        ' if you need to reset your password.'.format(link=url,
+                msg = _(u'Please <a href="{link}">update your profile</a>'
+                        u' and add your email address and your full name. '
+                        u'{site} uses your email address'
+                        u' if you need to reset your password.'.format(link=url,
                         site=g.site_title))
             elif not c.userobj.email:
                 msg = _('Please <a href="%s">update your profile</a>'
@@ -94,9 +104,77 @@ class HomeController(BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        c.recently_changed_packages_activity_stream = \
-            ckan.logic.action.get.recently_changed_packages_activity_list_html(
-                context, {})
+        @property
+        def recently_changed_packages_activity_stream():
+            return ckan.logic.action.get.recently_changed_packages_activity_list_html(context, {})
+        c.recently_changed_packages_activity_stream = recently_changed_packages_activity_stream
+
+        # START OF DIRTYNESS
+        def get_group(id):
+            def _get_group_type(id):
+                """
+                Given the id of a group it determines the type of a group given
+                a valid id/name for the group.
+                """
+                group = model.Group.get(id)
+                if not group:
+                    return None
+                return group.type
+
+            def db_to_form_schema(group_type=None):
+                from ckan.lib.plugins import lookup_group_plugin
+                return lookup_group_plugin(group_type).db_to_form_schema()
+
+            group_type = _get_group_type(id.split('@')[0])
+            context = {'model': model, 'session': model.Session,
+                       'ignore_auth': True,
+                       'user': c.user or c.author,
+                       'schema': db_to_form_schema(group_type=group_type),
+                       'for_view': True}
+            data_dict = {'id': id}
+
+            try:
+                group_dict = ckan.logic.get_action('group_show')(context, data_dict)
+            except ckan.logic.NotFound:
+                return None
+
+            return {'group_dict' :group_dict}
+
+        global dirty_cached_group_stuff
+        if not dirty_cached_group_stuff:
+            groups_data = []
+            groups = config.get('demo.featured_groups', '').split()
+
+            for group_name in groups:
+                group = get_group(group_name)
+                if group:
+                    groups_data.append(group)
+                if len(groups_data) == 2:
+                    break
+
+            # c.groups is from the solr query above
+            if len(groups_data) < 2 and len(c.groups) > 0:
+                group = get_group(c.groups[0]['name'])
+                if group:
+                    groups_data.append(group)
+            if len(groups_data) < 2 and len(c.groups) > 1:
+                group = get_group(c.groups[1]['name'])
+                if group:
+                    groups_data.append(group)
+            # We get all the packages or at least too many so
+            # limit it to just 2
+            for group in groups_data:
+                group['group_dict']['packages'] = group['group_dict']['packages'][:2]
+            #now add blanks so we have two
+            while len(groups_data) < 2:
+                groups_data.append({'group_dict' :{}})
+            # cache for later use
+            dirty_cached_group_stuff = groups_data
+
+
+        c.group_package_stuff = dirty_cached_group_stuff
+
+        # END OF DIRTYNESS
 
         return render('home/index.html', cache_force=True)
 

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  xmlns:dct="http://purl.org/dc/terms/"
+>
+  <dcat:Dataset rdf:about="${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}">
+    <owl:sameAs rdf:resource="urn:uuid:${c.pkg_dict['id']}"/>
+    <dct:description>${c.pkg_dict['notes']}</dct:description>
+    <py:for each="tag_dict in c.pkg_dict['tags']">
+        <dcat:keyword>${ tag_dict["name"] }</dcat:keyword>
+    </py:for>
+    <foaf:homepage rdf:resource="${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}"/>
+    <rdfs:label>${c.pkg_dict['name']}</rdfs:label>
+
+    <dct:identifier>${c.pkg_dict['name']}</dct:identifier>
+    <dct:title>${c.pkg_dict['title']}</dct:title>
+    <py:for each="rsc_dict in c.pkg_dict['resources']">
+        <dcat:distribution>
+            <dcat:Distribution>
+                <dcat:accessURL rdf:resource="${ rsc_dict['url'] }"/>
+                    <dct:format py:if="rsc_dict.get('format')">
+                        <dct:IMT>
+                            <rdf:value>${rsc_dict.get('format')}</rdf:value>
+                            <rdfs:label>${rsc_dict.get('format')}</rdfs:label>
+                        </dct:IMT>
+                    </dct:format>
+               <dct:title py:if="rsc_dict.get('name')">${rsc_dict.get('name')}</dct:title>
+            </dcat:Distribution>
+        </dcat:distribution>
+    </py:for>
+    <dct:creator  py:if="c.pkg_dict.get('author', None)">
+      <rdf:Description>
+        <foaf:name>${ c.pkg_dict['author'] }</foaf:name>
+        <foaf:mbox  py:if="c.pkg_dict.get('maintainer_email', None)" rdf:resource="mailto:${c.pkg_dict['author_email']}"/>
+      </rdf:Description>
+    </dct:creator>
+    <dct:contributor py:if="c.pkg_dict.get('maintainer', None)">
+      <rdf:Description>
+        <foaf:name>${ c.pkg_dict['maintainer'] }</foaf:name>
+        <foaf:mbox  py:if="c.pkg_dict.get('maintainer_email', None)" rdf:resource="mailto:${c.pkg_dict['maintainer_email']}"/>
+      </rdf:Description>
+    </dct:contributor>
+
+    <dct:rights py:if="c.pkg_dict.get('license_url', None)" rdf:resource="${c.pkg_dict['license_url']}"/>
+    <py:for each="extra_dict in c.pkg_dict.get('extras',None)">
+        <dct:relation>
+          <rdf:Description>
+            <rdfs:label>${extra_dict.get('key','')}</rdfs:label>
+            <rdf:value>${extra_dict.get('value','')}</rdf:value>
+          </rdf:Description>
+        </dct:relation>
+    </py:for>
+  </dcat:Dataset>
+</rdf:RDF>

@@ -35,24 +35,30 @@ setup(
     message_extractors = {
         'ckan': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/**.html', 'genshi', None),
+            ('templates/**.html', 'ckan', None),
+            ('templates_legacy/**.html', 'ckan', None),
             ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('templates/**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
+            ('templates_legacy/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),
-            ('**.html', 'genshi', None),
+            ('**.html', 'ckan', None),
             ('multilingual/solr/*.txt', 'ignore', None),
             ('**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
-        ]},
+        ]
+    },
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose
@@ -79,7 +85,11 @@ setup(
     tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
     profile = ckan.lib.cli:Profile
+    color = ckan.lib.cli:CreateColorSchemeCommand
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
+    trans = ckan.lib.cli:TranslationsCommand
+    minify = ckan.lib.cli:MinifyCommand
+    datastore = ckanext.datastore.commands:SetupDatastoreCommand
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
@@ -107,10 +117,14 @@ setup(
     multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
+    datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+
+    [babel.extractors]
+	    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

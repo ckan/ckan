@@ -107,10 +107,6 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
 
         context['with_related'] = True
-        try:
-            user_dict = get_action('user_show')(context,data_dict)
-        except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
 
         self._setup_template_variables(context, data_dict)
 
@@ -124,8 +120,10 @@ class UserController(BaseController):
             h.redirect_to(locale=locale, controller='user',
                           action='login', id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='dashboard',
-                      id=user_ref)
+        if asbool(config.get('ckan.legacy_templates', 'false')):
+            h.redirect_to(locale=locale, controller='user',
+                          action='dashboard', id=user_ref)
+        return self.read(id=c.username)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -270,7 +268,7 @@ class UserController(BaseController):
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
 
-    def login(self):
+    def login(self, error=None):
         lang = session.pop('lang', None)
         if lang:
             session.save()
@@ -285,9 +283,15 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
+            came_from = request.params.get('came_from', '')
             c.login_handler = h.url_for(
-                self._get_repoze_handler('login_handler_path'))
-            return render('user/login.html')
+                self._get_repoze_handler('login_handler_path'),
+                came_from=came_from)
+            if error:
+                vars = {'error_summary': {'':error}}
+            else:
+                vars = {}
+            return render('user/login.html', extra_vars=vars)
         else:
             return render('user/logout_first.html')
 
@@ -295,6 +299,7 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+        came_from = request.params.get('came_from', '')
 
         # we need to set the language explicitly here or the flash
         # messages will not be translated.
@@ -310,14 +315,20 @@ class UserController(BaseController):
 
             h.flash_success(_("%s is now logged in") %
                             user_dict['display_name'])
+            if came_from:
+                return h.redirect_to(str(came_from))
             return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
                 err += _(' (Or if using OpenID, it hasn\'t been associated '
                          'with a user account.)')
-            h.flash_error(err)
-            h.redirect_to(locale=lang, controller='user', action='login')
+            if asbool(config.get('ckan.legacy_templates', 'false')):
+                h.flash_error(err)
+                h.redirect_to(locale=lang, controller='user',
+                              action='login', came_from=came_from)
+            else:
+                return self.login(error=err)
 
     def logout(self):
         # save our language in the session so we don't lose it
@@ -388,12 +399,18 @@ class UserController(BaseController):
 
     def perform_reset(self, id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user}
+                   'user': c.user,
+                   'keep_sensitive_data': True}
 
         data_dict = {'id': id}
 
         try:
             user_dict = get_action('user_show')(context, data_dict)
+
+            # Be a little paranoid, and get rid of sensitive data that's
+            # not needed.
+            user_dict.pop('apikey', None)
+            user_dict.pop('reset_key', None)
             user_obj = context['user_obj']
         except NotFound, e:
             abort(404, _('User not found'))

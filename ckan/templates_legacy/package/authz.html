@@ -1,0 +1,29 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">Authorization: ${c.pkgtitle or c.pkgname}</py:def>
+  <py:def function="page_heading">Authorization: ${c.pkgtitle or c.pkgname}</py:def>
+
+  <div py:match="content">
+    <h3>Update Existing Roles</h3>
+
+    <form id="theform" method="POST">
+      ${authz_form_table('theform', c.roles, c.users, c.user_role_dict)}
+      <button type="submit" name="save" class="btn btn-primary">
+        Save Changes
+      </button>
+      <div class="clear"></div>
+    </form>
+
+    <h3>Add Roles for Any User</h3>
+    <form id="addform" method="POST">
+      ${authz_add_table(c.roles)}
+      <button type="submit" name="add" class="btn btn-primary">Add Role</button>
+      <div class="clear"></div>
+    </form>
+
+</div>
+
+  <xi:include href="layout.html" />
+</html>

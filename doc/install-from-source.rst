@@ -173,12 +173,13 @@ contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
 
     mkdir data sstore
 
-The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
-is specified by the ``cache_dir`` setting in your CKAN config file.
 
 The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
 OpenID session directory, is specified by the ``store_file_path`` setting in
 the ``who.ini`` file.
+
+The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
+is specified by the ``cache_dir`` setting in your CKAN config file.
 
 8. Link to who.ini
 ~~~~~~~~~~~~~~~~~~
@@ -209,6 +210,7 @@ front page.
 .. tip:: If you installed CKAN on a remote machine then you'll need to run
  the web browser on that same machine. For example run the textual web browser
  `w3m` in a separate ssh session to the one running `paster serve`.
+
 
 10. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~

@@ -1,24 +1,42 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Groups of Datasets</py:def>
-  <py:def function="page_heading">Groups of Datasets</py:def>
+{% extends "page.html" %}
 
-  <py:match path="primarysidebar">
-    <li class="widget-container boxed widget_text">
-      <h3>What Are Groups?</h3>
-      <span i18n:msg="">Whilst tags are great at collecting datasets together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove datasets from it.</span>
-    </li>
-  </py:match>
+{% block subtitle %}{{ _('Groups of Datasets') }}{% endblock %}
 
-  
-  <div py:match="content">
-    ${c.page.pager()}
-    ${group_list_from_dict(c.page.items)}
-    ${c.page.pager()}
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  <li>{% link_for _('Add Group'), controller='group', action='new', class_='btn', icon='plus' %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Groups') }}</h1>
+      {% if c.page.items %}
+        {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+      {% else %}
+        <p class="empty">
+          {{ _('There are currently no groups for this site') }}.
+          {% if h.check_access('package_create') %}
+            {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    {{ c.page.pager() }}
   </div>
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Groups?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        <p>Groups allow you to group together datasets under a organisation (for example, the Department of Health) or topic (e.g. Transport, Health) so make it easier for users to browse datasets by theme.</p>
+        <p>Groups also enable you to assign roles and authorisation to members of the group - i.e. individuals can be given the right to publish datasets from a particular organisation.</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}

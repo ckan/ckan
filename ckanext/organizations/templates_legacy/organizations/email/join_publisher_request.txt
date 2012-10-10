@@ -1,0 +1,12 @@
+Dear administrator,
+
+A request has been made for membership of your organization $group.title by $requester.name {% if requester.fullname %}( $requester.fullname ){% end %}
+
+The reason given for the request was:
+
+"$reason"
+
+Please contact the user to verify and then if you would like to add this user you can do so by visiting ${h.url_for(controller='ckanext.organizers.controllers:OrganizationController', action='users', id=group.name, qualified=True) }
+
+If you do not wish to add this user you can safely disregard this email.
+

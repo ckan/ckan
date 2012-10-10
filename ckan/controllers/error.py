@@ -3,7 +3,6 @@ import cgi
 from paste.urlparser import PkgResourcesParser
 from pylons import request, tmpl_context as c
 from pylons.controllers.util import forward
-from pylons.middleware import error_document_template
 from webhelpers.html.builder import literal
 
 from ckan.lib.base import BaseController

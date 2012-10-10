@@ -1,16 +1,7 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Edit: ${c.group.display_name}</py:def>
-  <py:def function="page_heading">Edit: ${c.group.display_name}</py:def>
-  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+{% extends "group/base_form_page.html" %}
 
+{% block subtitle %}{{ _('Edit a Group') }}{% endblock %}
 
-  <div py:match="content" class="group-edit-form">
-    ${Markup(c.form)}
-  </div>
+{% block breadcrumb_link %}{% link_for _('Edit Group'), controller='group', action='edit', id=c.group.name %}{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
-
+{% block page_heading %}{{ _('Edit a Group') }}{% endblock %}

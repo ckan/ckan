@@ -1,0 +1,63 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Users</py:def>
+  <py:def function="page_heading">Users</py:def>
+  
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h3>Search Users</h3>
+      <form id="user-search" class="form-inline user-search" action="" method="GET">
+        <input type="text" class="input-medium" id="q" name="q" value="${c.q}" />
+        <input type="submit" class="btn btn-small btn-primary" name="" value="${_('Search')} &raquo;" />
+      </form>
+      <p py:if="c.q" i18n:msg="item_count">
+        <strong>${c.page.item_count}</strong> users found.
+      </p>
+    </li>
+  </py:match>
+  
+  <py:match path="minornavigation">
+    <ul class="nav nav-pills">
+      <li class="${'active' if c.order_by=='name' else ''}">
+        <a href="?q=${c.q}&amp;order_by=name" rel="nofollow">Sort by name</a>
+      </li>
+      <li class="${'active' if c.order_by=='edits' else ''}">
+        <a href="?q=${c.q}&amp;order_by=edits" rel="nofollow">Sort by edits</a>
+      </li>
+    </ul>
+  </py:match>
+
+
+  <div py:match="content">
+    <ul class="userlist">
+     <li py:for="user in c.page.items" class="user">
+        <ul>
+          <li class="username">
+          ${h.linked_user(user['name'], maxlength=20)}
+          </li>
+          <li class="created">
+            Member for ${h.time_ago_in_words_from_str(user['created'].isoformat(),granularity='month')}
+          </li>
+          <li>
+            <span class="edits" title="${user['number_of_edits']} Edits">
+              ${user['number_of_edits']}
+            </span>
+            <span class="administered"
+              title="${user['number_administered_packages']} Administered">
+              <span class="badge">
+                ●
+              </span>
+              ${user['number_administered_packages']}
+            </span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    ${c.page.pager(q=c.q,order_by=c.order_by)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

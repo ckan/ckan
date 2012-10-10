@@ -1,25 +1,23 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
+{% extends "page.html" %}
 
-  <py:def function="page_title">Administration Dashboard</py:def>
-  <py:def function="page_heading">Administration Dashboard</py:def>
+{% block subtitle %}{{ _('Administration') }}{% endblock %}
 
-  <div py:match="content">
-    <h3>Current Sysadmins</h3>
-    <p>You can change sysadmins on the <a
-      href="${h.url_for('ckanadmin',
-      action='authz')}">authorization page</a>.</p>
-    <ul>
-      <li py:for="user in c.sysadmins">
-        ${h.linked_user(user)}
-      </li>
-    </ul>
+{% block breadcrumb_content %}
+{% endblock %}
 
-    <span class="insert-comment-recent"></span>
-  </div>
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {% snippet 'admin/snippets/header.html', action=c.action %}
+      <ul>
+        {% for user in c.sysadmins %}
+          <li py:for="user in c.sysadmins">
+            {{ h.linked_user(user) }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </article>
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
-
+{% block sidebar %}{% endblock %}

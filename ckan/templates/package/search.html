@@ -1,74 +1,89 @@
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
+{% extends "page.html" %}
 
-  <xi:include href="../facets.html" />
-  <py:def function="page_title">Search - ${g.site_title}</py:def>
-  <py:def function="page_heading">Search - ${g.site_title}</py:def>
+{% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
-  <py:match path="primarysidebar">
-    
-    <li class="widget-container boxed widget_text" py:if="h.check_access('package_create')">
-        <h3>Add a dataset</h3>
-        <p>
-            Do you know of a dataset that should be added to ${g.site_title}?
-            <br/>
-            
-            <a href="${h.url_for(controller='package', action='new', id=None)}">Register it now</a>.
-        </p>
-    </li>
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+{% endblock %}
 
-    ${facet_div('tags', _('Tags'))}
-    ${facet_div('res_format', _('Resource Formats'))}
-    ${facet_div('groups', _('Groups'))}
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      <form id="dataset-search" class="dataset-search clearfix" method="get" data-module="select-switch">
+        <span class="control-group search-giant">
+          <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
+          <button type="submit" value="{{ _('Search') }}">Submit</button>
+        </span>
 
-    <li class="widget-container widget_text">
-        <h2>Other access</h2>
-<?python
-  from pylons import config
-  dumps_url = config.get('ckan.dumps_url')
-  dumps_format = config.get('ckan.dumps_format', '')
-?>
-        <p>
-            You can also access this registry using the 
-            ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=1))}
-            (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})<py:if test="dumps_url">
-                or download a <a href="${dumps_url}">full ${dumps_format} 
-                dump</a></py:if>.
-        </p>
-    </li>
- 
-  </py:match>
+        {{ h.snippet('snippets/sort_by.html', sort=c.sort_by_selected) }}
 
-  <div py:match="content">
-    <xi:include href="search_form.html" />
-    ${field_list()}   
-      <py:if test="c.query_error">
-        <p i18n:msg="item_count"><strong>There was an error while searching.</strong> 
-            Please try again.</p>
-      </py:if>
-      <py:if test="request.params">      
-        <h4 i18n:msg="item_count"><strong>${c.page.item_count}</strong> datasets found</h4>            
-     </py:if>
-      <py:if test="c.page.item_count == 0 and request.params">
-        <p i18n:msg="">Would you like to <a href="${h.url_for(action='new', id=None)}">create a new dataset?</a></p>
-      </py:if>
-      ${package_list_from_dict(c.page.items)}
-      ${c.page.pager(q=c.q)}
+        {% if c.fields -%}
+          <span>
+            {%- for k, v in c.fields -%}
+              <input type="hidden" name="{{ k }}" value="{{ v }}" />
+            {% endfor -%}
+          </span>
+        {%- endif %}
 
-  </div>
+        <div id="dataset-search-ext"></div>
+      </form>
+      <div class="results">
+        <strong>
+          {%- if request.params and c.page.item_count -%}
+            {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
+          {%- elif request.params and c.page.item_count == 0 -%}
+            {{ _('Sorry no datasets found for "{query}"').format(query=c.q) }}
+          {%- else -%}
+            {{ _('All datasets') }}
+          {%- endif -%}
+        </strong>
+        <div class="filter-list">
+          {% for field in c.fields_grouped %}
+            <span class="facet">{{ c.facet_titles.get(field) }}:</span>
+            {% for value in c.fields_grouped[field] %}
+              <span class="filtered pill">
+                {%- if c.translated_fields and c.translated_fields.has_key((field,value)) -%}
+                  {{ c.translated_fields[(field,value)] }}
+                {%- else -%}
+                  {{ value }}
+                {%- endif %}
+                <a href="{{ c.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
+              </span>
+            {% endfor %}
+          {% endfor %}
+        </div>
+        {% if request.params and c.page.item_count == 0 %}
+          <p class="extra">Try another search term,
+          browse the datasets below or <a href="{{ h.url_for(controller='package', action='new') }}">{{ _('add your own data') }}</a>.
+          </p>
+        {% endif %}
+      </div>
 
-  <py:def function="optional_feed">
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets found with custom search: '${c.search_url_params}'"
-    href="${h.url(controller='feed', action='custom')}?${c.search_url_params}" />
-  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
-    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
-  </py:def>
+      {% if c.query_error %}
+        {% trans %}
+          <p><strong>There was an error while searching.</strong> Please try again.</p>
+        {% endtrans %}
+      {% endif %}
+      {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+    </div>
 
-  <xi:include href="layout.html" />
-</html>
+    {{ c.page.pager(q=c.q) }}
+  </section>
 
+  <section class="module module-narrow module-shallow">
+    <small class="module-content">
+      You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
+      <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->
+      (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html') }})
+      {% if config.get('ckan.dumps_url') -%}
+        or download a <a href="{{ config.get('ckan.dumps_url') }}">full {{ config.get('ckan.dumps_format', '') }} dump</a>
+      {%- endif %}.
+    </small>
+  </section>
+{% endblock %}
 
+{% block secondary_content %}
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags') }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format') }}
+  {{ h.snippet('snippets/facet_list.html', title='Groups', name='groups') }}
+{% endblock %}

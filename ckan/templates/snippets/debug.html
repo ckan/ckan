@@ -1,0 +1,87 @@
+<div class="container">
+  <a id="debug-toggle" href="#debug" style="opacity: 0.6">Debug {{ request.environ['CKAN_DEBUG_INFO']|length }}</a>
+  <div id="debug" class="well" style="display:none;color:#333;margin-top:10px;white-space:pre;">
+<b>Debug info:</b>
+
+<b>Controller</b>: {{ c.controller }}
+<b>Action</b>: {{ c.action }}
+<b>Templates Rendered</b>: {{ request.environ['CKAN_DEBUG_INFO']|length }}
+{% for info in request.environ['CKAN_DEBUG_INFO'] %}
+<b>Template name</b>: {{ info.template_name }}
+<b>Template path</b>: {{ info.template_path }}
+<b>Template type</b>: {{ info.template_type }}
+<b>Renderer</b>: {{ info.renderer }}
+{% set debug_info = h.debug_full_info_as_list(info) %}
+{% if debug_info %}
+<a class="toggle-debug-vars" style="color:#333"><b>Variables (toggle)</b></a>
+<p style="display:block;white-space:normal;">
+{%- for value in debug_info %}{{ value.0 }}   {% endfor %}
+</p><p style="display:none;">
+{% for value in debug_info -%}
+  <b>{{ value.0 }}</b>: {{ value.1 }}
+{% endfor -%}
+</p>
+{%- else -%}
+<p>{ no variables passed to template}</p>
+{%- endif -%}
+<hr/>
+{%- endfor %}
+</div>
+  <script>
+    (function () {
+      function nextElementSibling(element) {
+        do {
+          element = element.nextSibling;
+        } while (element && element.nodeType !== 1 /* Node.ELEMENT_NODE */);
+
+        return element || null;
+      }
+
+      function toggleElement(element) {
+        if (element && element.style) {
+          element.style.display = element.style.display === 'block' ? 'none' : 'block';
+        }
+      }
+
+      function getElementsByClassName(className) {
+        if (document.getElementsByClassName) {
+          return document.getElementsByClassName(className);
+        } else {
+          var elements = document.getElementsByTagName('*');
+          var index = 0;
+          var length = elements.length;
+          var captures = [];
+          var regexp = new RegExp('\\b' + className + '\\b', 'i');
+
+          for (; index < length; index += 1) {
+            if (regexp.test(elements[index].className)) {
+              captures.push(elements[index]);
+            }
+          }
+          return captures;
+        }
+      }
+
+      (function toggleDebug() {
+        var debug  = document.getElementById('debug'),
+        toggle = document.getElementById('debug-toggle');
+
+        toggle.onclick = function () {
+          toggleElement(debug);
+          return false;
+        };
+      })();
+
+      (function toggleVariables() {
+        var buttons = getElementsByClassName('toggle-debug-vars');
+        for (var i = 0; i < buttons.length; i++) {
+          buttons[i].onclick = function () {
+            var vars = nextElementSibling(this);
+            toggleElement(vars);
+            toggleElement(nextElementSibling(vars));
+          };
+        }
+      })();
+    })();
+  </script>
+</div>

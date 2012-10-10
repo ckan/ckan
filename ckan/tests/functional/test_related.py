@@ -3,7 +3,60 @@ import json
 import ckan.tests as tests
 import ckan.model as model
 import ckan.logic as logic
-import ckan.tests.functional.api.base as base
+import ckan.lib.helpers as h
+import ckan.tests.functional.base as base
+import ckan.tests.functional.api.base as apibase
+
+
+class TestRelatedUI(base.FunctionalTestCase):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        tests.CreateTestData.create()
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_related_new(self):
+        offset = h.url_for(controller='related',
+                           action='new', id='warandpeace')
+        res = self.app.get(offset, status=200,
+                           extra_environ={"REMOTE_USER": "testsysadmin"})
+        assert 'URL' in res, "URL missing in response text"
+        assert 'Title' in res, "Title missing in response text"
+
+        data = {
+            "title": "testing_create",
+            "url": u"http://ckan.org/feed/",
+        }
+        res = self.app.post(offset, params=data,
+                            status=[200,302],
+                            extra_environ={"REMOTE_USER": "testsysadmin"})
+
+    def test_related_new_missing(self):
+        offset = h.url_for(controller='related',
+                           action='new', id='non-existent dataset')
+        res = self.app.get(offset, status=404,
+                           extra_environ={"REMOTE_USER": "testsysadmin"})
+
+    def test_related_new_fail(self):
+        offset = h.url_for(controller='related',
+                           action='new', id='warandpeace')
+        print '@@@@', offset
+        res = self.app.get(offset, status=200,
+                           extra_environ={"REMOTE_USER": "testsysadmin"})
+        assert 'URL' in res, "URL missing in response text"
+        assert 'Title' in res, "Title missing in response text"
+
+        data = {
+            "title": "testing_create",
+        }
+        res = self.app.post(offset, params=data,
+                            status=[200,302],
+                            extra_environ={"REMOTE_USER": "testsysadmin"})
+        assert 'error' in res, res
+
 
 from nose.tools import assert_equal, assert_raises, assert_regexp_matches
 
@@ -327,7 +380,7 @@ class TestRelated:
         result = logic.get_action('related_list')(context,data_dict)
         assert len(result) == len(p.related)
 
-class TestRelatedActionAPI(base.BaseModelApiTestCase):
+class TestRelatedActionAPI(apibase.BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
