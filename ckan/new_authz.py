@@ -94,6 +94,28 @@ def has_user_permission_for_group_or_org(group_id, user_id, permission):
             return True
     return False
 
+def has_user_permission_for_some_org(user_id, permission):
+    ''' Check if the user has the given permission for the group '''
+    if not user_id:
+        return False
+    roles = get_roles_with_permission(permission)
+    # get any groups the user has with the needed role
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.capacity.in_(roles)) \
+        .filter(model.Member.table_id == user_id)
+    group_ids = []
+    for row in q.all():
+        group_ids.append(row.group_id)
+
+    # see if any of the groups are orgs
+    q = model.Session.query(model.Group) \
+        .filter(model.Group.id.in_(group_ids)) \
+        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.state == 'active')
+
+    return bool(q.count())
+
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
