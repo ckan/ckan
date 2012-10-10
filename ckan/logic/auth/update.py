@@ -115,12 +115,10 @@ def group_change_state(context, data_dict):
         return {'success': True}
 
 def group_edit_permissions(context, data_dict):
-    model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
 
-    authorized = logic.check_access_old(group, model.Action.EDIT_PERMISSIONS, context)
-    if not authorized:
+    if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
     else:
         return {'success': True}
