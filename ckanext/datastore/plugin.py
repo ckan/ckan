@@ -56,7 +56,7 @@ class DatastorePlugin(p.SingletonPlugin):
             if not ('debug' in config and config['debug']):
                 self._check_separate_db()
             if self.legacy_mode:
-                log.warn('Legacy mode active. Thse sql search will not be available.')
+                log.warn('Legacy mode active. The sql search will not be available.')
             else:
                 self._check_read_permissions()
 
