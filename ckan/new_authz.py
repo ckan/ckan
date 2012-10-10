@@ -66,6 +66,17 @@ ROLE_PERMISSIONS = {
     'member': [''],
 }
 
+
+def get_roles_with_permission(permission):
+    ''' returns the roles with the permission requested '''
+    roles = []
+    for role in ROLE_PERMISSIONS:
+        permissions = ROLE_PERMISSIONS[role]
+        if permission in permissions or 'admin' in permissions:
+            roles.append(role)
+    return roles
+
+
 def has_user_permission_for_group_or_org(group_id, user_id, permission):
     ''' Check if the user has the given permission for the group '''
     if not user_id:
