@@ -646,9 +646,8 @@ def package_relationships_list(context, data_dict):
     _check_access('package_relationships_list',context, data_dict)
 
     # TODO: How to handle this object level authz?
-    relationships = Authorizer().\
-                    authorized_package_relationships(\
-                    user, pkg1, pkg2, rel, model.Action.READ)
+    # Currently we don't care
+    relationships = pkg1.get_relationships(with_package=pkg2, type=rel)
 
     if rel and not relationships:
         raise NotFound('Relationship "%s %s %s" not found.'
