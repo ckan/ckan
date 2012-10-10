@@ -6,31 +6,36 @@ The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
-.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on verions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`old_pg` for more details.
+.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on versions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`old_pg` for more details.
 
 .. warning:: The DataStore does not support hiding resources in a private dataset.
+
+.. _installation:
 
 Installation and Configuration
 ==============================
 
 .. warning:: Make sure that you follow the steps below and make sure that the settings are correct. Wrong settings could lead to serious security issues.
 
-The DataStore in previous lives required a custom setup of ElasticSearch and Nginx,
+.. tip:: If these steps seem to complicated, the legacy mode can be used which does not require you to set the permissions or create a separate user. However, the legacy mode is limited in its capabilities.
+
+
+The DataStore in previous lives required a custom set-up of ElasticSearch and Nginx,
 but that is no more, as it now uses the relational database management system PostgreSQL.
 However, you should set up a separate database for the DataStore
 and create a read-only user to make your CKAN and DataStore installation safe.
 
-1. Enable the plugin
---------------------
+1. Enable the extension
+-----------------------
 
-In your ``config`` file ensure that the datastore extension is enabled::
+In your ``config`` file ensure that the ``datastore`` extension is enabled::
 
  ckan.plugins = datastore
 
 2. Set-up the database
 ----------------------
 
-The datastore requires a separate postgres database to save the resources to.
+The DataStore requires a separate postgres database to save the resources to.
 
 List existing databases::
 
@@ -38,7 +43,7 @@ List existing databases::
 
 Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the CKAN install.
 
-Next you’ll need to create a two database users for the datastore. One user will be the *write* user that can create, edit and delete resources. The second user will be a *read-only* user who can only read resources.
+Next you will need to create a two database users for the DataStore. One user will be the *write* user that can create, edit and delete resources. The second user will be a *read-only* user who can only read resources.
 
 A few things have to be kept in mind:
 
@@ -48,7 +53,7 @@ A few things have to be kept in mind:
 Create users and databases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. tip:: The write user does not have to be created since you can also use the CKAN user. However, this might not be possible if the CKAN database and the DataStore database are on different servers. We recommend that you use the same user for CKAN and the write datastore user if possible.
+.. tip:: The write user does not have to be created since you can also use the CKAN user. However, this might not be possible if the CKAN database and the DataStore database are on different servers. We recommend that you use the same user for CKAN and the write DataStore user if possible.
 
 Create a write user called ``writeuser``, and enter pass for the password when prompted::
 
@@ -73,9 +78,9 @@ Now, ensure that the ``ckan.datastore.write_url`` and ``datastore.read_url`` var
 Set permissions
 ~~~~~~~~~~~~~~~
 
-Once the datastore database and the users are created, the permissions on the datastore and CKAN database have to be set. Since there are different set-ups, there are different ways of setting the permissions. Only one of ther optins should be used.
+Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. Since there are different set-ups, there are different ways of setting the permissions. Only one of the options should be used.
 
-1. Use the **paster command** if CKAN and Postgres are on the same server
+1. Use the **paster command** if CKAN and PostgreSQL are on the same server
 
 To set the permissions, use this paster command after you've set the database urls::
 
@@ -99,7 +104,7 @@ Once you are confident that you know the right names, set the permissions (assum
 
 .. note:: This option is for more complex set-ups and requires understanding of SQL and PostgreSQL.
 
-Copy the ``set_permissions.sql`` file to the server that the database runs on. Make sure you set all variables in the file correctly and comment out the parts that are not needed for you setup. Then, run the script::
+Copy the ``set_permissions.sql`` file to the server that the database runs on. Make sure you set all variables in the file correctly and comment out the parts that are not needed for you set-up. Then, run the script::
 
  sudo -u postgres psql postgres -f set_permissions.sql
 
@@ -120,10 +125,20 @@ the records inserted above::
 
 .. _old_pg:
 
-Notes on how to install the DataStore on old PostgreSQL versions
-----------------------------------------------------------------
+Legacy mode: use the DataStore with old PostgreSQL versions
+-----------------------------------------------------------
 
-To be continued...
+The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :ref:`datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. The set-up for legacy mode is analogous to the normal set-up as described in :ref:`installation` with a few changes and consists of the following steps:
+
+1. Enable the extension
+#. Set-Up the database
+
+    a) Create a separate database
+    #) Create a write user on the DataStore database (optional since the CKAN user can be used)
+
+#. Test the set-up
+
+There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
 
 Relationship to FileStore
 =========================
