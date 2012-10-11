@@ -91,7 +91,7 @@ def rating_create(context, data_dict):
 def user_create(context, data_dict=None):
     user = context['user']
 
-    if not asbool(config.get('ckan.auth.create_user', True)):
+    if not asbool(config.get('ckan.auth.create_user', False)):
         return {'success': False, 'msg': _('User %s not authorized to create users') % user}
     else:
         return {'success': True}
