@@ -1,7 +1,5 @@
 from ckan.plugins import SingletonPlugin, implements
 from ckan.plugins import IMapper, IRoutes, IPluginObserver
-from ckan.plugins import IAuthorizer
-import ckan.model as model
 from ckan.tests.mock_plugin import MockSingletonPlugin
 
 
@@ -38,13 +36,3 @@ class RoutesPlugin(SingletonPlugin):
 
 class PluginObserverPlugin(MockSingletonPlugin):
     implements(IPluginObserver)
-
-
-class AuthorizerPlugin(SingletonPlugin):
-    implements(IAuthorizer, inherit=True)
-
-    def get_roles(self, username, domain_obj):
-        return [model.authz.Role.ADMIN]
-
-    def is_authorized(self, username, action, domain_obj):
-        return True
