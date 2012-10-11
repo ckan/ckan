@@ -62,17 +62,13 @@ def related_delete(context, data_dict):
 
 
 def package_relationship_delete(context, data_dict):
-    can_edit_this_relationship = package_relationship_create(context, data_dict)
-    if not can_edit_this_relationship['success']:
-        return can_edit_this_relationship
-
-    model = context['model']
     user = context['user']
     relationship = context['relationship']
 
-    authorized = logic.check_access_old(relationship, model.Action.PURGE, context)
+    # If you can create this relationship the you can also delete it
+    authorized = new_authz.is_authorized_boolean('package_relationship_create', context, data_dict)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (str(user),relationship.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (user ,relationship.id)}
     else:
         return {'success': True}
 
