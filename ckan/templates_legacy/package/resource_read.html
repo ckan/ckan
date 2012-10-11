@@ -146,6 +146,8 @@
     <div class="resource-preview">
       <div class="preview-header">
         <h3>Preview</h3>
+
+        ${ h.resource_preview(c.resource, c.package.id) }
         <a py:if="c.pkg.is_private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
         <a py:if="not c.pkg.is_private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
       </div>
@@ -177,9 +179,8 @@
   </div>
 
   <py:def function="optional_footer">
-    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
-
-    <xi:include href="../snippets/recline-extra-footer.html" />
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/resize/resize.js')}"></script>
+    <script type="text/javascript" src="${h.url_for_static('/scripts/outside.js')}"></script>
   </py:def>
 
   <xi:include href="layout.html" />

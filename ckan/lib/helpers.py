@@ -1174,6 +1174,35 @@ def include_resource(resource):
     r.need()
 
 
+def urls_for_resource(resource):
+    ''' Returns a list of urls for the resource specified.  If the resource
+    is a group or has dependencies then there can be multiple urls.
+
+    NOTE: This is for special situations only and is not the way to generaly
+    include resources.  It is advised not to use this function.'''
+    r = getattr(fanstatic_resources, resource)
+    resources = list(r.resources)
+    core = fanstatic_resources.fanstatic_extensions.core
+    f = core.get_needed()
+    lib = resources[0].library
+    root_path = f.library_url(lib)
+
+    resources = core.sort_resources(resources)
+    if f._bundle:
+        resources = core.bundle_resources(resources)
+    out = []
+    for resource in resources:
+        if isinstance(resource, core.Bundle):
+            paths = [resource.relpath for resource in resource.resources()]
+            relpath = ';'.join(paths)
+            relpath = core.BUNDLE_PREFIX + relpath
+        else:
+            relpath = resource.relpath
+
+        out.append('%s/%s' % (root_path, relpath))
+    return out
+
+
 def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
@@ -1325,6 +1354,53 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
+def resource_preview(resource, pkg_id):
+    '''
+    Returns a rendered snippet for a embeded resource preview.
+
+    Depending on the type, different previews are loaded.
+    This could be an img tag where the image is loaded directly or an iframe that
+    embeds a webpage, recline or a pdf preview.
+    '''
+
+    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
+    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
+                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
+                'txt', 'json']
+    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
+
+    format_lower = resource['format'].lower()
+    directly = False
+    url = ''
+
+    if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='recline', id=pkg_id, qualified=True)
+    elif format_lower in PDF:
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='pdf', id=pkg_id, qualified=True)
+    elif format_lower == 'jsonp':
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='json', id=pkg_id, qualified=True)
+    elif format_lower in LOADABLE:
+        url = resource['url']
+    elif format_lower in DIRECT_EMBEDS:
+        directly = True
+        url = resource['url']
+    else:
+        log.info('no handler for {}'.format(resource['format']))
+        return snippet(
+            "dataviewer/snippets/no_preview.html",
+            resource_type=format_lower
+            )
+
+    return snippet(
+        "dataviewer/snippets/data_preview.html",
+        embed=directly,
+        resource_url=url
+        )
+
+
 # these are the functions that will end up in `h` template helpers
 # if config option restrict_template_vars is true
 __allowed_functions__ = [
@@ -1379,6 +1455,7 @@ __allowed_functions__ = [
            'get_facet_items_dict',
            'unselected_facet_items',
            'include_resource',
+           'urls_for_resource',
            'build_nav_main',
            'debug_inspect',
            'dict_list_reduce',
@@ -1399,6 +1476,7 @@ __allowed_functions__ = [
            'get_request_param',
            'render_markdown',
            'format_resource_items',
+           'resource_preview',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
