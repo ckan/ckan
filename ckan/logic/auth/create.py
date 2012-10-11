@@ -8,7 +8,13 @@ import ckan.new_authz as new_authz
 
 def package_create(context, data_dict=None):
     user = context['user']
-    if not c.user:
+    # tests sometime call straight in here WTF
+    try:
+        context_user = c.user
+    except TypeError:
+        context_user = None
+    if not context_user:
+
         check1 = config.get('ckan.auth.anon_create_dataset', False)
     else:
         check1 = asbool(config.get('ckan.auth.create_dataset_if_not_in_organization', False)) \
