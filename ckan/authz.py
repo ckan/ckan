@@ -2,8 +2,6 @@ import sqlalchemy as sa
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import ckan.model as model
-from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IAuthorizer
 
 class Blacklister(object):
     '''Blacklist by username.
@@ -26,7 +24,6 @@ class Authorizer(object):
     '''An access controller.
     '''
     blacklister = Blacklister
-    extensions = PluginImplementations(IAuthorizer)
 
     @classmethod
     def am_authorized(cls, c, action, domain_object):
@@ -48,12 +45,6 @@ class Authorizer(object):
             username = username.decode('utf8')
         assert isinstance(username, unicode), type(username)
 
-        for extension in cls.extensions:
-            authorized = extension.is_authorized(username,
-                                                 action,
-                                                 domain_object)
-            if authorized:
-                return True
         # sysadmins can do everything
         if cls.is_sysadmin(username) or domain_object is None:
             return True

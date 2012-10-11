@@ -12,7 +12,7 @@ __all__ = [
     'IDomainObjectModification', 'IGroupController',
     'IOrganizationController',
     'IPackageController', 'IPluginObserver',
-    'IConfigurable', 'IConfigurer'
+    'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IGroupForm',
     'ITagController',
