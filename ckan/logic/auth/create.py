@@ -15,7 +15,7 @@ def package_create(context, data_dict=None):
         context_user = None
     if not context_user:
 
-        check1 = config.get('ckan.auth.anon_create_dataset', False)
+        check1 = asbool(config.get('ckan.auth.anon_create_dataset', False))
     else:
         check1 = asbool(config.get('ckan.auth.create_dataset_if_not_in_organization', False)) \
             or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
