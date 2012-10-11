@@ -1,4 +1,4 @@
-from pylons import config
+from pylons import config, c
 from pylons.i18n import _
 from paste.deploy.converters import asbool
 
@@ -8,7 +8,10 @@ import ckan.new_authz as new_authz
 
 def package_create(context, data_dict=None):
     user = context['user']
-    check1 = asbool(config.get('ckan.auth.create_dataset_if_not_in_organization', False)) \
+    if not c.user:
+        check1 = config.get('ckan.auth.anon_create_dataset', False)
+    else:
+        check1 = asbool(config.get('ckan.auth.create_dataset_if_not_in_organization', False)) \
             or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
 
     if not check1:
