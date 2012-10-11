@@ -25,7 +25,7 @@
 
 {% block primary_content %}
   <article class="module profile">
-    <header class="module-content">
+    <header class="module-content page-header">
       <ul class="nav nav-tabs">
         <li{% if c.action == 'read' or c.action == 'me' %} class="active"{% endif %}>
           {% link_for _('Datasets'), controller='user', action='read', id=user.name, icon='sitemap' %}
@@ -40,7 +40,7 @@
     </header>
     <section class="module-content">
       {% block primary_content_inner %}
-        <h2 class="tab-heading">{{ _('Datasets') }}</h2>
+        <h2 class="hide-heading">{{ _('Datasets') }}</h2>
         {% if user.datasets %}
           {% snippet 'snippets/package_list.html', packages=user.datasets %}
         {% else %}

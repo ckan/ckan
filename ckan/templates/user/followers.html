@@ -3,14 +3,6 @@
 {% block subtitle %}{{ _('Followers') }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h2 class="tab-heading">{{ _('Followers').format(name=c.user_dict.display_name) }}</h2>
-  {% if c.user_dict.num_followers == 0 %}
-    <p class="empty">{{ _('User doesn\'t have any followers.') }}</p>
-  {% else %}
-    <ul class="userlist unstyled">
-      {% for follower in c.followers %}
-        <li class="user">{{ h.linked_user(follower['name'], maxlength=20) }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+  <h2 class="hide-heading">{{ _('Followers').format(name=c.user_dict.display_name) }}</h2>
+  {% snippet "user/snippets/followers.html", followers=c.user_dict.num_followers %}
 {% endblock %}

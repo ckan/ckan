@@ -11,17 +11,16 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Related'), controller='related', action='list', id=pkg.name, class_='btn', icon='picture' %}</li>
   {# NOTE: Not implemented in stage 1 #}
   {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
     <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}</li>
   {% endif %}
-  <li>{% link_for _('Followers'), controller='package', action='followers', id=pkg.name, class_='btn', icon='group' %}</li>
   <li>{{ h.follow_button('dataset', pkg.id) }}</li>
 {% endblock %}
 
 {% block primary_content %}
+
   {% block package_revision_info %}
     {% if c.pkg_revision_id %}
       <div class="module info">
@@ -40,37 +39,61 @@
   {% endblock %}
 
   <article class="module prose">
-    {% block package_description %}
-      <section class="module-content">
-        <h1>{{ pkg.title or pkg.name }}
-          {% if pkg.state.startswith('draft') %}
-            [{{ _('Draft') }}]
+
+    {% block package_header %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          <li{% if c.action == 'read' %} class="active"{% endif %}>
+            {% link_for _('Dataset'), controller='package', action='read', id=pkg.name, icon='sitemap' %}
+          </li>
+          <li{% if c.action == 'followers' %} class="active"{% endif %}>
+            {% link_for _('Followers'), controller='package', action='followers', id=pkg.name, icon='group' %}
+          </li>
+          <li{% if c.action == 'related' %} class="active"{% endif %}>
+            {% link_for _('Related'), controller='related', action='list', id=pkg.name, icon='picture' %}
+          </li>
+        </ul>
+      </header>
+    {% endblock %}
+
+    {% block package_content %}
+
+      {% block package_description %}
+        <section class="module-content">
+          <h1>{{ pkg.title or pkg.name }}
+            {% if pkg.state.startswith('draft') %}
+              [{{ _('Draft') }}]
+            {% endif %}
+          </h1>
+          {% if c.pkg_notes_formatted %}
+            <div class="notes embedded-content">
+              {{ c.pkg_notes_formatted }}
+            </div>
           {% endif %}
-        </h1>
-        {% if c.pkg_notes_formatted %}
-          <div class="notes embedded-content">
-            {{ c.pkg_notes_formatted }}
-          </div>
-        {% endif %}
-        <span class="insert-comment-thread"></span>
-      </section>
-    {% endblock %}
+          <span class="insert-comment-thread"></span>
+        </section>
+      {% endblock %}
 
-    {% block package_resources %}
-      {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
-    {% endblock %}
+      {% block package_resources %}
+        {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+      {% endblock %}
 
-    {% block package_tags %}
-      {% snippet "package/snippets/tags.html", tags=pkg.tags %}
-    {% endblock %}
+      {% block package_tags %}
+        {% snippet "package/snippets/tags.html", tags=pkg.tags %}
+      {% endblock %}
 
-    {% block package_additional_info %}
-      {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
+      {% block package_additional_info %}
+        {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
+      {% endblock %}
+
     {% endblock %}
   </article>
 {% endblock %}
 
 {% block secondary_content %}
+
+  {% block secondary_help_content %}{% endblock %}
+
   {% block package_groups %}
     {% for group in pkg.groups %}
       {% snippet "snippets/group.html", group=group, truncate=70 %}
@@ -88,4 +111,5 @@
   {% block package_license %}
     {% snippet "snippets/license.html", pkg_dict=pkg %}
   {% endblock %}
+
 {% endblock %}
