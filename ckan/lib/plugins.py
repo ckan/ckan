@@ -78,7 +78,7 @@ def register_package_plugins(map):
                         controller='package', action='read')
             map.connect('%s_action' % package_type,
                         '/%s/{action}/{id}' % package_type, controller='package',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
             )
 
             if package_type in _package_plugins:
@@ -90,8 +90,6 @@ def register_package_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_package_plugin is None:
         _default_package_plugin = DefaultDatasetForm()
-
-
 
 
 def register_group_plugins(map):
@@ -138,7 +136,7 @@ def register_group_plugins(map):
                         controller='group', action='read')
             map.connect('%s_action' % group_type,
                         '/%s/{action}/{id}' % group_type, controller='group',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
             )
 
             if group_type in _group_plugins:
@@ -203,7 +201,6 @@ class DefaultDatasetForm(object):
         """
         return 'package/history.html'
 
-
     def package_form(self):
         return 'package/new_package_form.html'
 
@@ -215,7 +212,7 @@ class DefaultDatasetForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
 
@@ -248,7 +245,7 @@ class DefaultDatasetForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
         return self.db_to_form_schema()
@@ -273,10 +270,9 @@ class DefaultDatasetForm(object):
             raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
-
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
-        data_dict.update({'available_only':True})
+        data_dict.update({'available_only': True})
 
         c.groups_available = authz_fn(context, data_dict)
 
@@ -297,7 +293,6 @@ class DefaultDatasetForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
-
 
 
 class DefaultGroupForm(object):
@@ -351,7 +346,6 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
-
     def group_form(self):
         return 'group/new_group_form.html'
 
@@ -363,7 +357,7 @@ class DefaultGroupForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
 
@@ -395,7 +389,7 @@ class DefaultGroupForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
         return self.db_to_form_schema()

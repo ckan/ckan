@@ -261,8 +261,9 @@ class StorageAPIController(BaseController):
         if storage_backend in ['google', 's3']:
             if not label.startswith("/"):
                 label = "/" + label
-            url = "https://%s/%s%s" % (self.ofs.conn.server_name(),
-                                       bucket, label)
+            url = "https://%s%s" % (
+                self.ofs.conn.calling_format.build_host(
+                    self.ofs.conn.server_name(), bucket), label)
         else:
             url = h.url_for('storage_file',
                             label=label,

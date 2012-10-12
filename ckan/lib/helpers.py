@@ -12,7 +12,6 @@ import re
 import urllib
 import pprint
 import copy
-import logging
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -110,7 +109,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-
     default_locale = False
     locale = kw.pop('locale', None)
     no_root = kw.pop('__ckan_no_root', False)
@@ -176,6 +174,7 @@ def full_current_url():
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
     return(url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -331,6 +330,7 @@ def _nav_link(text, controller, **kwargs):
         link = ''
     return link
 
+
 def _link_class(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.pop('highlight_actions',
@@ -411,6 +411,7 @@ def _subnav_named_route(text, routename, **kwargs):
         class_=class_
     )
 
+
 def build_nav_main(*args):
     ''' build a set of menu items.
 
@@ -446,21 +447,19 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-
 _menu_items = {
-    'add dataset' : dict(controller='package', action='new'),
-    'search' : dict(controller='package',
+    'add dataset': dict(controller='package', action='new'),
+    'search': dict(controller='package',
                     action='search',
-                    highlight_actions = 'index search'),
+                    highlight_actions='index search'),
     'default_group': dict(name='%s_index' % default_group_type(),
                           controller='group',
                           highlight_actions='index search'),
+    'about': dict(controller='home', action='about'),
+    'login': dict(controller='user', action='login'),
+    'register': dict(controller='user', action='register'),
     'organizations': dict(action='index', controller='organization'),
-    'about' : dict(controller='home', action='about'),
-    'login' : dict(controller='user', action='login'),
-    'register' : dict(controller='user', action='register'),
 }
-
 
 
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
@@ -502,6 +501,7 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
     else:
         return facets
 
+
 def unselected_facet_items(facet, limit=10):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
@@ -522,10 +522,11 @@ def unselected_facet_items(facet, limit=10):
     '''
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
+
 @deprecated('Please use get_facet_title(name) for i18n improvements.')
 def facet_title(name):
     '''Returns a title for the given facet name.
-    
+
     If a mapping is declared in the config, this is used.  Otherwise it falls
     back to capitalizing the given name.
 
@@ -534,6 +535,7 @@ def facet_title(name):
     # FIXME this looks like an i18n issue
     return config.get('search.facets.%s.title' % name, name.capitalize())
 
+
 def get_facet_title(name):
 
     # if this is set in the config use this
@@ -541,14 +543,16 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups' : _('Groups'),
-                  'tags' : _('Tags'),
-                  'res_format' : _('Formats'),
-                  'license' : _('Licence'), }
+    facet_titles = {'groups': _('Groups'),
+                  'tags': _('Tags'),
+                  'res_format': _('Formats'),
+                  'license': _('Licence'), }
     return facet_titles.get(name, name.capitalize())
+
 
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
+
 
 def _url_with_params(url, params):
     if not params:
@@ -557,14 +561,16 @@ def _url_with_params(url, params):
                                   for k, v in params]
     return url + u'?' + urlencode(params)
 
+
 def _search_url(params):
     url = url_for(controller='package', action='search')
     return _url_with_params(url, params)
 
+
 def sorted_extras(list_):
     ''' Used for outputting package extras '''
     output = []
-    for extra in sorted(list_, key=lambda x:x['key']):
+    for extra in sorted(list_, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
@@ -622,6 +628,7 @@ def markdown_extract(text, extract_length=190):
     plain = re.sub(r'<.*?>', '', markdown(text))
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
+
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
 
@@ -660,6 +667,7 @@ def format_icon(_format):
     if ('xml' in _format): return 'page_white_code'
     return 'page_white'
 
+
 def dict_list_reduce(list_, key, unique=True):
     ''' Take a list of dicts and create a new one containing just the
     values for the key with unique values if requested. '''
@@ -696,6 +704,7 @@ def gravatar(email_hash, size=100, default=None):
         % (email_hash, size, default, size, size)
         )
 
+
 def pager_url(page, partial=None, **kwargs):
     routes_dict = _pylons_default_url.environ['pylons.routes_dict']
     kwargs['controller'] = routes_dict['controller']
@@ -714,7 +723,7 @@ class Page(paginate.Page):
         kwargs.update(
             format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class':'active'}, link_attr={}
+            curpage_attr={'class': 'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
 
@@ -972,10 +981,12 @@ def auto_log_message(*args):
         raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % _get_template_name())
     return _auto_log_message()
 
+
 def _get_template_name():
     #FIX ME THIS IS BROKEN
     ''' helper function to get the currently/last rendered template name '''
     return c.__debug_info[-1]['template_name']
+
 
 def _auto_log_message():
     if (c.action == 'new'):
@@ -1093,6 +1104,7 @@ def follow_count(obj_type, obj_id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
+
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
     ''' internal function for building urls with parameters. '''
@@ -1121,7 +1133,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
     '''
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = set(params_nopage)
     if new_params:
         params |= set(new_params.items())
@@ -1129,6 +1141,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         return url_with_params(alternative_url, params)
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
+
 
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None):
@@ -1141,20 +1154,22 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
     '''
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
         params.remove((key, value))
     else:
-      [params.remove((k, v)) for (k, v) in params[:] if k==key]
+        [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
         params.append((key, replace))
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
+
 def include_resource(resource):
     r = getattr(fanstatic_resources, resource)
     r.need()
+
 
 def urls_for_resource(resource):
     ''' Returns a list of urls for the resource specified.  If the resource
@@ -1188,6 +1203,7 @@ def urls_for_resource(resource):
 def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
+
 
 def debug_full_info_as_list(debug_info):
     ''' This dumps the template variables for debugging purposes only. '''
@@ -1231,6 +1247,7 @@ def popular(type_, number, min=1, title=None):
         raise Exception('popular() did not recieve a valid type_ or title')
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
+
 def groups_available():
     ''' return a list of available groups '''
     import ckan.logic as logic
@@ -1239,12 +1256,14 @@ def groups_available():
     data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
 
+
 def organizations_available():
     ''' return a list of available organizations '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user}
     return logic.get_action('organization_list_for_user')(context, {})
+
 
 def user_in_org_or_group(group_id):
     ''' Check if user is in a group or organization '''
@@ -1260,6 +1279,7 @@ def user_in_org_or_group(group_id):
             .filter(model.Member.group_id == group_id) \
             .filter(model.Member.table_id == c.userobj.id)
     return len(query.all()) != 0
+
 
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
@@ -1289,6 +1309,7 @@ def escape_js(str_to_escape):
                         .replace('\'', '\\\'') \
                         .replace('"', '\\\"')
 
+
 def get_pkg_dict_extra(pkg_dict, key, default=None):
     '''Returns the value for the dataset extra with the provided key.
 
@@ -1307,6 +1328,7 @@ def get_pkg_dict_extra(pkg_dict, key, default=None):
             return extra['value']
 
     return default
+
 
 def get_request_param(parameter_name, default=None):
     ''' This function allows templates to access query string parameters
@@ -1350,7 +1372,7 @@ def format_resource_items(items):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))
-    return sorted(output, key=lambda x:x[0])
+    return sorted(output, key=lambda x: x[0])
 
 
 def resource_preview(resource, pkg_id):
