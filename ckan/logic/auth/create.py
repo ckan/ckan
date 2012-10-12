@@ -1,6 +1,4 @@
-from pylons import config, c
 from pylons.i18n import _
-from paste.deploy.converters import asbool
 
 import ckan.logic as logic
 import ckan.new_authz as new_authz
@@ -8,16 +6,10 @@ import ckan.new_authz as new_authz
 
 def package_create(context, data_dict=None):
     user = context['user']
-    # tests sometime call straight in here WTF
-    try:
-        context_user = c.user
-    except TypeError:
-        context_user = None
-    if not context_user:
-
-        check1 = asbool(config.get('ckan.auth.anon_create_dataset', False))
+    if not new_authz.auth_is_reqistered_user():
+        check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
-        check1 = asbool(config.get('ckan.auth.create_dataset_if_not_in_organization', False)) \
+        check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
             or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
 
     if not check1:
@@ -84,7 +76,7 @@ def group_create(context, data_dict=None):
     user = context['user']
     user = new_authz.get_user_id_for_username(user, allow_none=True)
 
-    if user and asbool(config.get('ckan.auth.user_create_groups', False)):
+    if user and new_authz.check_config_permission('user_create_groups'):
         return {'success': True}
     return {'success': False,
             'msg': _('User %s not authorized to create groups') % user}
@@ -94,7 +86,7 @@ def organization_create(context, data_dict=None):
     user = context['user']
     user = new_authz.get_user_id_for_username(user, allow_none=True)
 
-    if user and asbool(config.get('ckan.auth.user_create_organizations', False)):
+    if user and new_authz.check_config_permission('user_create_organizations'):
         return {'success': True}
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
@@ -107,7 +99,7 @@ def user_create(context, data_dict=None):
     user = context['user']
 
     if ('api_version' in context
-            and not asbool(config.get('ckan.auth.create_user_via_api', False))):
+            and not new_authz.check_config_permission('create_user_via_api')):
         return {'success': False, 'msg': _('User %s not authorized to create users') % user}
     else:
         return {'success': True}
