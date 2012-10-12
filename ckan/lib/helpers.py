@@ -1311,7 +1311,6 @@ def resource_preview(resource, pkg_id):
 
 
 # these are the functions that will end up in `h` template helpers
-# if config option restrict_template_vars is true
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
            'redirect_to',

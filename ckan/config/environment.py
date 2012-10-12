@@ -79,10 +79,8 @@ class _Helpers(object):
             return self.functions[name]
         else:
             if name in self.deprecated:
-                msg = 'Template helper function `%s` is not available ' \
-                      'as it has been deprecated.\nYou can enable it ' \
-                      'by setting ckan.restrict_template_vars = true ' \
-                      'in your .ini file.' % name
+                msg = ('Template helper function `{0}` is not available '
+                       'because it has been deprecated.'.format(name))
                 self.log.critical(msg)
             else:
                 msg = 'Helper function `%s` could not be found\n ' \
