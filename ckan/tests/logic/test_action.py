@@ -150,13 +150,13 @@ class TestAction(WsgiAppCase):
         wee = json.dumps(package)
         postparams = '%s=1' % json.dumps(package)
         res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         package_created = json.loads(res.body)['result']
         print package_created
         package_created['name'] = 'moo'
         postparams = '%s=1' % json.dumps(package_created)
         res = self.app.post('/api/action/package_update', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         package_updated = json.loads(res.body)['result']
         package_updated.pop('revision_id')
@@ -196,7 +196,7 @@ class TestAction(WsgiAppCase):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'http://new_url'}
-        api_key = model.User.get('annafan').apikey.encode('utf8')
+        api_key = model.User.get('testsysadmin').apikey.encode('utf8')
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
                             extra_environ={'Authorization': api_key })
@@ -209,7 +209,7 @@ class TestAction(WsgiAppCase):
 
         anna_id = model.Package.by_name(u'annakarenina').id
         resource = {'package_id': anna_id, 'url': 'new_url', 'created': 'bad_date'}
-        api_key = model.User.get('annafan').apikey.encode('utf8')
+        api_key = model.User.get('testsysadmin').apikey.encode('utf8')
 
         postparams = '%s=1' % json.dumps(resource)
         res = self.app.post('/api/action/resource_create', params=postparams,
@@ -557,7 +557,7 @@ class TestAction(WsgiAppCase):
 
         postparams = '%s=1' % json.dumps(package)
         res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         package_created = json.loads(res.body)['result']
 
         resource_created = package_created['resources'][0]
@@ -565,7 +565,7 @@ class TestAction(WsgiAppCase):
         resource_created['url'] = new_resource_url
         postparams = '%s=1' % json.dumps(resource_created)
         res = self.app.post('/api/action/resource_update', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
         resource_updated = json.loads(res.body)['result']
         assert resource_updated['url'] == new_resource_url, resource_updated
@@ -1164,9 +1164,10 @@ class TestActionTermTranslation(WsgiAppCase):
 class TestActionPackageSearch(WsgiAppCase):
 
     @classmethod
-    def setup_class(self):
+    def setup_class(cls):
         setup_test_search_index()
         CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
 
     @classmethod
     def teardown_class(self):
@@ -1244,7 +1245,7 @@ class TestActionPackageSearch(WsgiAppCase):
         pkg_dict['tags'].append({'name': 'new-tag'})
         pkg_params = '%s=1' % json.dumps(pkg_dict)
         res = self.app.post('/api/action/package_update', params=pkg_params,
-                            extra_environ={'Authorization': 'tester'})
+                            extra_environ={'Authorization':  str(self.sysadmin_user.apikey)})
 
         res = self.app.post('/api/action/package_search', params=search_params)
         result = json.loads(res.body)['result']
@@ -1303,6 +1304,7 @@ class TestSearchPluginInterface(WsgiAppCase):
         setup_test_search_index()
         CreateTestData.create()
         MockPackageSearchPlugin().disable()
+        cls.sysadmin_user = model.User.get('testsysadmin')
 
     @classmethod
     def teardown_class(cls):
