@@ -27,7 +27,7 @@ There are several endpoints into the DataStore API, they are:
   at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
 :meth:`~ckanext.datastore.logic.action.datastore_search`
   at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
-:meth:`~ckanext.datastore.logic.action.datastore_search_sql`, not available in :ref:`legacy_mode`
+:meth:`~ckanext.datastore.logic.action.datastore_search_sql`, not available in :ref:`legacy mode<legacy_mode>`
   at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
 ``datastore_search_htsql()``, see :ref:`datastore_search_htsql`
   at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
@@ -155,8 +155,7 @@ Comparison of different querying methods
 The DataStore supports querying with multiple API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
 
 ==============================  ========================================================  ============================================================  =============================
-..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`datastore_search_htsql`
-..                                                                                        SQL                                                           HTSQL
+..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
 ==============================  ========================================================  ============================================================  =============================
 **Status**                      Stable                                                    Stable                                                        Available as extension
 **Ease of use**                 Easy                                                      Complex                                                       Medium
