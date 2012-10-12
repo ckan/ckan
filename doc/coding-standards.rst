@@ -569,12 +569,11 @@ Guidelines when writing controller actions:
 
     ckan.logic.action.get.group_activity_list_html(...)
 
-- Controllers have access to helper functions in ``ckan.lib.helpers``.  When
-  developing for ckan core, only use the helper functions found in
-  ``ckan.lib.helpers.__allowed_functions__`` because any instance may set the
-  ``ckan.restrict_template_vars`` configuration value to ``True``.
+- Controllers have access to helper functions in ``ckan.lib.helpers``.
+  When developing for ckan core, only use the helper functions found in
+  ``ckan.lib.helpers.__allowed_functions__``.
 
-.. todo:: Anything else for contrllers?
+.. todo:: Anything else for controllers?
 
 Templating
 ----------
@@ -584,8 +583,7 @@ Helper Functions
 
 Templates have access to a set of helper functions in ``ckan.lib.helpers``.
 When developing for ckan core, only use the helper functions found in
-``ckan.lib.helpers.__allowed_functions__`` because any instance may set the
-``ckan.restrict_template_vars`` configuration value to ``True``.
+``ckan.lib.helpers.__allowed_functions__``.
 
 .. todo:: Jinja2 templates
 

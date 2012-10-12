@@ -25,6 +25,7 @@ Installation
    post-installation
    deployment
    solr-setup
+   datastore-setup
 
 Customizing and Extending
 =========================
@@ -69,7 +70,7 @@ The CKAN API
 
    api
    api-tutorial
-   using-data-api
+   datastore-api
 
 General Administration
 ======================
