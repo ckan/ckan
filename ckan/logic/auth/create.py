@@ -173,3 +173,10 @@ def activity_create(context, data_dict):
 def tag_create(context, data_dict):
     # sysadmins only
     return {'success': False}
+
+def organization_member_create(context, data_dict):
+    user = context['user']
+    group_id = data_dict['id']
+    if not new_authz.has_user_permission_for_group_or_org(group_id, user, 'membership'):
+        return {'success': False, 'msg': _('User %s not authorized to add members') % user}
+    return {'success': False}
