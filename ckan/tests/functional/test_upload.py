@@ -21,13 +21,6 @@ class TestStorageController:
         model.Session.remove()
         model.repo.rebuild_db()
 
-    def test_02_authorization(self):
-        from ckan.model.authz import Action
-        import ckan.model as model
-        import ckan.authz as authz
-
-        is_authorized = authz.Authorizer.is_authorized(u'tester', Action.UPLOAD_ACTION, model.System()) 
-        assert is_authorized
 
     def test_03_authorization_wui(self):
         url = url_for('storage_upload')
