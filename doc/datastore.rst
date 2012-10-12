@@ -1,6 +1,6 @@
-==========================
-DataStore and the Data API
-==========================
+=========
+DataStore
+=========
 
 The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
