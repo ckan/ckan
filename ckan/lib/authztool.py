@@ -146,7 +146,7 @@ Objects (prefix defaults to 'package:'):
             self.list(args)
             return
 
-        assert len(self.args) == 4, "Not enough parameters!" + RIGHTS_HELP
+        assert len(self.args) == 4, "Not enough parameters!" + self.usage
         cmd, subj, role, obj = self.args
 
         RightsTool.make_or_remove_roles(cmd, subj, role, obj, except_on_error=False)
