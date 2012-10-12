@@ -156,6 +156,8 @@ individual spreadsheet rows via a simple web API, as well as being able to make
 queries over the spreadsheet contents.
 
 
+.. _datastorer:
+
 DataStorer: Automatically Add Data to the DataStore
 ===================================================
 
