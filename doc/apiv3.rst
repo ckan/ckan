@@ -18,6 +18,8 @@ If you don't specify the version number then you will default to version 1 of th
  * ``http://ckan.net/api/util`` (version 1)
  * ``http://ckan.net/api/action`` (version 3)
 
+.. _action-api:
+
 Action API
 ~~~~~~~~~~
 
