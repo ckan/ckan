@@ -227,6 +227,7 @@ def datastore_search_sql(context, data_dict):
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_
 
     .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
+        It is not available in :ref:`legacy mode<legacy_mode>`.
 
     :param sql: a single sql select statement
     :type sql: string
