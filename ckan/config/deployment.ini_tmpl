@@ -44,6 +44,11 @@ sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
+## Datastore
+## Uncommment to set the datastore urls
+#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/ckantest
+#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/ckantest
+
 # repoze.who config
 who.config_file = %(here)s/who.ini
 who.log_level = warning
@@ -225,10 +230,6 @@ ckan.feeds.author_link =
 #ofs.impl = s3
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
-
-## Webstore
-## Uncommment to enable datastore
-# ckan.datastore.enabled = 1
 
 ## ===================================
 ## Extensions

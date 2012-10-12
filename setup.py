@@ -80,6 +80,7 @@ setup(
     plugin-info = ckan.lib.cli:PluginInfo
     profile = ckan.lib.cli:Profile
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
+    datastore = ckanext.datastore.commands:SetupDatastoreCommand
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
@@ -107,6 +108,7 @@ setup(
     multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
+    datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
