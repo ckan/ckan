@@ -459,6 +459,21 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         return self._render_template('group/confirm_delete.html')
 
+    def members(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.members = self._action('member_list')(context, {'id': id})
+            c.group_dict = self._action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        print c.members
+        print c.group_dict
+        return self._render_template('group/members.html')
+
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:
