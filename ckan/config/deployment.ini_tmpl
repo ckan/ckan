@@ -8,6 +8,10 @@
 # Change debug to true when doing CKAN development, it enables Pylons'
 # interactive debugging tool, makes Fanstatic serve unminified JS and CSS
 # files, and enables CKAN templates' debugging features.
+#   
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# Debug mode will enable the interactive debugging tool, allowing ANYONE to
+# execute malicious code after an exception is raised.
 debug = false
 
 email_to = you@yourdomain.com
