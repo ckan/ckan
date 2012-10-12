@@ -12,13 +12,19 @@ _get_or_bust = logic.get_or_bust
 def datastore_create(context, data_dict):
     '''Adds a new table to the datastore.
 
-    :param resource_id: resource id that the data is going to be stored under.
+    The datastore_create action allows a user to post JSON data to be
+    stored against a resource. This endpoint also supports altering tables,
+    aliases and indexes and bulk insertion.
+
+    See :ref:`fields` and :ref:`records` for details on how to lay out records.
+
+    :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
-    :param aliases: names for read only aliases to the resource.
+    :param aliases: names for read only aliases of the resource.
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata.
     :type fields: list of dictionaries
-    :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
+    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
     :type records: list of dictionaries
     :param primary_key: fields that represent a unique key
     :type primary_key: list or comma separated string
@@ -58,16 +64,29 @@ def datastore_create(context, data_dict):
 def datastore_upsert(context, data_dict):
     '''Updates or inserts into a table in the datastore
 
+    The datastore_upsert API action allows a user to add or edit records to
+    an existing dataStore resource. In order for the *upsert* and *update*
+    methods to work, a unique key has to be defined via the datastore_create
+    action. The available methods are:
+
+    *upsert*
+        Update if record with same key already exists, otherwise insert.
+        Requires unique key.
+    *insert*
+        Insert only. This method is faster that upsert, but will fail if any
+        inserted record matches an existing one. Does *not* require a unique
+        key.
+    *update*
+        Update only. An exception will occur if the key that should be updated
+        does not exist. Requires unique key.
+
+
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param records: the data, eg: [{"dob": "2005", "some_stuff": ['a', b']}]
+    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
     :type records: list of dictionaries
-    :param method: the method to use to put the data into the datastore
-                    possible options: upsert (default), insert, update
-        :param upsert: update if record with same key already exists,
-                        otherwise insert
-        :param insert: insert only, faster because checks are omitted
-        :param update: update only, exception if key does not exist
+    :param method: the method to use to put the data into the datastore.
+                   Possible options are: upsert (default), insert, update
     :type method: string
 
     :returns: the newly created data object.
@@ -97,12 +116,13 @@ def datastore_upsert(context, data_dict):
 
 
 def datastore_delete(context, data_dict):
-    '''Deletes a table from the datastore.
+    '''Deletes a table or a set of records from the datastore.
 
     :param resource_id: resource id that the data will be deleted from.
     :type resource_id: string
-    :param filter: filter to do deleting on over (eg {'name': 'fred'}).
+    :param filters: filters to apply before deleting (eg {"name": "fred"}).
                    If missing delete whole table and all dependent views.
+    :type filters: dictionary
 
     :returns: original filters sent.
     :rtype: dictionary
@@ -134,9 +154,11 @@ def datastore_delete(context, data_dict):
 def datastore_search(context, data_dict):
     '''Search a datastore table.
 
-    :param resource_id: id or alias of the data that is going to be selected.
+    The datastore_search action allows a user to search data in a resource.
+
+    :param resource_id: id or alias of the resource to be searched against.
     :type resource_id: string
-    :param filters: matching conditions to select.
+    :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"}
     :type filters: dictionary
     :param q: full text query
     :type q: string
@@ -146,24 +168,31 @@ def datastore_search(context, data_dict):
     :type language: string
     :param limit: maximum number of rows to return (default: 100)
     :type limit: int
-    :param offset: offset the number of rows
+    :param offset: offset this number of rows
     :type offset: int
-    :param fields: fields to return
-                   (default: all fields in original order)
+    :param fields: fields to return (default: all fields in original order)
     :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
-                 eg: "fieldname1, fieldname2 desc"
+                 e.g.: "fieldname1, fieldname2 desc"
     :type sort: string
 
-    :returns: a dictionary containing the search parameters and the
-              search results.
-              keys: fields: same as datastore_create accepts
-                    offset: query offset value
-                    limit: query limit value
-                    filters: query filters
-                    total: number of total matching records
-                    records: list of matching results
-    :rtype: dictionary
+    **Results:**
+
+    The result of this action is a dict with the following keys:
+
+    :rtype: A dictionary with the following keys
+    :param fields: fields/columns and their extra metadata
+    :type fields: list of dictionaries
+    :param offset: query offset value
+    :type offset: int
+    :param limit: query limit value
+    :type limit: int
+    :param filters: query filters
+    :type filters: list of dictionaries
+    :param total: number of total matching records
+    :type total: int
+    :param records: list of matching results
+    :type records: list of dictionaries
 
     '''
     res_id = _get_or_bust(data_dict, 'resource_id')
@@ -190,15 +219,27 @@ def datastore_search(context, data_dict):
 
 @logic.side_effect_free
 def datastore_search_sql(context, data_dict):
-    '''Execute SQL-Queries on the datastore.
+    '''Execute SQL queries on the datastore.
+
+    The datastore_search_sql action allows a user to search data in a resource
+    or connect multiple resources with join expressions. The underlying SQL
+    engine is the
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_
+
+    .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
 
     :param sql: a single sql select statement
     :type sql: string
 
-    :returns: a dictionary containing the search results.
-              keys: fields: columns for results
-                    records: results from the query
-    :rtype: dictionary
+    **Results:**
+
+    The result of this action is a dict with the following keys:
+
+    :rtype: A dictionary with the following keys
+    :param fields: fields/columns and their extra metadata
+    :type fields: list of dictionaries
+    :param records: list of matching results
+    :type records: list of dictionaries
 
     '''
     sql = _get_or_bust(data_dict, 'sql')
