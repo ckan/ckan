@@ -65,9 +65,8 @@ def package_change_state(context, data_dict):
 def group_update(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
     authorized = new_authz.has_user_permission_for_group_or_org(
-        group.id, user_id, 'update')
+        group.id, user, 'update')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
     else:
@@ -76,9 +75,8 @@ def group_update(context, data_dict):
 def organization_update(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
     authorized = new_authz.has_user_permission_for_group_or_org(
-        group.id, user_id, 'update')
+        group.id, user, 'update')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit organization %s') % (user, group.id)}
     else:

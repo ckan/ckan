@@ -104,9 +104,8 @@ def package_show(context, data_dict):
         if not package.private and package.state == 'active':
             return {'success': True}
         user = context.get('user')
-        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
         authorized = new_authz.has_user_permission_for_group_or_org(
-            package.owner_org, user_id, 'read')
+            package.owner_org, user, 'read')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (user, package.id)}
     else:
