@@ -23,6 +23,8 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
 
+    legacy_mode = False
+
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
@@ -30,28 +32,35 @@ class DatastorePlugin(p.SingletonPlugin):
             error_msg = 'ckan.datastore.write_url not found in config'
             raise DatastoreException(error_msg)
 
-        if (not 'ckan.datastore.read_url' in config):
-            error_msg = 'ckan.datastore.read_url not found in config'
-            raise DatastoreException(error_msg)
+        # Legacy mode means that we have no read url. Consequently sql search is not
+        # available and permissions do not have to be changed. In legacy mode, the
+        # datastore runs on PG prior to 9.0 (for example 8.4).
+        self.legacy_mode = 'ckan.datastore.read_url' not in self.config
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
         import sys
         if sys.argv[0].split('/')[-1] == 'paster' and "datastore" in [sys.argv[1], sys.argv[2]]:
-            log.warn("Omitting permission checks because you are "
-                        "running paster commands.")
+            log.warn('Omitting permission checks because you are '
+                        'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
-        self.read_url = self.config['ckan.datastore.read_url']
+        if self.legacy_mode:
+            self.read_url = self.write_url
+        else:
+            self.read_url = self.config['ckan.datastore.read_url']
 
         if not self._is_read_only_database():
             # Make sure that the right permissions are set
             # so that no harmful queries can be made
             if not ('debug' in config and config['debug']):
                 self._check_separate_db()
-            self._check_read_permissions()
+            if self.legacy_mode:
+                log.warn('Legacy mode active. The sql search will not be available.')
+            else:
+                self._check_read_permissions()
 
             self._create_alias_table()
         else:
@@ -69,7 +78,7 @@ class DatastorePlugin(p.SingletonPlugin):
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
                 context,
-                {'connection_url': config['ckan.datastore.read_url']}
+                {'connection_url': self.read_url}
             )
             new_data_dict = resource_show(context, data_dict)
             try:
@@ -192,11 +201,13 @@ class DatastorePlugin(p.SingletonPlugin):
         connection.execute(create_alias_table_sql)
 
     def get_actions(self):
-        return {'datastore_create': action.datastore_create,
+        actions = {'datastore_create': action.datastore_create,
                 'datastore_upsert': action.datastore_upsert,
                 'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search,
-                'datastore_search_sql': action.datastore_search_sql}
+                'datastore_search': action.datastore_search}
+        if not self.legacy_mode:
+            actions['datastore_search_sql'] = action.datastore_search_sql
+        return actions
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
