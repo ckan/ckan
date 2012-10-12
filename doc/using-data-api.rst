@@ -16,12 +16,18 @@ Quickstart
 
 There are several endpoints into the DataStore API, they are:
 
-* datastore_create: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_create``
-* datastore_delete: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
-* datastore_delete: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
-* datastore_search: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
-* datastore_search_sql: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
-* datastore_search_htsql: ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
+:meth:`~ckanext.datastore.logic.action.datastore_create`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_create``
+:meth:`~ckanext.datastore.logic.action.datastore_delete`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
+:meth:`~ckanext.datastore.logic.action.datastore_upsert`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
+:meth:`~ckanext.datastore.logic.action.datastore_search`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
+:meth:`~ckanext.datastore.logic.action.datastore_search_sql`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
+``datastore_search_htsql()``, see :ref:`datastore_search_htsql`
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
 
 Before going into detail about the API and the examples, it is useful to create a resource first so that you can store data against it in the Datastore. This can be done either through the CKAN Graphical User Interface or the API.
 
