@@ -17,14 +17,14 @@ and create a read-only user to make your CKAN and DataStore installation safe.
 1. Enable the extension
 =======================
 
-In your ``config`` file ensure that the ``datastore`` extension is enabled::
+Since the DataStore is an optional extension, it has to be enabled separately. To do so, ensure that the ``datastore`` extension is enabled in your ``config`` file::
 
  ckan.plugins = datastore
 
 2. Set-up the database
 ======================
 
-The DataStore requires a separate postgres database to save the resources to.
+The DataStore requires a separate PostgreSQL database to save the resources to.
 
 List existing databases::
 
@@ -78,7 +78,7 @@ Option 1: Paster command
 
 This option is preferred if CKAN and PostgreSQL are on the same server.
 
-To set the permissions, use this paster command after you've set the database urls (make sure to have your virtualenv activated)::
+To set the permissions, use this paster command after you've set the database URLs (make sure to have your virtualenv activated)::
 
  paster datastore set-permissions SQL_SUPER_USER
 
@@ -132,10 +132,10 @@ Legacy mode: use the DataStore with old PostgreSQL versions
 
 The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. To enable the legacy mode, remove the declaration of the ``ckan.datastore.read_url``.
 
-The set-up for legacy mode is analogous to the normal set-up as described in :ref:`installation` with a few changes and consists of the following steps:
+The set-up for legacy mode is analogous to the normal set-up as described above with a few changes and consists of the following steps:
 
 1. Enable the extension
-2. Do **not** set the ``ckan.datastore.read_url`` which enables legacy mode
+2. The legacy mode is enabled by **not** setting the ``ckan.datastore.read_url``
 #. Set-Up the database
 
     a) Create a separate database
