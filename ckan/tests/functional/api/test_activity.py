@@ -24,6 +24,7 @@ def package_update(context, data_dict):
     # setting api_version in context make things seem like the api key
     # is ok etc
     context['api_version'] = 3
+    context['ignore_auth'] = True
     return _package_update(context, data_dict)
 
 def package_create(context, data_dict):
@@ -31,6 +32,7 @@ def package_create(context, data_dict):
     # setting api_version in context make things seem like the api key
     # is ok etc
     context['api_version'] = 3
+    context['ignore_auth'] = True
     return _package_create(context, data_dict)
 
 def datetime_from_string(s):
