@@ -30,6 +30,12 @@ def package_create(context, data_dict=None):
 
     return {'success': True}
 
+def file_upload(context, data_dict=None):
+    user = context['user']
+    if not new_authz.auth_is_reqistered_user():
+        return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
+    return {'success': True}
+
 def related_create(context, data_dict=None):
     '''Users must be logged-in to create related items.
 
