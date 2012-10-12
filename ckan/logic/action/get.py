@@ -49,12 +49,6 @@ def _package_list_with_resources(context, package_revision_list):
         package_list.append(result_dict)
     return package_list
 
-def _get_user_id_for_username(user_name):
-    ''' Helper function toget user id '''
-    # FIXME needs completing
-    if c.userobj and c.userobj.name == user_name:
-        return c.userobj.id
-    raise Exception('Not logged in user')
 
 def site_read(context,data_dict=None):
     '''Return ``True``.
