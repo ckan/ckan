@@ -145,7 +145,7 @@ def _is_valid_pg_type(context, type_name):
     else:
         connection = context['connection']
         try:
-            connection.execute('select %s::regtype', type_name)
+            connection.execute('SELECT %s::regtype', type_name)
         except ProgrammingError, e:
             if 'invalid type name' in str(e) or 'does not exist' in str(e):
                 return False
