@@ -1,7 +1,8 @@
 from logging import getLogger
 
-from pylons import c
+from pylons import config, c
 from pylons.i18n import _
+from paste.deploy.converters import asbool
 
 import ckan.plugins as p
 import ckan.model as model
@@ -194,3 +195,36 @@ def _get_auth_function(action, profile=None):
     AuthFunctions._functions.update(fetched_auth_functions)
     return AuthFunctions._functions.get(action)
 
+CONFIG_PERMISSIONS_DEFAULTS = {
+    # permission and default
+    # these are prefixed with ckan.auth. in config to override
+    'anon_create_dataset': False,
+    'create_dataset_if_not_in_organization': False,
+    'user_create_groups': False,
+    'user_create_organizations': False,
+    'create_user_via_api': False,
+}
+
+CONFIG_PERMISSIONS = {}
+
+def check_config_permission(permission):
+    ''' Returns the permission True/False based on config '''
+    # set up perms if not already done
+    if not CONFIG_PERMISSIONS:
+        for perm in CONFIG_PERMISSIONS_DEFAULTS:
+            key = 'ckan.auth.' + perm
+            default = CONFIG_PERMISSIONS_DEFAULTS[perm]
+            CONFIG_PERMISSIONS[perm] = asbool(config.get(key, default))
+    if permission in CONFIG_PERMISSIONS:
+        return CONFIG_PERMISSIONS[permission]
+    return False
+
+
+
+def auth_is_reqistered_user():
+    ''' Do we have a logged in user '''
+    try:
+        context_user = c.user
+    except TypeError:
+        context_user = None
+    return bool(context_user)
