@@ -90,12 +90,16 @@ def _is_valid_table_name(name):
     return _is_valid_field_name(name)
 
 
-def _validate_int(i, field_name):
+def _validate_int(i, field_name, non_negative=False):
     try:
-        int(i)
+        i = int(i)
     except ValueError:
         raise ValidationError({
-            'field_name': ['{0} is not an integer'.format(i)]
+            field_name: ['{0} is not an integer'.format(i)]
+        })
+    if non_negative and i < 0:
+        raise ValidationError({
+            field_name: ['{0} is not a non-negative integer'.format(i)]
         })
 
 
@@ -837,8 +841,8 @@ def search_data(context, data_dict):
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
 
-    _validate_int(limit, 'limit')
-    _validate_int(offset, 'offset')
+    _validate_int(limit, 'limit', non_negative=True)
+    _validate_int(offset, 'offset', non_negative=True)
 
     if 'limit' in data_dict:
         data_dict['limit'] = int(limit)
