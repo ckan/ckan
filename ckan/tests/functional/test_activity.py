@@ -60,6 +60,7 @@ class TestActivity(HtmlCheckMethods):
         # should not be calling package_create like this we should be
         # going via the api or package controllers
         context['api_version'] = 3
+        context['ignore_auth'] = True
         package = package_create(context, package)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
