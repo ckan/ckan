@@ -12,7 +12,6 @@ import re
 import urllib
 import pprint
 import copy
-import logging
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -37,7 +36,6 @@ from pylons import c, g
 from pylons.i18n import _, ungettext
 
 import ckan.lib.fanstatic_resources as fanstatic_resources
-#from lib.maintain import deprecated
 import ckan.model as model
 import ckan.lib.formatters as formatters
 
@@ -110,7 +108,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-
     default_locale = False
     locale = kw.pop('locale', None)
     no_root = kw.pop('__ckan_no_root', False)
@@ -176,6 +173,7 @@ def full_current_url():
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
     return(url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -319,6 +317,7 @@ def nav_link(text, controller, **kwargs):
         link = ''
     return link
 
+
 def _link_class(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.pop('highlight_actions',
@@ -361,6 +360,7 @@ def subnav_named_route(text, routename, **kwargs):
         class_=class_
     )
 
+
 def build_nav_main(*args):
     ''' build a set of menu items.
 
@@ -396,20 +396,18 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-
 _menu_items = {
-    'add dataset' : dict(controller='package', action='new'),
-    'search' : dict(controller='package',
+    'add dataset': dict(controller='package', action='new'),
+    'search': dict(controller='package',
                     action='search',
-                    highlight_actions = 'index search'),
+                    highlight_actions='index search'),
     'default_group': dict(name='%s_index' % default_group_type(),
                           controller='group',
                           highlight_actions='index search'),
-    'about' : dict(controller='home', action='about'),
-    'login' : dict(controller='user', action='login'),
-    'register' : dict(controller='user', action='register'),
+    'about': dict(controller='home', action='about'),
+    'login': dict(controller='user', action='login'),
+    'register': dict(controller='user', action='register'),
 }
-
 
 
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
@@ -451,6 +449,7 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
     else:
         return facets
 
+
 def unselected_facet_items(facet, limit=10):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
@@ -471,6 +470,7 @@ def unselected_facet_items(facet, limit=10):
     '''
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
+
 def get_facet_title(name):
 
     # if this is set in the config use this
@@ -478,14 +478,16 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups' : _('Groups'),
-                  'tags' : _('Tags'),
-                  'res_format' : _('Formats'),
-                  'license' : _('Licence'), }
+    facet_titles = {'groups': _('Groups'),
+                  'tags': _('Tags'),
+                  'res_format': _('Formats'),
+                  'license': _('Licence'), }
     return facet_titles.get(name, name.capitalize())
+
 
 def get_param_int(name, default=10):
     return int(request.params.get(name, default))
+
 
 def _url_with_params(url, params):
     if not params:
@@ -494,14 +496,16 @@ def _url_with_params(url, params):
                                   for k, v in params]
     return url + u'?' + urlencode(params)
 
+
 def _search_url(params):
     url = url_for(controller='package', action='search')
     return _url_with_params(url, params)
 
+
 def sorted_extras(list_):
     ''' Used for outputting package extras '''
     output = []
-    for extra in sorted(list_, key=lambda x:x['key']):
+    for extra in sorted(list_, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
@@ -559,6 +563,7 @@ def markdown_extract(text, extract_length=190):
     plain = re.sub(r'<.*?>', '', markdown(text))
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
+
 def icon_url(name):
     return url_for_static('/images/icons/%s.png' % name)
 
@@ -597,6 +602,7 @@ def format_icon(_format):
     if ('xml' in _format): return 'page_white_code'
     return 'page_white'
 
+
 def dict_list_reduce(list_, key, unique=True):
     ''' Take a list of dicts and create a new one containing just the
     values for the key with unique values if requested. '''
@@ -633,6 +639,7 @@ def gravatar(email_hash, size=100, default=None):
         % (email_hash, size, default, size, size)
         )
 
+
 def pager_url(page, partial=None, **kwargs):
     routes_dict = _pylons_default_url.environ['pylons.routes_dict']
     kwargs['controller'] = routes_dict['controller']
@@ -651,7 +658,7 @@ class Page(paginate.Page):
         kwargs.update(
             format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class':'active'}, link_attr={}
+            curpage_attr={'class': 'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)
 
@@ -1009,6 +1016,7 @@ def follow_count(obj_type, obj_id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
+
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
     ''' internal function for building urls with parameters. '''
@@ -1037,7 +1045,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
     '''
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = set(params_nopage)
     if new_params:
         params |= set(new_params.items())
@@ -1045,6 +1053,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
         return url_with_params(alternative_url, params)
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
+
 
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None):
@@ -1057,24 +1066,56 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
     '''
-    params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+    params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
         params.remove((key, value))
     else:
-      [params.remove((k, v)) for (k, v) in params[:] if k==key]
+        [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
         params.append((key, replace))
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
+
 def include_resource(resource):
     r = getattr(fanstatic_resources, resource)
     r.need()
 
+
+def urls_for_resource(resource):
+    ''' Returns a list of urls for the resource specified.  If the resource
+    is a group or has dependencies then there can be multiple urls.
+
+    NOTE: This is for special situations only and is not the way to generaly
+    include resources.  It is advised not to use this function.'''
+    r = getattr(fanstatic_resources, resource)
+    resources = list(r.resources)
+    core = fanstatic_resources.fanstatic_extensions.core
+    f = core.get_needed()
+    lib = resources[0].library
+    root_path = f.library_url(lib)
+
+    resources = core.sort_resources(resources)
+    if f._bundle:
+        resources = core.bundle_resources(resources)
+    out = []
+    for resource in resources:
+        if isinstance(resource, core.Bundle):
+            paths = [resource.relpath for resource in resource.resources()]
+            relpath = ';'.join(paths)
+            relpath = core.BUNDLE_PREFIX + relpath
+        else:
+            relpath = resource.relpath
+
+        out.append('%s/%s' % (root_path, relpath))
+    return out
+
+
 def debug_inspect(arg):
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
+
 
 def debug_full_info_as_list(debug_info):
     ''' This dumps the template variables for debugging purposes only. '''
@@ -1118,6 +1159,7 @@ def popular(type_, number, min=1, title=None):
         raise Exception('popular() did not recieve a valid type_ or title')
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
+
 def groups_available():
     ''' return a list of available groups '''
     import ckan.logic as logic
@@ -1125,6 +1167,7 @@ def groups_available():
                'user': c.user or c.author}
     data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
+
 
 def dashboard_activity_stream(user_id):
     '''Return the dashboard activity stream of the given user.
@@ -1154,6 +1197,7 @@ def escape_js(str_to_escape):
                         .replace('\'', '\\\'') \
                         .replace('"', '\\\"')
 
+
 def get_pkg_dict_extra(pkg_dict, key, default=None):
     '''Returns the value for the dataset extra with the provided key.
 
@@ -1172,6 +1216,7 @@ def get_pkg_dict_extra(pkg_dict, key, default=None):
             return extra['value']
 
     return default
+
 
 def get_request_param(parameter_name, default=None):
     ''' This function allows templates to access query string parameters
@@ -1215,7 +1260,54 @@ def format_resource_items(items):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))
-    return sorted(output, key=lambda x:x[0])
+    return sorted(output, key=lambda x: x[0])
+
+
+def resource_preview(resource, pkg_id):
+    '''
+    Returns a rendered snippet for a embeded resource preview.
+
+    Depending on the type, different previews are loaded.
+    This could be an img tag where the image is loaded directly or an iframe that
+    embeds a webpage, recline or a pdf preview.
+    '''
+
+    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
+    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
+                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
+                'txt', 'json']
+    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
+
+    format_lower = resource['format'].lower()
+    directly = False
+    url = ''
+
+    if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='recline', id=pkg_id, qualified=True)
+    elif format_lower in PDF:
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='pdf', id=pkg_id, qualified=True)
+    elif format_lower == 'jsonp':
+        url = url_for(controller='package', action='resource_datapreview',
+            resource_id=resource['id'], preview_type='json', id=pkg_id, qualified=True)
+    elif format_lower in LOADABLE:
+        url = resource['url']
+    elif format_lower in DIRECT_EMBEDS:
+        directly = True
+        url = resource['url']
+    else:
+        log.info('no handler for {}'.format(resource['format']))
+        return snippet(
+            "dataviewer/snippets/no_preview.html",
+            resource_type=format_lower
+            )
+
+    return snippet(
+        "dataviewer/snippets/data_preview.html",
+        embed=directly,
+        resource_url=url
+        )
 
 
 # these are the functions that will end up in `h` template helpers
@@ -1269,6 +1361,7 @@ __allowed_functions__ = [
            'get_facet_items_dict',
            'unselected_facet_items',
            'include_resource',
+           'urls_for_resource',
            'build_nav_main',
            'debug_inspect',
            'dict_list_reduce',
@@ -1289,6 +1382,7 @@ __allowed_functions__ = [
            'get_request_param',
            'render_markdown',
            'format_resource_items',
+           'resource_preview',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

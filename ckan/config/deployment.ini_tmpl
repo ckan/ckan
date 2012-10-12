@@ -4,7 +4,16 @@
 # The %(here)s variable will be replaced with the parent directory of this file
 #
 [DEFAULT]
-debug = true
+
+# Change debug to true when doing CKAN development, it enables Pylons'
+# interactive debugging tool, makes Fanstatic serve unminified JS and CSS
+# files, and enables CKAN templates' debugging features.
+#   
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# Debug mode will enable the interactive debugging tool, allowing ANYONE to
+# execute malicious code after an exception is raised.
+debug = false
+
 email_to = you@yourdomain.com
 smtp_server = localhost
 error_email_from = paste@localhost
@@ -32,17 +41,17 @@ ckan.plugins = stats
 #beaker.cache.data_dir = %(here)s/data/cache
 #beaker.session.data_dir = %(here)s/data/sessions
 
-# WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
-# Debug mode will enable the interactive debugging tool, allowing ANYONE to
-# execute malicious code after an exception is raised.
-set debug = false
-
 # Specify the database for SQLAlchemy to use:
 # * Postgres is currently required for a production CKAN deployment
 # * Sqlite (memory or file) can be used as a quick alternative for testing
 sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
+
+## Datastore
+## Uncommment to set the datastore urls
+#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/ckantest
+#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/ckantest
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -225,10 +234,6 @@ ckan.feeds.author_link =
 #ofs.impl = s3
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
-
-## Webstore
-## Uncommment to enable datastore
-# ckan.datastore.enabled = 1
 
 ## ===================================
 ## Extensions

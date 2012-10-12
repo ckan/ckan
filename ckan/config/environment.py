@@ -125,7 +125,7 @@ def load_environment(global_conf, app_conf):
     paths = dict(root=root,
                  controllers=os.path.join(root, 'controllers'),
                  static_files=os.path.join(root, 'public'),
-                 templates=[os.path.join(root, 'templates')])
+                 templates=[])
 
     # Initialize config with the basic options
 
@@ -186,15 +186,13 @@ def load_environment(global_conf, app_conf):
     ## redo template setup to use genshi.search_path
     ## (so remove std template setup)
     legacy_templates_path = os.path.join(root, 'templates_legacy')
+    jinja2_templates_path = os.path.join(root, 'templates')
     if asbool(config.get('ckan.legacy_templates', 'no')):
-        template_paths = [legacy_templates_path]
-        # if we are testing allow new templates
-        if asbool(config.get('ckan.enable_testing', 'false')):
-            jinja2_templates_path = os.path.join(root, 'templates')
-            template_paths.append(jinja2_templates_path)
+        # We want the new template path for extra snippets like the
+        # dataviewer and also for some testing stuff
+        template_paths = [legacy_templates_path, jinja2_templates_path]
     else:
-        template_paths = [paths['templates'][0]]
-        template_paths.append(legacy_templates_path)
+        template_paths = [jinja2_templates_path, legacy_templates_path]
 
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:

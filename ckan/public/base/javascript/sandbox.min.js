@@ -1,0 +1,4 @@
+this.ckan=this.ckan||{};(function(ckan,$){var callbacks=[];function Sandbox(callbacks){var index=0;var length=callbacks?callbacks.length:0;for(;index<length;index+=1){callbacks[index](this);}}
+$.extend(Sandbox.prototype,{jQuery:$,ajax:$.ajax,body:$(document.body),location:window.location,window:window});function sandbox(element,options){return new sandbox.Sandbox(ckan.sandbox.callbacks);}
+sandbox.extend=function(props){$.extend(Sandbox.prototype,props||{});return ckan;};sandbox.setup=function setup(fn){var callbacks=ckan.sandbox.callbacks=ckan.sandbox.callbacks||[];if(typeof fn==='function'){callbacks.push(fn);}else{throw new Error('ckan.sandbox.setup() must be passed a function');}
+return ckan;};ckan.sandbox=sandbox;ckan.sandbox.Sandbox=Sandbox;})(this.ckan,this.jQuery);
