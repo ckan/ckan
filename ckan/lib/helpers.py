@@ -36,7 +36,6 @@ from pylons import c, g
 from pylons.i18n import _, ungettext
 
 import ckan.lib.fanstatic_resources as fanstatic_resources
-from lib.maintain import deprecated
 import ckan.model as model
 import ckan.lib.formatters as formatters
 
@@ -294,19 +293,7 @@ def are_there_flash_messages():
     return flash.are_there_messages()
 
 
-def nav_link(*args, **kwargs):
-    # nav_link() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 1 and 'controller' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _nav_link(*args[1:], **kwargs)
-        raise Exception('nav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _nav_link(*args, **kwargs)
-
-
-def _nav_link(text, controller, **kwargs):
+def nav_link(text, controller, **kwargs):
     '''
     params
     class_: pass extra class(s) to add to the <a> tag
@@ -343,20 +330,7 @@ def _link_class(kwargs):
     return kwargs.pop('class_', '') + active
 
 
-def nav_named_link(*args, **kwargs):
-    # subnav_link() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 3 or (len(args) > 0 and 'text' in kwargs) or \
-       (len(args) > 1 and 'name' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _nav_named_link(*args[1:], **kwargs)
-        raise Exception('nav_named_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _nav_named_link(*args, **kwargs)
-
-
-def _nav_named_link(text, name, **kwargs):
+def nav_named_link(text, name, **kwargs):
     class_ = _link_class(kwargs)
     return link_to(
         text,
@@ -365,19 +339,7 @@ def _nav_named_link(text, name, **kwargs):
     )
 
 
-def subnav_link(*args, **kwargs):
-    # subnav_link() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 1 and 'action' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _subnav_link(*args[1:], **kwargs)
-        raise Exception('subnav_link() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _subnav_link(*args, **kwargs)
-
-
-def _subnav_link(text, action, **kwargs):
+def subnav_link(text, action, **kwargs):
     kwargs['action'] = action
     class_ = _link_class(kwargs)
     return link_to(
@@ -387,20 +349,7 @@ def _subnav_link(text, action, **kwargs):
     )
 
 
-def subnav_named_route(*args, **kwargs):
-    # subnav_link() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) > 2 or (len(args) > 0 and 'text' in kwargs) or \
-       (len(args) > 1 and 'routename' in kwargs):
-        if not asbool(config.get('ckan.restrict_template_vars', 'false')):
-            return _subnav_named_route(*args[1:], **kwargs)
-        raise Exception('subnav_named_route() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _subnav_named_route(*args, **kwargs)
-
-
-def _subnav_named_route(text, routename, **kwargs):
+def subnav_named_route(text, routename, **kwargs):
     """ Generate a subnav element based on a named route """
     # FIXME this is the same as _nav_named_link
     # they should be combined
@@ -522,19 +471,6 @@ def unselected_facet_items(facet, limit=10):
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 
-@deprecated('Please use get_facet_title(name) for i18n improvements.')
-def facet_title(name):
-    '''Returns a title for the given facet name.
-
-    If a mapping is declared in the config, this is used.  Otherwise it falls
-    back to capitalizing the given name.
-
-    This function is deprecated, use `get_facet_title` instead.
-    '''
-    # FIXME this looks like an i18n issue
-    return config.get('search.facets.%s.title' % name, name.capitalize())
-
-
 def get_facet_title(name):
 
     # if this is set in the config use this
@@ -579,15 +515,6 @@ def sorted_extras(list_):
             v = ", ".join(map(unicode, v))
         output.append((k, v))
     return output
-
-
-@deprecated('Please use check_access instead.')
-def am_authorized(c, action, domain_object=None):
-    ''' Deprecated. Please use check_access instead'''
-    from ckan.authz import Authorizer
-    if domain_object is None:
-        domain_object = model.System()
-    return Authorizer.am_authorized(c, action, domain_object)
 
 
 def check_access(action, data_dict=None):
@@ -782,14 +709,6 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
         return ''
 
 
-@deprecated()
-def datetime_to_date_str(datetime_):
-    '''DEPRECATED: Takes a datetime.datetime object and returns a string of it
-    in ISO format.
-    '''
-    return datetime_.isoformat()
-
-
 def date_str_to_datetime(date_str):
     '''Convert ISO-like formatted datestring to datetime object.
 
@@ -975,23 +894,13 @@ def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
 
-def auto_log_message(*args):
-    # auto_log_message() used to need c passing as the first arg
-    # this is deprecated as pointless
-    # throws error if ckan.restrict_template_vars is True
-    # When we move to strict helpers then this should be removed as a wrapper
-    if len(args) and asbool(config.get('ckan.restrict_template_vars', 'false')):
-        raise Exception('auto_log_message() calling has been changed. remove c in template %s or included one' % _get_template_name())
-    return _auto_log_message()
-
-
 def _get_template_name():
     #FIX ME THIS IS BROKEN
     ''' helper function to get the currently/last rendered template name '''
     return c.__debug_info[-1]['template_name']
 
 
-def _auto_log_message():
+def auto_log_message():
     if (c.action == 'new'):
         return _('Created new dataset.')
     elif (c.action == 'editresources'):
@@ -1402,7 +1311,6 @@ def resource_preview(resource, pkg_id):
 
 
 # these are the functions that will end up in `h` template helpers
-# if config option restrict_template_vars is true
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
            'redirect_to',
@@ -1419,8 +1327,6 @@ __allowed_functions__ = [
            'subnav_link',
            'subnav_named_route',
            'default_group_type',
-         # 'facet_title',  # deprecated
-         #  am_authorized, # deprecated
            'check_access',
            'linked_user',
            'group_name_to_title',
@@ -1435,7 +1341,6 @@ __allowed_functions__ = [
            'pager_url',
            'render_datetime',
            'date_str_to_datetime',
-           'datetime_to_date_str',
            'parse_rfc_2822_date',
            'time_ago_in_words_from_str',
            'button_attr',

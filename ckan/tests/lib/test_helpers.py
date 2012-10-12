@@ -35,7 +35,7 @@ class TestHelpers(TestController):
         assert_equal(res, '')
 
     def test_datetime_to_date_str(self):
-        res = h.datetime_to_date_str(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
+        res = datetime.datetime(2008, 4, 13, 20, 40, 20, 123456).isoformat()
         assert_equal(res, '2008-04-13T20:40:20.123456')
 
     def test_date_str_to_datetime_date_only(self):
@@ -73,7 +73,7 @@ class TestHelpers(TestController):
 
     def test_time_ago_in_words_from_str(self):
         two_months_ago = datetime.datetime.now() - datetime.timedelta(days=65)
-        two_months_ago_str = h.datetime_to_date_str(two_months_ago)
+        two_months_ago_str = two_months_ago.isoformat()
         res = h.time_ago_in_words_from_str(two_months_ago_str)
         assert_equal(res, '2 months')
 
