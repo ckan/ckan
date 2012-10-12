@@ -228,6 +228,7 @@ def make_map():
           requirements=dict(action='|'.join([
           'edit',
           'delete',
+          'members',
           'history'
           ]))
           )
@@ -242,6 +243,7 @@ def make_map():
           requirements=dict(action='|'.join([
           'edit',
           'delete',
+          'members',
           'history'
           ]))
           )
