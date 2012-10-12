@@ -6,7 +6,8 @@ The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
 interface and authorization system.
 
-.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on versions prior to 9.0 (for example 8.4). However, the :ref:`datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`old_pg` for more details.
+.. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on versions prior to 9.0 (for example 8.4). However, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`old_pg` for more details.
+
 
 .. warning:: The DataStore does not support hiding resources in a private dataset.
 
@@ -82,7 +83,7 @@ Once the DataStore database and the users are created, the permissions on the Da
 
 1. Use the **paster command** if CKAN and PostgreSQL are on the same server
 
-To set the permissions, use this paster command after you've set the database urls::
+To set the permissions, use this paster command after you've set the database urls (make sure to have your virtualenv activated)::
 
  paster datastore set-permissions SQL_SUPER_USER
 
@@ -128,7 +129,7 @@ the records inserted above::
 Legacy mode: use the DataStore with old PostgreSQL versions
 -----------------------------------------------------------
 
-The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :ref:`datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. The set-up for legacy mode is analogous to the normal set-up as described in :ref:`installation` with a few changes and consists of the following steps:
+The DataStore can be used with a PostgreSQL version prior to 9.0 in *legacy mode*. Due to the lack of some functionality, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` and consequently the :ref:`datastore_search_htsql` cannot be used. The set-up for legacy mode is analogous to the normal set-up as described in :ref:`installation` with a few changes and consists of the following steps:
 
 1. Enable the extension
 #. Set-Up the database
@@ -173,7 +174,7 @@ The DataStore Data API
 ======================
 
 The DataStore's Data API, which derives from the underlying data table,
-is RESTful and JSON-based with extensive query capabilities.
+is JSON-based with extensive query capabilities.
 
 Each resource in a CKAN instance can have an associated DataStore 'table'. The
 basic API for accessing the DataStore is outlined below. For a detailed
@@ -183,105 +184,15 @@ tutorial on using this API see :doc:`using-data-api`.
 API Reference
 -------------
 
+The datastore related API actions are accessed via CKAN's :ref:`action-api`. When POSTing
+requests, parameters should be provided as JSON objects.
+
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``.
 
-
-datastore_create
-~~~~~~~~~~~~~~~~
-
-The datastore_create API endpoint allows a user to post JSON data to be stored against a resource. This endpoint also supports altering tables, aliases and indexes and bulk insertion. The JSON must be in the following form::
-
- {
-    resource_id:  # the data is going to be stored against.
-    aliases:      # list of names for read-only aliases to the resource
-    fields:       # a list of dictionaries of fields/columns and their extra metadata.
-    records:      # a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
-    primary_key:  # list of fields that represent a unique key
-    indexes:      # indexes on table
- }
-
-See :ref:`fields` and :ref:`records` for details on how to lay out records.
+.. automodule:: ckanext.datastore.logic.action
+   :members:
 
 
-
-datastore_delete
-~~~~~~~~~~~~~~~~
-
-The datastore_delete API endpoint allows a user to delete records from a resource. The JSON for searching must be in the following form::
-
- {
-    resource_id: # the data that is going to be deleted.
-    filter:      # dictionary of matching conditions to delete
-                 # e.g  {'key1': 'a', 'key2': 'b'}
-                 # this will be equivalent to "delete from table where key1 = 'a' and key2 = 'b' "
- }
-
-
-datastore_upsert
-~~~~~~~~~~~~~~~~
-
-The datastore_upsert API endpoint allows a user to add or edit records in an existing DataStore resource. In order for the ``upsert`` and ``update`` methods to work, a unique key has to defined via the datastore_create API endpoint command.
-The JSON for searching must be in the following form::
-
- {
-    resource_id: # resource id that the data is going to be stored under.
-    records:     #  a list of dictionaries of the data, eg:  [{"dob": "2005", "some_stuff": ['a', 'b']}, ..]
-    method:      #  the method to use to put the data into the datastore
-                 #  possible options: upsert (default), insert, update
- }
-
-``upsert``
-    Update if record with same key already exists, otherwise insert. Requires unique key.
-``insert``
-    Insert only. This method is faster that upsert, but will fail if any inserted record matches an existing one. Does *not* require a unique key.
-``update``
-    Update only. An exception will occur if the key that should be updated does not exist. Requires unique key.
-
-.. _datastore_search:
-
-datastore_search
-~~~~~~~~~~~~~~~~
-
-The datastore_search API endpoint allows a user to search data in a resource.
-The JSON for searching must be in the following form::
-
- {
-     resource_id:  # the resource id to be searched against
-     filters :     # dictionary of matching conditions to select e.g  {'key1': 'a. 'key2': 'b'}
-                   # this will be equivalent to "select * from table where key1 = 'a' and key2 = 'b' "
-     q:            # full text query
-     plain:        # treat as plain text query (default: true)
-     language:     # language of the full text query (default: english)
-     limit:        # limit the amount of rows to size (default: 100)
-     offset:       # offset the amount of rows
-     fields:       # list of fields return in that order, defaults (empty or not present) to all fields in fields order.
-     sort:         # ordered list of field names as, eg: "fieldname1, fieldname2 desc"
- }
-
-.. _datastore_search_sql:
-
-datastore_search_sql
-~~~~~~~~~~~~~~~~~~~~
-
-The datastore_search_sql API endpoint allows a user to search data in a resource or connect multiple resources with join expressions. The underlying SQL engine is the `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_. The JSON for searching must be in the following form::
-
- {
-    sql:  # a single sql select statement
- }
-
-
-.. _datastore_search_htsql:
-
-datastore_search_htsql
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. note:: HTSQL is not in the core DataStore. To use it, it is necessary to install the ckanext-htsql extension available at https://github.com/okfn/ckanext-htsql.
-
-The datastore_search_htsql API endpoint allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. The JSON for searching must be in the following form::
-
- {
-    htsql:  # a htsql query statement.
- }
 
 .. _fields:
 
@@ -375,19 +286,30 @@ Table aliases
 
 A resource in the DataStore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the datastore_create API endpoint. All aliases can be found in a special view called ``_table_metadata``.
 
+
+.. _datastore_search_htsql:
+
+HTSQL Support
+=============
+
+
+The `ckanext-htsql <https://github.com/okfn/ckanext-htsql>`_ extension adds an API action that allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. Please refer to the extension documentation to know more.
+
+
+
 Comparison of different querying methods
-----------------------------------------
+========================================
 
 The DataStore supports querying with multiple API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
 
-==============================  =======================  ===========================  =============================
-..                              :ref:`datastore_search`  :ref:`datastore_search_sql`  :ref:`datastore_search_htsql`
-..                                                       SQL                          HTSQL
-==============================  =======================  ===========================  =============================
-**Status**                      Stable                   Stable                       Available as extension
-**Ease of use**                 Easy                     Complex                      Medium
-**Flexibility**                 Low                      High                         Medium
-**Query language**              Custom (JSON)            SQL                          HTSQL
-**Connect multiple resources**  No                       Yes                          Not yet
-**Use aliases**                 Yes                      Yes                          Yes
-==============================  =======================  ===========================  =============================
+==============================  ========================================================  ============================================================  =============================
+..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`datastore_search_htsql`
+..                                                                                        SQL                                                           HTSQL
+==============================  ========================================================  ============================================================  =============================
+**Status**                      Stable                                                    Stable                                                        Available as extension
+**Ease of use**                 Easy                                                      Complex                                                       Medium
+**Flexibility**                 Low                                                       High                                                          Medium
+**Query language**              Custom (JSON)                                             SQL                                                           HTSQL
+**Connect multiple resources**  No                                                        Yes                                                           Not yet
+**Use aliases**                 Yes                                                       Yes                                                           Yes
+==============================  ========================================================  ============================================================  =============================
