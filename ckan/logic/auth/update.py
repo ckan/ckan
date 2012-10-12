@@ -10,11 +10,13 @@ def make_latest_pending_package_active(context, data_dict):
     return package_update(context, data_dict)
 
 def package_update(context, data_dict):
-    model = context['model']
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    check1 = logic.check_access_old(package, model.Action.EDIT, context)
+    if package.owner_org:
+        check1 = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'update_dataset')
+    else:
+        check1 = False
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
@@ -50,11 +52,11 @@ def package_relationship_update(context, data_dict):
     return package_relationship_create(context, data_dict)
 
 def package_change_state(context, data_dict):
-    model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    authorized = logic.check_access_old(package, model.Action.CHANGE_STATE, context)
+    # use the logic for package_update
+    authorized = new_authz.is_authorized_boolean('package_update', context, data_dict)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of package %s') % (str(user),package.id)}
     else:
@@ -103,11 +105,11 @@ def related_update(context, data_dict):
 
 
 def group_change_state(context, data_dict):
-    model = context['model']
     user = context['user']
     group = get_group_object(context, data_dict)
 
-    authorized = logic.check_access_old(group, model.Action.CHANGE_STATE, context)
+    # use logic for group_update
+    authorized = new_authz.is_authorized_boolean('group_update', context, data_dict)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to change state of group %s') % (str(user),group.id)}
     else:
