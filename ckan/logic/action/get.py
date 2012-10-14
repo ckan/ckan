@@ -2291,3 +2291,7 @@ def _unpick_search(sort, allowed_fields=None, total=None):
         raise logic.ParameterError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
+
+
+def member_roles_list(context, data_dict):
+    return new_authz.roles_list()
