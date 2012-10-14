@@ -9,17 +9,38 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   //
   // General notes
   // 
+  // We need 2 things to make most requests:
+  //
+  // 1. CKAN API endpoint
+  // 2. ID of resource for which request is being made
+  //
+  // There are 2 ways to specify this information.
+  //
+  // EITHER (checked in order): 
+  //
   // * Every dataset must have an id equal to its resource id on the CKAN instance
-  // * You should set the CKAN API endpoint for requests by setting API_ENDPOINT value on this module (recline.Backend.Ckan.API_ENDPOINT)
+  // * The dataset has an endpoint attribute pointing to the CKAN API endpoint
+  //
+  // OR:
+  // 
+  // Set the url attribute of the dataset to point to the Resource on the CKAN instance. The endpoint and id will then be automatically computed.
 
   my.__type__ = 'ckan';
 
   // Default CKAN API endpoint used for requests (you can change this but it will affect every request!)
+  //
+  // DEPRECATION: this will be removed in v0.7. Please set endpoint attribute on dataset instead
   my.API_ENDPOINT = 'http://datahub.io/api';
 
   // ### fetch
   my.fetch = function(dataset) {
-    var wrapper = my.DataStore();
+    if (dataset.endpoint) {
+      var wrapper = my.DataStore(dataset.endpoint);
+    } else {
+      var out = my._parseCkanResourceUrl(dataset.url);
+      dataset.id = out.resource_id;
+      var wrapper = my.DataStore(out.endpoint);
+    }
     var dfd = $.Deferred();
     var jqxhr = wrapper.search({resource_id: dataset.id, limit: 0});
     jqxhr.done(function(results) {
@@ -55,8 +76,14 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   }
 
   my.query = function(queryObj, dataset) {
+    if (dataset.endpoint) {
+      var wrapper = my.DataStore(dataset.endpoint);
+    } else {
+      var out = my._parseCkanResourceUrl(dataset.url);
+      dataset.id = out.resource_id;
+      var wrapper = my.DataStore(out.endpoint);
+    }
     var actualQuery = my._normalizeQuery(queryObj, dataset);
-    var wrapper = my.DataStore();
     var dfd = $.Deferred();
     var jqxhr = wrapper.search(actualQuery);
     jqxhr.done(function(results) {
@@ -89,7 +116,19 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
     }
 
     return that;
-  }
+  };
+
+  // Parse a normal CKAN resource URL and return API endpoint etc
+  //
+  // Normal URL is something like http://demo.ckan.org/dataset/some-dataset/resource/eb23e809-ccbb-4ad1-820a-19586fc4bebd
+  my._parseCkanResourceUrl = function(url) {
+    parts = url.split('/');
+    var len = parts.length;
+    return {
+      resource_id: parts[len-1],
+      endpoint: parts.slice(0,[len-4]).join('/') + '/api'
+    }
+  };
 
   var CKAN_TYPES_MAP = {
     'int4': 'integer',
@@ -3798,7 +3837,7 @@ my.SlickGrid = Backbone.View.extend({
     });
 
     // Order them if there is ordering info on the state
-    if (this.state.get('columnsOrder')){
+    if (this.state.get('columnsOrder') && this.state.get('columnsOrder').length > 0) {
       visibleColumns = visibleColumns.sort(function(a,b){
         return _.indexOf(self.state.get('columnsOrder'),a.id) > _.indexOf(self.state.get('columnsOrder'),b.id) ? 1 : -1;
       });
