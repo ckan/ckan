@@ -229,12 +229,11 @@ class TestActivity(HtmlCheckMethods):
         assert result.body.count('<div class="activity">') \
                 == 15
 
-        # The latest 15 should also appear on the dashboard
-        # THIS TEST IS A WASTE OF SPACE AND TESTS NOTHING.  WOULDN'T WORK IF
-        # FIXED (response? result perhaps) AND USES A FEATURE (id parameter)
-        # THAT IS NOT IMPLEMENTED.  I love tests :)
+        # The user's dashboard page should load successfully and have the
+        # latest 15 activities on it.
         offset = url_for(controller='user', action='dashboard')
-        params = {'id': user['id']}
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-        response = self.app.post(offset, params=params, extra_environ=extra_environ, status=200)
+        extra_environ = {'Authorization':
+                str(ckan.model.User.get('billybeane').apikey)}
+        result = self.app.post(offset, extra_environ=extra_environ,
+                status=200)
         assert result.body.count('<div class="activity">') == 15
