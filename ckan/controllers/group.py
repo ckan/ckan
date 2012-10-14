@@ -470,8 +470,6 @@ class GroupController(BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        print c.members
-        print c.group_dict
         return self._render_template('group/members.html')
 
     def history(self, id):
