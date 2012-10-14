@@ -184,6 +184,9 @@ def member_delete(context, data_dict=None):
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == "active").first()
     if member:
+        rev = model.repo.new_revision()
+        rev.author = context.get('user')
+        rev.message = _(u'REST API: Delete Member: %s') % obj_id
         member.delete()
         model.repo.commit()
 
