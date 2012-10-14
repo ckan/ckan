@@ -423,7 +423,7 @@ def _group_or_org_member_delete(context, data_dict=None):
 
 
 def group_member_delete(context, data_dict=None):
-    return _group_or_org_member_delete(context, data_dict=None)
+    return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
-    return _group_or_org_member_delete(context, data_dict=None)
+    return _group_or_org_member_delete(context, data_dict)
