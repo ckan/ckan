@@ -827,4 +827,3 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
 
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
 class TestPackagesUnversioned(UnversionedTestCase, PackagesTestCase): pass
-
