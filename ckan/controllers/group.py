@@ -472,6 +472,59 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         return self._render_template('group/members.html')
 
+    def member_new(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        #self._check_access('group_delete', context, {'id': id})
+        try:
+            if request.method == 'POST':
+                data_dict = clean_dict(unflatten(
+                    tuplize_dict(parse_params(request.params))))
+                data_dict['id'] = id
+                c.group_dict = self._action('group_member_create')(context, data_dict)
+                self._redirect_to(controller='group', action='members', id=id)
+            else:
+                user = request.params.get('user')
+                if user:
+                    user= model.Session.query(model.User).get(user)
+                    c.user_name = user.name
+                c.group_dict = self._action('group_show')(context, {'id': id})
+                c.roles = self._action('member_roles_list')(context, {})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to add member to group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return self._render_template('group/member_new.html')
+
+    def member_delete(self, id):
+        if 'cancel' in request.params:
+            self._redirect_to(controller='group', action='members', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            self._check_access('group_member_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s members') % '')
+
+        try:
+            user_id = request.params.get('user')
+            if request.method == 'POST':
+                self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
+                h.flash_notice(_('Group member has been deleted.'))
+                self._redirect_to(controller='group', action='members', id=id)
+            c.user_dict = self._action('user_show')(context, {'id': user_id})
+            c.user_id = user_id
+            c.group_id = id
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return self._render_template('group/confirm_delete_member.html')
+
+
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:
