@@ -92,6 +92,7 @@ def package_relationships_list(context, data_dict):
         return {'success': True}
 
 def package_show(context, data_dict):
+    user = context.get('user')
     package = get_package_object(context, data_dict)
     # draft state indicates package is still in the creation process
     # so we need to check we have creation rights.
@@ -103,7 +104,6 @@ def package_show(context, data_dict):
         # anyone can see a public package
         if not package.private and package.state == 'active':
             return {'success': True}
-        user = context.get('user')
         authorized = new_authz.has_user_permission_for_group_or_org(
             package.owner_org, user, 'read')
     if not authorized:
