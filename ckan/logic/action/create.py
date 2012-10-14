@@ -1,7 +1,7 @@
 import logging
 from pylons.i18n import _
 
-import ckan.authz as authz
+import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -12,7 +12,6 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
-import ckan.logic.auth as auth
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -1121,3 +1120,40 @@ def follow_dataset(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
+
+
+def _group_or_org_member_create(context, data_dict, is_org=False):
+    # creator of group/org becomes an admin
+    # this needs to be after the repo.commit or else revisions break
+    model = context['model']
+    user = context['user']
+    session = context['session']
+
+    schema = ckan.logic.schema.member_schema()
+    data, errors = _validate(data_dict, schema, context)
+
+    username = _get_or_bust(data_dict, 'username')
+    role = data_dict.get('role')
+    group_id = data_dict.get('id')
+    group = model.Group.get(group_id)
+    result = session.query(model.User).filter_by(name=username).first()
+    if result:
+        user_id = result.id
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+        'capacity': role,
+    }
+    member_create_context = {
+        'model': model,
+        'user': user,
+        'session': session
+    }
+    logic.get_action('member_create')(member_create_context, member_dict)
+
+def group_member_create(context, data_dict):
+    return _group_or_org_member_create(context, data_dict, is_org=True)
+
+def organization_member_create(context, data_dict):
+    return _group_or_org_member_create(context, data_dict, is_org=True)
