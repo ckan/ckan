@@ -40,6 +40,9 @@ from ckan.logic.validators import (package_id_not_changed,
                                    object_id_validator,
                                    activity_type_exists,
                                    tag_not_in_vocabulary,
+                                   group_id_exists,
+                                   user_name_exists,
+                                   role_exists,
                                    url_validator)
 from formencode.validators import OneOf
 import ckan.model
@@ -428,4 +431,15 @@ def default_follow_user_schema():
 def default_follow_dataset_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         package_id_or_name_exists]}
+    return schema
+
+
+def member_schema():
+
+    schema = {
+        'id': [group_id_exists, unicode],
+        'username': [user_name_exists, unicode],
+        'role': [role_exists, unicode],
+    }
+
     return schema
