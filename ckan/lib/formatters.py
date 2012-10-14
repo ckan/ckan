@@ -115,8 +115,8 @@ def localised_filesize(number):
     elif number < 1024 ** 2:
         return _('{kibibytes} KiB').format(kibibytes=rnd(number, 1024))
     elif number < 1024 ** 3:
-        return _('{mebibytes} KiB').format(mebibytes=rnd(number, 1024 ** 2))
+        return _('{mebibytes} MiB').format(mebibytes=rnd(number, 1024 ** 2))
     elif number < 1024 ** 4:
-        return _('{gibibytes} KiB').format(gibibytes=rnd(number, 1024 ** 3))
+        return _('{gibibytes} GiB').format(gibibytes=rnd(number, 1024 ** 3))
     else:
-        return _('{tebibytes} KiB').format(tebibytes=rnd(number, 1024 ** 4))
+        return _('{tebibytes} TiB').format(tebibytes=rnd(number, 1024 ** 4))
