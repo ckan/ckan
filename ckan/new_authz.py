@@ -1,3 +1,4 @@
+import sys
 from logging import getLogger
 
 from pylons import config, c
@@ -64,8 +65,29 @@ def is_authorized(action, context, data_dict=None):
 ROLE_PERMISSIONS = {
     'admin': ['admin'],
     'editor': ['read', 'update', 'delete_dataset', 'create_dataset', 'update_dataset'],
-    'member': [''],
+    'member': ['read'],
 }
+
+def _trans_role_admin():
+    return _('Admin')
+
+def _trans_role_editor():
+    return _('Editor')
+
+def _trans_role_member():
+    return _('Member')
+
+def trans_role(role):
+    module = sys.modules[__name__]
+    return getattr(module, '_trans_role_%s' % role)()
+
+
+def roles_list():
+    ''' returns list of roles for forms '''
+    out = []
+    for role in ROLE_PERMISSIONS:
+        out.append(dict(text=trans_role(role), value=role))
+    return out
 
 
 def get_roles_with_permission(permission):
