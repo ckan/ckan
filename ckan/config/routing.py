@@ -229,6 +229,8 @@ def make_map():
           'edit',
           'delete',
           'members',
+          'member_new',
+          'member_delete',
           'history'
           ]))
           )
@@ -244,6 +246,8 @@ def make_map():
           'edit',
           'delete',
           'members',
+          'member_new',
+          'member_delete',
           'history'
           ]))
           )
