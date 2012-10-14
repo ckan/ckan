@@ -195,3 +195,6 @@ def get_site_user(context, data_dict):
         return {'success': False, 'msg': 'Only internal services allowed to use this action'}
     else:
         return {'success': True}
+
+def member_roles_list(context, data_dict):
+    return {'success': True}
