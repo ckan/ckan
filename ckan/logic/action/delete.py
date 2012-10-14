@@ -396,3 +396,31 @@ def unfollow_dataset(context, data_dict):
         raise ValidationError(errors)
 
     _unfollow(context, data_dict, context['model'].UserFollowingDataset)
+
+
+def _group_or_org_member_delete(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+    session = context['session']
+
+    group_id = data_dict.get('id')
+    group = model.Group.get(group_id)
+    user_id = data_dict.get('user_id')
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+    }
+    member_context = {
+        'model': model,
+        'user': user,
+        'session': session
+    }
+    _get_action('member_delete')(member_context, member_dict)
+
+
+def group_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict=None)
+
+def organization_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict=None)
