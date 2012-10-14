@@ -542,3 +542,19 @@ def url_validator(key, data, errors, context):
        return
 
     errors[key].append(_('Please provide a valid URL'))
+
+
+
+def user_name_exists(user_name, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.User).filter_by(name=user_name).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+    return result.name
+
+
+def role_exists(role, context):
+    if role not in ckan.new_authz.ROLE_PERMISSIONS:
+        raise Invalid(_('role does not exist.'))
+    return role
