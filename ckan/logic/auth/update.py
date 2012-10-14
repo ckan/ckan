@@ -16,7 +16,7 @@ def package_update(context, data_dict):
     if package.owner_org:
         check1 = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'update_dataset')
     else:
-        check1 = False
+        check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization')
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
