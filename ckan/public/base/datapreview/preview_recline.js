@@ -58,7 +58,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
 
       // Set recline CKAN backend API endpoint to right location (so it can locate
       // CKAN DataStore)
-      recline.Backend.Ckan.API_ENDPOINT = jQuery('body').data('site-root') + 'api';
+      resourceData.endpoint = jQuery('body').data('site-root') + 'api';
 
       var errorMsg, dataset;
 
