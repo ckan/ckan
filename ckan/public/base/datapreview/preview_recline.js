@@ -56,14 +56,13 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         }
       }
 
-      // Set recline CKAN backend API endpoint to right location (so it can locate
-      // CKAN DataStore)
-      resourceData.endpoint = jQuery('body').data('site-root') + 'api';
-
       var errorMsg, dataset;
 
       if (resourceData.datastore_active) {
         resourceData.backend =  'ckan';
+        // Set recline CKAN backend API endpoint to right location (so it can locate
+        // CKAN DataStore)
+        resourceData.endpoint = jQuery('body').data('site-root') + 'api';
         dataset = new recline.Model.Dataset(resourceData);
         errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
         dataset.fetch()
