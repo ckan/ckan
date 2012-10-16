@@ -11,7 +11,7 @@
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=logged_in %}{% endblock %}
 
 {% block secondary_content %}
-  {% if pkg_dict %}
+  {% if pkg_dict and pkg_dict.state != 'draft' %}
     {% snippet 'package/snippets/info.html', pkg=pkg_dict, action='resource_new' %}
   {% else %}  
     <section class="module module-narrow module-shallow">
