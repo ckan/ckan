@@ -36,8 +36,9 @@ this.ckan.module('popover-context', function($, _) {
 		options : {
 			id: null,
 			loading: false,
+			error: false,
 			authed: false,
-			url: '',
+			throbber: '<img src="{SITE_ROOT}/base/images/loading-spinner.gif">',
 			i18n: {
 				loading: _('Loading...')
 			}
@@ -47,7 +48,7 @@ this.ckan.module('popover-context', function($, _) {
 		 *
 		 * Returns nothing.
 		 */
-		initialize: function () {
+		initialize: function() {
 			if (
 				this.options.id != true
 				&& this.options.id != null
@@ -58,27 +59,41 @@ this.ckan.module('popover-context', function($, _) {
 				}
 				this.el.popover({
 					animation: false,
-					content: this.i18n('loading'),
+					content: this.options.throbber.replace('{SITE_ROOT}', ckan.SITE_ROOT) + this.i18n('loading'),
 					placement: 'bottom'
 				});
 				this.el.on('mouseover', this._onMouseOver);
+				$(document).on('mouseup', this._onDocumentMouseUp);
 				this.sandbox.subscribe('follow-follow-' + this.options.id, this._onHandleFollow);
 				this.sandbox.subscribe('follow-unfollow-' + this.options.id, this._onHandleFollow);
 			}
 		},
 
+		/* Get's called on document click in order to hide popover on not hit
+		 *
+		 * Returns nothing.
+		 */
+		_onDocumentMouseUp: function(event) {
+			var popover = this.el.data('popover');
+			if (typeof popover.$tip != 'undefined') {
+				if (popover.$tip.has(event.target).length === 0) {
+					this.el.popover('hide');
+				}
+			}
+		},
+
+		/* Helper that changes the loading state of the active popover
+		 *
+		 * Returns nothing.
+		 */
 		loadingHelper: function(loading) {
 			this.options.loading = loading;
 			var popover = this.el.data('popover');
 			if (typeof popover.$tip != 'undefined') {
-				var tip = popover.$tip;
 				if (loading) {
-					tip.addClass('popover-context-loading');
-					this.el.popover({
-						content: this.i18n('loading')
-					});
+					popover.$tip.addClass('popover-context-loading');
 				} else {
-					tip.removeClass('popover-context-loading');
+					popover.$tip.removeClass('popover-context-loading');
 				}
 			}
 		},
@@ -105,12 +120,19 @@ this.ckan.module('popover-context', function($, _) {
 				if (typeof window.popover_context.dict[type][id] == 'undefined') {
 					var client = this.sandbox.client;
 					var endpoint = ( type == 'user' ) ? 'user_show' : 'package_show';
-					this.loadingHelper(true);
-					client.call('GET', endpoint, '?id=' + id, this._onHandleData);
+					client.call('GET', endpoint, '?id=' + id, this._onHandleData, this._onHandleError);
 				} else {
 					this._onHandleData(window.popover_context.dict[type][id]);
 				}
 			}
+		},
+
+		/* Handle's a error on the call api
+		 *
+		 * Returns nothing.
+		 */
+		_onHandleError: function(error) {
+			$('[data-module="popover-context"][data-module-type="'+this.options.type+'"][data-module-id="'+this.options.id+'"]').popover('destroy');
 		},
 
 		/* Callback from getting the endpoint from the ckan api
@@ -130,7 +152,7 @@ this.ckan.module('popover-context', function($, _) {
 					var params = this.sanitiseParams(json.result);
 					client.getTemplate('popover-context-' + type + '.html', params, this._onRenderPopover);
 				} else {
-					this._onRenderPopover(window.popover_context.render[type][id]);
+				 	this._onRenderPopover(window.popover_context.render[type][id]);
 				}
 			}
 		},
@@ -144,7 +166,7 @@ this.ckan.module('popover-context', function($, _) {
 			var params = {};
 			if (type == 'user') {
 				params.id = raw.id;
-				params.title = raw.name;
+				params.name = raw.name;
 				params.about = raw.about;
 				params.display_name = raw.display_name;
 				params.num_followers = raw.num_followers;
@@ -203,34 +225,20 @@ this.ckan.module('popover-context', function($, _) {
 			var popover = this.el.data('popover');
 			if (typeof popover.$tip != 'undefined') {
 				var button = $('[data-module="follow"]', popover.$tip);
-				if (check.length > 0) {
+				if (button.length > 0) {
 					return button;
 				}
 			}
 			return false;
 		},
 
-		/* Callback from when you follow/unfollopw a specified item... this is used to ensure
+		/* Callback from when you follow/unfollow a specified item... this is used to ensure
 		 * all popovers associated to that user get re-populated
 		 *
 		 * Returns nothing.
 		 */
 		_onHandleFollow: function() {
-			var client = this.sandbox.client;
-			var button = this.getFollowButton();
-			if (button) {
-				client.getTemplate('follow_button.html', { type: this.options.type, id: this.options.id }, this._onHandleFollowData);
-			}
-		},
-
-		_onHandleFollowData: function(html) {
-			var button = this.getFollowButton();
-			if (button) {
-				$(html).insertAfter(button);
-				button.remove();
-				var new_button = this.getFollowButton();
-				ckan.module.initializeElement(new_button[0]);
-			}
+			delete window.popover_context.render[this.options.type][this.options.id];
 		}
 
 	};

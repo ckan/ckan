@@ -1,14 +1,14 @@
 <div class="popover-context profile-info">
 	{% if about != 'null' %}
 		<p class="about">
-			{{ about }}
+			{{ h.truncate(about, length=160, whole_word=True) }}
 		</p>
 	{% endif %}
 	<div class="btn-group">
 		{% if is_me == 'false' %}
 			{{ h.follow_button('user', id) }}
 		{% endif %}
-		<a href="{{ name }}" class="btn">
+		<a href="{{ h.url_for(controller='user', action='read', id=name) }}" class="btn">
 			<i class="icon-eye-open"></i>
 			View Profile
 		</a>

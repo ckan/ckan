@@ -1,28 +1,24 @@
 <div class="popover-context profile-info">
 	{% if notes != 'null' %}
 		<p class="about">
-			{{ notes }}
+			{{ h.truncate(notes, length=160, whole_word=True) }}
 		</p>
 	{% endif %}
 	<div class="btn-group">
 		{{ h.follow_button('dataset', id) }}
-		<a href="{{ name }}" class="btn">
+		<a href="{{ h.url_for(controller='package', action='read', id=name) }}" class="btn">
 			<i class="icon-eye-open"></i>
 			View Dataset
 		</a>
-	</div>	
+	</div>
 	<div class="nums">
-		<dl>
-			<dt>{{ _('Followers') }}</dt>
-			<dd>{{ num_followers }}</dd>
-		</dl>
 		<dl>
 			<dt>{{ _('Resources') }}</dt>
 			<dd>{{ num_resources }}</dd>
 		</dl>
 		<dl>
 			<dt>{{ _('Tags') }}</dt>
-			<dd>{{ num_tags}}</dd>
+			<dd>{{ num_tags }}</dd>
 		</dl>
 	</div>
 </div>

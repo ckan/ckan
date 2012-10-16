@@ -37,14 +37,16 @@
      *    client.call('GET', 'user_show', { id: 'some-long-id' }, function(json) { console.log(json) })
      *
      */
-    call: function(type, path, data, fn) {
+    call: function(type, path, data, fn, error) {
       var url = this.url('/api/action/' + path);
+      var error = ( error == 'undefined' ) ? function() {} : error;
       var options = {
         contentType: 'application/json',
         url: url,
         dataType: 'json',
         processData: false,
-        success: fn
+        success: fn,
+        error: error
       };
       if (type == 'POST') {
         options.type = 'POST';
