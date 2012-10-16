@@ -2,7 +2,7 @@
 	<ul class="unstyled follower-list">
 	{% for follower in followers %}
 		<li>
-			<span data-module="user-context" data-module-id="{{ follower.id }}">
+			<span data-module="popover-context" data-module-type="user" data-module-id="{{ follower.id }}">
 				{{ h.linked_user(follower.name, maxlength=20) }}
 			</span>
 		</li>

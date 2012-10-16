@@ -12,18 +12,21 @@ import ckan.logic as logic
 # etc.
 
 def get_snippet_actor(activity, detail):
-    return literal('''<span class="actor" data-module="user-context" data-module-id="%s">%s</span>'''
+    return literal('''<span class="actor" data-module="popover-context" data-module-type="user" data-module-id="%s">%s</span>'''
         % (activity['user_id'], h.linked_user(activity['user_id'], 0, 30))
         )
 
 def get_snippet_user(activity, detail):
-    return literal('''<span data-module="user-context" data-module-id="%s">%s</span>'''
+    return literal('''<span data-module="popover-context" data-module-type="user" data-module-id="%s">%s</span>'''
         % (activity['object_id'], h.linked_user(activity['object_id'], 0, 20))
         )
 
 def get_snippet_dataset(activity, detail):
     data = activity['data']
-    return h.dataset_link(data.get('package') or data.get('dataset'))
+    link = h.dataset_link(data.get('package') or data.get('dataset'))
+    return literal('''<span data-module="popover-context" data-module-type="dataset" data-module-id="%s">%s</span>'''
+        % (activity['object_id'], link)
+        )
 
 def get_snippet_tag(activity, detail):
     return h.tag_link(detail['data']['tag'])
