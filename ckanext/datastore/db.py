@@ -145,7 +145,7 @@ def _is_valid_pg_type(context, type_name):
     else:
         connection = context['connection']
         try:
-            connection.execute('select %s::regtype', type_name)
+            connection.execute('SELECT %s::regtype', type_name)
         except ProgrammingError, e:
             if 'invalid type name' in str(e) or 'does not exist' in str(e):
                 return False
@@ -244,11 +244,11 @@ def check_fields(context, fields):
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
-                'fields': ['{0} is not a valid field type'.format(field['type'])]
+                'fields': ['"{0}" is not a valid field type'.format(field['type'])]
             })
         elif not _is_valid_field_name(field['id']):
             raise ValidationError({
-                'fields': ['{0} is not a valid field name'.format(field['id'])]
+                'fields': ['"{0}" is not a valid field name'.format(field['id'])]
             })
 
 
@@ -288,7 +288,7 @@ def create_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['{0} type not guessable'.format(field['id'])]
+                    'fields': ['"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
 
@@ -319,9 +319,21 @@ def create_table(context, data_dict):
 
 
 def _get_aliases(context, data_dict):
+    ''' Get a list of aliases for a resource. '''
     res_id = data_dict['resource_id']
-    alias_sql = sqlalchemy.text(u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
+    alias_sql = sqlalchemy.text(
+        u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
     results = context['connection'].execute(alias_sql, id=res_id).fetchall()
+    return [x[0] for x in results]
+
+
+def _get_resources(context, alias):
+    ''' Get a list of resources for an alias. There could be more than one alias
+    in a resource_dict. '''
+    alias_sql = sqlalchemy.text(
+        u'''SELECT alias_of FROM "_table_metadata"
+        WHERE name = :alias AND alias_of IS NOT NULL''')
+    results = context['connection'].execute(alias_sql, alias=alias).fetchall()
     return [x[0] for x in results]
 
 
@@ -339,6 +351,13 @@ def create_alias(context, data_dict):
                 alias=alias,
                 main=data_dict['resource_id']
             )
+
+            res_ids = _get_resources(context, alias)
+            if res_ids:
+                raise ValidationError({
+                    'alias': [(u'The alias "{0}" already exists.').format(alias)]
+                })
+
             context['connection'].execute(sql_alias_string)
 
 
@@ -384,7 +403,7 @@ def create_indexes(context, data_dict):
         for field in index_fields:
             if field not in field_ids:
                 raise ValidationError({
-                    'index': [('The field {0} is not a valid column name.').format(
+                    'index': [('The field "{0}" is not a valid column name.').format(
                         index)]
                 })
         fields_string = u', '.join([
@@ -450,7 +469,7 @@ def alter_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['{0} type not guessable'.format(field['id'])]
+                    'fields': ['"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
         new_fields.append(field)
@@ -491,7 +510,7 @@ def upsert_data(context, data_dict):
 
     if method not in _methods:
         raise ValidationError({
-            'method': [u'{0} is not defined'.format(method)]
+            'method': [u'"{0}" is not defined'.format(method)]
         })
 
     fields = _get_fields(context, data_dict)
@@ -631,14 +650,14 @@ def _validate_record(record, num, field_names):
     # check record for sanity
     if not isinstance(record, dict):
         raise ValidationError({
-            'records': [u'row {0} is not a json object'.format(num)]
+            'records': [u'row "{0}" is not a json object'.format(num)]
         })
     ## check for extra fields in data
     extra_keys = set(record.keys()) - set(field_names)
 
     if extra_keys:
         raise ValidationError({
-            'records': [u'row {0} has extra keys "{1}"'.format(
+            'records': [u'row "{0}" has extra keys "{1}"'.format(
                 num + 1,
                 ', '.join(list(extra_keys))
             )]
@@ -727,7 +746,7 @@ def _sort(context, data_dict, field_ids):
 
         if field not in field_ids:
             raise ValidationError({
-                'sort': [u'field {0} not it table'.format(
+                'sort': [u'field "{0}" not it table'.format(
                     unicode(field, 'utf-8'))]
             })
         if sort.lower() not in ('asc', 'desc'):
@@ -923,7 +942,7 @@ def create(context, data_dict):
         if ('duplicate key value violates unique constraint' in str(e)
                 or 'could not create unique index' in str(e)):
             raise ValidationError({
-                'constraints': ['Cannot insert records because of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
@@ -961,6 +980,16 @@ def upsert(context, data_dict):
         upsert_data(context, data_dict)
         trans.commit()
         return _unrename_json_field(data_dict)
+    except IntegrityError, e:
+        if 'duplicate key value violates unique constraint' in str(e):
+            raise ValidationError({
+                'constraints': ['Cannot insert records because of uniqueness constraint'],
+                'info': {
+                    'details': str(e)
+                }
+            })
+        else:
+            raise
     except Exception, e:
         trans.rollback()
         if 'due to statement timeout' in str(e):
@@ -986,7 +1015,7 @@ def delete(context, data_dict):
         ).fetchone()
         if not result:
             raise ValidationError({
-                'resource_id': [u'table for resource {0} does not exist'.format(
+                'resource_id': [u'table for resource "{0}" does not exist'.format(
                     data_dict['resource_id'])]
             })
         if not 'filters' in data_dict:
@@ -1022,7 +1051,7 @@ def search(context, data_dict):
         ).fetchone()
         if not result:
             raise ValidationError({
-                'resource_id': [u'table for resource {0} does not exist'.format(
+                'resource_id': [u'table for resource "{0}" does not exist'.format(
                     data_dict['resource_id'])]
             })
         return search_data(context, data_dict)
