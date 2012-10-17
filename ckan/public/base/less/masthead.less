@@ -153,10 +153,37 @@
   margin-right: -10px; // Pull nav in to the right.
 }
 
-.masthead .account .image {
-  position: absolute;
-  left: 20px;
-  top: 6px;
+.masthead .account {
+  .image {
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    padding-right: 10px;
+    opacity: 0.8;
+    img {
+      .border-radius(100px);
+      .box-shadow(0 -2px 4px rgba(0, 0, 0, 0.3))
+    }
+    i {
+      position: absolute;
+      top: 0;
+      left: 30px;
+      line-height: 25px;
+    }
+    &:hover {
+      opacity: 1;
+      i {
+        font-weight: normal;
+        text-decoration: none;
+      }
+    }
+  }
+  &.open .image {
+    opacity: 1;
+    img {
+      .box-shadow(0 -1px 2px rgba(0, 0, 0, 0.5))
+    }
+  }
 }
 
 .masthead .account .image img {
@@ -178,6 +205,20 @@
   font-size: 11px;
   clear: left;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.masthead .dropdown-menu {
+  min-width: 130px;
+  margin-top: -5px;
+  li a {
+    color: @layoutLinkColor;
+    i {
+      margin-right: 5px;
+    }
+    &:hover {
+      color: @mastheadLinkColor;
+    }
+  }
 }
 
 .masthead .site-search {

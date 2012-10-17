@@ -1188,6 +1188,41 @@ class PackageController(BaseController):
         url = h.url_for('datastore_read', id=id, qualified=True)
         return render('package/resource_api_data.html', {'datastore_root_url': url})
 
+    def follow(self, id):
+        '''Start following this dataset.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('follow_dataset')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(id))
+        except ValidationError as e:
+            error_message = (e.extra_msg or e.message or e.error_summary
+                    or e.error_dict)
+            h.flash_error(error_message)
+        except NotAuthorized as e:
+            h.flash_error(e.extra_msg)
+        h.redirect_to(controller='package', action='read', id=id)
+
+    def unfollow(self, id):
+        '''Stop following this dataset.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('unfollow_dataset')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(id))
+        except ValidationError as e:
+            error_message = (e.extra_msg or e.message or e.error_summary
+                    or e.error_dict)
+            h.flash_error(error_message)
+        except (NotFound, NotAuthorized) as e:
+            error_message = e.extra_msg or e.message
+            h.flash_error(error_message)
+        h.redirect_to(controller='package', action='read', id=id)
+
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}

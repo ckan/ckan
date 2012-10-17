@@ -893,51 +893,53 @@ def follow_user(context, data_dict):
     :rtype: dictionary
 
     '''
-    if not context.has_key('user'):
-        raise logic.NotAuthorized
+    if 'user' not in context:
+        raise logic.NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
     session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized
+        raise logic.NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema')
             or ckan.logic.schema.default_follow_user_schema())
 
-    data_dict, errors = _validate(data_dict, schema, context)
+    validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
     # Don't let a user follow herself.
-    if userobj.id == data_dict['id']:
+    if userobj.id == validated_data_dict['id']:
         message = _('You cannot follow yourself')
-        raise ValidationError({'message': message})
+        raise ValidationError({'message': message}, error_summary=message)
 
     # Don't let a user follow someone she is already following.
-    if model.UserFollowingUser.get(userobj.id, data_dict['id']) is not None:
+    if model.UserFollowingUser.is_following(userobj.id,
+            validated_data_dict['id']):
         message = _(
-                'You are already following {id}').format(id=data_dict['id'])
-        raise ValidationError({'message': message})
+                'You are already following {0}').format(data_dict['id'])
+        raise ValidationError({'message': message}, error_summary=message)
 
-    follower = model_save.user_following_user_dict_save(data_dict, context)
+    follower = model_save.user_following_user_dict_save(validated_data_dict,
+            context)
 
     activity_dict = {
             'user_id': userobj.id,
-            'object_id': data_dict['id'],
+            'object_id': validated_data_dict['id'],
             'activity_type': 'follow user',
             }
     activity_dict['data'] = {
             'user': ckan.lib.dictization.table_dictize(
-                model.User.get(data_dict['id']), context),
+                model.User.get(validated_data_dict['id']), context),
             }
     activity_create_context = {
         'model': model,
         'user': userobj,
-        'defer_commit':True,
+        'defer_commit': True,
         'session': session
     }
     logic.get_action('activity_create')(activity_create_context,
@@ -966,41 +968,44 @@ def follow_dataset(context, data_dict):
     '''
 
     if not context.has_key('user'):
-        raise logic.NotAuthorized
+        raise logic.NotAuthorized(
+                _("You must be logged in to follow a dataset."))
 
     model = context['model']
     session = context['session']
 
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise logic.NotAuthorized
+        raise logic.NotAuthorized(
+                _("You must be logged in to follow a dataset."))
 
     schema = (context.get('schema')
             or ckan.logic.schema.default_follow_dataset_schema())
 
-    data_dict, errors = _validate(data_dict, schema, context)
+    validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
 
     # Don't let a user follow a dataset she is already following.
-    if model.UserFollowingDataset.get(userobj.id, data_dict['id']) is not None:
+    if model.UserFollowingDataset.is_following(userobj.id,
+            validated_data_dict['id']):
         message = _(
-                'You are already following {id}').format(id=data_dict['id'])
-        raise ValidationError({'message': message})
+                'You are already following {0}').format(data_dict['id'])
+        raise ValidationError({'message': message}, error_summary=message)
 
-
-    follower = model_save.user_following_dataset_dict_save(data_dict, context)
+    follower = model_save.user_following_dataset_dict_save(
+            validated_data_dict, context)
 
     activity_dict = {
             'user_id': userobj.id,
-            'object_id': data_dict['id'],
+            'object_id': validated_data_dict['id'],
             'activity_type': 'follow dataset',
             }
     activity_dict['data'] = {
             'dataset': ckan.lib.dictization.table_dictize(
-                model.Package.get(data_dict['id']), context),
+                model.Package.get(validated_data_dict['id']), context),
             }
     activity_create_context = {
         'model': model,

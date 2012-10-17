@@ -1,23 +1,8 @@
-{% extends "page.html" %}
+{% extends "user/read.html" %}
 
 {% block subtitle %}{{ _('Followers') }}{% endblock %}
 
-{% block breadcrumb_content %}
-  <li>{{ h.nav_link(_('Home'), controller='user', action='me') }}</li>
-  <li class="active">{{ h.nav_link(_('Followers'), controller='user', action='followers', id="") }}</li>
-{% endblock %}
-
-{% block primary_content %}
-  <article class="module">
-    <div class="module-content">
-      <h1 class="page-heading">{{ _('{name}\'s Followers').format(name=c.user_dict.display_name) }}</h1>
-      <ul class="userlist">
-        {% for follower in c.followers %}
-          <li class="user">
-            {{ h.linked_user(follower['name'], maxlength=20) }}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </article>
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ _('Followers').format(name=c.user_dict.display_name) }}</h2>
+  {% snippet "user/snippets/followers.html", followers=c.followers %}
 {% endblock %}
