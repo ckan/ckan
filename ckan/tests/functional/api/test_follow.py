@@ -557,7 +557,7 @@ class TestFollowerDelete(object):
             params=params, extra_environ=extra_environ, status=404).json
         assert response['success'] == False
         assert response['error']['message'].startswith(
-                'Not found: Could not find follower ')
+                'Not found: You are not following ')
 
     def test_01_unfollow_dataset_not_exists(self):
         '''Test the error response when a user tries to unfollow a dataset that
@@ -572,7 +572,7 @@ class TestFollowerDelete(object):
             params=params, extra_environ=extra_environ, status=404).json
         assert response['success'] == False
         assert response['error']['message'].startswith(
-                'Not found: Could not find follower ')
+                'Not found: You are not following ')
 
     def test_01_unfollow_user_bad_apikey(self):
         '''Test the error response when a user tries to unfollow a user

@@ -132,12 +132,17 @@
 
 .resource-list {
   .unstyled;
+  margin: -10px -10px 10px -10px;
 }
 
 .resource-item {
   position: relative;
-  padding-left: 40px;
-  padding-right: 110px; // Should really use ems here.
+  padding: 10px 110px 10px 60px;
+  margin-bottom: 0px;
+  .border-radius(2px);
+  &:hover {
+    background-color: @layoutBackgroundColor;
+  }
 }
 
 .resource-item .heading {
@@ -148,18 +153,19 @@
 
 .resource-item .format-label {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 10px;
+  left: 10px;
 }
 
 .resource-item .description {
   font-size: 12px;
+  margin-bottom: 0;
 }
 
-.resource-item .btn {
+.resource-item .btn-group {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 13px;
+  right: 10px;
 }
 
 // Dataset Forms

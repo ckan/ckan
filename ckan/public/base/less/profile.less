@@ -1,85 +1,63 @@
+.profile {
+	.empty,
+	.dataset-list {
+		margin-bottom: 20px;
+	}
+}
+
 .profile-info {
-  .clearfix();
-  .border-radius(3px 3px 0 0);
-  border-bottom: 1px solid #ddd;
-  #gradient > .vertical(#fff, #f3f3f3);
-}
-
-.js .profile-info {
-  margin-bottom: 0;
-}
-
-.module > .profile-info {
-  position: relative;
-  padding-top: 25px;
-  padding-bottom: 25px;
-}
-
-.profile-info .media {
-  .makeColumn(5);
-  display: table; // Lets us align the text to the bottom.
-  margin-left: 0;
-}
-
-.profile-info .image {
-  max-height: initial;
-}
-
-.profile-info .description {
-  display: table-cell;
-  vertical-align: bottom;
-}
-
-.profile-info .heading {
-  font-size: 18px;
-}
-
-.profile-info .description :last-child {
-  margin-bottom: 0;
-}
-
-.profile-info .listing {
-  .makeColumn(3);
-  float: right;
-  font-size: 12px;
-}
-
-.profile-info .listing {
-  .makeColumn(3);
-  float: right;
-}
-
-.profile-info .nav-tabs {
-  position: absolute;
-  right: 0;
-  bottom: -1px;
-  margin-bottom: 0;
-}
-
-.profile .module-content {
-  padding-bottom: 20px;
-}
-
-.module-activity {
-  margin-top: 5px;
-}
-
-.activity {
-  padding: 15px 12px;
-  border-bottom: 1px solid @genericBorderColor;
-  margin: 0 -12px;
-}
-
-.activity:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.activity .actor img {
-  margin-top: -2px;
-  margin-right: 5px;
-}
-
-.js .tab-content .tab-heading {
-  display: none;
+	.module-content {
+		padding: 15px;
+	}
+	.avatar {
+		border: 1px solid #DDD;
+		padding: 5px;
+		.border-radius(2px);
+		img,
+		a {
+			display: block;
+		}
+	}
+	code {
+		font-weight: normal;
+		padding: 0;
+		margin: 0;
+	}
+	h1.heading {
+		margin: 10px 0 5px 0;
+		font-size: 21px;
+	}
+	.info {
+		margin-top: 15px;
+		padding-top: 10px;
+		border-top: 1px dotted #DDD;
+		dl dd {
+			margin-top: 3px;
+			margin-left: 0;
+		}
+	}
+	.nums {
+		.clearfix;
+		margin-top: 15px;
+		padding-top: 10px;
+		padding-bottom: 0;
+		border-top: 1px dotted #DDD;
+		dl {
+			float: left;
+			width: 33%;
+			margin: 5px 0 0 0;
+			color: @layoutTextColor;
+			dt {
+				display: block;
+				font-weight: 300;
+			}
+			dd {
+				display: block;
+				font-size: 30px;
+				font-weight: 700;
+				line-height: 1.2;
+				margin-left: 0;
+			}
+		}
+	}
 }
