@@ -6,17 +6,12 @@
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Users'), controller='user', action='index' %}</li>
-  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
-    <li class="active">{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
-  {% endwith %}
+  <li class="active">{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
 {% endblock %}
 
 {% block actions_content %}
-{% if c.is_myself %}
-  <li>{% link_for _('Dashboard'), controller='user', action='dashboard', class_='btn', icon='dashboard' %}</li>
-{% endif %}
 {% if h.check_access('user_update', user) %}
-  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
+  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}</li>
 {% endif %}
 {% if c.is_myself == false %}
   <li>{{ h.follow_button('user', user.id) }}</li>

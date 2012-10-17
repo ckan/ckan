@@ -16,14 +16,36 @@
     </hgroup>
     <div class="content">
       {% if c.userobj %}
-        <div class="account section avatar authed" data-me="{{ c.userobj.id }}">
-          <a href="{{ h.url_for(controller='user',action='me') }}" class="image">
+        <div class="account section avatar authed dropdown" data-me="{{ c.userobj.id }}">
+          <a href="#" class="image dropdown-toggle" data-toggle="dropdown">
             {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
+            <i class="icon-caret-down"></i>
           </a>
-          <span class="links">
-            <a href="{{ h.url_for(controller='user',action='me') }}">{{ c.user }}</a>
-            <a class="sub" href="{{ h.url_for('/user/_logout') }}">{{ _('Log out') }}</a>
-          </span>
+          <ul class="dropdown-menu pull-right" role="menu">
+            <li>
+              <a href="{{ h.url_for(controller='user', action='dashboard') }}">
+                <i class="icon-dashboard"></i> {{ _('Dashboard') }}
+              </a>
+            </li>
+            <li>
+              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}">
+                <i class="icon-user"></i>
+                {{ _('My Profile') }}
+              </a>
+            </li>
+            <li>
+              <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}">
+                <i class="icon-wrench"></i>
+                {{ _('Edit Profile') }}
+              </a>
+            </li>
+            <li>
+              <a href="{{ h.url_for('/user/_logout') }}">
+                <i class="icon-signout"></i>
+                {{ _('Log out') }}
+              </a>
+            </li>
+          </ul>
         </div>
       {% else %}
         <nav class="account section">

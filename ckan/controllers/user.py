@@ -315,7 +315,7 @@ class UserController(BaseController):
                             user_dict['display_name'])
             if came_from:
                 return h.redirect_to(str(came_from))
-            return self.me(locale=lang)
+            return self.dashboard()
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:

@@ -6,18 +6,17 @@
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Users'), controller='user', action='index' %}</li>
-  <li class="active"><a href="">{{ _('Your Dashboard') }}</a></li>
+  <li class="active"><a href="">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
   <li>{% link_for _('Add new dataset'), controller='package', action='new', class_="btn btn-primary icon-large", icon="plus" %}</li>
-  <li>{% link_for _('Your Profile'), controller='user', action='read', id=user.name, class_="btn icon-large", icon="user" %}</li>
 {% endblock %}
 
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h2 class="page-heading">{{ _('My Activity Stream') }} <small>{{ _('Updates from my network') }}</small></h2>
+      <h2 class="page-heading">{{ _('News feed') }} <small>{{ _('Updates from my network') }}</small></h2>
       {{ h.dashboard_activity_stream(c.user_dict['id']) }}
     </div>
   </article>
@@ -25,7 +24,7 @@
 
 {% block secondary_content %}
   <section class="module module-shallow module-narrow module-my-datasets">
-    <h2 class="module-heading"><i class="icon-"></i> {{ _('My datasets') }}</h2>
+    <h2 class="module-heading"><i class="icon-"></i> {{ _('My Datasets') }}</h2>
     {% if c.user_dict['datasets'] %}
       <nav>
         <ul class="unstyled nav nav-simple">
