@@ -4,5 +4,5 @@
 
 {% block primary_content_inner %}
   <h2 class="hide-heading">{{ _('Followers').format(name=c.user_dict.display_name) }}</h2>
-  {% snippet "user/snippets/followers.html", followers=c.user_dict.num_followers %}
+  {% snippet "user/snippets/followers.html", followers=c.followers %}
 {% endblock %}
