@@ -1,8 +1,12 @@
 <div class="module-content">
-  <div class="alert alert-block fade in">
-    <button type="button" class="close" data-dismiss="alert">×</button>
-    <h4>{{ _('This resource cannot be previewed.') }}</h4>
-    {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
-    {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+  <div class="alert alert-block">
+    <h4 class="pull-left">{{ _('This resource cannot be previewed.') }} </h4>
+    <button class="btn btn-link btn-mini" data-toggle="collapse" data-target="#demo">
+    	<i class="icon-info-sign"></i> More details...
+    </button>
+    <div id="demo" class="collapse">
+	    {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
+	    {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+  	</div>
   </div>
 </div>
