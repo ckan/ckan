@@ -14,13 +14,12 @@
   {# NOTE: Not implemented in stage 1 #}
   {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}</li>
+    <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
   <li>{{ h.follow_button('dataset', pkg.id) }}</li>
 {% endblock %}
 
 {% block primary_content %}
-
   {% block package_revision_info %}
     {% if c.pkg_revision_id %}
       <div class="module info">

@@ -4,7 +4,16 @@
 # The %(here)s variable will be replaced with the parent directory of this file
 #
 [DEFAULT]
-debug = true
+
+# Change debug to true when doing CKAN development, it enables Pylons'
+# interactive debugging tool, makes Fanstatic serve unminified JS and CSS
+# files, and enables CKAN templates' debugging features.
+#   
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# Debug mode will enable the interactive debugging tool, allowing ANYONE to
+# execute malicious code after an exception is raised.
+debug = false
+
 email_to = you@yourdomain.com
 smtp_server = localhost
 error_email_from = paste@localhost
@@ -31,11 +40,6 @@ ckan.plugins = stats
 # here:
 #beaker.cache.data_dir = %(here)s/data/cache
 #beaker.session.data_dir = %(here)s/data/sessions
-
-# WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
-# Debug mode will enable the interactive debugging tool, allowing ANYONE to
-# execute malicious code after an exception is raised.
-set debug = false
 
 # Specify the database for SQLAlchemy to use:
 # * Postgres is currently required for a production CKAN deployment
