@@ -115,13 +115,11 @@ class UserController(BaseController):
 
     def me(self, locale=None):
         if not c.user:
-            h.redirect_to(locale=locale, controller='user',
-                          action='login', id=None)
+            h.redirect_to(locale=locale, controller='user', action='login',
+                    id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        if asbool(config.get('ckan.legacy_templates', 'false')):
-            h.redirect_to(locale=locale, controller='user',
-                          action='dashboard', id=user_ref)
-        return self.read(id=c.username)
+        h.redirect_to(locale=locale, controller='user', action='dashboard',
+                id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -315,7 +313,7 @@ class UserController(BaseController):
                             user_dict['display_name'])
             if came_from:
                 return h.redirect_to(str(came_from))
-            return self.dashboard()
+            return self.me()
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
