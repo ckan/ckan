@@ -40,7 +40,7 @@ We also need nodewatch.
 
 ::
 
-    $ npm install less@1.3.0 nodewatch
+    $ npm install less nodewatch
 
 A watcher script can then be used to compile the CSS whenever the LESS
 changes:
