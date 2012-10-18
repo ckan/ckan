@@ -1,20 +1,10 @@
-{% extends "page.html" %}
+{% extends "package/read.html" %}
 
 {% block subtitle %}{{ _('Followers') }} - {{ c.pkg_dict.title or c.pkg_dict.name }}{% endblock %}
 
-{% block primary_content %}
-  <article class="module">
-    <div class="module-content">
-      <h1 class="page-heading">{{ _('Followers') }}</h1>
-      {% if c.followers %}
-        <ul class="userlist">
-          {% for follower in c.followers %}
-            <li>{{ h.linked_user(follower['name'], maxlength=20) }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="empty">{{ _('No followers') }}</p>
-      {% endif %}
-    </div>
-  </article>
+{% block package_content %}
+  <section class="module-content">
+    <h1 class="hide-heading">{{ _('Followers') }}</h1>
+    {% snippet "user/snippets/followers.html", followers=c.followers %}
+  </section>
 {% endblock %}

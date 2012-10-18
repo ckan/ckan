@@ -2,26 +2,40 @@ Resources
 =========
 
 .. Note::
-    Resources are only supported in the new Jinja2 style templates in Ckan 2.0
+    Resources are only supported in the new Jinja2 style templates in CKAN 2.0
     and above.
 
 Resources are .css and .js files that may be included in an html page.
-Resources are included in the page by using the
-``{% resource [full resource name] %}`` tag. Resources are grouped into libraries
-and the  full resource name consists of <library name>/<resource name>.  It is
-important to note that these resources will be added to the page as defined by
-the resources not in the location of the ``{% resource %}`` tag.  Duplicate
-resources will not be added and any dependencies will be included as well as
-the resources adding in the correct order (see below for details).
+Resources are included in the page by using the ``{% resource %}`` tag::
 
-Libraries can be added to Ckan from extensions using the toolkit helper
-function ``add_resource(path, name)`` where path is the path to the resource
-directory relative to the file calling the function and name is the name of the
-library.  Resources will the be created for the library for any .js and .css
-files found in the directory or it's subfolders. The resource name being the
-name of the file including any path needed to get to it from the resource
-directory.  For greater control of the creation a resource.config file can be
-created and placed in the resource directory (see below for details).
+ {% resource 'library_name/resource_name' %}
+
+Resources are grouped into libraries and the full resource name consists of
+``<library name>/<resource name>``. For example::
+
+ {% resource 'my_fanstatic_library/my_javascript_file.js' %}
+
+It is important to note that these resources will be added to the page as
+defined by the resources, not in the location of the ``{% resource %}`` tag.
+Duplicate resources will not be added and any dependencies will be included as
+well as the resources, all in the correct order (see below for details).
+
+Libraries can be added to CKAN from extensions using the toolkit helper
+function ``add_resource(path, name)``::
+
+ ckan.plugins.toolkit.add_resource('path/to/my/fanstatic/library/dir',
+        'my_fanstatic_library')
+
+The first argument, ``path``, is the path to the resource directory relative to
+the file calling the function. The second argument, ``name`` is the name of the
+library (to be used by templates when they want to include a resource from the
+library using the ``{% resource %}`` tag as shown above).
+
+Resources will be created for the library for any .js and .css files found
+in the directory or it's subfolders. The resource name being the name of the
+file including any path needed to get to it from the resource directory.  For
+greater control of the creation a ``resource.config`` file can be created and
+placed in the resource directory (see below for details).
 
 In debug mode resources are served un-minified and unbundled (each resource is
 served separately). In non-debug mode the files are served minified and bundled
@@ -144,7 +158,7 @@ helpful in some situations but is probably best avoided if possible.
 
 Some times one resource depends on another eg many scripts need jquery.js
 included in the page before them. External resource libraries will
-automatically depend on the core ckan JavaScript modules so do not need to
+automatically depend on the core CKAN JavaScript modules so do not need to
 specify this.
 
 [groups]
