@@ -64,7 +64,7 @@ cp ${CKAN_PATH}/build/buildkit/env/build/solr/dist/buildkit/*.deb ${CKAN_PATH}/d
 
 # Build python-licenses
 ${CKAN_PATH}/build/buildkit/env/bin/pip install --download-cache ${CKAN_PATH}/build/buildkit/env/cache --no-install --upgrade "licenses==0.6.1" 
-buildkit pkg python --deb -p $DEPS_PACKAGE_VERSION --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" ${CKAN_PATH}/build/buildkit/env/build/licenses
+buildkit pkg python --deb -p $DEPS_PACKAGE_VERSION --author-email="$EMAIL" --author-name="$NAME" --packager-email="$EMAIL" --packager-name="$NAME" --ubuntu-release "$UBUNTU_RELEASE" ${CKAN_PATH}/build/buildkit/env/build/licenses
 cp ${CKAN_PATH}/build/buildkit/env/build/licenses/dist/buildkit/*.deb ${CKAN_PATH}/dist/buildkit/
 echo "done."
 
