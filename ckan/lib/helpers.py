@@ -1265,17 +1265,17 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def _can_be_previewed(resource, is_local):
+def _can_be_previewed(resource, is_same_domain):
     '''
     Determines whether there is an extension that can preview the resource.
 
     :param resource: a resource dictionary
-    :param is_local: True if the resource is on the
+    :param is_same_domain: True if the resource is on the
                     same domain (same url as CKAN itself)
     '''
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
     for plugin in plugins:
-        if plugin.can_preview(resource) and (is_local or not plugin.requires_same_orign(resource)):
+        if plugin.can_preview(resource) and (is_same_domain or not plugin.requires_same_orign(resource)):
             return True
     return False
 
@@ -1298,15 +1298,17 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    # get the url from the request
+    # compare CKAN domain and resource URL
     import ckan.plugins.toolkit as toolkit
     ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
+    request_protocol = toolkit.request.environ['SERVER_PROTOCOL'].lower()
 
-    resource_domain = urlparse.urlparse(resource['url']).hostname.lower()
+    parsed = urlparse.urlparse(resource['url'])
+    resource_domain = (parsed.hostname + ':' + str(parsed.port)).lower()
 
-    is_local = ckan_domain == resource_domain
+    is_same_domain = ckan_domain == resource_domain and parsed.scheme.lower() in request_protocol
 
-    if _can_be_previewed(resource, is_local):
+    if _can_be_previewed(resource, is_same_domain):
         url = url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in DIRECT_EMBEDS:
@@ -1315,7 +1317,7 @@ def resource_preview(resource, pkg_id):
     elif format_lower in LOADABLE:
         url = resource['url']
     else:
-        log.info('No preview handler for resource type {0}'.format(resource['format']))
+        log.info('No preview handler for resource type {0}'.format(format_lower))
         return snippet(
             "dataviewer/snippets/no_preview.html",
             resource_type=format_lower
