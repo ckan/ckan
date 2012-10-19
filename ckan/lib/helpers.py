@@ -1297,7 +1297,7 @@ def resource_preview(resource, pkg_id):
         directly = True
         url = resource['url']
     else:
-        log.info('no handler for {}'.format(resource['format']))
+        log.info('No preview handler for resource type {0}'.format(resource['format']))
         return snippet(
             "dataviewer/snippets/no_preview.html",
             resource_type=format_lower
