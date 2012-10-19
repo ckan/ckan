@@ -36,4 +36,4 @@ class JsonPreview(p.SingletonPlugin):
         return format_lower in ['jsonp', 'json']
 
     def preview_template(self, context):
-        return 'dataviewer/json.html'
+        return 'json.html'

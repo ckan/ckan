@@ -36,4 +36,4 @@ class PdfPreview(p.SingletonPlugin):
         return format_lower in self.PDF
 
     def preview_template(self, context):
-        return 'dataviewer/pdf.html'
+        return 'pdf.html'
