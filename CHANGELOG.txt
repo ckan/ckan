@@ -1,6 +1,20 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.7.2 2012-10-19
+=================
+
+Minor:
+* Documentation enhancements regarding file uploads
+
+Bug fixes:
+* Fixes for lincences i18n
+* Remove sensitive data from user dict (#2784)
+* Fix bug in feeds controller (#2869)
+* Show dataset author and maintainer names even if they have no emails
+* Fix URLs for some Amazon buckets
+* Other minor fixes
+
 v1.7.1 2012-06-20
 =================
 
