@@ -13,6 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer', 'IAuthorizer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IResourcePreview',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -189,6 +190,29 @@ class IResourceUrlChange(Interface):
 
     def notify(self, resource):
         pass
+
+
+class IResourcePreview(Interface):
+    """
+    Hook into the resource previews in helpers.py. This lets you
+    create custom previews for example for xml files.
+    """
+
+    def can_preview(self, resource):
+        '''
+        Return True if the extension can preview the resource.
+        '''
+
+    def setup_template_variables(context, c):
+        '''
+        Add variables to c just prior to the template being rendered.
+        '''
+
+    def preview_template(self, context):
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page
+        '''
 
 
 class ITagController(Interface):

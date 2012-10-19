@@ -33,6 +33,7 @@ import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as ckanplugins
 
 log = logging.getLogger(__name__)
 
@@ -1315,9 +1316,13 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_datapreview(self, id, resource_id, preview_type):
+    def resource_datapreview(self, id, resource_id):
         '''
         Embeded page for a resource data-preview.
+
+        Depending on the type, different previews are loaded.
+        This could be an img tag where the image is loaded directly or an iframe that
+        embeds a webpage, recline or a pdf preview.
         '''
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -1327,8 +1332,19 @@ class PackageController(BaseController):
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
             c.resource_json = json.dumps(c.resource)
+
+            plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
+            plugins_that_can_preview = [p for p in plugins if p.can_preview(c.resource)]
+            if len(plugins_that_can_preview) == 0:
+                abort(409, _('No preview defined.'))
+            if len(plugins_that_can_preview) > 1:
+                log.warn('Multiple previews are possible. {0}'.format(plugins_that_can_preview))
+
+            plugin = plugins_that_can_preview[0]
+            plugin.setup_template_variables(context, c)
+
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/{type}.html'.format(type=preview_type))
+        return render(plugin.preview_template(context))

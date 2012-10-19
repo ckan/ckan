@@ -215,7 +215,7 @@ def make_map():
                   action='resource_embedded_dataviewer')
         m.connect('/dataset/{id}/resource/{resource_id}/viewer',
                   action='resource_embedded_dataviewer', width="960", height="800")
-        m.connect('/dataset/{id}/resource/{resource_id}/preview/{preview_type}',
+        m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_datapreview')
 
     # group

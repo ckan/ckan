@@ -1,4 +1,4 @@
-{% extends "dataviewer/base.html" %}
+{% ckan_extends %}
 
 {% block page %}
 	<div>
@@ -12,5 +12,5 @@
 
 {% block scripts %}
   {{ super() }}
-  {% resource 'datapreview/json' %}
+  {% resource 'ckanext-jsonpreview/json' %}
 {% endblock %}
