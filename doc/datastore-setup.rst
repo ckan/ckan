@@ -2,7 +2,6 @@
 Setting up the DataStore
 ========================
 
-.. warning:: Make sure that you follow the steps below and make sure that the settings are correct. Wrong settings could lead to serious security issues.
 
 .. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on versions prior to 9.0 (for example 8.4). However, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`legacy_mode` for more details.
 
@@ -23,6 +22,8 @@ Since the DataStore is an optional extension, it has to be enabled separately. T
 
 2. Set-up the database
 ======================
+
+.. note:: Make sure that you follow the steps below to set up the permissions correctly. Wrong settings could lead to serious security issues.
 
 The DataStore requires a separate PostgreSQL database to save the resources to.
 
