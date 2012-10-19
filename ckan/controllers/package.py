@@ -1324,8 +1324,11 @@ class PackageController(BaseController):
         This could be an img tag where the image is loaded directly or an iframe that
         embeds a webpage, recline or a pdf preview.
         '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author
+        }
 
         try:
             c.resource = get_action('resource_show')(context,
@@ -1341,7 +1344,7 @@ class PackageController(BaseController):
                 log.warn('Multiple previews are possible. {0}'.format(plugins_that_can_preview))
 
             plugin = plugins_that_can_preview[0]
-            plugin.setup_template_variables(context, c)
+            plugin.setup_template_variables(context, {'resource': c.resource, 'package': c.package})
 
         except NotFound:
             abort(404, _('Resource not found'))

@@ -209,10 +209,9 @@ class IResourcePreview(Interface):
         a different domain because of the same origin policy.
         '''
 
-    def setup_template_variables(self, context, c):
+    def setup_template_variables(self, context, data_dict):
         '''
         Add variables to c just prior to the template being rendered.
-        ``resource``, ``package`` and ``resource_json`` are already defined.
         '''
 
     def preview_template(self, context):
