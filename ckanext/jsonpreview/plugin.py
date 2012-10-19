@@ -23,14 +23,17 @@ class JsonPreview(p.SingletonPlugin):
         '''
         toolkit.add_public_directory(config, 'theme/public')
         toolkit.add_template_directory(config, 'theme/templates')
-        toolkit.add_resource('jsonpreview', 'theme/public/resource.config')
+        toolkit.add_resource('theme/public', 'ckanext-jsonpreview')
+
+    def requires_same_orign(self, resource):
+        ''' json resources have to be from the same origin. jsonp resources don't
+        '''
+        format_lower = resource['format'].lower()
+        return format_lower in ['json']
 
     def can_preview(self, resource):
         format_lower = resource['format'].lower()
-        return format_lower in ['jsonp']
-
-    def setup_template_variables(self, context, c):
-        pass
+        return format_lower in ['jsonp', 'json']
 
     def preview_template(self, context):
         return 'dataviewer/base.html'

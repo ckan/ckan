@@ -1336,7 +1336,7 @@ class PackageController(BaseController):
             plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
             plugins_that_can_preview = [p for p in plugins if p.can_preview(c.resource)]
             if len(plugins_that_can_preview) == 0:
-                abort(409, _('No preview defined.'))
+                abort(409, _('No preview has been defined.'))
             if len(plugins_that_can_preview) > 1:
                 log.warn('Multiple previews are possible. {0}'.format(plugins_that_can_preview))
 

@@ -1267,7 +1267,7 @@ def format_resource_items(items):
 def _can_be_previewed(resource):
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
     for plugin in plugins:
-        if plugin.can_preview(resource):
+        if plugin.can_preview(resource) and plugin.requires_same_orign(resource) == False:
             return True
     return False
 
@@ -1282,10 +1282,10 @@ def resource_preview(resource, pkg_id):
     '''
 
     DIRECT_EMBEDS = ['png', 'jpg', 'gif']
-    '''
     LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
                 'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
                 'txt', 'json']
+    '''
     PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
     '''
 
@@ -1306,12 +1306,14 @@ def resource_preview(resource, pkg_id):
     elif format_lower in LOADABLE:
         url = resource['url']'''
 
-    if format_lower in DIRECT_EMBEDS:
-        directly = True
-        url = resource['url']
-    elif _can_be_previewed(resource):
+    if _can_be_previewed(resource):
         url = url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
+    elif format_lower in DIRECT_EMBEDS:
+        directly = True
+        url = resource['url']
+    elif format_lower in LOADABLE:
+        url = resource['url']
     else:
         log.info('No preview handler for resource type {0}'.format(resource['format']))
         return snippet(

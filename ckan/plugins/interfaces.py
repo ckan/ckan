@@ -203,15 +203,22 @@ class IResourcePreview(Interface):
         Return True if the extension can preview the resource.
         '''
 
+    def requires_same_orign(self, resource):
+        '''
+        Return True if the extension cannot preview the resource from
+        a different domain because of the same origin policy.
+        '''
+
     def setup_template_variables(context, c):
         '''
         Add variables to c just prior to the template being rendered.
+        ``resource``, ``package`` and ``resource_json`` are already defined.
         '''
 
     def preview_template(self, context):
         '''
         Returns a string representing the location of the template to be
-        rendered for the read page
+        rendered for the read page.
         '''
 
 
