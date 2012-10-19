@@ -13,6 +13,7 @@ import urllib
 import pprint
 import copy
 from urllib import urlencode
+import urlparse
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -1265,6 +1266,13 @@ def format_resource_items(items):
 
 
 def _can_be_previewed(resource, is_local):
+    '''
+    Determines whether there is an extension that can preview the resource.
+
+    :param resource: a resource dictionary
+    :param is_local: True if the resource is on the
+                    same domain (same url as CKAN itself)
+    '''
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
     for plugin in plugins:
         if plugin.can_preview(resource) and (is_local or not plugin.requires_same_orign(resource)):
@@ -1274,11 +1282,11 @@ def _can_be_previewed(resource, is_local):
 
 def resource_preview(resource, pkg_id):
     '''
-    Returns a rendered snippet for a embeded resource preview.
+    Returns a rendered snippet for a embedded resource preview.
 
     Depending on the type, different previews are loaded.
     This could be an img tag where the image is loaded directly or an iframe that
-    embeds a webpage, recline or a pdf preview.
+    embeds a web page, recline or a pdf preview.
     '''
 
     DIRECT_EMBEDS = ['png', 'jpg', 'gif']
@@ -1290,8 +1298,13 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    # TODO: determine
-    is_local = True
+    # get the url from the request
+    import ckan.plugins.toolkit as toolkit
+    ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
+
+    resource_domain = urlparse.urlparse(resource['url']).hostname.lower()
+
+    is_local = ckan_domain == resource_domain
 
     if _can_be_previewed(resource, is_local):
         url = url = url_for(controller='package', action='resource_datapreview',
