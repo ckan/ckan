@@ -6,7 +6,7 @@ from migrate import *
 import migrate.changeset
 from migrate.changeset.constraint import ForeignKeyConstraint, PrimaryKeyConstraint
 
-metadata = MetaData()
+metadata = None
 
 def make_uuid():
     return unicode(uuid.uuid4())
@@ -16,6 +16,8 @@ def make_uuid():
 # 3 create foreign key constraints (using cascade!)
 # 4 create uuids for revisions (auto cascades elsewhere!)
 def upgrade(migrate_engine):
+    global metadata
+    metadata = MetaData()
     metadata.bind = migrate_engine
     dropped_fk_constraints = drop_constraints_and_alter_types()
     upgrade2(migrate_engine, dropped_fk_constraints)
@@ -65,7 +67,6 @@ def upgrade2(migrate_engine, dropped_fk_constraints):
             ADD CONSTRAINT %(fkeyname)s
             FOREIGN KEY (%(col_name)s)
             REFERENCES revision (id)
-            ON UPDATE CASCADE
             ''' % {'table':table_name, 'fkeyname':constraint_name,
                     'col_name':constraint_columns[0] }
         migrate_engine.execute(oursql)

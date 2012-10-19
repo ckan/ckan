@@ -1,0 +1,112 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  py:strip=""
+  >
+  <xi:include href="../_util.html" />
+
+  <div id="dataset" class="dataset">
+    <!-- Overview Section -->
+    <div id="dataset-overview">
+
+      <!-- Description -->
+      <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+        <div id="notes-extract">
+          ${c.pkg_notes_formatted}
+        </div>
+        <div id="notes-remainder"></div>
+        <div id="notes-toggle" style="display: none;">
+          <button class="more btn"><img src="/images/chevron-down.png"/></button>
+          <button class="less btn" style="display: none;"><img src="/images/chevron-up.png"/></button>
+        </div>
+      </div>
+
+      <!-- Resources -->
+      <div id="dataset-resources" class="resources subsection">
+        <h3>Resources
+        <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+          ${h.subnav_link(_('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
+        </py:if></h3>
+        <ul class="resource-list">
+          <py:for each="res in c.pkg_dict.get('resources', [])">
+          <li>
+            <a href="${h.url_for(controller='package', action='resource_read', id=c.pkg_dict['name'], resource_id=res['id'])}">
+              ${h.resource_icon(res)}
+              ${h.resource_display_name(res)}
+              <span py:if="res.get('format')" class="format-box" property="dc:format">${res.get('format')}</span>
+            </a>
+            </li>
+          </py:for>
+        </ul>
+        <py:if test="not len(c.pkg_dict.get('resources', []))">
+          (none)
+        </py:if>
+      </div>
+
+    </div>
+
+    <!-- Dataset Information Section -->
+    <h3>Additional Information
+      <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
+        ${h.subnav_link(_('(settings)'), controller='package', action='edit', id=c.pkg.name)}
+      </py:if></h3>
+    <div id="dataset-information">
+    <table class="table table-striped table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr py:if="c.pkg.url">
+          <td class="dataset-label">Source</td>
+          <td class="dataset-details" property="foaf:homepage">${c.pkg_url_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg_author_link">
+          <td class="dataset-label">Author</td>
+          <td class="dataset-details" property="dc:creator">${c.pkg_author_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg_maintainer_link">
+          <td class="dataset-label">Maintainer</td>
+          <td class="dataset-details" property="dc:contributor">${c.pkg_maintainer_link}</td>
+        </tr>
+
+        <tr py:if="c.pkg.version">
+          <td class="dataset-label">Version</td>
+          <td class="dataset-details">${c.pkg.version}</td>
+        </tr>
+
+        <tr py:if="c.eu_country">
+          <td class="dataset-label">Country</td>
+          <td class="dataset-details">${h.code_to_country(c.eu_country)}</td>
+        </tr>
+
+        <tr py:if="h.check_access('package_update',{'id':c.pkg.id})">
+          <td class="dataset-label">State</td>
+          <td class="dataset-details">${c.pkg.state}</td>
+        </tr>
+
+        <tr py:if="c.harvest_catalogue_name">
+          <td class="dataset-label">Harvest Source</td>
+          <td class="dataset-details" i18n:msg="harvest_catalogue_name">
+            <a href="${c.harvest_dataset_url}">Dataset page</a> on 
+            <a href="${c.harvest_catalogue_url}">${c.harvest_catalogue_name}</a>
+          </td>
+        </tr>
+
+        <tr py:for="i, (key, value) in enumerate(c.pkg_extras)"
+          rel="dc:relation" resource="_:extra${i}">
+          <td class="dataset-label" property="rdfs:label">${_(key)}</td>
+          <td class="dataset-details" property="rdf:value">${value}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+  </div> <!-- /dataset -->
+
+</html>

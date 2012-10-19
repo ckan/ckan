@@ -1,4 +1,5 @@
 import re
+import logging
 
 from formalchemy import helpers as fa_h
 import formalchemy
@@ -13,6 +14,9 @@ import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.field_types as field_types
 import ckan.misc
+import ckan.lib.dictization.model_save as model_save
+
+log = logging.getLogger(__name__)
 
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, field=None):
@@ -30,15 +34,20 @@ def package_exists(val):
 
 def package_name_validator(val, field=None):
     name_validator(val, field)
-    # we disable autoflush here since may get used in package preview
+    # we disable autoflush here since may get used in dataset preview
     pkgs = model.Session.query(model.Package).autoflush(False).filter_by(name=val)
     for pkg in pkgs:
         if pkg != field.parent.model:
-            raise formalchemy.ValidationError(_('Package name already exists in database'))
+            raise formalchemy.ValidationError(_('Dataset name already exists in database'))
+
+def group_exists(val):
+    if model.Session.query(model.Group).autoflush(False).filter_by(name=val).count():
+        return True
+    return False
 
 def group_name_validator(val, field=None):
     name_validator(val, field)
-    # we disable autoflush here since may get used in package preview
+    # we disable autoflush here since may get used in dataset preview
     groups = model.Session.query(model.Group).autoflush(False).filter_by(name=val)
     for group in groups:
         if group != field.parent.model:
@@ -164,6 +173,29 @@ class TextExtraField(RegExValidatingField):
     class TextExtraRenderer(TextExtraRenderer):
         pass
 
+class TextAreaExtraField(RegExValidatingField):
+    '''A form field for basic text in an "extras" field.'''
+    def get_configured(self):
+        field = self.TextAreaExtraField(self.name).with_renderer(self.TextAreaRenderer, **self.kwargs)
+        return RegExValidatingField.get_configured(self, field)
+
+    class TextAreaExtraField(formalchemy.Field):
+        def __init__(self, *args, **kwargs):
+            super(self.__class__, self).__init__(*args, **kwargs)
+
+        @property
+        def raw_value(self):
+            return self.model.extras.get(self.name)
+            
+        def sync(self):
+            if not self.is_readonly():
+                pkg = self.model
+                val = self._deserialize() or u''
+                pkg.extras[self.name] = val
+
+    class TextAreaRenderer(TextAreaRenderer):
+        pass
+
 class DateExtraField(ConfiguredField):
     '''A form field for DateType data stored in an 'extra' field.'''
     def get_configured(self):
@@ -243,7 +275,7 @@ class DateRangeExtraField(ConfiguredField):
 
         def _serialized_value(self):
             # interpret params like this:
-            # 'Package--temporal_coverage-from', u'4/12/2009'
+            # 'Dataset--temporal_coverage-from', u'4/12/2009'
             param_val_from = self.params.get(self.name + '-from', u'')
             param_val_to = self.params.get(self.name + '-to', u'')
             return param_val_from, param_val_to
@@ -304,7 +336,7 @@ class TextRangeExtraField(RegExRangeValidatingField):
             return self._serialized_value()
 
 class ResourcesField(ConfiguredField):
-    '''A form field for multiple package resources.'''
+    '''A form field for multiple dataset resources.'''
 
     def __init__(self, name, hidden_label=False, fields_required=None):
         super(ResourcesField, self).__init__(name)
@@ -316,7 +348,7 @@ class ResourcesField(ConfiguredField):
         resources_data = val
         assert isinstance(resources_data, list)
         not_nothing_regex = re.compile('\S')
-        errormsg = _('Package resource(s) incomplete.')
+        errormsg = _('Dataset resource(s) incomplete.')
         not_nothing_validator = formalchemy.validators.regex(not_nothing_regex,
                                                              errormsg)
         for resource_data in resources_data:
@@ -362,42 +394,48 @@ class ResourcesField(ConfiguredField):
             c.resources = c.resources[:]
             c.resources.extend([None])
             c.id = self.name
-            c.columns = model.PackageResource.get_columns()
+            c.columns = model.Resource.get_columns()
             c.field = self.field
             c.fieldset = self.field.parent
             return render('package/form_resources.html')            
 
         def stringify_value(self, v):
             # actually returns dict here for _value
-            # multiple=True means v is a PackageResource
+            # multiple=True means v is a Resource
             res_dict = {}
             if v:
-                assert isinstance(v, model.PackageResource)
-                for col in model.PackageResource.get_columns() + ['id']:
+                assert isinstance(v, model.Resource)
+                for col in model.Resource.get_columns() + ['id']:
                     res_dict[col] = getattr(v, col)
             return res_dict
 
         def _serialized_value(self):
             package = self.field.parent.model
-            params = dict(self.params)
+            params = self.params
             new_resources = []
             rest_key = self.name
 
             # REST param format
-            # e.g. 'Package-1-resources': [{u'url':u'http://ww...
-            if params.has_key(rest_key) and isinstance(params[rest_key], (list, tuple)):
-                new_resources = params[rest_key][:] # copy, so don't edit orig
+            # e.g. 'Dataset-1-resources': [{u'url':u'http://ww...
+            if params.has_key(rest_key) and any(params.getall(rest_key)):
+                new_resources = params.getall(rest_key)[:] # copy, so don't edit orig
 
             # formalchemy form param format
-            # e.g. 'Package-1-resources-0-url': u'http://ww...'
+            # e.g. 'Dataset-1-resources-0-url': u'http://ww...'
             row = 0
+            # The base columns historically defaulted to empty strings
+            # not None (Null). This is why they are seperate here.
+            base_columns = ['url', 'format', 'description', 'hash', 'id']
             while True:
                 if not params.has_key('%s-%i-url' % (self.name, row)):
                     break
                 new_resource = {}
                 blank_row = True
-                for col in model.PackageResource.get_columns() + ['id']:
-                    value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                for col in model.Resource.get_columns() + ['id']:
+                    if col in base_columns:
+                        value = params.get('%s-%i-%s' % (self.name, row, col), u'')
+                    else:
+                        value = params.get('%s-%i-%s' % (self.name, row, col))
                     new_resource[col] = value
                     if col != 'id' and value:
                         blank_row = False
@@ -414,16 +452,12 @@ class TagField(ConfiguredField):
     class TagField(formalchemy.Field):
         @property
         def raw_value(self):
-            tag_objects = self.model.tags
+            tag_objects = self.model.get_tags()
             tag_names = [tag.name for tag in tag_objects]
             return tag_names
         
         def sync(self):
             if not self.is_readonly():
-                # Note: You might think that you could just assign
-                # self.model.tags with tag objects, but the model 
-                # (add_stateful_versioned_m2m) doesn't support this -
-                # you must edit each PackageTag individually.
                 self._update_tags()
 
         def _update_tags(self):
@@ -444,10 +478,11 @@ class TagField(ConfiguredField):
 
     class TagEditRenderer(formalchemy.fields.FieldRenderer):
         def render(self, **kwargs):
-            kwargs['value'] = ' '.join(self.value)
+            kwargs['value'] = ', '.join(self.value)
             kwargs['size'] = 60
             api_url = config.get('ckan.api_url', '/').rstrip('/')
-            tagcomplete_url = api_url+h.url_for(controller='apiv2/package', action='autocomplete', id=None)
+            tagcomplete_url = api_url + h.url_for(controller='api',
+                    action='tag_autocomplete', id=None, ver=2)
             kwargs['data-tagcomplete-url'] = tagcomplete_url
             kwargs['data-tagcomplete-queryparam'] = 'incomplete'
             kwargs['class'] = 'long tagComplete'
@@ -457,7 +492,7 @@ class TagField(ConfiguredField):
         def _tag_links(self):
             tags = self.value
             tag_links = [h.link_to(tagname, h.url_for(controller='tag', action='read', id=tagname)) for tagname in tags]
-            return literal(' '.join(tag_links))
+            return literal(', '.join(tag_links))
 
         def render_readonly(self, **kwargs):
             tag_links = self._tag_links()
@@ -466,24 +501,32 @@ class TagField(ConfiguredField):
         def _serialized_value(self):
             # despite being a collection, there is only one field to get
             # the values from
-            tags_as_string = self.params.getone(self.name)
-            tags = tags_as_string.replace(',', ' ').lower().split()
+            tags_as_string = self.params.getone(self.name).strip()
+            if tags_as_string == "":
+                return []
+            tags = map(lambda s: s.strip(), tags_as_string.split(','))
             return tags
             
-    tagname_match = re.compile('[\w\-_.]*$', re.UNICODE)
-    tagname_uppercase = re.compile('[A-Z]')
+    tagname_match = re.compile('[^"]*$') # already split on commas
     def tag_name_validator(self, val, field):
         for tag in val:
+        
+            # formalchemy deserializes an empty string into None.
+            # This happens if the tagstring gets split on commas, and
+            # there's an empty string in the resulting list.
+            # e.g. "tag1,,tag2" ; "  ,tag1" and "tag1," will all result
+            # in an empty tag name.
+            if tag is None:
+                tag = u'' # let the minimum length validator take care of it.
+
             min_length = 2
             if len(tag) < min_length:
                 raise formalchemy.ValidationError(_('Tag "%s" length is less than minimum %s') % (tag, min_length))
             if not self.tagname_match.match(tag):
-                raise formalchemy.ValidationError(_('Tag "%s" must be alphanumeric characters or symbols: -_.') % (tag))
-            if self.tagname_uppercase.search(tag):
-                raise formalchemy.ValidationError(_('Tag "%s" must not be uppercase' % (tag)))
+                raise formalchemy.ValidationError(_('Tag "%s" must not contain any quotation marks: "') % (tag))
 
 class ExtrasField(ConfiguredField):
-    '''A form field for arbitrary "extras" package data.'''
+    '''A form field for arbitrary "extras" dataset data.'''
     def __init__(self, name, hidden_label=False):
         super(ExtrasField, self).__init__(name)
         self._hidden_label = hidden_label
@@ -575,11 +618,11 @@ class ExtrasField(ConfiguredField):
 
         def deserialize(self):
             # Example params:
-            # ('Package-1-extras', {...}) (via REST i/f)
-            # ('Package-1-extras-genre', u'romantic novel'),
-            # ('Package-1-extras-genre-checkbox', 'on')
-            # ('Package-1-extras-newfield0-key', u'aaa'),
-            # ('Package-1-extras-newfield0-value', u'bbb'),
+            # ('Dataset-1-extras', {...}) (via REST i/f)
+            # ('Dataset-1-extras-genre', u'romantic novel'),
+            # ('Dataset-1-extras-genre-checkbox', 'on')
+            # ('Dataset-1-extras-newfield0-key', u'aaa'),
+            # ('Dataset-1-extras-newfield0-value', u'bbb'),
             # TODO: This method is run multiple times per edit - cache results?
             if not hasattr(self, 'extras_re'):
                 self.extras_re = re.compile('([a-zA-Z0-9-]*)-([a-f0-9-]*)-extras(?:-(.+))?$')
@@ -594,12 +637,12 @@ class ExtrasField(ConfiguredField):
                 entity_id = key_parts[1]
                 if key_parts[2] is None:
                     if isinstance(value, dict):
-                        # simple dict passed into 'Package-1-extras' e.g. via REST i/f
+                        # simple dict passed into 'Dataset-1-extras' e.g. via REST i/f
                         extra_fields.extend(value.items())
                 elif key_parts[2].startswith('newfield'):
                     newfield_match = self.newfield_re.match(key_parts[2])
                     if not newfield_match:
-                        print 'Warning: did not parse newfield correctly: ', key_parts
+                        log.warn('Did not parse newfield correctly: %r', key_parts)
                         continue
                     new_field_index, key_or_value = newfield_match.groups()
                     if key_or_value == 'key':
@@ -615,7 +658,7 @@ class ExtrasField(ConfiguredField):
                         if not self.params.has_key(key_key):
                             extra_fields.append(('', value))
                     else:
-                        print 'Warning: expected key or value for newfield: ', key
+                        log.warn('Expected key or value for newfield: %r' % key)
                 elif key_parts[2].endswith('-checkbox'):
                     continue
                 else:
@@ -655,28 +698,13 @@ class GroupSelectField(ConfiguredField):
 
         def _update_groups(self):
             new_group_ids = self._deserialize() or []
-            
-            # Get groups which have alread been associated.
-            old_groups = self.parent.model.groups
 
-            # Calculate which to append and which to remove.
-            editable_set = set([g.id for g in self.user_editable_groups])
-            old_group_ids = [g.id for g in old_groups]
-            new_set = set(new_group_ids)
-            old_set = set(old_group_ids)
-            append_set = (new_set - old_set).intersection(editable_set)
-            remove_set = (old_set - new_set).intersection(editable_set)
-            
-            # Create package group associations.
-            for id in append_set:
-                group = model.Session.query(model.Group).autoflush(False).get(id)
-                if group:
-                    self.parent.model.groups.append(group)
+            group_dicts = [dict(id = group_id) for 
+                           group_id in new_group_ids]
 
-            # Delete package group associations.
-            for group in self.parent.model.groups:
-                if group.id in remove_set:
-                    self.parent.model.groups.remove(group)
+            context = {'model': model, 'session': model.Session}
+            model_save.package_membership_list_save(
+                group_dicts, self.parent.model, context)
             
         def requires_label(self):
             return False
@@ -684,7 +712,7 @@ class GroupSelectField(ConfiguredField):
 
     class GroupSelectEditRenderer(formalchemy.fields.FieldRenderer):
         def _get_value(self, **kwargs):
-            return self.field.parent.model.groups
+            return self.field.parent.model.get_groups()
 
         def _get_user_editable_groups(self):
             return self.field.user_editable_groups
@@ -712,7 +740,7 @@ class GroupSelectField(ConfiguredField):
                 checkbox_context = {
                     'id': group.id,
                     'name': self.name + '-' + group.id,
-                    'title': group.title
+                    'title': group.display_name
                 }
                 action = checkbox_noaction
                 if group in editable_groups:
@@ -725,7 +753,7 @@ class GroupSelectField(ConfiguredField):
                 checkbox_context = {
                     'action': action,
                     'name': self.name + '-' + group.id,
-                    'title': group.title
+                    'title': group.display_name
                 }
                 checkbox_html = checkbox_template % checkbox_context
                 checkboxes_html += checkbox_html
@@ -742,7 +770,7 @@ class GroupSelectField(ConfiguredField):
                 if self.field.allow_empty or len(selected_groups):
                     options.append(('', _('(None)')))
             for group in addable_groups:
-                options.append((group.id, group.title))
+                options.append((group.id, group.display_name))
 
             # Make select HTML.
             if len(options):
@@ -805,7 +833,6 @@ class GroupSelectField(ConfiguredField):
 
             return new_group_ids
 
-            
 
 
 class SelectExtraField(TextExtraField):
@@ -857,8 +884,9 @@ class SelectExtraField(TextExtraField):
 class SuggestedTextExtraField(TextExtraField):
     '''A form field for text suggested from from a list of options, that is
     stored in an "extras" field.'''
-    def __init__(self, name, options):
+    def __init__(self, name, options, default=None):
         self.options = options[:]
+        self.default = default
         # ensure options have key and value, not just a value
         for i, option in enumerate(self.options):
             if not isinstance(option, (tuple, list)):
@@ -866,11 +894,15 @@ class SuggestedTextExtraField(TextExtraField):
         super(SuggestedTextExtraField, self).__init__(name)
 
     def get_configured(self):
-        return self.TextExtraField(self.name, options=self.options).with_renderer(self.SelectRenderer)
+        field = self.TextExtraField(self.name, options=self.options)
+        field.default = self.default
+        return field.with_renderer(self.SelectRenderer)
 
     class SelectRenderer(formalchemy.fields.FieldRenderer):
         def render(self, options, **kwargs):
-            selected = self.value
+            selected = self.value 
+            if selected is None: 
+                selected = self.field.default
             options = [('', '')] + options + [(_('other - please specify'), 'other')]
             option_keys = [key for value, key in options]
             if selected in option_keys:
@@ -884,7 +916,8 @@ class SuggestedTextExtraField(TextExtraField):
                 text_field_value = u''
             fa_version_nums = formalchemy.__version__.split('.')
             # Requires FA 1.3.2 onwards for this select i/f
-            html = literal(fa_h.select(self.name, select_field_selected, options, class_="short", **kwargs))
+            html = literal(fa_h.select(self.name, select_field_selected,
+                options, class_="short", **kwargs))
                 
             other_name = self.name+'-other'
             html += literal('<label class="inline" for="%s">%s: %s</label>') % (other_name, _('Other'), literal(fa_h.text_field(other_name, value=text_field_value, class_="medium-width", **kwargs)))

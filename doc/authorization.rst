@@ -1,291 +1,242 @@
-=====================================
-CKAN Authorization and Access Control
-=====================================
-
-This document gives an overview of CKAN's authorization capabilities and model
-in relation to access control. The authentication/identification aspects of
-access control are dealt with separately in :doc:`authorization`.
-
-
-Overview
-========
+==========================
+Set and Manage Permissions
+==========================
 
 CKAN implements a fine-grained role-based access control system.
 
-Protected Objects and Authorization
------------------------------------
+This section describes:
 
-There are variety of **protected objects** to which access can be controlled, 
-for example the ``System``, ``Packages```, Package ``Groups`` and 
-``Authorization Groups``. Access control is fine-grained in that it can be 
-set for each individual package, group or authorization group instance.
+* :ref:`permissions-overview`. An overview of the concepts underlying CKAN authorization: objects, actions and roles.
+* :ref:`permissions-default`. The default permissions in CKAN.
+* :ref:`permissions-manage`. Managing and setting permissions.
+* :ref:`permissions-publisher-mode`. Suitable for systems where you want to limit write access to CKAN.
 
-For each protected object there are a set of relevant **actions** such as 
-create', 'admin', 'edit' etc. To facilitate that mapping, actions are 
-aggregated into a set of **roles** (e.g. an editor role would have 'edit' 
-and 'read' action).
+.. _permissions-overview:
 
-A special role is taken by the ``System`` object, which serves as an 
-authorization object for any assignments which do not relate to a specific
-object. For example, the creation of a package cannot be linked to a 
-specific package instance and is therefore a system operation. 
+Overview
+--------
 
-To gain further flexibility, users can be assigned to **authorization 
-groups**. Authz groups are both the object of authorization (i.e. one 
-can have several roles with regards to an authz group) and the subject 
-of authorization (i.e. they can be assigned roles on other objects which
-will apply to their members. 
+In a nutshell: for a particular **object** (e.g. a dataset) a CKAN **user** can be assigned a **role** (e.g. editor) which allows permitted **actions** (e.g. read, edit).
 
-The assignment of users and authorization groups to roles on a given 
-protected object (such as a package) can be done by 'admins' via the 
-'authorization' tab of the web interface (or by system admins via that 
-interface or the system admin interface). There is also a command-line 
-based authorization manager, detailed below. 
+In more detail, these concepts are as follows:
 
-Command-line authorization management
--------------------------------------
+* There are **objects** to which access can be controlled, such as datasets and groups.
+* For each object there are a set of relevant **actions**, such as create and edit, which users can perform on the object.
+* To simplify mapping users to actions and objects, actions are aggregated into a set of **roles**. For example, an editor role would automatically have edit and read actions.
+* Finally, CKAN has registered **users**.
 
-To allow for fine-grained control of the authorization system, CKAN has 
-several command related to the management of roles and access permissions. 
+Recent support for authorization profiles has been implemented using a publisher/group based profile that is described in :doc:`publisher-profile`.
 
-The ``roles`` command will list and modify the assignment of actions to 
-roles::
+Objects
++++++++
 
-    $ paster --plugin=ckan roles -c my.ini list 
-    $ paster --plugin=ckan roles -c my.ini deny editor create-package
-    $ paster --plugin=ckan roles -c my.ini allow editor create-package 
+Permissions are controlled per object: access can be controlled for an individual
+dataset, group or authorization group instance. Current objects include
+**datasets**, dataset **groups**, **authorization groups** and the **system**.
 
-This would first list all role action assignments, then remove the 
-'create-package' action from the 'editor' role and finally re-assign 
-that role. 
+* A dataset is the basic CKAN concept of metadata about a dataset.
+* A group of datasets can be set up to specify which users have permission to add or remove datasets from the group.
+* Users can be assigned to authorization groups, to increase flexibility. Instead of specifying the privileges of specific users on a dataset or group, you can also specify a set of users that share the same rights. To do that, an authorization group can be set up and users can be added to it. Authorization groups are both the object of authorization (i.e. one can have several roles with regards to an authorization group, such as being allowed to read or edit it) and the subject of authorization (i.e. they can be assigned roles on other objects which will apply to their members, such as the group having edit rights on a particular group).
+* Finally, the system object is special, serving as an object for assignments that do not relate to a specific object. For example, creating a dataset cannot be linked to a specific dataset instance, and is therefore a operation.
 
-Similarly, the ``rights`` command will set the authorization roles of 
-a specific user on a given object within the system:: 
 
-    $ paster --plugin=ckan rights -c my.ini list
+Actions
++++++++
 
-Will list all assigned rights within the system. It is recommended to then 
-grep over the resulting output to search for specific object roles. 
+**Actions** are defined in the Action enumeration in ``ckan/model/authz.py`` and currently include: **edit**, **change-state**, **read**, **purge**, **edit-permissions**, **create-dataset**, **create-group**, **create-authorization-group**, **read-site**, **read-user**, **create-user**.
 
-Rights assignment follows a similar pattern::
+As noted above, some of these (e.g. **read**) have meaning for any type of object, while some (e.g. **create-dataset**) can not be associated with any particular object, and are therefore only associated with the system object.
 
-    $ paster --plugin=ckan rights -c my.ini make bar admin package:foo
-    
-This would assign the user named ``bar`` the ``admin`` role on the package 
-foo. Instead of user names and package names, a variety of different 
-entities can be the subject or object of a role assignment. Some of those 
-include authorization groups, package groups and the system as a whole 
-(``system:```)::
+The **read-site** action (associated with the system object) allows or denies access to pages not associated with specific objects. These currently include:
 
-    # make 'chef' a system-wide admin: 
-    $ paster --plugin=ckan rights -c my.ini make chef admin system
-    # allow all members of authz group 'foo' to edit group 'bar'
-    $ paster --plugin=ckan rights -c my.ini make agroup:foo edit \
-        group:bar
-
-To revoke one of the roles assigned using ``make``, the ``remove`` command 
-is available:: 
-
-    $ paster --plugin=ckan rights -c my.ini remove bar admin package:foo
-    
-For more help on either of these commands, also refer to the paster help. 
-
-Roles
------
-
-Each role has a list of permitted *actions* appropriate for a protected object.
-
-Currently there are three basic roles:
-
-  * **reader**: can read the object
-  * **editor**: can edit and read the object
-  * **admin**: admin can do anything including: edit, read, delete,
-    update-permissions (change authorizations for that object)
-
-In addition, at the System or Protected Object 'type' level there are some 
-additional actions:
-
-  * create instances
-  * update assignment of system level role
-
-The actions associated with a role may be "context" specific, i.e. they may
-vary with the type of protected object (the context). For example, the set of
-actions for the 'admin' role may be different for the System Protected Object
-from a Package Protected Object.
+ * Dataset search
+ * Group index
+ * Tags index
+ * Authorization Group index
+ * All requests to the API (on top of any other authorization requirements)
 
 There are also some shortcuts that are provided directly by the authorization
 system (rather than being expressed as subject-object-role tuples):
 
-  * (system) admin can do everything on anything
-  * admin can do everything on the given object
+  * A user given the **admin** right for the **system** object is a 'sysadmin' and can perform any action on any object. (A shortcut for creating a sysadmin is by using the ``paster sysadmin`` command.)
+  * A user given the **admin** right for a particular object can perform any action on that object.
 
-Examples
---------
+Roles
++++++
 
-Example 1: Package 'paper-industry-stats':
+Each **role** has a list of permitted actions appropriate for a protected object.
 
-  * David Brent is an 'admin'
-  * Gareth Keenan is an 'editor'
-  * Logged-in is an 'reader' (This is a special user, meaning 'anyone who is
-    logged in')
-  * Visitor is an 'reader' (Another special user, meaning 'anyone')
+Currently there are four basic roles:
 
-That is, Gareth and David can edit this package, but only Gareth can assign
-roles (privileges) to new team members. Anyone can see (read) the package.
+  * **reader**: can read the object
+  * **anon_editor**: anonymous users (i.e. not logged in) can edit and read the object
+  * **editor**: can edit, read and create new objects
+  * **admin**: admin can do anything including: edit, read, delete,
+    update-permissions (change authorizations for that object)
 
+You can add other roles if these defaults are not sufficient for your system.
 
-Example 2: The current default for new packages is:
+.. warning:: If the broad idea of these basic roles and their actions is not suitable for your CKAN system, we suggest you create new roles, rather than edit the basic roles. If the definition of a role changes but its name does not, it is likely to confuse administrators and cause problems for CKAN upgrades and extensions.
 
-  * the user who creates it is an 'admin'
-  * Visitor and Logged-in are both an 'editor' and 'reader'
+.. note:: When you install a new CKAN extension, or upgrade your version of CKAN, new actions may be created, and permissions given to these basic roles, in line with the broad intention of the roles.
 
-NB: "Visitor" and "Logged-in" are special "pseudo-users" used as a way of
-concretely referring to the special sets of users, namely those that are a) not
-logged-in ("visitor") and b) logged-in ("Logged-in")
+Users
++++++
 
-User Notes
-==========
+You can manage CKAN users via the command line with the ``paster user`` command - for more information, see :ref:`paster-user`.
 
-When a new package is created its creator automatically become admin for
-it and you can assign which other users have write or read access.
+There are two special *pseudo-users* in CKAN, **visitor** and **logged-in**. These are used to refer to special sets of users, respectively those who are a) not logged-in ("visitor") and b) logged-in ("logged-in").
 
-NB: by default any user (including someone who is not-logged-in) will be able
-to read and write.
-
-There are "system" level admins for CKAN who may alter permissions on any package.
+The ``default_roles`` config option in the CKAN config file lets you set the default authorization roles (i.e. permissions) for these two types of users. For more information, see :doc:`configuration`.
 
 
-Developer Notes
-===============
+.. _permissions-default:
 
-We record tuples of the form:
-
-======== ================= ======= ====================
-user     authorized_group  role    object
-======== ================= ======= ====================
-levin                      editor  package::warandpeace
-======== ================= ======= ====================
-
-
-
-
-Requirements and Use Cases
---------------------------
-
-  * A user means someone who is logged in.
-  * A visitor means someone who is not logged in.
-  * An protected object is the subject of a permission (either a user or a
-    pseudo-user)
-  * There are roles named: Admin, Reader, Writer
-
-  1. A visitor visits a package page and reads the content
-  2. A visitor visits a package page and edits the package
-  3. Ditto 1 for a user
-  4. Ditto 2 for a user
-  5. On package creation if done by a user and not a visitor then user is made
-     the 'admin'
-  6. An admin of a package adds a user as an admin
-  7. An admin of a package removes a user as an admin
-  8. Ditto for admin re. editor
-  9. Ditto for admin re. reader
-  10. We wish to be able assign roles to 2 specific entire groups in addition
-      to specific users: 'visitor', 'users'. These will be termed pseudo-users
-      as we do not have AC 'groups' as such.
-  11. The sysadmin alters the assignment of entities to roles for any package
-  12. A visitor goes to a package where the editor role does not include
-      'visitor' pseudo-user. They are unable to edit the package.
-  13. Ditto for user where users pseudo-user does not have editor role and user
-      is not an editor for the package
-  14. Ditto 12 re reader role.
-  15. Ditto 13 re reader role.
-  16. Try to edit over REST interface a package for which 'visitor' has Editor
-      role, but no API is supplied. Not allowed.
-
-
-Not Yet Implemented
-+++++++++++++++++++
-
-  * Support for access-related groups
-  * Support for blacklisting
-
-
-Conceptual Overview
+Default Permissions
 -------------------
 
-**Warning: not all of what is described in this conceptual overview is yet
-fully implemented.**
+CKAN ships with the following default permissions:
 
-  * There are Users and (User) Authorization Groups
-  * There are actions which may be performed on "protected objects" such as
-    Package, Group, System
-  * Roles aggregate actions
-  * UserObjectRole which assign users (or Authorization groups) a role on an
-    object (user, role, object). We will often refer to these informally as
-    "permissions".
-  
-NB: there is no object explicitly named "Permission". This is to avoid
-confusion: a 'normal' "Permission" (as in e.g. repoze.what) would correspond to
-an action-object tuple. This works for the case where protected objects are
-limited e.g. a few core subsystems like email, admin panel etc). However, we
-have many protected objects (e.g. one for each package) and we use roles so
-this 'normal' model does not work well.
+* When a new dataset is created, its creator automatically becomes **admin** for it. This user can then change permissions for other users.
+* By default, any other user (including both visitors and logged-ins) can read and write to this dataset.
 
-Question: do we require for *both* Users and UserAuthorizationGroup to be
-subject of Role or not?
-
-Ans: Yes. Why? Consider, situation where I just want to give an individual user
-permission on a given object (e.g. assigning authz permission for a package)?
-If I just have UserAuthorizationGroups one would need to create a group just
-for that individual. This isn't impossible but consider next how to assign
-permissions to edit the Authorization Groups? One would need create another
-group for this but then we have recursion ad infinitum (unless this were
-especially encompassed in some system level permission or one has some group
-which is uneditable ...)
-
-Thus, one requires both Users and UserAuthorizationGroups to be subject of
-"permissions".  To summarize the approximate structure we have is::
-
-    class SubjectOfAuthorization
-        class User
-        class UserAuthorizationGroup
-            
-    class ObjectOfAuthorization
-        class Package
-        class Group
-        class UserAuthorizationGroup
-        ...
-
-    class SubjectRoleObject
-        subject_of_authorization
-        object_of_authorization
-        role
+These defaults can be changed in the CKAN config - see ``default_roles`` in :doc:`configuration`.
 
 
-Determining permissions
------------------------
+.. _permissions-manage:
 
-See ckan.authz.Authorizer.is_authorized
+Managing Permissions
+--------------------
 
-.. automethod:: ckan.authz.Authorizer.is_authorized
+The assignment of users and authorization groups to roles on a given
+protected object (such as a dataset) can be done by 'admins' via the
+'authorization' tab of the web interface (or by sysadmins via that
+interface or the system admin interface).
+
+There is also a command-line authorization manager, detailed below.
+
+Command-line authorization management
++++++++++++++++++++++++++++++++++++++
+
+Although the admin extension provides a Web interface for managing authorization,
+there is a set of more powerful ``paster`` commands for fine-grained control
+(see :doc:`paster`).
+
+The ``rights`` command is used to configure the authorization roles of
+a specific user on a given object within the system.
+
+For example, to list all assigned rights in the system (which you can then grep if needed)::
+
+    paster --plugin=ckan rights -c my.ini list
+
+The ``rights make`` command lets you assign specific permissions. For example, to give the user named **bar** the **admin** role on the dataset foo::
+
+    paster --plugin=ckan rights -c my.ini make bar admin dataset:foo
+
+As well as users and datasets, you can assign rights to other objects. These
+include authorization groups, dataset groups and the system as a whole.
+
+For example, to make the user 'chef' a system-wide admin::
+
+    paster --plugin=ckan rights -c my.ini make chef admin system
+
+Or to allow all members of authorization group 'foo' to edit group 'bar'::
+
+    paster --plugin=ckan rights -c my.ini make agroup:foo edit \
+        group:bar
+
+To revoke one of the roles assigned using ``rights make``, the ``rights remove`` command
+is available. For example, to remove **bar**'s **admin** role on the foo dataset::
+
+    paster --plugin=ckan rights -c my.ini remove bar admin dataset:foo
+
+The ``roles`` command lists and modifies the assignment of actions to
+roles.
+
+To list all role assignments::
+
+    paster --plugin=ckan roles -c my.ini list
+
+To remove the 'create-package' action from the 'editor' role::
+
+    paster --plugin=ckan roles -c my.ini deny editor create-package
+
+And to re-assign 'create-package' to the 'editor' role::
+
+    paster --plugin=ckan roles -c my.ini allow editor create-package
+
+For more help on either of these commands, you can use ``--help`` (as described in :ref:`paster-help`)::
+
+    paster --plugin=ckan roles --help
+    paster --plugin=ckan rights --help
 
 
-Comparison with other frameworks and approaches
-===============================================
+.. _permissions-publisher-mode:
 
-repoze.what
------------
+Openness Modes
+--------------
 
-Demo example model::
+CKAN instances can be configured to operate in a range of authorization modes, with varying openness to edit. Here are some examples with details of how to set-up and convert between them.
 
-    User
-    Group
-    Permission
 
-  * Users are assigned to groups
-  * Groups are assigned permissions
+1. Anonymous Edit Mode
+++++++++++++++++++++++
 
-Capabilities
-------------
+Anyone can edit and create datasets without logging in. This is the default for CKAN out of the box.
 
-Each possible action-object tuple receive an identifier which we term the
-"capability". We would then list tuples (capability_subject, capability).
+
+
+
+2. Logged-in Edit Mode
+++++++++++++++++++++++
+
+You need to log-in and create/edit datasets. Anyone can create an account.
+
+To operate in this mode:
+
+1. First, change the visitor (any non-logged in user) rights from being able to create and edit datasets to just reading them::
+
+     paster rights make visitor reader system
+     paster rights make visitor reader package:all
+     paster rights remove visitor anon_editor package:all
+     paster rights remove visitor anon_editor system
+
+2. Change the default rights for newly created datasets. Do this by using these values in your config file (see :doc:`configuration`)::
+
+     ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
+     ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["editor"]}
+
+
+3. Publisher Mode
++++++++++++++++++
+
+This allows edits only from authorized users. It is designed for installations where you wish to limit write access to CKAN and orient the system around specific publishing groups (e.g. government departments or specific institutions).
+
+The key features are:
+
+* Datasets are assigned to a specific publishing group.
+* Only users associated to that group are able to create or update datasets associated to that group.
+
+To operate in this mode:
+
+1. First, remove the general public's rights to create and edit datasets::
+
+     paster rights remove visitor anon_editor package:all
+     paster rights remove logged_in editor package:all
+     paster rights remove visitor anon_editor system
+     paster rights remove logged_in editor system
+
+2. If logged-in users have already created datasets in your system, you may also wish to remove their admin rights. For example::
+
+     paster rights remove bob admin package:all
+
+3. Change the default rights for newly created datasets. Do this by using these values in your config file (see :doc:`configuration`)::
+
+     ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
+     ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+     ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["reader"]}
+     ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+
+Note you can also restrict dataset edits by a user's authorization group.

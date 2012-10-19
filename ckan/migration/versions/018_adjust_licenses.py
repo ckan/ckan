@@ -2,7 +2,6 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData()
 
 map = {
     u'OSI Approved::Mozilla Public License 1.1 (MPL)': 'mozilla1.1', 
@@ -85,8 +84,9 @@ map = {
 }
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
-    print "Changing package license_ids to strings."
+    #print "Changing package license_ids to strings."
 
     # Get licenses, package license ids, and package revision license ids.
     old_license_titles = _get_old_license_titles(migrate_engine)
@@ -97,8 +97,8 @@ def upgrade(migrate_engine):
     # Upgrade database scheme.
     drop_fk_constraint_on_package_table = "ALTER TABLE package DROP CONSTRAINT package_license_id_fkey;"
     drop_fk_constraint_on_package_revision_table = "ALTER TABLE package_revision DROP CONSTRAINT package_revision_license_id_fkey;"
-    change_license_id_type_on_package_table = "ALTER TABLE package ALTER COLUMN license_id TYPE character varying(100);"
-    change_license_id_type_on_package_revision_table = "ALTER TABLE package_revision ALTER COLUMN license_id TYPE character varying(100);"
+    change_license_id_type_on_package_table = "ALTER TABLE package ALTER COLUMN license_id TYPE text;"
+    change_license_id_type_on_package_revision_table = "ALTER TABLE package_revision ALTER COLUMN license_id TYPE text;"
     drop_licenses_table = "DROP TABLE license CASCADE;"
     
     migrate_engine.execute(drop_fk_constraint_on_package_table)

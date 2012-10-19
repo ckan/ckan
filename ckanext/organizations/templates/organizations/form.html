@@ -1,0 +1,42 @@
+{% extends "group/snippets/group_form.html" %}
+
+{#
+As the form is rendered as a seperate page we take advantage of this by
+overriding the form blocks depending on the current context
+#}
+{% block dataset_fields %}
+  {% if action == "edit" %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block custom_fields %}
+  {% if action == "edit" %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block save_text %}
+  {%- if action == "edit" -%}
+    {{ _('Update Organization') }}
+  {%- else -%}
+    {{ _('Create Organization') }}
+  {%- endif -%}
+{% endblock %}
+
+{% block delete_button %}
+  {% if action == "edit" %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block basic_fields %}
+    {% set attrs = {'data-module': 'slug-preview-target'} %}
+    {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
+
+    {% set prefix = h.url_for(controller='group', action='read', id='') %}
+    {% set domain = h.url_for(controller='group', action='read', id='', qualified=true) %}
+    {% set domain = domain|replace("http://", "")|replace("https://", "") %}
+    {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<organization>'} %}
+
+    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-organization'), value=data.name, error=errors.name, attrs=attrs) }}
+
+    {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my organization...'), value=data.description, error=errors.description) }}
+
+    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', type='url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
+
+  {% endblock %}

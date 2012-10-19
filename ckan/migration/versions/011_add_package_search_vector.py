@@ -2,9 +2,9 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData()
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     package_table = Table('package', metadata, autoload=True)
@@ -16,7 +16,8 @@ def upgrade(migrate_engine):
     sql = 'ALTER TABLE package_search ADD COLUMN search_vector tsvector'
     migrate_engine.execute(sql)
 
-    print 'IMPORTANT! Now run:\n  paster create-search-index'
+    # This is not so important now and annoying to read when testing
+    #print 'IMPORTANT! Now run:\n  paster create-search-index'
 
 def downgrade(migrate_engine):
     raise NotImplementedError()

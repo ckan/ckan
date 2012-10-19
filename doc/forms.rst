@@ -1,177 +1,339 @@
-Forms
-=====
+=================
+Customizing Forms
+=================
 
-The forms used to edit Packages and Groups in CKAN can be customised. This makes it easier to help users input data, helping them choose from sensible options or to use different data formats. This document sets out to show how this is achieved, without getting embroilled in the main CKAN code.
+The forms used to edit datasets and groups in CKAN can be customized. This lets you tailor them to your needs, 
+helping your users choose from sensible options or use different data formats.  
+This document explains how to customize the dataset and group forms you offer to your users. 
 
-Each form is defined in a python script and then 'plugged-in' to the CKAN code.
-The form script uses the FormBuilder to simply select from the standard field types, or even define some more field types. You can easily specify the content of drop-downs, hint text and the order of fields which are displayed.
-
-Note that this section deals with the form used to *edit* packages and groups, not the way they are displayed. Display is done in the CKAN templates.
-
-
-Location of related code
-------------------------
-
-In the CKAN code, the majority of forms code is in ckan/forms.
-
- * ckan/forms/common.py - A common place for fields used by standard forms
- * ckan/forms/builder.py - The FormBuilder class, which provides an easy way to define a form. It creates a FormAlchemy fieldset used in the CKAN controller code.
- * ckan/forms/package.py - This contains the 'standard' form, which is a good example and is useful to derive custom forms from.
- * ckan/forms/package_gov.py - Contains the a government form, which serves as an example of using lots of extra fields for dates, geographical coverage, etc.
+.. warning:: This is an advanced topic. Ensure you are familiar with :doc:`extensions` before attempting to customize forms. 
+.. note:: 
+    This document describes the process for creating dataset forms that is used in the ``ckanext-example`` extension.
+    The source code is available at http://github.com/okfn/ckanext-example.
+    Group forms can be customised in a similar way, see ``ckanext-example`` again for reference.
 
 
-Building a package form
+Creating a Dataset Form
 -----------------------
 
-Basics
-^^^^^^
+The recommended way to create a dataset form is by using a CKAN extension. 
 
-The *PackageFormBuilder* class initialises with the basic package form which we can then configure:: 
-
- builder = PackageFormBuilder()
-
-All the basic package fields are added to the form automatically - this currently includes: name, title, version, url, author, author_email, maintainer, maintainer_email, notes and license_id. In case this changes in future, consult the fields for table 'Package' in ckan/model/core.py.
-
-To provide editing of other fields beyond the basic ones, you need to use *add_field* and select either an existing *ConfiguredField* in common.py, or define your own. For example, the autocompleting tag entry field is defined as a field in common.py and it is added to the standard form like this::
-
- builder.add_field(common.TagField('tags'))
-
-The basic fields (name, title, etc) and a few more (license, tags, resources) are defined for all packages. Additional information can be stored on each package in the 'extra' fields. Often we want to provide a nicer interface to these 'extra' fields to help keep consistency in format between the packages. For example, in the government form (package_gov.py) we have added a field for the release date. This is stored as a Package 'extra' with key 'date_released' and by using the DateExtraField, in the form the user is asked for a date.::
-
- builder.add_field(common.DateExtraField('date_released'))
-
-You can configure existing fields using the usual `FormAlchemy Field options <http://docs.formalchemy.org/fields.html#fields>`_. For example, here we add a validator to a standard field::
-
- builder.set_field_option('name', 'validate', package_name_validator)
-
-Options are given keyword parameters by passing a dictionary. For example, this is how we set the notes field's size::
-
- builder.set_field_option('notes', 'textarea', {'size':'60x15'})
-
-Fields in package forms are grouped together. You should specify which fields are displayed in which groups and in which order like this::
-
- from sqlalchemy.util import OrderedDict
- builder.set_displayed_fields_in_groups(OrderedDict([
-        ('Basic information', ['name', 'title', 'version', 'url']),
-        ('Resources', ['resources']),
-        ('Detail', ['author', 'author_email'])]))
-
-To complete the form design you need to return the fieldset object. Ensure this is executed once - when your python form file is imported:: 
-
- my_fieldset = builder.get_fieldset()
+First, create a new plugin that implements ``ckan.plugins.IDatasetForm``. It is also useful to implement
+``ckan.plugins.IConfigurer`` as well, so that you can add the directory that will contain your new dataset
+form template to CKAN's list of template paths.
 
 
-Field labels
-^^^^^^^^^^^^
+::
 
-The field labels are derived from the model key using a 'prettify' function. The default munge capitalises the first letter and changes underscores to spaces. You can write a more advanced function depending on your needs. Here is the template for a prettify function::
+    import ckan.plugins
 
- def prettify(field_name):
-     return field_name.replace('_', ' ').capitalize())
+    class ExampleDatasetForm(ckan.plugins.SingletonPlugin):
+        implements(ckan.plugins.IDatasetForm, inherit=True)
+        implements(ckan.plugins.IConfigurer, inherit=True)    
 
-If you write a new one, you tell the builder about it like this::
+Next, create a directory in your CKAN extension to store your HTML template(s) and add 
+an ``update_config`` method to make sure that this template is on CKAN's template path. 
+Here we add the ``ckanext/example/theme/templates`` directory to the path.
 
- builder.set_label_prettifier(prettify)
-
-
-Templates
-^^^^^^^^^
-
-Package forms by default use the Genshi template *ckan/package/form.html*. If you want to use a modified one then specify it for example like this::
-
- builder.set_form_template('package/my_form')
+::
 
 
-Hidden labels
-^^^^^^^^^^^^^
+    def update_config(self, config):
+        here = os.path.dirname(__file__)
+        rootdir = os.path.dirname(os.path.dirname(here))
+        template_dir = os.path.join(rootdir, 'ckanext', 'example', 'theme', 'templates')
+        config['extra_template_paths'] = ','.join([
+            template_dir, config.get('extra_template_paths', '')
+        ])
 
-A couple of common fields (ResourceField and ExtrasField currently) are designed to go in their own field group (see below) and without the usual field label. To hide the label, add these fields like this::
+You can now add your HTML template(s) to the templates directory. It is recommended that you copy
+the existing CKAN dataset form (``ckan/templates/package/new_package_form.html``) and make 
+modifications to it. However, it is possible to start from scratch.
 
- builder.add_field(common.ResourcesField('resources', hidden_label=True))
+If you create a template in your extension templates directory at ``package/new_package_form.html``,
+it will override the default CKAN template. This applies to any template in the CKAN templates directory.
+You can also override them by changing the paths returned by the following methods in your extension:
 
-Instead of starting with just the basic fields, many people will want to edit the standard form, which already contains the resources, extra fields and customise that further. To achieve that you import the builder object like this::
+::
 
- import ckan.forms.package as package
- builder = package.build_package_form()
+    def package_form(self):
+        return 'package/new_package_form.html'
+
+    def new_template(self):
+        return 'package/new.html'
+
+    def comments_template(self):
+        return 'package/comments.html'
+
+    def search_template(self):
+        return 'package/search.html'
+
+    def read_template(self):
+        return 'package/read.html'
+
+    def history_template(self):
+        return 'package/history.html'
+
+.. note:: The ``package_form`` and ``*_template`` methods (above) are required in order to implement IDatasetForm.
+
+Two other methods must be provided by your extension when implementing the IDatasetForm interface:
+
+::
+
+    def package_types(self):
+        return ['dataset']
+
+    def is_fallback(self):
+        return True
+
+``package_types`` sets the dataset type associated with your extension, and updates the Pylons routing so
+that datasets of this type can be found at the ``/<type>`` URL in your CKAN instance.
+
+For example, changing ``package_type`` to return ``['catalog']`` would mean that any visits to 
+``/catalog/new``, ``/catalog/edit``, etc. would use your extension's dataset form, but going to
+``/dataset/new``, ``/dataset/edit``, etc. would still return CKAN's default dataset form.
+
+``is_fallback`` means that this extension should be the default dataset type. If ``True``, even when the
+return value of ``package_types`` is changed, going to ``/dataset/new`` will still use the
+extension's dataset form instead of CKAN's default.
 
 
-Defining custom fields
-----------------------
+Passing Data to Templates
+-------------------------
 
-If you want to define a completely new field then here is a useful template::
+Your IDatasetForm extension can define a ``_setup_template_variables`` method, and use it to add
+data to the Pylons ``c`` object (which is passed to the templates).
 
- class MyField(common.ConfiguredField):
-     def get_configured(self):
-         return self.MyField(self.name).with_renderer(self.MyRenderer).validate(self.my_validator)
+For example, you can define ``_setup_template_variables`` as follows:
 
-     class MyField(formalchemy.Field):
-         def sync(self):
-             # edit self.model with using value self._deserialize()
+::
 
-     class MyRenderer(formalchemy.fields.FieldRenderer):
-         def render(self, **kwargs):
-             # return html of field editor based on self._value
+    def setup_template_variables(self, context, data_dict=None, package_type=None):
+        from ckan.lib.base import c
+        from ckan import model
+        c.licences = model.Package.get_license_options()
 
-         def _serialized_value(self):
-             # take self._params and serialize them ready for rendering
-             # or self.deserialize() into python value that can be saved
-             # on a sync.
+and then use it in your HTML template:
 
-     def my_validator(self, val, field):
-        if not ...:
-            raise formalchemy.ValidationError('Invalid value')            
-        
-More examples are in common.py and further information can be obtained from the `FormAlchemy documentation <http://docs.formalchemy.org/>`_.
+::
+
+    <dd class="license-field">
+      <select id="license_id" name="license_id">
+        <py:for each="licence_desc, licence_id in c.licences">
+          <option value="${licence_id}">${licence_desc}</option>
+        </py:for>
+      </select>
+    </dd>
 
 
-Using a custom form
--------------------
+Custom Schemas
+--------------
 
-To register your new form with CKAN you need to do three things. 
+.. note::
+    As of CKAN 1.7 custom schema functions apply to both the web user interface
+    and the API.
 
-1. In your form you need a function that returns your new form's field set. 
+    An example of the use of these methods can be found in the ``ckanext-example`` extension.
 
- For example you might add below your form code::
+The data fields that are accepted and returned by CKAN for each dataset can be
+changed by an IDatasetForm extension by overriding the following methods:
 
-  my_fieldset = builder.get_fieldset()
+::
 
-  def get_fieldset(is_admin=False):
-      return my_fieldset
-  
- (The *is_admin* parameter can be considered if you wish to return a different fieldset for administrator users.)
+    def form_to_db_schema_options(self, options)
 
-2. You need to provide an 'entry point' into your code package so that CKAN can access your new form. 
+This allows us to select different schemas for different purpose eg via the web interface 
+or via the api or creation vs updating. 
+It is optional and if not available form_to_db_schema should be used.
 
- It is anticipated that your form code will live in a python package outside the CKAN main code package, managed by setuptools. The entry points are listed in the python package's setup.py and you just need to add a category [ckan.forms] and list the function that returns::
+::
 
-  from setuptools import setup, find_packages
-  setup(
-      ...
+  _form_to_db_schema(self)
 
-      entry_points="""
-      [ckan.forms]
-      my_form = my_module.forms.my_form:get_fieldset
-      """,
-  )
+This defines a navl schema to customize validation and conversion to the database.
 
- For this change to have an effect, you need to recreate the egg information, so run::
+::
 
- $ python setup.py egg_info
+  _db_to_form_schema(self)
 
-3. Change an option in your CKAN pylons config file to switch to using the new form.
+This defines a navl schema to customize conversion from the database to the form.
 
- For example, your pylons config file will probably be 'development.ini' during development, when you 'paster serve' your CKAN app for testing.
+::
 
- You need to change the 'package_form' setting in the '[app:main]' section to the name defined int he entry point. For example::
+  _db_to_form_schema_options(self, options)
 
-  [app:main]
-  ...
-  package_form = my_form
-  group_form = my_group_form
-  package_group_form = my_package_group_form
+Like ``_form_to_db_schema_options()``, this allows different schemas to be
+used for different purposes.
+It is optional, and if it is not available then ``form_to_db_schema`` is used.
 
- For this to have an effect you may need to restart the pylons (either by restarting the 'serve' command or the Apache host). Now go and edit a package and try out the new form!
 
- You can also override the config file setting with a URL parameter in your browser. For example you might browse:
+.. _example-geospatial-tags:
 
- http://eco.ckan.net/package/edit/water-voles?package_form=my_form
+Example: Geospatial Tags
+------------------------
+
+In this example we look at how create a plugin that adds a new dataset field called ``geographical_coverage``.
+This field allows the user to specify one or more country-code tags in order to indicate which
+countries are covered by the dataset. Additionally, the tags must be part of a fixed CKAN tag vocabularly
+called ``country_codes``.
+
+More information about tag vocabularies can be found in :doc:`tag-vocabularies`.
+
+
+1. Creating the Tag Vocabulary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First we are going to create the ``country_codes`` vocabulary and add a few tags to it.
+The following code can be saved to a python script and then run from the command line.
+
+::
+
+    import json
+    import requests
+
+    ckan_url = 'http://127.0.0.1:5000'
+    api_key = 'xxxx'
+
+    geo_tags = [u'uk', u'ie', u'de', u'fr', u'es']
+    headers = {'Authorization': api_key}
+
+We are going to use the requests module (tested with version 0.10.7, available on PyPI) to make our POST requests.
+
+Replace the values of ``ckan_url`` and ``api_key`` with the URL to your CKAN instance and
+your API key respectively. You must be a system administrator in order to create tag
+vocabularies.
+
+We also define the 5 tags that we will add to the vocabulary here, and set the ``Authorization`` header
+to the value of our API key.
+
+::
+
+    # create the vocabulary
+    data = json.dumps({'name': u'country_codes'})
+    r = requests.post(ckan_url + '/api/action/vocabulary_create',
+                      data=data,
+                      headers=headers)
+    vocab_id = json.loads(r.text)['result']['id']
+
+This creates our ``country_codes`` vocabulary, and saves a reference to the vocabulary ID that
+is returned by CKAN.
+
+::
+
+    # add tags
+    for geo_tag in geo_tags:
+        data = json.dumps({'name': geo_tag, 'vocabulary_id': vocab_id})
+        r = requests.post(ckan_url + '/api/action/tag_create',
+                          data=data,
+                          headers=headers)
+
+We then add each of our tags, making sure to set their vocabulary ID.
+
+
+2. Creating the Plugin
+~~~~~~~~~~~~~~~~~~~~~~
+
+First we create a CKAN plugin that implements IDatasetForm:
+
+::
+
+    import ckan.plugins
+
+    class GeospatialTagDatasetForm(SingletonPlugin):
+        implements(IDatasetForm, inherit=True)
+
+        def package_form(self):
+            return 'package/new_package_form.html'
+
+        def new_template(self):
+            return 'package/new.html'
+
+        def comments_template(self):
+            return 'package/comments.html'
+
+        def search_template(self):
+            return 'package/search.html'
+
+        def read_template(self):
+            return 'package/read.html'
+
+        def history_template(self):
+            return 'package/history.html'
+
+        def is_fallback(self):
+            return True
+
+        def package_types(self):
+            return ['dataset']
+
+We want to pass the list of country code tags through to our dataset form, so we
+define a ``setup_template_variables`` function which stores the tags as a ``geographical_coverage``
+against the Pylons ``c`` object.
+
+::
+
+        def setup_template_variables(self, context, data_dict=None, package_type=None):
+            try:
+                data = {'vocabulary_id': u'country_codes'}
+                c.geographical_coverage = get_action('tag_list')(context, data)
+            except NotFound:
+                c.geographical_coverage = []
+
+Finally we have to update our dataset schema so that we can store the
+country code data.
+
+::
+
+    def form_to_db_schema(self, package_type=None):
+        from ckan.logic.schema import package_form_schema
+        from ckan.lib.navl.validators import ignore_missing
+        from ckan.logic.converters import convert_to_tags
+
+        schema = package_form_schema()
+        schema.update({
+            'geographical_coverage': [ignore_missing, convert_to_tags('country_codes')]
+        })
+        return schema
+
+    def db_to_form_schema(data, package_type=None):
+        from ckan.logic.converters import convert_from_tags, free_tags_only
+        from ckan.lib.navl.validators import ignore_missing, keep_extras
+
+        schema = package_form_schema()
+        schema.update({
+            'tags': {
+                '__extras': [keep_extras, free_tags_only]
+            },
+            'geographical_coverage': [convert_from_tags('country_codes'), ignore_missing],
+        })
+        return schema
+
+Here were use the ``convert_to_tags`` and ``convert_from_tags`` converters, so that our
+country codes are stored as normal CKAN tags. We also apply the ``free_tags_only`` converter
+to the ``tags`` field when displaying datasets in order to remove our geospatial tags
+from this list and display them separately.
+
+
+3. Updating the Template
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+    To edit fixed tag vocabulary fields, we recommend using a HTML multiple select tag together
+    with the JQuery *Chosen* plugin (included in CKAN core).
+
+You must add a new field to your dataset form in order to display (and edit) the new
+geographical coverage tags. The following HTML segment creates a multiple select element
+to display the tags, marking any tags that are currently saved as 'selected'.
+
+::
+
+      <select id="geographical_coverage" class="chzn-select"
+              name="geographical_coverage" multiple="multiple">
+        <py:for each="tag in c.geographical_coverage">
+          <py:choose test="">
+          <option py:when="tag in data.get('geographical_coverage', [])"
+                  selected="selected" value="${tag}">${tag}</option>
+          <option py:otherwise="" value="${tag}">${tag}</option>
+          </py:choose>
+        </py:for>
+      </select>

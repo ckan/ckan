@@ -1,8 +1,9 @@
 from webob.multidict import UnicodeMultiDict, MultiDict
+from nose.tools import assert_raises, assert_equal
 
 from ckan.tests import *
 from ckan.tests import is_search_supported
-from ckan.lib.search import get_backend, QueryOptions
+import ckan.lib.search as search
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
@@ -21,16 +22,23 @@ class TestSearch(object):
                  {'url':self.ab,
                   'description':'This is site ab.',
                   'format':'Excel spreadsheet',
-                  'hash':'abc-123'},
+                  'hash':'abc-123',
+                  'alt_url': 'alt1',
+                  'extras':{'size_extra': '100'},
+                  },
                  {'url':self.cd,
                   'description':'This is site cd.',
                   'format':'Office spreadsheet',
-                  'hash':'qwe-456'},
-                 ]             
+                  'hash':'qwe-456',
+                  'alt_url':'alt2',
+                  'extras':{'size_extra':'200'},
+                  },
+                 ]
              },
             {'name':'pkg2',
              'resources':[
                  {'url':self.cd,
+                  'alt_url': 'alt1',
                   'description':'This is site cd.'},
                  {'url':self.ef,
                   'description':'This is site ef.'},
@@ -38,30 +46,29 @@ class TestSearch(object):
                   'description':'This is site gh.'},
                  {'url':self.ef,
                   'description':'This is site ij.'},
-                 ]             
+                 ]
              },
             ]
         CreateTestData.create_arbitrary(self.pkgs)
-        self.backend = get_backend(backend='sql')
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
-    def res_search(self, query='', fields={}, terms=[], options=QueryOptions()):
-        result = self.backend.query_for(model.PackageResource).run(query=query, fields=fields, terms=terms, options=options)
-        resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result['results']]
+    def res_search(self, query='', fields={}, terms=[], options=search.QueryOptions()):
+        result = search.query_for(model.Resource).run(query=query, fields=fields, terms=terms, options=options)
+        resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result['results']]
         urls = set([resource.url for resource in resources])
         return urls
 
     def test_01_search_url(self):
         fields = {'url':'site.com'}
-        result = self.backend.query_for(model.PackageResource).run(fields=fields)
+        result = search.query_for(model.Resource).run(fields=fields)
         assert result['count'] == 6, result
-        resources = [model.Session.query(model.PackageResource).get(resource_id) for resource_id in result['results']]
+        resources = [model.Session.query(model.Resource).get(resource_id) for resource_id in result['results']]
         urls = set([resource.url for resource in resources])
         assert set([self.ab, self.cd, self.ef]) == urls, urls
-        
+
     def test_02_search_url_2(self):
         urls = self.res_search(fields={'url':'a/b'})
         assert set([self.ab]) == urls, urls
@@ -75,7 +82,7 @@ class TestSearch(object):
     def test_04_search_url_none(self):
         urls = self.res_search(fields={'url':'nothing'})
         assert set() == urls, urls
-        
+
     def test_05_search_description(self):
         urls = self.res_search(fields={'description':'cd'})
         assert set([self.cd]) == urls, urls
@@ -106,58 +113,74 @@ class TestSearch(object):
 
     def test_12_search_all_fields(self):
         fields = {'url':'a/b'}
-        options = QueryOptions(all_fields=True)
-        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        options = search.QueryOptions(all_fields=True)
+        result = search.query_for(model.Resource).run(fields=fields, options=options)
         assert result['count'] == 1, result
         res_dict = result['results'][0]
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
-        expected_res_keys = model.PackageResource.get_columns() + \
-                            ['id', 'package_id', 'position']
-        assert res_keys == set(expected_res_keys), res_keys
+        expected_res_keys = set(model.Resource.get_columns())
+        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra', 'tracking_summary'])
+        assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]
         assert res_dict['id'] == ab.id
         assert res_dict['package_id'] == pkg1.id
         assert res_dict['url'] == ab.url
         assert res_dict['description'] == ab.description
-        assert res_dict['format'] == ab.format
+        # FIXME: This needs to be fixed before this branch is merged to master
+        from ckan.lib.dictization.model_dictize import _unified_resource_format
+        assert res_dict['format'] == _unified_resource_format(ab.format)
         assert res_dict['hash'] == ab.hash
         assert res_dict['position'] == 0
 
     def test_13_pagination(self):
         # large search
-        options = QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='hash')
         fields = {'url':'site'}
-        all_results = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        all_results = search.query_for(model.Resource).run(fields=fields, options=options)
         all_resources = all_results['results']
         all_resource_count = all_results['count']
         assert all_resource_count >= 6, all_results
 
         # limit
-        options = QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='hash')
         options.limit = 2
-        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        result = search.query_for(model.Resource).run(fields=fields, options=options)
         resources = result['results']
         count = result['count']
         assert len(resources) == 2, resources
-        assert count == all_resource_count
+        assert count == all_resource_count, (count, all_resource_count)
         assert resources == all_resources[:2], '%r, %r' % (resources, all_resources)
 
         # offset
-        options = QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='hash')
         options.limit = 2
         options.offset = 2
-        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        result = search.query_for(model.Resource).run(fields=fields, options=options)
         resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[2:4]
 
         # larger offset
-        options = QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='hash')
         options.limit = 2
         options.offset = 4
-        result = self.backend.query_for(model.PackageResource).run(fields=fields, options=options)
+        result = search.query_for(model.Resource).run(fields=fields, options=options)
         resources = result['results']
         assert len(resources) == 2, resources
         assert resources == all_resources[4:6]
+
+    def test_14_extra_info(self):
+        fields = {'alt_url':'alt1'}
+        result = search.query_for(model.Resource).run(fields=fields)
+        assert result['count'] == 2, result
+
+        fields = {'alt_url':'alt2'}
+        result = search.query_for(model.Resource).run(fields=fields)
+        assert result['count'] == 1, result
+
+        # Document that resource extras not in ckan.extra_resource_fields
+        # can't be searched
+        fields = {'size_extra':'100'}
+        assert_raises(search.SearchError, search.query_for(model.Resource).run, fields=fields)

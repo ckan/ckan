@@ -1,0 +1,106 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="optional_head">
+
+    <xi:include href="../snippets/recline-extra-header.html" />
+
+    <style type="text/css">
+
+      /* Hide the query controls */
+      .header {
+        display: none;
+      }
+
+      /* Hide the fields control */
+/*      .recline-fields-view {*/
+      .data-view-sidebar{
+        display: none;
+      }
+
+      .data-view-container {
+        margin-right: 0 !important;
+      }
+
+      /* Hide CKAN footer */
+      .footer.outer {
+        display: none;
+      }
+
+      /* Don't center the main container. And provide a little space to the
+         left and above the viewer.  This is for the graph-view, which, if a
+         small amount of room is not given, the y-axis' labels are uncomfortably
+         close to the edge of the viewport.
+      */
+      #main.container {
+        width: auto;
+        margin-left: 2px;
+      }
+
+      /* Remove the border from the right-hand-side */
+      #content {
+        border: 0px;
+      }
+
+      #ckanext-datapreview {
+        width: ${c.width-2}px;
+        height: ${c.height-81}px;
+      }
+
+      .recline-slickgrid {
+        height: ${c.height-81}px;
+      }
+
+      .slick-header-column {
+        border-top: 0 !important;
+        border-bottom: 0 !important;
+      }
+
+      .recline-graph .graph {
+        height: ${c.height-81}px;
+      }
+
+      .recline-map .map {
+        height: ${c.height-81}px;
+      }
+
+      .branded-link {
+        height: 34px;
+      }
+
+      .alert-messages {
+        display: none;
+      }
+
+    </style>
+    <script type="text/javascript">
+      var preload_resource = ${h.literal(c.resource_json)};
+      var reclineState = ${h.literal(c.recline_state)};
+    </script>
+  </py:def>
+
+  <py:def function="page_title">
+    ${h.dataset_display_name(c.package)} /
+    ${h.resource_display_name(c.resource)} - Dataset - Resource
+  </py:def>
+
+  <div py:match="content">
+    <div class="resource-preview">
+      <div id="ckanext-datapreview"></div>
+    </div>
+    <xi:include href="../snippets/data-viewer-embed-branded-link.html" />
+  </div>
+
+  <py:def function="optional_footer">
+
+    <script type="text/javascript" src="${h.url_for_static('/scripts/vendor/jquery.mustache/jquery.mustache.js')}"></script>
+
+    <xi:include href="../snippets/recline-extra-footer.html" />
+
+  </py:def>
+
+  <xi:include href="../layout_base.html" />
+</html>

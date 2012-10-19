@@ -1,0 +1,247 @@
+#dataexplorer-tableview-dialog table td {
+	background: #fff;
+	border: 1px solid #eee;
+	padding: 6px;
+	color: #555;
+}
+
+#dataexplorer-tableview-dialog table thead td {
+	background: #444;
+	color: #fff;
+	border-color: #444;
+	border-bottom: none;
+}
+
+.dataexplorer-tableview-viewer  {
+	position: relative;
+	height: 100%;
+	overflow: hidden;
+}
+
+.dataexplorer-tableview-nav  {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	height: 30px;
+}
+
+.dataexplorer-tableview-nav-toggle  {
+	float: left;
+}
+
+.dataexplorer-tableview-nav li {
+	float: left;
+}
+
+#dataexplorer-tableview-nav-editor,
+label[for=dataexplorer-tableview-nav-editor]  {
+	float: right;
+}
+
+.dataexplorer-tableview-grid {
+	border-left: 1px solid #ccc;
+}
+
+.dataexplorer-tableview-graph {
+	z-index: 1;
+	background-color: #fff;
+  margin-right: 220px;
+}
+
+.dataexplorer-tableview-editor {
+	z-index: 1;
+	background-color: #efefef;
+	width: 198px;
+	padding: 5px 10px;
+	border: 1px solid #ccc;
+	overflow: auto;
+	overflow-x: hidden;
+  float: right;
+}
+
+.dataexplorer-tableview-editor ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.dataexplorer-tableview-editor li {
+	margin-bottom: 10px;
+}
+
+.dataexplorer-tableview-editor .dataexplorer-tableview-editor-group {
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ddd;
+}
+
+.dataexplorer-tableview-editor label {
+	display: block;
+	font-weight: bold;
+	color: #555;
+	line-height: 1.4;
+}
+
+.dataexplorer-tableview-editor label a {
+	float: right;
+	font-size: 11px;
+	color: #999;
+	font-weight: normal;
+}
+
+.dataexplorer-tableview-editor select {
+	width: 100%;
+}
+
+.dataexplorer-tableview-editor button {
+	float: right;
+}
+
+.dataexplorer-tableview-editor-buttons {
+	clear: right;
+	overflow: hidden;
+}
+
+.dataexplorer-tableview-editor-submit {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid #ddd;
+}
+
+.dataexplorer-tableview-editor-info {
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px;
+}
+
+.dataexplorer-tableview-editor-info h1,
+.dataexplorer-tableview-editor-info p {
+	font-size: 12px;
+	margin: 0 0 10px;
+	color: #555;
+}
+
+.dataexplorer-tableview-editor-info h1 {
+	line-height: 16px;
+	cursor: pointer;
+	font-family: sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	margin: 0 0 4px;
+}
+
+.dataexplorer-tableview-editor-info h1 span {
+	position: relative;
+	top: 1px;
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	background: url(jquery-ui/css/ckan/images/ui-icons_444444_256x240.png) no-repeat -68px -17px;
+}
+
+.dataexplorer-tableview-editor-hide-info h1 span {
+	background-position: -36px -18px;
+}
+
+.dataexplorer-tableview-editor-hide-info p {
+	display: none;
+}
+
+.dataexplorer-tableview-hide-editor .dataexplorer-tableview-editor {
+	display: none;
+}
+
+.dataexplorer-tableview-hide-editor .dataexplorer-tableview-panel {
+	right: 0;
+}
+
+/* Style the preview buttons */
+.preview {
+	width: 65px;
+}
+
+.preview .resource-preview-button {
+	border: 1px solid #eaeaea;
+	color: #444;
+	padding: 3px 6px 2px 21px;
+	font-size: 12px;
+	font-weight: bold;
+	background: #fff url(./icon-sprite.png) no-repeat 5px 6px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-o-border-radius: 4px;
+	border-radius: 4px;
+	display: block;
+	margin: 0 -5px;
+}
+
+.preview .resource-preview-button:hover {
+	color: #000;
+	text-decoration: none;
+	border-color: #aaa;
+	background-color: #fafafa;
+	background-position: 5px -24px;
+}
+
+.preview .resource-preview-button:active {
+	color: #b22;
+	border-color: #b22;
+	background-position: 5px -54px;
+}
+
+.preview .resource-preview-chart {
+	background-position: 5px -83px;
+}
+
+.preview .resource-preview-chart:hover {
+	background-position: 5px -113px;
+}
+
+.preview .resource-preview-chart:active {
+	background-position: 5px -143px;
+}
+
+.preview .resource-preview-loading,
+.preview .resource-preview-loading:hover,
+.preview .resource-preview-loading:active {
+	color: #aaa;
+	border: 1px solid #eaeaea;
+	background-image: url(./loading.gif);
+	background-position: 3px 5px;
+	cursor: default;
+}
+
+/* Reduce the default size of the alert dialog */
+.ui-dialog .ui-button-text-only .ui-button-text {
+	padding: 3px 16px 1px;
+}
+
+/* Extend the resize handle into the adjacent column */
+.slick-resizable-handle {
+	width: 12px;
+	right: -6px;
+}
+
+/* Fix to crop the text correctly */
+.slick-header-wrapper {
+	overflow: hidden;
+	display: inline-block;
+	width: 100%;
+	text-overflow: ellipsis;
+}
+
+.slick-columnpicker {
+	border-color: #888;
+	z-index: 99999!important;
+}
+
+.slick-columnpicker label,
+.slick-columnpicker input {
+	cursor: pointer;
+}
+
+.dataexplorer-tableview-graph .legend table {
+  width: auto;
+}
+

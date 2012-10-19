@@ -1,0 +1,48 @@
+#!/bin/bash
+. /usr/lib/ckan/common.sh
+
+set -e
+
+# Un-comment for debugging
+
+# Check we are root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
+error() { 
+    echo -e "${@}" 1>&2
+    exit 1
+}
+
+usage() {
+    error "ERROR: call this script with instance name and \"on\" or \"off\", e.g.\n       $0  dgu   on"
+}
+
+[ "X$1" = "X" ] || [ "X$2" = "X" ] && usage
+instance=$1
+command=$2
+
+for conf in /etc/apache2/sites-available/${instance}{,.maint} ; do
+    [ -f ${conf} ] || error "ERROR: ${conf} not found"
+done
+
+case $command in
+    on)
+        echo "Putting CKAN site \"${instance}\" into maintenance mode ..."
+        maintenance_on $instance
+        echo "done."
+        ;;
+    
+    off)
+        echo "Disabling maintenance mode for CKAN site \"${instance}\" ..."
+        maintenance_off $instance
+        echo "done."
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+exit 0

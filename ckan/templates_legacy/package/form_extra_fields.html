@@ -1,0 +1,47 @@
+<py:if test="True" xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+      <dl>
+        <py:for each="field in c.fields">
+            <dt>
+              <label for="${field['name']}">
+                <py:choose test="field.has_key('key')">
+                  <py:when test="True">
+                    ${c.fieldset.prettify(field['key'])}
+                  </py:when>
+                  <py:when test="False">
+                    New key
+                  </py:when>
+                </py:choose>
+              </label>
+            </dt>
+            <dd>
+              <py:choose test="field.has_key('key')">
+                <py:when test="True">
+                  <input id="${field['name']}" name="${field['name']}" type="text" value="${field.get('value', '')}" />
+                  <input type="checkbox" name="${field['name']}-checkbox">Delete</input>
+
+                </py:when>
+                <py:when test="False">
+                  <input class="medium-width" id="${field['name']}-key" name="${field['name']}-key" type="text" />
+                  with value
+                  <input class="medium-width" id="${field['name']}-value" name="${field['name']}-value" type="text" />
+                </py:when>
+              </py:choose>
+            </dd>
+        </py:for>
+      </dl>
+<!--
+          <table>
+          <thead>
+            <tr><th>Key</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input name="Package-  -extras-newfield0-key" type="text" value="" /></td>
+              <td><input name="Package-  -extras-newfield0-value" type="text" class="short" value="" /></td>
+            </tr>
+          </tbody>
+          </table>
+-->
+</py:if>

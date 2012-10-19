@@ -1,6 +1,377 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.8
+====
+
+* [#2592,#2428] Ubuntu 12.04 Precise is now supported with CKAN source install.
+  The source install instructions have been updated and simplified.
+  Some of CKAN's dependencies have been updated and some removed.
+* Requirements have been updated see doc/install-from-source.rst
+  users will need to do a new pip install (#2592)
+* [#2304] New 'follow' feature. You'll now see a 'Followers' tab on user and
+  dataset pages, where you can see how many users are following that user or
+  dataset.  If you're logged in, you'll see a 'Follow' button on the pages of
+  datasets and other users that you can click to follow them. There are also
+  API calls for the follow features, see the Action API reference
+  documentation.
+* [#2305] New user dashboards, implemented by Sven R. Kunze
+  (https://github.com/kunsv) as part of his Masters thesis. When logged in, if
+  you go to your own user page you'll see a new 'Dashboard' tab where you can
+  see an activity stream from of all the users and datasets that you're
+  following.
+* [#2345] New action API reference docs. The documentation for CKAN's Action
+  API has been rewritten, with each function and its arguments and return
+  values now individually documented.
+* Template helper functions are now restricted by default. This is
+  part of a process of refactoring the CKAN code. By default only
+  those helper functions listed in lib.helpers.__allowed_functions__
+  are available to templates. The full functions can still be made
+  available by `setting ckan.restrict_template_vars = false` in your
+  .ini config file. Only restricted functions will be allowed in
+  future versions of CKAN.
+* [#2842] Allow sort ordering of dataset listings on group pages
+
+API changes and deprecation:
+* [#2313] Deprecated functions related to the old faceting data structure have
+  been removed:  `helpers.py:facet_items()`, `facets.html:facet_sidebar()`,
+  `facets.html:facet_list_items()`.
+  Internal use of the old facets datastructure (attached to the context,
+  `c.facets`) has been superseded by use of the improved facet data structure,
+  `c.search_facets`.  The old data structure is still available on `c.facets`,
+  but is deprecated, and will be removed in v1.9.
+
+v1.7.1 2012-06-20
+=================
+
+Minor:
+* Documentation enhancements regarding install and extensions (#2505)
+* Home page and search results speed improvements (#2402,#2403)
+* I18n: Added Greek translation and updated other ones (#2506)
+
+Bug fixes:
+* UI fixes (#2507)
+* Fixes for i18n login and logout issues (#2497)
+* Date on add/edit resource breaks if offset is specified (#2383)
+* Fix in organizations read page (#2509)
+* Add synchronous_search plugin to deployment.ini template (#2521)
+* Inconsistent language on license dropdown (#2575)
+* Fix bug in translating lists in multilingual plugin
+* Group autocomplete doesn't work with multiple words (#2373)
+* Other minor fixes
+
+
+v1.7 2012-05-09
+===============
+
+Major:
+ * Updated SOLR schema (#2327). Note: This will require and update of the SOLR schema file and a reindex.
+ * Support for Organization based workflow, with membership determinig access permissions to datasets (#1669,#2255)
+ * Related items such as visualizations, applications or ideas can now be added to datasets (#2204)
+ * Restricted vocabularies for tags, allowing grouping related tags together (#1698)
+ * Internal analytics that track number of views and downloads for datasets and resources (#2251)
+ * Consolidated multilingual features in an included extension (#1821,#1820)
+ * Atom feeds for publishers, tags and search results (#1593,#2277)
+ * RDF dump paster command (#2303)
+ * Better integration with the DataStore, based on ElasticSearch, with nice helper docs (#1797)
+ * Updated the Recline data viewer with new features such as better graphs and a map view (#2236,#2283)
+ * Improved and redesigned documentation (#2226,#2245,#2248)
+
+Minor:
+ * Groups can have an image associated (#2275)
+ * Basic resource validation (#1711)
+ * Ability to search without accents for accented words (#906)
+ * Weight queries so that title is more important than rest of body (#1826)
+ * Enhancements in the dataset and resource forms (#1506)
+ * OpenID can now be disabled (#1830)
+ * API and forms use same validation (#1792)
+ * More robust bulk search indexing, with options to ignore exceptions and just refresh (#1616i,#2232)
+ * Modify where the language code is placed in URLs (#2261)
+ * Simplified licenses list (#1359)
+ * Add extension point for dataset view (#1741)
+
+Bug fixes:
+ * Catch exceptions on the QA archiver (#1809)
+ * Error when changing language when CKAN is mounted in URL (#1804)
+ * Naming of a new package/group can clash with a route (#1742)
+ * Can't delete all of a package's resources over REST API (#2266)
+ * Group edit form didn't allow adding multiple datasets at once (#2292)
+ * Fix layout bugs in IE 7 (#1788)
+ * Bug with Portugese translation and Javascript (#2318)
+ * Fix broken parse_rfc_2822 helper function (#2314)
+
+v1.6 2012-02-24
+===============
+
+Major:
+ * Resources now have their own pages, as well as showing in the Dataset (#1445, #1449)
+ * Group pages enhanced, including in-group search (#1521)
+ * User pages enhanced with lists of datasets (#1396) and recent activity (#1515)
+ * Dataset view page decluttered (#1450)
+ * Tags not restricted to just letters and dashes (#1453)
+ * Stats Extension and Storage Extension moved into core CKAN (#1576, #1608)
+ * Ability to mounting CKAN at a sub-URL (#1401, #1659)
+ * 5 Stars of Openness ratings show by resources, if ckanext-qa is installed (#1583)
+ * Recline Data Explorer (for previewing and plotting data) improved and v2 moved into core CKAN (#1602, #1630)
+
+Minor:
+ * 'About' page rewritten and easily customisable in the config (#1626)
+ * Gravatar picture displayed next to My Account link (#1528)
+ * 'Delete' button for datasets (#1425)
+ * Relationships API more RESTful, validated and documented (#1695)
+ * User name displayed when logged in (#1529)
+ * Database dumps now exclude deleted packages (#1623)
+ * Dataset/Tag name length now limited to 100 characters in API (#1473)
+ * 'Status' API call now includes installed extensions (#1488)
+ * Command-line interface for list/read/deleting datasets (#1499)
+ * Slug API calls tidied up and documented (#1500)
+ * Users nagged to add email address if missing from their account (#1413)
+ * Model and API for Users to become Members of a Group in a certain Capacity (#1531, #1477)
+ * Extension interface to adjust search queries, indexing and results (#1547, #1738)
+ * API for changing permissions (#1688)
+
+Bug fixes:
+ * Group deletion didn't work (#1536)
+ * metadata_created used to return an entirely wrong date (#1546)
+ * Unicode characters in field-specific API search queries caused exception (since CKAN 1.5) (#1798)
+ * Sometimes task_status errors weren't being recorded (#1483)
+ * Registering or Logging in failed silently when already logged in (#1799)
+ * Deleted packages were browseable by administrators and appeared in dumps (#1283, #1623)
+ * Facicon was a broken link unless corrected in config file (#1627)
+ * Dataset search showed last result of each page out of order (#1683)
+ * 'Simple search' mode showed 0 packages on home page (#1709)
+ * Occasionally, 'My Account' shows when user is not logged in (#1513)
+ * Could not change language when on a tag page that had accented characters or dataset creation page (#1783, #1791)
+ * Editing package via API deleted its relationships (#1786)
+
+
+v1.5.1 2012-01-04
+=================
+
+Major:
+ * Background tasks (#1363, #1371, #1408)
+ * Fix for security issue affecting CKAN v1.5 (#1585)
+
+Minor:
+ * Language support now excellent for European languages: en de fr it es no sv pl ru pt cs sr ca
+ * Web UI improvements:
+    * Resource editing refreshed
+    * Group editing refreshed
+    * Indication that group creation requires logging-in (#1004)
+    * Users' pictures displayed using Gravatar (#1409)
+    * 'Welcome' banner shown to new users (#1378)
+    * Group package list now ordered alphabetically (#1502)
+ * Allow managing a dataset's groups also via package entity API (#1381)
+ * Dataset listings in API standardised (#1490)
+ * Search ordering by modification and creation date (#191)
+ * Account creation disallowed with Open ID (create account in CKAN first) (#1386)
+ * User name can be modified (#1386)
+ * Email address required for registration (for password reset) (#1319)
+ * Atom feeds hidden for now
+ * New config options to ease CSS insertion into the template (#1380)
+ * Removed ETag browser cache headers (#1422)
+ * CKAN version number and admin contact in new 'status_show' API (#1087)
+ * Upgrade SQLAlchemy to 0.7.3 (compatible with Postgres up to 9.1) (#1433)
+ * SOLR schema is now versioned (#1498)
+
+Bug fixes:
+ * Group ordering on main page was alphabetical but should be by size (since 1.5) (#1487)
+ * Package could get added multiple times to same Group, distorting Group size (#1484)
+ * Search index corruption when multiple CKAN instances on a server all storing the same object (#1430)
+ * Dataset property metadata_created had wrong value (since v1.3) (#1546)
+ * Tag browsing showed tags for deleted datasets (#920)
+ * User name change field validation error (#1470)
+ * You couldn't edit a user with a unicode email address (#1479)
+ * Package search API results missed the extra fields (#1455)
+ * OpenID registration disablement explained better (#1532)
+ * Data upload (with ckanext-storage) failed if spaces in the filename (#1518)
+ * Resource download count fixed (integration with ckanext-googleanalytics) (#1451)
+ * Multiple CKANs with same dataset IDs on the same SOLR core would conflict (#1462)
+
+
+v1.5 2011-11-07
+===============
+**Deprecated due to security issue #1585**
+
+Major:
+ * New visual theme (#1108)
+    * Package & Resource edit overhaul (#1294/#1348/#1351/#1368/#1296)
+    * JS and CSS reorganisation (#1282, #1349, #1380)
+ * Apache Solr used for search in core instead of Postgres (#1275, #1361, #1365)
+ * Authorization system now embedded in the logic layer (#1253)
+ * Captcha added for user registration (#1307, #1431)
+ * UI language translations refreshed (#1292, #1350, #1418)
+ * Action API improved with docs now (#1315, #1302, #1371)
+
+Minor:
+ * Cross-Origin Resource Sharing (CORS) support (#1271)
+ * Strings to translate into other languages tidied up (#1249)
+ * Resource format autocomplete (#816)
+ * Database disconnection gives better error message (#1290)
+ * Log-in cookie is preserved between sessions (#78)
+ * Extensions can access formalchemy forms (#1301)
+ * 'Dataset' is the new name for 'Package' (#1293)
+ * Resource standard fields added: type, format, size (#1324)
+ * Listing users speeded up (#1268)
+ * Basic data preview functionality moved to core from QA extension (#1357)
+ * Admin Extension merged into core CKAN (#1264)
+ * URLs in the Notes field are automatically linked (#1320)
+ * Disallow OpenID for account creation (but can be linked to accounts) (#1386)
+ * Tag name now validated for max length (#1418)
+
+Bug fixes:
+ * Purging of revisions didn't work (since 1.4.3) (#1258)
+ * Search indexing wasn't working for SOLR (since 1.4.3) (#1256)
+ * Configuration errors were being ignored (since always) (#1172)
+ * Flash messages were temporarily held-back when using proxy cache (since 1.3.2) (#1321)
+ * On login, user told 'welcome back' even if he's just registered (#1194)
+ * Various minor exceptions cropped up (mostly since 1.4.3) (#1334, #1346)
+ * Extra field couldn't be set to original value when key deleted (#1356)
+ * JSONP callback parameter didn't work for the Action API (since 1.4.3) (#1437)
+ * The same tag could be added to a package multiple times (#1331)
+
+
+v1.4.3.1 2011-09-30
+===================
+Minor:
+ * Added files to allow debian packaging of CKAN
+ * Added Catalan translation
+
+Bug fixes:
+ * Incorrect Group creation form parameter caused exception (#1347)
+ * Incorrect AuthGroup creation form parameter caused exception (#1346)
+
+
+v1.4.3 2011-09-13
+=================
+Major:
+  * Action API (API v3) (beta version) provides powerful RPC-style API to CKAN data (#1335)
+  * Documentation overhaul (#1142, #1192)
+
+Minor:
+  * Viewing of a package at a given date (as well as revision) with improved UI (#1236)
+  * Extensions can now add functions to the logic layer (#1211)
+  * Refactor all remaining database code out of the controllers and into the logic layer (#1229)
+  * Any OpenID log-in errors that occur are now displayed (#1228)
+  * 'url' field added to search index (e9214)
+  * Speed up tag reading (98d72)
+  * Cope with new WebOb version 1 (#1267)
+  * Avoid exceptions caused by bots hitting error page directly (#1176)
+  * Too minor to mention: #1234,
+
+Bug fixes:
+  * Re-adding tags to a package failed (since 1.4.1 in Web UI, 1.4 in API) (#1239)
+  * Modified revisions retrieved over API caused exception (since 1.4.2) (#1310)
+  * Whichever language you changed to, it announced "Language set to: English" (since 1.3.1) (#1082)
+  * Incompatibilities with Python 2.5 (since 1.3.4.1 and maybe earlier) (#1325)
+  * You could create an authorization group without a name, causing exceptions displaying it (#1323)
+  * Revision list wasn't showing deleted packages (b21f4)
+  * User editing error conditions handled badly (#1265)
+
+
+v1.4.2 2011-08-05
+=================
+Major:
+  * Packages revisions can be marked as 'moderated' (#1141, #1147)
+  * Password reset facility (#1186/#1198)
+
+Minor:
+  * Viewing of a package at any revision (#1236)
+  * API POSTs can be of Content-Type "application/json" as alternative to existing "application/x-www-form-urlencoded" (#1206)
+  * Caching of static files (#1223)
+
+Bug fixes:
+  * When you removed last row of resource table, you could't add it again - since 1.0 (#1215)
+  * Adding a tag to package that had it previously didn't work - since 1.4.1 in UI and 1.4.0 in API (#1239)
+  * Search index was not updated if you added a package to a group - since 1.1 (#1140)
+  * Exception if you had any Groups and migrated between CKAN v1.0.2 to v1.2 (migration 29) - since v1.0.2 (#1205)
+  * API Package edit requests returned the Package in a different format to usual - since 1.4 (#1214)
+  * API error responses were not all JSON format and didn't have correct Content-Type (#1214)
+  * API package delete doesn't require a Content-Length header (#1214)
+
+
+v1.4.1 2011-06-27
+=================
+Major:
+  * Refactor Web interface to use logic layer rather than model objects directly. Forms now defined in navl schema and designed in HTML template. Forms use of Formalchemy is deprecated. (#1078)
+
+Minor:
+  * Links in user-supplied text made less attractive to spammers (nofollow) #1181
+  * Package change notifications - remove duplicates (#1149)
+  * Metadata dump linked to (#1169)
+  * Refactor authorization code to be common across Package, Group and Authorization Group (#1074)
+
+Bug fixes
+  * Duplicate authorization roles were difficult to delete (#1083)
+
+
+v1.4 2011-05-19
+===============
+Major:
+  * Authorization forms now in grid format (#1074)
+  * Links to RDF, N3 and Turtle metadata formats provided by semantic.ckan.net (#1088)
+  * Refactor internal logic to all use packages in one format - a dictionary (#1046)
+  * A new button for administrators to change revisions to/from a deleted state (#1076)
+
+Minor:
+  * Etags caching can now be disabled in config (#840)
+  * Command-line tool to check search index covers all packages (#1073)
+  * Command-line tool to load/dump postgres database (#1067)
+
+Bug fixes:
+  * Visitor can't create packages on new CKAN install - since v1.3.3 (#1090)
+  * OpenID user pages couldn't be accessed - since v1.3.2 (#1056)
+  * Default site_url configured to ckan.net, so pages obtains CSS from ckan.net- since v1.3 (#1085)
+
+
+v1.3.3 2011-04-08
+=================
+Major:
+  * Authorization checks added to editing Groups and PackageRelationships (#1052)
+  * API: Added package revision history (#1012, #1071)
+
+Minor:
+  * API can take auth credentials from cookie (#1001)
+  * Theming: Ability to set custom favicon (#1051)
+  * Importer code moved out into ckanext-importlib repo (#1042)
+  * API: Group can be referred to by ID (in addition to name) (#1045)
+  * Command line tool: rights listing can now be filtered (#1072)
+
+Bug fixes:
+  * SITE_READ role setting couldn't be overridden by sysadmins (#1044)
+  * Default 'reader' role too permissive (#1066)
+  * Resource ordering went wrong when editing and adding at same time (#1054)
+  * GET followed by PUTting a package stored an incorrect license value (#662)
+  * Sibling package relationships were shown for deleted packages (#664)
+  * Tags were displayed when they only apply to deleted packages (#920)
+  * API: 'Last modified' time was localised - now UTC (#1068)
+
+
+v1.3.2 2011-03-15
+=================
+Major:
+  * User list in the Web interface (#1010)
+  * CKAN packaged as .deb for install on Ubuntu
+  * Resources can have extra fields (although not in web interface yet) (#826)
+  * CSW Harvesting - numerous of fixes & improvements. Ready for deployment. (#738 etc)
+  * Language switcher (82002)
+
+Minor:
+  * Wordpress integration refactored as a Middleware plugin (#1013)
+  * Unauthorized actions lead to a flash message (#366)
+  * Resources Groups to group Resources in Packages (#956)
+  * Plugin interface for authorization (#1011)
+  * Database migrations tested better and corrected (#805, #998)
+  * Government form moved out into ckanext-dgu repo (#1018)
+  * Command-line user authorization tools extended (#1038, #1026)
+  * Default user roles read from config file (#1039)
+
+Bug fixes:
+  * Mounting of filesystem (affected versions since 1.0.1) (#1040)
+  * Resubmitting a package via the API (affected versions since 0.6?) (#662)
+  * Open redirect (affected v1.3) (#1026)
+
+
 v1.3 2011-02-18
 ===============
 http://ckan.org/milestone/ckan-v1.3
@@ -36,7 +407,7 @@ Highlights of changes:
   * WordPress twentyten compatible theming (#797)
   * Caching support (ETag) (#693)
   * Harvesting GEMINI2 metadata records from OGC CSW servers (#566)
- 
+
 Minor:
   * New API key header (#466)
   * Group metadata now revisioned (#231)
@@ -54,14 +425,14 @@ Highlights of changes:
   * Resource search in API (#336)
   * Visual theming of CKAN now easy (#340, #320)
   * Greater integration with external Web UIs (#335, #347, #348)
-  * Plug-ins can be configured to handle web requests from specified URIs and 
+  * Plug-ins can be configured to handle web requests from specified URIs and
     insert HTML into pages.
 
 Minor:
   * Search engine optimisations e.g. alphabetical browsing (#350)
   * CSV and JSON dumps improved (#315)
 
-  
+
 v1.0.2 2010-08-27
 =================
 
@@ -112,7 +483,7 @@ Highlights of changes:
     (#247)
 
 Bugfixes:
- 
+
   * Resources were losing their history (#292)
   * Extra fields now work with spaces in the name (#278, #280) and
     international characters (#288)
@@ -154,7 +525,7 @@ For a full listing of tickets see: <http://ckan.org/milestone/v0.11>. Main highl
 
     * Change to UUIDs for revisions and all domain objects
     * Improved search performance and better pagination
-    * Significantly improved performance in API and WUI via judicious caching 
+    * Significantly improved performance in API and WUI via judicious caching
 
 
 v0.10 2009-09-30
@@ -174,7 +545,7 @@ v0.10 2009-09-30
     * Convert to use formalchemy for all forms (#76)
     * Use paginate in webhelpers (#118)
 
-  * Minor: 
+  * Minor:
 
     * Add author and maintainer attributes to package (#91)
     * Change package state in the WUI (delete and undelete) (#126)
@@ -219,7 +590,7 @@ v0.6 2008-07-08
   * Autocompletion (+ suggestion) of tags when adding tags to a package.
   * Paginated lists for packages, tags, and revisions.
   * RESTful machine API for package access, update, listing and creation.
-  * API Keys for users who wish to modify information via the REST API. 
+  * API Keys for users who wish to modify information via the REST API.
   * Update to vdm v0.2 (SQLObject) which fixes ordering of lists.
   * Better immunity to SQL injection attacks.
 

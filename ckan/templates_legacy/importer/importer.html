@@ -1,0 +1,39 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Importer</py:def>
+
+  <div py:match="content">
+    <h2>Import Datasets</h2>
+    <p>Here you can supply an Excel file with details of multiple datasets and import these into ${g.site_title}.</p>
+    <div>
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <h3 py:if="c.message">
+        ${c.message}
+      </h3>
+
+      ${h.form(h.url_for(controller='importer', action='preview'), multipart=True, id='import')}
+      <span class="ckan_logged_in" style="display: none;">
+	<div>
+          <?python enable_preview = {'disabled':'disabled'} if not c.user else {} ?>
+          ${h.file(name='file', **enable_preview)}
+	</div>
+	<p>
+          ${h.submit('preview', _('Preview'), **enable_preview)}
+	</p>
+      </span>
+      <span class="ckan_logged_out">
+        <p><strong>Log in to use this tool</strong></p>
+      </span>
+      ${h.end_form()}
+
+    </div>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>

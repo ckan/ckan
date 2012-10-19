@@ -1,0 +1,16 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Logout - User</py:def>
+
+  <py:def function="page_title">Logout</py:def>
+  <py:def function="page_heading">Logout from ${g.site_title}</py:def>
+  <py:def function="body_class">no-sidebar</py:def>
+
+  <div py:match="content">
+    <p>You have logged out successfully.</p>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

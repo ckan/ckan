@@ -2,9 +2,9 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData()
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
     # When adding a column to a revisioned object, need to add it to it's
     # counterpart revision object too. Here is the counter-part for that in

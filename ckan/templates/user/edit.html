@@ -1,61 +1,35 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">${c.user} - Edit - User</py:def>
+{% extends 'page.html' %}
 
-  <py:def function="optional_head">
-    <link rel="stylesheet" href="${g.site_url}/css/forms.css" type="text/css" media="screen, print" />
-  </py:def>
+{% set user = c.user %}
 
-  <div py:match="content">
-    <h2>
-      Edit User: ${c.user}
-      <a href="#preview" py:if="c.preview">(skip to preview)</a>
-    </h2>
+{% block breadcrumb_content %}
+  <li>{% link_for _('User'), controller='user', action='index' %}</li>
+  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
+    <li>{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
+  {% endwith %}
+  <li class="active">{% link_for _('Edit'), controller='user', action='edit', id=user.name %}</li>
+{% endblock %}
 
-    <form id="user-edit" action="" method="post" class="simple-form" 
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      >
-      <fieldset>
-        <legend>Base details</legend>
-        <label for="fullname">Full name:</label>
-        <input name="fullname" value="${c.user_fullname}" /><br/>
-         
-        <label for="email">E-Mail:</label>
-        <input name="email" value="${c.user_email}" /><br/>
-      </fieldset>
-      <fieldset>
-        <legend>Change your password</legend>
-        <label for="password1">Password:</label>
-        <input name="password1" value="" />
-        <br/>
-        <label for="password2">Password (repeat):</label>
-        <input name="password2" value="" />
-        <br/>
-      </fieldset>
-      <label for="about">About user:</label>
-      <textarea id="about" rows="5" name="about" cols="60">${c.user_about}</textarea>
-      <p class="small" i18n:msg="">You can use <a href="http://daringfireball.net/projects/markdown/syntax">Markdown formatting</a> here.</p>
+{% block actions_content %}
+  {% snippet 'user/snippets/back_to_user_action.html', user=user %}
+{% endblock %}
 
-      <div>
-        <input name="preview" type="submit" value="Preview" />
-        ${h.submit('save', _('Save'))}
-      </div>
-    </form>
-
-
-    <div id="preview" style="margin-left: 20px;" py:if="c.preview">
-      <hr />
-      <h2>Preview</h2>
-      <h4>Full name: ${c.user_fullname}</h4>
-      <div style="border: 2px dashed red; padding: 5px;"> 
-        ${c.preview}
-      </div>
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {{ c.form | safe }}
     </div>
-  </div>
+  </section>
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-medium icon-info-sign"></i> {{ _('Account Info') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        Your profile lets other CKAN users know about who you are and what you
+        do.
+      {% endtrans %}
+    </div>
+  </section>
+{% endblock %}

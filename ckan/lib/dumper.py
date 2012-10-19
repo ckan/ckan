@@ -4,7 +4,7 @@ from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.model
-from helpers import json
+from helpers import json, OrderedDict
 
 class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''
@@ -40,7 +40,7 @@ class SimpleDumper(object):
                         pkg_dict[name_] = value_
                     del pkg_dict[name]
             row_dicts.append(pkg_dict)
-        writer = PackagesCsvWriter(row_dicts)
+        writer = CsvWriter(row_dicts)
         writer.save(dump_file_obj)
 
     def dump_json(self, dump_file_obj, query):
@@ -61,7 +61,7 @@ class Dumper(object):
         ckan.model.PackageRevision,
         ckan.model.PackageTagRevision,
         ckan.model.Group,
-        ckan.model.PackageGroup,
+        ckan.model.Member,
         ckan.model.PackageExtra,
         ]
     # TODO Bring this list of classes up to date. In the meantime,
@@ -201,7 +201,7 @@ class Dumper(object):
                         values={'name': record.name})
                 update.execute()
 
-class PackagesCsvWriter:
+class CsvWriter:
     def __init__(self, package_dict_list=None):
         self._rows = []
         self._col_titles = []
@@ -282,18 +282,16 @@ class PackagesXlWriter:
         dict_ = pkg.as_dict()
 
         for key, value in dict_.items():
-            if (
-                key.endswith('_id')
-                or
-                key.startswith('rating') or key == 'id'
-                or
-                key in ['metadata_modified', 'metadata_created']
-                ):
+            # Not interested in dumping IDs - for internal use only really
+            if (key.endswith('_id') or key == 'id'
+                or key.startswith('rating')):
                 del dict_[key]
             if key=='resources':
                 for i, res in enumerate(value):
                     prefix = 'resource-%i' % i
-                    for field in model.PackageResource.get_columns():
+                    keys = model.Resource.get_columns()
+                    keys += [key_ for key_ in pkg.resources[i].extras.keys() if key_ not in keys]
+                    for field in keys:
                         dict_['%s-%s' % (prefix, field)] = res[field]
                 del dict_[key]
             elif isinstance(value, (list, tuple)):
@@ -303,3 +301,25 @@ class PackagesXlWriter:
                     dict_[key_] = value_
                 del dict_[key]
         return dict_
+
+class UserDumper(object):
+    def dump(self, dump_file_obj):
+        query = model.Session.query(model.User)
+        query = query.order_by(model.User.created.asc())
+
+        columns = (('id', 'name', 'openid', 'fullname', 'email', 'created', 'about'))
+        row_dicts = []
+        for user in query:
+            row = OrderedDict()
+            for col in columns:
+                value = getattr(user, col)
+                if not value:
+                    value = ''
+                if col == 'created':
+                    value = str(value) # or maybe dd/mm/yyyy?
+                row[col] = value
+            row_dicts.append(row)
+
+        writer = CsvWriter(row_dicts)
+        writer.save(dump_file_obj)
+        dump_file_obj.close()

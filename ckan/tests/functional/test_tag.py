@@ -1,3 +1,5 @@
+import json
+
 from ckan.tests import *
 import ckan.model as model
 
@@ -12,10 +14,10 @@ class TestTagController(TestController):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_index(self):
-        offset = url_for(controller='tag')
+        offset = url_for(controller='tag', action='index')
         res = self.app.get(offset)
         assert 'Tags' in res
         assert 'There are' in res
@@ -74,18 +76,52 @@ class TestTagController(TestController):
         assert 'russian' in res, res
         assert 'tolstoy' in res, res
 
+    def test_search_with_unicode_term(self):
+        offset = url_for(controller='tag', action='index', id=None)
+        res = self.app.get(offset)
+        search_term = u' \u30a1'.encode('utf8')
+        fv = res.forms['tag-search']
+        fv['q'] =  str(search_term)
+        res = fv.submit()
+        assert 'There are <strong>1</strong> results' in res, res
+        assert u'Flexible \u30a1' in res, res
+
     def test_autocomplete(self):
-        controller = 'apiv2/package'
-        action = 'autocomplete'
-        offset = url_for(controller=controller, action=action)
+        controller = 'api'
+        action = 'tag_autocomplete'
+        offset = url_for(controller=controller, action=action, ver=2)
         res = self.app.get(offset)
         assert '[]' in res
-        offset = url_for(controller=controller, action=action, incomplete='russian')
+        offset = url_for(controller=controller, action=action, incomplete='russian', ver=2)
         res = self.app.get(offset)
         assert 'russian' in res
         assert 'tolstoy' not in res
-        offset = url_for(controller=controller, action=action, incomplete='tolstoy')
+        offset = url_for(controller=controller, action=action, incomplete='tolstoy', ver=2)
         res = self.app.get(offset)
         assert 'russian' not in res
         assert 'tolstoy' in res
+
+    def test_autocomplete_with_capital_letter_in_search_term(self):
+        controller = 'api'
+        action = 'tag_autocomplete'
+        offset = url_for(controller=controller, action=action, incomplete='Flex', ver=2)
+        res = self.app.get(offset)
+        data = json.loads(res.body)
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
+        
+    def test_autocomplete_with_space_in_search_term(self):
+        controller = 'api'
+        action = 'tag_autocomplete'
+        offset = url_for(controller=controller, action=action, incomplete='Flexible ', ver=2)
+        res = self.app.get(offset)
+        data = json.loads(res.body)
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
+        
+    def test_autocomplete_with_unicode_in_search_term(self):
+        controller = 'api'
+        action = 'tag_autocomplete'
+        offset = url_for(controller=controller, action=action, incomplete=u'ible \u30a1', ver=2)
+        res = self.app.get(offset)
+        data = json.loads(res.body)
+        assert u'Flexible \u30a1' in data['ResultSet']['Result'][0].values()
 

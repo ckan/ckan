@@ -22,13 +22,6 @@ class TestRevisionController(TestController):
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
-    @search_related
-    def test_link_major_navigation(self):
-        offset = url_for(controller='home')
-        res = self.app.get(offset)
-        res = res.click('Revision History')
-        assert 'Revision History' in res
-
     def test_paginated_list(self):
         # Ugh. Why is the number of items per page hard-coded? A designer might
         # decide that 20 is the right number of revisions to display per page,
@@ -84,7 +77,7 @@ class TestRevisionController(TestController):
         try:
             # paginate links are also just numbers
             # res2 = res.click('^%s$' % link_exp)
-            res2 = res.click(href='revision/read/%s$' % link_exp)
+            res2 = res.click(link_exp)
         except:
             print "\nThe first response (list):\n\n"
             print str(res)
@@ -110,11 +103,12 @@ class TestRevisionController(TestController):
         package = self.get_package(name)
         if 'resources' in kwds:
             resources = kwds.pop('resources')
-            package.resources = []
+            for resource in package.resource_groups_all[0].resources_all:
+                resource.state = 'deleted'
             for resource in resources:
-                resource = model.PackageResource(**resource)
+                resource = model.Resource(**resource)
                 model.Session.add(resource)
-                package.resources.append(resource)
+                package.resource_groups_all[0].resources_all.append(resource)
         if 'extras' in kwds:
             extras_data = kwds.pop('extras')
         #    extras = []
@@ -142,14 +136,6 @@ class TestRevisionController(TestController):
     def get_package(self, name):
         return model.Package.by_name(name) 
 
-    def test_read_redirect_at_base(self):
-        # have to put None as o/w seems to still be at url set in previous test
-        offset = url_for(controller='revision', action='read', id=None)
-        res = self.app.get(offset)
-        # redirect
-        res = res.follow()
-        assert 'Revision History' in res
-
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
         rev_id = anna.revision.id
@@ -161,18 +147,11 @@ class TestRevisionController(TestController):
         #assert 'Author:</strong> tester' in res
         #assert 'Log Message:' in res
         #assert 'Creating test data.' in res
-        #assert 'Package: annakarenina' in res
-        #assert "Packages' Tags" in res
+        #assert 'Dataset: annakarenina' in res
+        #assert "Datasets' Tags" in res
         #res = res.click('annakarenina', index=0)
-        #assert 'Packages - annakarenina' in res
+        #assert 'Datasets - annakarenina' in res
         
-    def test_purge(self):
-        offset = url_for(controller='revision', action='purge', id=None)
-        res = self.app.get(offset)
-        assert 'No revision id specified' in res
-        # hmmm i have to be logged in to do proper testing 
-        # TODO: come back once login is sorted out
-
     def test_list_format_atom(self):
         self.create_40_revisions()
         self.create_updating_revision(u'warandpeace',
@@ -202,14 +181,16 @@ class TestRevisionController(TestController):
         # Todo: Test for first revision on last page.
         # Todo: Test for last revision minus 50 on second page.
         # Page 1.   (Implied id=1)
-        offset = url_for(controller='revision', action='list')
-        res = self.app.get(offset + '?format=atom')
+        offset = url_for(controller='revision', action='list', format='atom')
+        res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
         # Todo: Better test for 'days' request param.
         #  - fake some older revisions and check they aren't included.
-        res = self.app.get(offset + '?format=atom&days=30')
+        offset = url_for(controller='revision', action='list', format='atom',
+                days=30)
+        res = self.app.get(offset)
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res

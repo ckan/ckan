@@ -1,0 +1,50 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <py:match path="minornavigation">
+    <ul py:if="c.group" class="tabbed">
+      <li py:attrs="{'class':'current-tab'} if c.action=='read' else {}">${h.subnav_named_route(c, h.icon('group') + _('View'), 'publisher_read',controller='group', action='read', id=c.group.name)}</li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='history' else {}">${h.subnav_named_route(c, h.icon('page_white_stack') + _('History'),  'publisher_action', controller='group', action='history', id=c.group.name)}</li>
+      <span class="divider" py:if="h.check_access('group_update',{'id':c.group.id})">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+      <li class="dropdown" py:attrs="{'class':'current-tab dropdown'} if c.action=='resource_read' else {'class':'dropdown'}" py:if="h.check_access('group_update',{'id':c.group.id})">
+        <div class="dropdown-appears">
+          <div class="dropdown-items">
+            <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">New Dataset...</a>
+            <a href="${h.url_for(controller='group', action='edit', id=c.group.name)}#datasets">Existing Dataset...</a>
+          </div>
+        </div>
+        <div class="dropdown-appears"><div class="white-box"></div></div>
+        <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">
+          ${h.icon('add') + _('Add Dataset')}</a>
+        &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('group_update',{'id':c.group.id})">
+        <!-- TODO: We need to be able to change the URL below based on the type of the group -->
+        ${h.subnav_named_route( c,h.icon('group_edit') + _('Edit'), 'publisher_action', action='edit', id=c.group.name )}
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='authz' else {}" py:if="h.check_access('group_edit_permissions',{'id':c.group.id})">
+        ${h.subnav_named_route(c, h.icon('lock') + _('Authorization'), 'publisher_action', controller='group', action='authz', id=c.group.name)}
+      </li>
+
+      <!-- li class="action">
+      ${h.subnav_link(c, h.icon('atom_feed') + _('Subscribe'),
+      controller='group', action='history', id=c.group.name, format='atom', days=7)}
+      </li-->
+    </ul>
+    <ul py:if="not c.group" class="tabbed">
+      <li py:attrs="{'class':'current-tab'} if c.action=='index' else {}">
+        ${h.subnav_named_route(c, h.icon('group') + _('List Publishers'), "publisher_index", action="index" )}
+      </li>
+      <li py:attrs="{'class':'current-tab'} if c.action=='new' else {}">        <span class="ckan-logged-in" style="display: none;">${ h.subnav_named_route(c, h.icon('group_add') + _('Add a Publisher'), "publisher_new" , action='new')}</span>
+        <span class="ckan-logged-out">${h.subnav_link(c, h.icon('group_add') + _('Login to Add a Publisher'), controller='group', action='new')}</span>
+      </li>
+    </ul>
+  </py:match>
+
+  <xi:include href="layout.html" />
+</html>

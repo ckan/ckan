@@ -1,0 +1,30 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Reset your password</py:def>
+
+  <div py:match="content">
+    <form id="user-reset" action="" method="post" class="simple-form" 
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      >
+      <fieldset>
+        <legend>Reset your password</legend>
+        <label for="password1">Password:</label>
+        <input type="password" name="password1" value="" />
+        <br/>
+        <label for="password2">Password (repeat):</label>
+        <input type="password" name="password2" value="" />
+        <br/>
+      </fieldset>
+      <div>
+        <input type="submit" id="save" name="save" class="btn primary" value="Save" />
+      </div>
+    </form>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

@@ -1,74 +1,91 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
+{% extends "page.html" %}
 
-  <py:def function="page_title">Home</py:def>
+{% block subtitle %}{{ _("Welcome") }}{% endblock %}
 
-  <py:def function="optional_head">
-  <script src="${g.site_url}/scripts/jquery.tagcloud.js"></script>
-  <script type="text/javascript" charset="utf-8">
-    $(document).ready(function(){
-      $.fn.tagcloud.defaults = {
-        size: {start: 10, end: 32, unit: "pt"}, 
-        color: {start: '#af8', end: '#f52'}
-      };
-      $("#tagcloud a").tagcloud();
-    })
-  </script>
-  <style type="text/css">
-    #tagcloud * {
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 0.9;
-    }
+{% block maintag %}{% endblock %}
 
-    #tagcloud a {
-      text-decoration: none;
-    }
-
-    #tagcloud a:hover {
-      text-decoration: underline;
-    }
-
-    #tagcloud {
-      margin: 25px auto;
-      text-align: center;
-    }
-  </style>
-  </py:def>
-
-  <div py:match="content">
-    <h2>Welcome to ${g.site_title}</h2>
-    <p i18n:msg="title">
-      ${g.site_title} is an
-      <a href="http://www.opendefinition.org/ossd/">open registry</a>
-      of data and content packages. Harnessing the CKAN software, this
-      site makes it easy to find, share and reuse content and data,
-      especially in ways that are machine automatable.
-    </p>
-    
-    <p i18n:msg="package_count"><strong>${c.package_count} registered data packages</strong> available.</p>
-
-    <xi:include href="../package/search_form.html" />
-    
-    <py:if test="len(c.facets.get('tags', {}))">
-        <h4>Top Tags</h4>
-        <div id="tagcloud">
-        <py:for each="tag_name, count in c.facets.get('tags', {}).items()">
-          <a rel="${count}" title="${count}" href="${h.url_for(controller='tag',
-            action='read', id=tag_name)}">${tag_name}</a>
-        </py:for>
-        </div>
-        <hr />
-    </py:if>
-
-    <h4>Recently changed packages</h4>
-    ${package_list(c.latest_packages)}
-
-    <p><a href="${h.url_for(controller='revision', action='index',
-      id=None)}">View revision log &raquo;</a></p>
+{% block content %}
+  <div role="main" class="hero">
+    <div id="content" class="container">
+      {{ self.flash() }}
+      {{ self.primary_content() }}
+    </div>
   </div>
+  <div class="main">
+    <div class="container">
+      {{ self.secondary_content() }}
+    </div>
+  </div>
+{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block primary_content %}
+  <div class="hero-primary module module-popup">
+    <div class="module-content">
+      {% block home_primary %}
+        <header>
+          {% if g.site_intro_text %}
+          {{ h.render_markdown(g.site_intro_text) }}
+          {% else %}
+            {% block home_primary_content %}
+              <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
+              <p>
+              {% block home_primary_text %}
+                {% trans %}This is a nice introductory paragraph about CKAN or the site
+                in general. We don't have any copy to go here yet but soon we will
+                {% endtrans %}
+              {% endblock %}
+              </p>
+            {% endblock %}
+          {% endif %}
+        </header>
+      {% endblock %}
+
+      {% block home_image %}
+        <section class="featured media-overlay">
+          <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
+          {% block home_image_content %}
+            <a class="media-image" href="#">
+              <img src="http://placehold.it/420x220" alt="Placeholder" width="420" height="220" />
+            </a>
+          {% endblock %}
+        </section>
+      {% endblock %}
+    </div>
+  </div>
+  <div class="hero-secondary">
+    <div class="hero-secondary-inner">
+      {% block home_secondary_content %}
+        {% block home_search %}
+          <div class="module module-shallow module-narrow module-dark info">
+            <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
+              <h3 class="heading">{{ _("Search Your Data") }}</h3>
+              <span class="control-group search-giant">
+                <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
+                <button type="submit" value="{{ _('Search') }}">Submit</button>
+              </span>
+            </form>
+          </div>
+        {% endblock %}
+
+        {% block home_tags %}
+          <div class="tags">
+            <h3 class="tag">Popular {{ c.facet_titles.name }}</h3>
+            {% set tags = h.get_facet_items_dict('tags', limit=3) %}
+            {% snippet 'snippets/tag_list.html', tags=tags %}
+          </div>
+        {% endblock %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="group-listing">
+    {% for group in c.group_package_stuff %}
+      {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{# Remove the toolbar. #}
+{% block toolbar %}{% endblock %}

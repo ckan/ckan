@@ -1,0 +1,25 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.tag['display_name']} - Tags</py:def>
+  <py:def function="page_heading">Tag: ${c.tag['display_name']}</py:def>
+
+  <div py:match="content">
+    <p i18n:msg="count, tagname">There are ${len(c.tag['packages'])} datasets tagged with <strong>${c.tag['display_name']}</strong>:</p>
+    ${package_list_from_dict(c.tag['packages'])}
+  </div>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Datasets tagged with '${c.tag['name']}'"
+    href="${h.url(controller='feed', action='tag', id=c.tag['name'])}" />
+  <link rel="alternate" type="application/atom+xml" title="${g.site_title} - Recent Revision History"
+    href="${h.url_for(controller='revision', action='list', format='atom', days=1)}" />
+  </py:def>
+
+
+  <xi:include href="layout.html" />
+</html>
+
+

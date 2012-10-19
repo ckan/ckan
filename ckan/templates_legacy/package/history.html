@@ -1,0 +1,53 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.pkg_dict.get('title', c.pkg_dict['name'])} - Datasets - History</py:def>
+  <py:def function="page_heading">History: ${c.pkg.title or c.pkg.name}</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+  
+  <div py:match="content" class="dataset">
+    <h3>Revisions</h3>
+    <form id="dataset-revisions" action="diff" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      > 
+
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+      
+      <input type="hidden" name="pkg_name" value="${c.pkg_dict['name']}"/>
+
+      <table class="table table-striped table-bordered table-condensed">
+        <tr>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+        </tr>
+        <py:for each="index, rev in enumerate(c.pkg_revisions)">
+          <tr>
+            <td nowrap="nowrap">
+              ${h.radio("selected1", rev.id, checked=(index == 0))}
+              ${h.radio("selected2", rev.id, checked=(index == len(c.pkg_revisions)-1))}
+            </td>
+            <td>
+              <a href="${h.url_for(controller='revision',action='read',id=rev['id'])}">${rev['id'][:4]}&#8230;</a>
+            </td>
+            <td>
+              <a href="${h.url_for(controller='package',action='read',id='%s@%s' % (c.pkg_dict['name'], rev['timestamp']))}" title="${_('Read dataset as of %s') % rev['timestamp']}">${h.render_datetime(rev['timestamp'], with_hours=True)}</a></td>
+            <td>${h.linked_user(rev['author'])}</td>
+            <td>${rev['message']}</td>
+          </tr> 
+        </py:for>
+      </table>
+      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="btn btn-primary" />
+    </form>
+  </div>
+
+  <py:def function="optional_feed">
+  <link rel="alternate" type="application/atom+xml" title="Dataset History"
+    href="${h.url(controller='package', action='history', id=c.pkg_dict['name'], format='atom', days=7)}" />
+  </py:def>
+
+  <xi:include href="layout.html" />
+</html>

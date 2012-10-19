@@ -1,0 +1,36 @@
+    <form id="dataset-edit" action="" method="post" class="ckan dataset_create_form"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:attrs="{'class':'has-errors'} if c.errors or c.fieldset.errors else {}"
+      >
+
+      ${c.form}
+
+
+      <hr />
+
+      <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
+      <textarea id="log_message" name="log_message" class="short wide">${c.log_message}</textarea>
+
+      <div class="ckan-logged-in" style="display: none;">
+	<p>Author: ${c.author}</p>
+      </div>
+      <div class="ckan-logged-out">
+        <label>Author: ${c.author}</label>
+        <p class="hints">
+        Since you have not signed in this will just be your IP address.
+        <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
+        </p>
+      </div>
+
+      <div class="submit">
+        ${h.submit('save', _('Save'))}
+      </div>
+
+      <p i18n:msg="" class="hints">
+      <strong>Important:</strong> By submitting content, you agree to release your contributions under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
+      </p>
+
+    </form>
+

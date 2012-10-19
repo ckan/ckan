@@ -4,51 +4,67 @@ from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for
-from ckan.lib.cache import proxy_cache
 from ckan.lib.helpers import AlphaPage, Page
+
+from ckan.logic import NotFound, NotAuthorized
+from ckan.logic import check_access, get_action
 
 LIMIT = 25
 
+
 class TagController(BaseController):
+
+    def __before__(self, action, **env):
+        BaseController.__before__(self, action, **env)
+        try:
+            context = {'model': model, 'user': c.user or c.author}
+            check_access('site_read', context)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
 
     def index(self):
         c.q = request.params.get('q', '')
-        
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+
+        data_dict = {'all_fields': True}
+
         if c.q:
             page = int(request.params.get('page', 1))
-            query = query_for('tag', backend='sql')
-            query.run(query=c.q,
-                      limit=LIMIT,
-                      offset=(page-1)*LIMIT,
-                      return_objects=True,
-                      username=c.user)
+            data_dict['q'] = c.q
+            data_dict['limit'] = LIMIT
+            data_dict['offset'] = (page - 1) * LIMIT
+            data_dict['return_objects'] = True
+
+        results = get_action('tag_list')(context, data_dict)
+
+        if c.q:
             c.page = h.Page(
-                            collection=query.results,
-                            page=page,
-                            item_count=query.count,
-                            items_per_page=LIMIT
-                            )
-            c.page.items = query.results
+                collection=results,
+                page=page,
+                item_count=len(results),
+                items_per_page=LIMIT
+            )
+            c.page.items = results
         else:
-            query = model.Tag.all()
             c.page = AlphaPage(
-                collection=query,
+                collection=results,
                 page=request.params.get('page', 'A'),
                 alpha_attribute='name',
                 other_text=_('Other'),
             )
-           
+
         return render('tag/index.html')
 
-    @proxy_cache()
     def read(self, id):
-        query = model.Session.query(model.Tag)
-        query = query.filter(model.Tag.name==id)
-        query = query.options(eagerload_all('package_tags.package'))
-        query = query.options(eagerload_all('package_tags.package.package_tags.tag'))
-        query = query.options(eagerload_all('package_tags.package.package_resources_all'))
-        c.tag = query.first()
-        if c.tag is None:
-            abort(404)
-        return render('tag/read.html')
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
 
+        data_dict = {'id': id}
+        try:
+            c.tag = get_action('tag_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Tag not found'))
+
+        return render('tag/read.html')

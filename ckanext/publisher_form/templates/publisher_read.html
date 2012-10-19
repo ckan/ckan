@@ -1,0 +1,100 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <xi:include href="facets.html" />
+  <py:def function="page_title">${c.group.display_name}</py:def>
+  <py:def function="page_heading">${c.group.display_name}</py:def>
+
+  <?python
+    from pylons import config
+    from ckan import model
+
+    if config.get('ckan.auth.profile', '') == 'publisher':
+        group_administrators = c.group.members_of_type(model.User, 'admin')
+    else:
+        group_administrators = c.group_admins
+  ?>
+  <py:match path="primarysidebar">
+
+    <li class="widget-container widget_text">
+      <ul class="property-list">
+        <py:if test="group_administrators">
+        <li>
+        <h3>Administrators</h3>
+          <ul class="no-break">
+            <li py:for="admin in group_administrators">${h.linked_user(admin)}</li>
+          </ul>
+        </li>
+        </py:if>
+      </ul>
+    </li>
+    ${facet_div('tags', _('Tags'))}
+    ${facet_div('res_format', _('Resource Formats'))}
+  </py:match>
+
+  <py:match path="content">
+    <h3 py:if="c.group['state'] != 'active'">State: ${c.group['state']}</h3>
+    <div class="notes" py:if="str(c.description_formatted).strip()">
+      <div id="notes-extract">
+        ${c.description_formatted}
+      </div>
+      <div id="notes-remainder"></div>
+      <div id="notes-toggle" style="display: none;">
+        <button class="more btn"><img src="/images/chevron-down.png"/></button>
+        <button class="less btn" style="display: none;"><img src="/images/chevron-up.png"/></button>
+      </div>
+    </div>
+    <div class="group-dataset-list">
+      <h3>Datasets</h3>
+
+      <form id="dataset-search" class="dataset-search" method="GET">
+        <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search')}..." />
+        <py:for each="(k, v) in c.fields">
+          <input type="hidden" name="${k}" value="${v}" />
+        </py:for>
+        <input type="submit" value="${_('Search')}" class="btn primary button" />
+      </form>
+      ${field_list()}
+
+      <p i18n:msg="query, number_of_results"><span py:if="c.q">You searched for "${c.q}". </span>${c.page.item_count} datasets found.</p>
+      ${c.page.pager()}
+
+      <py:for each="package in c.page.items">
+        <div class="search-result ${'fullyopen' if (package.isopen and package.get('resources')) else None}">
+          <p class="extra-links">
+            <a class="view-more-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">View</a>
+          </p>
+          <a class="main-link" href="${h.url_for(controller='package', action='read', id=package.get('name'))}">${package.get('title') or package.get('name')}</a>
+          &nbsp;&nbsp;
+          <py:if test="package.resources">
+            <py:for each="resource in package.resources">
+              <py:if test="resource.get('format')">
+                <a href="${resource.get('url')}"
+                  title="${resource.get('description')}"><span class="format-box">${resource.get('format')}</span></a>
+              </py:if>
+            </py:for>
+          </py:if>
+          <p class="result-description">${h.markdown_extract(package.notes)}</p>
+
+          <span class="result-url">
+            <py:if test="package.isopen">
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+            </py:if>
+            <py:if test="not package.isopen">
+              ${h.icon('lock')} Not Openly Licensed
+            </py:if>
+          </span>
+        </div>
+      </py:for>
+      ${c.page.pager()}
+    </div>
+  </py:match>
+
+  <xi:include href="publisher_layout.html" />
+</html>
+
+

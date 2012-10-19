@@ -1,0 +1,75 @@
+<py:if test="True" xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="form_fields(field_group)">
+    <?python 
+      fields = []
+      for field in c.fieldset.render_fields.itervalues():
+        if field.metadata.get('field_group', None) in (None, field_group):
+          fields.append(field)
+      need_labels = False
+      for field in fields:
+        if field.requires_label:
+          need_labels = True
+          break
+    ?>
+    <py:choose test="need_labels">
+      <dl py:when="True">
+        <py:for each="field in fields">
+          <py:if test="field.metadata.get('field_group', None) in (None, field_group)">
+            <py:if test="field.requires_label">
+              <dt>
+                <label class="${field.is_required() and 'field_req' or 'field_opt'}" for="${field.renderer.name}">
+                  ${[field.label_text, c.fieldset.prettify(field.key)][int(field.label_text is None)]}
+                  <py:if test="field.is_required()">*</py:if>
+                </label>
+              </dt>
+            </py:if>
+            <dd>
+              ${h.literal(field.render())}
+            </dd>
+            <py:if test="field.metadata.has_key('basic_instructions') and not field.is_readonly()">
+              <dd class="instructions basic">${field.metadata['basic_instructions']}</dd>
+            </py:if>
+            <py:if test="field.metadata.has_key('further_instructions') and not field.is_readonly()">
+              <dd class="instructions further">${field.metadata['further_instructions']}</dd>
+            </py:if>
+            <py:if test="field.metadata.has_key('hints') and not field.is_readonly()">
+              <dd class="hints">${field.metadata['hints']}</dd>
+            </py:if>
+            <dd py:for="error in field.errors" class="field_error">${_(error)}</dd>    
+          </py:if>
+        </py:for>
+      </dl>
+      <py:otherwise test="">
+        <py:for each="field in fields">
+          ${h.literal(field.render())}
+        </py:for>
+            <py:if test="field.metadata.has_key('basic_instructions')">
+              <div class="instructions basic">${field.metadata['basic_instructions']}</div>
+            </py:if>
+            <py:if test="field.metadata.has_key('further_instructions')">
+              <div class="instructions further">${field.metadata['further_instructions']}</div>
+            </py:if>
+            <py:if test="field.metadata.has_key('hints')">
+              <div class="hints">${field.metadata['hints']}</div>
+            </py:if>
+            <div py:for="error in field.errors" class="field_error">${_(error)}</div>
+
+            <py:if test="c.fieldset.focus == field or c.fieldset.focus is True">
+              <py:if test="not field.is_readonly()">
+                <script type="text/javascript">
+//<![CDATA[
+$(document).ready(function () {
+    $("#${field.renderer.name}").focus();
+});
+//]]>
+                </script>
+              </py:if>
+            </py:if>
+      </py:otherwise>
+    </py:choose>
+  </py:def>
+
+</py:if>

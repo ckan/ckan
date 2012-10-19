@@ -71,19 +71,19 @@ class TestDumper(object):
 
     @classmethod
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_dump(self):
         assert os.path.exists(self.outpath) 
         dumpeddata = json.load(open(self.outpath))
         assert dumpeddata['version'] == ckan.__version__
         tables = dumpeddata.keys()
-        for key in ['Package', 'Tag', 'Group', 'PackageGroup', 'PackageExtra']:
+        for key in ['Package', 'Tag', 'Group', 'Member', 'PackageExtra']:
             assert key in tables, '%r not in %s' % (key, tables)
         for key in ['User']:
             assert key not in tables, '%s should not be in %s' % (key, tables)
         assert len(dumpeddata['Package']) == 2, len(dumpeddata['Package'])
-        assert len(dumpeddata['Tag']) == 2, len(dumpeddata['Tag'])
+        assert len(dumpeddata['Tag']) == 3, len(dumpeddata['Tag'])
         assert len(dumpeddata['PackageRevision']) == 2, len(dumpeddata['PackageRevision'])
         assert len(dumpeddata['Group']) == 2, len(dumpeddata['Group'])
 

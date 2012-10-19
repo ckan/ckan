@@ -1,0 +1,24 @@
+    <form id="group-edit" action="" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:attrs="{'class':'has-errors'} if c.errors or c.fieldset.errors else {}"
+      >
+
+      ${h.literal(c.fieldset.render())}
+
+     <fieldset>
+      <legend>Datasets</legend>
+      <ul py:for="pkg in c.fieldset.model.packages">
+        <li>
+            <input checked="checked" id="Group-datasets-current" name="Group-packages-current" type="checkbox" value="${pkg.name}" />
+            <label for="Group-packages_${pkg.name}" style="display: inline;">${pkg.name}</label>
+        </li>
+      </ul>
+      <p py:if="not c.fieldset.model.packages">There are no datasets currently in this group.</p>
+     </fieldset>
+
+      ${h.literal(c.fieldset2.render())}
+
+      <br/>
+      ${h.submit('save', _('Save'))}
+    </form>

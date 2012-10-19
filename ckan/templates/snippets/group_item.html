@@ -1,0 +1,24 @@
+<section class="span6 group-list module module-narrow module-shallow">
+  <header class="module-heading media">
+    {% set url=h.url_for(controller='group', action='read', id=group.name) %}
+    {% set truncate=truncate or 0 %}
+    <a class="media-image" href="{{ url }}">
+      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="100" height="60" alt="{{ group.name }}" />
+    </a>
+    <div class="media-content">
+      <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+      {% if group.description %}
+        {% if truncate == 0 %}
+          <p>{{ h.markdown_extract(group.description)|urlize }}</p>
+        {% else %}
+          <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
+        {% endif %}
+      {% else %}
+        <p class="empty">{{ _('There is no description for this group') }}</p>
+      {% endif %}
+    </div>
+  </header>
+  {% set list_class = "unstyled dataset-list" %}
+  {% set item_class = "dataset-item module-content" %}
+  {% snippet 'snippets/package_list.html', packages=group.packages, list_class=list_class, item_class=item_class, truncate=120 %}
+</section>

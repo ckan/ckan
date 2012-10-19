@@ -1,42 +1,46 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">${c.group.title or c.group.name} - Groups</py:def>
+{% extends "page.html" %}
 
-  <div py:match="content">
-   <div class="group">
-    <h2 class="head">
-      <py:if test="not c.group.title">
-        <em>No Title</em>
-      </py:if>
+{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
-      ${c.group.title}
-      <span class="name">(${c.group.name})</span>
-    </h2>
+{% block breadcrumb_content %}
+  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
+{% endblock %}
 
-    <div class="description">
-      ${c.group_description_formatted}
+{% block actions_content %}
+  {% if h.check_access('group_update', {'id': c.group.id}) %}
+    <li>{% link_for _('Add Dataset to Group'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
+    <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='cog' %}</li>
+  {% endif %}
+  {# <li>{% link_for _('History'), controller='group', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {% include "package/snippets/search_form.html" %}
     </div>
+    {{ c.page.pager(q=c.q) }}
+  </section>
+{% endblock %}
 
-    <py:if test="c.group_admins">
-      <h3>Administrators:</h3> 
-        <py:for each="admin in c.group_admins">
-          ${h.linked_user(admin)}
-        </py:for>
-    </py:if>      
+{% block secondary_content %}
+  {% snippet 'snippets/group.html', group=c.group_dict %}
 
-    <h3>Packages:</h3>
-    <p i18n:msg="item_count">There are ${c.page.item_count} packages in this group.</p>
-    ${c.page.pager()}
-    ${package_list(c.page.items)}
-    ${c.page.pager()}
-    
-   </div>
-  </div>
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-user"></i> {{ _('Administrators') }}</h2>
+    <ul class="nav nav-simple">
+      {% for admin in c.group_admins %}
+        <li class="nav-item image">{{ h.linked_user(admin, 30) }}</li>
+      {% endfor %}
+    </ul>
+  </section>
 
-  <xi:include href="layout.html" />
-</html>
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
+{% endblock %}
 
-
+{% block links %}
+  {{ super() }}
+  {% include "group/snippets/feeds.html" %}
+{% endblock %}

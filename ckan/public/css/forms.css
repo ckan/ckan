@@ -3,7 +3,7 @@
 fieldset {
   padding: 1em;
   margin: 0 0 1.5em 0;
-  border: 1px solid #ccc; }
+  border-bottom: 1px solid #ccc; }
  
 legend {
   font-weight: bold;
@@ -46,9 +46,13 @@ input[type=url], input.url {
 input.title {
   font-size: 1.5em; }
 input.short {
-  width: 5em; }
-input.medium-width {
+  width: 15em; }
+table input.short {
   width: 12em; }
+input.medium-width {
+  width: 25em; }
+table input.medium-width {
+  width: 20em; }
 input.long {
   width: 100%; }
  
@@ -61,7 +65,7 @@ textarea {
 textarea.short {
     height: 1em; }
 textarea.wide {
-    width: 62.5em;
+    width: 55;
     height: 1em; }
  
 select[multiple], select.multiple {
@@ -104,7 +108,10 @@ form dl {
     vertical-align: middle; }
   form dl dd ul {
     margin: 0.5em 0 0 0;
-    padding: 0; }
+    padding-top: 0; 
+    padding-right: 0; 
+    padding-bottom: 0; 
+  }
   form dl dd.notes, form dl dd.hints, .hints {
     padding: 0 0 0.3em 0;
     color: #555;
@@ -132,6 +139,12 @@ form.has-errors .field_error, form.has-errors .error-explanation {
   position: relative;
   background: transparent url(../images/icons/error.png) left 3px no-repeat; }
  
+td.field_warning {
+  color: #d12f19; }
+
+.fieldset_button_error {
+  background: transparent url(../images/icons/error.png) left center no-repeat; }
+
 .error-explanation,
 #errorExplanation {
   background: #fff;
@@ -176,3 +189,11 @@ form.has-errors .field_error, form.has-errors .error-explanation {
 #preview {
   margin-bottom: 30px;
   }
+
+#openid_form {
+  width: 100%;
+}
+
+#openid_input_area {
+  padding: 0px;
+}

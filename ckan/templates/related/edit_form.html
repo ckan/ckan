@@ -1,0 +1,15 @@
+{% extends "related/snippets/related_form.html" %}
+
+{% block button_text %}
+  {% if data.id %}
+    {{ _('Update') }}
+  {% else %}
+    {{ _('Create') }}
+  {% endif %}
+{% endblock %}
+
+{% block delete_button %}
+  {% if data.id %}
+  {{ super() }}
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Tags</py:def>
+
+  <div py:match="content">
+    <h2>Tags</h2>
+
+    <form class="form-inline" id="tag-search" action="" method="GET">
+      <input type="text" id="q" name="q" value="${c.q}" />
+      <input class="btn btn-primary" type="submit" name="search" value="${_('Search')} &raquo;" />
+    </form>
+    
+    <hr />
+    
+    <p>
+      <py:choose test="">
+        <py:when test="c.q" i18n:msg="item_count, tagname">
+          There are <strong>${c.page.item_count}</strong> results for &lsquo;<strong>${c.q.strip()}</strong>&rsquo;.
+        </py:when>
+        <py:otherwise i18n:msg="item_count">
+          There are <strong>${c.page.item_count}</strong> results for tags.
+        </py:otherwise>
+      </py:choose>
+    </p>
+    
+    ${c.page.pager(q=c.q)}
+    ${tag_list(c.page.items)}
+    ${c.page.pager(q=c.q)}
+    
+    <p py:if="c.q">
+      ${h.link_to(_('Clear search'), h.url_for(controller='tag', action='index', id=None))} and see all tags.
+    </p>
+    
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

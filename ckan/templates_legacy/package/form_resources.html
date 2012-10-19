@@ -1,0 +1,21 @@
+<table xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      >
+
+          <thead> 
+              <tr>
+                <th class="${c.field.is_required(column) and 'field_req' or 'field_opt'} resource-${column}" py:for="column in c.columns">
+                  ${c.fieldset.prettify(column)}
+                  <py:if test="c.field.is_required(column)">*</py:if>
+                </th>
+              </tr>
+          </thead> 
+          <tbody> 
+            <tr py:for="i, res in enumerate(c.resources)"> 
+              <td py:for="column in c.columns" class="resource-${column}">
+                <input name="${c.id}-${i}-${column}" type="${'url' if column == 'url' else 'text'}" value="${res[column] if res else ''}" class="${{'format':'short', 'description':'medium-width', 'hash':'short'}.get(column, 'short')}"/>
+              </td> 
+              <td class="resource-id"><input name="${c.id}-${i}-id" type="hidden" value="${res.get('id', '') if res else ''}" /></td>
+            </tr>
+          </tbody>
+</table>

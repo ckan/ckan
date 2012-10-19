@@ -1,0 +1,59 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">History: ${c.group.display_name}</py:def>
+  <py:def function="page_heading">History: ${c.group.display_name}</py:def>
+
+  <div py:match="content" class="group">
+    <h3>
+      Revisions
+      <!--p class="atom-feed-link group-history-link">
+        <a
+          href="${h.url(controller='group', action='history', id=c.group_dict['name'], format='atom', days=7)}"
+          title="${g.site_title} - Group History - ${c.group_dict['name']}"
+          >
+          Subscribe &raquo;</a>
+      </p-->
+    </h3>
+    <form id="group-revisions" action="diff" method="post"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      > 
+
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      <input type="hidden" name="group_name" value="${c.group_dict['name']}"/>
+
+      <table class="table table-bordered table-striped">
+        <tr>
+          <th></th><th>Revision</th><th>Timestamp</th><th>Author</th><th>Log Message</th>
+        </tr>
+        <py:for each="index, revision_dict in enumerate(c.group_revisions)">
+          <tr>
+            <td nowrap="nowrap">
+              ${h.radio("selected1", revision_dict['id'], checked=(index == 0))}
+              ${h.radio("selected2", revision_dict['id'], checked=(index == len(c.group_revisions)-1))}
+            </td>
+            <td>
+              <a href="${h.url_for(controller='revision',action='read',id=revision_dict['id'])}">${revision_dict['id']}</a>
+            </td>
+            <td>${revision_dict['timestamp']}</td>
+            <td>${h.linked_user(revision_dict['author'])}</td>
+            <td>${revision_dict['message']}</td>
+          </tr> 
+        </py:for>
+      </table>
+      <input type="submit" name="diff" value="${_('Compare &raquo;')}" class="btn primary" />
+    </form>
+  </div>
+
+  <py:def function="optional_feed">
+    <link rel="alternate" type="application/atom+xml" title="Group History"
+      href="${h.url(controller='group', action='history', id=c.group_dict['name'], format='atom', days=7)}" />
+  </py:def>
+
+  <xi:include href="layout.html" />
+</html>

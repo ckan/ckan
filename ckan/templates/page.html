@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{%- block page -%}
+
+  {#
+  Override the header on a page by page basis by extending this block. If
+  making sitewide header changes it is preferable to override the header.html
+  file.
+  #}
+  {%- block header %}
+    {% include "header.html" %}
+  {% endblock -%}
+
+  {# The content block allows you to replace the content of the page if needed #}
+  {%- block content %}
+    {% block maintag %}<div role="main">{% endblock %}
+      <div id="content" class="container">
+        {% block main_content %}
+          {% block flash %}
+            {% set flash_messages = h.flash.pop_messages() | list %}
+            <div class="flash-messages">
+              {% for message in flash_messages %}
+                <div class="alert fade in {{ message.category }}">
+                  {{ h.literal(message) }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endblock %}
+
+          {% block toolbar %}
+            <div class="toolbar">
+              {% block breadcrumb %}
+                {% if self.breadcrumb_content() | trim %}
+                  <ol class="breadcrumb">
+                    {% snippet 'snippets/home_breadcrumb_item.html' %}
+                    {% block breadcrumb_content %}{% endblock %}
+                  </ol>
+                {% endif %}
+              {% endblock %}
+              {% block actions %}
+                <ul class="actions pull-right">
+                  {% block actions_content %}{% endblock %}
+                </ul>
+              {% endblock %}
+            </div>
+          {% endblock %}
+
+          {% block primary %}
+            <div class="primary">
+              {#
+              The primary_content block can be used to add content to the page.
+              This is the main block that is likely to be used within a template.
+
+              Example:
+
+                {% block primary_content %}
+                  <h1>My page content</h1>
+                  <p>Some content for the page</p>
+                {% endblock %}
+              #}
+              {% block primary_content %}{% endblock %}
+            </div>
+          {% endblock %}
+
+          {% block secondary %}
+            <aside class="secondary">
+              {#
+              The secondary_content block can be used to add content to the
+              sidebar of the page. This is the main block that is likely to be
+              used within a template.
+
+              Example:
+
+                {% block secondary_content %}
+                  <h2>A sidebar item</h2>
+                  <p>Some content for the item</p>
+                {% endblock %}
+              #}
+              {% block secondary_content %}{% endblock %}
+            </aside>
+          {% endblock %}
+        {% endblock %}
+      </div>
+    </div>
+  {% endblock -%}
+
+  {#
+  Override the footer on a page by page basis by extending this block. If
+  making sitewide header changes it is preferable to override the footer.html-u
+  file.
+  #}
+  {%- block footer %}
+    {% include "footer.html" %}
+  {% endblock -%}
+{%- endblock -%}
+
+{%- block scripts %}
+    {% resource 'base/main' %}
+    {% resource 'vendor/vendor' %}
+    {% if config.get('ckan.tracking_enabled', 'false') %}
+        {% resource 'base/tracking.js' %}
+    {% endif %}
+  {{ super() }}
+{% endblock -%}

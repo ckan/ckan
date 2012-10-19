@@ -1,21 +1,16 @@
-from vdm.sqlalchemy import State
+import logging
 
-from sqlalchemy.orm import object_session
-from sqlalchemy.orm.interfaces import EXT_CONTINUE
+import ckan.plugins as plugins
+import extension
+import domain_object
+import package as _package
+import resource
 
-from ckan.plugins import SingletonPlugin, PluginImplementations, implements
-from ckan.plugins import IMapper, IDomainObjectModification
+log = logging.getLogger(__name__)
 
-from ckan.model.extension import ObserverNotifier
-from ckan.model.domain_object import DomainObjectOperation
+__all__ = ['DomainObjectModificationExtension']
 
-from ckan.model.package import Package
-from ckan.model.resource import PackageResource
-from ckan.model.package_extra import PackageExtra
-from ckan.model.tag import PackageTag
-
-
-class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
+class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.ObserverNotifier):
     """
     A domain object level interface to change notifications
 
@@ -23,55 +18,56 @@ class DomainObjectModificationExtension(SingletonPlugin, ObserverNotifier):
     out with check_real_change.
     """
 
-    implements(IMapper, inherit=True)
-    observers = PluginImplementations(IDomainObjectModification)
-    
-    def check_real_change(self, instance):
-        """
-        Return True if the change concerns an object with revision information
-        and has been modifed in the current SQLAlchemy session.
-        """
-        if not instance.revision:
-            return False
-        return object_session(instance).is_modified(
-            instance, include_collections=False
-        )
+    plugins.implements(plugins.ISession, inherit=True)
+    observers = plugins.PluginImplementations(plugins.IDomainObjectModification)
 
-    def after_insert(self, mapper, connection, instance):
-        return self.send_notifications(instance,
-            DomainObjectOperation.new
-        )
+    def before_commit(self, session):
 
-    def after_update(self, mapper, connection, instance):
-        return self.send_notifications(instance,
-            DomainObjectOperation.changed
-        )
-        
-    def before_delete(self, mapper, connection, instance):
-        return self.send_notifications(instance,
-            DomainObjectOperation.deleted
-        )
+        session.flush()
+        if not hasattr(session, '_object_cache'):
+            return
 
-    def send_notifications(self, instance, operation):
-        """
-        Called when a db object changes, this method works out what
-        notifications need to be sent and calls send_notification to do it.
-        """
-        if not (operation == DomainObjectOperation.deleted or self.check_real_change(instance)):
-            return EXT_CONTINUE
+        obj_cache = session._object_cache
+        new = obj_cache['new']
+        changed = obj_cache['changed']
+        deleted = obj_cache['deleted']
 
-        if isinstance(instance, Package):
-            self.notify(instance, operation)
-        elif isinstance(instance, PackageResource):
-            self.notify(instance, operation)
-            self.notify(instance.package, DomainObjectOperation.changed)
-        elif isinstance(instance, (PackageExtra, PackageTag)):
-            self.notify(instance.package, DomainObjectOperation.changed)
-        else:
-            raise NotImplementedError(instance)
+        for obj in set(new):
+            if isinstance(obj, (_package.Package, resource.Resource)):
+                self.notify(obj, domain_object.DomainObjectOperation.new)
+        for obj in set(deleted):
+            if isinstance(obj, (_package.Package, resource.Resource)):
+                self.notify(obj, domain_object.DomainObjectOperation.deleted)
+        for obj in set(changed):
+            if isinstance(obj, resource.Resource):
+                self.notify(obj, domain_object.DomainObjectOperation.changed)
+            if getattr(obj, 'url_changed', False):
+                for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
+                    item.notify(obj)
 
-        return EXT_CONTINUE
+        changed_pkgs = set(obj for obj in changed if isinstance(obj, _package.Package))
+
+        for obj in new | changed | deleted:
+            if not isinstance(obj, _package.Package):
+                try:
+                    related_packages = obj.related_packages()
+                except AttributeError:
+                    continue
+                # this is needed to sort out vdm bug where pkg.as_dict does not
+                # work when the package is deleted.
+                for package in related_packages:
+                    if package and package not in deleted | new:
+                        changed_pkgs.add(package)
+        for obj in changed_pkgs:
+            self.notify(obj, domain_object.DomainObjectOperation.changed)
+
 
     def notify(self, entity, operation):
         for observer in self.observers:
-            observer.notify(entity, operation)
+            try:
+                observer.notify(entity, operation)
+            except Exception, ex:
+                log.exception(ex)
+                # We reraise all exceptions so they are obvious there
+                # is something wrong
+                raise

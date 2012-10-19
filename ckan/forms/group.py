@@ -36,7 +36,7 @@ class PackagesField(common.ConfiguredField):
                 packages_as_string = unicode(value)
                 packages_as_string = packages_as_string.replace(',', ' ')
                 pkg_list = packages_as_string.split()
-            packages = [model.Package.by_name(pkg_name) for pkg_name in pkg_list]
+            packages = [model.Package.get(pkg_ref) for pkg_ref in pkg_list]
             return packages        
 
 # For new_package_group_fs
@@ -49,7 +49,7 @@ class PackagesRenderer(formalchemy.fields.FieldRenderer):
 
 def build_group_form(is_admin=False, with_packages=False):
     builder = FormBuilder(model.Group)
-    builder.set_field_text('name', _('Name'), literal("<br/><strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'"))
+    builder.set_field_text('name', _('Name'), literal("<strong>Unique identifier</strong> for group.<br/>2+ chars, lowercase, using only 'a-z0-9' and '-_'<p></p>"))
     builder.set_field_option('name', 'validate', common.group_name_validator)
     builder.set_field_option('description', 'textarea', {'size':'60x15'})
     builder.add_field(ExtrasField('extras', hidden_label=True))
@@ -68,21 +68,20 @@ def build_group_form(is_admin=False, with_packages=False):
 fieldsets = {}
 
 def get_group_fieldset(combined=False, is_admin=False):
-    if not 'group_fs' in fieldsets:
-        # group_fs has no packages - first half of the WUI form
-        fieldsets['group_fs'] = build_group_form(is_admin=is_admin).get_fieldset()
-        
-        # group_fs_combined has packages - used for REST interface
-        fieldsets['group_fs_combined'] = build_group_form(is_admin=is_admin, 
-                                                          with_packages=True).get_fieldset()
+    fs_name = 'group_fs'
+    if is_admin:
+        fs_name += '_admin'
     if combined:
-        return fieldsets['group_fs_combined']
-    return fieldsets['group_fs']
+        fs_name += '_combined'
+    if not fs_name in fieldsets:
+        # group_fs has no packages - first half of the WUI form
+        fieldsets[fs_name] = build_group_form(is_admin=is_admin, with_packages=combined).get_fieldset()
+    return fieldsets[fs_name]
 
 def get_package_group_fieldset():
     if not 'new_package_group_fs' in fieldsets:
         # new_package_group_fs is the packages for the WUI form
-        builder = FormBuilder(model.PackageGroup)
+        builder = FormBuilder(model.Member)
         builder.add_field(PackageNameField('package_name'))
         builder.set_field_option('package_name', 'with_renderer', PackagesRenderer)
         builder.set_field_text('package_name', _('Package'))

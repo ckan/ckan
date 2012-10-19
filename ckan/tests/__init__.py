@@ -24,22 +24,25 @@ import pkg_resources
 import paste.fixture
 import paste.script.appinstall
 from paste.deploy import loadapp
-from routes import url_for
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
-from ckan.lib.helpers import _flash
+from ckan.lib.helpers import _flash, url_for
+from ckan.lib.helpers import json
+from ckan.logic import get_action
+from ckan.logic.action import get_domain_object
 import ckan.model as model
+from ckan import ckan_nose_plugin
 
 __all__ = ['url_for',
            'TestController',
            'CreateTestData',
            'TestSearchIndexer',
-           'ModelMethods',
            'CheckMethods',
            'CommonFixtureMethods',
            'TestCase',
            'SkipTest',
+           'CkanServerCase',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +50,18 @@ conf_dir = os.path.dirname(os.path.dirname(here_dir))
 
 # Invoke websetup with the current config file
 SetupCommand('setup-app').run([config['__file__']])
+
+# monkey patch paste.fixtures.TestRespose
+# webtest (successor library) already has this
+# http://pythonpaste.org/webtest/#parsing-the-body
+def _getjson(self):
+    return json.loads(self.body)
+paste.fixture.TestResponse.json = property(_getjson)
+
+# Check config is correct for sqlite
+if model.engine_is_sqlite():
+    assert ckan_nose_plugin.CkanNose.settings.is_ckan, \
+           'You forgot the "--ckan" nosetest setting - see doc/test.rst'
 
 class BaseCase(object):
 
@@ -69,73 +84,6 @@ class BaseCase(object):
         cls._system('paster --plugin ckan %s --config=%s' % (cmd, config_path))
 
 
-class ModelMethods(BaseCase):
-
-    require_common_fixtures = True
-    reuse_common_fixtures = True
-    has_common_fixtures = False
-    commit_changesets = True
-
-    def conditional_create_common_fixtures(self):
-        if self.require_common_fixtures:
-            self.create_common_fixtures()
-
-    def create_common_fixtures(self):
-        CreateTestData.create(commit_changesets=self.commit_changesets)
-        CreateTestData.create_arbitrary([], extra_user_names=[self.user_name])
-
-    def reuse_or_delete_common_fixtures(self):
-        if ModelMethods.has_common_fixtures and not self.reuse_common_fixtures:
-            ModelMethods.has_common_fixtures = False
-            self.delete_common_fixtures()
-            self.commit_remove()
-
-    def delete_common_fixtures(self):
-        CreateTestData.delete()
-
-    def rebuild(self):
-        model.repo.rebuild_db()
-        self.remove()
-
-    def add(self, domain_object):
-        model.Session.add(domain_object)
-
-    def add_commit(self, domain_object):
-        self.add(domain_object)
-        self.commit()
-
-    def add_commit_remove(self, domain_object):
-        self.add(domain_object)
-        self.commit_remove()
-
-    def delete(self, domain_object):
-        model.Session.delete(domain_object)
-
-    def delete_commit(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    def delete_commit_remove(self, domain_object):
-        self.delete(domain_object)
-        self.commit()
-
-    @staticmethod
-    def commit():
-        model.Session.commit()
-
-    @classmethod
-    def commit_remove(cls):
-        cls.commit()
-        cls.remove()
-
-    @staticmethod
-    def remove():
-        model.Session.remove()
-
-    def count_packages(self):
-        return model.Session.query(model.Package).count()
-
-
 class CommonFixtureMethods(BaseCase):
 
     @classmethod
@@ -144,8 +92,8 @@ class CommonFixtureMethods(BaseCase):
         CreateTestData.create_arbitrary(package_dicts=[data or kwds], admins=admins)
 
     @classmethod
-    def create_user(self, **kwds):
-        user = model.User(name=kwds['name'])             
+    def create_user(cls, **kwds):
+        user = model.User(name=kwds['name'])
         model.Session.add(user)
         model.Session.commit()
         model.Session.remove()
@@ -164,22 +112,17 @@ class CommonFixtureMethods(BaseCase):
         return model.User.by_name(name)
 
     @staticmethod
-    def get_harvest_source_by_url(source_url, default=Exception):
-        return model.HarvestSource.get(source_url, default, 'url')
-
-    def create_harvest_source(self, **kwds):
-        source = model.HarvestSource(**kwds)
-        source.save()
-        return source
+    def get_tag_by_name(name):
+        return model.Tag.by_name(name)
 
     def purge_package_by_name(self, package_name):
         package = self.get_package_by_name(package_name)
         if package:
             package.purge()
-            self.commit_remove()
+            model.repo.commit_and_remove()
 
     @classmethod
-    def purge_packages(self, pkg_names):
+    def purge_packages(cls, pkg_names):
         for pkg_name in pkg_names:
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
@@ -190,6 +133,12 @@ class CommonFixtureMethods(BaseCase):
     def purge_all_packages(self):
         all_pkg_names = [pkg.name for pkg in model.Session.query(model.Package)]
         self.purge_packages(all_pkg_names)
+
+    def purge_group_by_name(self, group_name):
+        group = self.get_group_by_name(group_name)
+        if group:
+            group.purge()
+            model.repo.commit_and_remove()
 
     @classmethod
     def clear_all_tst_ratings(self):
@@ -207,6 +156,25 @@ class CommonFixtureMethods(BaseCase):
     def anna(self):
         return self.get_package_by_name(u'annakarenina')
 
+    @property
+    def roger(self):
+        return self.get_group_by_name(u'roger')
+
+    @property
+    def david(self):
+        return self.get_group_by_name(u'david')
+
+    @property
+    def russian(self):
+        return self.get_tag_by_name(u'russian')
+
+    @property
+    def tolstoy(self):
+        return self.get_tag_by_name(u'tolstoy')
+
+    @property
+    def flexible_tag(self):
+        return self.get_tag_by_name(u'Flexible \u30a1')
 
 class CheckMethods(BaseCase):
 
@@ -221,8 +189,8 @@ class CheckMethods(BaseCase):
 
     def assert_isinstance(self, value, check):
         assert isinstance(value, check), 'Not an instance: %s' % ((value, check),)
-    
-    def assert_raises(self, exception_class, callable, *args, **kwds): 
+
+    def assert_raises(self, exception_class, callable, *args, **kwds):
         try:
             callable(*args, **kwds)
         except exception_class:
@@ -243,7 +211,7 @@ class CheckMethods(BaseCase):
         assert isinstance(object, kind), "Object %s is not an instance of %s." % (object, kind)
 
 
-class TestCase(CommonFixtureMethods, ModelMethods, CheckMethods, BaseCase):
+class TestCase(CommonFixtureMethods, CheckMethods, BaseCase):
     def setup(self):
         super(TestCase, self).setup()
         self.conditional_create_common_fixtures()
@@ -273,6 +241,7 @@ class CkanServerCase(BaseCase):
         cls._paster('db clean', config_path)
         cls._paster('db init', config_path)
         cls._paster('create-test-data', config_path)
+        cls._paster('search-index rebuild', config_path)
 
     @staticmethod
     def _start_ckan_server(config_file=None):
@@ -296,7 +265,7 @@ class CkanServerCase(BaseCase):
                 break
 
     @staticmethod
-    def _stop_ckan_server(process): 
+    def _stop_ckan_server(process):
         pid = process.pid
         pid = int(pid)
         if os.system("kill -9 %d" % pid):
@@ -305,15 +274,14 @@ class CkanServerCase(BaseCase):
 
 class TestController(CommonFixtureMethods, CkanServerCase, WsgiAppCase, BaseCase):
 
-    def commit_remove(self):
-        # Todo: Converge with ModelMethods.commit_remove().
-        model.repo.commit_and_remove()
-
     def assert_equal(self, *args, **kwds):
         assert_equal(*args, **kwds)
 
     def assert_not_equal(self, *args, **kwds):
         assert_not_equal(*args, **kwds)
+
+    def clear_language_setting(self):
+        self.app.cookies = {}
 
 
 class TestSearchIndexer:
@@ -324,8 +292,8 @@ class TestSearchIndexer:
      (create packages)
     self.tsi.index()
      (do searching)
-    ''' 
-    
+    '''
+
     def __init__(self):
         from ckan import plugins
         if not is_search_supported():
@@ -334,33 +302,101 @@ class TestSearchIndexer:
 
     @classmethod
     def index(cls):
-        pass     
+        pass
+
+    @classmethod
+    def list(cls):
+        return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
+
+def setup_test_search_index():
+    from ckan import plugins
+    if not is_search_supported():
+        raise SkipTest("Search not supported")
+    search.clear()
+    plugins.load('synchronous_search')
 
 def is_search_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
+
+def are_foreign_keys_supported():
+    return not model.engine_is_sqlite()
 
 def is_regex_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def is_migration_supported():
-    supported_db = "sqlite" not in config.get('sqlalchemy.url')
-    return supported_db
+    is_supported_db = not model.engine_is_sqlite()
+    return is_supported_db
 
 def search_related(test):
     def skip_test(*args):
         raise SkipTest("Search not supported")
     if not is_search_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
-    
+    return test
+
 def regex_related(test):
     def skip_test(*args):
         raise SkipTest("Regex not supported")
     if not is_regex_supported():
         return make_decorator(test)(skip_test)
-    return make_decorator(test)
+    return test
 
 def clear_flash(res=None):
     messages = _flash.pop_messages()
+
+try:
+    from nose.tools import assert_in, assert_not_in
+except ImportError:
+    def assert_in(a, b, msg=None):
+        assert a in b, msg or '%r was not in %r' % (a, b)
+    def assert_not_in(a, b, msg=None):
+        assert a not in b, msg or '%r was in %r' % (a, b)
+
+class TestRoles:
+    @classmethod
+    def get_roles(cls, domain_object_ref, user_ref=None,
+                  prettify=True):
+        data_dict = {'domain_object': domain_object_ref}
+        if user_ref:
+            data_dict['user'] = user_ref
+        role_dicts = get_action('roles_show') \
+                     ({'model': model, 'session': model.Session}, \
+                      data_dict)['roles']
+        if prettify:
+            role_dicts = cls.prettify_role_dicts(role_dicts)
+        return role_dicts
+
+    @classmethod
+    def prettify_role_dicts(cls, role_dicts, one_per_line=True):
+        '''Replace ids with names'''
+        pretty_roles = []
+        for role_dict in role_dicts:
+            pretty_role = {}
+            for key, value in role_dict.items():
+                if key.endswith('_id') and value and key != 'user_object_role_id':
+                    pretty_key = key[:key.find('_id')]
+                    domain_object = get_domain_object(model, value)
+                    pretty_value = domain_object.name
+                    pretty_role[pretty_key] = pretty_value
+                else:
+                    pretty_role[key] = value
+            if one_per_line:
+                pretty_role = '"%s" is "%s" on "%s"' % (
+                    pretty_role.get('user'),
+                    pretty_role['role'],
+                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('context'))
+            pretty_roles.append(pretty_role)
+        return pretty_roles
+
+
+class StatusCodes:
+    STATUS_200_OK = 200
+    STATUS_201_CREATED = 201
+    STATUS_400_BAD_REQUEST = 400
+    STATUS_403_ACCESS_DENIED = 403
+    STATUS_404_NOT_FOUND = 404
+    STATUS_409_CONFLICT = 409
+

@@ -1,0 +1,139 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<div class="modal-data-api-help modal fade in" style="display: none;"
+  py:def="data_api_help(datastore_api)">
+<div class="modal-header">
+  <a class="close" data-dismiss="modal">×</a>
+  <h3>
+    CKAN Data API
+  </h3>
+</div>
+<div class="modal-body">
+  <p><strong>Access resource data via a web API with powerful query
+    support</strong>. Further information in the <a
+    href="http://docs.ckan.org/en/latest/using-data-api.html" target="_blank">main
+    CKAN Data API and DataStore documentation</a>.</p>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" href=".collapse-endpoints">Endpoints &raquo;</a>
+    </div>
+    <div class="collapse-endpoints in accordion-body collapse">
+      <div class="accordion-inner">
+        <p>The Data API builds directly on ElasticSearch, with a resource API
+        endpoint being equivalent to a single index 'type' in ElasticSearch.
+        This means you can directly re-use <a
+          href="http://www.elasticsearch.org/guide/appendix/clients.html"
+          _target="blank">ElasticSearch
+          client libraries</a> when connecting to the API endpoint.</p>
+        <table class="table-condensed table-striped table-bordered">
+          <thead></thead>
+          <tbody>
+            <tr>
+              <th>Base</th>
+              <td><code>${datastore_api}</code></td>
+            </tr>
+            <tr>
+              <th>Query</th>
+              <td>
+                <code>${datastore_api}/_search</code>
+              </td>
+            </tr>
+            <tr>
+              <th>Query example</th>
+              <td>
+                <code><a href="${datastore_api}/_search?size=5&amp;pretty=true" target="_blank">${datastore_api}/_search?size=5&amp;pretty=true</a></code>
+              </td>
+            </tr>
+            <tr>
+              <th>Schema (Mapping)</th>
+              <td>
+                <code><a href="${datastore_api}/_mapping" target="_blank">${datastore_api}/_mapping?pretty=true</a></code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" href=".collapse-querying" data-toggle="collapse">Querying
+        &raquo;</a>
+    </div>
+    <div class="collapse-endpoints in accordion-body">
+      <div class="accordion-inner">
+        <strong>Query example (first 5 results)</strong>
+        <p>
+        <code><a href="${datastore_api}/_search?size=5&amp;pretty=true" target="_blank">${datastore_api}/_search?size=5&amp;pretty=true</a></code>
+        </p>
+
+        <strong>Query example (results with 'jones' in <code>title</code> field)</strong>
+        <p>
+        <code><a href="${datastore_api}/_search?q=title:jones&amp;size=5&amp;pretty=true"
+            target="_blank">${datastore_api}/_search?q=title:jones&amp;size=5&amp;pretty=true</a></code>
+        </p>
+
+        <strong>Schema (Mapping)</strong>
+        <p>
+        <code><a href="${datastore_api}/_mapping" target="_blank">${datastore_api}/_mapping?pretty=true</a></code>
+        </p>
+
+        <strong>Endpoint (for clients)</strong>
+        <p>
+        <code>${datastore_api}</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" href=".collapse-javascript" data-toggle="collapse">Example: Javascript</a>
+    </div>
+    <div class="accordion-body collapse-javascript in">
+      <div class="accordion-inner">
+        <p>A simple ajax (JSONP) request to the data API using jQuery.</p>
+        <pre>
+var data = {
+  size: 5 // get 5 results
+  q: 'title:jones' // query on the title field for 'jones'
+};
+$.ajax({
+  url: '${datastore_api}/_search',
+  data: data,
+  dataType: 'jsonp',
+  success: function(data) {
+    alert('Total results found: ' + data.hits.total)
+  }
+});</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" href=".collapse-javascript" data-toggle="collapse">Example: Python</a>
+    </div>
+    <div class="accordion-body collapse-javascript in">
+      <div class="accordion-inner">
+        <pre>
+import urllib
+url = '${datastore_api}/_search?size=5&amp;q=title:jones'
+fileobj = urllib.urlopen(url)
+print fileobj.read()
+</pre>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</html>

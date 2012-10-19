@@ -26,6 +26,7 @@ setup(name='ckantestplugin',
             'routes_plugin=ckantestplugin:RoutesPlugin',
             'mapper_plugin=ckantestplugin:MapperPlugin',
             'mapper_plugin2=ckantestplugin:MapperPlugin2',
+            'authorizer_plugin=ckantestplugin:AuthorizerPlugin',
             'test_observer_plugin=ckantestplugin:PluginObserverPlugin',
         ]
     }

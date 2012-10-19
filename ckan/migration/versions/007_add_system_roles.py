@@ -2,11 +2,11 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData()
 
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     user_object_role_table = Table('user_object_role', metadata, autoload=True)

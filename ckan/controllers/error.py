@@ -1,13 +1,13 @@
 import cgi
 
 from paste.urlparser import PkgResourcesParser
-from pylons import request
+from pylons import request, tmpl_context as c
 from pylons.controllers.util import forward
-from pylons.middleware import error_document_template
 from webhelpers.html.builder import literal
 
 from ckan.lib.base import BaseController
 from ckan.lib.base import render
+
 
 class ErrorController(BaseController):
 
@@ -25,17 +25,20 @@ class ErrorController(BaseController):
         """Render the error document"""
         original_request = request.environ.get('pylons.original_request')
         original_response = request.environ.get('pylons.original_response')
+        # When a request (e.g. from a web-bot) is direct, not a redirect
+        # from a page. #1176
+        if not original_response:
+            return 'There is no error.'
         # Bypass error template for API operations.
-        if original_request.path.startswith('/api'):
+        if original_request and original_request.path.startswith('/api'):
             return original_response.body
         # Otherwise, decorate original response with error template.
-        ckan_template = render('error_document_template.html')
-        content = literal(original_response.body) or cgi.escape(request.GET.get('message', ''))
-        page = ckan_template % \
-            dict(prefix=request.environ.get('SCRIPT_NAME', ''),
-                 code=cgi.escape(request.GET.get('code', str(original_response.status_int))),
-                 message=content)
-        return page
+        c.content = literal(original_response.unicode_body) or \
+            cgi.escape(request.GET.get('message', ''))
+        c.prefix = request.environ.get('SCRIPT_NAME', ''),
+        c.code = cgi.escape(request.GET.get('code',
+                            str(original_response.status_int))),
+        return render('error_document_template.html')
 
     def img(self, id):
         """Serve Pylons' stock images"""

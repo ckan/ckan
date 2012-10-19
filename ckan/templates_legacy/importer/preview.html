@@ -1,0 +1,44 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Preview - Importer</py:def>
+
+  <div py:match="content">
+    <h2>Import Preview</h2>
+    <div>
+      <h3 py:if="c.error" class="form-errors">
+        Error: ${c.error}
+      </h3>
+
+      ${h.form(h.url_for(controller='importer', action='do_import'), multipart=True, id='import-preview')}
+          <p>${c.num_pkgs} dataset${'s' if c.num_pkgs != 1 else ''} read from ${c.import_filename}:</p>
+
+          <py:for each="pkg in c.import_previews">
+            <div>
+              ${pkg}
+            </div>
+          </py:for>
+
+          <py:if test="c.pkgs_suppressed">
+            <p>Further dataset previews not shown.</p>
+          </py:if>
+
+          <label for="log_message">Edit summary (briefly describe the changes you have made)</label>
+          <textarea id="log_message" name="log_message" class="short wide">${c.log_message}</textarea>
+          <p>Author: ${c.author}</p>
+
+          <div>          
+            <?python enable_import = {'disabled':'disabled'} if not (c.user and c.import_previews) and not c.errors else {} ?>
+            ${h.submit('import', _('Import'), **enable_import)}
+          </div>
+
+        ${h.end_form()}
+
+    </div>
+
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>

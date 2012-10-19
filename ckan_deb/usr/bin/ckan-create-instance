@@ -1,0 +1,160 @@
+#!/bin/bash
+. /usr/lib/ckan/common.sh
+
+
+# Check we are root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
+if [ $# -lt 3 ]
+then    
+    echo "ERROR: Wrong number of arguments. Expected: (instance name, hostname, local database [yes or no]) e.g."
+    echo "       $0 std std.ckan.org yes"
+    exit 1
+fi
+
+INSTANCE=$1
+HOSTNAME=$2
+LOCAL_DB=$3
+
+# Check the LOCAL_DB variable
+
+if ! [[ ( "$LOCAL_DB" == "yes" ) || ("$LOCAL_DB" == "no" ) ]]
+then
+    echo "Expceted the LOCAL_DB variable to be 'yes' or 'no', not '$LOCAL_DB'"
+    exit 1
+fi
+
+# Create an install settings file if it doesn't exist
+if ! [ -f /etc/ckan/${INSTANCE}/install_settings.sh ] ; then
+    mkdir -p /etc/ckan/${INSTANCE}/
+    cat <<EOF > /etc/ckan/${INSTANCE}/install_settings.sh
+#!/bin/bash
+EOF
+    chmod +x /etc/ckan/${INSTANCE}/install_settings.sh
+fi
+
+# Parse the settings
+. /etc/ckan/${INSTANCE}/install_settings.sh
+
+# See which settings are set, and create any we need that aren't
+if [ "X${CKAN_DB_PASSWORD}" = "X" ] ; then
+    # Create a password
+    CKAN_DB_PASSWORD=`< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c10`
+    cat <<EOF >> /etc/ckan/${INSTANCE}/install_settings.sh
+CKAN_DB_PASSWORD=${CKAN_DB_PASSWORD}
+EOF
+fi
+
+error() { 
+    echo -e "${@}" 1>&2
+    exit 1
+}
+
+echo "Installing or upgrading CKAN ${INSTANCE} ..."
+
+echo "Ensuring users and groups are set up correctly ..."
+ckan_ensure_users_and_groups ${INSTANCE}
+
+chown ckan${INSTANCE}:ckan${INSTANCE} /etc/ckan/${INSTANCE}/install_settings.sh
+
+echo "Ensuring directories exist for ${INSTANCE} CKAN INSTANCE ..."
+ckan_make_ckan_directories ${INSTANCE}
+
+# Disable any existing crontabs during the upgrade, we don't want
+# scripts running when things are still changing
+echo "Disabling the crontab for the ckan${INSTANCE} user ..."
+PACKAGED_CRONJOB="/tmp/${INSTANCE}-cronjob"
+cat <<EOF > ${PACKAGED_CRONJOB}
+# m  h dom mon dow  command
+EOF
+crontab -u ckan${INSTANCE} ${PACKAGED_CRONJOB}
+
+# Try to put CKAN into maintenance mode, if it is installed
+if [ -f /etc/apache2/sites-available/${INSTANCE}.maint ] ; then
+    # We have a maintence mode available
+    echo "Putting CKAN into maintenance mode ..."
+    ckan_maintenance_on ${INSTANCE}
+fi
+
+echo "Setting log file permissions so that both Apache and cron jobs can log to the same place ..."
+ckan_set_log_file_permissions ${INSTANCE}
+
+echo "Ensuring who.ini file exists ..."
+ckan_create_who_ini ${INSTANCE}
+
+echo "Ensuring wsgi.py file exists ..."
+ckan_create_wsgi_handler ${INSTANCE}
+
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    # Replace any existing user with a new one with this password
+    echo "Making sure PostgreSQL is running ..."
+    /etc/init.d/postgresql-8.4 start
+    
+    echo "Setting the password of the ${INSTANCE} user in PostgreSQL"
+    ckan_add_or_replace_database_user ${INSTANCE} ${CKAN_DB_PASSWORD}
+fi
+
+if ! [ -f /etc/ckan/${INSTANCE}/${INSTANCE}.ini ] ; then
+    # Create the config file
+    echo "Creating/overwriting the config for CKAN ... "
+    ckan_create_config_file ${INSTANCE} ${CKAN_DB_PASSWORD} ${LOCAL_DB}
+    # Now that the file exists, make some customisations
+    sed \
+        -e "s,^\(ckan.dump_dir\)[ =].*,\1 = /var/lib/ckan/${INSTANCE}/static/dump," \
+        -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+    #echo "Ensuring the latest plugins are configured ..."
+    #sed -e "s/^\(ckan.plugins\)[ =].*/\1 = ${INSTANCE}/" \
+    #    -i /etc/ckan/${INSTANCE}/${INSTANCE}.ini
+fi
+
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    echo "Ensuring the ${INSTANCE} database exists ..."
+    ckan_ensure_db_exists ${INSTANCE}
+fi
+
+# Overwrite the existing Apache config
+if [ -f /etc/apache2/sites-enabled/000-default ] ; then
+    echo "Disabling the default Apache site ..."
+    a2dissite 000-default
+fi
+
+echo "Overwriting the existing Apache config ..."
+ckan_overwrite_apache_config ${INSTANCE} ${HOSTNAME}
+
+# Make sure mod_rewrite is enabled
+if ! [ -f /etc/apache2/mods-enabled/rewrite.load ] ; then
+    echo "Enabling Apache mod_rewite ..."
+    a2enmod rewrite
+fi
+
+if [[ ( "$LOCAL_DB" == "yes" ) ]]
+then
+    # Standard paster db upgrade
+    echo "Performing any database upgrades ..."
+    paster --plugin=ckan db upgrade --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
+fi
+
+# Make sure our INSTANCE is enabled
+echo "Bringing the ${INSTANCE} INSTANCE out of maintenance mode ..."
+ckan_maintenance_off ${INSTANCE}
+
+# Restart Apache so it is aware of any changes
+echo "Reloading apache ..."
+/etc/init.d/apache2 reload 
+
+# Install the new crontab
+echo "Enabling crontab for the ckan${INSTANCE} user ..."
+PACKAGED_CRONJOB="/tmp/${INSTANCE}-cronjob"
+cat << EOF > ${PACKAGED_CRONJOB}
+# WARNING:  Do not edit these cron tabs, they will be overwritten any time 
+#           the ckan INSTANCE package is upgraded
+# QUESTION: Should email reports be sent to root?
+EOF
+crontab -u ckan${INSTANCE} ${PACKAGED_CRONJOB}
+
+exit 0

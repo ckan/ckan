@@ -1,0 +1,76 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Revision ${c.revision.id}</py:def>
+  <py:def function="page_heading">Revision: ${c.revision.id}</py:def>
+
+  <py:match path="primarysidebar">
+    <li class="widget-container widget_text">
+      <h2>Revision Actions</h2>
+      <py:if test="c.revision_change_state_allowed">
+      <div class="actions">
+        <form
+          method="POST"
+          action="${h.url_for(controller='revision',
+              action='edit',
+              id=c.revision.id)}"
+          >
+          <py:if test="c.revision.state!='deleted'">
+          <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+          </py:if>
+          <py:if test="c.revision.state=='deleted'">
+          <button type="submit" name="action" value="undelete" class="btn btn-danger">Undelete</button>
+          </py:if>
+        </form>
+      </div>
+      </py:if>
+    </li>
+  </py:match>
+
+  <div py:match="content" class="revision state-${c.revision.state}">
+    <p py:if="c.revision.state != 'active'" class="state-notice">
+      ${c.revision.state} 
+    </p>
+    <p>
+      <strong>Author:</strong> ${c.revision.author}
+    </p>
+    <p>
+      <strong>Timestamp:</strong> ${c.revision.timestamp}
+    </p>
+    <p><strong>Log Message:</strong></p>
+    ${c.revision.message}
+
+    <h3>Changes</h3>
+    <h4>Datasets</h4>
+    <ul>
+      <py:for each="pkg in c.packages">
+      <li>
+      ${h.link_to(pkg.name, h.url_for(controller='package', action='read', id=pkg.name))}
+      </li>
+      </py:for>
+    </ul>
+
+    <h4>Datasets' Tags</h4>
+    <ul>
+      <py:for each="pkgtag in c.pkgtags">
+      <li>
+      Dataset - ${h.link_to(pkgtag.package.name, h.url_for(controller='package', action='read', id=pkgtag.package.name))},
+      Tag - ${h.link_to(pkgtag.tag.name, h.url_for(controller='tag', action='read', id=pkgtag.tag.name))}
+      </li>
+      </py:for>
+    </ul>
+    
+    <h4>Groups</h4>
+    <ul>
+      <py:for each="group in c.groups">
+      <li>
+      ${h.link_to(group.name, h.url_for(controller='group', action='read', id=group.name))}
+      </li>
+      </py:for>
+    </ul>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

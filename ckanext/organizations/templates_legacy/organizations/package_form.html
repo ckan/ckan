@@ -1,0 +1,324 @@
+<form
+  py:with="tab_mode=(c.action=='edit')"
+  class="${'tab-content' if tab_mode else ''} ${'has-errors' if errors else ''} form-horizontal"
+  id="dataset-edit"
+  method="post"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude" >
+
+<div class="alert alert-error error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}
+    <py:if test="key=='Resources'">
+      <ul>
+        <py:for each="idx, errordict in enumerate(errors.get('resources', []))">
+          <li py:if="errordict">
+            Resource ${idx}:
+            <ul>
+              <li py:for="thiskey, thiserror in errordict.items()">${thiskey}: <py:for each="errorinfo in thiserror">${errorinfo}; </py:for></li>
+            </ul>
+          </li>
+        </py:for>
+      </ul>
+    </py:if>
+  </li>
+  <script>var global_form_errors = ${h.dump_json(errors)};</script>
+</ul>
+</div>
+
+<fieldset class="tab-pane fade in active" id="basic-information">
+  <div class="control-group title-field">
+    <label class="control-label" for="title">Title</label>
+    <div class="controls">
+      <input id="title"
+        class="js-title"
+        name="title" type="text"
+        value="${data.get('title', '')}"
+        placeholder="${_('A short descriptive title for the dataset')}"
+      />
+      <p class="field_error" py:if="errors.get('title', '')">${errors.get('title', '')}</p>
+    </div>
+  </div>
+
+  <div class="control-group name-field">
+    <label class="control-label" for="name">Url</label>
+    <div class="controls">
+      <div class="input-prepend">
+        <span class="add-on">${h.url(controller='package', action='search')+'/'}</span>
+        <input maxlength="100" name="name" type="text" class="js-url-input" value="${data.get('name', '')}" />
+      </div>
+      <p class="js-url-is-valid">&nbsp;</p>
+      <p class="url-is-long">Warning: URL is very long. Consider changing it to something shorter.</p>
+      <p>2+ characters, lowercase, using only 'a-z0-9' and '-_'</p>
+      <p class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</p>
+    </div>
+  </div>
+
+  <div class="control-group homepage-field">
+    <label class="control-label" for="url">Home Page</label>
+    <div class="controls">
+      <input id="url" name="url" type="text" value="${data.get('url', '')}"/>
+      <p>The URL for the web page describing the data (not the data itself).</p>
+      <p>e.g. http://www.example.com/growth-figures.html</p>
+      <p class="field_error" py:if="errors.get('url', '')">${errors.get('url', '')}</p>
+    </div>
+  </div>
+
+  <div class="control-group license-field">
+    <label class="control-label" for="license_id">License</label>
+    <div class="controls">
+      <select id="license_id" name="license_id">
+        <py:for each="licence_desc, licence_id in c.licences">
+          <option value="${licence_id}" py:attrs="{'selected': 'selected' if data.get('license_id', '') == licence_id else None}" >${licence_desc}</option>
+        </py:for>
+      </select>
+      <p id="license-instructions">(Don't worry if you don't know which license the data has been released under).</p>
+    </div>
+  </div>
+
+
+  <div class="control-group description-field">
+    <label class="control-label" for="notes">Description</label>
+    <div class="controls">
+      <div class="markdown-editor">
+        <ul class="button-row">
+          <li><button class="btn js-markdown-edit depressed">Edit</button></li>
+          <li><button class="btn js-markdown-preview">Preview</button></li>
+        </ul>
+        <textarea class="markdown-input" name="notes" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('notes','')}</textarea>
+        <div class="markdown-preview" style="display: none;"></div>
+        <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+      </div>
+    </div>
+  </div>
+
+<div class="control-group groups-field">
+<label class="control-label">Organization</label>
+<div class="controls">
+<?python
+organization = data.get('groups', {})
+if organization:
+    organization = organization[0]
+?>
+        <py:if test="c.groups_available and ((not 'name' in organization) or c.is_sysadmin or c.auth_for_change_state)">
+          <select id="groups__0__id" name="groups__0__id" class="chzn-select">
+            <py:for each="group in c.groups_available">
+            <!-- if  ...-->
+            <option value="${group['id']}" py:attrs="{'selected':'selected'} if organization and organization.get('id','') == group['id'] else {}">${group['title']}</option>
+            </py:for>
+          </select>
+
+          <label for='cap_public'>
+          <input id='cap_public' type='radio' name='groups__0__capacity' value='public' py:attrs="{'checked':'checked'} if organization and organization.get('capacity','') in ['public', ''] else {}"/>
+          Public</label>
+
+          <label for='cap_private'>
+          <input id='cap_private' type='radio' name='groups__0__capacity' value='private' py:attrs="{'checked':'checked'} if organization and organization.get('capacity','') == 'private' else {}"/>
+          Private</label>
+         </py:if>
+        <py:if test="not (c.is_sysadmin or c.auth_for_change_state)">
+            <span>${organization.get('title', '')}</span>
+         </py:if>
+        <em py:if="not c.groups_available">Cannot add to any organizations. Please join an organization</em>
+    </div>
+</div>
+
+  <div class="control-group tags-field">
+    <label class="control-label">Tags</label>
+    <div class="controls">
+      <input class="long autocomplete-tag" id="tag_string" name="tag_string" size="60" type="text"
+               value="${data.get('tag_string') or ', '.join([tag['name'] for tag in data.get('tags', []) if not tag.get('vocabulary_id')])}" />
+      <p i18n:msg="">Comma-separated terms that may link this dataset to similar ones. For more information on conventions, see <a href="http://wiki.ckan.org/Managing_Datasets#Tag_Conventions">this wiki page</a>.</p>
+      <p>e.g. pollution, rivers, water quality</p>
+      <p class="field_error" py:if="errors.get('tag_string', '')">${errors.get('tag_string', '')}</p>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="tab-pane" id="resources">
+  <legend>Add Resources</legend>
+  <div class="instructions">
+    <p>Upload or link data files, APIs and other materials related to your dataset.</p>
+  </div>
+  <div class="row">
+    <div class="span4">
+      <ul class="resource-list resource-list-edit drag-drop-list">
+      </ul>
+      <ul class="resource-list resource-list-add">
+        <li><a href="#" class="js-resource-add">${h.icon('page_white_add')}New resource...</a></li>
+      </ul>
+    </div>
+    <div class="span8">
+      <div style="display: none;" class="resource-panel">
+        <button class="btn btn-danger resource-panel-close">x</button>
+        <div class="resource-details resource-add">
+          <ul class="nav nav-tabs">
+            <li><a data-toggle="tab" href="#link-file">Link to a file</a></li>
+            <li><a data-toggle="tab" href="#link-api">Link to an API</a></li>
+            <li><a data-toggle="tab" href="#upload-file">Upload a file</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane" id="link-file">
+              <div class="form-inline js-add-url-form">
+                <label class="field_opt" for="url">File URL</label>
+                <input name="add-resource-url" type="text" class="input-small" placeholder="http://mydataset.com/file.csv"/>
+                <input name="add-resource-save" type="submit" class="btn btn-primary" value="Add" />
+              </div>
+            </div>
+            <div class="tab-pane" id="link-api">
+              <div class="form-inline js-add-api-form">
+                <label class="field_opt" for="url">API URL</label>
+                <input name="add-resource-url" type="text" class="input-small" placeholder="http://mydataset.com/api/"/>
+                <input name="add-resource-save" type="submit" class="btn btn-primary" value="Add" />
+              </div>
+            </div>
+            <div class="tab-pane" id="upload-file">
+              <div class="js-add-upload-form">
+              </div>
+              <div class="alert alert-block" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="js-resource-edit-barebones">
+    <!-- The resource editor deletes these fields and replaces them with a dynamic editor.
+         They are required for the form to render correctly when not in resource-edit mode. -->
+    <py:for each="num,res in enumerate(data.get('resources', []))">
+      <py:for each="field in res.keys()">
+      <input type="hidden" name="resources__${res.get('position')}__${field}" value="${res.get(field)}" />
+      </py:for>
+    </py:for>
+  </div>
+</fieldset>
+
+<fieldset class="tab-pane fade" id='further-information'>
+  <div class="control-group">
+    <label class="control-label field_opt" for="author">Author</label>
+    <div class="controls">
+      <input id="author" name="author" type="text" value="${data.get('author', '')}" />
+      <p>The name of the main contact, for enquiries about this particular dataset, using the e-mail address in the following field.</p>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label field_opt" for="author_email">Author email</label>
+    <div class="controls">
+      <input id="author_email" name="author_email" type="text" value="${data.get('author_email', '')}" />
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label field_opt" for="maintainer">Maintainer</label>
+    <div class="controls">
+      <input id="maintainer" name="maintainer" type="text" value="${data.get('maintainer', '')}" />
+      <p>If there is another important contact person (in addition to the person in the Author field) then provide details here.</p>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label field_opt" for="maintainer_email">Maintainer email</label>
+    <div class="controls">
+      <input id="maintainer_email" name="maintainer_email" type="text" value="${data.get('maintainer_email', '')}" />
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label field_opt" for="version">Version</label>
+    <div class="controls">
+      <input id="version" maxlength="100" name="version" type="text" value="${data.get('version', '')}" />
+      <p>A number representing the version (if applicable)</p>
+      <p>e.g. 1.2.0</p>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="tab-pane fade" id='extras'>
+  <p>Adding custom fields to the dataset such as "location:uk" can help users find it in the search engine. This data will also appear under <strong>Additional Information</strong> when viewing the dataset.</p>
+  <py:with vars="extras = data.get('extras', [])">
+    <py:for each="num, extra in enumerate(extras)">
+      <div class="control-group">
+        <label class="control-label" for="extras__${num}__value">${extra.get('key')}</label>
+        <div class="controls">
+          <input id="extras__${num}__key" name="extras__${num}__key" type="hidden" value="${extra.get('key')}" />
+          <input id="extras__${num}__value" name="extras__${num}__value" type="text" value="${extra.get('value')}" />
+          <label class="checkbox" style="display: inline-block;">
+            <input type="checkbox" name="extras__${num}__deleted" checked="${extra.get('deleted')}" />Delete
+          </label>
+        </div>
+      </div>
+    </py:for>
+    <hr py:if="len(extras)" class="extras-divider" />
+    <py:for each="num in range(len(extras), len(extras) + 4)">
+      <div class="control-group">
+        <label class="control-label" for="extras__${num}__key">Add...</label>
+        <div class="controls">
+          <label>
+            <span class="extras-label">Key =</span>
+            <input class="medium-width" id="extras__${num}__key" name="extras__${num}__key" type="text" />
+          </label>
+          <label>
+            <span class="extras-label">Value =</span>
+            <input class="medium-width" id="extras__${num}__value" name="extras__${num}__value" type="text" />
+          </label>
+        </div>
+      </div>
+    </py:for>
+  </py:with>
+</fieldset>
+
+<fieldset id='delete' class="tab-pane fade" py:if="c.is_sysadmin or c.auth_for_change_state">
+  <dl>
+    <dt>Delete</dt>
+    <dd>
+      <p>Do you really want to change the state of this dataset? &nbsp;&nbsp;<button class="dataset-delete btn">Yes!</button></p>
+      <span>
+      This dataset is&nbsp;&nbsp;
+      <select id="state" class="dataset-delete" name="state" style="display:inline;">
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+      </select>
+      </span>
+    </dd>
+  </dl>
+</fieldset>
+
+<fieldset id='summary'>
+  <div class="control-group">
+    <label class="control-label" for="log_message">Summary</label>
+    <div class="controls">
+      <p>Briefly describe the changes you have made...</p>
+      <textarea id="log_message" name="log_message">${data.get('log_message', h.auto_log_message(c))}</textarea>
+    </div>
+  </div>
+</fieldset>
+
+<div class="author-box ckan-logged-in" style="display: none;">
+  <p>Author: ${c.author}</p>
+</div>
+<div class="author-box ckan-logged-out">
+  <label>Author: ${c.author}</label>
+  <p i18n:msg="" class="hints">
+    Since you have not signed in this will just be your IP address.
+    <a href="${h.url_for(controller='user', action='login', id=None)}" target="_blank">Click here to sign in</a> before saving (opens in new window).
+  </p>
+</div>
+
+<div class="form-actions">
+  <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
+  <py:if test="c.pkg">
+    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='package', action='read', id=c.pkg.name)}" />
+  </py:if>
+  <p i18n:msg="" class="hints">
+  <strong>Important:</strong> By submitting content, you agree to release your contributions under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>. Please <strong>refrain</strong> from editing this page if you are <strong>not</strong> happy to do this.
+  </p>
+  <div class="clearfix"></div>
+</div>
+
+
+</form>

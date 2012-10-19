@@ -1,0 +1,11 @@
+# This get's set by the build script
+# Version: XXX
+Package: ckan
+Architecture: all
+Maintainer: James Gardner <james.gardner@okfn.org>
+Section: main/web
+Priority: extra
+Depends: python-ckan, apache2, libapache2-mod-wsgi, python-virtualenv, python-pip
+Homepage: http://ckan.org
+Description: ckan
+ Common files useful for managing CKAN installations

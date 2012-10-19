@@ -2,13 +2,13 @@ from sqlalchemy import *
 from migrate import *
 import uuid
 
-metadata = MetaData()
 
 def make_uuid():
     return unicode(uuid.uuid4())
 
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
 
     package_table = Table('package', metadata, autoload=True)

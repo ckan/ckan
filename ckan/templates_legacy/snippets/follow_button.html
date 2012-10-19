@@ -1,0 +1,11 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <py:choose test="following">
+    <a py:when="True" id="${obj_type}_follow_button" class="btn btn-mini" data-obj-id="${obj_id}" data-state="unfollow">Unfollow</a>
+    <a py:otherwise="" id="${obj_type}_follow_button" class="btn btn-mini" data-obj-id="${obj_id}" data-state="follow">Follow</a>
+  </py:choose>
+</html>

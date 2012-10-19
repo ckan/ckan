@@ -1,0 +1,65 @@
+<section class="module-content additional-info">
+  <h3>{{ _('Additional Info') }}</h3>
+  <table class="table table-striped table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>{{ _('Field') }}</th>
+        <th>{{ _('Value') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if pkg_dict.url %}
+        <tr>
+          <th class="dataset-label">{{ _('Source') }}</th>
+          <td class="dataset-details" property="foaf:homepage">{{ h.link_to(pkg_dict.url, pkg_dict.url, rel='foaf:homepage', target='_blank') }}</td>
+        </tr>
+      {% endif %}
+
+      {% if pkg_dict.author_email %}
+        <tr>
+          <th class="dataset-label">{{ _("Author") }}</th>
+          <td class="dataset-details" property="dc:creator">{{ h.mail_to(email_address=pkg_dict.author_email, name=pkg_dict.author) }}</td>
+        </tr>
+      {% elif pkg_dict.author %}
+        <tr>
+          <th class="dataset-label">{{ _("Author") }}</th>
+          <td class="dataset-details" property="dc:creator">{{ pkg_dict.author }}</td>
+        </tr>
+      {% endif %}
+
+      {% if pkg_dict.maintainer_email %}
+        <tr>
+          <th class="dataset-label">{{ _('Maintainer') }}</th>
+          <td class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer) }}</td>
+        </tr>
+      {% elif pkg_dict.maintainer %}
+        <tr>
+          <th class="dataset-label">{{ _('Maintainer') }}</th>
+          <td class="dataset-details" property="dc:contributor">{{ pkg_dict.maintainer }}</td>
+        </tr>
+      {% endif %}
+
+      {% if pkg_dict.version %}
+        <tr>
+          <th class="dataset-label">{{ _("Version") }}</th>
+          <td class="dataset-details">{{ pkg_dict.version }}</td>
+        </tr>
+      {% endif %}
+
+      {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
+        <tr>
+          <th class="dataset-label">{{ _("State") }}</th>
+          <td class="dataset-details">{{ pkg_dict.state }}</td>
+        </tr>
+      {% endif %}
+
+      {% for extra in h.sorted_extras(pkg_dict.extras) %}
+        {% set key, value = extra %}
+        <tr rel="dc:relation" resource="_:extra{{ i }}">
+          <th class="dataset-label" property="rdfs:label">{{ _(key) }}</th>
+          <td class="dataset-details" property="rdf:value">{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</section>

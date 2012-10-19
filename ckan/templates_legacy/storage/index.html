@@ -1,0 +1,58 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">Upload</py:def>
+
+  <py:def function="optional_head">
+    <script type="text/javascript">
+      var form_data = ${c.data_json};
+    </script>
+  </py:def>
+
+  <div py:match="content">
+    <h1>Upload</h1>
+
+    <p>This upload form is valid for a limited time (usually 1h or so). If the
+    form expires please reload the page.</p>
+
+    <form action="${c.data['action']}"
+      enctype="multipart/form-data"
+      method="POST">
+
+      <py:for each="field in c.data['fields']">
+      <input type="hidden" name="${field['name']}" value="${field['value']}" />
+      </py:for>
+      <!--
+      <input type="text" name="filename" value="" />
+      -->
+      <fieldset>
+        <dl>
+          <dt>
+            <label>File:</label>
+          </dt>
+          <dd>
+            ${h.file('file', size=50)}
+          </dd>
+        </dl>
+        <!--
+        <dl>
+          <dt>
+            <label>Related Package [optional]</label>
+          </dt>
+          <dd>
+            ${h.text('dir', value=c.dir, size=50)}
+          </dd>
+        </dl>
+        -->
+        <div class="submit">
+          <input type="submit" value="Upload &raquo;" />
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
+

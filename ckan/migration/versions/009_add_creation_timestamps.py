@@ -4,11 +4,11 @@ from sqlalchemy import *
 from migrate import *
 import migrate.changeset
 
-metadata = MetaData()
 
 domain_obj_names = ['rating', 'group', 'user']
 
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
     # Use sql instead of migrate.changeset because user and group are sql
     # reserved words and migrate doesn't quote them.

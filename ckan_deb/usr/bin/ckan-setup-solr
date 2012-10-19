@@ -1,0 +1,28 @@
+#!/bin/bash
+. /usr/lib/ckan/common.sh
+
+# Check we are root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
+# Install solr-jetty if needed
+if ! [ -f /etc/default/jetty ] ; then
+    echo "Installing solr-jetty ..."
+    apt-get update
+    apt-get install -y solr-jetty
+    echo "done."
+fi
+
+echo "Configuring Solr for use with CKAN ..."
+sed \
+    -e "s,NO_START=1,NO_START=0," \
+    -e "s,#JETTY_HOST=\$(uname -n),JETTY_HOST=127.0.0.1," \
+    -e "s,#JETTY_PORT=8080,JETTY_PORT=8983," \
+    -i /etc/default/jetty
+mv /usr/share/solr/conf/schema.xml /usr/share/solr/conf/schema.xml.`date --utc "+%Y-%m-%d_%T"`.bak 
+ln -s /usr/lib/pymodules/python2.6/ckan/config/solr/schema-1.4.xml /usr/share/solr/conf/schema.xml
+service jetty stop
+service jetty start
+echo "done."

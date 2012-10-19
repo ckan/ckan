@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block page %}
+  {% include "header.html" %}
+  <div role="main" style="padding: 20px;">
+    {% snippet 'development/snippets/breadcrumb.html', stage=1 %}
+    {% snippet 'development/snippets/breadcrumb.html', stage=2 %}
+    {% snippet 'development/snippets/breadcrumb.html', stage=3 %}
+
+    {% snippet 'development/snippets/toolbar.html' %}
+
+    {% snippet 'development/snippets/module.html', heading='Heading One' %}
+    {% snippet 'development/snippets/module.html', heading='Heading Two', heading_level=2 %}
+    {% snippet 'development/snippets/module.html', heading='Heading Three', heading_level=3 %}
+    {% snippet 'development/snippets/module.html', heading='Heading with link', heading_link=true %}
+    {% snippet 'development/snippets/module.html', heading='Heading with action', heading_action=true %}
+    {% snippet 'development/snippets/module.html', heading='Heading with icon', heading_icon=true %}
+    {% snippet 'development/snippets/module.html', heading='Module with footer', footer=true %}
+    {% snippet 'development/snippets/module.html', heading='Narrow Module (sidebar)', classes=['module-narrow'] %}
+    {% snippet 'development/snippets/module.html', heading='Narrow Shallow Module (sidebar text)', classes=['module-narrow', 'module-shallow'] %}
+
+    {% snippet 'development/snippets/list.html', heading='Simple List' %}
+
+    {% snippet 'development/snippets/nav.html', heading='Navigation' %}
+    {% snippet 'development/snippets/nav.html', heading='Active Navigation', show_active=true %}
+    {% snippet 'development/snippets/nav.html', heading='Icon Navigation', show_icons=true %}
+
+    {% snippet 'development/snippets/facet.html', heading='Facet List', show_icons=true %}
+
+    {% snippet 'development/snippets/simple-input.html', heading='Facet List', show_icons=true %}
+
+    {% snippet 'development/snippets/form.html' %}
+    {% snippet 'development/snippets/form.html', error=['This field has an error'] %}
+
+    <section class="module">
+      <div class="module-content">
+        <h1 class="page-heading">Top level heading (h1)</h1>
+        <h2>Some Rendered Markdown (h2)</h2>
+        <div class="embedded-content">
+          <h1>Heading 1</h1>
+          {{ lipsum(1) }}
+          <h2>Heading 2</h2>
+          {{ lipsum(1) }}
+          <h3>Heading 3</h3>
+          {{ lipsum(1) }}
+        </div>
+      </div>
+    </section>
+
+    {% snippet 'development/snippets/form_stages.html' %}
+
+    {% snippet 'snippets/package_grid.html', packages=[
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(0), 'tracking_summary':{'recent': 5}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}},
+      {'name': "test", 'title': 'Test', 'notes': lipsum(1), 'tracking_summary':{'recent': 10}}
+    ] %}
+
+    {% snippet 'development/snippets/media_grid.html', groups=[
+      {'name': "test", 'display_name': 'Test', 'type': 'group', 'description': lipsum(0), 'packages': 0},
+      {'name': "test", 'display_name': 'Test', 'type': 'group', 'description': lipsum(1), 'packages': 1},
+      {'name': "test", 'display_name': 'Test', 'type': 'group', 'description': lipsum(1), 'packages': 10},
+      {'name': "test", 'display_name': 'Test', 'type': 'group', 'description': lipsum(1), 'packages': 200}
+    ] %}
+
+    {% snippet 'development/snippets/pagination.html', total=5, current=1 %}
+    {% snippet 'development/snippets/pagination.html', total=5, current=2 %}
+    {% snippet 'development/snippets/pagination.html', total=5, current=3 %}
+    {% snippet 'development/snippets/pagination.html', total=5, current=4 %}
+    {% snippet 'development/snippets/pagination.html', total=5, current=5 %}
+  </div>
+
+  {% include "footer.html" %}
+{% endblock %}

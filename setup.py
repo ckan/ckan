@@ -1,4 +1,3 @@
-# blah
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -19,48 +18,47 @@ setup(
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=[
-        'routes>=1.9,<=1.11.99',
-        'vdm>=0.9,<0.9.99',
-        'ckanclient>=0.1,<0.6.99',
-        'Pylons>=0.9.7.0,<0.9.7.99',
-        'Genshi>=0.6,<0.6.99',
-        'SQLAlchemy>=0.6,<0.6.99',
-        'repoze.who>=1.0.0,<1.0.99',
-        'repoze.who.plugins.openid>=0.5.3',
-        'repoze.who-friendlyform>=1.0.8',
-        'pyutilib.component.core>=4.1,<4.1.99',
-        # uuid in python >= 2.5
-        # 'uuid>=1.0',
-        # for open licenses
-        'licenses==0.4,<0.6.99',
-        'sqlalchemy-migrate==0.6',
-        # latest version of Routes (1.10) depends on webob in middleware but
-        # does not declare the dependency!
-        # (not sure we need this except in tests but ...)
-        'WebOb',
-        'FormAlchemy>=1.3.4',
-        ## required for harvesting
-        ## TODO: this could be removed if harvesting moved to worker
-        'lxml',
     ],
     extras_require = {
-        'solr': ['solrpy>=0.9'],
     },
+    zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
+    namespace_packages=['ckanext', 'ckanext.stats'],
     include_package_data=True,
-    package_data={'ckan': ['i18n/*/LC_MESSAGES/*.mo']},
-    message_extractors = {'ckan': [
+    package_data={'ckan': [
+        'i18n/*/LC_MESSAGES/*.mo',
+        'migration/migrate.cfg',
+        'migration/README',
+        'migration/tests/test_dumps/*',
+        'migration/versions/*',
+    ]},
+    message_extractors = {
+        'ckan': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
-            ('templates/**.html', 'genshi', None),
-            ('templates/**.js', 'genshi', {
+            ('templates/**.html', 'ckan', None),
+            ('templates_legacy/**.html', 'ckan', None),
+            ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
             ('templates/**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
+            ('templates_legacy/**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
             ('public/**', 'ignore', None),
-            ]},
+        ],
+        'ckanext': [
+            ('**.py', 'python', None),
+            ('**.html', 'ckan', None),
+            ('multilingual/solr/*.txt', 'ignore', None),
+            ('**.txt', 'genshi', {
+                'template_class': 'genshi.template:TextTemplate'
+            }),
+        ]
+    },
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose
@@ -73,16 +71,27 @@ setup(
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
-    create-test-data = ckan.lib.create_test_data:CreateTestData
+    create-test-data = ckan.lib.cli:CreateTestDataCommand
     sysadmin = ckan.lib.cli:Sysadmin
+    user = ckan.lib.cli:UserCmd
+    dataset = ckan.lib.cli:DatasetCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
-    changes = ckan.lib.cli:Changes
-    notifications = ckan.lib.cli:Notifications
-    harvester = ckan.lib.cli:Harvester
+    notify = ckan.lib.cli:Notification
     rights = ckan.lib.authztool:RightsCommand
     roles = ckan.lib.authztool:RolesCommand
-    
+    celeryd = ckan.lib.cli:Celery
+    rdf-export = ckan.lib.cli:RDFExport
+    tracking = ckan.lib.cli:Tracking
+    plugin-info = ckan.lib.cli:PluginInfo
+    profile = ckan.lib.cli:Profile
+    color = ckan.lib.cli:CreateColorSchemeCommand
+    check-po-files = ckan.i18n.check_po_files:CheckPoFiles
+    trans = ckan.lib.cli:TranslationsCommand
+
+    [console_scripts]
+    ckan-admin = bin.ckan_admin:Command
+
     [paste.paster_create_template]
     ckanext=ckan.pastertemplates:CkanextTemplate
 
@@ -91,16 +100,29 @@ setup(
     package = ckan.forms.package:get_standard_fieldset
     group = ckan.forms.group:get_group_fieldset
     package_group = ckan.forms.group:get_package_group_fieldset
-    gov = ckan.forms.package_gov:get_gov_fieldset
 
     [ckan.search]
     sql = ckan.lib.search.sql:SqlSearchBackend
+    solr = ckan.lib.search.solr_backend:SolrSearchBackend
 
     [ckan.plugins]
-    synchronous_search = ckan.lib.search.worker:SynchronousSearchPlugin
+    synchronous_search = ckan.lib.search:SynchronousSearchPlugin
+    stats=ckanext.stats.plugin:StatsPlugin
+    publisher_form=ckanext.publisher_form.forms:PublisherForm
+    publisher_dataset_form=ckanext.publisher_form.forms:PublisherDatasetForm
+    multilingual_dataset=ckanext.multilingual.plugin:MultilingualDataset
+    multilingual_group=ckanext.multilingual.plugin:MultilingualGroup
+    multilingual_tag=ckanext.multilingual.plugin:MultilingualTag
+    organizations=ckanext.organizations.forms:OrganizationForm
+    organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
+    datastore=ckanext.datastore.plugin:DatastorePlugin
+    test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+
+    [babel.extractors]
+	    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

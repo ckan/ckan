@@ -1,7 +1,7 @@
 User-agent: *
-Disallow: /package/rate/
+Disallow: /dataset/rate/
 Disallow: /revision/
-Disallow: /package/*/history
+Disallow: /dataset/*/history
 Disallow: /api/
 
 User-Agent: *

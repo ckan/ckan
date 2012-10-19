@@ -1,0 +1,19 @@
+{% set pkg_dict = c.pkg_dict %}
+{% set res = c.resource %}
+
+{% extends "package/new_resource.html" %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
+  <li class="active">{% link_for _('Edit Resource'), controller='package', action='edit_resource', id=pkg_dict.name, resource_id=res.id %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  <li>{% link_for _('Back to resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='caret-left' %}</li>
+{% endblock %}
+
+{# logged_in is defined in new_resource.html #}
+{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, error_summary=error_summary, pkg_name=pkg_dict.name, form_action=c.form_action, allow_upload=logged_in) }}{% endblock %}

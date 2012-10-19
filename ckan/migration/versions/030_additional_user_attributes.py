@@ -5,9 +5,9 @@ from datetime import datetime
 import migrate.changeset
 import uuid
 
-metadata = MetaData()
     
 def upgrade(migrate_engine):
+    metadata = MetaData()
     metadata.bind = migrate_engine
     user_sql = 'ALTER TABLE "user" ADD openid TEXT'
     migrate_engine.execute(user_sql)

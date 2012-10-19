@@ -8,12 +8,12 @@ Usage: fab {config} {command}
 
 {config}:
 This parameter describes the configuration of the server where the CKAN
-instance is, including the host name, ssh user, pathnames, code branch, etc.
+instance is, including the host name, ssh user, pathnames, code revision, etc.
   config_0:{host_name} - the default: ssh to okfn@{host_name},
                          ckan is in ~/var/srvc/{host_name} and uses
-                         code from the metastable branch.
+                         code from the metastable revision.
   config_dev_hmg_ckan_net - a custom setup for dev-hmg.ckan.net because
-                         this instance uses code branch 'default'.
+                         this instance uses code revision 'default'.
   config_local:{base_dir},{instance_name} - for local operations. Host is
                          'localhost' (it still has to ssh in, so requires
                          password) and you must specify:
@@ -74,13 +74,13 @@ from fabric.contrib.files import *
 env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
-env.ckan_repo = 'https://bitbucket.org/okfn/ckan/raw/default/'
-env.pip_requirements = 'pip-requirements.txt'
+env.ckan_repo = 'https://github.com/okfn/ckan/raw/%s/'
+pip_requirements = 'pip-requirements.txt'
 env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_user=None, db_host=None,
                  db_pass=None, 
-                 skip_setup_db=None, no_sudo=None, pip_requirements=None):
+                 skip_setup_db=None, no_sudo=None, revision=None):
     '''Run on localhost. e.g. config_local:~/test,myhost.com
                             puts it at ~/test/myhost.com
                             '''
@@ -97,8 +97,8 @@ def config_local(base_dir, ckan_instance_name, db_user=None, db_host=None,
         env.skip_setup_db = skip_setup_db    
     if no_sudo != None:
         env.no_sudo = no_sudo
-    if pip_requirements:
-        env.pip_requirements = pip_requirements
+    env.revision = revision if revision else 'metastable'
+        
 
 def config_local_dev(base_dir, ckan_instance_name):
     config_local(base_dir, ckan_instance_name)
@@ -107,15 +107,14 @@ def config_local_dev(base_dir, ckan_instance_name):
     env.serve_url = 'localhost:5000'
 
 def config_staging_hmg_ckan_net():
-    env.user = 'ckan1'
+    env.user = 'okfn'
     env.base_dir = '/home/%s' % env.user
-    env.cmd_pyenv = os.path.join(env.base_dir, 'ourenv')
-    env.ckan_instance_name = 'staging.hmg2.ckan.net'
-    env.pip_requirements = 'pip-requirements-stable.txt'
+    env.ckan_instance_name = 'staging-hmg.ckan.net'
+    env.revision = 'stable'
 
 def config_test_hmg_ckan_net():
     name = 'test-hmg.ckan.net'
-    config_0(name, hosts_str=name, requirements='pip-requirements-stable.txt')
+    config_0(name, hosts_str=name, revision='stable')
 
 def config_hmg_ckan_net_1():
     env.user = 'ckan1'
@@ -126,7 +125,7 @@ def config_hmg_ckan_net_1():
     env.apache_config = 'hmg.ckan.net'
     env.hosts = ['ssh.hmg.ckan.net']
     env.wsgi_script_filepath = None # os.path.join(env.base_dir, 'hmg.ckan.net/pyenv/bin/pylonsapp_modwsgi.py')
-    env.pip_requirements = 'pip-requirements-stable.txt'
+    env.revision = 'stable'
 
 def config_hmg_ckan_net_2():
     config_hmg_ckan_net_1()
@@ -139,7 +138,7 @@ def config_hmg2_ckan_net_1(db_pass=None):
     env.hosts = ['hmg2.ckan.net']
     env.base_dir = '/home/%s/var/srvc' % env.user
 #    env.wsgi_script_filepath = os.path.join(env.base_dir, 'pylonsapp_modwsgi.py')
-    env.pip_requirements = 'pip-requirements.txt'
+    env.revision = 'default'
     env.db_pass = db_pass
     env.ckan_instance_name = 'hmg2.ckan.net.1'
     env.config_ini_filename = 'hmg2.ckan.net.ini'
@@ -156,27 +155,27 @@ def config_hmg2_ckan_net():
     env.switch_between_ckan_instances = ['hmg2.ckan.net.1', 'hmg2.ckan.net.2']
 
 def config_test_ckan_net():
-    config_0('test.ckan.net', requirements='pip-requirements.txt')
+    config_0('test.ckan.net', revision='default')
 
 def config_dev_hmg_ckan_net():
-    config_0('dev-hmg.ckan.net', requirements='pip-requirements.txt',
+    config_0('dev-hmg.ckan.net', revision='default',
              user='okfn')
 
 def config_0(name,
              hosts_str='',
-             requirements='pip-requirements-metastable.txt',
+             revision='metastable',
              db_user=None,
              db_pass='',
              db_host='localhost',
-             user=None
+             user='okfn'
         ):
     '''Configurable configuration: fab -d gives full info.
     
     @param name: name of instance (e.g. xx.ckan.net)
     @param hosts_str: hosts to run on (--host does not work correctly).
         Defaults to name if not supplied.
-    @param requirements: pip requirements filename to use (defaults to
-        pip-requirements-metastable.txt)
+    @param revision: branch/tag/revision to find pip requirements in the ckan
+        repo. (default is 'metastable')
     @param db_user: db user name (assumes it is already created). Defaults to
                     value of 'user'.
     @param db_pass: password to use when setting up db user (if needed)
@@ -204,7 +203,7 @@ def config_0(name,
         else:
             print 'Found Squid cache but did not find host in config.'
     env.base_dir = '/home/%s/var/srvc' % env.user
-    env.pip_requirements = requirements
+    env.revision = revision
     env.db_user = db_user or env.user
     env.db_pass = db_pass
     env.db_host = db_host
@@ -239,16 +238,17 @@ def deploy():
     assert env.base_dir
     _setup()
     _mkdir(env.instance_path)
-    pip_req = env.ckan_repo + env.pip_requirements
+    pip_req = env.ckan_repo % env.revision + pip_requirements
     with cd(env.instance_path):
 
         # get latest pip-requirements.txt
+        print 'Getting pip-requirements from revision: %s' % env.revision
         latest_pip_file = urllib2.urlopen(pip_req)
-        tmp_pip_requirements_filepath = os.path.join('/tmp', env.pip_requirements)
+        tmp_pip_requirements_filepath = os.path.join('/tmp', pip_requirements)
         local_pip_file = open(tmp_pip_requirements_filepath, 'w')
         local_pip_file.write(latest_pip_file.read())
         local_pip_file.close()
-        remote_pip_filepath = os.path.join(env.instance_path, env.pip_requirements)
+        remote_pip_filepath = os.path.join(env.instance_path, pip_requirements)
         put(tmp_pip_requirements_filepath, remote_pip_filepath)
         assert exists(remote_pip_filepath)
 
@@ -257,7 +257,10 @@ def deploy():
             _run_in_cmd_pyenv('virtualenv %s' % env.pyenv_dir)
         else:
             print 'Virtualenv already exists: %s' % env.pyenv_dir
-        _pip_cmd('pip -E %s install -r %s' % (env.pyenv_dir, env.pip_requirements))
+
+        # Run pip
+        print 'Pip download cache: %r' % os.environ.get('PIP_DOWNLOAD_CACHE')
+        _pip_cmd('pip -E %s install -r %s' % (env.pyenv_dir, pip_requirements))
 
         # create config ini file
         if not exists(env.config_ini_filename):
@@ -270,14 +273,15 @@ def deploy():
             # sed does not find the path if not absolute (!)
             config_path = os.path.join(env.instance_path, env.config_ini_filename)
             sed(config_path, dburi, newdburi, backup='')
+            site_id = '^.*ckan.site_id.*'
+            new_site_id = 'ckan.site_id = %s' % env.ckan_instance_name
+            sed(config_path, site_id, new_site_id, backup='')
             if not env.skip_setup_db:
                 setup_db()
-            _run_in_pyenv('paster --plugin ckan db create --config %s' % env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
         else:
             print 'Config file already exists: %s/%s' % (env.instance_path, env.config_ini_filename)
             _run_in_pyenv('paster --plugin ckan db upgrade --config %s' % env.config_ini_filename)
-            _run_in_pyenv('paster --plugin ckan db init --config %s' % env.config_ini_filename)
 
         # create wsgi script
         if env.wsgi_script_filepath:
@@ -350,9 +354,8 @@ def status():
         _run_in_cmd_pyenv('pip freeze')
         run('cat %s' % env.config_ini_filename)
     with cd(os.path.join(env.pyenv_dir, 'src', 'ckan')):
-        run('hg log -l 1')
-        run('hg branch')
-        run('hg identify')
+        run('git log -n1')
+        run('git name-rev --name-only HEAD')
         run('grep version ckan/__init__.py')
 
 def apache_config(set_config=None):
@@ -400,7 +403,7 @@ def backup():
     with cd(env.instance_path):
         assert exists(env.config_ini_filename), "Can't find config file: %s/%s" % (env.instance_path, env.config_ini_filename)
     db_details = _get_db_config()
-    assert db_details['db_type'] == 'postgres'
+    assert db_details['db_type'] in ('postgres', 'postgresql')
     port_option = '-p %s' % db_details['db_port'] if db_details['db_port'] else ''
     run('export PGPASSWORD=%s&&pg_dump -U %s -h %s %s %s > %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_host'], port_option, db_details['db_name'], pg_dump_filepath), shell=False)
     assert exists(pg_dump_filepath)
@@ -448,7 +451,7 @@ def restore(pg_dump_filepath):
             default=False)
     with cd(env.instance_path):
         _run_in_pyenv('paster --plugin ckan db clean --config %s' % env.config_ini_filename)
-    assert db_details['db_type'] == 'postgres'
+    assert db_details['db_type'] in ('postgres', 'postgresql')
     port_option = '-p %s'  % db_details['db_port'] if db_details['db_port'] else ''
     run('export PGPASSWORD=%s&&psql -U %s -d %s -h %s %s -f %s' % (db_details['db_pass'], db_details['db_user'], db_details['db_name'], db_details['db_host'], port_option, pg_dump_filepath), shell=False)
     with cd(env.instance_path):

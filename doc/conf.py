@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Comprehensive Knowledge Archive Network (CKAN) documentation build configuration file, created by
+# CKAN documentation build configuration file, created by
 # sphinx-quickstart on Sun Oct 25 16:47:17 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -26,10 +26,10 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['.templates']
+templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -41,8 +41,17 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Comprehensive Knowledge Archive Network (CKAN)'
-copyright = u'2009, Open Knowledge Foundation'
+project = u'CKAN Data Management System Documentation'
+project_short_name = u'CKAN'
+copyright = u'''&copy; 2009-2012, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
+    Licensed under <a
+    href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
+    Attribution ShareAlike (Unported) v3.0 License</a>.<br />
+    <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
+    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0" 
+      alt="{{ _('Open Content') }}" /></a>
+  '''
+html_show_sphinx = False
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -92,31 +101,51 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
+#html_theme = 'default'
+#html_theme_options = {
+#"relbarbgcolor": "#777",
+#'sidebarbgcolor': '#F2F2F2',
+#'sidebartextcolor': 'black',
+#'sidebarlinkcolor': '#355F7C',
+#'headfont': 'Trebuchet MS'    
+#}
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'sphinx-theme-okfn'
+html_theme_options = {
+        'logo_icon': 'http://assets.okfn.org/p/opendatahandbook/img/data-wrench-inverted.png',
+        'show_version': True
+    }
+
+html_sidebars = {
+    '**':  ['localtoc.html', 'globaltoc.html']
+}
+
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'default.css'
+#html_style = 'default.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+# html_title = "%s v%s Guide" % (project, release)
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
+# html_short_title = "%s Admin Guide" % (project_short_name)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+# html_logo = None
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+#html_favicon = 'images/favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['.static']
+#html_static_path = ['.static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -125,9 +154,6 @@ html_static_path = ['.static']
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
 #html_use_smartypants = True
-
-# Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

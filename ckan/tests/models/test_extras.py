@@ -9,7 +9,7 @@ class TestExtras:
 
     @classmethod 
     def teardown_class(self):
-        CreateTestData.delete()
+        model.repo.rebuild_db()
 
     def test_1(self):
         startrev = model.repo.youngest_revision().id

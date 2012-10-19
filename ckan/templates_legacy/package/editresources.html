@@ -1,0 +1,22 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Edit Resources - Datasets</py:def>
+  <py:def function="page_heading">Edit Resources: ${c.pkg.title or c.pkg.name}</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+
+  <py:def function="optional_head">
+    <script>
+      var resources_json = ${h.literal(c.resources_json)};
+    </script>
+  </py:def>
+
+  <div py:match="content" class="dataset-editresources-form">
+    ${c.form}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

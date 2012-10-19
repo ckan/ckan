@@ -1,0 +1,20 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <py:match path="minornavigation">
+    <ul class="nav nav-pills">
+      <li class="${'active' if c.action=='index' else ''}">${h.subnav_link(h.icon('page_white_stack') + _('List'), controller='revision', action='index')}</li>
+      <py:if test="c.action=='read'">
+        <li class="divider">|</li>
+        <li class="${'active' if c.action=='read' else ''}">${h.subnav_link(h.icon('page_white') + _('View'), controller='revision', action='read', id=c.id)}</li>
+      </py:if>
+    </ul>
+  </py:match>
+
+
+  <xi:include href="../layout.html" />
+</html>
+

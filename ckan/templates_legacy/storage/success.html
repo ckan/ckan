@@ -1,0 +1,22 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">Upload</py:def>
+
+  <py:def function="optional_head">
+  </py:def>
+
+  <div py:match="content">
+    <h1>Upload - Successful</h1>
+
+    <p>Filed uploaded to:</p>
+    <p><a href="${c.file_url}">${c.file_url}</a></p>
+
+    <p><a href="${c.upload_url}">Upload another &raquo;</a></p>
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
+

@@ -1,8 +1,13 @@
 import datetime
 
+import sqlalchemy as sa
+from sqlalchemy import orm
 from sqlalchemy.util import OrderedDict
 
-from meta import *
+import meta
+import core
+
+__all__ = ['DomainObject', 'DomainObjectOperation']
 
 class Enum(set):
     '''Simple enumeration
@@ -11,7 +16,7 @@ class Enum(set):
     '''
     def __init__(self, *names):
         super(Enum, self).__init__(names)
-        
+
     def __getattr__(self, name):
         if name in self:
             return name
@@ -21,38 +26,37 @@ DomainObjectOperation = Enum('new', 'changed', 'deleted')
 
 # TODO: replace this (or at least inherit from) standard SqlalchemyMixin in vdm
 class DomainObject(object):
-    
+
     text_search_fields = []
-    Session = Session
+    Session = meta.Session
 
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
     @classmethod
-    def count(self):
-        self.Session.query(self).count()
+    def count(cls):
+        cls.Session.query(cls).count()
 
     @classmethod
-    def by_name(self, name, autoflush=True):
-        obj = Session.query(self).autoflush(autoflush)\
+    def by_name(cls, name, autoflush=True):
+        obj = meta.Session.query(cls).autoflush(autoflush)\
               .filter_by(name=name).first()
         return obj
 
     @classmethod
-    def text_search(self, query, term):
-        register = self
+    def text_search(cls, query, term):
+        register = cls
         make_like = lambda x,y: x.ilike('%' + y + '%')
         q = None
-        for field in self.text_search_fields:
+        for field in cls.text_search_fields:
             attr = getattr(register, field)
-            q = or_(q, make_like(attr, term))
+            q = sa.or_(q, make_like(attr, term))
         return query.filter(q)
 
     @classmethod
-    def active(self):
-        from core import State
-        return Session.query(self).filter_by(state=State.ACTIVE)
+    def active(cls):
+        return meta.Session.query(cls).filter_by(state=core.State.ACTIVE)
 
     def save(self):
         self.add()
@@ -90,6 +94,8 @@ class DomainObject(object):
             val = getattr(self, col.name)
             if isinstance(val, datetime.date):
                 val = str(val)
+            if isinstance(val, datetime.datetime):
+                val = val.isoformat()
             _dict[col.name] = val
         return _dict
 
@@ -104,7 +110,7 @@ class DomainObject(object):
                 repr += u' %s=%s' % (col.name, getattr(self, col.name))
             except Exception, inst:
                 repr += u' %s=%s' % (col.name, inst)
-                
+
         repr += '>'
         return repr
 

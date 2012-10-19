@@ -1,0 +1,5 @@
+{% extends "package/base_form_page.html" %}
+
+{% block subtitle %}{{ _('Add metadata to the dataset') }}{% endblock %}
+
+{% block form %}{{ h.snippet('package/snippets/package_metadata_form.html', data=data, errors=errors, include_metadata=false, pkg_name=pkg_name) }}{% endblock %}

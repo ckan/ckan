@@ -1,0 +1,45 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Differences - Revisions</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+
+  <div py:match="content">
+    <h2>Revision Differences - 
+    <span py:choose="c.diff_entity">
+        <a py:when="'package'">
+            <a href="${h.url_for(controller='package', action='read', id=c.pkg.name)}">${c.pkg.name}</a>
+        </a>
+        <a py:when="'group'">
+            <a href="${h.url_for(controller='group', action='read', id=c.group.name)}">${c.group.name}</a>
+        </a>
+    </span>
+    </h2>
+        
+          
+    <p>
+    From: ${c.revision_from.id} - ${c.revision_from.timestamp}
+    </p>
+
+    <p>
+    To: ${c.revision_to.id} - ${c.revision_to.timestamp}
+    </p>
+
+    <py:if test="c.diff">
+      <table class="table table-bordered table-striped">
+        <tr>
+          <th>Field</th><th>Difference</th>
+        </tr>
+       <py:for each="field, diff in c.diff">
+          <tr><td>${field}</td><td><pre>${diff}</pre></td></tr>
+        </py:for>
+      </table>
+    </py:if>
+    <py:if test="not c.diff">
+      <h3>No differences</h3>
+    </py:if>
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

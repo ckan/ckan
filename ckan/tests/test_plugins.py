@@ -17,13 +17,17 @@ from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
 
-# Create the ckantestplugin setuptools distribution
-mydir = os.path.dirname(__file__)
-egg_info = os.path.join(mydir, 'ckantestplugin', 'ckantestplugin.egg-info')
-base_dir = os.path.dirname(egg_info)
-metadata = PathMetadata(base_dir, egg_info)
-dist_name = os.path.splitext(os.path.basename(egg_info))[0]
-ckantestplugin_dist = Distribution(base_dir, project_name=dist_name, metadata=metadata)
+def install_ckantestplugin():
+    # Create the ckantestplugin setuptools distribution
+    mydir = os.path.dirname(__file__)
+    egg_info = os.path.join(mydir, 'ckantestplugin', 'ckantestplugin.egg-info')
+    base_dir = os.path.dirname(egg_info)
+    metadata = PathMetadata(base_dir, egg_info)
+    dist_name = os.path.splitext(os.path.basename(egg_info))[0]
+    ckantestplugin_dist = Distribution(
+        base_dir, project_name=dist_name, metadata=metadata)
+    working_set.add(ckantestplugin_dist)
+
 
 class IFoo(Interface):
     pass
@@ -99,7 +103,7 @@ class TestPlugins(TestCase):
         self._saved_plugins_config = config.get('ckan.plugins', '')
         config['ckan.plugins'] = ''
         plugins.reset()
-        working_set.add(ckantestplugin_dist)
+        install_ckantestplugin()
 
     def tearDown(self):
         # Ideally this would remove the ckantestplugin_dist from the working
@@ -164,15 +168,15 @@ class TestPlugins(TestCase):
         config['ckan.plugins'] = 'mapper_plugin'
         plugins.load_all(config)
         CreateTestData.create_arbitrary([{'name':u'testpkg'}])
-        mapper_plugin = PluginGlobals.plugin_registry['MapperPlugin'].__instance__
-        assert len(mapper_plugin.added) == 1
+        mapper_plugin = PluginGlobals.env_registry['pca'].plugin_registry['MapperPlugin'].__instance__
+        assert len(mapper_plugin.added) == 2 # resource group table added automatically
         assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        config.local_conf['ckan.plugins'] = 'routes_plugin'
-        app = make_app(config.global_conf, **config.local_conf)
-        routes_plugin = PluginGlobals.plugin_registry['RoutesPlugin'].__instance__
+        local_config = appconfig('config:%s' % config['__file__'], relative_to=conf_dir)
+        local_config.local_conf['ckan.plugins'] = 'routes_plugin'
+        app = make_app(local_config.global_conf, **local_config.local_conf)
+        routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made
 

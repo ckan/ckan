@@ -1,0 +1,80 @@
+<script type="text/javascript"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  >
+
+  /* 
+   * Included as inline javascript in layout_base.html. Simpler than 
+   * trying to trick the translation system into reading a js file. 
+   */
+  var CKAN = CKAN || {};
+  CKAN.Strings = CKAN.Strings || {};
+
+  /*
+   * Used in application.js.
+   */
+  CKAN.Strings = ${
+    h.dump_json(dict(
+      checking = _('Checking...'),
+      urlIsTooShort = _('Type at least two characters...'),
+      urlIsUnchanged = _('This is the current URL.'),
+      urlIsAvailable = _('This URL is available!'),
+      urlIsNotAvailable = _('This URL is already used, please use a different one.'),
+      failedToSave = _('Failed to save, possibly due to invalid data '),
+      addDataset = _('Add Dataset'),
+      addGroup = _('Add Group'),
+      youHaveUnsavedChanges = _("You have unsaved changes. Make sure to click 'Save Changes' below before leaving this page."),
+      loading = _('Loading...'),
+      noNameBrackets = _('(no name)'),
+      deleteThisResourceQuestion = _('Delete the resource \'%name%\'?'),
+      previewNotAvailableForDataType = _('Preview not available for data type: '),
+      failedToGetCredentialsForUpload = _('Failed to get credentials for storage upload. Upload cannot proceed'),
+      checkingUploadPermissions = _('Checking upload permissions ...'),
+      uploadingFile = _('Uploading file ...'),
+      dataFile = _('Data File'),
+      api = _('API'),
+      visualization = _('Visualization'),
+      image = _('Image'),
+      metadata = _('Metadata'),
+      documentation = _('Documentation'),
+      code = _('Code'),
+      example = _('Example'),
+
+      upload = _('Upload'),
+      cancel = _('Cancel'),
+      name = _('Name'),
+      description = _('Description'),
+      url = _('Url'),
+      format = _('Format'),
+      resourceType = _('Resource Type'),
+      datastoreEnabled = _('DataStore enabled'),
+      sizeBracketsBytes = _('Size (Bytes)'),
+      mimetype = _('Mimetype'),
+      created = _('Created'),
+      lastModified = _('Last Modified'),
+      mimetypeInner = _('Mimetype (Inner)'),
+      hash = _('Hash'),
+      id = _('ID'),
+      doneEditing = _('Done'),
+      resourceHasUnsavedChanges = _('This resource has unsaved changes.'),
+      edit = _('Edit'),
+      preview = _('Preview'),
+      resourceFormatPlaceholder = _('e.g. csv, html, xls, rdf, ...'),
+      unknown = _('Unknown'),
+      extraFields = _('Extra Fields'),
+      addExtraField = _('Add Extra Field'),
+      key = _('Key'),
+      value = _('Value'),
+      deleteResource = _('Delete Resource'),
+      youCanUseMarkdown = _('You can use %aMarkdown formatting%b here.'),
+      datesAreInISO = _('Dates are in %aISO Format%b &mdash; eg. %c2012-12-25%d or %c2010-05-31T14:30%d.'),
+      dataFileUploaded = _('Data File (Uploaded)'),
+      follow = _('Follow'),
+      unfollow = _('Unfollow'),
+      errorLoadingPreview = _('Could not load preview'),
+      errorDataProxy = _('DataProxy returned an error'),
+      errorDataStore = _('DataStore returned an error')
+    ), indent=4)}
+
+</script>
+

@@ -1,0 +1,161 @@
+
+<form id="publisher-edit" action="" method="post"
+    py:attrs="{'class':'has-errors'} if errors else {}"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+</ul>
+</div>
+
+<input type="hidden" id="type" name="type" value="publisher" />
+<input type="hidden" id="approval_status" name="approval_status" value="pending" />
+
+<fieldset id="basic-information">
+  <dl>
+    <dt><label class="field_opt" for="name">Publisher name</label></dt>
+    <dd><input class="js-title" id="title" name="title" type="text" value="${data.get('title', '')}"/></dd>
+
+
+    <dt><label class="field_opt" for="title">Url</label></dt>
+    <dd class="name-field">
+      <span class="js-url-text url-text">${g.site_url+h.url_for('publisher_index')+'/'}<span class="js-url-viewmode js-url-suffix">&nbsp;</span><a style="display: none;" href="#" class="url-edit js-url-editlink js-url-viewmode">(edit)</a></span>
+      <input style="display: none;" id="name" maxlength="100" name="name" type="text" class="url-input js-url-editmode js-url-input" value="${data.get('name', '')}" />
+      <p class="js-url-is-valid">&nbsp;</p>
+    </dd>
+    <dd style="display: none;" class="js-url-editmode instructions basic">2+ chars, lowercase, using only 'a-z0-9' and '-_'</dd>
+    <dd class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</dd>
+
+    <dt class="description-label"><label class="field_opt" for="title">Publisher Description</label></dt>
+    <dd class="description-field"><div class="markdown-editor">
+      <ul class="button-row">
+        <li><button class="btn js-markdown-edit depressed">Edit</button></li>
+        <li><button class="btn js-markdown-preview">Preview</button></li>
+      </ul>
+      <textarea class="markdown-input" name="description" id="notes" placeholder="${_('Start with a summary sentence ...')}">${data.get('description','')}</textarea>
+      <div class="markdown-preview" style="display: none;"></div>
+      <span class="hints">You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here.</span>
+    </div></dd>
+
+    <dt class="parent-label" py:if="c.is_superuser_or_groupadmin">
+		<label class="field_opt" for="parent">Parent publisher</label>
+	</dt>
+
+	<dd py:if="c.group and not c.is_superuser_or_groupadmin">
+		<span py:if="c.parent is not None" class="js-title">
+			${ c.parent.title }
+		</span>
+		<span py:if="c.parent is None" class="js-title">
+			No parent publisher
+		</span>
+	</dd>
+
+    <dd py:if="c.is_superuser_or_groupadmin" class="parent-field">
+		<select id="parent" name="parent" class="chzn-select" data-placeholder="Please choose a publisher">
+			<option value=""></option>
+    		<py:for each="pg in c.possible_parents">
+				<option py:attrs="{'selected': 'selected' if c.parent and pg.id == c.parent.id else None}" value="${pg.id}">${pg.title}</option>
+			</py:for>
+		</select>
+	</dd>
+
+
+    <dt class="state-label" py:if="c.is_sysadmin or c.auth_for_change_state"><label class="field_opt" for="state">State</label></dt>
+    <dd class="state-field" py:if="c.is_sysadmin or c.auth_for_change_state">
+    <select id="state" name="state" >
+      <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+      <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+    </select>
+    </dd>
+  </dl>
+</fieldset>
+
+<fieldset id="extras">
+  <h3>Extras</h3>
+  <dl>
+    <py:with vars="extras = data.get('extras', [])">
+    <py:for each="num, extra in enumerate(data.get('extras', []))">
+    <dt><label for="extras__${num}__value">${extra.get('key')}</label></dt>
+    <dd>
+      <input id="extras__${num}__key" name="extras__${num}__key" type="hidden" value="${extra.get('key')}" />
+      <input id="extras__${num}__value" name="extras__${num}__value" type="text" value="${extra.get('value')}" />
+      <input type="checkbox" name="extras__${num}__deleted" checked="${extra.get('deleted')}">Delete</input>
+    </dd>
+    </py:for>
+
+    <py:for each="num in range(len(extras), len(extras) + 4)">
+    <dt><label for="extras__${num}__key">New key</label></dt>
+    <dd>
+      <input class="medium-width" id="extras__${num}__key" name="extras__${num}__key" type="text" />
+      with value
+      <input class="medium-width" id="extras__${num}__value" name="extras__${num}__value" type="text" />
+    </dd>
+    </py:for>
+    </py:with>
+  </dl>
+</fieldset>
+
+<fieldset id="users">
+  <h3>Users</h3>
+  <dl py:if="data.get('users')">
+    <py:for each="num, user in enumerate(data.get('users'))">
+      <dt py:if="c.is_superuser_or_groupadmin"><input checked="checked" id="users__${num}__name" name="users__${num}__name" type="checkbox" value="${user['name']}"/>
+	</dt>
+	      <dd>
+	        <label for="users__${num}__name">${user['name']} ${user['capacity']}</label>
+		  </dd>
+		  <dd py:if="c.is_superuser_or_groupadmin">
+			  <input type="radio" name="users__${num}__capacity" value="admin"  py:attrs="{'checked': 'checked' if user['capacity'] == 'admin' else None}"> Admin</input>
+			  <input type="radio" name="users__${num}__capacity" value="editor" py:attrs="{'checked': 'checked' if user['capacity'] in ['editor','member'] else None}"> Editor</input>
+		  </dd>
+    </py:for>
+  </dl>
+  <p py:if="not data.get('users')">There are no users currently in this publisher.</p>
+
+  <span py:if="c.is_superuser_or_groupadmin">
+	  <h3>Add users</h3>
+	  <dl>
+	    <dt><label class="field_opt" for="users__${len(data.get('users', []))}__name">User</label></dt>
+		<input type="hidden" name="add-user-capacity" value="editor"></input>
+	    <dd><input class="autocomplete-publisher-user" id="users__${len(data.get('users', [])) + 1}__name" name="users__${len(data.get('users', []))}__name" type="text" /></dd>
+	  </dl>
+	</span>
+</fieldset>
+
+
+<fieldset id="datasets">
+  <h3>Datasets</h3>
+  <dl py:if="data.get('packages')">
+    <py:for each="num, package in enumerate(data.get('packages'))">
+      <dt><input checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" value="${package['name']}"/></dt>
+      <dd>
+        <label for="packages__${num}__name">${package['name']}</label>
+      </dd>
+    </py:for>
+  </dl>
+  <p py:if="not data.get('packages')">There are no datasets currently in this publisher.</p>
+
+  <h3>Add datasets</h3>
+  <dl>
+    <dt><label class="field_opt" for="packages__${len(data.get('packages', []))}__name">Dataset</label></dt>
+    <dd><input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" /></dd>
+  </dl>
+  <dl py:if="c.group">
+	<dd>
+		<a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">Add a new dataset</a>
+	</dd>
+  </dl>
+</fieldset>
+
+<div class="form-submit">
+  <input id="save" class="btn primary" name="save" type="submit" value="${_('Save Changes')}" />
+  <py:if test="c.group">
+    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='group', action='read', id=c.group.name)}" />
+  </py:if>
+</div>
+</form>

@@ -1,90 +1,134 @@
-import cli
+import logging
 from collections import defaultdict
+import datetime
 
-class CreateTestData(cli.CkanCommand):
-    '''Create test data in the database.
-    Tests can also delete the created objects easily with the delete() method.
+import ckan.model as model
+import authztool
 
-    create-test-data         - annakarenina and warandpeace
-    create-test-data search  - realistic data to test search
-    create-test-data gov     - government style data
-    create-test-data family  - package relationships data
-    create-test-data user    - create a user 'tester' with api key 'tester'
-    '''
-    summary = __doc__.split('\n')[0]
-    usage = __doc__
-    max_args = 1
-    min_args = 0
-    author = u'tester'
+log = logging.getLogger(__name__)
 
+class CreateTestData(object):
+    # keep track of the objects created by this class so that
+    # tests can easy call delete() method to delete them all again.
     pkg_names = []
     tag_names = []
     group_names = set()
-    user_names = []
-    
+    user_refs = []
+
+    author = u'tester'
+
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
                        ]
-
-    def command(self):
-        self._load_config()
-        self._setup_app()
-        if self.args:
-            cmd = self.args[0]
-        else:
-            cmd = 'basic'
-        if self.verbose:
-            print 'Creating %s test data' % cmd
-        if cmd == 'basic':
-            self.create_basic_test_data()
-        elif cmd == 'user':
-            self.create_user()
-        elif cmd == 'search':
-            self.create_search_test_data()
-        elif cmd == 'gov':
-            self.create_gov_test_data()
-        elif cmd == 'family':
-            self.create_family_test_data()
-        else:
-            print 'Command %s not recognized' % cmd
-            raise NotImplementedError
-        if self.verbose:
-            print 'Creating %s test data: Complete!' % cmd
+    @classmethod
+    def create_basic_test_data(cls):
+        cls.create()
 
     @classmethod
-    def create_basic_test_data(self):
-        self.create()
+    def create_search_test_data(cls):
+        cls.create_arbitrary(search_items)
 
     @classmethod
-    def create_search_test_data(self):
-        self.create_arbitrary(search_items)
+    def create_gov_test_data(cls, extra_users=[]):
+        cls.create_arbitrary(gov_items, extra_user_names=extra_users)
 
     @classmethod
-    def create_gov_test_data(self, extra_users=[]):
-        self.create_arbitrary(gov_items, extra_user_names=extra_users)
-
-    @classmethod
-    def create_family_test_data(self, extra_users=[]):
-        self.create_arbitrary(family_items,
+    def create_family_test_data(cls, extra_users=[]):
+        cls.create_arbitrary(family_items,
                               relationships=family_relationships,
                               extra_user_names=extra_users)
 
     @classmethod
-    def create_user(self):
-        import ckan.model as model
+    def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester')
+            tester = model.User(name=u'tester', apikey=u'tester',
+                password=u'tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
-        self.user_names = [u'tester']
+        cls.user_refs.append(u'tester')
 
     @classmethod
-    def create_arbitrary(self, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[], 
-            commit_changesets=False, admins=[]):
+
+    def create_translations_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        rev = ckan.model.repo.new_revision()
+        rev.author = CreateTestData.author
+        rev.message = u'Creating test translations.'
+
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        package = ckan.model.Package.get('annakarenina')
+
+        # Add some new tags to the package.
+        # These tags are codes that are meant to be always translated before
+        # display, if not into the user's current language then into the
+        # fallback language.
+        package.add_tags([ckan.model.Tag('123'), ckan.model.Tag('456'),
+                ckan.model.Tag('789')])
+
+        # Add the above translations to CKAN.
+        for (lang_code, translations) in (('de', german_translations),
+                ('fr', french_translations), ('en', english_translations)):
+            for term in terms:
+                if term in translations:
+                    data_dict = {
+                            'term': term,
+                            'term_translation': translations[term],
+                            'lang_code': lang_code,
+                            }
+                    context = {
+                        'model': ckan.model,
+                        'session': ckan.model.Session,
+                        'user': sysadmin_user.name,
+                    }
+                    ckan.logic.action.update.term_translation_update(context,
+                            data_dict)
+
+        ckan.model.Session.commit()
+
+    def create_vocabs_test_data(cls):
+        import ckan.model
+        CreateTestData.create()
+        sysadmin_user = ckan.model.User.get('testsysadmin')
+        annakarenina = ckan.model.Package.get('annakarenina')
+        warandpeace = ckan.model.Package.get('warandpeace')
+
+        # Create a couple of vocabularies.
+        context = {
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'user': sysadmin_user.name
+                }
+        data_dict = {
+                'name': 'Genre',
+                'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
+                    {'name': 'Mystery'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        data_dict = {
+                'name': 'Actors',
+                'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
+                    {'name': 'alessio-boni'}],
+                }
+        ckan.logic.action.create.vocabulary_create(context, data_dict)
+
+        # Add some vocab tags to some packages.
+        genre_vocab = ckan.model.Vocabulary.get('Genre')
+        actors_vocab = ckan.model.Vocabulary.get('Actors')
+        annakarenina.add_tag_by_name('Drama', vocab=genre_vocab)
+        annakarenina.add_tag_by_name('keira-knightley', vocab=actors_vocab)
+        annakarenina.add_tag_by_name('jude-law', vocab=actors_vocab)
+        warandpeace.add_tag_by_name('Drama', vocab=genre_vocab)
+        warandpeace.add_tag_by_name('alessio-boni', vocab=actors_vocab)
+
+    @classmethod
+    def create_arbitrary(cls, package_dicts, relationships=[],
+            extra_user_names=[], extra_group_names=[],
+            admins=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -95,49 +139,55 @@ class CreateTestData(cli.CkanCommand):
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
         @param admins - a list of user names to make admins of all the
-                               packages created.                           
+                               packages created.
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
         assert isinstance(extra_group_names, (list, tuple))
-        import ckan.model as model
         model.Session.remove()
         new_user_names = extra_user_names
         new_group_names = set()
-        
-        rev = model.repo.new_revision() 
-        rev.author = self.author
+        new_groups = {}
+
+        rev = model.repo.new_revision()
+        rev.author = cls.author
         rev.message = u'Creating test packages.'
-        
+
         admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
                 pkg_dict = {}
-                for field in self.pkg_core_fields:
+                for field in cls.pkg_core_fields:
                     if item.has_key(field):
                         pkg_dict[field] = unicode(item[field])
+                if model.Package.by_name(pkg_dict['name']):
+                    log.warning('Cannot create package "%s" as it already exists.' % \
+                                    (pkg_dict['name']))
+                    continue
                 pkg = model.Package(**pkg_dict)
                 model.Session.add(pkg)
                 for attr, val in item.items():
                     if isinstance(val, str):
                         val = unicode(val)
                     if attr=='name':
-                        continue                
-                    if attr in self.pkg_core_fields:
+                        continue
+                    if attr in cls.pkg_core_fields:
                         pass
                     elif attr == 'download_url':
                         pkg.add_resource(unicode(val))
                     elif attr == 'resources':
                         assert isinstance(val, (list, tuple))
                         for res_dict in val:
-                            pkg.add_resource(
-                                url=unicode(res_dict['url']),
-                                format=unicode(res_dict.get('format')),
-                                description=unicode(res_dict.get('description')),
-                                hash=unicode(res_dict.get('hash')),
-                                )
+                            non_extras = {}
+                            for k, v in res_dict.items():
+                                if k != 'extras':
+                                    if not isinstance(v, datetime.datetime):
+                                        v = unicode(v)
+                                    non_extras[str(k)] = v
+                            extras = dict([(str(k), unicode(v)) for k, v in res_dict.get('extras', {}).items()])
+                            pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
                         if isinstance(val, (str, unicode)):
                             tags = val.split()
@@ -150,11 +200,12 @@ class CreateTestData(cli.CkanCommand):
                             tag = model.Tag.by_name(tag_name)
                             if not tag:
                                 tag = model.Tag(name=tag_name)
-                                self.tag_names.append(tag_name)
-                                model.Session.add(tag)    
-                            pkg.tags.append(tag)
+                                cls.tag_names.append(tag_name)
+                                model.Session.add(tag)
+                            pkg.add_tag(tag)
                             model.Session.flush()
                     elif attr == 'groups':
+                        model.Session.flush()
                         if isinstance(val, (str, unicode)):
                             group_names = val.split()
                         elif isinstance(val, list):
@@ -164,10 +215,19 @@ class CreateTestData(cli.CkanCommand):
                         for group_name in group_names:
                             group = model.Group.by_name(unicode(group_name))
                             if not group:
-                                group = model.Group(name=unicode(group_name))
-                                model.Session.add(group)
-                                new_group_names.add(group_name)
-                            pkg.groups.append(group)
+                                if not group_name in new_groups:
+                                    group = model.Group(name=unicode(group_name))
+                                    model.Session.add(group)
+                                    new_group_names.add(group_name)
+                                    new_groups[group_name] = group
+                                else:
+                                    # If adding multiple packages with the same group name,
+                                    # model.Group.by_name will not find the group as the
+                                    # session has not yet been committed at this point.
+                                    # Fetch from the new_groups dict instead.
+                                    group = new_groups[group_name]
+                            member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                            model.Session.add(member)
                     elif attr == 'license':
                         pkg.license_id = val
                     elif attr == 'license_id':
@@ -182,15 +242,15 @@ class CreateTestData(cli.CkanCommand):
                                 new_user_names.append(user_name)
                     else:
                         raise NotImplementedError(attr)
-                self.pkg_names.append(item['name'])
+                cls.pkg_names.append(item['name'])
                 model.setup_default_user_roles(pkg, admins=[])
                 for admin in admins:
                     admins_list[item['name']].append(admin)
             model.repo.commit_and_remove()
 
         needs_commit = False
-        
-        rev = model.repo.new_revision() 
+
+        rev = model.repo.new_revision()
         for group_name in extra_group_names:
             group = model.Group(name=unicode(group_name))
             model.Session.add(group)
@@ -206,7 +266,7 @@ class CreateTestData(cli.CkanCommand):
             if not model.User.by_name(unicode(user_name)):
                 user = model.User(name=unicode(user_name))
                 model.Session.add(user)
-                self.user_names.append(user_name)
+                cls.user_refs.append(user_name)
                 needs_commit = True
 
         if needs_commit:
@@ -231,7 +291,7 @@ class CreateTestData(cli.CkanCommand):
         for group_name in new_group_names:
             group = model.Group.by_name(unicode(group_name))
             model.setup_default_user_roles(group)
-            self.group_names.add(group_name)
+            cls.group_names.add(group_name)
             needs_commit = True
 
         if needs_commit:
@@ -239,8 +299,8 @@ class CreateTestData(cli.CkanCommand):
             needs_commit = False
 
         if relationships:
-            rev = model.repo.new_revision() 
-            rev.author = self.author
+            rev = model.repo.new_revision()
+            rev.author = cls.author
             rev.message = u'Creating package relationships.'
 
             def pkg(pkg_name):
@@ -251,74 +311,94 @@ class CreateTestData(cli.CkanCommand):
                 needs_commit = True
 
             model.repo.commit_and_remove()
-        
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
+
 
     @classmethod
-    def create_groups(self, group_dicts, admin_user_name):
+    def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added and they can
         have an admin user.'''
-        import ckan.model as model
         rev = model.repo.new_revision()
         # same name as user we create below
-        rev.author = self.author
-        admin_user = model.User.by_name(admin_user_name)
+        rev.author = cls.author
+        if admin_user_name:
+            admin_users = [model.User.by_name(admin_user_name)]
+        else:
+            admin_users = []
         assert isinstance(group_dicts, (list, tuple))
+        group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
+            if model.Group.by_name(group_dict['name']):
+                log.warning('Cannot create group "%s" as it already exists.' % \
+                                (group_dict['name']))
+                continue
             group = model.Group(name=unicode(group_dict['name']))
-            for key in ('title', 'description'):
-                if group_dict.has_key(key):
+            group.type = auth_profile or 'group'
+            for key in group_dict:
+                if key in group_attributes:
                     setattr(group, key, group_dict[key])
+                else:
+                    group.extras[key] = group_dict[key]
             pkg_names = group_dict.get('packages', [])
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))
                 assert pkg, pkg_name
-                pkg.groups.append(group)
+                member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                model.Session.add(member)
             model.Session.add(group)
-            model.setup_default_user_roles(group, [admin_user])
-            self.group_names.add(group_dict['name'])
+            model.setup_default_user_roles(group, admin_users)
+            cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(self, commit_changesets=False):
-        import ckan.model as model
+    def create(cls, auth_profile="", package_type=None):
         model.Session.remove()
-        self.create_user()
         rev = model.repo.new_revision()
         # same name as user we create below
-        rev.author = self.author
+        rev.author = cls.author
         rev.message = u'''Creating test data.
  * Package: annakarenina
  * Package: warandpeace
  * Associated tags, etc etc
 '''
-        self.pkg_names = [u'annakarenina', u'warandpeace']
-        pkg1 = model.Package(name=self.pkg_names[0])
+        if auth_profile == "publisher":
+            organization_group = model.Group(name=u"organization_group", type="organization")
+
+        cls.pkg_names = [u'annakarenina', u'warandpeace']
+        pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
+        if auth_profile == "publisher":
+            pkg1.group = organization_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
         pkg1.url = u'http://www.annakarenina.com'
         # put an & in the url string to test escaping
-        pr1 = model.PackageResource(
+        if 'alt_url' in model.Resource.get_extra_columns():
+            configured_extras = ({'alt_url': u'alt123'},
+                                 {'alt_url': u'alt345'})
+        else:
+            configured_extras = ({}, {})
+        pr1 = model.Resource(
             url=u'http://www.annakarenina.com/download/x=1&y=2',
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
+            extras={'size_extra': u'123'},
+            **configured_extras[0]
             )
-        pr2 = model.PackageResource(
+        pr2 = model.Resource(
             url=u'http://www.annakarenina.com/index.json',
             format=u'json',
             description=u'Index of the novel',
             hash=u'def456',
+            extras={'size_extra': u'345'},
+            **configured_extras[1]
             )
         model.Session.add(pr1)
         model.Session.add(pr2)
-        pkg1.resources.append(pr1)
-        pkg1.resources.append(pr2)
+        pkg1.resource_groups_all[0].resources_all.append(pr1)
+        pkg1.resource_groups_all[0].resources_all.append(pr2)
         pkg1.notes = u'''Some test notes
 
 ### A 3rd level heading
@@ -331,51 +411,70 @@ Foreign characters:
 u with umlaut \xfc
 66-style quote \u201c
 foreign word: th\xfcmb
- 
+
 Needs escaping:
 left arrow <
 
 <http://ckan.net/>
 
 '''
-        pkg2 = model.Package(name=self.pkg_names[1])
+        pkg2 = model.Package(name=cls.pkg_names[1], type=package_type)
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
-        for obj in [pkg2, tag1, tag2]:
+
+        if auth_profile == "publisher":
+            pkg2.group = organization_group
+
+        # Flexible tag, allows spaces, upper-case,
+        # and all punctuation except commas
+        tag3 = model.Tag(name=u'Flexible \u30a1')
+
+        for obj in [pkg2, tag1, tag2, tag3]:
             model.Session.add(obj)
-        pkg1.tags = [tag1, tag2]
-        pkg2.tags = [ tag1 ]
-        self.tag_names = [u'russian', u'tolstoy']
+        pkg1.add_tags([tag1, tag2, tag3])
+        pkg2.add_tags([ tag1, tag3 ])
+        cls.tag_names = [ t.name for t in (tag1, tag2, tag3) ]
         pkg1.license_id = u'other-open'
+        pkg2.license_id = u'cc-nc' # closed license
         pkg2.title = u'A Wonderful Story'
         pkg1.extras = {u'genre':'romantic novel',
                        u'original media':'book'}
         # group
         david = model.Group(name=u'david',
                              title=u'Dave\'s books',
-                             description=u'These are books that David likes.')
+                             description=u'These are books that David likes.',
+                             type=auth_profile or 'group')
         roger = model.Group(name=u'roger',
                              title=u'Roger\'s books',
-                             description=u'Roger likes these books.')
+                             description=u'Roger likes these books.',
+                             type=auth_profile or 'group')
         for obj in [david, roger]:
             model.Session.add(obj)
-        self.group_names.add(u'david')
-        self.group_names.add(u'roger')
-        david.packages = [pkg1, pkg2]
-        roger.packages = [pkg1]
+
+        cls.group_names.add(u'david')
+        cls.group_names.add(u'roger')
+
+        model.Session.flush()
+
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg2.id, table_name='package', group=david))
+        model.Session.add(model.Member(table_id=pkg1.id, table_name='package', group=roger))
         # authz
-        joeadmin = model.User(name=u'joeadmin')
-        annafan = model.User(name=u'annafan', about=u'I love reading Annakarenina')
-        russianfan = model.User(name=u'russianfan')
-        testsysadmin = model.User(name=u'testsysadmin')
-        for obj in [joeadmin, annafan, russianfan, testsysadmin]:
-            model.Session.add(obj)
-        self.user_names.extend([u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
+        model.Session.add_all([
+            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
+            model.User(name=u'joeadmin', password=u'joeadmin'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>', password=u'annafan'),
+            model.User(name=u'russianfan', password=u'russianfan'),
+            model.User(name=u'testsysadmin', password=u'testsysadmin'),
+            ])
+        cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
         model.repo.commit_and_remove()
 
         visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
+        annafan = model.User.by_name(u'annafan')
+        russianfan = model.User.by_name(u'russianfan')
         model.setup_default_user_roles(anna, [annafan])
         model.setup_default_user_roles(war, [russianfan])
         model.add_user_to_role(visitor, model.Role.ADMIN, war)
@@ -389,47 +488,84 @@ left arrow <
 
         model.repo.commit_and_remove()
 
-        if commit_changesets:
-            from ckan.model.changeset import ChangesetRegister
-            changeset_ids = ChangesetRegister().commit()
+
+    # method used in DGU and all good tests elsewhere
+    @classmethod
+    def create_users(cls, user_dicts):
+        needs_commit = False
+        for user_dict in user_dicts:
+            user = cls._create_user_without_commit(**user_dict)
+            if user:
+                needs_commit = True
+        if needs_commit:
+            model.repo.commit_and_remove()
 
     @classmethod
-    def flag_for_deletion(self, pkg_names=[], tag_names=[], group_names=[],
+    def _create_user_without_commit(cls, name='', **user_dict):
+        if model.User.by_name(name) or (user_dict.get('open_id') and model.User.by_openid(user_dict.get('openid'))):
+            log.warning('Cannot create user "%s" as it already exists.' % \
+                            (name or user_dict['name']))
+            return
+        # User objects are not revisioned so no need to create a revision
+        user_ref = name or user_dict['openid']
+        assert user_ref
+        for k, v in user_dict.items():
+            if v:
+                # avoid unicode warnings
+                user_dict[k] = unicode(v)
+        user = model.User(name=unicode(name), **user_dict)
+        model.Session.add(user)
+        cls.user_refs.append(user_ref)
+        return user
+
+    @classmethod
+    def create_user(cls, name='', **kwargs):
+        cls._create_user_without_commit(name, **kwargs)
+        model.Session.commit()
+
+    @classmethod
+    def create_roles(cls, roles):
+        '''Each role is a tuple (object_name, role, subject_name).
+        There is clever searching going on to find the objects of any type,
+        by name or ID. You can also use the subject_name='system'.
+        '''
+        for role_tuple in roles:
+            object_name, role, subject_name = role_tuple
+            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
+                                                      except_on_error=True,
+                                                      do_commit=False)
+        model.repo.commit_and_remove()
+
+    @classmethod
+    def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
                           user_names=[]):
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
         if isinstance(pkg_names, basestring):
             pkg_names = [pkg_names]
-        self.pkg_names.extend(pkg_names)
-        self.tag_names.extend(tag_names)
-        self.group_names = self.group_names.union(set(group_names))
-        self.user_names.extend(user_names)
+        cls.pkg_names.extend(pkg_names)
+        cls.tag_names.extend(tag_names)
+        cls.group_names = cls.group_names.union(set(group_names))
+        cls.user_refs.extend(user_names)
 
     @classmethod
-    def delete(self):
+    def delete(cls):
         '''Purges packages etc. that were created by this class.'''
-        import ckan.model as model
-        for pkg_name in self.pkg_names:
-            pkg = model.Package.by_name(unicode(pkg_name))
-            if pkg:
-                sql = "DELETE FROM package_search WHERE package_id='%s'" % pkg.id
-                model.Session.execute(sql)
-        model.repo.commit_and_remove()
-        for pkg_name in self.pkg_names:
+        for pkg_name in cls.pkg_names:
             model.Session().autoflush = False
             pkg = model.Package.by_name(unicode(pkg_name))
             if pkg:
                 pkg.purge()
-        for tag_name in self.tag_names:
+        for tag_name in cls.tag_names:
             tag = model.Tag.by_name(unicode(tag_name))
             if tag:
                 tag.purge()
-        for group_name in self.group_names:
+        for group_name in cls.group_names:
             group = model.Group.by_name(unicode(group_name))
             if group:
                 model.Session.delete(group)
-        revs = model.Session.query(model.Revision).filter_by(author=self.author)
+        revs = model.Session.query(model.Revision).filter_by(author=cls.author)
         for rev in revs:
             for pkg in rev.packages:
                 pkg.purge()
@@ -437,34 +573,102 @@ left arrow <
                 grp.purge()
             model.Session.commit()
             model.Session.delete(rev)
-        for user_name in self.user_names:
-            user = model.User.by_name(unicode(user_name))
+        for user_name in cls.user_refs:
+            user = model.User.get(unicode(user_name))
             if user:
                 user.purge()
         model.Session.commit()
         model.Session.remove()
-        self.reset()
+        cls.reset()
 
     @classmethod
     def reset(cls):
         cls.pkg_names = []
         cls.group_names = set()
         cls.tag_names = []
-        cls.user_names = []
+        cls.user_refs = []
 
     @classmethod
     def get_all_data(cls):
-        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_names
+        return cls.pkg_names + list(cls.group_names) + cls.tag_names + cls.user_refs
+
+    @classmethod
+    def make_some_vocab_tags(cls):
+        model.repo.new_revision()
+
+        # Create a couple of vocabularies.
+        genre_vocab = model.Vocabulary(u'genre')
+        model.Session.add(genre_vocab)
+        composers_vocab = model.Vocabulary(u'composers')
+        model.Session.add(composers_vocab)
+
+        # Create some additional free tags for tag search tests.
+        tolkien_tag = model.Tag(name="tolkien")
+        model.Session.add(tolkien_tag)
+        toledo_tag = model.Tag(name="toledo")
+        model.Session.add(toledo_tag)
+        tolerance_tag = model.Tag(name="tolerance")
+        model.Session.add(tolerance_tag)
+        tollbooth_tag = model.Tag(name="tollbooth")
+        model.Session.add(tollbooth_tag)
+        # We have to add free tags to a package or they won't show up in tag results.
+        model.Package.get('warandpeace').add_tags((tolkien_tag, toledo_tag,
+            tolerance_tag, tollbooth_tag))
+
+        # Create some tags that belong to vocabularies.
+        sonata_tag = model.Tag(name=u'sonata', vocabulary_id=genre_vocab.id)
+        model.Session.add(sonata_tag)
+
+        bach_tag = model.Tag(name=u'Bach', vocabulary_id=composers_vocab.id)
+        model.Session.add(bach_tag)
+
+        neoclassical_tag = model.Tag(name='neoclassical',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoclassical_tag)
+
+        neofolk_tag = model.Tag(name='neofolk', vocabulary_id=genre_vocab.id)
+        model.Session.add(neofolk_tag)
+
+        neomedieval_tag = model.Tag(name='neomedieval',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neomedieval_tag)
+
+        neoprog_tag = model.Tag(name='neoprog',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neoprog_tag)
+
+        neopsychedelia_tag = model.Tag(name='neopsychedelia',
+                vocabulary_id=genre_vocab.id)
+        model.Session.add(neopsychedelia_tag)
+
+        neosoul_tag = model.Tag(name='neosoul', vocabulary_id=genre_vocab.id)
+        model.Session.add(neosoul_tag)
+
+        nerdcore_tag = model.Tag(name='nerdcore', vocabulary_id=genre_vocab.id)
+        model.Session.add(nerdcore_tag)
+
+        model.Package.get('warandpeace').add_tag(bach_tag)
+        model.Package.get('annakarenina').add_tag(sonata_tag)
+
+        model.Session.commit()
+
 
 
 search_items = [{'name':'gils',
               'title':'Government Information Locator Service',
               'url':'',
-              'tags':'registry  country-usa  government  federal  gov  workshop-20081101 penguin',
+              'tags':'registry,country-usa,government,federal,gov,workshop-20081101,penguin'.split(','),
+              'resources':[{'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000859/SFR17_2009_tables.xls',
+                          'format':'XLS',
+                          'last_modified': datetime.datetime(2005,10,01),
+                          'description':'December 2009 | http://www.statistics.gov.uk/hub/id/119-36345'},
+                          {'url':'http://www.dcsf.gov.uk/rsgateway/DB/SFR/s000860/SFR17_2009_key.doc',
+                          'format':'DOC',
+                          'description':'http://www.statistics.gov.uk/hub/id/119-34565'}],
               'groups':'ukgov test1 test2 penguin',
-              'license':'gpl-3.0',
+              'license':'odc-by',
               'notes':u'''From <http://www.gpoaccess.gov/gils/about.html>
-              
+
 > The Government Information Locator Service (GILS) is an effort to identify, locate, and describe publicly available Federal
 > Because this collection is decentralized, the GPO
 
@@ -477,7 +681,7 @@ u with umlaut th\xfcmb
               'title':'U.S. Government Photos and Graphics',
               'url':'http://www.usa.gov/Topics/Graphics.shtml',
               'download_url':'http://www.usa.gov/Topics/Graphics.shtml',
-              'tags':'images  graphics  photographs  photos  pictures  us  usa  america  history  wildlife  nature  war  military  todo-split  gov penguin',
+              'tags':'images,graphics,photographs,photos,pictures,us,usa,america,history,wildlife,nature,war,military,todo split,gov,penguin'.split(','),
               'groups':'ukgov test1 penguin',
               'license':'other-open',
               'notes':'''## About
@@ -493,7 +697,7 @@ Collection of links to different US image collections in the public domain.
               'title':'Text of US Federal Cases',
               'url':'http://bulk.resource.org/courts.gov/',
               'download_url':'http://bulk.resource.org/courts.gov/',
-              'tags':'us  courts  case-law  us  courts  case-law  gov  legal  law  access-bulk  penguins penguin',
+              'tags':'us,courts,case-law,us,courts,case-law,gov,legal,law,access-bulk,penguins,penguin'.split(','),
               'groups':'ukgov test2 penguin',
               'license':'cc-zero',
               'notes':'''### Description
@@ -508,8 +712,8 @@ penguin
               },
              {'name':'uk-government-expenditure',
               'title':'UK Government Expenditure',
-              'tags':'workshop-20081101  uk  gov  expenditure  finance  public  funding penguin',
-              'groups':'ukgov penguin',              
+              'tags':'workshop-20081101,uk,gov,expenditure,finance,public,funding,penguin'.split(','),
+              'groups':'ukgov penguin',
               'notes':'''Discussed at [Workshop on Public Information, 2008-11-02](http://okfn.org/wiki/PublicInformation).
 
 Overview is available in Red Book, or Financial Statement and Budget Report (FSBR), [published by the Treasury](http://www.hm-treasury.gov.uk/budget.htm).''',
@@ -518,8 +722,8 @@ Overview is available in Red Book, or Financial Statement and Budget Report (FSB
              {'name':'se-publications',
               'title':'Sweden - Government Offices of Sweden - Publications',
               'url':'http://www.sweden.gov.se/sb/d/574',
-              'groups':'penguin',              
-              'tags':'country-sweden  format-pdf  access-www  documents  publications  government  eutransparency penguin',
+              'groups':'penguin',
+              'tags':u'country-sweden,format-pdf,access-www,documents,publications,government,eutransparency,penguin,CAPITALS,surprise.,greek omega \u03a9,japanese katakana \u30a1'.split(','),
               'license':'',
               'notes':'''### About
 
@@ -532,10 +736,10 @@ Not clear.''',
               },
              {'name':'se-opengov',
               'title':'Opengov.se',
-              'groups':'penguin',              
+              'groups':'penguin',
               'url':'http://www.opengov.se/',
               'download_url':'http://www.opengov.se/data/open/',
-              'tags':'country-sweden  government  data penguin',
+              'tags':'country-sweden,government,data,penguin'.split(','),
               'license':'cc-by-sa',
               'notes':'''### About
 
@@ -593,10 +797,12 @@ gov_items = [
         'geographic_granularity':'regional',
         'geographic_coverage':'100000: England',
         'department':'Department for Education',
+        'published_by':'Department for Education [3]',
+        'published_via':'',
         'temporal_granularity':'years',
         'temporal_coverage-from':'2008-6',
         'temporal_coverage-to':'2009-6',
-        'categories':'Health, well-being and Care',
+        'mandate':'',
         'national_statistic':'yes',
         'precision':'Numbers to nearest 10, percentage to nearest whole number',
         'taxonomy_url':'',
@@ -607,7 +813,7 @@ gov_items = [
     {'name':'weekly-fuel-prices',
      'title':'Weekly fuel prices',
      'notes':'Latest price as at start of week of unleaded petrol and diesel.',
-     'resources':[{'url':'http://www.decc.gov.uk/en/content/cms/statistics/prices.xls', 'format':'XLS', 'description':''}],
+     'resources':[{'url':'http://www.decc.gov.uk/assets/decc/statistics/source/prices/qep211.xls', 'format':'XLS', 'description':'Quarterly 23/2/12'}],
      'url':'http://www.decc.gov.uk/en/content/cms/statistics/source/prices/prices.aspx',
      'author':'DECC Energy Statistics Team',
      'author_email':'energy.stats@decc.gsi.gov.uk',
@@ -621,6 +827,9 @@ gov_items = [
         'geographic_granularity':'national',
         'geographic_coverage':'111100: United Kingdom (England, Scotland, Wales, Northern Ireland)',
         'department':'Department of Energy and Climate Change',
+        'published_by':'Department of Energy and Climate Change [4]',
+        'published_via':'',
+         'mandate':'',
         'temporal_granularity':'weeks',
         'temporal_coverage-from':'2008-11-24',
         'temporal_coverage-to':'2009-11-24',
@@ -629,3 +838,47 @@ gov_items = [
         }
      }
     ]
+
+# Some test terms and translations.
+terms = ('A Novel By Tolstoy',
+    'Index of the novel',
+    'russian',
+    'tolstoy',
+    "Dave's books",
+    "Roger's books",
+    'romantic novel',
+    'book',
+    '123',
+    '456',
+    '789',
+    'plain text',
+    'Roger likes these books.',
+)
+english_translations = {
+    '123': 'jealousy',
+    '456': 'realism',
+    '789': 'hypocrisy',
+}
+german_translations = {
+    'A Novel By Tolstoy': 'Roman von Tolstoi',
+    'Index of the novel': 'Index des Romans',
+    'russian': 'Russisch',
+    'tolstoy': 'Tolstoi',
+    "Dave's books": 'Daves Bucher',
+    "Roger's books": 'Rogers Bucher',
+    'romantic novel': 'Liebesroman',
+    'book': 'Buch',
+    '456': 'Realismus',
+    '789': 'Heuchelei',
+    'plain text': 'Klartext',
+    'Roger likes these books.': 'Roger mag diese Bucher.'
+}
+french_translations = {
+    'A Novel By Tolstoy': 'A Novel par Tolstoi',
+    'Index of the novel': 'Indice du roman',
+    'russian': 'russe',
+    'romantic novel': 'roman romantique',
+    'book': 'livre',
+    '123': 'jalousie',
+    '789': 'hypocrisie',
+}

@@ -1,0 +1,19 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<form id="dataset-search" class="dataset-search clearfix" method="GET">
+  <input type="search" class="search" name="q" value="${c.q}" autocomplete="off" results="0" placeholder="${_('Search...')}" />
+  <input type="submit" value="${_('Search')}" class="btn btn-large button" />
+  <span py:if="c.fields">
+  <py:for each="(k, v) in c.fields"> 
+    <input type="hidden" name="${k}" value="${v}" />  
+  </py:for>
+  </span>
+  <div id="dataset-search-ext"></div>
+</form>
+
+</html>

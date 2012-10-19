@@ -1,3 +1,5 @@
+from nose.tools import assert_equal
+
 from ckan.tests import *
 import ckan.model as model
 
@@ -8,7 +10,7 @@ class TestPackage:
     def setup_class(self):
         CreateTestData.create()
         self.name = u'geodata'
-        self.notes = u'Written by Puccini'
+        self.notes = 'A <b>great</b> package <script href="dodgy.js"/> like package:pollution_stats'
         pkgs = model.Session.query(model.Package).filter_by(name=self.name).all()
         for p in pkgs:
             p.purge()
@@ -17,13 +19,14 @@ class TestPackage:
         self.pkg1 = model.Package(name=self.name)
         model.Session.add(self.pkg1)
         self.pkg1.notes = self.notes
-        self.pkg1.license_id = u'gpl-3.0'
+        self.pkg1.license_id = u'odc-by'
         model.Session.commit()
         model.Session.remove()
 
     @classmethod
     def teardown_class(self):
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
+        
         pkg1.purge()
         model.Session.commit()
         model.repo.rebuild_db()
@@ -35,20 +38,41 @@ class TestPackage:
         rev = model.repo.new_revision()
         package = model.Package(name=name)
         model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        timestamp = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 1
+        assert package.all_revisions[0].revision_id == revision_id
+        assert package.all_revisions[0].revision_timestamp == timestamp
+        assert package.all_revisions[0].expired_id is None
 
         # change it
         rev = model.repo.new_revision()
         package = model.Package.by_name(name)
         package.title = "wobsnasm"
+        revision_id2 = model.Session().revision.id
+        timestamp2 = model.Session().revision.timestamp
         model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert len(package.all_revisions) == 2
+        assert package.all_revisions[0].revision_id == revision_id2
+        assert package.all_revisions[0].revision_timestamp == timestamp2
+        assert package.all_revisions[0].expired_id is None
+
+        assert package.all_revisions[1].revision_id == revision_id
+        assert package.all_revisions[1].revision_timestamp == timestamp
+        assert package.all_revisions[1].expired_id == revision_id2
 
     def test_create_package(self):
         package = model.Package.by_name(self.name)
         assert package.name == self.name
         assert package.notes == self.notes
-        assert package.license.id == u'gpl-3.0'
-        assert package.license.title == u'OSI Approved::GNU General Public License version 3.0 (GPLv3)', package.license.title
+        assert package.license.id == u'odc-by'
+        assert package.license.title == u'Open Data Commons Attribution License', package.license.title
 
     def test_update_package(self):
         newnotes = u'Written by Beethoven'
@@ -81,9 +105,92 @@ class TestPackage:
         assert out['name'] == pkg.name
         assert out['license'] == pkg.license.title
         assert out['license_id'] == pkg.license.id
-        assert out['tags'] == [tag.name for tag in pkg.tags]
+        assert out['tags'] == [tag.name for tag in pkg.get_tags()]
         assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
         assert out['metadata_created'] == pkg.metadata_created.isoformat()
+        assert_equal(out['notes'], pkg.notes)
+        assert_equal(out['notes_rendered'], '<p>A <b>great</b> package [HTML_REMOVED] like <a href="/package/pollution_stats">package:pollution_stats</a>\n</p>')
+
+    def test_metadata_created_and_modified(self):
+        # create a new package
+        name = "test_metadata"
+        rev = model.repo.new_revision()
+        package = model.Package(name=name)
+        model.Session.add(package)
+        model.Session.flush()
+        revision_id = model.Session().revision.id
+        created_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp,\
+            (package.metadata_created, created_timestamp)
+        assert package.metadata_modified == created_timestamp,\
+            (package.metadata_modified, created_timestamp)
+
+        # update the package
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.title = "test_metadata_new_title"
+        modified_timestamp = model.Session().revision.timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's tag
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.add_tag_by_name('new-tag')
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's extra
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        package.extras['new-key'] = 'value'
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's relationship
+        rev = model.repo.new_revision()
+        package = model.Package.by_name(name)
+        anna = model.Package.by_name(u'annakarenina')
+        package.add_relationship(u'child_of', anna)
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == modified_timestamp
+        last_modified_timestamp = modified_timestamp
+
+        # update a package's group - NB no change this time
+        rev = model.repo.new_revision()
+        group = model.Group.by_name('roger')
+        group.add_package_by_name(name)
+        modified_timestamp = model.Session().revision.timestamp
+        assert modified_timestamp != last_modified_timestamp
+        model.repo.commit_and_remove()
+
+        package = model.Package.by_name(name)
+        assert package.metadata_created == created_timestamp
+        assert package.metadata_modified == last_modified_timestamp # no change
 
 
 class TestPackageWithTags:
@@ -97,15 +204,15 @@ class TestPackageWithTags:
     def setup_class(self):
         model.repo.init_db()
         rev1 = model.repo.new_revision()
-        self.tagname = u'testtagm2m'
+        self.tagname = u'test tag m2m!'
         self.tagname2 = u'testtagm2m2'
-        self.tagname3 = u'testtag3'
+        self.tagname3 = u'test tag3!'
         self.pkgname = u'testpkgm2m'
         pkg = model.Package(name=self.pkgname)
         self.tag = model.Tag(name=self.tagname)
         self.tag2 = model.Tag(name=self.tagname2)
         pkg2tag = model.PackageTag(package=pkg, tag=self.tag)
-        pkg.tags.append(self.tag2)
+        pkg.add_tag(self.tag2)
         model.Session.add_all([pkg,self.tag,self.tag2,pkg2tag])
         model.Session.commit()
         self.pkg2tag_id = pkg2tag.id
@@ -113,25 +220,11 @@ class TestPackageWithTags:
 
     @classmethod
     def teardown_class(self):
-        # should only be one but maybe things have gone wrong
-        # p = model.Package.by_name(self.pkgname)
-        pkgs = model.Session.query(model.Package).filter_by(name=self.pkgname)
-        for p in pkgs:
-            for pt in p.package_tags:
-                pt.purge()
-            p.purge()
-        t1 = model.Tag.by_name(self.tagname)
-        t1.purge()
-        t2 = model.Tag.by_name(self.tagname2)
-        t2.purge()
-        t3 = model.Tag.by_name(self.tagname3)
-        t3.purge()
-        model.Session.commit()
         model.repo.rebuild_db()
 
     def test_1(self):
         pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.tags) == 2
+        assert len(pkg.get_tags()) == 2
         # pkg2tag = model.Session.query(model.PackageTag).get(self.pkg2tag_id)
         # assert pkg2tag.package.name == self.pkgname
 
@@ -152,7 +245,7 @@ class TestPackageWithTags:
         except AttributeError: # sqlalchemy 0.4
             model.Session.clear()
         outpkg = model.Package.by_name(self.pkgname)
-        assert len(outpkg.tags) == 3
+        assert len(outpkg.get_tags()) == 3
         t1 = model.Tag.by_name(self.tagname)
         assert len(t1.package_tags) == 1
 
@@ -162,9 +255,9 @@ class TestPackageWithTags:
         except AttributeError: # sqlalchemy 0.4
             model.Session.clear()
         pkg = model.Package.by_name(self.pkgname)
-        assert len(pkg.tags) == 3
+        assert len(pkg.get_tags()) == 3, len(pkg.get_tags())
         pkg.add_tag_by_name(self.tagname)
-        assert len(pkg.tags) == 3
+        assert len(pkg.get_tags()) == 3
 
 
 class TestPackageTagSearch:
@@ -178,20 +271,18 @@ class TestPackageTagSearch:
         self.tagname = u'russian-tag-we-will-delete'
         tag3 = model.Tag(name=self.tagname)
         pkg = model.Package.by_name(u'annakarenina')
-        pkg.tags.append(tag3)
+        pkg.add_tag(tag3)
         model.repo.commit_and_remove()
 
         model.repo.new_revision()
         pkg = model.Package.by_name(u'annakarenina')
-        # we aren't guaranteed it is last ...
-        idx = [ t.name for t in pkg.tags].index(self.tagname)
-        del pkg.tags[idx]
+        pkg.remove_tag(tag3)
         # now do a tag for ordering
         tagordered = model.Tag(name=self.orderedfirst)
         wap = model.Package.by_name(u'warandpeace')
         # do them the wrong way round
-        tagordered.packages.append(wap)
-        tagordered.packages.append(pkg)
+        wap.add_tag(tagordered)
+        pkg.add_tag(tagordered)
         model.repo.commit_and_remove()
 
     @classmethod 
@@ -202,7 +293,7 @@ class TestPackageTagSearch:
     def test_0_deleted_package_tags(self):
         pkg = model.Package.by_name(u'annakarenina')
         tag = model.Tag.by_name(self.tagname)
-        assert len(pkg.tags) == 3
+        assert len(pkg.get_tags()) == 4, len(pkg.get_tags())
         assert len(tag.packages) == 0
 
     def test_1_tag_search_1(self):
@@ -220,9 +311,9 @@ class TestPackageTagSearch:
     
     def test_alphabetical_ordering(self):
         pkg = model.Package.by_name(u'annakarenina')
-        tag = pkg.tags_ordered[0]
-        assert tag.name == self.orderedfirst, pkg.tags
-        assert tag.packages_ordered[0].name == 'annakarenina', tag.packages
+        tag = pkg.get_tags()[0]
+        assert tag.name == self.orderedfirst
+        assert tag.packages[0].name == 'annakarenina', tag.packages
 
 
 class TestPackageRevisions:
@@ -315,21 +406,21 @@ class TestRelatedRevisions:
         rev.message = u'Added tags'
         model.repo.commit_and_remove()
 
-        # edit pkg - PackageResourceRevision
+        # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resources.append(model.PackageResource(url=u'http://url1.com',
+        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url1.com',
                                                     format=u'xls',
                                                     description=u'It is.',
                                                     hash=u'abc123'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 
-        # edit pkg - PackageResourceRevision
+        # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resources[0].url = u'http://url1.com/edited'
-        pkg1.resources.append(model.PackageResource(url=u'http://url2.com'))
+        pkg1.resource_groups_all[0].resources_all[0].url = u'http://url1.com/edited'
+        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url2.com'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 
@@ -341,8 +432,8 @@ class TestRelatedRevisions:
         model.repo.commit_and_remove()
 
         self.pkg1 = model.Package.by_name(self.name)
-        self.res1 = model.Session.query(model.PackageResource).filter_by(url=u'http://url1.com/edited').one()
-        self.res2 = model.Session.query(model.PackageResource).filter_by(url=u'http://url2.com').one()
+        self.res1 = model.Session.query(model.Resource).filter_by(url=u'http://url1.com/edited').one()
+        self.res2 = model.Session.query(model.Resource).filter_by(url=u'http://url2.com').one()
         assert self.pkg1
 
     @classmethod
@@ -372,7 +463,7 @@ class TestRelatedRevisions:
         assert diff.get('PackageExtra-c-value') == u'- \n+ d', diff
         assert diff.get('PackageExtra-c-state') == u'- \n+ active', diff
         def test_res(diff, res, field, expected_value):
-            key = 'PackageResource-%s-%s' % (res.id[:4], field)
+            key = 'Resource-%s-%s' % (res.id[:4], field)
             got_value = diff.get(key)
             expected_value = u'- \n+ %s' % expected_value
             assert got_value == expected_value, 'Key: %s Got: %r Expected: %r' % (key, got_value, expected_value)
@@ -383,3 +474,20 @@ class TestRelatedRevisions:
         test_res(diff, self.res1, 'hash', 'abc123')
         test_res(diff, self.res1, 'state', 'active')
         test_res(diff, self.res2, 'url', 'http://url2.com')
+
+class TestPackagePurge:
+    @classmethod
+    def setup_class(self):
+        CreateTestData.create()
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+    def test_purge(self):
+        pkgs = model.Session.query(model.Package).all()
+        for p in pkgs:
+           p.purge()
+        model.Session.commit()
+        pkgs = model.Session.query(model.Package).all()
+        assert len(pkgs) == 0
+
+

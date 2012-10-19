@@ -1,0 +1,16 @@
+.tab-content h2 {
+  margin-bottom: 12px;
+}
+
+.js .tab-content {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-top: 0;
+}
+
+.module-plot-canvas {
+  display: block;
+  width: 650px;
+  height: 300px;
+  margin: 20px 0;
+}
