@@ -156,7 +156,7 @@
   {{ super() }}
 
   <script>
-    var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfjs/pdf.js')[0] }}";
+    var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfjs/pdf.js')[-1] }}";
   </script>
   {% resource 'ckanext-pdfpreview/vendor/pdfjs/pdf.js' %}
   {% resource 'ckanext-pdfpreview/main' %}

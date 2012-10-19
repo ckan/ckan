@@ -1088,13 +1088,13 @@ def urls_for_resource(resource):
     ''' Returns a list of urls for the resource specified.  If the resource
     is a group or has dependencies then there can be multiple urls.
 
-    NOTE: This is for special situations only and is not the way to generaly
+    NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
     f = core.get_needed()
-    lib = resources[0].library
+    lib = r.library
     root_path = f.library_url(lib)
 
     resources = core.sort_resources(resources)
