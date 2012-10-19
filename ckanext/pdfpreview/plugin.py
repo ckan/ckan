@@ -28,8 +28,7 @@ class PdfPreview(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
 
     def requires_same_orign(self, resource):
-        #TODO: return True
-        return False
+        return True
 
     def can_preview(self, resource):
         format_lower = resource['format'].lower()

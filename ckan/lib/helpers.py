@@ -1264,10 +1264,10 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def _can_be_previewed(resource):
+def _can_be_previewed(resource, is_local):
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
     for plugin in plugins:
-        if plugin.can_preview(resource) and plugin.requires_same_orign(resource) == False:
+        if plugin.can_preview(resource) and (is_local or not plugin.requires_same_orign(resource)):
             return True
     return False
 
@@ -1290,7 +1290,10 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    if _can_be_previewed(resource):
+    # TODO: determine
+    is_local = True
+
+    if _can_be_previewed(resource, is_local):
         url = url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in DIRECT_EMBEDS:
