@@ -6,8 +6,8 @@ import ckan.plugins.toolkit as toolkit
 log = getLogger(__name__)
 
 
-class JsonPreview(p.SingletonPlugin):
-    """This extension previews JSON(P)
+class PdfPreview(p.SingletonPlugin):
+    """This extension previews PDFs
 
     This extension implements two interfaces
 
@@ -17,23 +17,23 @@ class JsonPreview(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
 
+    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
+
     def update_config(self, config):
         ''' Set up the resource library, public directory and
         template directory for the preview
         '''
         toolkit.add_public_directory(config, 'theme/public')
         toolkit.add_template_directory(config, 'theme/templates')
-        toolkit.add_resource('theme/public', 'ckanext-jsonpreview')
+        toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
 
     def requires_same_orign(self, resource):
-        ''' json resources have to be from the same origin. jsonp resources don't
-        '''
-        format_lower = resource['format'].lower()
-        return format_lower in ['json']
+        #TODO: return True
+        return False
 
     def can_preview(self, resource):
         format_lower = resource['format'].lower()
-        return format_lower in ['jsonp', 'json']
+        return format_lower in self.PDF
 
     def preview_template(self, context):
-        return 'dataviewer/json.html'
+        return 'dataviewer/pdf.html'

@@ -1285,9 +1285,6 @@ def resource_preview(resource, pkg_id):
     LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
                 'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
                 'txt', 'json']
-    '''
-    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
-    '''
 
     format_lower = resource['format'].lower()
     directly = False
