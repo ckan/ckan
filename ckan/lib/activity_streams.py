@@ -110,6 +110,9 @@ def activity_stream_string_follow_dataset():
 def activity_stream_string_follow_user():
     return _("{actor} started following {user}")
 
+def activity_stream_string_follow_group():
+    return _("{actor} started following {group}")
+
 def activity_stream_string_new_related_item():
     return _("{actor} created the link to related {related_type} {related_item}")
 
@@ -148,6 +151,7 @@ activity_stream_string_functions = {
   'deleted related item': activity_stream_string_deleted_related_item,
   'follow dataset': activity_stream_string_follow_dataset,
   'follow user': activity_stream_string_follow_user,
+  'follow group': activity_stream_string_follow_group,
   'new related item': activity_stream_string_new_related_item,
 }
 
@@ -172,6 +176,7 @@ activity_stream_string_icons = {
   'deleted related item': 'picture',
   'follow dataset': 'sitemap',
   'follow user': 'user',
+  'follow group': 'groups',
   'new related item': 'picture',
 }
 

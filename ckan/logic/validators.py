@@ -187,6 +187,7 @@ object_id_validators = {
     'new group' : group_id_exists,
     'changed group' : group_id_exists,
     'deleted group' : group_id_exists,
+    'follow group' : group_id_exists,
     'new related item': related_id_exists,
     'deleted related item': related_id_exists
     }

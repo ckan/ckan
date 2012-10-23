@@ -1857,6 +1857,15 @@ def recently_changed_packages_activity_list_html(context, data_dict):
             data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
+
+def _follower_count(context, data_dict, default_schema, ModelClass):
+    schema = context.get('schema', default_schema)
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+    return ModelClass.follower_count(data_dict['id'])
+
+
 def user_follower_count(context, data_dict):
     '''Return the number of followers of a user.
 
@@ -1866,12 +1875,10 @@ def user_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
+            context['model'].UserFollowingUser)
+
 
 def dataset_follower_count(context, data_dict):
     '''Return the number of followers of a dataset.
@@ -1882,14 +1889,31 @@ def dataset_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def group_follower_count(context, data_dict):
+    '''Return the number of followers of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _follower_list(context, data_dict, default_schema, FollowerClass):
+    schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
-    return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
 
-def _follower_list(context, data_dict, FollowerClass):
     # Get the list of Follower objects.
     model = context['model']
     object_id = data_dict.get('id')
@@ -1902,6 +1926,7 @@ def _follower_list(context, data_dict, FollowerClass):
     # Dictize the list of User objects.
     return model_dictize.user_list_dictize(users, context)
 
+
 def user_follower_list(context, data_dict):
     '''Return the list of users that are following the given user.
 
@@ -1911,13 +1936,10 @@ def user_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
     return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
+
 
 def dataset_follower_list(context, data_dict):
     '''Return the list of users that are following the given dataset.
@@ -1928,16 +1950,32 @@ def dataset_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def group_follower_list(context, data_dict):
+    '''Return the list of users that are following the given group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _am_following(context, data_dict, default_schema, FollowerClass):
+    schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
-    return _follower_list(context, data_dict,
-            context['model'].UserFollowingDataset)
 
-def _am_following(context, data_dict, FollowerClass):
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise logic.NotAuthorized
 
     model = context['model']
@@ -1950,6 +1988,7 @@ def _am_following(context, data_dict, FollowerClass):
 
     return FollowerClass.is_following(userobj.id, object_id)
 
+
 def am_following_user(context, data_dict):
     '''Return ``True`` if you're following the given user, ``False`` if not.
 
@@ -1959,14 +1998,10 @@ def am_following_user(context, data_dict):
     :rtype: boolean
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
+
 
 def am_following_dataset(context, data_dict):
     '''Return ``True`` if you're following the given dataset, ``False`` if not.
@@ -1977,14 +2012,33 @@ def am_following_dataset(context, data_dict):
     :rtype: boolean
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def am_following_group(context, data_dict):
+    '''Return ``True`` if you're following the given group, ``False`` if not.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: boolean
+
+    '''
+    return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _followee_count(context, data_dict, FollowerClass):
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
+    return FollowerClass.followee_count(data_dict['id'])
 
-    return _am_following(context, data_dict,
-            context['model'].UserFollowingDataset)
 
 def user_followee_count(context, data_dict):
     '''Return the number of users that are followed by the given user.
@@ -1995,12 +2049,9 @@ def user_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingUser)
+
 
 def dataset_followee_count(context, data_dict):
     '''Return the number of datasets that are followed by the given user.
@@ -2011,12 +2062,22 @@ def dataset_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingDataset)
+
+
+def group_followee_count(context, data_dict):
+    '''Return the number of groups that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingGroup)
+
 
 def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
@@ -2071,6 +2132,35 @@ def dataset_followee_list(context, data_dict):
 
     # Dictize the list of Package objects.
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+
+
+def group_followee_list(context, data_dict):
+    '''Return the list of groups that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    # Get the list of UserFollowingGroup objects.
+    model = context['model']
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingGroup.followee_list(user_id)
+
+    # Convert the UserFollowingGroup objects to a list of Group objects.
+    groups = [model.Group.get(followee.object_id) for followee in followees]
+    groups = [group for group in groups if group is not None]
+
+    # Dictize the list of Group objects.
+    return [model_dictize.group_dictize(group, context) for group in groups]
+
 
 def dashboard_activity_list(context, data_dict):
     '''Return the dashboard activity stream of the given user.
