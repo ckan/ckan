@@ -11,64 +11,93 @@ v2.0
   check_access() instead.
 * [#2257] Removed deprecated datetime_to_datestr() template helper function.
 
-v1.8
-====
+v1.8 2012-10-19
+===============
 
-* [#2592,#2428] Ubuntu 12.04 Precise is now supported with CKAN source install.
-  The source install instructions have been updated and simplified.
-  Some of CKAN's dependencies have been updated and some removed.
-* Requirements have been updated see doc/install-from-source.rst
-  users will need to do a new pip install (#2592)
-* [#2304] New 'follow' feature. You'll now see a 'Followers' tab on user and
-  dataset pages, where you can see how many users are following that user or
-  dataset.  If you're logged in, you'll see a 'Follow' button on the pages of
-  datasets and other users that you can click to follow them. There are also
-  API calls for the follow features, see the Action API reference
-  documentation.
-* [#2305] New user dashboards, implemented by Sven R. Kunze
-  (https://github.com/kunsv) as part of his Masters thesis. When logged in, if
-  you go to your own user page you'll see a new 'Dashboard' tab where you can
-  see an activity stream from of all the users and datasets that you're
-  following.
-* [#2345] New action API reference docs. The documentation for CKAN's Action
-  API has been rewritten, with each function and its arguments and return
-  values now individually documented.
-* Template helper functions are now restricted by default. This is
-  part of a process of refactoring the CKAN code. By default only
-  those helper functions listed in lib.helpers.__allowed_functions__
-  are available to templates. The full functions can still be made
-  available by `setting ckan.restrict_template_vars = false` in your
-  .ini config file. Only restricted functions will be allowed in
-  future versions of CKAN.
-* [#2842] Allow sort ordering of dataset listings on group pages
+Note: This version requires a requirements upgrade on source installations
+Note: This version requires a database upgrade
+Note: This version does not require a Solr schema upgrade
+
+Major
+ * New 'follow' feature that allows logged in users to follow other users or
+   datasets (#2304)
+ * New user dashboard that shows an activity stream of all the datasets and
+   users you are following. Thanks to Sven R. Kunze for his work on this (#2305)
+ * New version of the Datastore. It has been completely rewritten to use
+   PostgreSQL as backend, it is more stable and fast and supports SQL queries
+   (#2733)
+ * Clean up and simplifyng of CKAN's dependencies and source install
+   instructions. Ubuntu 12.04 is now supported for source installs (#2428,#2592)
+ * Big speed improvements when indexing datasets (#2788)
+ * New action API reference docs, which individually document each function and
+   its arguments and return values (#2345)
+ * Updated translations, added Japanese and Korean translations
+
+Minor
+ * Add source install upgrade docs (#2757)
+ * Mark more strings for translation (#2770)
+ * Allow sort ordering of dataset listings on group pages (#2842)
+ * Reenable simple search option (#2844)
+ * Editing organization removes all datasets (#2845)
+ * Accessibility enhancements on templates
+
+Bug fixes
+ * Fix for relative url being used when doing file upload to local storage
+ * Various fixes on IGroupFrom (#2750)
+ * Fix group dataset sort (#2722)
+ * Fix adding existing datasets to organizations (#2843)
+ * Fix 500 error in related controller (#2856)
+ * Fix for non-open licenses appearing open
+ * Editing organization removes all datasets (#2845)
 
 API changes and deprecation:
-* [#2313] Deprecated functions related to the old faceting data structure have
-  been removed:  `helpers.py:facet_items()`, `facets.html:facet_sidebar()`,
-  `facets.html:facet_list_items()`.
-  Internal use of the old facets datastructure (attached to the context,
-  `c.facets`) has been superseded by use of the improved facet data structure,
-  `c.search_facets`.  The old data structure is still available on `c.facets`,
-  but is deprecated, and will be removed in v1.9.
+ * Template helper functions are now restricted by default. By default only
+   those helper functions listed in lib.helpers.__allowed_functions__
+   are available to templates. The full functions can still be made
+   available by setting `ckan.restrict_template_vars = false` in your ini file.
+   Only restricted functions will be allowed in future versions of CKAN.
+ * Deprecated functions related to the old faceting data structure have
+   been removed:  `helpers.py:facet_items()`, `facets.html:facet_sidebar()`,
+   `facets.html:facet_list_items()`.
+   Internal use of the old facets datastructure (attached to the context,
+   `c.facets`) has been superseded by use of the improved facet data structure,
+   `c.search_facets`.  The old data structure is still available on `c.facets`,
+   but is deprecated, and will be removed in future versions. (#2313)
+
+
+v1.7.2 2012-10-19
+=================
+
+Minor:
+ * Documentation enhancements regarding file uploads
+
+Bug fixes:
+ * Fixes for lincences i18n
+ * Remove sensitive data from user dict (#2784)
+ * Fix bug in feeds controller (#2869)
+ * Show dataset author and maintainer names even if they have no emails
+ * Fix URLs for some Amazon buckets
+ * Other minor fixes
+
 
 v1.7.1 2012-06-20
 =================
 
 Minor:
-* Documentation enhancements regarding install and extensions (#2505)
-* Home page and search results speed improvements (#2402,#2403)
-* I18n: Added Greek translation and updated other ones (#2506)
+ * Documentation enhancements regarding install and extensions (#2505)
+ * Home page and search results speed improvements (#2402,#2403)
+ * I18n: Added Greek translation and updated other ones (#2506)
 
 Bug fixes:
-* UI fixes (#2507)
-* Fixes for i18n login and logout issues (#2497)
-* Date on add/edit resource breaks if offset is specified (#2383)
-* Fix in organizations read page (#2509)
-* Add synchronous_search plugin to deployment.ini template (#2521)
-* Inconsistent language on license dropdown (#2575)
-* Fix bug in translating lists in multilingual plugin
-* Group autocomplete doesn't work with multiple words (#2373)
-* Other minor fixes
+ * UI fixes (#2507)
+ * Fixes for i18n login and logout issues (#2497)
+ * Date on add/edit resource breaks if offset is specified (#2383)
+ * Fix in organizations read page (#2509)
+ * Add synchronous_search plugin to deployment.ini template (#2521)
+ * Inconsistent language on license dropdown (#2575)
+ * Fix bug in translating lists in multilingual plugin
+ * Group autocomplete doesn't work with multiple words (#2373)
+ * Other minor fixes
 
 
 v1.7 2012-05-09
