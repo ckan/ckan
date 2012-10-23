@@ -210,7 +210,7 @@ def _guess_type(field):
         try:
             datetime.datetime.strptime(field, format)
             return 'timestamp'
-        except ValueError:
+        except (ValueError, TypeError):
             continue
     return 'text'
 
