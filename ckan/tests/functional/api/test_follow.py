@@ -1077,11 +1077,18 @@ class TestFollowerCascade(object):
                 self.testsysadmin['apikey'], self.warandpeace['id'],
                 self.warandpeace['id'])
 
+        follow_group(self.app, self.testsysadmin['id'],
+                self.testsysadmin['apikey'], self.davids_group['id'],
+                self.davids_group['id'])
+
         session = ckan.model.Session()
         session.delete(ckan.model.User.get('joeadmin'))
         session.commit()
 
         session.delete(ckan.model.Package.get('warandpeace'))
+        session.commit()
+
+        session.delete(ckan.model.Group.get('david'))
         session.commit()
 
     @classmethod
@@ -1108,6 +1115,13 @@ class TestFollowerCascade(object):
         assert response['success'] is False
         assert response['error'].has_key('id')
 
+        # It should no longer be possible to get david's follower list.
+        params = json.dumps({'id': 'david'})
+        response = self.app.post('/api/action/group_follower_list',
+                params=params, status=409).json
+        assert response['success'] is False
+        assert response['error'].has_key('id')
+
         # It should no longer be possible to get joeadmin's follower count.
         params = json.dumps({'id': 'joeadmin'})
         response = self.app.post('/api/action/user_follower_count',
@@ -1118,6 +1132,13 @@ class TestFollowerCascade(object):
         # It should no longer be possible to get warandpeace's follower count.
         params = json.dumps({'id': 'warandpeace'})
         response = self.app.post('/api/action/dataset_follower_count',
+                params=params, status=409).json
+        assert response['success'] is False
+        assert response['error'].has_key('id')
+
+        # It should no longer be possible to get david's follower count.
+        params = json.dumps({'id': 'david'})
+        response = self.app.post('/api/action/group_follower_count',
                 params=params, status=409).json
         assert response['success'] is False
         assert response['error'].has_key('id')
@@ -1138,6 +1159,14 @@ class TestFollowerCascade(object):
         assert response['success'] is False
         assert response['error'].has_key('id')
 
+        # It should no longer be possible to get am_following for david.
+        params = json.dumps({'id': 'david'})
+        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
+        response = self.app.post('/api/action/am_following_group',
+                params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] is False
+        assert response['error'].has_key('id')
+
         # It should no longer be possible to unfollow joeadmin.
         params = json.dumps({'id': 'joeadmin'})
         extra_environ = {'Authorization': str(self.tester['apikey'])}
@@ -1154,6 +1183,14 @@ class TestFollowerCascade(object):
         assert response['success'] is False
         assert response['error']['id'] == ['Not found: Dataset']
 
+        # It should no longer be possible to unfollow david.
+        params = json.dumps({'id': 'david'})
+        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
+        response = self.app.post('/api/action/unfollow_group',
+                params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] is False
+        assert response['error']['id'] == ['Not found: Group']
+
         # It should no longer be possible to follow joeadmin.
         params = json.dumps({'id': 'joeadmin'})
         extra_environ = {'Authorization': str(self.annafan['apikey'])}
@@ -1166,6 +1203,14 @@ class TestFollowerCascade(object):
         params = json.dumps({'id': 'warandpeace'})
         extra_environ = {'Authorization': str(self.annafan['apikey'])}
         response = self.app.post('/api/action/follow_dataset',
+                params=params, extra_environ=extra_environ, status=409).json
+        assert response['success'] is False
+        assert response['error'].has_key('id')
+
+        # It should no longer be possible to follow david.
+        params = json.dumps({'id': 'david'})
+        extra_environ = {'Authorization': str(self.annafan['apikey'])}
+        response = self.app.post('/api/action/follow_group',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
         assert response['error'].has_key('id')
@@ -1194,7 +1239,7 @@ class TestFollowerCascade(object):
 
         # After the previous test above there should be no rows with joeadmin's
         # id in the UserFollowingUser or UserFollowingDataset tables.
-        from ckan.model import UserFollowingUser, UserFollowingDataset
+        from ckan.model import UserFollowingUser, UserFollowingDataset, UserFollowingGroup
         session = ckan.model.Session()
 
         query = session.query(UserFollowingUser)
@@ -1209,11 +1254,16 @@ class TestFollowerCascade(object):
         query = query.filter(UserFollowingUser.follower_id==self.joeadmin['id'])
         assert query.count() == 0
 
-        # There should be no rows with warandpeace's id either.
-        query = session.query(UserFollowingUser)
-        query = query.filter(UserFollowingUser.object_id==self.warandpeace['id'])
+        # There should be no rows with warandpeace's id in the
+        # UserFollowingDataset table.
+        query = session.query(UserFollowingDataset)
+        query = query.filter(
+                UserFollowingDataset.object_id==self.warandpeace['id'])
         assert query.count() == 0
 
-        query = session.query(UserFollowingDataset)
-        query = query.filter(UserFollowingUser.object_id==self.warandpeace['id'])
+        # There should be no rows with david's id in the
+        # UserFollowingGroup table.
+        query = session.query(UserFollowingGroup)
+        query = query.filter(
+                UserFollowingGroup.object_id==self.davids_group['id'])
         assert query.count() == 0
