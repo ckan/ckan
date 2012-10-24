@@ -283,56 +283,48 @@ def follow_group(app, user_id, apikey, group_id, group_arg):
     assert response['result'] == followee_count_before + 1
 
 
-class AttributeDict(dict):
-    def __getattr__(self, attr):
-        return self[attr]
-
-    def __setattr__(self, attr, value):
-        self[attr] = value
-
-
 class TestFollow(object):
     '''Tests for the follower API.'''
 
     @classmethod
     def setup_class(self):
         ckan.tests.CreateTestData.create()
-        self.testsysadmin = AttributeDict(
-            id = ckan.model.User.get('testsysadmin').id,
-            apikey = ckan.model.User.get('testsysadmin').apikey,
-            name = ckan.model.User.get('testsysadmin').name,
-            )
-        self.annafan = AttributeDict({
+        self.testsysadmin = {
+                'id': ckan.model.User.get('testsysadmin').id,
+                'apikey': ckan.model.User.get('testsysadmin').apikey,
+                'name': ckan.model.User.get('testsysadmin').name,
+                }
+        self.annafan = {
             'id': ckan.model.User.get('annafan').id,
             'apikey': ckan.model.User.get('annafan').apikey,
             'name': ckan.model.User.get('annafan').name,
-            })
-        self.russianfan = AttributeDict({
+            }
+        self.russianfan = {
             'id': ckan.model.User.get('russianfan').id,
             'apikey': ckan.model.User.get('russianfan').apikey,
             'name': ckan.model.User.get('russianfan').name,
-            })
-        self.joeadmin = AttributeDict({
+            }
+        self.joeadmin = {
             'id': ckan.model.User.get('joeadmin').id,
             'apikey': ckan.model.User.get('joeadmin').apikey,
             'name': ckan.model.User.get('joeadmin').name,
-            })
-        self.warandpeace = AttributeDict({
+            }
+        self.warandpeace = {
             'id': ckan.model.Package.get('warandpeace').id,
             'name': ckan.model.Package.get('warandpeace').name,
-            })
-        self.annakarenina = AttributeDict({
+            }
+        self.annakarenina = {
             'id': ckan.model.Package.get('annakarenina').id,
             'name': ckan.model.Package.get('annakarenina').name,
-            })
-        self.rogers_group = AttributeDict({
+            }
+        self.rogers_group = {
             'id': ckan.model.Group.get('roger').id,
             'name': ckan.model.Group.get('roger').name,
-            })
-        self.davids_group = AttributeDict({
+            }
+        self.davids_group = {
             'id': ckan.model.Group.get('david').id,
             'name': ckan.model.Group.get('david').name,
-            })
+            }
         self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
 
     @classmethod
@@ -341,7 +333,7 @@ class TestFollow(object):
 
     def test_01_user_follow_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.russianfan.id})
+            params = json.dumps({'id': self.russianfan['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/follow_user',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -350,7 +342,7 @@ class TestFollow(object):
 
     def test_01_user_follow_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.warandpeace.id})
+            params = json.dumps({'id': self.warandpeace['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/follow_dataset',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -359,7 +351,7 @@ class TestFollow(object):
 
     def test_01_user_follow_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.rogers_group.id})
+            params = json.dumps({'id': self.rogers_group['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/follow_group',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -367,21 +359,21 @@ class TestFollow(object):
             assert response['error']['message'] == 'Access denied'
 
     def test_01_user_follow_user_missing_apikey(self):
-        params = json.dumps({'id': self.russianfan.id})
+        params = json.dumps({'id': self.russianfan['id']})
         response = self.app.post('/api/action/follow_user',
             params=params, status=403).json
         assert response['success'] is False
         assert response['error']['message'] == 'Access denied'
 
     def test_01_user_follow_dataset_missing_apikey(self):
-        params = json.dumps({'id': self.warandpeace.id})
+        params = json.dumps({'id': self.warandpeace['id']})
         response = self.app.post('/api/action/follow_dataset',
             params=params, status=403).json
         assert response['success'] is False
         assert response['error']['message'] == 'Access denied'
 
     def test_01_user_follow_group_missing_apikey(self):
-        params = json.dumps({'id': self.rogers_group.id})
+        params = json.dumps({'id': self.rogers_group['id']})
         response = self.app.post('/api/action/follow_group',
             params=params, status=403).json
         assert response['success'] is False
@@ -391,7 +383,7 @@ class TestFollow(object):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
                 params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan.apikey)}
+                extra_environ = {'Authorization': str(self.annafan['apikey'])}
                 response = self.app.post('/api/action/{0}'.format(action),
                     params=params, extra_environ=extra_environ,
                     status=409).json
@@ -402,7 +394,7 @@ class TestFollow(object):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('', None):
                 params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan.apikey)}
+                extra_environ = {'Authorization': str(self.annafan['apikey'])}
                 response = self.app.post('/api/action/{0}'.format(action),
                     params=params, extra_environ=extra_environ,
                     status=409).json
@@ -412,42 +404,42 @@ class TestFollow(object):
     def test_01_follow_missing_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             params = json.dumps({})
-            extra_environ = {'Authorization': str(self.annafan.apikey)}
+            extra_environ = {'Authorization': str(self.annafan['apikey'])}
             response = self.app.post('/api/action/{0}'.format(action),
                 params=params, extra_environ=extra_environ, status=409).json
             assert response['success'] is False
             assert response['error']['id'] == ['Missing value']
 
     def test_02_user_follow_user_by_id(self):
-        follow_user(self.app, self.annafan.id, self.annafan.apikey,
-                self.russianfan.id, self.russianfan.id)
+        follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.russianfan['id'], self.russianfan['id'])
 
     def test_02_user_follow_dataset_by_id(self):
-        follow_dataset(self.app, self.annafan.id, self.annafan.apikey,
-                self.warandpeace.id, self.warandpeace.id)
+        follow_dataset(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.warandpeace['id'], self.warandpeace['id'])
 
     def test_02_user_follow_group_by_id(self):
-        follow_group(self.app, self.annafan.id, self.annafan.apikey,
-                self.rogers_group.id, self.rogers_group.id)
+        follow_group(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.rogers_group['id'], self.rogers_group['id'])
 
     def test_02_user_follow_user_by_name(self):
-        follow_user(self.app, self.annafan.id, self.annafan.apikey,
-                self.testsysadmin.id, self.testsysadmin.name)
+        follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.testsysadmin['id'], self.testsysadmin['name'])
 
     def test_02_user_follow_dataset_by_name(self):
-        follow_dataset(self.app, self.joeadmin.id, self.joeadmin.apikey,
-                self.warandpeace.id, self.warandpeace.name)
+        follow_dataset(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
+                self.warandpeace['id'], self.warandpeace['name'])
 
     def test_02_user_follow_group_by_name(self):
-        follow_group(self.app, self.joeadmin.id, self.joeadmin.apikey,
-                self.rogers_group.id, self.rogers_group.name)
+        follow_group(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
+                self.rogers_group['id'], self.rogers_group['name'])
 
     def test_03_user_follow_user_already_following(self):
-        for object_id in (self.russianfan.id, self.russianfan.name,
-                self.testsysadmin.id, self.testsysadmin.name):
+        for object_id in (self.russianfan['id'], self.russianfan['name'],
+                self.testsysadmin['id'], self.testsysadmin['name']):
             params = json.dumps({'id': object_id})
             extra_environ = {
-                    'Authorization': str(self.annafan.apikey),
+                    'Authorization': str(self.annafan['apikey']),
                     }
             response = self.app.post('/api/action/follow_user',
                 params=params, extra_environ=extra_environ, status=409).json
@@ -456,10 +448,10 @@ class TestFollow(object):
                     'You are already following ')
 
     def test_03_user_follow_dataset_already_following(self):
-        for object_id in (self.warandpeace.id, self.warandpeace.name):
+        for object_id in (self.warandpeace['id'], self.warandpeace['name']):
             params = json.dumps({'id': object_id})
             extra_environ = {
-                    'Authorization': str(self.annafan.apikey),
+                    'Authorization': str(self.annafan['apikey']),
                     }
             response = self.app.post('/api/action/follow_dataset',
                 params=params, extra_environ=extra_environ, status=409).json
@@ -468,10 +460,10 @@ class TestFollow(object):
                     'You are already following ')
 
     def test_03_user_follow_group_already_following(self):
-        for group_id in (self.rogers_group.id, self.rogers_group.name):
+        for group_id in (self.rogers_group['id'], self.rogers_group['name']):
             params = json.dumps({'id': group_id})
             extra_environ = {
-                    'Authorization': str(self.annafan.apikey),
+                    'Authorization': str(self.annafan['apikey']),
                     }
             response = self.app.post('/api/action/follow_group',
                 params=params, extra_environ=extra_environ, status=409).json
@@ -480,9 +472,9 @@ class TestFollow(object):
                     'You are already following ')
 
     def test_03_user_cannot_follow_herself(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annafan['id']})
         extra_environ = {
-                'Authorization': str(self.annafan.apikey),
+                'Authorization': str(self.annafan['apikey']),
                 }
         response = self.app.post('/api/action/follow_user',
             params=params, extra_environ=extra_environ, status=409).json
@@ -509,21 +501,21 @@ class TestFollow(object):
             assert response['error']['id'] == ['Missing value']
 
     def test_04_user_follower_count_no_followers(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annafan['id']})
         response = self.app.post('/api/action/user_follower_count',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == 0
 
     def test_04_dataset_follower_count_no_followers(self):
-        params = json.dumps({'id': self.annakarenina.id})
+        params = json.dumps({'id': self.annakarenina['id']})
         response = self.app.post('/api/action/dataset_follower_count',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == 0
 
     def test_04_group_follower_count_no_followers(self):
-        params = json.dumps({'id': self.davids_group.id})
+        params = json.dumps({'id': self.davids_group['id']})
         response = self.app.post('/api/action/group_follower_count',
                 params=params).json
         assert response['success'] is True
@@ -549,21 +541,21 @@ class TestFollow(object):
             assert response['error']['id'] == ['Missing value']
 
     def test_04_user_follower_list_no_followers(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annafan['id']})
         response = self.app.post('/api/action/user_follower_list',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == []
 
     def test_04_dataset_follower_list_no_followers(self):
-        params = json.dumps({'id': self.annakarenina.id})
+        params = json.dumps({'id': self.annakarenina['id']})
         response = self.app.post('/api/action/dataset_follower_list',
                 params=params).json
         assert response['success'] is True
         assert response['result'] == []
 
     def test_04_group_follower_list_no_followers(self):
-        params = json.dumps({'id': self.davids_group.id})
+        params = json.dumps({'id': self.davids_group['id']})
         response = self.app.post('/api/action/group_follower_list',
                 params=params).json
         assert response['success'] is True
@@ -574,7 +566,7 @@ class TestFollow(object):
                 'am_following_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
                 params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan.apikey)}
+                extra_environ = {'Authorization': str(self.annafan['apikey'])}
                 response = self.app.post('/api/action/{0}'.format(action),
                         params=params, extra_environ=extra_environ,
                         status=409).json
@@ -589,7 +581,7 @@ class TestFollow(object):
                     params = json.dumps({})
                 else:
                     params = json.dumps({'id':id})
-                extra_environ = {'Authorization': str(self.annafan.apikey)}
+                extra_environ = {'Authorization': str(self.annafan['apikey'])}
                 response = self.app.post('/api/action/{0}'.format(action),
                         params=params, extra_environ=extra_environ,
                         status=409).json
@@ -598,7 +590,7 @@ class TestFollow(object):
 
     def test_04_am_following_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.warandpeace.id})
+            params = json.dumps({'id': self.warandpeace['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/am_following_dataset',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -606,7 +598,7 @@ class TestFollow(object):
             assert response['error']['message'] == 'Access denied'
 
     def test_04_am_following_dataset_missing_apikey(self):
-        params = json.dumps({'id': self.warandpeace.id})
+        params = json.dumps({'id': self.warandpeace['id']})
         response = self.app.post('/api/action/am_following_dataset',
             params=params, status=403).json
         assert response['success'] == False
@@ -614,7 +606,7 @@ class TestFollow(object):
 
     def test_04_am_following_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.annafan.id})
+            params = json.dumps({'id': self.annafan['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/am_following_user',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -622,7 +614,7 @@ class TestFollow(object):
             assert response['error']['message'] == 'Access denied'
 
     def test_04_am_following_user_missing_apikey(self):
-        params = json.dumps({'id': self.annafan.id})
+        params = json.dumps({'id': self.annafan['id']})
         response = self.app.post('/api/action/am_following_user',
             params=params, status=403).json
         assert response['success'] == False
@@ -630,7 +622,7 @@ class TestFollow(object):
 
     def test_04_am_following_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.rogers_group.id})
+            params = json.dumps({'id': self.rogers_group['id']})
             extra_environ = {'Authorization': apikey}
             response = self.app.post('/api/action/am_following_group',
                 params=params, extra_environ=extra_environ, status=403).json
@@ -638,7 +630,7 @@ class TestFollow(object):
             assert response['error']['message'] == 'Access denied'
 
     def test_04_am_following_group_missing_apikey(self):
-        params = json.dumps({'id': self.rogers_group.id})
+        params = json.dumps({'id': self.rogers_group['id']})
         response = self.app.post('/api/action/am_following_group',
             params=params, status=403).json
         assert response['success'] == False
@@ -651,37 +643,70 @@ class TestFollowerDelete(object):
     @classmethod
     def setup_class(self):
         ckan.tests.CreateTestData.create()
-        self.testsysadmin = ckan.model.User.get('testsysadmin')
-        self.annafan = ckan.model.User.get('annafan')
-        self.russianfan = ckan.model.User.get('russianfan')
-        self.tester = ckan.model.User.get('tester')
-        self.joeadmin = ckan.model.User.get('joeadmin')
-        self.warandpeace = ckan.model.Package.get('warandpeace')
-        self.annakarenina = ckan.model.Package.get('annakarenina')
-        self.rogers_group = ckan.model.Group.get('roger')
-        self.davids_group = ckan.model.Group.get('david')
+        self.tester = {
+                'id': ckan.model.User.get('tester').id,
+                'apikey': ckan.model.User.get('tester').apikey,
+                'name': ckan.model.User.get('tester').name,
+                }
+        self.testsysadmin = {
+                'id': ckan.model.User.get('testsysadmin').id,
+                'apikey': ckan.model.User.get('testsysadmin').apikey,
+                'name': ckan.model.User.get('testsysadmin').name,
+                }
+        self.annafan = {
+            'id': ckan.model.User.get('annafan').id,
+            'apikey': ckan.model.User.get('annafan').apikey,
+            'name': ckan.model.User.get('annafan').name,
+            }
+        self.russianfan = {
+            'id': ckan.model.User.get('russianfan').id,
+            'apikey': ckan.model.User.get('russianfan').apikey,
+            'name': ckan.model.User.get('russianfan').name,
+            }
+        self.joeadmin = {
+            'id': ckan.model.User.get('joeadmin').id,
+            'apikey': ckan.model.User.get('joeadmin').apikey,
+            'name': ckan.model.User.get('joeadmin').name,
+            }
+        self.warandpeace = {
+            'id': ckan.model.Package.get('warandpeace').id,
+            'name': ckan.model.Package.get('warandpeace').name,
+            }
+        self.annakarenina = {
+            'id': ckan.model.Package.get('annakarenina').id,
+            'name': ckan.model.Package.get('annakarenina').name,
+            }
+        self.rogers_group = {
+            'id': ckan.model.Group.get('roger').id,
+            'name': ckan.model.Group.get('roger').name,
+            }
+        self.davids_group = {
+            'id': ckan.model.Group.get('david').id,
+            'name': ckan.model.Group.get('david').name,
+            }
         self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        follow_user(self.app, self.testsysadmin.id, self.testsysadmin.apikey,
-                self.joeadmin.id, self.joeadmin.id)
-        follow_user(self.app, self.tester.id, self.tester.apikey,
-                self.joeadmin.id, self.joeadmin.id)
-        follow_user(self.app, self.russianfan.id, self.russianfan.apikey,
-                self.joeadmin.id, self.joeadmin.id)
-        follow_user(self.app, self.annafan.id, self.annafan.apikey,
-                self.joeadmin.id, self.joeadmin.id)
-        follow_user(self.app, self.annafan.id, self.annafan.apikey,
-                self.tester.id, self.tester.id)
-        follow_dataset(self.app, self.testsysadmin.id,
-                self.testsysadmin.apikey, self.warandpeace.id,
-                self.warandpeace.id)
-        follow_dataset(self.app, self.tester.id, self.tester.apikey,
-                self.warandpeace.id, self.warandpeace.id)
-        follow_dataset(self.app, self.russianfan.id, self.russianfan.apikey,
-                self.warandpeace.id, self.warandpeace.id)
-        follow_dataset(self.app, self.annafan.id, self.annafan.apikey,
-                self.warandpeace.id, self.warandpeace.id)
-        follow_group(self.app, self.annafan.id, self.annafan.apikey,
-                self.davids_group.id, self.davids_group.id)
+        follow_user(self.app, self.testsysadmin['id'],
+                self.testsysadmin['apikey'], self.joeadmin['id'],
+                self.joeadmin['id'])
+        follow_user(self.app, self.tester['id'], self.tester['apikey'],
+                self.joeadmin['id'], self.joeadmin['id'])
+        follow_user(self.app, self.russianfan['id'], self.russianfan['apikey'],
+                self.joeadmin['id'], self.joeadmin['id'])
+        follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.joeadmin['id'], self.joeadmin['id'])
+        follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.tester['id'], self.tester['id'])
+        follow_dataset(self.app, self.testsysadmin['id'],
+                self.testsysadmin['apikey'], self.warandpeace['id'],
+                self.warandpeace['id'])
+        follow_dataset(self.app, self.tester['id'], self.tester['apikey'],
+                self.warandpeace['id'], self.warandpeace['id'])
+        follow_dataset(self.app, self.russianfan['id'], self.russianfan['apikey'],
+                self.warandpeace['id'], self.warandpeace['id'])
+        follow_dataset(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.warandpeace['id'], self.warandpeace['id'])
+        follow_group(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.davids_group['id'], self.davids_group['id'])
 
     @classmethod
     def teardown_class(self):
@@ -692,9 +717,9 @@ class TestFollowerDelete(object):
         she is not following.
 
         '''
-        params = json.dumps({'id': self.russianfan.id})
+        params = json.dumps({'id': self.russianfan['id']})
         extra_environ = {
-                'Authorization': str(self.annafan.apikey),
+                'Authorization': str(self.annafan['apikey']),
                 }
         response = self.app.post('/api/action/unfollow_user',
             params=params, extra_environ=extra_environ, status=404).json
@@ -707,9 +732,9 @@ class TestFollowerDelete(object):
         she is not following.
 
         '''
-        params = json.dumps({'id': self.annakarenina.id})
+        params = json.dumps({'id': self.annakarenina['id']})
         extra_environ = {
-                'Authorization': str(self.annafan.apikey),
+                'Authorization': str(self.annafan['apikey']),
                 }
         response = self.app.post('/api/action/unfollow_dataset',
             params=params, extra_environ=extra_environ, status=404).json
@@ -722,9 +747,9 @@ class TestFollowerDelete(object):
         she is not following.
 
         '''
-        params = json.dumps({'id': self.rogers_group.id})
+        params = json.dumps({'id': self.rogers_group['id']})
         extra_environ = {
-                'Authorization': str(self.annafan.apikey),
+                'Authorization': str(self.annafan['apikey']),
                 }
         response = self.app.post('/api/action/unfollow_group',
             params=params, extra_environ=extra_environ, status=404).json
@@ -741,7 +766,7 @@ class TestFollowerDelete(object):
             for apikey in ('bad api key', '', '     ', 'None', '3', '35.7',
                     'xxx'):
                 params = json.dumps({
-                    'id': self.joeadmin.id,
+                    'id': self.joeadmin['id'],
                     })
                 extra_environ = {
                         'Authorization': apikey,
@@ -756,7 +781,7 @@ class TestFollowerDelete(object):
         '''Test error response when calling unfollow_* without api key.'''
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
             params = json.dumps({
-                'id': self.joeadmin.id,
+                'id': self.joeadmin['id'],
                 })
             response = self.app.post('/api/action/{0}'.format(action),
                 params=params, status=403).json
@@ -771,7 +796,7 @@ class TestFollowerDelete(object):
                     'id': object_id,
                     })
                 extra_environ = {
-                        'Authorization': str(self.annafan.apikey),
+                        'Authorization': str(self.annafan['apikey']),
                         }
                 response = self.app.post('/api/action/{0}'.format(action),
                     params=params, extra_environ=extra_environ,
@@ -786,7 +811,7 @@ class TestFollowerDelete(object):
                     params = json.dumps({})
                 else:
                     params = json.dumps({'id': id})
-                extra_environ = {'Authorization': str(self.annafan.apikey)}
+                extra_environ = {'Authorization': str(self.annafan['apikey'])}
                 response = self.app.post('/api/action/{0}'.format(action),
                     params=params, extra_environ=extra_environ,
                     status=409).json
@@ -973,12 +998,12 @@ class TestFollowerDelete(object):
         assert response['result'] == count_before - 1
 
     def test_02_follower_delete_by_id(self):
-        self._unfollow_user(self.annafan.id, self.annafan.apikey,
-                self.joeadmin.id, self.joeadmin.id)
-        self._unfollow_dataset(self.annafan.id, self.annafan.apikey,
-                self.warandpeace.id, self.warandpeace.id)
-        self._unfollow_group(self.annafan.id, self.annafan.apikey,
-                self.davids_group.id, self.davids_group.id)
+        self._unfollow_user(self.annafan['id'], self.annafan['apikey'],
+                self.joeadmin['id'], self.joeadmin['id'])
+        self._unfollow_dataset(self.annafan['id'], self.annafan['apikey'],
+                self.warandpeace['id'], self.warandpeace['id'])
+        self._unfollow_group(self.annafan['id'], self.annafan['apikey'],
+                self.davids_group['id'], self.davids_group['id'])
 
 class TestFollowerCascade(object):
     '''Tests for on delete cascade of follower table rows.'''
@@ -986,43 +1011,77 @@ class TestFollowerCascade(object):
     @classmethod
     def setup_class(self):
         ckan.tests.CreateTestData.create()
-        self.testsysadmin = ckan.model.User.get('testsysadmin')
-        self.annafan = ckan.model.User.get('annafan')
-        self.russianfan = ckan.model.User.get('russianfan')
-        self.tester = ckan.model.User.get('tester')
-        self.joeadmin = ckan.model.User.get('joeadmin')
-        self.warandpeace = ckan.model.Package.get('warandpeace')
-        self.annakarenina = ckan.model.Package.get('annakarenina')
+        self.tester = {
+                'id': ckan.model.User.get('tester').id,
+                'apikey': ckan.model.User.get('tester').apikey,
+                'name': ckan.model.User.get('tester').name,
+                }
+        self.testsysadmin = {
+                'id': ckan.model.User.get('testsysadmin').id,
+                'apikey': ckan.model.User.get('testsysadmin').apikey,
+                'name': ckan.model.User.get('testsysadmin').name,
+                }
+        self.annafan = {
+            'id': ckan.model.User.get('annafan').id,
+            'apikey': ckan.model.User.get('annafan').apikey,
+            'name': ckan.model.User.get('annafan').name,
+            }
+        self.russianfan = {
+            'id': ckan.model.User.get('russianfan').id,
+            'apikey': ckan.model.User.get('russianfan').apikey,
+            'name': ckan.model.User.get('russianfan').name,
+            }
+        self.joeadmin = {
+            'id': ckan.model.User.get('joeadmin').id,
+            'apikey': ckan.model.User.get('joeadmin').apikey,
+            'name': ckan.model.User.get('joeadmin').name,
+            }
+        self.warandpeace = {
+            'id': ckan.model.Package.get('warandpeace').id,
+            'name': ckan.model.Package.get('warandpeace').name,
+            }
+        self.annakarenina = {
+            'id': ckan.model.Package.get('annakarenina').id,
+            'name': ckan.model.Package.get('annakarenina').name,
+            }
+        self.rogers_group = {
+            'id': ckan.model.Group.get('roger').id,
+            'name': ckan.model.Group.get('roger').name,
+            }
+        self.davids_group = {
+            'id': ckan.model.Group.get('david').id,
+            'name': ckan.model.Group.get('david').name,
+            }
         self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
 
-        follow_user(self.app, self.joeadmin.id, self.joeadmin.apikey,
-                self.testsysadmin.id, self.testsysadmin.id)
+        follow_user(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
+                self.testsysadmin['id'], self.testsysadmin['id'])
 
-        follow_user(self.app, self.annafan.id, self.annafan.apikey,
-                self.testsysadmin.id, self.testsysadmin.id)
-        follow_user(self.app, self.russianfan.id, self.russianfan.apikey,
-                self.testsysadmin.id, self.testsysadmin.id)
+        follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.testsysadmin['id'], self.testsysadmin['id'])
+        follow_user(self.app, self.russianfan['id'], self.russianfan['apikey'],
+                self.testsysadmin['id'], self.testsysadmin['id'])
 
-        follow_dataset(self.app, self.joeadmin.id, self.joeadmin.apikey,
-                self.annakarenina.id, self.annakarenina.id)
+        follow_dataset(self.app, self.joeadmin['id'], self.joeadmin['apikey'],
+                self.annakarenina['id'], self.annakarenina['id'])
 
-        follow_dataset(self.app, self.annafan.id, self.annafan.apikey,
-                self.annakarenina.id, self.annakarenina.id)
-        follow_dataset(self.app, self.russianfan.id, self.russianfan.apikey,
-                self.annakarenina.id, self.annakarenina.id)
+        follow_dataset(self.app, self.annafan['id'], self.annafan['apikey'],
+                self.annakarenina['id'], self.annakarenina['id'])
+        follow_dataset(self.app, self.russianfan['id'], self.russianfan['apikey'],
+                self.annakarenina['id'], self.annakarenina['id'])
 
-        follow_user(self.app, self.tester.id, self.tester.apikey,
-                self.joeadmin.id, self.joeadmin.id)
+        follow_user(self.app, self.tester['id'], self.tester['apikey'],
+                self.joeadmin['id'], self.joeadmin['id'])
 
-        follow_dataset(self.app, self.testsysadmin.id,
-                self.testsysadmin.apikey, self.warandpeace.id,
-                self.warandpeace.id)
+        follow_dataset(self.app, self.testsysadmin['id'],
+                self.testsysadmin['apikey'], self.warandpeace['id'],
+                self.warandpeace['id'])
 
         session = ckan.model.Session()
-        session.delete(self.joeadmin)
+        session.delete(ckan.model.User.get('joeadmin'))
         session.commit()
 
-        session.delete(self.warandpeace)
+        session.delete(ckan.model.Package.get('warandpeace'))
         session.commit()
 
     @classmethod
@@ -1065,7 +1124,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to get am_following for joeadmin.
         params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
         response = self.app.post('/api/action/am_following_user',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1073,7 +1132,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to get am_following for warandpeace.
         params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
         response = self.app.post('/api/action/am_following_dataset',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1081,7 +1140,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to unfollow joeadmin.
         params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.tester.apikey)}
+        extra_environ = {'Authorization': str(self.tester['apikey'])}
         response = self.app.post('/api/action/unfollow_user',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1089,7 +1148,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to unfollow warandpeace.
         params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
         response = self.app.post('/api/action/unfollow_dataset',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1097,7 +1156,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to follow joeadmin.
         params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.annafan.apikey)}
+        extra_environ = {'Authorization': str(self.annafan['apikey'])}
         response = self.app.post('/api/action/follow_user',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1105,7 +1164,7 @@ class TestFollowerCascade(object):
 
         # It should no longer be possible to follow warandpeace.
         params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.annafan.apikey)}
+        extra_environ = {'Authorization': str(self.annafan['apikey'])}
         response = self.app.post('/api/action/follow_dataset',
                 params=params, extra_environ=extra_environ, status=409).json
         assert response['success'] is False
@@ -1113,7 +1172,7 @@ class TestFollowerCascade(object):
 
         # Users who joeadmin was following should no longer have him in their
         # follower list.
-        params = json.dumps({'id': self.testsysadmin.id})
+        params = json.dumps({'id': self.testsysadmin['id']})
         response = self.app.post('/api/action/user_follower_list',
                 params=params).json
         assert response['success'] is True
@@ -1122,7 +1181,7 @@ class TestFollowerCascade(object):
 
         # Datasets who joeadmin was following should no longer have him in
         # their follower list.
-        params = json.dumps({'id': self.annakarenina.id})
+        params = json.dumps({'id': self.annakarenina['id']})
         response = self.app.post('/api/action/dataset_follower_list',
                 params=params).json
         assert response['success'] is True
@@ -1139,22 +1198,22 @@ class TestFollowerCascade(object):
         session = ckan.model.Session()
 
         query = session.query(UserFollowingUser)
-        query = query.filter(UserFollowingUser.follower_id==self.joeadmin.id)
+        query = query.filter(UserFollowingUser.follower_id==self.joeadmin['id'])
         assert query.count() == 0
 
         query = session.query(UserFollowingUser)
-        query = query.filter(UserFollowingUser.object_id==self.joeadmin.id)
+        query = query.filter(UserFollowingUser.object_id==self.joeadmin['id'])
         assert query.count() == 0
 
         query = session.query(UserFollowingDataset)
-        query = query.filter(UserFollowingUser.follower_id==self.joeadmin.id)
+        query = query.filter(UserFollowingUser.follower_id==self.joeadmin['id'])
         assert query.count() == 0
 
         # There should be no rows with warandpeace's id either.
         query = session.query(UserFollowingUser)
-        query = query.filter(UserFollowingUser.object_id==self.warandpeace.id)
+        query = query.filter(UserFollowingUser.object_id==self.warandpeace['id'])
         assert query.count() == 0
 
         query = session.query(UserFollowingDataset)
-        query = query.filter(UserFollowingUser.object_id==self.warandpeace.id)
+        query = query.filter(UserFollowingUser.object_id==self.warandpeace['id'])
         assert query.count() == 0
