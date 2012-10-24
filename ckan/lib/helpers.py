@@ -10,6 +10,7 @@ import datetime
 import logging
 import re
 import urllib
+import urlparse
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -65,6 +66,7 @@ def url(*args, **kw):
 def url_for(*args, **kw):
     """Create url adding i18n information if selected
     wrapper for routes.url_for"""
+
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -76,6 +78,16 @@ def url_for(*args, **kw):
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)
+
+    # _add_i18n_to_url() only works on the assumption that the `url_to_amend`
+    # startswith the mount-point of the application.  This will already be
+    # taken care of by `routes` if we're within a http request.  Otherwise, we
+    # have to make a best guess.
+    if not _handling_request():
+        # Safe to assume `kw['qualified'] is False` since `routes` would have
+        # thrown an exception by now if it were `True`.
+        my_url = _guess_mount_point() + my_url
+
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
@@ -151,6 +163,31 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+def _guess_mount_point():
+    '''
+    Returns the best guess of the application's mount-point assuming we are
+    running *outside* of an http request.
+
+    The mount-point of the application can only be reliably found from the
+    SCRIPT_NAME wsgi environment variable.  But if we're outside of an http
+    request, then this variable is not available.  So we make a best guess
+    using the `site_url` config option.
+    '''
+    site_url = config.get('ckan.site_url')
+    return urlparse.urlparse(site_url).path.rstrip('/')
+
+def _handling_request():
+    '''Returns `True` iff we can detect that we're handling a http request.
+
+    Url-generation is not contained to callers handling http requests, it can
+    be called upon outside of a http request, for example, a paster command.
+    '''
+    try:
+        request.environ.get('SCRIPT_NAME', '')
+        return True
+    except TypeError:
+        return False
 
 def lang():
     ''' Reurn the language code for the current locale eg `en` '''

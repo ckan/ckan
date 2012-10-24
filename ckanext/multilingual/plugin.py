@@ -128,6 +128,8 @@ class MultilingualDataset(SingletonPlugin):
                 all_terms.extend(value)
             elif value in (None, True, False, {}):
                 continue
+            elif not isinstance(value, basestring):
+                value = unicode(value)
             else:
                 all_terms.append(value)
 
