@@ -1,0 +1,10 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Followers') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
+
+{% block primary_content %}
+  <section class="module-content">
+    <h1 class="hide-heading">{{ _('Followers') }}</h1>
+    {% snippet "user/snippets/followers.html", followers=c.followers %}
+  </section>
+{% endblock %}

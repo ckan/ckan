@@ -237,7 +237,10 @@ def make_map():
           'edit',
           'authz',
           'delete',
-          'history'
+          'history',
+          'followers',
+          'follow',
+          'unfollow',
           ]))
           )
         m.connect('group_read', '/group/{id}', action='read')
