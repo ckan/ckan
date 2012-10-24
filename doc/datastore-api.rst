@@ -32,6 +32,7 @@ There are several endpoints into the DataStore API, they are:
 ``datastore_search_htsql()``, see :ref:`datastore_search_htsql`
   at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
 
+To understand the differences between the three last API endpoints, see :ref:`comparison_querying`.
 
 API Reference
 =============
@@ -39,7 +40,7 @@ API Reference
 The datastore related API actions are accessed via CKAN's :ref:`action-api`. When POSTing
 requests, parameters should be provided as JSON objects.
 
-.. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``.
+.. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all vaid boolean values.
 
 .. automodule:: ckanext.datastore.logic.action
    :members:
@@ -148,6 +149,7 @@ HTSQL Support
 The `ckanext-htsql <https://github.com/okfn/ckanext-htsql>`_ extension adds an API action that allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. Please refer to the extension documentation to know more.
 
 
+.. _comparison_querying:
 
 Comparison of different querying methods
 ----------------------------------------

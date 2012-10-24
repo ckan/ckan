@@ -14,7 +14,9 @@ def datastore_create(context, data_dict):
 
     The datastore_create action allows a user to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
-    aliases and indexes and bulk insertion.
+    aliases and indexes and bulk insertion. This endpoint can be called multiple
+    times to ininially insert more data, add fields, change the aliases or indexes
+    as well as the primary keys.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
@@ -31,8 +33,15 @@ def datastore_create(context, data_dict):
     :param indexes: indexes on table
     :type indexes: list or comma separated string
 
-    :returns: the newly created data object.
+    Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
+    aliases or constraints. Setting ``records`` appends the provided records to the resource.
+
+    **Results:**
+
+    :returns: The newly created data object.
     :rtype: dictionary
+
+    See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     '''
     model = _get_or_bust(context, 'model')
@@ -89,7 +98,9 @@ def datastore_upsert(context, data_dict):
                    Possible options are: upsert (default), insert, update
     :type method: string
 
-    :returns: the newly created data object.
+    **Results:**
+
+    :returns: The modified data object.
     :rtype: dictionary
 
     '''
@@ -124,7 +135,9 @@ def datastore_delete(context, data_dict):
                    If missing delete whole table and all dependent views.
     :type filters: dictionary
 
-    :returns: original filters sent.
+    **Results:**
+
+    :returns: Original filters sent.
     :rtype: dictionary
 
     '''
@@ -176,6 +189,10 @@ def datastore_search(context, data_dict):
                  e.g.: "fieldname1, fieldname2 desc"
     :type sort: string
 
+    Setting the ``plain`` flag to false enables the entire PostgreSQL `full text search query language`_.
+
+    .. _full text search query language: http://www.postgresql.org/docs/9.1/static/datatype-textsearch.html#DATATYPE-TSQUERY
+
     **Results:**
 
     The result of this action is a dict with the following keys:
@@ -193,6 +210,8 @@ def datastore_search(context, data_dict):
     :type total: int
     :param records: list of matching results
     :type records: list of dictionaries
+
+
 
     '''
     res_id = _get_or_bust(data_dict, 'resource_id')
@@ -224,7 +243,8 @@ def datastore_search_sql(context, data_dict):
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
-    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
+    There is an enforced timeout on SQL queries to avoid an unintended DOS.
 
     .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
         It is not available in :ref:`legacy mode<legacy_mode>`.

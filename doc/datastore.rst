@@ -4,7 +4,8 @@ DataStore
 
 The CKAN DataStore provides a database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
-interface and authorization system.
+interface and authorization system. At the same time, we kept the layer between the
+underlying database and the user as thin as possible.
 
 The installation and set-up of the DataStore in outlined in :doc:`datastore-setup`.
 
