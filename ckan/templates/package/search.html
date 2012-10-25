@@ -86,13 +86,17 @@
   <section class="module module-narrow module-shallow">
     <h2 class="module-heading">Subscription</h2>
     <div class="module-content">
+      {% if c.subscription %}
         <p>{{ c.subscription.name }}</p>
-        <form name="create_subscription" method="post" action="{{ h.url_for(controller='subscription', action='create') }}">
-            <input type="submit" value="Subscribe" class="btn" />
-        </form>
-        <form name="delete_subscription" method="post"  action="{{ h.url_for(controller='subscription', action='delete') }}">
-            <input type="submit" value="Unsubscribe" class="btn" />
-        </form>
+        <button id="delete_subscription" action="{{ h.url_for(controller='subscription', action='create') }}" class="btn">Unsubscribe</button>
+      {% else %}
+        <button id="create_subscription" action="{{ h.url_for(controller='subscription', action='create') }}" class="btn">Subscribe</button>
+      {% endif %}
+      <form id="subscription-form" method="post">
+        <input type="hidden" name="subscription_name" value="TEST SUBSCRIPTION" />
+        <input type="hidden" name="subscription_data_type" value="dataset" />
+        <input type="hidden" name="subscription_definition_type" value="search" />
+      </form>            
     </div>
   </section>
 

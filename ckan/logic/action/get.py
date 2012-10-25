@@ -2204,11 +2204,17 @@ def subscription(context, data_dict):
         subscription_definition = _get_or_bust(data_dict, 'subscription_definition')
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==json.dumps(subscription_definition))
+
+        _subscription_definition = {}
+        _subscription_definition['q'] = subscription_definition['q']
+        _subscription_definition['fq'] = subscription_definition['fq']
+
+        query = query.filter(model.Subscription.name==json.dumps(_subscription_definition))
     
 
-    subscription = query.one()
-    if not subscription:
+    try:
+        subscription = query.one()
+    except:
         return None
 
     subscription_dict = model_dictize.subscription_dictize(subscription, context)

@@ -221,8 +221,7 @@ class PackageController(BaseController):
             }
             
 
-            subscription_data_dict = {'subscription_definition': data_dict}
-            c.subscription = get_action('subscription')(context, subscription_data_dict)
+            c.subscription = get_action('subscription')(context, {'subscription_definition': data_dict})
             print c.subscription
 
 
