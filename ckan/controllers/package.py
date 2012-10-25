@@ -220,8 +220,15 @@ class PackageController(BaseController):
                 'extras': search_extras
             }
             
+            
+            definition = {}
+            definition['q'] = ''
+            if 'q' in request.params:
+                definition['q'] = request.params['q']
+            definition['fq'] = [(param, value) for (param, value) in request.params.items() if param not in ['q', 'page', 'sort']]
 
-            c.subscription = get_action('subscription')(context, {'subscription_definition': data_dict})
+            print json.dumps(definition)
+            c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
             print c.subscription
 
 

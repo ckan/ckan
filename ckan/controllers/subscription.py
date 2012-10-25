@@ -1,3 +1,4 @@
+import json
 import logging
 from pylons import session
 
@@ -59,7 +60,7 @@ class SubscriptionController(BaseController):
                 abort(401, _('Not authorized to see this page'))
 
 
-    def index(self, id = None):
+    def index(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
@@ -69,29 +70,12 @@ class SubscriptionController(BaseController):
 
 
     def create(self, id=None):
-        c.fields = []
-
-        c.fields_grouped = {}
-        search_extras = {}
-        fq = u''
-        for (param, value) in request.params.items():
-            if param not in ['q', 'page', 'sort'] \
-                    and len(value) and not param.startswith('_'):
-                if not param.startswith('ext_'):
-                    c.fields.append((param, value))
-                    fq += u' %s:"%s"' % (param, value)
-                    if param not in c.fields_grouped:
-                        c.fields_grouped[param] = [value]
-                    else:
-                        c.fields_grouped[param].append(value)
-                else:
-                    search_extras[param] = value
-
         definition = {}
-        definition['q'] = u''
+        definition['q'] = ''
         if 'q' in request.params:
             definition['q'] = request.params['q']
-        definition['fq'] = fq
+        
+        definition['fq'] = [(param, value) for (param, value) in request.params.items() if param not in ['q', 'page', 'sort', 'subscription_data_type', 'subscription_definition_type', 'subscription_name']]
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -111,7 +95,7 @@ class SubscriptionController(BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj, 'subscription_name': subscription_name}
         self._setup_template_variables(context, data_dict)
 
-        if c.subscription['definition_type'] in ['search', 'semantic', 'sparql']:
+        if c.subscription['definition_type'] in ['search']:
             get_action('subscription_item_list_update')(context, data_dict)
             c.subscription_items = get_action('subscription_item_list')(context, data_dict)
             c.added_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'added']
@@ -119,7 +103,18 @@ class SubscriptionController(BaseController):
             c.removed_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'removed']
             c.accepted_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'accepted']
             c.to_be_accepted = len(c.subscription_items) != len(c.accepted_subscribed_datasets)
-            return render('subscription/' + c.subscription['definition_type'] + '.html')
+
+
+            c.subscription['definition']['fq'] = dict([(fq[0], fq[1]) for fq in c.subscription['definition']['fq']])
+
+
+            param = {}
+            param['controller'] = 'package'
+            param['action'] = 'search'
+            param['q'] = c.subscription['definition']['q']
+            param.update(c.subscription['definition']['fq'])
+
+            return h.redirect_to(**param)
 
         return render('subscription/index.html')
        
