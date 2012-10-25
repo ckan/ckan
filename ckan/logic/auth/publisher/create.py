@@ -14,10 +14,26 @@ def package_create(context, data_dict=None):
     user = context['user']
     userobj = model.User.get( user )
 
-    if userobj:
-        return {'success': True}
+    if Authorizer().is_sysadmin(unicode(user)):
+        return { 'success': True }
 
-    return {'success': False, 'msg': 'You must be logged in to create a package'}
+    if userobj:
+        user_groups = [ g.name for g in userobj.get_groups('organization') ]
+        if data_dict and data_dict.get('published_by', None) in user_groups:
+            return {'success': True}
+        elif data_dict is None and user_groups:
+            # In this case, a package isn't being created.  This authorization
+            # function is being used to determine whether the User could
+            # potentially created datasets.  This is the case only if the User
+            # belongs to at least one organization.
+            return {'success': True}
+        else:
+            return {'success': False,
+                    'msg': _('User %s not authorized to edit packages in these groups') % str(user)
+                   }
+
+    else:
+        return {'success': False, 'msg': 'You must be logged in to create a package'}
 
 
 def related_create(context, data_dict=None):
