@@ -83,6 +83,19 @@
 {% endblock %}
 
 {% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">Subscription</h2>
+    <div class="module-content">
+        <p>{{ c.subscription.name }}</p>
+        <form name="create_subscription" method="post" action="{{ h.url_for(controller='subscription', action='create') }}">
+            <input type="submit" value="Subscribe" class="btn" />
+        </form>
+        <form name="delete_subscription" method="post"  action="{{ h.url_for(controller='subscription', action='delete') }}">
+            <input type="submit" value="Unsubscribe" class="btn" />
+        </form>
+    </div>
+  </section>
+
   {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags') }}
   {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format') }}
   {{ h.snippet('snippets/facet_list.html', title='Groups', name='groups') }}

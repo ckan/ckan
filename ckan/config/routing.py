@@ -251,6 +251,21 @@ def make_map():
     map.redirect('/tag/read/{url:.*}', '/tag/{url}', _redirect_code='301 Moved Permanently')
     map.connect('/tag', controller='tag', action='index')
     map.connect('/tag/{id}', controller='tag', action='read')
+
+    map.redirect('/user/{user}/subscription/{url:.*}', '/user/subscription/{url:.*}')
+    map.redirect('/user/subscription/', '/user/subscription')
+    map.redirect('/user/subscriptions', '/user/subscription')
+    map.redirect('/user/subscriptions/', '/user/subscription')
+    with SubMapper(map, controller='subscription') as m:
+        m.connect('/user/subscription/user_followees', action='show_user_followees', conditions=GET)
+        m.connect('/user/subscription/dataset_followees', action='show_dataset_followees', conditions=GET)
+        m.connect('/user/subscription/{subscription_name}', action='show', conditions=GET)
+        m.connect('/user/subscription/{subscription_name}/edit', action='edit', conditions=POST)
+        m.connect('/user/subscription/{subscription_name}/mark_as_seen', action='mark_as_seen', conditions=POST)
+        m.connect('/user/subscription/{subscription_name}/delete', action='delete', conditions=POST)
+        m.connect('/user/subscription', action='create', conditions=POST)
+        m.connect('/user/subscription', action='index', conditions=GET)
+
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
     map.redirect('/user/', '/user')

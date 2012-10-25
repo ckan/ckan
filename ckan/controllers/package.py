@@ -219,6 +219,14 @@ class PackageController(BaseController):
                 'sort': sort_by,
                 'extras': search_extras
             }
+            
+
+            subscription_data_dict = {'subscription_definition': data_dict}
+            c.subscription = get_action('subscription')(context, subscription_data_dict)
+            print c.subscription
+
+
+
 
             query = get_action('package_search')(context, data_dict)
 

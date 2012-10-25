@@ -2142,3 +2142,111 @@ def _unpick_search(sort, allowed_fields=None, total=None):
         raise logic.ParameterError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
+
+
+def subscription_list(context, data_dict):
+    '''Return the list of all subscriptions of the user that is logged in.
+
+    :rtype: list of dictionaries
+
+    '''
+    if not context.has_key('user'):
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+
+    query = query.order_by(model.Subscription.name)
+    subscription_objects = query.all()
+
+    return model_dictize.subscription_list_dictize(subscription_objects, context)
+
+
+def subscription(context, data_dict):
+    '''Return a subscriptions of a user.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
+
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.subscription_id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+        
+    elif 'subscription_definition' in data_dict:
+        subscription_definition = _get_or_bust(data_dict, 'subscription_definition')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==json.dumps(subscription_definition))
+    
+
+    subscription = query.one()
+    if not subscription:
+        return None
+
+    subscription_dict = model_dictize.subscription_dictize(subscription, context)
+
+    return subscription_dict
+
+
+def subscription_item_list(context, data_dict):
+    '''Return the list of items for a dataset subscription.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.subscription_id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+
+    subscription = query.one()
+
+    return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
