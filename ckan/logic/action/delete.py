@@ -357,5 +357,42 @@ def unfollow_dataset(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
+
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
+            
+def subscription_delete(context, data_dict):
+    '''Delete a subscription.
+
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = query.filter(model.Subscription.subscription_id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+
+    subscription = query.first()
+
+    subscription.delete()
+    model.repo.commit()
+    

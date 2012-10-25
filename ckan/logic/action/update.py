@@ -937,3 +937,132 @@ def user_role_bulk_update(context, data_dict):
                          'domain_object': data_dict['domain_object']}
         user_role_update(context, uro_data_dict)
     return _get_action('roles_show')(context, data_dict)
+
+
+def subscription_update(context, data_dict):
+    '''Update a subscription
+
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+
+    :param new_subscription_name: the name of the subscription
+    :type new_subscription_name: string
+    :param new_subscription_definition_type: the type of the subscription: either ``'text'``, ``'guided'`` or``'sparql'``
+    :type new_subscription_definition_type: string
+    :param new_subscription_definition: the definition of the subscription depending on its type
+    :type new_subscription_definition: string
+
+    :returns: the updated the updated subscription
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+        subscription = query.first()
+        subscription_id = subscription.id
+
+
+    #TODO: no duplicate names for one user
+    subscription_dict = {
+                            'id': subscription_id,
+                            'data_type': data_dict['new_subscription_data_type'],
+                            'definition_type': data_dict['new_subscription_definition_type'],
+                            'definition': data_dict['new_subscription_definition'],
+                            'name': data_dict['new_subscription_name'],
+                            'last_modified': datetime.datetime.now()
+                        }
+
+    subscription = model_save.subscription_dict_save(subscription_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return model_dictize.subscription_dictize(subscription, context)
+
+
+def subscription_item_list_update(context, data_dict):
+    '''Update the list of subscription items and changes their status
+    
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+        
+        
+    query = model.Session.query(model.Subscription)
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = query.filter(model.Subscription.subscription_id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+
+    subscription = query.first()
+    
+    subscription.update_item_list(context, logic.get_action('package_search'))
+    
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+
+def subscription_mark_changes_as_seen(context, data_dict):
+    '''Accept the changes to the subscription and changes the states of the items.
+    
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+        
+    query = model.Session.query(model.Subscription)
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = query.filter(model.Subscription.subscription_id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+
+    subscription = query.one()
+    
+    subscription.mark_item_list_changes_as_seen()
+    
+    if not context.get('defer_commit'):
+        model.repo.commit()

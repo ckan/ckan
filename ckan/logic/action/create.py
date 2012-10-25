@@ -13,6 +13,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.logic.auth as auth
+import json
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -1023,3 +1024,43 @@ def follow_dataset(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
+
+def subscription_create(context, data_dict):
+    '''Create a subscription.
+
+    You must provide your API key in the Authorization header.
+
+    :param subscription_name: the name of the subscription, e.g. ``'health care'``
+    :type subscription_name: string
+    :param subscription_definition_type: the type of the subscription: either ``'text'``, ``'guided'`` or``'sparql'``
+    :type subscription_definition_type: string
+    :param subscription_definition: the definition of the subscription depending on its type
+    :type subscription_definition: string
+
+    :returns: a representation of the 'subscription' object
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+
+    #TODO: no duplicate names for one user
+    subscription_dict = {
+                            'data_type': data_dict['subscription_data_type'],
+                            'definition_type': data_dict['subscription_definition_type'],
+                            'definition': data_dict['subscription_definition'],
+                            'name': data_dict['subscription_name'],
+                            'owner_id': user.id
+                        }
+
+    subscription = model_save.subscription_dict_save(subscription_dict, context)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    return model_dictize.subscription_dictize(subscription, context)
