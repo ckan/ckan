@@ -1265,23 +1265,29 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def _can_be_previewed(resource):
-    '''
-    Determines whether there is an extension that can preview the resource.
+def _add_whether_on_same_domain(data_dict):
+    ''' sets the ``on_same_domain`` flag to a resource dictionary
     '''
     # compare CKAN domain and resource URL
     import ckan.plugins.toolkit as toolkit
     ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
     request_protocol = toolkit.request.environ['SERVER_PROTOCOL'].lower()
 
-    parsed = urlparse.urlparse(resource['url'])
+    parsed = urlparse.urlparse(data_dict['resource']['url'])
     resource_domain = (parsed.hostname + ':' + str(parsed.port)).lower()
 
-    resource['on_same_domain'] = (ckan_domain == resource_domain
+    data_dict['resource']['on_same_domain'] = (ckan_domain == resource_domain
             and parsed.scheme.lower() in request_protocol)
+    return data_dict
 
+
+def _can_be_previewed(data_dict):
+    '''
+    Determines whether there is an extension that can preview the resource.
+    '''
+    data_dict = _add_whether_on_same_domain(data_dict)
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
-    return any(plugin.can_preview(resource) for plugin in plugins)
+    return any(plugin.can_preview(data_dict) for plugin in plugins)
 
 
 def resource_preview(resource, pkg_id):
@@ -1302,7 +1308,9 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    if _can_be_previewed(resource):
+    data_dict = {'resource': resource, 'package': None}
+
+    if _can_be_previewed(data_dict):
         url = url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in DIRECT_EMBEDS:

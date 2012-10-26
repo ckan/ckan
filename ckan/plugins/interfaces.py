@@ -198,9 +198,10 @@ class IResourcePreview(Interface):
     create custom previews for example for xml files.
     """
 
-    def can_preview(self, resource):
+    def can_preview(self, data_dict):
         '''
-        Return True if the extension can preview the resource.
+        Return True if the extension can preview the resource. The ``data_dict``
+        contains the resource and the package.
 
         Make sure you also make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
@@ -210,6 +211,7 @@ class IResourcePreview(Interface):
     def setup_template_variables(self, context, data_dict):
         '''
         Add variables to c just prior to the template being rendered.
+        The ``data_dict`` contains the resource and the package.
 
         Change the url to a proxied domain if necessary.
         '''
