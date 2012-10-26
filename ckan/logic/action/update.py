@@ -950,8 +950,6 @@ def subscription_update(context, data_dict):
 
     :param new_subscription_name: the name of the subscription
     :type new_subscription_name: string
-    :param new_subscription_definition_type: the type of the subscription: either ``'text'``, ``'guided'`` or``'sparql'``
-    :type new_subscription_definition_type: string
     :param new_subscription_definition: the definition of the subscription depending on its type
     :type new_subscription_definition: string
 
@@ -982,8 +980,6 @@ def subscription_update(context, data_dict):
     #TODO: no duplicate names for one user
     subscription_dict = {
                             'id': subscription_id,
-                            'data_type': data_dict['new_subscription_data_type'],
-                            'definition_type': data_dict['new_subscription_definition_type'],
                             'definition': data_dict['new_subscription_definition'],
                             'name': data_dict['new_subscription_name'],
                             'last_modified': datetime.datetime.now()

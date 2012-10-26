@@ -1,4 +1,5 @@
 import logging
+import urllib
 from urllib import urlencode
 import datetime
 
@@ -189,23 +190,23 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
-            # c.fields_grouped will contain a dict of params containing
-            # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
+                if param in ['tags', 'res_format', 'groups', 'organizations', 'topics', 'location', 'time']:
+                    c.fields.append((param, value))
+
+                    if param in ['tags', 'res_format', 'groups', 'organizations']:
                         fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
+
+                    if param not in c.fields_grouped:
+                        c.fields_grouped[param] = [urllib.unquote(value)]
                     else:
-                        search_extras[param] = value
+                        c.fields_grouped[param].append(urllib.unquote(value))
+     
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
@@ -219,14 +220,14 @@ class PackageController(BaseController):
                 'sort': sort_by,
                 'extras': search_extras
             }
-            
-            
-            
+
             definition = {}
-            definition['q'] = ''
+            definition['query'] = ''
             if 'q' in request.params:
-                definition['q'] = request.params['q']
-            definition['fq'] = [(param, value) for (param, value) in request.params.items() if param not in ['q', 'page', 'sort']]
+                definition['query'] = str(urllib.unquote(request.params['q']))
+            definition['filters'] = c.fields_grouped
+            definition['type'] = 'search'
+            definition['data_type'] = 'datasets'
 
             c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
 

@@ -1032,8 +1032,6 @@ def subscription_create(context, data_dict):
 
     :param subscription_name: the name of the subscription, e.g. ``'health care'``
     :type subscription_name: string
-    :param subscription_definition_type: the type of the subscription: either ``'text'``, ``'guided'`` or``'sparql'``
-    :type subscription_definition_type: string
     :param subscription_definition: the definition of the subscription depending on its type
     :type subscription_definition: string
 
@@ -1051,8 +1049,6 @@ def subscription_create(context, data_dict):
 
     #TODO: no duplicate names for one user
     subscription_dict = {
-                            'data_type': data_dict['subscription_data_type'],
-                            'definition_type': data_dict['subscription_definition_type'],
                             'definition': data_dict['subscription_definition'],
                             'name': data_dict['subscription_name'],
                             'owner_id': user.id

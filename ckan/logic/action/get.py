@@ -2177,6 +2177,9 @@ def subscription(context, data_dict):
     or
     :param subscription_definition: the definition of the subscription
     :type subscription_definition: json object
+    or
+    :param subscription_definition_type: the type of definition of the subscription
+    :type subscription_definition_type: string
 
     :rtype: dictionary
 
@@ -2191,30 +2194,49 @@ def subscription(context, data_dict):
     
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.subscription_id==subscription_id)
+        subscription = model.Session.query(model.Subscription).get(subscription_id)
 
     elif 'subscription_name' in data_dict:
         subscription_name = _get_or_bust(data_dict, 'subscription_name')
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.owner_id==user.id)
         query = query.filter(model.Subscription.name==subscription_name)
+        try:
+            subscription = query.one()
+        except:
+            return None
         
     elif 'subscription_definition' in data_dict:
-        subscription_definition = _get_or_bust(data_dict, 'subscription_definition')
+        definition = _get_or_bust(data_dict, 'subscription_definition')
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.definition==subscription_definition)
+        subscription = None
+        for row in query.all():
+            if subscription_fit_definition(row, definition):
+                subscription = row
+        if not subscription:
+            return None
     
-
-    try:
-        subscription = query.one()
-    except:
-        return None
-
     subscription_dict = model_dictize.subscription_dictize(subscription, context)
 
     return subscription_dict
+    
+
+def subscription_fit_definition(subscription, definition):
+    if subscription.definition['type'] != definition['type']:
+        return False
+        
+    if subscription.definition['data_type'] != definition['data_type']:
+        return False
+        
+    if subscription.definition['query'] != definition['query']:
+        return False
+        
+    for filter_ in subscription.definition['filter']:
+        if not set(filter_) ^ set(definition['filter']):
+            return False
+        
+    return True
 
 
 def subscription_item_list(context, data_dict):

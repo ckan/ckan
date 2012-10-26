@@ -72,17 +72,23 @@ class SubscriptionController(BaseController):
 
     def create(self, id=None):
         definition = {}
-        definition['q'] = ''
-        if 'q' in request.params:
-            definition['q'] = request.params['q']
+        definition['query'] = ''
+        if 'query' in request.params:
+            definition['query'] = request.params['q']
         
-        definition['fq'] = [(param, value) for (param, value) in request.params.items() if param not in ['q', 'page', 'sort', 'subscription_data_type', 'subscription_definition_type', 'subscription_name']]
-
+        definition['filters'] = {}
+        for (param, value) in request.params.items():
+            if param in ['tags', 'res_format', 'groups', 'organizations', 'topics', 'location', 'time']:
+                if param not in definition['filters']:
+                    definition['filters'][param] = [urllib.unquote(value)]
+                else:
+                    definition['filters'][param].append(urllib.unquote(value))
+        definition['type'] = 'search'
+        definition['data_type'] = 'datasets'
+            
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'subscription_data_type': request.params['subscription_data_type'],
-                     'subscription_definition_type': request.params['subscription_definition_type'],
-                     'subscription_definition': definition,
+        data_dict = {'subscription_definition': definition,
                      'subscription_name': request.params['subscription_name']}
 
         subscription = get_action('subscription_create')(context, data_dict)
@@ -156,8 +162,6 @@ class SubscriptionController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'subscription_name': subscription_name,
-                     'new_subscription_data_type': request.params['subscription_data_type'],
-                     'new_subscription_definition_type': request.params['subscription_definition_type'],
                      'new_subscription_definition': request.params['subscription_definition'],
                      'new_subscription_name': request.params['subscription_name']}
 

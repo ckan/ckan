@@ -13,11 +13,8 @@ __all__ = ['Subscription', 'SubscriptionItem']
 
 
 class Subscription(domain_object.DomainObject):
-    def __init__(self, definition_type = None, data_type = None, name = None,
-                 definition = None, owner_id = None):
+    def __init__(self, name = None, definition = None, owner_id = None):
         self.id = _types.make_uuid()
-        self.data_type = data_type
-        self.definition_type = definition_type
         self.definition = definition
         self.name = name
         self.owner_id = owner_id
@@ -34,7 +31,7 @@ class Subscription(domain_object.DomainObject):
     def update_item_list(self, context, search_action):
         self.last_evaluated = datetime.datetime.now()
 
-        if self.data_type in ['dataset', 'user']:
+        if self.definition['data_type'] in ['dataset', 'user']:
             self._retrieve_items()
             self._retrieve_item_data_by_definition(context, search_action)
             
@@ -42,7 +39,7 @@ class Subscription(domain_object.DomainObject):
             self._determine_removed_items()
             self._determine_remaining_items()
         
-        elif self.data_type == 'data':
+        elif self.definition['data_type'] == 'data':
             pass
         
         self._save_items()
@@ -61,9 +58,9 @@ class Subscription(domain_object.DomainObject):
 
 
     def _retrieve_item_data_by_definition(self, context, search_action):
-        if self.definition_type == 'search':
+        if self.definition['type'] == 'search':
             data_dict = {
-                'q': self.definition,
+                'q': self.definition['query'],
                 'fq': '',
                 'facet.field': ['groups', 'tags', 'res_format', 'license'],
                 'start': 0,
@@ -74,18 +71,19 @@ class Subscription(domain_object.DomainObject):
             search_results = search_action(context, data_dict)
 
             self._item_data_list_by_definition = search_results['results']
-        elif self.definition_type == 'semantic':
+        elif self.definition['type'] == 'semantic':
             prefix_query_string = 'prefix void: <http://rdfs.org/ns/void#>\nprefix xs: <http://www.w3.org/2001/XMLSchema#>'
             select_query_string = 'select ?dataset'
             where_query_string = 'where\n{\n    ?dataset a void:Dataset.\n'
             group_by_query_string = ''
 
-            if self.definition.has_key('topics'):
-                for topic in self.definition['topics']:
+            if 'topics' in self.definition['filters']:
+                for topic in self.definition['filters']['topics']:
                 #TODO: differentiate between vocabularies, classes, properties and injections
                     where_query_string += '?dataset void:vocabulary <' + topic + '>.\n'
                     
-            if self.definition.has_key('location'):
+            if 'location' in self.definition['filters']:
+                location = self.definition['filters']['location']
                 where_query_string += '?dataset void:propertyPartition ?latPropertyPartition.\n'
                 where_query_string += '?latPropertyPartition void:property <http://www.w3.org/2003/01/geo/wgs84_pos#lat>.\n'
                 where_query_string += '?latPropertyPartition void:minValue ?minLatitude.\n'
@@ -96,9 +94,10 @@ class Subscription(domain_object.DomainObject):
                 where_query_string += '?longPropertyPartition void:minValue ?minLongitude.\n'
                 where_query_string += '?longPropertyPartition void:maxValue ?maxLongitude.\n'
 
-                where_query_string += 'filter(' + self.definition['location']['radius'] + ' + fn:max(bif:pi()*6378*(?maxLatitude - ?minLatitude)/180, 2*bif:pi()*6378*bif:cos((?maxLatitude - ?minLatitude)/2)*(?maxLongitude - ?minLongitude)/360)/2 > (2 * 3956 * bif:asin(bif:sqrt((bif:power(bif:sin(2*bif:pi() + (' + self.definition['location']['latitude'] + ' - (?minLatitude + ?maxLatitude)/2)*bif:pi()/360), 2) + bif:cos(2*bif:pi() + ' + self.definition['location']['latitude'] + '*bif:pi()/180) * bif:cos(2*bif:pi() + (?minLatitude + ?maxLatitude)/2*bif:pi()/180) * bif:power(bif:sin(2*bif:pi() + (' + self.definition['location']['longitude'] + ' - (?minLongitude + ?maxLongitude)/2)*bif:pi()/360), 2))))))\n'
+                where_query_string += 'filter(' + location['radius'] + ' + fn:max(bif:pi()*6378*(?maxLatitude - ?minLatitude)/180, 2*bif:pi()*6378*bif:cos((?maxLatitude - ?minLatitude)/2)*(?maxLongitude - ?minLongitude)/360)/2 > (2 * 3956 * bif:asin(bif:sqrt((bif:power(bif:sin(2*bif:pi() + (' + location['latitude'] + ' - (?minLatitude + ?maxLatitude)/2)*bif:pi()/360), 2) + bif:cos(2*bif:pi() + ' + location['latitude'] + '*bif:pi()/180) * bif:cos(2*bif:pi() + (?minLatitude + ?maxLatitude)/2*bif:pi()/180) * bif:power(bif:sin(2*bif:pi() + (' + location['longitude'] + ' - (?minLongitude + ?maxLongitude)/2)*bif:pi()/360), 2))))))\n'
 
-            if self.definition.has_key('time'):
+            if 'time' in self.definition['filters']:
+                time = self.definition['filters']['time']
                 where_query_string += '''
                                       ?dataset void:propertyPartition ?dateTimePropertyPartition.
                                       ?dateTimePropertyPartition void:minValue ?minDateTime.
@@ -133,13 +132,14 @@ class Subscription(domain_object.DomainObject):
             rows = store.root.query(query_string)
             
             #FIXME: workaround as long as virtuoso is not functioning properly
-            if self.definition.has_key('time'):
+            if 'time' in self.definition['filters']:
+                time = self.definition['filters']['time']
                 [row for row in rows if row['minDateTime']['value'] != '']
-                if self.definition['time']['type'] == 'span':
-                    [row for row in rows if max(row['minDateTime']['value'], self.definition['time']['min']) <= min(row['maxDateTime']['value'], self.definition['time']['max'])]
-                if self.definition['time']['type'] == 'point':
-                    point = dateutil.parser.parse(self.definition['time']['point'])
-                    variance = datetime.timedelta(days=int(self.definition['time']['variance']))
+                if time['type'] == 'span':
+                    [row for row in rows if max(row['minDateTime']['value'], time['min']) <= min(row['maxDateTime']['value'], time['max'])]
+                if time['type'] == 'point':
+                    point = dateutil.parser.parse(time['point'])
+                    variance = datetime.timedelta(days=int(time['variance']))
                     min_ = point - variance
                     max_ = point + variance
 
@@ -155,7 +155,7 @@ class Subscription(domain_object.DomainObject):
 
             self._item_data_list_by_definition = datasets
 
-        elif self.definition_type == 'sparql':
+        elif self.definition['type'] == 'sparql':
             #TODO: check for access rights
             rows = store.root.query(self.definition['query'])
 
@@ -164,7 +164,7 @@ class Subscription(domain_object.DomainObject):
 
             self._item_data_list_by_definition = datasets
         
-        if self.definition_type in ['search', 'semantic', 'sparql']:
+        if self.definition['type'] in ['search', 'semantic', 'sparql']:
             self._item_data_dict_by_definition = dict([(item_data['id'], item_data) for item_data in self._item_data_list_by_definition])
             self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
 
@@ -219,8 +219,6 @@ class SubscriptionItem(domain_object.DomainObject):
 subscription_table = Table(
     'subscription', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-    Column('data_type', types.UnicodeText, nullable=False),
-    Column('definition_type', types.UnicodeText, nullable=False),
     Column('definition', _types.JsonDictType, nullable=False),
     Column('name', types.UnicodeText, nullable=False),
     Column('owner_id', types.UnicodeText, ForeignKey('user.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
