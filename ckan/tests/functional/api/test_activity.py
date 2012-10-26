@@ -2,8 +2,6 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-from nose.plugins.skip import SkipTest
-
 import pylons.test
 import paste.fixture
 from ckan.lib.helpers import json
@@ -1283,34 +1281,6 @@ class TestActivity:
         for package_dict in packages_with_extras:
             self._update_extra(package_dict, user=self.normal_user)
 
-    def test_01_update_extras_not_logged_in(self):
-        """
-        Test changed package extra activity stream when no user logged in.
-
-        Test that correct activity stream item and detail items are emitted
-        when a package extra is changed by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#        context = {
-#            'model': model,
-#            'session': model.Session,
-#            'user': self.normal_user.name,
-#            'extras_as_string': True,
-#            }
-#        packages_with_extras = []
-#        for package_name in package_list(context, {}):
-#            package_dict = package_show(context, {'id': package_name})
-#            if len(package_dict['extras']) > 0:
-#                    packages_with_extras.append(package_dict)
-#        assert len(packages_with_extras) > 0, (
-#                "Need some packages with extras to test")
-#        for package_dict in packages_with_extras:
-#            self._update_extra(package_dict, None)
-#
-
     def test_01_update_package(self):
         """
         Test updated package activity stream.
@@ -1322,20 +1292,6 @@ class TestActivity:
         for package_name in package_list(self.app):
             package_dict = package_show(self.app, {'id': package_name})
             self._update_package(package_dict, user=self.normal_user)
-
-    def test_01_update_package_not_logged_in(self):
-        """
-        Test updated package activity stream when not logged in.
-
-        Test that correct activity stream item and detail items are created
-        when packages are updated by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#       for package in model.Session.query(model.Package).all():
-#            self._update_package(package, user=None)
 
     def test_01_update_resource(self):
         """
@@ -1370,19 +1326,6 @@ class TestActivity:
         """
         self._create_package(user=self.normal_user)
 
-    def test_create_package_not_logged_in(self):
-        """
-        Test new package activity stream when not logged in.
-
-        Test that correct activity stream item and detail items are emitted
-        when a new package is created by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#       self._create_package(user=None, name="not_logged_in_test_package")
-
     def test_add_resources(self):
         """
         Test new resource activity stream.
@@ -1394,20 +1337,6 @@ class TestActivity:
         for package_name in package_list(self.app):
             package_dict = package_show(self.app, {'id': package_name})
             self._add_resource(package_dict, user=self.normal_user)
-
-    def test_add_resources_not_logged_in(self):
-        """
-        Test new resource activity stream when no user logged in.
-
-        Test that correct activity stream item and detail items are emitted
-        when a resource is added to a package by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#        for package in model.Session.query(model.Package).all():
-#            self._add_resource(package, user=None)
 
     def test_delete_package(self):
         """
@@ -1954,27 +1883,6 @@ class TestActivity:
             package_dict = package_show(self.app, {'id': package_name})
             self._add_extra(package_dict, user=self.normal_user)
 
-    def test_add_extras_not_logged_in(self):
-        """
-        Test new package extra activity stream when no user logged in.
-
-        Test that correct activity stream item and detail items are emitted
-        when an extra is added to a package by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#        context = {
-#            'model': model,
-#            'session': model.Session,
-#            'user': self.normal_user.name,
-#            'extras_as_string': True,
-#            }
-#        for package_name in package_list(context, {}):
-#            package_dict = package_show(context, {'id': package_name})
-#            self._add_extra(package_dict, None, key='not_logged_in_extra_key')
-#
     def test_delete_extras(self):
         """
         Test deleted package extra activity stream.
@@ -1992,34 +1900,6 @@ class TestActivity:
                 "Need some packages with extras to test")
         for package_dict in packages_with_extras:
             self._delete_extra(package_dict, user=self.normal_user)
-
-    def test_delete_extras_not_logged_in(self):
-        """
-        Test deleted package extra activity stream when no user logged in.
-
-        Test that correct activity stream item and detail items are emitted
-        when a package extra is deleted by a user who is not logged in.
-
-        """
-        raise SkipTest
-
-##  TODO: remove, non logged in users can no longer edit packages
-#        context = {
-#            'model': model,
-#            'session': model.Session,
-#            'user': self.normal_user.name,
-#            'extras_as_string': True,
-#            }
-#        packages_with_extras = []
-#        for package_name in package_list(context, {}):
-#            package_dict = package_show(context, {'id': package_name})
-#            if len(package_dict['extras']) > 0:
-#                    packages_with_extras.append(package_dict)
-#        assert len(packages_with_extras) > 0, (
-#                "Need some packages with extras to test")
-#        for package_dict in packages_with_extras:
-#            self._delete_extra(package_dict, None)
-#
 
     def test_follow_dataset(self):
         user = self.normal_user
