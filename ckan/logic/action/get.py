@@ -1761,11 +1761,22 @@ def group_activity_list(context, data_dict):
     '''
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
+
+    _check_access('group_show',context, data_dict)
+
+    # Get a list of the IDs of the group's datasets.
+    group_package_show = logic.get_action('group_package_show')
+    datasets = group_package_show(context, {'id': group_id})
+    dataset_ids = [dataset['id'] for dataset in datasets]
+
+    # Get the group's activities.
     query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=group_id)
+    query = query.filter(_or_(model.Activity.object_id == group_id,
+        model.Activity.object_id.in_(dataset_ids)))
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):

@@ -153,8 +153,13 @@ class TestActivity:
         response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id)
         return json.loads(response.body)
 
-    def group_activity_stream(self, group_id):
-        response = self.app.get("/api/2/rest/group/%s/activity" % group_id)
+    def group_activity_stream(self, group_id, apikey=None):
+        if apikey:
+            extra_environ = {'Authorization': str(apikey)}
+        else:
+            extra_environ = None
+        response = self.app.get("/api/2/rest/group/%s/activity" % group_id,
+                extra_environ=extra_environ)
         return json.loads(response.body)
 
     def recently_changed_datasets_stream(self):
@@ -171,7 +176,8 @@ class TestActivity:
                 "/api/2/rest/activity/%s/details" % activity['id'])
         return json.loads(response.body)
 
-    def record_details(self, user_id, package_id=None, group_id=None):
+    def record_details(self, user_id, package_id=None, group_id=None,
+            apikey=None):
         details = {}
         details['user activity stream'] = self.user_activity_stream(user_id)
 
@@ -181,7 +187,7 @@ class TestActivity:
 
         if group_id is not None:
             details['group activity stream'] = (
-                self.group_activity_stream(group_id))
+                self.group_activity_stream(group_id, apikey))
 
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream()
@@ -719,15 +725,17 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(user.id, group_id=group.id)
+        before = self.record_details(user.id, group_id=group.id,
+                apikey=user.apikey)
 
         # Deleted the group.
-        context = {'model': model, 'session': model.Session, 'api_version':3,
+        context = {'model': model, 'session': model.Session, 'api_version': 3,
                 'user': user.name, 'allow_partial_update': True}
         group_dict = {'id': group.id, 'state': 'deleted'}
         group_update(context, group_dict)
 
-        after = self.record_details(user.id, group_id=group.id)
+        after = self.record_details(user.id, group_id=group.id,
+                apikey=user.apikey)
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -747,10 +755,10 @@ class TestActivity:
         assert activity['user_id'] == user.id, str(activity['user_id'])
         assert activity['activity_type'] == 'deleted group', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= after['time'], \
