@@ -32,7 +32,10 @@ def get_snippet_tag(activity, detail):
     return h.tag_link(detail['data']['tag'])
 
 def get_snippet_group(activity, detail):
-    return h.group_link(activity['data']['group'])
+    link = h.group_link(activity['data']['group'])
+    return literal('''<span data-module="popover-context" data-module-type="group" data-module-id="%s">%s</span>'''
+        % (activity['object_id'], link)
+        )
 
 def get_snippet_extra(activity, detail):
     return '"%s"' % detail['data']['package_extra']['key']
@@ -176,7 +179,7 @@ activity_stream_string_icons = {
   'deleted related item': 'picture',
   'follow dataset': 'sitemap',
   'follow user': 'user',
-  'follow group': 'groups',
+  'follow group': 'group',
   'new related item': 'picture',
 }
 

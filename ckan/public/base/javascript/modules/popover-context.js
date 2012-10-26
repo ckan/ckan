@@ -21,11 +21,13 @@
 window.popover_context = {
 	dict: {
 		user: {},
-		dataset: {}
+		dataset: {},
+		group: {}
 	},
 	render: {
 		user: {},
-		dataset: {}
+		dataset: {},
+		group: {}
 	}
 };
 
@@ -119,7 +121,10 @@ this.ckan.module('popover-context', function($, _) {
 				var type = this.options.type;
 				if (typeof window.popover_context.dict[type][id] == 'undefined') {
 					var client = this.sandbox.client;
-					var endpoint = ( type == 'user' ) ? 'user_show' : 'package_show';
+					var endpoint = type + '_show';
+					if (type == 'dataset') {
+						endpoint = 'package_show';
+					}
 					client.call('GET', endpoint, '?id=' + id, this._onHandleData, this._onHandleError);
 				} else {
 					this._onHandleData(window.popover_context.dict[type][id]);
@@ -180,6 +185,13 @@ this.ckan.module('popover-context', function($, _) {
 				params.notes = raw.notes;
 				params.num_resources = raw.resources.length;
 				params.num_tags = raw.tags.length;
+			} else if (type == 'group') {
+				params.id = raw.id;
+				params.title = raw.title;
+				params.name = raw.name;
+				params.description = raw.description;
+				params.num_datasets = raw.packages.length;
+				//params.num_followers = raw.num_followers;
 			}
 			return params;
 		},
