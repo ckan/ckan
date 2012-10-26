@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 from nose.plugins.skip import SkipTest
 
-from pylons.test import pylonsapp
+import pylons.test
 import paste.fixture
 from ckan.lib.helpers import json
 
@@ -175,7 +175,7 @@ class TestActivity:
                 'id': annakarenina.id,
                 }
         self.users = [self.sysadmin_user, self.normal_user, self.follower]
-        self.app = paste.fixture.TestApp(pylonsapp)
+        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
 
         # Make follower follow everything else.
         params = {'id': 'testsysadmin'}
