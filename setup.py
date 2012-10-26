@@ -122,6 +122,7 @@ setup(
     jsonpreview=ckanext.jsonpreview.plugin:JsonPreview
     pdfpreview=ckanext.pdfpreview.plugin:PdfPreview
     reclinepreview=ckanext.reclinepreview.plugin:ReclinePreview
+    resourceproxy=ckanext.resourceproxy.plugin:ResourceProxy
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
