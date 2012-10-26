@@ -88,14 +88,19 @@
     <div class="module-content">
       {% if c.subscription %}
         <form id="subscription-form" method="post" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
-          <p>{{ c.subscription.name }}</p>
+          <p><b>Name</b>: {{ c.subscription.name }}</p>
           <button id="delete_subscription" class="btn">Unsubscribe</button>
           <input type="hidden" name="return_url" value="" class="return_url" />
         </form>
       {% else %}
         <form id="subscription-form" method="post">
+          <p>
+            Get informed when new items match your search criteria and
+            receive news from these datasets.
+          </p>
+             
+          <input type="text" name="subscription_name" placeholder="Name of this search" style="height:14px; width:160px" />
           <button id="create_subscription" action="{{ h.url_for(controller='subscription', action='create') }}" class="btn">Subscribe</button>
-          <input type="hidden" name="subscription_name" value="TEST Subscription" />
           <input type="hidden" name="subscription_data_type" value="dataset" />
           <input type="hidden" name="subscription_definition_type" value="search" />
         </form>          

@@ -71,7 +71,6 @@ class SubscriptionController(BaseController):
 
 
     def create(self, id=None):
-        print request.params
         definition = {}
         definition['q'] = ''
         if 'q' in request.params:

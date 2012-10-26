@@ -221,16 +221,14 @@ class PackageController(BaseController):
             }
             
             
+            
             definition = {}
             definition['q'] = ''
             if 'q' in request.params:
                 definition['q'] = request.params['q']
             definition['fq'] = [(param, value) for (param, value) in request.params.items() if param not in ['q', 'page', 'sort']]
 
-            print json.dumps(definition)
             c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
-            print c.subscription
-
 
 
 
