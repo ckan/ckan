@@ -6,32 +6,64 @@ from nose.plugins.skip import SkipTest
 
 import ckan
 import ckan.model as model
-from ckan.logic.action.create import package_create as _package_create
-from ckan.logic.action.create import user_create, group_create, follow_dataset
-from ckan.logic.action.create import follow_user
-from ckan.logic.action.update import package_update as _package_update, resource_update
-from ckan.logic.action.update import user_update, group_update
-from ckan.logic.action.delete import package_delete
-from ckan.logic.action.get import package_list, package_show
-from ckan.lib.dictization.model_dictize import resource_list_dictize
 from pylons.test import pylonsapp
 import paste.fixture
 from ckan.lib.helpers import json
 
 
-def package_update(context, data_dict):
-    # These tests call package_update directly which is really bad
-    # setting api_version in context make things seem like the api key
-    # is ok etc
-    context['api_version'] = 3
-    return _package_update(context, data_dict)
+def package_show(app, data_dict, apikey=None):
+    if apikey:
+        extra_environ = {'Authorization': str(apikey)}
+    else:
+        extra_environ = None
+    response = app.post('/api/action/package_show', json.dumps(data_dict),
+            extra_environ=extra_environ)
+    response_dict = json.loads(response.body)
+    assert response_dict['success'] is True
+    package = response_dict['result']
+    return package
 
-def package_create(context, data_dict):
-    # These tests call package_update directly which is really bad
-    # setting api_version in context make things seem like the api key
-    # is ok etc
-    context['api_version'] = 3
-    return _package_create(context, data_dict)
+
+def package_list(app, data_dict=None, apikey=None):
+    if data_dict is None:
+        data_dict = {}
+    if apikey:
+        extra_environ = {'Authorization': str(apikey)}
+    else:
+        extra_environ = None
+    response = app.post('/api/action/package_list',
+            json.dumps(data_dict), extra_environ=extra_environ)
+    response_dict = json.loads(response.body)
+    assert response_dict['success'] is True
+    packages = response_dict['result']
+    return packages
+
+
+def package_update(app, data_dict, apikey=None):
+    if apikey:
+        extra_environ = {'Authorization': str(apikey)}
+    else:
+        extra_environ = None
+    response = app.post('/api/action/package_update',
+            json.dumps(data_dict), extra_environ=extra_environ)
+    response_dict = json.loads(response.body)
+    assert response_dict['success'] is True
+    updated_package = response_dict['result']
+    return updated_package
+
+
+def group_update(app, data_dict, apikey=None):
+    if apikey:
+        extra_environ = {'Authorization': str(apikey)}
+    else:
+        extra_environ = None
+    response = app.post('/api/action/group_update',
+            json.dumps(data_dict), extra_environ=extra_environ)
+    response_dict = json.loads(response.body)
+    assert response_dict['success'] is True
+    updated_group = response_dict['result']
+    return updated_group
+
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -222,14 +254,13 @@ class TestActivity:
         before = self.record_details(user_id)
 
         # Create a new package.
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user_name,
-            'allow_partial_update': True,
-            }
         request_data = make_package(name)
-        package_created = package_create(context, request_data)
+        extra_environ = {'Authorization': str(user.apikey)}
+        response = self.app.post('/api/action/package_create',
+                json.dumps(request_data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+        package_created = response_dict['result']
 
         after = self.record_details(user_id, package_created['id'])
 
@@ -313,30 +344,17 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = self.record_details(user_id, package.id)
+        before = self.record_details(user_id, package['id'])
 
-        # Query for the package object again, as the session that it belongs to
-        # may have been closed.
-        package = model.Session.query(model.Package).get(package.id)
-
-        resource_ids_before = [resource.id for resource in package.resources]
+        resource_ids_before = [resource['id'] for resource in
+                package['resources']]
 
         # Create a new resource.
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user_name,
-            'allow_partial_update': True,
-            }
-        resources = resource_list_dictize(package.resources, context)
+        resources = package['resources']
         resources.append(make_resource())
-        request_data = {
-                'id': package.id,
-                'resources': resources,
-                }
-        updated_package = package_update(context, request_data)
+        updated_package = package_update(self.app, package, user.apikey)
 
-        after = self.record_details(user_id, package.id)
+        after = self.record_details(user_id, package['id'])
         resource_ids_after = [resource['id'] for resource in
                 updated_package['resources']]
         assert len(resource_ids_after) == len(resource_ids_before) + 1
@@ -362,7 +380,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -406,26 +425,13 @@ class TestActivity:
 
         before = self.record_details(user_id, package_dict['id'])
 
-        extras_before = package_dict['extras']
+        extras_before = list(package_dict['extras'])
         assert len(extras_before) > 0, (
                 "Can't update an extra if the package doesn't have any")
 
         # Update the package's first extra.
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user_name,
-            'extras_as_string': True,
-            }
-        extras = list(extras_before)
-        del extras[0]
-        request_data = {
-                'id': package_dict['id'],
-                'extras': extras,
-                'tags': package_dict['tags'],
-                'resources': package_dict['resources']
-                }
-        updated_package = package_update(context, request_data)
+        del package_dict['extras'][0]
+        updated_package = package_update(self.app, package_dict, user.apikey)
 
         after = self.record_details(user_id, package_dict['id'])
         extras_after = updated_package['extras']
@@ -504,24 +510,13 @@ class TestActivity:
                 "Can't update an extra if the package doesn't have any")
 
         # Update the package's first extra.
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user_name,
-            'allow_partial_update': True,
-            'extras_as_string': True
-            }
         extras = list(extras_before)
-        if extras[0]['value'] != 'edited':
-            extras[0]['value'] = 'edited'
+        if extras[0]['value'] != '"edited"':
+            extras[0]['value'] = '"edited"'
         else:
-            assert extras[0]['value'] != 'edited again'
-            extras[0]['value'] = 'edited again'
-        request_data = {
-                'id': package_dict['id'],
-                'extras': extras
-                }
-        updated_package = package_update(context, request_data)
+            assert extras[0]['value'] != '"edited again"'
+            extras[0]['value'] = '"edited again"'
+        updated_package = package_update(self.app, package_dict, user.apikey)
 
         after = self.record_details(user_id, package_dict['id'])
         extras_after = updated_package['extras']
@@ -597,23 +592,14 @@ class TestActivity:
 
         before = self.record_details(user_id, package_dict['id'])
 
-        extras_before = package_dict['extras']
+        # Make a copy of the package's extras before we add a new extra,
+        # so we can compare the extras before and after updating the package.
+        extras_before = list(package_dict['extras'])
 
         # Create a new extra.
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user_name,
-            'allow_partial_update': True,
-            'extras_as_string': True,
-            }
-        extras = list(extras_before)
+        extras = package_dict['extras']
         extras.append({'key': key, 'value': '10000'})
-        request_data = {
-                'id': package_dict['id'],
-                'extras': extras
-                }
-        updated_package = package_update(context, request_data)
+        updated_package = package_update(self.app, package_dict, user.apikey)
 
         after = self.record_details(user_id, package_dict['id'])
         extras_after = updated_package['extras']
@@ -729,10 +715,8 @@ class TestActivity:
                 apikey=user.apikey)
 
         # Deleted the group.
-        context = {'model': model, 'session': model.Session, 'api_version': 3,
-                'user': user.name, 'allow_partial_update': True}
         group_dict = {'id': group.id, 'state': 'deleted'}
-        group_update(context, group_dict)
+        group_update(self.app, group_dict, user.apikey)
 
         after = self.record_details(user.id, group_id=group.id,
                 apikey=user.apikey)
@@ -773,10 +757,8 @@ class TestActivity:
         before = self.record_details(user.id, group_id=group.id)
 
         # Update the group.
-        context = {'model': model, 'session': model.Session, 'user': user.name,
-                   'allow_partial_update': True, 'api_version':3}
         group_dict = {'id': group.id, 'title': 'edited'}
-        group_updated = group_update(context, group_dict)
+        group_update(self.app, group_dict, user.apikey)
 
         after = self.record_details(user.id, group_id=group.id)
 
@@ -792,7 +774,6 @@ class TestActivity:
             "activity should also appear in the group's activity stream.")
 
         self.check_dashboard(before, after, new_activities, [user.id])
-
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group.id, str(activity['object_id'])
@@ -814,24 +795,23 @@ class TestActivity:
         and detail are emitted.
 
         """
-        before = self.record_details(user.id)
+        response = self.app.post('/api/action/user_show',
+                json.dumps({'id': user.id}),
+                extra_environ={'Authorization': str(user.apikey)})
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+        user_dict = response_dict['result']
 
-        # Query for the user object again, as the session that it belongs to
-        # may have been closed.
-        user = model.Session.query(model.User).get(user.id)
+        before = self.record_details(user_dict['id'])
 
         # Update the user.
-        context = {'model': model, 'session': model.Session, 'user': user.name,
-                'allow_partial_update': True}
-        user_dict = {'id': user.id}
         user_dict['about'] = 'edited'
-        if user.email:
-            user_dict['email'] = user.email
-        else:
+        if not user_dict.get('email'):
             user_dict['email'] = 'there has to be a value in email or validate fails'
-        user_update(context, user_dict)
+        self.app.post('/api/action/user_update', json.dumps(user_dict),
+                extra_environ={'Authorization': str(user.apikey)})
 
-        after = self.record_details(user.id)
+        after = self.record_details(user_dict['id'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -840,13 +820,14 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        self.check_dashboard(before, after, new_activities, [user.id])
+        self.check_dashboard(before, after, new_activities, [user_dict['id']])
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == user.id, str(activity['object_id'])
-        assert activity['user_id'] == user.id, str(activity['user_id'])
-        assert activity['activity_type'] == 'changed user', \
-            str(activity['activity_type'])
+        assert activity['object_id'] == user_dict['id'], (
+                str(activity['object_id']))
+        assert activity['user_id'] == user_dict['id'], str(activity['user_id'])
+        assert activity['activity_type'] == 'changed user', (
+            str(activity['activity_type']))
         if not activity.has_key('id'):
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
@@ -876,12 +857,12 @@ class TestActivity:
         context = {
             'model': model,
             'session': model.Session,
-            'user':self.normal_user.name,
+            'user': self.normal_user.name,
             }
         from ckan.lib.dictization.model_dictize import package_dictize
         data_dict = package_dictize(package, context)
         data_dict['resources'] = []
-        package_update(context, data_dict)
+        package_update(self.app, data_dict, self.normal_user.apikey)
 
         after = self.record_details(self.normal_user.id, package.id)
 
@@ -951,24 +932,17 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = self.record_details(user_id, package.id)
-
-        # Query for the package object again, as the session that it belongs to
-        # may have been closed.
-        package = model.Session.query(model.Package).get(package.id)
+        before = self.record_details(user_id, package['id'])
 
         # Update the package.
-        context = {'model': model, 'session': model.Session, 'user': user_name,
-                'allow_partial_update': True}
-        package_dict = {'id': package.id}
-        if package.title != 'edited':
-            package_dict['title'] = 'edited'
+        if package['title'] != 'edited':
+            package['title'] = 'edited'
         else:
-            assert package.title != 'edited again'
-            package_dict['title'] = 'edited again'
-        package_update(context, package_dict)
+            assert package['title'] != 'edited again'
+            package['title'] = 'edited again'
+        package_update(self.app, package, user.apikey)
 
-        after = self.record_details(user_id, package.id)
+        after = self.record_details(user_id, package['id'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -991,10 +965,11 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package['id']])
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, (
+        assert activity['object_id'] == package['id'], (
             str(activity['object_id']))
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', (
@@ -1014,7 +989,7 @@ class TestActivity:
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
-        assert detail['object_id'] == package.id, str(detail['object_id'])
+        assert detail['object_id'] == package['id'], str(detail['object_id'])
         assert detail['object_type'] == "Package", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
@@ -1033,20 +1008,13 @@ class TestActivity:
             user_name = '127.0.0.1'
             user_id = 'not logged in'
 
-        before = self.record_details(user_id, package.id)
-
-        # Query for the Package and Resource objects again, as the session that
-        # they belong to may have been closed.
-        package = model.Session.query(model.Package).get(package.id)
-        resource = model.Session.query(model.Resource).get(resource.id)
+        before = self.record_details(user_id, package['id'])
 
         # Update the resource.
-        context = {'model': model, 'session': model.Session, 'user': user_name,
-                'allow_partial_update': True}
-        resource_dict = {'id':resource.id, 'name':'edited'}
-        resource_update(context, resource_dict)
+        resource['name'] = 'edited'
+        package_update(self.app, package)
 
-        after = self.record_details(user_id, package.id)
+        after = self.record_details(user_id, package['id'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1069,10 +1037,10 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package.id])
+        self.check_dashboard(before, after, user_new_activities, [user_id, package['id']])
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == package.id, (
+        assert activity['object_id'] == package['id'], (
             str(activity['object_id']))
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', (
@@ -1111,10 +1079,12 @@ class TestActivity:
         package = model.Session.query(model.Package).get(package.id)
 
         # Delete the package.
-        context = {'model': model, 'session': model.Session,
-                'user': self.sysadmin_user.name}
-        package_dict = {'id':package.id}
-        package_delete(context, package_dict)
+        package_dict = {'id': package.id}
+        response = self.app.post('/api/action/package_delete',
+            json.dumps(package_dict),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
 
         after = self.record_details(self.sysadmin_user.id, package.id)
 
@@ -1228,7 +1198,7 @@ class TestActivity:
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
-        package_update(context, data_dict)
+        package_update(self.app, data_dict, user.apikey)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
@@ -1288,15 +1258,9 @@ class TestActivity:
         when a package extra is changed.
 
         """
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
-            }
         packages_with_extras = []
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
             if len(package_dict['extras']) > 0:
                     packages_with_extras.append(package_dict)
         assert len(packages_with_extras) > 0, (
@@ -1340,8 +1304,9 @@ class TestActivity:
         when packages are updated.
 
         """
-        for package in model.Session.query(model.Package).all():
-            self._update_package(package, user=self.normal_user)
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
+            self._update_package(package_dict, user=self.normal_user)
 
     def test_01_update_package_not_logged_in(self):
         """
@@ -1363,13 +1328,11 @@ class TestActivity:
         when a resource is updated.
 
         """
-        packages = model.Session.query(model.Package).all()
-        for package in packages:
-            # Query the model for the Package object again, as the session that
-            # it belongs to may have been closed.
-            pkg = model.Session.query(model.Package).get(package.id)
-            for resource in pkg.resources:
-                self._update_resource(pkg, resource, user=self.normal_user)
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
+            for resource in package_dict['resources']:
+                self._update_resource(package_dict, resource,
+                        user=self.normal_user)
 
     def test_01_update_resource_not_logged_in(self):
         """
@@ -1377,13 +1340,10 @@ class TestActivity:
         when a resource is updated by a user who is not logged in.
 
         """
-        packages = model.Session.query(model.Package).all()
-        for package in packages:
-            # Query the model for the Package object again, as the session that
-            # it belongs to may have been closed.
-            pkg = model.Session.query(model.Package).get(package.id)
-            for resource in pkg.resources:
-                self._update_resource(pkg, resource, user=None)
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
+            for resource in package_dict['resources']:
+                self._update_resource(package_dict, resource, user=None)
 
     def test_create_package(self):
         """
@@ -1416,8 +1376,9 @@ class TestActivity:
         when a resource is added to a package.
 
         """
-        for package in model.Session.query(model.Package).all():
-            self._add_resource(package, user=self.normal_user)
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
+            self._add_resource(package_dict, user=self.normal_user)
 
     def test_add_resources_not_logged_in(self):
         """
@@ -1458,9 +1419,12 @@ class TestActivity:
         user_dict = {'name': 'testuser',
                 'about': 'Just a test user', 'email': 'me@test.org',
                 'password': 'testpass'}
-        context = {'model': model, 'session': model.Session,
-                'user': self.sysadmin_user.name}
-        user_created = user_create(context, user_dict)
+        response = self.app.post('/api/action/user_create',
+            json.dumps(user_dict),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+        user_created = response_dict['result']
 
         after = self.record_details(user_created['id'])
 
@@ -1507,9 +1471,13 @@ class TestActivity:
         before = self.record_details(user.id)
 
         # Create a new group.
-        context = {'model': model, 'session': model.Session, 'user': user.name}
         request_data = {'name': 'a-new-group', 'title': 'A New Group'}
-        group_created = group_create(context, request_data)
+        response = self.app.post('/api/action/group_create',
+            json.dumps(request_data),
+            extra_environ={'Authorization': str(user.apikey)})
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+        group_created = response_dict['result']
 
         after = self.record_details(user.id, group_id=group_created['id'])
 
@@ -1576,12 +1544,9 @@ class TestActivity:
         before = self.record_details(user.id, pkg_dict['id'])
         new_tag_name = 'test tag'
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
-        new_tag_list = pkg_dict['tags'] + [{'name': new_tag_name}]
-        data_dict = {
-            'id': pkg_dict['id'],
-            'tags': new_tag_list
-            }
-        package_update(context, data_dict)
+
+        pkg_dict['tags'].append({'name': new_tag_name})
+        package_update(self.app, pkg_dict, user.apikey)
         after = self.record_details(user.id, pkg_dict['id'])
 
         # Find the new activity in the user's activity stream.
@@ -1975,14 +1940,8 @@ class TestActivity:
         when an extra is added to a package.
 
         """
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
-            }
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
             self._add_extra(package_dict, user=self.normal_user)
 
     def test_add_extras_not_logged_in(self):
@@ -2014,15 +1973,9 @@ class TestActivity:
         when a package extra is deleted.
 
         """
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': self.normal_user.name,
-            'extras_as_string': True,
-            }
         packages_with_extras = []
-        for package_name in package_list(context, {}):
-            package_dict = package_show(context, {'id': package_name})
+        for package_name in package_list(self.app):
+            package_dict = package_show(self.app, {'id': package_name})
             if len(package_dict['extras']) > 0:
                     packages_with_extras.append(package_dict)
         assert len(packages_with_extras) > 0, (
@@ -2061,13 +2014,13 @@ class TestActivity:
     def test_follow_dataset(self):
         user = self.normal_user
         before = self.record_details(user.id)
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user.name,
-            }
         data = {'id': self.warandpeace.id}
-        follow_dataset(context, data)
+        extra_environ = {'Authorization': str(user.apikey)}
+        response = self.app.post('/api/action/follow_dataset',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
         after = self.record_details(user.id, self.warandpeace.id)
 
         # Find the new activity in the user's activity stream.
@@ -2106,13 +2059,13 @@ class TestActivity:
         user = self.normal_user
         before = self.record_details(user.id)
         followee_before = self.record_details(self.sysadmin_user.id)
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': user.name,
-            }
         data = {'id': self.sysadmin_user.id}
-        follow_user(context, data)
+        extra_environ = {'Authorization': str(user.apikey)}
+        response = self.app.post('/api/action/follow_user',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
         after = self.record_details(user.id)
         followee_after = self.record_details(self.sysadmin_user.id)
 
