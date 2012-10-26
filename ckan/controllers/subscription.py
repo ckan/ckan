@@ -73,8 +73,8 @@ class SubscriptionController(BaseController):
     def create(self, id=None):
         definition = {}
         definition['query'] = ''
-        if 'query' in request.params:
-            definition['query'] = request.params['q']
+        if 'q' in request.params:
+            definition['query'] = str(urllib.unquote(request.params['q']))
         
         definition['filters'] = {}
         for (param, value) in request.params.items():
@@ -84,7 +84,7 @@ class SubscriptionController(BaseController):
                 else:
                     definition['filters'][param].append(urllib.unquote(value))
         definition['type'] = 'search'
-        definition['data_type'] = 'datasets'
+        definition['data_type'] = 'dataset'
             
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
@@ -103,7 +103,7 @@ class SubscriptionController(BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        if c.subscription['definition_type'] in ['search']:
+        if c.subscription['definition']['type'] in ['search']:
             get_action('subscription_item_list_update')(context, data_dict)
             c.subscription_items = get_action('subscription_item_list')(context, data_dict)
             c.added_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'added']
@@ -113,16 +113,15 @@ class SubscriptionController(BaseController):
             c.to_be_accepted = len(c.subscription_items) != len(c.accepted_subscribed_datasets)
 
 
-            c.subscription['definition']['fq'] = dict([(fq[0], fq[1]) for fq in c.subscription['definition']['fq']])
+            url = h.url_for(controller='package', action='search')
+            url += '?q=' + c.subscription['definition']['query']
 
+            filters = {}
+            for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
+                for filter_value in filter_value_list:
+                    url += '&' + filter_name + '=' + filter_value
 
-            param = {}
-            param['controller'] = 'package'
-            param['action'] = 'search'
-            param['q'] = c.subscription['definition']['q']
-            param.update(c.subscription['definition']['fq'])
-
-            return h.redirect_to(**param)
+            return h.redirect_to(str(url))
 
         return render('subscription/index.html')
        

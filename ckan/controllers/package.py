@@ -227,7 +227,7 @@ class PackageController(BaseController):
                 definition['query'] = str(urllib.unquote(request.params['q']))
             definition['filters'] = c.fields_grouped
             definition['type'] = 'search'
-            definition['data_type'] = 'datasets'
+            definition['data_type'] = 'dataset'
 
             c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
 

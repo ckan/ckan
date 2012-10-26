@@ -30,7 +30,7 @@ class Subscription(domain_object.DomainObject):
 
     def update_item_list(self, context, search_action):
         self.last_evaluated = datetime.datetime.now()
-
+        return
         if self.definition['data_type'] in ['dataset', 'user']:
             self._retrieve_items()
             self._retrieve_item_data_by_definition(context, search_action)

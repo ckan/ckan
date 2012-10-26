@@ -2232,8 +2232,11 @@ def subscription_fit_definition(subscription, definition):
     if subscription.definition['query'] != definition['query']:
         return False
         
-    for filter_ in subscription.definition['filter']:
-        if not set(filter_) ^ set(definition['filter']):
+    if set(subscription.definition['filters']) ^ set(definition['filters']):
+        return False
+        
+    for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
+        if set(filter_value_list) ^ set(definition['filters'][filter_name]):
             return False
         
     return True
