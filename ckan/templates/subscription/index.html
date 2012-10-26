@@ -48,29 +48,34 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">Subscriptions</h2>
+    <h2 class="module-heading">General</h2>
     <ul class="nav nav-simple">
       <li class="nav-item">
-        <b style="margin-left: -10px">General</b>
-      </li>
-      <li class="nav-item" style="padding-left: 35px">
         {{ h.nav_link(_('My Datasets'), controller='subscription', action='show', subscription_name='my_datasets') }}
       </li>
-      <li class="nav-item" style="padding-left: 35px">
+      <li class="nav-item">
         {{ h.nav_link(_('Datasets followed'), controller='subscription', action='show', subscription_name='dataset_followees') }}
       </li>
-      <li class="nav-item" style="padding-left: 35px; border: 0; margin-bottom: 10px">
+      <li class="nav-item">
         {{ h.nav_link(_('Users followed'), controller='subscription', action='show', subscription_name='user_followees') }}
       </li>
-      <li class="nav-item">
-        <b style="margin-left: -10px; border: 0">Search Subscriptions</b>
-      </li>
+    </ul>
+  </section>
+
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">Search Subscriptions</h2>
+    {% if c.subscriptions|length!=1 %}
+    <ul class="nav nav-simple">
       {% for subscription in c.subscriptions %}
-        <li class="nav-item" style="padding-left: 35px">
+        <li class="nav-item">
           {{ h.nav_link(_(subscription.name), controller='subscription', action='show', subscription_name=subscription.name) }}
         </li>
       {% endfor %}
     </ul>
+    {% else %}
+      <div class="module-content">
+        <p class="empty">No subscription here, why not {{ h.nav_link(_('creating'), controller='package', action='search') }} one?</p>
+      </div>
+    {% endif %}
   </section>
-
 {% endblock %}
