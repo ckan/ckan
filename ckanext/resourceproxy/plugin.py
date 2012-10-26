@@ -11,6 +11,7 @@ log = getLogger(__name__)
 def get_proxyfied_resource_url(data_dict):
     url = base.h.url_for(
         action='proxy_resource',
+        controller='ckanext.resourceproxy.controller:ProxyController',
         id=data_dict['package']['name'],
         resource_id=data_dict['resource']['id'])
     log.info('Proxified url is {0}'.format(url))
@@ -23,11 +24,9 @@ class ResourceProxy(p.SingletonPlugin):
 
     This extension implements two interfaces
 
-      - ``IConfigurer`` allows to modify the configuration
       - ``IRoutes`` allows to add a route to the proxy action
       - ``IActions`` allows to add an action for the proxy
     """
-    p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IActions)
 

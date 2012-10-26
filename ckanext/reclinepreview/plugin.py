@@ -25,11 +25,8 @@ class ReclinePreview(p.SingletonPlugin):
         toolkit.add_template_directory(config, 'theme/templates')
         toolkit.add_resource('theme/public', 'ckanext-reclinepreview')
 
-    def requires_same_orign(self, resource):
-        return False
-
-    def can_preview(self, resource):
-        format_lower = resource['format'].lower()
+    def can_preview(self, data_dict):
+        format_lower = data_dict['resource']['format'].lower()
         return format_lower in ['csv', 'xls', 'tsv']
 
     def preview_template(self, context):

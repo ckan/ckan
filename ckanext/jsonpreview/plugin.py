@@ -4,9 +4,13 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.base as base
 
-import ckanext.resourceproxy.plugin as proxy
-
 log = getLogger(__name__)
+
+proxy = False
+try:
+    import ckanext.resourceproxy.plugin as proxy
+except:
+    pass
 
 
 class JsonPreview(p.SingletonPlugin):
@@ -20,8 +24,8 @@ class JsonPreview(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
 
-    def __init__(self):
-        self.proxy_enabled = True
+    JSON_FORMATS = ['json']
+    JSONP_FORMATS = ['jsonp']
 
     def update_config(self, config):
         ''' Set up the resource library, public directory and
@@ -31,12 +35,20 @@ class JsonPreview(p.SingletonPlugin):
         toolkit.add_template_directory(config, 'theme/templates')
         toolkit.add_resource('theme/public', 'ckanext-jsonpreview')
 
-    def can_preview(self, resource):
+    def can_preview(self, data_dict):
+        resource = data_dict['resource']
         format_lower = resource['format'].lower()
-        return format_lower in ['jsonp'] or format_lower in ['json'] and self.proxy_enabled
+        if format_lower in self.JSONP_FORMATS:
+            return True
+        elif format_lower in self.JSON_FORMATS and (proxy or resource['on_same_domain']):
+            return True
+        return False
 
     def setup_template_variables(self, context, data_dict):
-        base.c.resource['url'] = proxy.get_proxyfied_resource_url(data_dict)
+        resource = data_dict['resource']
+        format_lower = resource['format'].lower()
+        if format_lower in self.JSON_FORMATS and proxy and not resource['on_same_domain']:
+            base.c.resource['url'] = proxy.get_proxyfied_resource_url(data_dict)
 
     def preview_template(self, context):
         return 'json.html'
