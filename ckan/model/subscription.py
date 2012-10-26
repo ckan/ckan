@@ -77,8 +77,8 @@ class Subscription(domain_object.DomainObject):
             where_query_string = 'where\n{\n    ?dataset a void:Dataset.\n'
             group_by_query_string = ''
 
-            if 'topics' in self.definition['filters']:
-                for topic in self.definition['filters']['topics']:
+            if 'topic' in self.definition['filters']:
+                for topic in self.definition['filters']['topic']:
                 #TODO: differentiate between vocabularies, classes, properties and injections
                     where_query_string += '?dataset void:vocabulary <' + topic + '>.\n'
                     

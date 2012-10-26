@@ -78,7 +78,7 @@ class SubscriptionController(BaseController):
         
         definition['filters'] = {}
         for (param, value) in request.params.items():
-            if param in ['tags', 'res_format', 'groups', 'organizations', 'topics', 'location', 'time']:
+            if param in ['tags', 'res_format', 'groups', 'organizations', 'topic', 'location', 'time']:
                 if param not in definition['filters']:
                     definition['filters'][param] = [urllib.unquote(value)]
                 else:
@@ -114,12 +114,12 @@ class SubscriptionController(BaseController):
 
 
             url = h.url_for(controller='package', action='search')
-            url += '?q=' + urllib.quote(c.subscription['definition']['query'])
+            url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
 
             filters = {}
             for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
                 for filter_value in filter_value_list:
-                    url += '&' + filter_name + '=' + urllib.quote(filter_value)
+                    url += '&' + filter_name + '=' + urllib.quote_plus(filter_value)
 
             return h.redirect_to(str(url))
 

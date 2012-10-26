@@ -194,7 +194,7 @@ class PackageController(BaseController):
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if param in ['tags', 'res_format', 'groups', 'organizations', 'topics', 'location', 'time']:
+                if param in ['tags', 'res_format', 'groups', 'organizations', 'topic', 'location', 'time']:
                     c.fields.append((param, value))
 
                     if param in ['tags', 'res_format', 'groups', 'organizations']:
