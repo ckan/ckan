@@ -201,17 +201,17 @@ class IResourcePreview(Interface):
     def can_preview(self, resource):
         '''
         Return True if the extension can preview the resource.
-        '''
 
-    def requires_same_orign(self, resource):
-        '''
-        Return True if the extension cannot preview the resource from
-        a different domain because of the same origin policy.
+        Make sure you also make sure to ckeck the ``on_same_domain`` value of the
+        resource or the url if your preview requires the resource to be on
+        the same domain because of the same origin policy.
         '''
 
     def setup_template_variables(self, context, data_dict):
         '''
         Add variables to c just prior to the template being rendered.
+
+        Change the url to a proxied domain if necessary.
         '''
 
     def preview_template(self, context):

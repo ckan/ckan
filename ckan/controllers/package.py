@@ -1334,7 +1334,6 @@ class PackageController(BaseController):
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
 
             plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
             plugins_that_can_preview = [p for p in plugins if p.can_preview(c.resource)]
@@ -1345,6 +1344,8 @@ class PackageController(BaseController):
 
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, {'resource': c.resource, 'package': c.package})
+
+            c.resource_json = json.dumps(c.resource)
 
         except NotFound:
             abort(404, _('Resource not found'))

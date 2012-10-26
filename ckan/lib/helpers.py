@@ -1265,19 +1265,23 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def _can_be_previewed(resource, is_same_domain):
+def _can_be_previewed(resource):
     '''
     Determines whether there is an extension that can preview the resource.
-
-    :param resource: a resource dictionary
-    :param is_same_domain: True if the resource is on the
-                    same domain (same url as CKAN itself)
     '''
+    # compare CKAN domain and resource URL
+    import ckan.plugins.toolkit as toolkit
+    ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
+    request_protocol = toolkit.request.environ['SERVER_PROTOCOL'].lower()
+
+    parsed = urlparse.urlparse(resource['url'])
+    resource_domain = (parsed.hostname + ':' + str(parsed.port)).lower()
+
+    resource['on_same_domain'] = (ckan_domain == resource_domain
+            and parsed.scheme.lower() in request_protocol)
+
     plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
-    for plugin in plugins:
-        if plugin.can_preview(resource) and (is_same_domain or not plugin.requires_same_orign(resource)):
-            return True
-    return False
+    return any(plugin.can_preview(resource) for plugin in plugins)
 
 
 def resource_preview(resource, pkg_id):
@@ -1298,17 +1302,7 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    # compare CKAN domain and resource URL
-    import ckan.plugins.toolkit as toolkit
-    ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
-    request_protocol = toolkit.request.environ['SERVER_PROTOCOL'].lower()
-
-    parsed = urlparse.urlparse(resource['url'])
-    resource_domain = (parsed.hostname + ':' + str(parsed.port)).lower()
-
-    is_same_domain = ckan_domain == resource_domain and parsed.scheme.lower() in request_protocol
-
-    if _can_be_previewed(resource, is_same_domain):
+    if _can_be_previewed(resource):
         url = url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in DIRECT_EMBEDS:
