@@ -84,7 +84,7 @@
 
 {% block secondary_content %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">Subscription</h2>
+    <h2 class="module-heading">{{ h.nav_link(_('Subscriptions'), controller='subscription', action='index') }}</h2>
     <div class="module-content">
       {% if c.subscription %}
         <form id="subscription-form" method="post" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">

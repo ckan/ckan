@@ -94,6 +94,7 @@ class SubscriptionController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj, 'subscription_name': subscription_name}
+
         self._setup_template_variables(context, data_dict)
 
         if c.subscription['definition_type'] in ['search']:
@@ -119,6 +120,26 @@ class SubscriptionController(BaseController):
 
         return render('subscription/index.html')
        
+
+    def show_my_datasets(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+
+        return render('subscription/my_datasets.html')
+        
+               
+    def show_dataset_followees(self, id=None):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        dataset_followee_list = get_action('dataset_followee_list')
+        c.dataset_followees = dataset_followee_list(context, {'id': c.user_dict['id']})
+
+        return render('subscription/dataset_followees.html')
+        
         
     def show_user_followees(self, id=None):
         context = {'model': model, 'session': model.Session,
@@ -130,17 +151,6 @@ class SubscriptionController(BaseController):
 
         return render('subscription/user_followees.html')
 
-
-    def show_dataset_followees(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
-        self._setup_template_variables(context, data_dict)
-        dataset_followee_list = get_action('dataset_followee_list')
-        c.dataset_followees = dataset_followee_list(context, {'id': c.user_dict['id']})
-
-        return render('subscription/dataset_followees.html')
-        
                
     def edit(self, subscription_name):
         context = {'model': model, 'session': model.Session,

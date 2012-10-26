@@ -1,0 +1,10 @@
+{% extends 'subscription/index.html' %}
+
+{% block primary_content %}
+  <section class="module">
+    <h1 class="module-heading">Datasets I follow</h1>
+    <div class="module-content">
+      {% snippet "snippets/package_list.html", packages=c.dataset_followees %}
+    </div>
+  </section>
+{% endblock %}
