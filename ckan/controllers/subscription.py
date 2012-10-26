@@ -114,12 +114,12 @@ class SubscriptionController(BaseController):
 
 
             url = h.url_for(controller='package', action='search')
-            url += '?q=' + c.subscription['definition']['query']
+            url += '?q=' + urllib.quote(c.subscription['definition']['query'])
 
             filters = {}
             for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
                 for filter_value in filter_value_list:
-                    url += '&' + filter_name + '=' + filter_value
+                    url += '&' + filter_name + '=' + urllib.quote(filter_value)
 
             return h.redirect_to(str(url))
 
