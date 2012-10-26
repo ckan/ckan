@@ -88,6 +88,7 @@ def datetime_from_string(s):
     '''
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
+
 def make_resource():
     '''Return a test resource in dictionary form.'''
     return {
@@ -97,6 +98,7 @@ def make_resource():
             'name': 'example resource',
             }
 
+
 def make_package(name=None):
     '''Return a test package in dictionary form.'''
     if name is None:
@@ -104,14 +106,14 @@ def make_package(name=None):
 
     # A package with no resources, tags, extras or groups.
     pkg = {
-        'name' : name,
-        'title' : 'My Test Package',
-        'author' : 'test author',
-        'author_email' : 'test_author@test_author.com',
-        'maintainer' : 'test maintainer',
-        'maintainer_email' : 'test_maintainer@test_maintainer.com',
-        'notes' : 'some test notes',
-        'url' : 'www.example.com',
+        'name': name,
+        'title': 'My Test Package',
+        'author': 'test author',
+        'author_email': 'test_author@test_author.com',
+        'maintainer': 'test maintainer',
+        'maintainer_email': 'test_maintainer@test_maintainer.com',
+        'notes': 'some test notes',
+        'url': 'www.example.com',
         }
     # Add some resources to the package.
     res1 = {
@@ -128,17 +130,14 @@ def make_package(name=None):
         }
     pkg['resources'] = [res1, res2]
     # Add some tags to the package.
-    tag1 = { 'name': 'a_test_tag' }
-    tag2 = { 'name': 'another_test_tag' }
+    tag1 = {'name': 'a_test_tag'}
+    tag2 = {'name': 'another_test_tag'}
     pkg['tags'] = [tag1, tag2]
     return pkg
 
+
 def find_new_activities(before, after):
-    new_activities = []
-    for activity in after:
-        if activity not in before:
-            new_activities.append(activity)
-    return new_activities
+    return [activity for activity in after if activity not in before]
 
 
 class TestActivity:
@@ -208,14 +207,14 @@ class TestActivity:
                 self.annakarenina['id']
             ]
 
-
     @classmethod
     def teardown_class(self):
         import ckan.model as model
         model.repo.rebuild_db()
 
     def dashboard_activity_stream(self, user_id):
-        response = self.app.get("/api/2/rest/user/%s/dashboard_activity" % user_id)
+        response = self.app.get(
+                "/api/2/rest/user/{0}/dashboard_activity".format(user_id))
         return json.loads(response.body)
 
     def user_activity_stream(self, user_id):
@@ -240,7 +239,7 @@ class TestActivity:
                 '/api/action/recently_changed_packages_activity_list',
                 params=json.dumps({}),
                 status=200)
-        assert response.json['success'] == True
+        assert response.json['success'] is True
         activities = response.json['result']
         return activities
 
@@ -265,8 +264,8 @@ class TestActivity:
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream()
 
-        details['follower dashboard activity stream'] = \
-                                self.dashboard_activity_stream(self.follower['id'])
+        details['follower dashboard activity stream'] = (
+                        self.dashboard_activity_stream(self.follower['id']))
 
         details['time'] = datetime.datetime.now()
         return details
@@ -278,11 +277,11 @@ class TestActivity:
         difference = find_new_activities(
                     before['follower dashboard activity stream'],
                     after['follower dashboard activity stream'])
-        if any(potential_followee in self.followees for potential_followee in potential_followees):
+        if any(potential_followee in self.followees
+                for potential_followee in potential_followees):
             assert difference == wanted_difference
         else:
             assert len(difference) == 0
-
 
     def _create_package(self, user, name=None):
         if user:
@@ -330,10 +329,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'new package', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= \
@@ -426,10 +425,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -437,7 +436,8 @@ class TestActivity:
 
         # Test for the presence of a correct activity detail item.
         details = self.activity_details(activity)
-        assert len(details) == 1, [(detail['activity_type'], detail['object_type']) for detail in details]
+        assert len(details) == 1, [(detail['activity_type'],
+            detail['object_type']) for detail in details]
         detail = details[0]
         assert detail['activity_id'] == activity['id'], \
             str(detail['activity_id'])
@@ -466,7 +466,8 @@ class TestActivity:
 
         # Update the package's first extra.
         del package_dict['extras'][0]
-        updated_package = package_update(self.app, package_dict, user['apikey'])
+        updated_package = package_update(self.app, package_dict,
+                user['apikey'])
 
         after = self.record_details(user_id, package_dict['id'])
         extras_after = updated_package['extras']
@@ -494,7 +495,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -502,10 +504,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -578,7 +580,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -586,10 +589,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -660,7 +663,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package_dict['id']])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -668,10 +672,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -702,7 +706,7 @@ class TestActivity:
         response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])})
-        assert response.json['success'] == True
+        assert response.json['success'] is True
 
         after = self.record_details(user['id'], package['id'])
 
@@ -730,10 +734,10 @@ class TestActivity:
             str(activity['user_id']))
         assert activity['activity_type'] == params['activity_type'], (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -814,10 +818,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed group', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= after['time'], \
@@ -841,7 +845,7 @@ class TestActivity:
         # Update the user.
         user_dict['about'] = 'edited'
         if not user_dict.get('email'):
-            user_dict['email'] = 'there has to be a value in email or validate fails'
+            user_dict['email'] = 'there has to be a value in email'
         self.app.post('/api/action/user_update', json.dumps(user_dict),
                 extra_environ={'Authorization': str(user['apikey'])})
 
@@ -862,10 +866,10 @@ class TestActivity:
         assert activity['user_id'] == user_dict['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed user', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= after['time'], \
@@ -920,10 +924,10 @@ class TestActivity:
             str(activity['user_id']))
         assert activity['activity_type'] == 'changed package', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'], str(activity['timestamp'])
@@ -996,10 +1000,10 @@ class TestActivity:
         assert activity['user_id'] == user_id, str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -1057,7 +1061,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user_id, package['id']])
+        self.check_dashboard(before, after, user_new_activities,
+                [user_id, package['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
@@ -1135,10 +1140,10 @@ class TestActivity:
             str(activity['user_id']))
         assert activity['activity_type'] == 'deleted package', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -1240,10 +1245,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -1451,10 +1456,10 @@ class TestActivity:
             str(activity['user_id'])
         assert activity['activity_type'] == 'new user', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before and timestamp <= after['time'], \
@@ -1510,10 +1515,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'new group', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= after['time'], \
@@ -1574,7 +1579,8 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user['id'], pkg_dict['id']])
+        self.check_dashboard(before, after, user_new_activities,
+                [user['id'], pkg_dict['id']])
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1582,10 +1588,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed package', (
             str(activity['activity_type']))
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity has no revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert (timestamp >= before['time'] and
@@ -1638,7 +1644,7 @@ class TestActivity:
         }
         response = self.app.post('/api/action/activity_create',
             params=json.dumps(params), status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
 
     def test_activity_create_not_authorized(self):
         """Test the error response when the activity_create API is called
@@ -1655,7 +1661,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.normal_user['apikey'])},
             status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
 
     def test_activity_create_authorization_not_exists(self):
         """Test the error response when the activity_create API is called
@@ -1672,7 +1678,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': 'xxxxxxxxxx'},
             status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
 
     def test_activity_create_with_id(self):
         """Test that an ID passed to the activity_create API is ignored and not
@@ -1742,7 +1748,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [u'Missing value'], (
                 response.json['error'][u'user_id'])
@@ -1761,7 +1767,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [u'Missing value'], (
                 response.json['error'][u'user_id'])
@@ -1771,7 +1777,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [u'Missing value'], (
                 response.json['error'][u'user_id'])
@@ -1790,7 +1796,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'user_id'] == [
                 u'Not found: User'], (
@@ -1809,7 +1815,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
                 u'Missing value'], (
@@ -1829,7 +1835,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
                 u'Missing value'], (
@@ -1840,7 +1846,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
                 u'Missing value'], (
@@ -1860,7 +1866,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
                 u'Not found: Dataset'], (
@@ -1879,7 +1885,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'object_id'] == [
                 u'Missing value'], (
@@ -1899,7 +1905,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'activity_type'] == [
                 u'Missing value'], (
@@ -1910,7 +1916,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'activity_type'] == [
                 u'Missing value'], (
@@ -1930,7 +1936,7 @@ class TestActivity:
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])},
             status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error'][u'__type'] == u'Validation Error'
         assert response.json['error'][u'activity_type'] == [
             u"Not found: Activity type"], (
@@ -2048,10 +2054,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'follow dataset', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= \
@@ -2107,10 +2113,10 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'follow user', \
             str(activity['activity_type'])
-        if not activity.has_key('id'):
+        if 'id' not in activity:
             assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if not activity.has_key('revision_id'):
+        if 'revision_id' not in activity:
             assert False, "activity object should have a revision_id value"
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= \
