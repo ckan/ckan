@@ -37,6 +37,7 @@ class Subscription(domain_object.DomainObject):
 
             self._determine_added_items()
             self._determine_removed_items()
+            self._determine_changed_items()
             self._determine_remaining_items()
         
         elif self.definition['data_type'] == 'data':
@@ -173,6 +174,28 @@ class Subscription(domain_object.DomainObject):
             self._item_dict[item_id].status='removed'
 
 
+    def _determine_changed_items(self):
+        self._remaining_item_ids = self._item_ids & self._item_ids_by_definition
+        
+        for item_id in self._remaining_item_ids:
+            item_data = self._item_dict[item_id].data
+            item_data_by_definition = self._item_data_dict_by_definition[item_id]
+            if not self._item_data_equal_item_data(item_data, item_data_by_definition):
+                self._item_dict[item_id].data = item_data_by_definition
+                self._item_dict[item_id].status='changed'
+
+
+    def _item_data_equal_item_data(self, item_data, equal_item_data):
+        if set(item_data) ^ set(equal_item_data):
+            return False
+            
+        for key, value in item_data.iteritems():
+            if value != equal_item_data[key]:
+                return False
+            
+        return True
+    
+    
     def _determine_remaining_items(self):
         self._remaining_item_ids = self._item_ids & self._item_ids_by_definition
         

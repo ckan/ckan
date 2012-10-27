@@ -2297,6 +2297,9 @@ def subscription_search_dataset(context, data_dict):
         'sort': 'metadata_modified desc',
         'extras': ''
     }
-    result = package_search(context, search_dict)
+    results = package_search(context, search_dict)['results']
+    results = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
+    
+    print results
       
-    return result['results']
+    return results

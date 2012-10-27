@@ -251,6 +251,7 @@ class PackageController(BaseController):
                 for result in query['results']:
                     for item in item_list:
                         if result['id'] == item['data']['id']:
+                            print result['id'], '=', item['status']
                             result['status'] = item['status']
                             break
                 get_action('subscription_mark_changes_as_seen')(context, subscription_dict)

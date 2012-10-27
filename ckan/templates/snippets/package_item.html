@@ -28,6 +28,8 @@ Example:
         <span class="label label-important">{{ _('Deleted') }}</span>
       {% elif package.status == 'added' %}
         <span class="label label-success">{{ _('** NEW **') }}</span>
+      {% elif package.status == 'changed' %}
+        <span class="label label-success">{{ _('** CHANGED **') }}</span>
       {% endif %}
       {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
     </h3>
