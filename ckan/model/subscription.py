@@ -28,13 +28,13 @@ class Subscription(domain_object.DomainObject):
         return query.all()
 
 
-    def update_item_list(self, context, search_action):
+    def update_item_list(self, data_list_by_definition):
         self.last_evaluated = datetime.datetime.now()
-        return
+
         if self.definition['data_type'] in ['dataset', 'user']:
             self._retrieve_items()
-            self._retrieve_item_data_by_definition(context, search_action)
-            
+            self._prepare_data_list_by_definition(data_list_by_definition)
+
             self._determine_added_items()
             self._determine_removed_items()
             self._determine_remaining_items()
@@ -58,20 +58,7 @@ class Subscription(domain_object.DomainObject):
 
 
     def _retrieve_item_data_by_definition(self, context, search_action):
-        if self.definition['type'] == 'search':
-            data_dict = {
-                'q': self.definition['query'],
-                'fq': '',
-                'facet.field': ['groups', 'tags', 'res_format', 'license'],
-                'start': 0,
-                'rows': 20,
-                'sort': None,
-                'extras': {}
-            }
-            search_results = search_action(context, data_dict)
-
-            self._item_data_list_by_definition = search_results['results']
-        elif self.definition['type'] == 'semantic':
+        if self.definition['type'] == 'semantic':
             prefix_query_string = 'prefix void: <http://rdfs.org/ns/void#>\nprefix xs: <http://www.w3.org/2001/XMLSchema#>'
             select_query_string = 'select ?dataset'
             where_query_string = 'where\n{\n    ?dataset a void:Dataset.\n'
@@ -163,10 +150,12 @@ class Subscription(domain_object.DomainObject):
             datasets = [ckan.lib.dictization.model_dictize.package_dictize(dataset, context) for dataset in datasets if dataset is not None]
 
             self._item_data_list_by_definition = datasets
-        
-        if self.definition['type'] in ['search', 'semantic', 'sparql']:
-            self._item_data_dict_by_definition = dict([(item_data['id'], item_data) for item_data in self._item_data_list_by_definition])
-            self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
+    
+    
+    def _prepare_data_list_by_definition(self, data_list_by_definition):
+        self._item_data_list_by_definition = data_list_by_definition
+        self._item_data_dict_by_definition = dict([(item_data['id'], item_data) for item_data in self._item_data_list_by_definition])
+        self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
 
   
     def _determine_added_items(self):

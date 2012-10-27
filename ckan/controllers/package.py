@@ -211,16 +211,6 @@ class PackageController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
-            data_dict = {
-                'q': q,
-                'fq': fq,
-                'facet.field': g.facets,
-                'rows': limit,
-                'start': (page - 1) * limit,
-                'sort': sort_by,
-                'extras': search_extras
-            }
-
             definition = {}
             definition['query'] = ''
             if 'q' in request.params:
@@ -228,13 +218,43 @@ class PackageController(BaseController):
             definition['filters'] = c.fields_grouped
             definition['type'] = 'search'
             definition['data_type'] = 'dataset'
-
             c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
+            if c.subscription:
+                search_dict = {
+                    'q': definition['query'],
+                    'fq': fq,
+                    'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                    'rows': 50,
+                    'start': 0,
+                    'sort': 'metadata_modified desc',
+                    'extras': ''
+                }
+            else:
+                search_dict = {
+                    'q': q,
+                    'fq': fq,
+                    'facet.field': g.facets,
+                    'rows': limit,
+                    'start': (page - 1) * limit,
+                    'sort': sort_by,
+                    'extras': search_extras
+                }
+                
+            query = get_action('package_search')(context, search_dict)
 
 
-
-            query = get_action('package_search')(context, data_dict)
-
+            #marking dataset as new if they are
+            if c.subscription:
+                subscription_dict = {'subscription_id': c.subscription['id']}
+                get_action('subscription_item_list_update')(context, subscription_dict)
+                item_list = get_action('subscription_item_list')(context, subscription_dict)
+                for result in query['results']:
+                    for item in item_list:
+                        if result['id'] == item['data']['id']:
+                            result['status'] = item['status']
+                            break
+                get_action('subscription_mark_changes_as_seen')(context, subscription_dict)
+                   
             c.page = h.Page(
                 collection=query['results'],
                 page=page,
@@ -242,6 +262,7 @@ class PackageController(BaseController):
                 item_count=query['count'],
                 items_per_page=limit
             )
+
             c.facets = query['facets']
             c.search_facets = query['search_facets']
             c.page.items = query['results']

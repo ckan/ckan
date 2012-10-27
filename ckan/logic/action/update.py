@@ -1014,7 +1014,7 @@ def subscription_item_list_update(context, data_dict):
     query = model.Session.query(model.Subscription)
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = query.filter(model.Subscription.subscription_id==subscription_id)
+        query = query.filter(model.Subscription.id==subscription_id)
 
     elif 'subscription_name' in data_dict:
         subscription_name = _get_or_bust(data_dict, 'subscription_name')
@@ -1023,7 +1023,10 @@ def subscription_item_list_update(context, data_dict):
 
     subscription = query.first()
     
-    subscription.update_item_list(context, logic.get_action('package_search'))
+    action_name = 'subscription_' + subscription.definition['type'] + '_' + subscription.definition['data_type']
+    data_list = logic.get_action(action_name)(context, subscription.definition)
+    
+    subscription.update_item_list(data_list)
     
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1049,7 +1052,7 @@ def subscription_mark_changes_as_seen(context, data_dict):
     query = model.Session.query(model.Subscription)
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = query.filter(model.Subscription.subscription_id==subscription_id)
+        query = query.filter(model.Subscription.id==subscription_id)
 
     elif 'subscription_name' in data_dict:
         subscription_name = _get_or_bust(data_dict, 'subscription_name')
@@ -1062,3 +1065,4 @@ def subscription_mark_changes_as_seen(context, data_dict):
     
     if not context.get('defer_commit'):
         model.repo.commit()
+

@@ -1017,6 +1017,7 @@ def user_autocomplete(context, data_dict):
 
     return user_list
 
+
 def package_search(context, data_dict):
     '''
     Searches for packages satisfying a given search criteria.
@@ -2214,6 +2215,7 @@ def subscription(context, data_dict):
         for row in query.all():
             if subscription_fit_definition(row, definition):
                 subscription = row
+                break
         if not subscription:
             return None
     
@@ -2265,7 +2267,7 @@ def subscription_item_list(context, data_dict):
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
         query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.subscription_id==subscription_id)
+        query = query.filter(model.Subscription.id==subscription_id)
 
     elif 'subscription_name' in data_dict:
         subscription_name = _get_or_bust(data_dict, 'subscription_name')
@@ -2276,3 +2278,25 @@ def subscription_item_list(context, data_dict):
     subscription = query.one()
 
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
+
+
+def subscription_search_dataset(context, data_dict):
+    definition = data_dict
+    
+    fq = ''
+    for filter_name, filter_value_list in definition['filters'].iteritems():
+        for filter_value in filter_value_list:
+            fq += ' %s:"%s"' % (filter_name, urllib.quote_plus(filter_value))
+
+    search_dict = {
+        'q': definition['query'],
+        'fq': fq,
+        'facet.field': ['groups', 'tags', 'res_format', 'license'],
+        'rows': 50,
+        'start': 0,
+        'sort': 'metadata_modified desc',
+        'extras': ''
+    }
+    result = package_search(context, search_dict)
+      
+    return result['results']
