@@ -153,7 +153,7 @@ class PackageController(BaseController):
 
         c.remove_field = remove_field
 
-        sort_by = request.params.get('sort', None)
+        sort_by = urllib.unquote_plus(request.params.get('sort', ''))
         params_nosort = [(k, v) for k, v in params_nopage if k != 'sort']
 
         def _sort_by(fields):
@@ -174,7 +174,7 @@ class PackageController(BaseController):
             return search_url(params)
 
         c.sort_by = _sort_by
-        if sort_by is None:
+        if sort_by is '':
             c.sort_by_fields = []
         else:
             c.sort_by_fields = [field.split()[0]
@@ -194,10 +194,10 @@ class PackageController(BaseController):
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
-                if param in ['tags', 'res_format', 'groups', 'organizations', 'topic', 'location', 'time']:
+                if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
                     c.fields.append((param, value))
 
-                    if param in ['tags', 'res_format', 'groups', 'organizations']:
+                    if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
                         fq += ' %s:"%s"' % (param, value)
 
                     if param not in c.fields_grouped:
@@ -222,8 +222,8 @@ class PackageController(BaseController):
             if c.subscription:
                 search_dict = {
                     'q': definition['query'],
-                    'fq': fq,
-                    'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                    'filters': c.fields_grouped,
+                    'facet.field': ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time'],
                     'rows': 50,
                     'start': 0,
                     'sort': 'metadata_modified desc',
@@ -232,13 +232,14 @@ class PackageController(BaseController):
             else:
                 search_dict = {
                     'q': q,
-                    'fq': fq,
-                    'facet.field': g.facets,
+                    'filters': c.fields_grouped,
+                    'facet.field': ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time'],
                     'rows': limit,
                     'start': (page - 1) * limit,
                     'sort': sort_by,
                     'extras': search_extras
                 }
+            print search_dict
                 
             query = get_action('package_search')(context, search_dict)
 
