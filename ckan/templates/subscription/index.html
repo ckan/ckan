@@ -68,7 +68,7 @@
     <ul class="nav nav-simple">
       {% for subscription in c.subscriptions %}
         <li class="nav-item">
-          {{ h.nav_link(_(subscription.name), controller='subscription', action='show', subscription_name=subscription.name) }}
+           {{ h.nav_link(_(subscription.name) + ' updates: ' + _(subscription.updates_count), controller='subscription', action='show', subscription_name=subscription.name) }}
         </li>
       {% endfor %}
     </ul>

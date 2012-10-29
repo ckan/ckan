@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import urllib
+import datetime
 
 from pylons import config
 from pylons.i18n import _
@@ -2183,9 +2184,15 @@ def subscription_list(context, data_dict):
     query = query.filter(model.Subscription.owner_id==user.id)
 
     query = query.order_by(model.Subscription.name)
-    subscription_objects = query.all()
-
-    return model_dictize.subscription_list_dictize(subscription_objects, context)
+    subscriptions = query.all()
+    
+    # to be up-to-date, please refactor
+    for subscription in subscriptions:
+        if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
+            logic.get_action('subscription_item_list_update')(context, {'subscription_id': subscription.id})
+        
+        
+    return model_dictize.subscription_list_dictize(subscriptions, context)
 
 
 def subscription(context, data_dict):
@@ -2239,7 +2246,8 @@ def subscription(context, data_dict):
                 break
         if not subscription:
             return None
-    
+            
+
     subscription_dict = model_dictize.subscription_dictize(subscription, context)
 
     return subscription_dict
@@ -2283,7 +2291,7 @@ def subscription_item_list(context, data_dict):
     user = model.User.get(context['user'])
     if not user:
         raise ckan.logic.NotAuthorized
-
+        
     
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
@@ -2298,21 +2306,20 @@ def subscription_item_list(context, data_dict):
 
     subscription = query.one()
 
+    # to be up-to-date, please refactor
+    if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
+        _get_action('subscription_item_list_update')(context, data_dict)
+
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
 
 
 def subscription_search_dataset(context, data_dict):
     definition = data_dict
     
-    fq = ''
-    for filter_name, filter_value_list in definition['filters'].iteritems():
-        for filter_value in filter_value_list:
-            fq += ' %s:"%s"' % (filter_name, urllib.quote_plus(filter_value))
-
     search_dict = {
         'q': definition['query'],
-        'fq': fq,
-        'facet.field': ['groups', 'tags', 'res_format', 'license'],
+        'filters': definition['filters'],
+        'facet.field': ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time'],
         'rows': 50,
         'start': 0,
         'sort': 'metadata_modified desc',

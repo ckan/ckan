@@ -26,6 +26,16 @@ class Subscription(domain_object.DomainObject):
         query = meta.Session.query(SubscriptionItem)
         query = query.filter(SubscriptionItem.subscription_id == self.id)
         return query.all()
+        
+        
+    def get_updates_count(self):
+        count = 0
+        item_list = self.get_item_list()
+        for item in item_list:
+            if item.status in ['changed', 'new']:
+                count += 1
+        
+        return count
 
 
     def update_item_list(self, data_list_by_definition):

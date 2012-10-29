@@ -577,7 +577,9 @@ def user_following_dataset_dictize(follower, context):
     return d.table_dictize(follower, context)
 
 def subscription_dictize(subscription, context):
-    return d.table_dictize(subscription, context)
+    dict_ = d.table_dictize(subscription, context)
+    dict_['updates_count'] = subscription.get_updates_count()
+    return dict_
 
 def subscription_list_dictize(subscription_list, context):
     result_list = []

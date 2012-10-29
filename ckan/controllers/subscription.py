@@ -103,27 +103,18 @@ class SubscriptionController(BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        if c.subscription['definition']['type'] in ['search']:
-            get_action('subscription_item_list_update')(context, data_dict)
-            c.subscription_items = get_action('subscription_item_list')(context, data_dict)
-            c.added_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'added']
-            c.changed_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'changed']
-            c.removed_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'removed']
-            c.accepted_subscribed_datasets = [item['data'] for item in c.subscription_items if item['status'] == 'accepted']
-            c.to_be_accepted = len(c.subscription_items) != len(c.accepted_subscribed_datasets)
+        if not c.subscription or c.subscription['definition']['type'] not in ['search']:
+            return render('subscription/index.html')
 
 
-            url = h.url_for(controller='package', action='search')
-            url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
+        url = h.url_for(controller='package', action='search')
+        url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
 
-            for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
-                for filter_value in filter_value_list:
-                    url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
+        for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
+            for filter_value in filter_value_list:
+                url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
 
-            return h.redirect_to(str(url))
-
-        return render('subscription/index.html')
-       
+        return h.redirect_to(str(url))
 
     def show_my_datasets(self, id=None):
         context = {'model': model, 'session': model.Session,
