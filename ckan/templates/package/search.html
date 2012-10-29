@@ -93,16 +93,18 @@
           <input type="hidden" name="return_url" value="" class="return_url" />
         </form>
       {% else %}
-        <form id="subscription-form" method="post">
+        <form id="subscription-form" method="post" action="{{ h.url_for(controller='subscription', action='create') }}">
           <p>
             Be <b>informed</b> in case <b>new</b> datasets match the search criteria and
             datasets of that search <b>change</b>.
           </p>
              
           <input type="text" name="subscription_name" placeholder="Name of this search" style="height:14px; width:160px" />
-          <button id="create_subscription" action="{{ h.url_for(controller='subscription', action='create') }}" class="btn">Subscribe</button>
+          <input type="hidden" name="subscription_type" value="search" />
           <input type="hidden" name="subscription_data_type" value="dataset" />
-          <input type="hidden" name="subscription_definition_type" value="search" />
+          <input type="hidden" name="query" value="{{ c.q }}" />
+          {% snippet "snippets/params_to_hidden.html", name_value_pairs=c.search_url_params %}
+          <button id="create_subscription" class="btn">Subscribe</button>
         </form>          
       {% endif %}
     </div>

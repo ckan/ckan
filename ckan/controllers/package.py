@@ -218,6 +218,7 @@ class PackageController(BaseController):
             definition['filters'] = c.fields_grouped
             definition['type'] = 'search'
             definition['data_type'] = 'dataset'
+            definition['primary_column'] = 'id'
             c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
             if c.subscription:
                 search_dict = {

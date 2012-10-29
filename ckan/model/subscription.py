@@ -38,12 +38,12 @@ class Subscription(domain_object.DomainObject):
         return count
 
 
-    def update_item_list(self, data_list_by_definition):
+    def update_item_list(self, data_by_definition, primary_key):
         self.last_evaluated = datetime.datetime.now()
 
         if self.definition['data_type'] in ['dataset', 'user']:
             self._retrieve_items()
-            self._prepare_data_list_by_definition(data_list_by_definition)
+            self._prepare_data_by_definition(data_by_definition)
 
             self._determine_added_items()
             self._determine_removed_items()
@@ -64,13 +64,22 @@ class Subscription(domain_object.DomainObject):
 
     def _retrieve_items(self):
         self._item_list = self.get_item_list()
-        self._item_dict = dict([(item.data['id'], item) for item in self._item_list])
+        self._item_dict = dict([(item.key, item) for item in self._item_list])
         self._item_ids = set(self._item_dict.keys())
 
 
-    def _prepare_data_list_by_definition(self, data_list_by_definition):
-        self._item_data_list_by_definition = data_list_by_definition
-        self._item_data_dict_by_definition = dict([(item_data['id'], item_data) for item_data in self._item_data_list_by_definition])
+    def _prepare_data_by_definition(self, data_by_definition, primary_key=None):
+        if isinstance(data_by_definition, dict):
+            self._item_data_dict_by_definition = data_by_definition
+            
+        elif isinstance(data_by_definition, list):
+            if primary_key:
+                for item_data in data_by_definition:
+                    self._item_data_dict_by_definition = dict([(item_data[primary_key], item_data) ])
+            else:
+                for item_data in data_by_definition:
+                    self._item_data_dict_by_definition = dict([(_hash(item_data), item_data) ])
+
         self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
 
   
@@ -80,6 +89,7 @@ class Subscription(domain_object.DomainObject):
             self._item_list.append(
                 SubscriptionItem(subscription_id=self.id,
                                  data=self._item_data_dict_by_definition[item_id],
+                                 key=item_id,
                                  status='added'))
 
 
@@ -133,13 +143,14 @@ class Subscription(domain_object.DomainObject):
 
 
 class SubscriptionItem(domain_object.DomainObject):
-    def __init__(self, subscription_id=None, data=None, status='seen'):
+    def __init__(self, subscription_id, data, key, status):
         self.id = _types.make_uuid()
         self.subscription_id = subscription_id
         if data is None:
             self.data = {}
         else:
             self.data = data
+        self.key = key
         self.status = status
 
 
@@ -157,9 +168,21 @@ subscription_item_table = Table(
     'subscription_item', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('subscription_id', types.UnicodeText, ForeignKey('subscription.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
+    Column('key', types.UnicodeText nullable=False),
     Column('data', _types.JsonDictType),
     Column('status', types.Boolean, nullable=False),
     )
 
 meta.mapper(Subscription, subscription_table)
 meta.mapper(SubscriptionItem, subscription_item_table)
+
+
+def _hash(object_):
+    if isinstance(object_, list) or isinstance(object_, set):
+        return hash(tuple( [_hash(element) for element in object_] ))
+
+    elif isinstance(object_, dict):
+        return hash(tuple( [(hash(key), _hash(value)) for (key, value) in object_.items()] ))
+
+    return hash(object_)
+

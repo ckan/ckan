@@ -71,23 +71,34 @@ class SubscriptionController(BaseController):
 
 
     def create(self, id=None):
-        definition = {}
-        definition['query'] = ''
-        if 'q' in request.params:
-            definition['query'] = str(urllib.unquote(request.params['q']))
+        type_ = request.params['subscription_type']
         
-        definition['filters'] = {}
-        for (param, value) in request.params.items():
-            if param in ['tags', 'res_format', 'groups', 'organizations', 'topic', 'location', 'time']:
-                if param not in definition['filters']:
-                    definition['filters'][param] = [urllib.unquote(value)]
-                else:
-                    definition['filters'][param].append(urllib.unquote(value))
-        definition['type'] = 'search'
-        definition['data_type'] = 'dataset'
+        #import ipdb; ipdb.set_trace()
+        
+        definition = {}
+        definition['type'] = type_
+        definition['data_type'] = request.params['subscription_data_type']   
+             
+        if type_ == 'search':
+            definition['query'] = ''
+            if 'q' in request.params:
+                definition['query'] = str(urllib.unquote(request.params['q']))
             
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+            definition['filters'] = {}
+            for (param, value) in request.params.items():
+                if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
+                    if param not in definition['filters']:
+                        definition['filters'][param] = [urllib.unquote(value)]
+                    else:
+                        definition['filters'][param].append(urllib.unquote(value))
+            definition['primary_key'] = 'id'
+
+        elif type_ == 'sparql':  
+            definition['query'] = str(urllib.unquote(request.params['query']))
+            definition['filters'] = {}
+
+            
+        context = {'model': model, 'session': model.Session, 'user': c.user}
         data_dict = {'subscription_definition': definition,
                      'subscription_name': request.params['subscription_name']}
 

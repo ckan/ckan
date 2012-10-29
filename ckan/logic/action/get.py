@@ -2223,7 +2223,7 @@ def subscription(context, data_dict):
     
     if 'subscription_id' in data_dict:
         subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        subscription = model.Session.query(model.Subscription).get(subscription_id)
+        subscription = model.Subscription.get(subscription_id)
 
     elif 'subscription_name' in data_dict:
         subscription_name = _get_or_bust(data_dict, 'subscription_name')
