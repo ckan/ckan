@@ -239,7 +239,6 @@ class PackageController(BaseController):
                     'sort': sort_by,
                     'extras': search_extras
                 }
-            print search_dict
                 
             query = get_action('package_search')(context, search_dict)
 
