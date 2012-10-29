@@ -1141,7 +1141,7 @@ def package_search(context, data_dict):
                     continue
                     
                 for filter_value in filter_value_list:
-                    search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.quote_plus(filter_value))
+                    search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
             #add fq string for old plugins
             data_dict['fq'] = search_params['fq']
     
