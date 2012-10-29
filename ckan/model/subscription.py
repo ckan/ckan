@@ -68,16 +68,6 @@ class Subscription(domain_object.DomainObject):
         self._item_ids = set(self._item_dict.keys())
 
 
-    def _retrieve_item_data_by_definition(self, context, search_action):
-        #TODO: check for access rights
-        rows = store.user.query(self.definition['query'])
-
-        datasets = [ckan.lib.helpers.uri_to_object(row['dataset']['value']) for row in rows]
-        datasets = [ckan.lib.dictization.model_dictize.package_dictize(dataset, context) for dataset in datasets if dataset is not None]
-
-        self._item_data_list_by_definition = datasets
-    
-    
     def _prepare_data_list_by_definition(self, data_list_by_definition):
         self._item_data_list_by_definition = data_list_by_definition
         self._item_data_dict_by_definition = dict([(item_data['id'], item_data) for item_data in self._item_data_list_by_definition])
