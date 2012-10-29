@@ -221,12 +221,22 @@ class TestActivity:
                 "/api/2/rest/user/{0}/dashboard_activity".format(user_id))
         return json.loads(response.body)
 
-    def user_activity_stream(self, user_id):
-        response = self.app.get("/api/2/rest/user/%s/activity" % user_id)
+    def user_activity_stream(self, user_id, apikey=None):
+        if apikey:
+            extra_environ = {'Authorization': str(apikey)}
+        else:
+            extra_environ = None
+        response = self.app.get("/api/2/rest/user/%s/activity" % user_id,
+                extra_environ=extra_environ)
         return json.loads(response.body)
 
-    def package_activity_stream(self, package_id):
-        response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id)
+    def package_activity_stream(self, package_id, apikey=None):
+        if apikey:
+            extra_environ = {'Authorization': str(apikey)}
+        else:
+            extra_environ = None
+        response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
+                extra_environ=extra_environ)
         return json.loads(response.body)
 
     def group_activity_stream(self, group_id, apikey=None):
@@ -238,10 +248,15 @@ class TestActivity:
                 extra_environ=extra_environ)
         return json.loads(response.body)
 
-    def recently_changed_datasets_stream(self):
+    def recently_changed_datasets_stream(self, apikey=None):
+        if apikey:
+            extra_environ = {'Authorization': str(apikey)}
+        else:
+            extra_environ = None
         response = self.app.post(
                 '/api/action/recently_changed_packages_activity_list',
                 params=json.dumps({}),
+                extra_environ=extra_environ,
                 status=200)
         assert response.json['success'] is True
         activities = response.json['result']
@@ -255,11 +270,12 @@ class TestActivity:
     def record_details(self, user_id, package_id=None, group_ids=None,
             apikey=None):
         details = {}
-        details['user activity stream'] = self.user_activity_stream(user_id)
+        details['user activity stream'] = self.user_activity_stream(user_id,
+                apikey)
 
         if package_id is not None:
             details['package activity stream'] = (
-                    self.package_activity_stream(package_id))
+                    self.package_activity_stream(package_id, apikey))
 
         if group_ids is not None:
             details['group activity streams'] = {}
@@ -268,7 +284,7 @@ class TestActivity:
                     self.group_activity_stream(group_id, apikey))
 
         details['recently changed datasets stream'] = \
-                self.recently_changed_datasets_stream()
+                self.recently_changed_datasets_stream(apikey)
 
         details['follower dashboard activity stream'] = (
                         self.dashboard_activity_stream(self.follower['id']))
@@ -1179,7 +1195,8 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(self.sysadmin_user['id'], package['id'])
+        before = self.record_details(self.sysadmin_user['id'], package['id'],
+                apikey=self.sysadmin_user['apikey'])
 
         # Delete the package.
         package_dict = {'id': package['id']}
@@ -1189,7 +1206,8 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        after = self.record_details(self.sysadmin_user['id'], package['id'])
+        after = self.record_details(self.sysadmin_user['id'], package['id'],
+                apikey=self.sysadmin_user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
