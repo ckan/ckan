@@ -73,8 +73,6 @@ class SubscriptionController(BaseController):
     def create(self, id=None):
         type_ = request.params['subscription_type']
         
-        #import ipdb; ipdb.set_trace()
-        
         definition = {}
         definition['type'] = type_
         definition['data_type'] = request.params['subscription_data_type']   
@@ -113,16 +111,20 @@ class SubscriptionController(BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        if not c.subscription or c.subscription['definition']['type'] not in ['search']:
+        if not c.subscription or c.subscription['definition']['type'] not in ['search', 'sparql']:
             return render('subscription/index.html')
+            
+        if c.subscription['definition']['type'] == 'search':
+            url = h.url_for(controller='package', action='search')
+            url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
 
+            for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
+                for filter_value in filter_value_list:
+                    url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
+        else:
+            url = h.url_for(controller='ckanext.lodstatsext.controllers.sparql:SPARQLController', action='index')
+            url += '?query=' + urllib.quote_plus(c.subscription['definition']['query'])
 
-        url = h.url_for(controller='package', action='search')
-        url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
-
-        for filter_name, filter_value_list in c.subscription['definition']['filters'].iteritems():
-            for filter_value in filter_value_list:
-                url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
 
         return h.redirect_to(str(url))
 

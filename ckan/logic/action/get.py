@@ -2308,7 +2308,7 @@ def subscription_item_list(context, data_dict):
 
     # to be up-to-date, please refactor
     if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
-        _get_action('subscription_item_list_update')(context, data_dict)
+        logic.get_action('subscription_item_list_update')(context, data_dict)
 
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
 

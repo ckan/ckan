@@ -32,18 +32,18 @@ class Subscription(domain_object.DomainObject):
         count = 0
         item_list = self.get_item_list()
         for item in item_list:
-            if item.status in ['changed', 'new']:
+            if item.status in ['changed', 'added']:
                 count += 1
         
         return count
 
 
-    def update_item_list(self, data_by_definition, primary_key):
+    def update_item_list(self, data_by_definition, key_name):
         self.last_evaluated = datetime.datetime.now()
 
         if self.definition['data_type'] in ['dataset', 'user']:
-            self._retrieve_items()
-            self._prepare_data_by_definition(data_by_definition)
+            self._prepare_items()
+            self._prepare_data_by_definition(data_by_definition, key_name)
 
             self._determine_added_items()
             self._determine_removed_items()
@@ -62,25 +62,30 @@ class Subscription(domain_object.DomainObject):
         self._save_items()
         
 
-    def _retrieve_items(self):
+    def _prepare_items(self):
         self._item_list = self.get_item_list()
         self._item_dict = dict([(item.key, item) for item in self._item_list])
         self._item_ids = set(self._item_dict.keys())
 
 
-    def _prepare_data_by_definition(self, data_by_definition, primary_key=None):
+    def _prepare_data_by_definition(self, data_by_definition, key_name):
         if isinstance(data_by_definition, dict):
             self._item_data_dict_by_definition = data_by_definition
             
         elif isinstance(data_by_definition, list):
-            if primary_key:
-                for item_data in data_by_definition:
-                    self._item_data_dict_by_definition = dict([(item_data[primary_key], item_data) ])
-            else:
-                for item_data in data_by_definition:
-                    self._item_data_dict_by_definition = dict([(_hash(item_data), item_data) ])
+            self._item_data_dict_by_definition = {}
+            
+            for item_data in data_by_definition:
+               self._item_data_dict_by_definition[self._get_key(item_data, key_name)] = item_data
 
         self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
+        
+        
+    def _get_key(self, item_data, key_name):
+        if key_name:
+            return item_data[key_name]
+        
+        return unicode(_hash(item_data))
 
   
     def _determine_added_items(self):
@@ -168,7 +173,7 @@ subscription_item_table = Table(
     'subscription_item', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('subscription_id', types.UnicodeText, ForeignKey('subscription.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
-    Column('key', types.UnicodeText nullable=False),
+    Column('key', types.UnicodeText, nullable=False),
     Column('data', _types.JsonDictType),
     Column('status', types.Boolean, nullable=False),
     )

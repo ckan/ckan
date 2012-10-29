@@ -1024,9 +1024,9 @@ def subscription_item_list_update(context, data_dict):
     subscription = query.first()
     
     action_name = 'subscription_' + subscription.definition['type'] + '_' + subscription.definition['data_type']
-    data_list, primary_key = logic.get_action(action_name)(context, subscription.definition)
+    data_list, key_name = logic.get_action(action_name)(context, subscription.definition)
     
-    subscription.update_item_list(data_list, primary_key)
+    subscription.update_item_list(data_list, key_name)
     
     if not context.get('defer_commit'):
         model.repo.commit()
