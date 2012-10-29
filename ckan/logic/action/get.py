@@ -1762,7 +1762,11 @@ def group_activity_list(context, data_dict):
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
-    _check_access('group_show',context, data_dict)
+    # Convert group_id (could be id or name) into id.
+    group_show = logic.get_action('group_show')
+    group_id = group_show(context, {'id': group_id})['id']
+
+    _check_access('group_show', context, data_dict)
 
     # Get a list of the IDs of the group's datasets.
     group_package_show = logic.get_action('group_package_show')
