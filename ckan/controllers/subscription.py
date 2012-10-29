@@ -81,8 +81,8 @@ class SubscriptionController(BaseController):
              
         if type_ == 'search':
             definition['query'] = ''
-            if 'q' in request.params:
-                definition['query'] = str(urllib.unquote(request.params['q']))
+            if 'query' in request.params:
+                definition['query'] = str(urllib.unquote(request.params['query']))
             
             definition['filters'] = {}
             for (param, value) in request.params.items():
