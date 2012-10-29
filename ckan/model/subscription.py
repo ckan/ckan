@@ -59,98 +59,13 @@ class Subscription(domain_object.DomainObject):
 
 
     def _retrieve_item_data_by_definition(self, context, search_action):
-        if self.definition['type'] == 'semantic':
-            prefix_query_string = 'prefix void: <http://rdfs.org/ns/void#>\nprefix xs: <http://www.w3.org/2001/XMLSchema#>'
-            select_query_string = 'select ?dataset'
-            where_query_string = 'where\n{\n    ?dataset a void:Dataset.\n'
-            group_by_query_string = ''
+        #TODO: check for access rights
+        rows = store.user.query(self.definition['query'])
 
-            if 'topic' in self.definition['filters']:
-                for topic in self.definition['filters']['topic']:
-                #TODO: differentiate between vocabularies, classes, properties and injections
-                    where_query_string += '?dataset void:vocabulary <' + topic + '>.\n'
-                    
-            if 'location' in self.definition['filters']:
-                location = self.definition['filters']['location']
-                where_query_string += '?dataset void:propertyPartition ?latPropertyPartition.\n'
-                where_query_string += '?latPropertyPartition void:property <http://www.w3.org/2003/01/geo/wgs84_pos#lat>.\n'
-                where_query_string += '?latPropertyPartition void:minValue ?minLatitude.\n'
-                where_query_string += '?latPropertyPartition void:maxValue ?maxLatitude.\n'
-                
-                where_query_string += '?dataset void:propertyPartition ?longPropertyPartition.\n'
-                where_query_string += '?longPropertyPartition void:property <http://www.w3.org/2003/01/geo/wgs84_pos#long>.\n'
-                where_query_string += '?longPropertyPartition void:minValue ?minLongitude.\n'
-                where_query_string += '?longPropertyPartition void:maxValue ?maxLongitude.\n'
+        datasets = [ckan.lib.helpers.uri_to_object(row['dataset']['value']) for row in rows]
+        datasets = [ckan.lib.dictization.model_dictize.package_dictize(dataset, context) for dataset in datasets if dataset is not None]
 
-                where_query_string += 'filter(' + location['radius'] + ' + fn:max(bif:pi()*6378*(?maxLatitude - ?minLatitude)/180, 2*bif:pi()*6378*bif:cos((?maxLatitude - ?minLatitude)/2)*(?maxLongitude - ?minLongitude)/360)/2 > (2 * 3956 * bif:asin(bif:sqrt((bif:power(bif:sin(2*bif:pi() + (' + location['latitude'] + ' - (?minLatitude + ?maxLatitude)/2)*bif:pi()/360), 2) + bif:cos(2*bif:pi() + ' + location['latitude'] + '*bif:pi()/180) * bif:cos(2*bif:pi() + (?minLatitude + ?maxLatitude)/2*bif:pi()/180) * bif:power(bif:sin(2*bif:pi() + (' + location['longitude'] + ' - (?minLongitude + ?maxLongitude)/2)*bif:pi()/360), 2))))))\n'
-
-            if 'time' in self.definition['filters']:
-                time = self.definition['filters']['time']
-                where_query_string += '''
-                                      ?dataset void:propertyPartition ?dateTimePropertyPartition.
-                                      ?dateTimePropertyPartition void:minValue ?minDateTime.
-                                      ?dateTimePropertyPartition void:maxValue ?maxDateTime.
-                                      filter(datatype(?minDateTime) = xs:dateTime)
-                                      filter(datatype(?maxDateTime) = xs:dateTime)
-                                      '''
-                #virtuoso bugs make this kind of queries impossible
-                #if self.definition['time']['type'] == 'span':
-                #    where_query_string += 'filter('
-                #    where_query_string += 'if(?minDateTime > "' + self.definition['time']['min'] + '"^^xs:dateTime, ?minDateTime, "' + self.definition['time']['min'] + '"^^xs:dateTime) <='
-                #    where_query_string += 'if(?maxDateTime < "' + self.definition['time']['max'] + '"^^xs:dateTime, ?maxDateTime, "' + self.definition['time']['max'] + '"^^xs:dateTime)'
-                #    where_query_string += ')'
-
-                #if self.definition['time']['type'] == 'point':
-                #    where_query_string += 'filter('
-                #    where_query_string += 'if(?minDateTime > bif:dateadd("day", ' + self.definition['time']['variance'] + ', "' + self.definition['time']['point'] + '"^^xs:dateTime), ?minDateTime, bif:dateadd("day", ' + self.definition['time']['variance'] + ', "' + self.definition['time']['point'] + '"^^xs:dateTime)) <='
-                #    where_query_string += 'if(?maxDateTime < bif:dateadd("day", ' + self.definition['time']['variance'] + ', "' + self.definition['time']['point'] + '"^^xs:dateTime), ?maxDateTime, bif:dateadd("day", ' + self.definition['time']['variance'] + ', "' + self.definition['time']['point'] + '"^^xs:dateTime))'
-                #    where_query_string += ')'
-                #workaround
-                select_query_string += ' (min(?minDateTime) as ?minDateTime) (max(?maxDateTime) as ?maxDateTime)'
-                group_by_query_string = 'group by ?dataset'
-
-            where_query_string += '}'
-     
-            query_string = prefix_query_string + '\n' + \
-                           select_query_string + '\n' + \
-                           where_query_string + '\n' + \
-                           group_by_query_string + '\n'
-                           
-                           
-            rows = store.root.query(query_string)
-            
-            #FIXME: workaround as long as virtuoso is not functioning properly
-            if 'time' in self.definition['filters']:
-                time = self.definition['filters']['time']
-                [row for row in rows if row['minDateTime']['value'] != '']
-                if time['type'] == 'span':
-                    [row for row in rows if max(row['minDateTime']['value'], time['min']) <= min(row['maxDateTime']['value'], time['max'])]
-                if time['type'] == 'point':
-                    point = dateutil.parser.parse(time['point'])
-                    variance = datetime.timedelta(days=int(time['variance']))
-                    min_ = point - variance
-                    max_ = point + variance
-
-                    rows_copy = rows
-                    rows = []                    
-                    for row in rows_copy:
-                        if max(row['minDateTime']['value'], min_.isoformat()) <= min(row['maxDateTime']['value'], max_.isoformat()):
-                            rows.append(row)
-
-                    
-            datasets = [ckan.lib.helpers.uri_to_object(row['dataset']['value']) for row in rows]
-            datasets = [ckan.lib.dictization.model_dictize.package_dictize(dataset, context) for dataset in datasets if dataset is not None]
-
-            self._item_data_list_by_definition = datasets
-
-        elif self.definition['type'] == 'sparql':
-            #TODO: check for access rights
-            rows = store.root.query(self.definition['query'])
-
-            datasets = [ckan.lib.helpers.uri_to_object(row['dataset']['value']) for row in rows]
-            datasets = [ckan.lib.dictization.model_dictize.package_dictize(dataset, context) for dataset in datasets if dataset is not None]
-
-            self._item_data_list_by_definition = datasets
+        self._item_data_list_by_definition = datasets
     
     
     def _prepare_data_list_by_definition(self, data_list_by_definition):
