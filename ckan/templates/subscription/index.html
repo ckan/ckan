@@ -64,9 +64,9 @@
 
   <section class="module module-narrow module-shallow">
     <h2 class="module-heading">Search Subscriptions</h2>
-    {% if c.subscriptions|length > 0 %}
+    {% if c.subscriptions.search|length > 0 %}
     <ul class="nav nav-simple">
-      {% for subscription in c.subscriptions %}
+      {% for subscription in c.subscriptions.search %}
         <li class="nav-item">
            {{ h.nav_link(_(subscription.name) + ' updates: ' + _(subscription.updates_count), controller='subscription', action='show', subscription_name=subscription.name) }}
         </li>
@@ -74,7 +74,7 @@
     </ul>
     {% else %}
       <div class="module-content">
-        <p class="empty">No subscription here. What about {{ h.nav_link(_('creating'), controller='package', action='search') }} one?</p>
+        <p class="empty">No search subscriptions here. What about {{ h.nav_link(_('creating'), controller='package', action='search') }} one?</p>
       </div>
     {% endif %}
   </section>

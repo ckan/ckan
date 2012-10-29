@@ -66,6 +66,16 @@ class SubscriptionController(BaseController):
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
+        
+        subscriptions = c.subscriptions
+        
+        c.subscriptions = {}
+        for subscription in subscriptions:
+            type_ = subscription['definition']['type']
+            if type_ in c.subscriptions:
+                c.subscriptions[type_].append(subscription)
+            else:
+                c.subscriptions[type_] = [subscription]
 
         return render('subscription/index.html')
 
