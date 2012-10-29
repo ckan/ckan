@@ -91,7 +91,6 @@ class SubscriptionController(BaseController):
                         definition['filters'][param] = [urllib.unquote(value)]
                     else:
                         definition['filters'][param].append(urllib.unquote(value))
-            definition['primary_key'] = 'id'
 
         elif type_ == 'sparql':  
             definition['query'] = str(urllib.unquote(request.params['query']))
