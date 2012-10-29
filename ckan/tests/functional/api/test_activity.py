@@ -113,6 +113,7 @@ def make_package(name=None):
         'notes': 'some test notes',
         'url': 'www.example.com',
         }
+
     # Add some resources to the package.
     res1 = {
             'url': 'http://www.example-resource.info',
@@ -127,10 +128,15 @@ def make_package(name=None):
             'name': 'another example resource',
         }
     pkg['resources'] = [res1, res2]
+
     # Add some tags to the package.
     tag1 = {'name': 'a_test_tag'}
     tag2 = {'name': 'another_test_tag'}
     pkg['tags'] = [tag1, tag2]
+
+    # Add the package to a group.
+    pkg['groups'] = [{'name': 'roger'}]
+
     return pkg
 
 
@@ -246,7 +252,7 @@ class TestActivity:
                 "/api/2/rest/activity/%s/details" % activity['id'])
         return json.loads(response.body)
 
-    def record_details(self, user_id, package_id=None, group_id=None,
+    def record_details(self, user_id, package_id=None, group_ids=None,
             apikey=None):
         details = {}
         details['user activity stream'] = self.user_activity_stream(user_id)
@@ -255,9 +261,11 @@ class TestActivity:
             details['package activity stream'] = (
                     self.package_activity_stream(package_id))
 
-        if group_id is not None:
-            details['group activity stream'] = (
-                self.group_activity_stream(group_id, apikey))
+        if group_ids is not None:
+            details['group activity streams'] = {}
+            for group_id in group_ids:
+                details['group activity streams'][group_id] = (
+                    self.group_activity_stream(group_id, apikey))
 
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream()
@@ -287,10 +295,10 @@ class TestActivity:
         else:
             user_id = 'not logged in'
 
-        before = self.record_details(user_id)
-
         # Create a new package.
         request_data = make_package(name)
+        before = self.record_details(user_id=user_id,
+                group_ids=[group['name'] for group in request_data['groups']])
         extra_environ = {'Authorization': str(user['apikey'])}
         response = self.app.post('/api/action/package_create',
                 json.dumps(request_data), extra_environ=extra_environ)
@@ -298,7 +306,9 @@ class TestActivity:
         assert response_dict['success'] is True
         package_created = response_dict['result']
 
-        after = self.record_details(user_id, package_created['id'])
+        after = self.record_details(user_id=user_id,
+            package_id=package_created['id'],
+            group_ids=[group['name'] for group in package_created['groups']])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -310,16 +320,24 @@ class TestActivity:
 
         # The same new activity should appear in the package's activity stream.
         pkg_new_activities = after['package activity stream']
-        assert pkg_new_activities == user_new_activities
+        assert pkg_new_activities == [activity]
 
         # The same new activity should appear in the recently changed datasets
         # stream.
-        assert find_new_activities(
+        new_rcd_activities = find_new_activities(
                 before['recently changed datasets stream'],
-                after['recently changed datasets stream']) \
-                        == user_new_activities
+                after['recently changed datasets stream'])
+        assert new_rcd_activities == [activity]
 
         self.check_dashboard(before, after, user_new_activities, [user_id])
+
+        # The same new activity should appear in the activity streams of the
+        # package's groups.
+        for group_dict in package_created['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -378,7 +396,8 @@ class TestActivity:
         else:
             user_id = 'not logged in'
 
-        before = self.record_details(user_id, package['id'])
+        before = self.record_details(user_id, package['id'],
+                [group['id'] for group in package['groups']])
 
         resource_ids_before = [resource['id'] for resource in
                 package['resources']]
@@ -388,7 +407,8 @@ class TestActivity:
         resources.append(make_resource())
         updated_package = package_update(self.app, package, user['apikey'])
 
-        after = self.record_details(user_id, package['id'])
+        after = self.record_details(user_id, package['id'],
+                [group['id'] for group in package['groups']])
         resource_ids_after = [resource['id'] for resource in
                 updated_package['resources']]
         assert len(resource_ids_after) == len(resource_ids_before) + 1
@@ -413,6 +433,14 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package['id']])
@@ -493,6 +521,14 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package_dict['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
+
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package_dict['id']])
 
@@ -536,7 +572,8 @@ class TestActivity:
         else:
             user_id = 'not logged in'
 
-        before = self.record_details(user_id, package_dict['id'])
+        before = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']])
 
         extras_before = package_dict['extras']
         assert len(extras_before) > 0, (
@@ -552,7 +589,8 @@ class TestActivity:
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 
-        after = self.record_details(user_id, package_dict['id'])
+        after = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']])
         extras_after = updated_package['extras']
         assert len(extras_after) == len(extras_before), (
                 "%s != %s" % (len(extras_after), len(extras_before)))
@@ -580,6 +618,14 @@ class TestActivity:
 
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package_dict['id']])
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package_dict['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -660,6 +706,14 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package_dict['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package_dict['id']])
@@ -747,14 +801,14 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(user['id'], group_id=group['id'],
+        before = self.record_details(user['id'], group_ids=[group['id']],
                 apikey=user['apikey'])
 
         # Deleted the group.
         group_dict = {'id': group['id'], 'state': 'deleted'}
         group_update(self.app, group_dict, user['apikey'])
 
-        after = self.record_details(user['id'], group_id=group['id'],
+        after = self.record_details(user['id'], group_ids=[group['id']],
                 apikey=user['apikey'])
 
         # Find the new activity.
@@ -764,9 +818,11 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        assert find_new_activities(before["group activity stream"],
-            after['group activity stream']) == new_activities, ("The same "
-            "activity should also appear in the group's activity stream.")
+        assert find_new_activities(
+                before["group activity streams"][group['id']],
+                after['group activity streams'][group['id']]) == \
+                        new_activities, ("The same activity should also "
+                        "appear in the group's activity stream.")
 
         self.check_dashboard(before, after, new_activities, [user['id']])
 
@@ -790,13 +846,13 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(user['id'], group_id=group['id'])
+        before = self.record_details(user['id'], group_ids=[group['id']])
 
         # Update the group.
         group_dict = {'id': group['id'], 'title': 'edited'}
         group_update(self.app, group_dict, user['apikey'])
 
-        after = self.record_details(user['id'], group_id=group['id'])
+        after = self.record_details(user['id'], group_ids=[group['id']])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -805,9 +861,11 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        assert find_new_activities(before["group activity stream"],
-            after['group activity stream']) == new_activities, ("The same "
-            "activity should also appear in the group's activity stream.")
+        assert find_new_activities(
+                before["group activity streams"][group['id']],
+                after['group activity streams'][group['id']]) == \
+                        new_activities, ("The same activity should also "
+                        "appear in the group's activity stream.")
 
         self.check_dashboard(before, after, new_activities, [user['id']])
 
@@ -879,7 +937,8 @@ class TestActivity:
         correct activity item and detail items are emitted.
 
         """
-        before = self.record_details(self.normal_user['id'], package['id'])
+        before = self.record_details(self.normal_user['id'], package['id'],
+                [group['name'] for group in package['groups']])
 
         num_resources = len(package['resources'])
         assert num_resources > 0, \
@@ -889,7 +948,8 @@ class TestActivity:
         package['resources'] = []
         package_update(self.app, package, self.normal_user['apikey'])
 
-        after = self.record_details(self.normal_user['id'], package['id'])
+        after = self.record_details(self.normal_user['id'], package['id'],
+                [group['name'] for group in package['groups']])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -911,6 +971,14 @@ class TestActivity:
                 before['recently changed datasets stream'],
                 after['recently changed datasets stream']) \
                         == user_new_activities
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         self.check_dashboard(before, after, user_new_activities,
                 [package['id']])
@@ -992,6 +1060,14 @@ class TestActivity:
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package['id']])
 
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
             str(activity['object_id']))
@@ -1062,6 +1138,14 @@ class TestActivity:
         self.check_dashboard(before, after, user_new_activities,
                 [user_id, package['id']])
 
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
+
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
             str(activity['object_id']))
@@ -1130,6 +1214,14 @@ class TestActivity:
 
         self.check_dashboard(before, after, user_new_activities,
                 [self.sysadmin_user['id'], package['id']])
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in package['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
@@ -1205,13 +1297,15 @@ class TestActivity:
         # Remove one tag from the package.
         assert len(pkg_dict['tags']) >= 1, ("The package has to have at least"
                 " one tag to test removing a tag.")
-        before = self.record_details(user['id'], pkg_dict['id'])
+        before = self.record_details(user['id'], pkg_dict['id'],
+                [group['name'] for group in pkg_dict['groups']])
         data_dict = {
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
         package_update(self.app, data_dict, user['apikey'])
-        after = self.record_details(user['id'], pkg_dict['id'])
+        after = self.record_details(user['id'], pkg_dict['id'],
+                [group['name'] for group in pkg_dict['groups']])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1236,6 +1330,14 @@ class TestActivity:
 
         self.check_dashboard(before, after, user_new_activities,
                 [user['id'], pkg_dict['id']])
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in pkg_dict['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
@@ -1424,7 +1526,8 @@ class TestActivity:
         assert response_dict['success'] is True
         group_created = response_dict['result']
 
-        after = self.record_details(user['id'], group_id=group_created['id'])
+        after = self.record_details(user['id'],
+                group_ids=[group_created['id']])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -1433,8 +1536,9 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        assert after['group activity stream'] == new_activities, ("The same "
-            "activity should also appear in the group's activity stream.")
+        assert after['group activity streams'][group_created['id']] == \
+                new_activities, ("The same activity should also appear in "
+                "the group's activity stream.")
 
         self.check_dashboard(before, after, new_activities, [user['id']])
 
@@ -1510,6 +1614,14 @@ class TestActivity:
 
         self.check_dashboard(before, after, user_new_activities,
                 [user['id'], pkg_dict['id']])
+
+        # If the package has any groups, the same new activity should appear
+        # in the activity stream of each group.
+        for group_dict in pkg_dict['groups']:
+            grp_new_activities = find_new_activities(
+                before['group activity streams'][group_dict['name']],
+                after['group activity streams'][group_dict['name']])
+            assert grp_new_activities == [activity]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == pkg_dict['id'], (
