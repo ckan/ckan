@@ -205,6 +205,8 @@ class PackageController(BaseController):
             c.fields_grouped = {}
             search_extras = {}
             for (param, value) in request.params.items():
+                if value == '':
+                    continue
                 if param in filter_names:
                     c.fields.append((param, str(urllib.unquote(value))))
 
