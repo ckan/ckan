@@ -1129,9 +1129,7 @@ def package_search(context, data_dict):
     results = []
     if not abort:
         # a dict is more convenient that a clumsy string
-        if 'fq' in data_dict:
-            search_params = dict(data_dict)
-        elif 'filters' in data_dict:
+        if 'filters' in data_dict:
             search_params = dict(data_dict)
             del search_params['filters']
             
@@ -1144,9 +1142,9 @@ def package_search(context, data_dict):
                     search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
             #add fq string for old plugins
             data_dict['fq'] = search_params['fq']
-    
-            
-    
+        else:
+            search_params = dict(data_dict)
+
         # return a list of package ids
         search_params['fl'] = 'id data_dict'
 
