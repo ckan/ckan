@@ -2104,7 +2104,7 @@ def dashboard_activity_list(context, data_dict):
     '''
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-
+    
     activity_query = model.Session.query(model.Activity)
     user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
     dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
@@ -2116,6 +2116,14 @@ def dashboard_activity_list(context, data_dict):
 
     query = from_user_query.union(about_user_query).union(
             user_followees_query).union(dataset_followees_query)
+
+    subscription_query = model.Session.query(model.Subscription).filter(model.Subscription.owner_id==user_id)
+    for subscription in subscription_query.all():
+        dataset_list = logic.get_action('subscription_dataset_list')(context, {'subscription_id': subscription.id})
+        for dataset in dataset_list:
+            query = query.union(activity_query.filter(model.Activity.object_id==dataset['id']))
+    
+    
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
@@ -2272,7 +2280,7 @@ def subscription_fit_definition(subscription, definition):
 
 
 def subscription_item_list(context, data_dict):
-    '''Return the list of items for a dataset subscription.
+    '''Return the list of items of a subscription.
 
     :param subscription_name: the name of the subscription
     :type subscription_name: string
@@ -2337,3 +2345,49 @@ def subscription_search_dataset(context, data_dict):
     results = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
 
     return results, 'id'
+
+
+def subscription_dataset_list(context, data_dict):
+    '''Return the list of datasets of a dataset subscription.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    if 'subscription_id' in data_dict:
+        subscription_id = _get_or_bust(data_dict, 'subscription_id')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.id==subscription_id)
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = _get_or_bust(data_dict, 'subscription_name')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+    
+    subscription = query.one()
+    # to be up-to-date, please refactor
+    if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
+        logic.get_action('subscription_item_list_update')(context, data_dict)
+
+    datasets = []
+    if subscription.definition['type'] == 'search':
+        for item in subscription.get_item_list():
+            datasets.append(model_dictize.package_dictize(model.Package.get(item.key), context))
+    else:
+        action_name = 'subscription_' + subscription.definition['type'] + '_' + subscription.definition['data_type'] + '_list'
+        datasets = logic.get_action(action_name)(context, data_dict)
+    
+    return datasets
