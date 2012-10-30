@@ -106,9 +106,9 @@ class SubscriptionController(BaseController):
                             'time_min',
                             'time_max']:
                     if param not in definition['filters']:
-                        definition['filters'][param] = [urllib.unquote(value)]
+                        definition['filters'][param] = [str(urllib.unquote(value))]
                     else:
-                        definition['filters'][param].append(urllib.unquote(value))
+                        definition['filters'][param].append(str(urllib.unquote(value)))
 
         elif type_ == 'sparql':  
             definition['query'] = str(urllib.unquote(request.params['query']))
