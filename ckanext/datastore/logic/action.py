@@ -45,11 +45,13 @@ def datastore_create(context, data_dict):
 
     '''
     model = _get_or_bust(context, 'model')
-    id = _get_or_bust(data_dict, 'resource_id')
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
+    res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(id):
+    if not model.Resource.get(res_id):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(id)
+            'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_create', context, data_dict)
@@ -104,6 +106,8 @@ def datastore_upsert(context, data_dict):
     :rtype: dictionary
 
     '''
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
@@ -141,6 +145,8 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
@@ -213,9 +219,9 @@ def datastore_search(context, data_dict):
     :param records: list of matching results
     :type records: list of dictionaries
 
-
-
     '''
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
     data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
