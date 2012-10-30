@@ -63,7 +63,7 @@
   </section>
 
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">Search Subscriptions</h2>
+    <h2 class="module-heading">{{ h.nav_link(_('Search'), controller='package', action='search') }} Subscriptions</h2>
     {% if c.subscriptions.search|length > 0 %}
     <ul class="nav nav-simple">
       {% for subscription in c.subscriptions.search %}
