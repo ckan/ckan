@@ -208,12 +208,12 @@ class PackageController(BaseController):
                 if value == '':
                     continue
                 if param in filter_names:
-                    c.fields.append((param, str(urllib.unquote(value))))
+                    c.fields.append((param, urllib.unquote(value)))
 
                     if param not in c.fields_grouped:
-                        c.fields_grouped[param] = [str(urllib.unquote(value))]
+                        c.fields_grouped[param] = [urllib.unquote(value)]
                     else:
-                        c.fields_grouped[param].append(str(urllib.unquote(value)))
+                        c.fields_grouped[param].append(urllib.unquote(value))
      
                 elif param.startswith('ext_'):
                     search_extras[param] = value
@@ -224,11 +224,14 @@ class PackageController(BaseController):
             definition = {}
             definition['query'] = ''
             if 'q' in request.params:
-                definition['query'] = str(urllib.unquote(request.params['q']))
+                definition['query'] = urllib.unquote(request.params['q'])
             definition['filters'] = c.fields_grouped
             definition['type'] = 'search'
             definition['data_type'] = 'dataset'
-            c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
+            try:
+                c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
+            except NotAuthorized:
+                pass
             if c.subscription:
                 search_dict = {
                     'q': definition['query'],
