@@ -94,7 +94,17 @@ class SubscriptionController(BaseController):
             
             definition['filters'] = {}
             for (param, value) in request.params.items():
-                if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
+                if param in ['res_format',
+                            'license',
+                            'tags',
+                            'groups',
+                            'organizations',
+                            'topic',
+                            'location_latitude',
+                            'location_longitude',
+                            'location_radius',
+                            'time_min',
+                            'time_max']:
                     if param not in definition['filters']:
                         definition['filters'][param] = [urllib.unquote(value)]
                     else:

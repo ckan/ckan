@@ -189,21 +189,29 @@ class PackageController(BaseController):
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
+            filter_names = ['res_format',
+                            'license',
+                            'tags',
+                            'groups',
+                            'organizations',
+                            'topic',
+                            'location_latitude',
+                            'location_longitude',
+                            'location_radius',
+                            'time_min',
+                            'time_max']
+
             c.fields = []
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
             for (param, value) in request.params.items():
-                if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
-                    c.fields.append((param, value))
-
-                    if param in ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time']:
-                        fq += ' %s:"%s"' % (param, value)
+                if param in filter_names:
+                    c.fields.append((param, str(urllib.unquote(value))))
 
                     if param not in c.fields_grouped:
-                        c.fields_grouped[param] = [urllib.unquote(value)]
+                        c.fields_grouped[param] = [str(urllib.unquote(value))]
                     else:
-                        c.fields_grouped[param].append(urllib.unquote(value))
+                        c.fields_grouped[param].append(str(urllib.unquote(value)))
      
                 elif param.startswith('ext_'):
                     search_extras[param] = value
@@ -223,7 +231,7 @@ class PackageController(BaseController):
                 search_dict = {
                     'q': definition['query'],
                     'filters': c.fields_grouped,
-                    'facet.field': ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time'],
+                    'facet.field': filter_names,
                     'rows': 50,
                     'start': 0,
                     'sort': 'metadata_modified desc',
@@ -233,7 +241,7 @@ class PackageController(BaseController):
                 search_dict = {
                     'q': q,
                     'filters': c.fields_grouped,
-                    'facet.field': ['res_format', 'license', 'tags', 'groups', 'organizations', 'topic', 'location', 'time'],
+                    'facet.field': filter_names,
                     'rows': limit,
                     'start': (page - 1) * limit,
                     'sort': sort_by,
