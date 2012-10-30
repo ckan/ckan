@@ -45,8 +45,6 @@ requests, parameters should be provided as JSON objects.
 .. automodule:: ckanext.datastore.logic.action
    :members:
 
-
-
 .. _fields:
 
 Fields
@@ -196,11 +194,13 @@ To the following endpoint:
 
 * Dataset Model Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/rest/dataset``
 
-More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`. More information about the Datastore API can be found on the :doc:`datastore page <datastore>`.
+More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`.
 
 
 Examples
 --------
+
+.. note:: There is a special view that lists all available resources from the DataStore. It can be found at the alias ``_table_metadata``.
 
 Some of the following commands require obtaining an :ref:`API Key <get-api-key>`.
 

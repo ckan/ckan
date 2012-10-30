@@ -191,6 +191,8 @@ def datastore_search(context, data_dict):
 
     Setting the ``plain`` flag to false enables the entire PostgreSQL `full text search query language`_.
 
+    A listing of all available resources can be found at the alias ``_table_metadata``.
+
     .. _full text search query language: http://www.postgresql.org/docs/9.1/static/datatype-textsearch.html#DATATYPE-TSQUERY
 
     **Results:**
