@@ -132,7 +132,7 @@ class SubscriptionController(BaseController):
                 for filter_value in filter_value_list:
                     url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
         else:
-            url = h.url_for(controller='ckanext.lodstatsext.controllers.sparql:SPARQLController', action='index')
+            url = h.url_for(controller='ckanext.semantic.controllers.sparql:SPARQLController', action='index')
             url += '?query=' + urllib.quote_plus(c.subscription['definition']['query'])
 
 

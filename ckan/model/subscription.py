@@ -1,6 +1,4 @@
 import ckan
-import ckanext.lodstatsext.model.prefix as prefix
-import ckanext.lodstatsext.model.store as store
 import datetime
 import dateutil.parser
 import domain_object
