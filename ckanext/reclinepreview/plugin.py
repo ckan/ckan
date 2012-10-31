@@ -29,5 +29,5 @@ class ReclinePreview(p.SingletonPlugin):
         format_lower = data_dict['resource']['format'].lower()
         return format_lower in ['csv', 'xls', 'tsv']
 
-    def preview_template(self, context):
+    def preview_template(self, context, data_dict):
         return 'recline.html'

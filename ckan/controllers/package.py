@@ -1355,4 +1355,5 @@ class PackageController(BaseController):
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render(plugin.preview_template(context))
+        else:
+            return render(plugin.preview_template(context, data_dict))

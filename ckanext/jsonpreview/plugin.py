@@ -50,5 +50,5 @@ class JsonPreview(p.SingletonPlugin):
         if format_lower in self.JSON_FORMATS and proxy and not resource['on_same_domain']:
             base.c.resource['url'] = proxy.get_proxyfied_resource_url(data_dict)
 
-    def preview_template(self, context):
+    def preview_template(self, context, data_dict):
         return 'json.html'

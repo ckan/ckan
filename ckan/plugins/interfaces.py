@@ -216,10 +216,11 @@ class IResourcePreview(Interface):
         Change the url to a proxied domain if necessary.
         '''
 
-    def preview_template(self, context):
+    def preview_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
         rendered for the read page.
+        The ``data_dict`` contains the resource and the package.
         '''
 
 

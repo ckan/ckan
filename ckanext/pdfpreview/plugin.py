@@ -43,5 +43,5 @@ class PdfPreview(p.SingletonPlugin):
         if proxy and not data_dict['resource']['on_same_domain']:
             base.c.resource['url'] = proxy.get_proxyfied_resource_url(data_dict)
 
-    def preview_template(self, context):
+    def preview_template(self, context, data_dict):
         return 'pdf.html'
