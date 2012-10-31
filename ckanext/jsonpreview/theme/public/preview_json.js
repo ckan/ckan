@@ -14,7 +14,7 @@ ckan.module('jsonpreview', function (jQuery, _) {
           self.el.html(pretty);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          self.el.html('An error occured: ' + textStatus);
+          self.el.html('An error occured: ' + textStatus + ', ' + errorThrown);
         }
       });
     },
