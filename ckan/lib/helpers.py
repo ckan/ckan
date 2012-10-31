@@ -1311,7 +1311,7 @@ def resource_preview(resource, pkg_id):
     data_dict = {'resource': resource, 'package': None}
 
     if _can_be_previewed(data_dict):
-        url = url = url_for(controller='package', action='resource_datapreview',
+        url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in DIRECT_EMBEDS:
         directly = True
