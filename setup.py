@@ -119,9 +119,9 @@ setup(
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
-    jsonpreview=ckanext.jsonpreview.plugin:JsonPreview
-    pdfpreview=ckanext.pdfpreview.plugin:PdfPreview
-    reclinepreview=ckanext.reclinepreview.plugin:ReclinePreview
+    json_preview=ckanext.jsonpreview.plugin:JsonPreview
+    pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
+    recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     resourceproxy=ckanext.resourceproxy.plugin:ResourceProxy
 
     [ckan.system_plugins]
