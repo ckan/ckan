@@ -39,7 +39,7 @@ from pylons.i18n import _, ungettext
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.plugins as ckanplugins
+import ckan.plugins as p
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1284,9 +1284,13 @@ def _add_whether_on_same_domain(data_dict):
 def _can_be_previewed(data_dict):
     '''
     Determines whether there is an extension that can preview the resource.
+
+    :param data_dict: contains a resource and package dict.
+        The resource dict has to have a value for ``on_same_domain``
+    :type data_dict: dictionary
     '''
     data_dict = _add_whether_on_same_domain(data_dict)
-    plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
+    plugins = p.PluginImplementations(p.IResourcePreview)
     return any(plugin.can_preview(data_dict) for plugin in plugins)
 
 

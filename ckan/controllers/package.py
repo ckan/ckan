@@ -34,7 +34,7 @@ import ckan.lib.helpers as helpers
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
-import ckan.plugins as ckanplugins
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -1339,8 +1339,8 @@ class PackageController(BaseController):
             data_dict = {'resource': c.resource, 'package': c.package}
             data_dict = helpers._add_whether_on_same_domain(data_dict)
 
-            plugins = ckanplugins.PluginImplementations(ckanplugins.IResourcePreview)
-            plugins_that_can_preview = [p for p in plugins if p.can_preview(data_dict)]
+            plugins = p.PluginImplementations(p.IResourcePreview)
+            plugins_that_can_preview = [plugin for plugin in plugins if plugin.can_preview(data_dict)]
             if len(plugins_that_can_preview) == 0:
                 abort(409, _('No preview has been defined.'))
             if len(plugins_that_can_preview) > 1:
