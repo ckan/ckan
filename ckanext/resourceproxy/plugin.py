@@ -8,7 +8,7 @@ import controller
 log = getLogger(__name__)
 
 
-def get_proxyfied_resource_url(data_dict):
+def get_proxified_resource_url(data_dict):
     '''
     :param data_dict: contains a resource and package dict
     :type data_dict: dictionary
