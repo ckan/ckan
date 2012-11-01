@@ -210,3 +210,17 @@ class SubscriptionController(BaseController):
 
         return redirect(request.params['return_url'])
 
+
+    def check_name(self, subscription_name):
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        try:
+            get_action('subscription_check_name')(context, {'subscription_name': subscription_name})
+        except ParameterError as e:
+            return 'This name is already taken by you.'
+        except NotAuthorized as e:
+            return 'That\'s not you.'
+            
+        return ''
+

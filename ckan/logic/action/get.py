@@ -2279,6 +2279,31 @@ def subscription_fit_definition(subscription, definition):
     return True
 
 
+def subscription_check_name(context, data_dict):
+    '''Create a subscription.
+
+    You must provide your API key in the Authorization header.
+
+    :param subscription_name: the name of the subscription to be checked
+    :type subscription_name: string
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+    query = query.filter(model.Subscription.name==data_dict['subscription_name'])
+    subscription = query.first()
+            
+    if subscription:
+        raise ckan.logic.ParameterError('subscription name is already taken by this user')
+
+
 def subscription_item_list(context, data_dict):
     '''Return the list of items of a subscription.
 

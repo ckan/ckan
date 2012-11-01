@@ -1049,13 +1049,7 @@ def subscription_create(context, data_dict):
     name = _get_or_bust(data_dict, 'subscription_name')
     definition = _get_or_bust(data_dict, 'subscription_definition')
 
-    query = model.Session.query(model.Subscription)
-    query = query.filter(model.Subscription.owner_id==user.id)
-    query = query.filter(model.Subscription.name==name)
-    subscription = query.first()
-            
-    if subscription:
-        raise ckan.logic.ParameterError('subscription name is already taken by this user')
+    _get_action('subscription_check_name')(context, {'subscription_name': name})
         
     subscription_dict = {
                             'name': name,

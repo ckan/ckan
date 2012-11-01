@@ -87,13 +87,13 @@
     <h2 class="module-heading"><i class="icon-medium icon-caret-left"></i> {{ h.nav_link(_('Subscriptions'), controller='subscription', action='index') }}</h2>
     <div class="module-content">
       {% if c.subscription %}
-        <form id="subscription-form" method="post" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
+        <form name="delete_subscription_form" method="post" onsubmit="return set_return_url();" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
           <p><b>Name</b>: {{ c.subscription.name }}</p>
-          <button id="delete_subscription" class="btn">Unsubscribe</button>
           <input type="hidden" name="return_url" value="" class="return_url" />
+          <input type="submit" class="btn" value="Unsubscribe" />
         </form>
       {% else %}
-        <form id="subscription-form" method="post" action="{{ h.url_for(controller='subscription', action='create') }}">
+        <form name="create_subscription_form" method="post" onsubmit="return validate_subscription_name();" action="{{ h.url_for(controller='subscription', action='create') }}">
           <p>
             Be <b>informed</b> in case <b>new</b> datasets match the search criteria and
             datasets of that search <b>change</b>.
@@ -104,7 +104,7 @@
           <input type="hidden" name="subscription_data_type" value="dataset" />
           <input type="hidden" name="query" value="{{ c.q }}" />
           {% snippet "snippets/params_to_hidden.html", name_value_pairs=c.search_url_params %}
-          <button id="create_subscription" class="btn">Subscribe</button>
+          <input type="submit" class="btn" value="Subscribe" />
         </form>          
       {% endif %}
     </div>
