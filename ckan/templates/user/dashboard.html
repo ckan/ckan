@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block actions_content %}
+  <li>{% link_for _('Subscriptions'), controller='subscription', action='index', class_="btn btn-primary icon-large", icon="rss" %}</li>
   <li>{% link_for _('Add new dataset'), controller='package', action='new', class_="btn btn-primary icon-large", icon="plus" %}</li>
 {% endblock %}
 
