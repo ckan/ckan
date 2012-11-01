@@ -40,6 +40,7 @@ import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.plugins as p
+import ckan.plugins.toolkit as toolkit
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1265,19 +1266,32 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
+def _compare_domains(urls):
+    ''' Return True if the domains of the provided are the same.
+    '''
+    domains = set()
+    for url in urls:
+        # all urls are interpreted as absolute urls,
+        # except for urls that start with a /
+        if not urlparse.urlparse(url).scheme and not url.startswith('/'):
+            url = '//' + url
+        parsed = urlparse.urlparse(url.lower(), 'http')
+        domain = (parsed.scheme, parsed.hostname, parsed.port)
+        domains.add(domain)
+    return len(domains) == 1
+
+
 def _add_whether_on_same_domain(data_dict):
     ''' sets the ``on_same_domain`` flag to a resource dictionary
+    to true if the resource is on the ckan instance domain
     '''
     # compare CKAN domain and resource URL
-    import ckan.plugins.toolkit as toolkit
-    ckan_domain = toolkit.request.environ['HTTP_HOST'].lower()
-    request_protocol = toolkit.request.environ['SERVER_PROTOCOL'].lower()
+    ckan_url = toolkit.request.environ['HTTP_REFERER']
+    resource_url = data_dict['resource']['url']
 
-    parsed = urlparse.urlparse(data_dict['resource']['url'])
-    resource_domain = (parsed.hostname + ':' + str(parsed.port)).lower()
+    on_same_domain = _compare_domains([ckan_url, resource_url])
 
-    data_dict['resource']['on_same_domain'] = (ckan_domain == resource_domain
-            and parsed.scheme.lower() in request_protocol)
+    data_dict['resource']['on_same_domain'] = on_same_domain
     return data_dict
 
 
