@@ -12,7 +12,7 @@ from ckan.lib.base import *
 from ckan.lib import mailer
 from ckan.authz import Authorizer
 from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.logic import NotFound, NotAuthorized, ValidationError
+from ckan.logic import NotFound, NotAuthorized, ValidationError, ParameterError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
@@ -85,7 +85,7 @@ class SubscriptionController(BaseController):
         
         definition = {}
         definition['type'] = type_
-        definition['data_type'] = request.params['subscription_data_type']   
+        definition['data_type'] = request.params['subscription_data_type']
              
         if type_ == 'search':
             definition['query'] = ''

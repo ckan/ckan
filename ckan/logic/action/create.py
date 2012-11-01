@@ -1032,7 +1032,7 @@ def subscription_create(context, data_dict):
 
     :param subscription_name: the name of the subscription, e.g. ``'health care'``
     :type subscription_name: string
-    :param subscription_definition: the definition of the subscription depending on its type
+    :param subscription_definition: the definition of the subscription
     :type subscription_definition: string
 
     :returns: a representation of the 'subscription' object
@@ -1045,13 +1045,22 @@ def subscription_create(context, data_dict):
     user = model.User.get(context['user'])
     if not user:
         raise ckan.logic.NotAuthorized
+        
+    name = _get_or_bust(data_dict, 'subscription_name')
+    definition = _get_or_bust(data_dict, 'subscription_definition')
 
-
-    #TODO: no duplicate names for one user
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+    query = query.filter(model.Subscription.name==name)
+    subscription = query.first()
+            
+    if subscription:
+        raise ckan.logic.ParameterError('subscription name is already taken by this user')
+        
     subscription_dict = {
-                            'definition': data_dict['subscription_definition'],
-                            'name': data_dict['subscription_name'],
-                            'owner_id': user.id
+                            'name': name,
+                            'owner_id': user.id,
+                            'definition': definition
                         }
 
     subscription = model_save.subscription_dict_save(subscription_dict, context)
@@ -1060,3 +1069,4 @@ def subscription_create(context, data_dict):
         model.repo.commit()
 
     return model_dictize.subscription_dictize(subscription, context)
+
