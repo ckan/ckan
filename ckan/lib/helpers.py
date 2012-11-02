@@ -1328,6 +1328,14 @@ def resource_preview(resource, pkg_id):
 
     data_dict = {'resource': resource, 'package': None}
 
+    if not resource['url']:
+        log.info('No url for resource {0} defined.'.format(resource['id']))
+        return snippet(
+            "dataviewer/snippets/no_preview.html",
+            resource_type=format_lower,
+            reason='No valid resource url has been defined.'
+            )
+
     if _can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
