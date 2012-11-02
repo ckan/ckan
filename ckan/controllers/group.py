@@ -505,7 +505,9 @@ class GroupController(BaseController):
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
+            abort(401,
+                  _('Unauthorized to read group {group_id}').format(
+                      group_id=id))
 
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
