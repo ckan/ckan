@@ -233,12 +233,6 @@ class GroupController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = \
-            get_action('group_activity_list_html')(context,
-                                                   {'id': c.group_dict['id']})
-
         return render(self._read_template(c.group_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -497,6 +491,30 @@ class GroupController(BaseController):
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
         return render(self._history_template(c.group_dict['type']))
+
+    def activity(self, id):
+        '''Render this group's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            c.group_dict = get_action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401,
+                  _('Unauthorized to read group {group_id}').format(
+                      group_id=id))
+
+        # Add the group's activity stream (already rendered to HTML) to the
+        # template context for the group/read.html template to retrieve later.
+        c.group_activity_stream = get_action('group_activity_list_html')(
+                context, {'id': c.group_dict['id']})
+
+        return render('group/activity_stream.html')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
