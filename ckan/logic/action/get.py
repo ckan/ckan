@@ -1717,12 +1717,17 @@ def vocabulary_show(context, data_dict):
 def user_activity_list(context, data_dict):
     '''Return a user's public activity stream.
 
+    You must be authorized to view the user's profile.
+
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('user_show', context, data_dict)
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
@@ -1735,12 +1740,17 @@ def user_activity_list(context, data_dict):
 def package_activity_list(context, data_dict):
     '''Return a package's activity stream.
 
+    You must be authorized to view the package.
+
     :param id: the id or name of the package
     :type id: string
 
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('package_show', context, data_dict)
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
@@ -1753,19 +1763,38 @@ def package_activity_list(context, data_dict):
 def group_activity_list(context, data_dict):
     '''Return a group's activity stream.
 
+    You must be authorized to view the group.
+
     :param id: the id or name of the group
     :type id: string
 
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('group_show', context, data_dict)
+
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
+
+    # Convert group_id (could be id or name) into id.
+    group_show = logic.get_action('group_show')
+    group_id = group_show(context, {'id': group_id})['id']
+
+    # Get a list of the IDs of the group's datasets.
+    group_package_show = logic.get_action('group_package_show')
+    datasets = group_package_show(context, {'id': group_id})
+    dataset_ids = [dataset['id'] for dataset in datasets]
+
+    # Get the group's activities.
     query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=group_id)
+    query = query.filter(_or_(model.Activity.object_id == group_id,
+        model.Activity.object_id.in_(dataset_ids)))
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
@@ -1774,6 +1803,8 @@ def recently_changed_packages_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
     query = model.Session.query(model.Activity)
     query = query.filter(model.Activity.activity_type.endswith('package'))
@@ -1790,12 +1821,13 @@ def activity_detail_list(context, data_dict):
     :rtype: list of dictionaries.
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
-
 
 
 def user_activity_list_html(context, data_dict):
@@ -2081,6 +2113,8 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
 
