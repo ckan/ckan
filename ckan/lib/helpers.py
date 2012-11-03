@@ -1286,7 +1286,7 @@ def _add_whether_on_same_domain(data_dict):
     to true if the resource is on the ckan instance domain
     '''
     # compare CKAN domain and resource URL
-    ckan_url = toolkit.request.environ['HTTP_REFERER']
+    ckan_url = config.get('ckan.site_url', '//localhost:5000')
     resource_url = data_dict['resource']['url']
 
     on_same_domain = _compare_domains([ckan_url, resource_url])
