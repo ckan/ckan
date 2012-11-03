@@ -3,8 +3,6 @@ from logging import getLogger
 import ckan.plugins as p
 import ckan.lib.base as base
 
-import controller
-
 log = getLogger(__name__)
 
 
@@ -29,16 +27,11 @@ class ResourceProxy(p.SingletonPlugin):
     This extension implements two interfaces
 
       - ``IRoutes`` allows to add a route to the proxy action
-      - ``IActions`` allows to add an action for the proxy
     """
     p.implements(p.IRoutes, inherit=True)
-    p.implements(p.IActions)
 
     def before_map(self, m):
         m.connect('/dataset/{id}/resource/{resource_id}/proxy',
                     controller='ckanext.resourceproxy.controller:ProxyController',
                     action='proxy_resource')
         return m
-
-    def get_actions(self):
-        return {'proxy_resource': controller.proxy_resource}
