@@ -24,6 +24,7 @@ from ckan import plugins
 from ckan.rating import set_rating
 from ckan.lib.search.common import SolrSettings
 
+
 class MockPackageControllerPlugin(SingletonPlugin):
     implements(IPackageController)
 
@@ -67,6 +68,7 @@ class MockPackageControllerPlugin(SingletonPlugin):
 
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+
 
 class TestPackageBase(FunctionalTestCase):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
@@ -1533,4 +1535,3 @@ class TestAutocomplete(PylonsTestCase, TestPackageBase):
         expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
         received = sorted(res.body.split('\n'))
         assert expected == received
-
