@@ -1,5 +1,7 @@
 {% extends "group/read.html" %}
 
+{% block subtitle %}{{ _('Activity Stream') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
+
 {% block primary_content_inner %}
 <section class="module-content">
 	<h2 class="hide-heading">{{ _('Activity Stream') }}</h2>
