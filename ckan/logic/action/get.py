@@ -2105,18 +2105,24 @@ def dataset_followee_list(context, data_dict):
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
 def dashboard_activity_list(context, data_dict):
-    '''Return the dashboard activity stream of the given user.
-
-    :param id: the id or name of the user
-    :type id: string
+    '''Return the authorized user's dashboard activity stream.
 
     :rtype: list of dictionaries
 
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+    if 'user' not in context:
+        raise logic.NotAuthorized(
+            _("You must be logged in to see your dashboard activity stream."))
+
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'id')
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized(
+            _("You must be logged in to see your dashboard activity stream."))
+    user_id = userobj.id
 
     activity_query = model.Session.query(model.Activity)
     user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
@@ -2136,13 +2142,10 @@ def dashboard_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the dashboard activity stream of the given user as HTML.
+    '''Return the authorized user's dashboard activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: The id or name of the user.
-    :type id: string
 
     :rtype: string
 
