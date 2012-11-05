@@ -730,6 +730,10 @@ def group_show(context, data_dict):
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
 
+    group_dict['num_followers'] = logic.get_action('group_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': group_dict['id']})
+
     if schema:
         group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
