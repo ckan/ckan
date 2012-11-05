@@ -23,6 +23,9 @@
           <li{% if c.action == 'read' %} class="active"{% endif %}>
             {% link_for _('Datasets'), controller='group', action='read', id=c.group_dict.name, icon='sitemap' %}
           </li>
+          <li{% if c.action == 'activity' %} class="active"{% endif %}>
+            {% link_for _('Activity Stream'), controller='group', action='activity', id=c.group_dict.name, icon='time' %}
+          </li>
           <li{% if c.action == 'followers' %} class="active"{% endif %}>
             {% link_for _('Followers'), controller='group', action='followers', id=c.group_dict.name, icon='group' %}
           </li>
