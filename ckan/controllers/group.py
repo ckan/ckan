@@ -551,21 +551,21 @@ class GroupController(BaseController):
         h.redirect_to(controller='group', action='read', id=id)
 
     def followers(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id}
-        try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.followers = get_action('group_follower_list')(context,
-                    {'id': c.group_dict['id']})
-        except NotFound:
-            abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
-
+        context = self._get_group_dict(id)
+        c.followers = get_action('group_follower_list')(context,
+                                                        {'id': c.group_dict['id']})
         return render('group/followers.html')
 
     def admins(self, id=None):
+        context = self._get_group_dict(id)
+        c.admins = self.authorizer.get_admins(context['group'])
+        return render('group/admins.html')
+
+    def about(self, id=None):
+        self._get_group_dict(id)
+        return render('group/about.html')
+
+    def _get_group_dict(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'for_view': True}
@@ -577,8 +577,7 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
-
-        return render('group/admins.html')
+        return context
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors

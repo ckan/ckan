@@ -32,6 +32,9 @@
           <li{% if c.action == 'admins' %} class="active"{% endif %}>
             {% link_for _('Administrators'), controller='group', action='admins', id=c.group_dict.name, icon='cog' %}
           </li>
+          <li{% if c.action == 'about' %} class="active"{% endif %}>
+            {% link_for _('About'), controller='group', action='about', id=c.group_dict.name, icon='info-sign' %}
+          </li>
         </ul>
       </header>
     {% endblock %}
@@ -54,11 +57,10 @@
       </div>
       <h1 class="heading">{{ c.group_dict.display_name }}</h1>
       {% if c.group_dict.description %}
-        {% if truncate %}
-          <p>{{ c.group_dict.description }}</p>
-        {% else %}
-          <p>{{ h.markdown_extract(c.group_dict.description, truncate) }}</p>
-        {% endif %}
+        <p>
+          {{ h.markdown_extract(c.group_dict.description, 180) }}
+          {% link_for _('read more'), controller='group', action='about', id=c.group_dict.name %}
+        </p>
       {% else %}
         <p class="empty">{{ _('There is no description for this group') }}</p>
       {% endif %}
