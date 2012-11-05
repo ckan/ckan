@@ -242,6 +242,7 @@ def make_map():
           'follow',
           'unfollow',
           'admins',
+          'activity',
           ]))
           )
         m.connect('group_read', '/group/{id}', action='read')

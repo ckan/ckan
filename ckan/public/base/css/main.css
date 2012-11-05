@@ -4506,13 +4506,13 @@ ul.icons li .icon-large:before {
 .simple-list:after {
   clear: both;
 }
-.simple-list  > li {
+.simple-list > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.simple-list  > li:last-of-type {
+.simple-list > li:last-of-type {
   border-bottom: 0;
 }
 .simple-list .ckan-icon {
@@ -4671,8 +4671,6 @@ ul.icons li .icon-large:before {
 .module-grid {
   margin: 0;
   list-style: none;
-  margin: 0;
-  list-style: none;
   *zoom: 1;
   margin-left: -20px;
   padding: 0;
@@ -4693,7 +4691,6 @@ ul.icons li .icon-large:before {
   width: 33.33%;
   padding-left: 20px;
   padding-bottom: 25px;
-  float: left;
   float: left;
   margin-left: 20px;
   width: 460px;
@@ -4720,10 +4717,10 @@ ul.icons li .icon-large:before {
 .ckanext-datapreview {
   position: relative;
 }
-.ckanext-datapreview  > iframe {
+.ckanext-datapreview > iframe {
   min-height: 400px;
 }
-.ckanext-datapreview  > img {
+.ckanext-datapreview > img {
   max-height: 500px;
   max-width: 100%;
   overflow: hidden;
@@ -4887,13 +4884,13 @@ ol.media-grid:after {
 .nav-simple:after {
   clear: both;
 }
-.nav-simple  > li {
+.nav-simple > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.nav-simple  > li:last-of-type {
+.nav-simple > li:last-of-type {
   border-bottom: 0;
 }
 .nav-simple .ckan-icon {
@@ -4915,12 +4912,10 @@ ol.media-grid:after {
 }
 .nav-item.active > a {
   background: url("../../../base/images/background-tag.png") no-repeat -13px center;
-  position: relative;
   display: block;
   font-size: 11px;
   line-height: 27px;
   color: #187794;
-  padding-left: 10px;
   padding-right: 5px;
   margin-right: 11px;
   -webkit-box-sizing: border-box;
@@ -5209,8 +5204,6 @@ textarea {
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
-  width: 17px;
-  height: 17px;
   background-position: -51px -16px;
   position: absolute;
   display: block;
@@ -5804,8 +5797,6 @@ textarea {
   vertical-align: text-bottom;
   position: relative;
   top: 2px;
-  width: 16px;
-  height: 16px;
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
@@ -6661,7 +6652,6 @@ li .icon-large:before {
   float: right;
 }
 [role=main] .secondary {
-  float: left;
   margin-left: 20px;
   width: 220px;
   margin-left: 0;
@@ -6897,13 +6887,11 @@ li .icon-large:before {
   bottom: NaN;
   width: 1px;
   background-color: #007094;
-  background-color: rgba(255, 255, 255, 0);
   background-image: -webkit-gradient(radial, center center, 0, center center, 460, from(rgba(255, 255, 255, 0.1)), to(rgba(255, 255, 255, 0)));
   background-image: -webkit-radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
   background-image: -moz-radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
   background-image: -ms-radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
   background-image: -o-radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  background-repeat: no-repeat;
   background-color: rgba(255, 255, 255, 0.08000000000000002);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(255, 255, 255, 0)), color-stop(0.5, rgba(255, 255, 255, 0.1)), to(rgba(255, 255, 255, 0)));
   background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1) 0.5, rgba(255, 255, 255, 0));
@@ -6917,13 +6905,11 @@ li .icon-large:before {
 .masthead .section:after {
   left: -1px;
   background-color: #004a61;
-  background-color: rgba(0, 0, 0, 0);
   background-image: -webkit-gradient(radial, center center, 0, center center, 460, from(rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0)));
   background-image: -webkit-radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
   background-image: -moz-radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
   background-image: -ms-radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
   background-image: -o-radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
-  background-repeat: no-repeat;
   background-color: rgba(0, 0, 0, 0.16000000000000003);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(0, 0, 0, 0)), color-stop(0.5, rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0)));
   background-image: -webkit-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2) 0.5, rgba(0, 0, 0, 0));

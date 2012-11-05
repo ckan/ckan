@@ -231,12 +231,6 @@ class GroupController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = \
-            get_action('group_activity_list_html')(context,
-                                                   {'id': c.group_dict['id']})
-
         return render(self._read_template(c.group_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -496,70 +490,30 @@ class GroupController(BaseController):
             return feed.writeString('utf-8')
         return render(self._history_template(c.group_dict['type']))
 
-    def follow(self, id):
-        '''Start following this group.'''
-        context = {'model': model,
-                   'session': model.Session,
-                   'user': c.user or c.author}
-        data_dict = {'id': id}
-        try:
-            get_action('follow_group')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
-        except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
-            h.flash_error(error_message)
-        except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
-        h.redirect_to(controller='group', action='read', id=id)
+    def activity(self, id):
+        '''Render this group's public activity stream page.'''
 
-    def unfollow(self, id):
-        '''Stop following this group.'''
-        context = {'model': model,
-                   'session': model.Session,
-                   'user': c.user or c.author}
-        data_dict = {'id': id}
-        try:
-            get_action('unfollow_group')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
-        except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
-            h.flash_error(error_message)
-        except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
-            h.flash_error(error_message)
-        h.redirect_to(controller='group', action='read', id=id)
-
-    def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id}
+
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
-            c.followers = get_action('group_follower_list')(context,
-                    {'id': c.group_dict['id']})
+            c.group = context['group']
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
+            abort(401,
+                  _('Unauthorized to read group {group_id}').format(
+                      group_id=id))
 
-        return render('group/followers.html')
+        # Add the group's activity stream (already rendered to HTML) to the
+        # template context for the group/read.html template to retrieve later.
+        c.group_activity_stream = \
+            get_action('group_activity_list_html')(context,
+                                                   {'id': c.group_dict['id']})
 
-    def admins(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'for_view': True}
-        data_dict = {'id': id}
-        try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.admins = self.authorizer.get_admins(context['group'])
-        except NotFound:
-            abort(404, _('Group not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read group %s') % id)
-
-        return render('group/admins.html')
+        return render('group/activity_stream.html')
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
