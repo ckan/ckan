@@ -1,6 +1,7 @@
 import uuid
 import logging
 import json
+import datetime
 
 from pylons import config
 from pylons.i18n import _
@@ -2114,14 +2115,14 @@ def dashboard_activity_list(context, data_dict):
     # authorized to read.
     if 'user' not in context:
         raise logic.NotAuthorized(
-            _("You must be logged in to see your dashboard activity stream."))
+            _("You must be logged in to access your dashboard."))
 
     model = context['model']
 
     userobj = model.User.get(context['user'])
     if not userobj:
         raise logic.NotAuthorized(
-            _("You must be logged in to see your dashboard activity stream."))
+            _("You must be logged in to access your dashboard."))
     user_id = userobj.id
 
     activity_query = model.Session.query(model.Activity)
@@ -2141,6 +2142,7 @@ def dashboard_activity_list(context, data_dict):
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+
 def dashboard_activity_list_html(context, data_dict):
     '''Return the authorized user's dashboard activity stream as HTML.
 
@@ -2152,6 +2154,50 @@ def dashboard_activity_list_html(context, data_dict):
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
+
+
+def dashboard_new_activities_count(context, data_dict):
+    '''Return the number of new activities in the user's activity stream.
+
+    Return the number of new activities in the authorized user's dashboard
+    activity stream.
+
+    :rtype: int
+
+    '''
+    # We don't bother to do our own auth check in this function, because we
+    # assume dashboard_activity_list will do it.
+    activities = dashboard_activity_list(context, data_dict)
+
+    model = context['model']
+    user = model.User.get(context['user'])  # The authorized user.
+    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
+
+    strptime = datetime.datetime.strptime
+    fmt = '%Y-%m-%dT%H:%M:%S.%f'
+    new_activities = [activity for activity in activities if
+            strptime(activity['timestamp'], fmt) > last_viewed]
+    return len(new_activities)
+
+
+def dashboard_mark_activities_as_read(context, data_dict):
+    '''Mark all the authorized user's new dashboard activities as old.
+
+    This will reset dashboard_new_activities_count to 0.
+
+    '''
+    if 'user' not in context:
+        raise logic.NotAuthorized(
+            _("You must be logged in to access your dashboard."))
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized(
+            _("You must be logged in to access your dashboard."))
+    user_id = userobj.id
+    model.Dashboard.update_activity_stream_last_viewed(user_id)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):
