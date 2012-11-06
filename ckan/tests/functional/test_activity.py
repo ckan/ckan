@@ -137,7 +137,7 @@ class TestActivity(HtmlCheckMethods):
         group = group_create(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s created the group %s' % (user['fullname'], group['name']) \
+        assert '%s created the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Update the group.
@@ -145,7 +145,7 @@ class TestActivity(HtmlCheckMethods):
         group = group_update(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s updated the group %s' % (user['fullname'], group['name']) \
+        assert '%s updated the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Delete the group.
@@ -153,7 +153,7 @@ class TestActivity(HtmlCheckMethods):
         group_update(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s deleted the group %s' % (user['fullname'], group['name']) \
+        assert '%s deleted the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Add a new tag to the package.

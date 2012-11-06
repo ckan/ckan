@@ -238,6 +238,11 @@ def make_map():
           'authz',
           'delete',
           'history',
+          'followers',
+          'follow',
+          'unfollow',
+          'admins',
+          'about',
           'activity',
           ]))
           )

@@ -74,11 +74,11 @@
       </p>
     {% endif %}
     <div class="nums">
-      <dl href="{{ h.url_for(controller='user', action='followers', id=user.name) }}">
+      <dl>
         <dt>{{ _('Followers') }}</dt>
         <dd>{{ user.num_followers }}</dd>
       </dl>
-      <dl href="{{ h.url_for(controller='user', action='read', id=user.name) }}">
+      <dl>
         <dt>{{ _('Datasets') }}</dt>
         <dd>{{ user.number_administered_packages }}</dd>
       </dl>

@@ -312,10 +312,6 @@ def package_relationship_delete_rest(context, data_dict):
     package_relationship_delete(context, data_dict)
 
 def _unfollow(context, data_dict, schema, FollowerClass):
-    validated_data_dict, errors = validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     model = context['model']
 
     if not context.has_key('user'):
@@ -327,6 +323,9 @@ def _unfollow(context, data_dict, schema, FollowerClass):
                 _("You must be logged in to unfollow something."))
     follower_id = userobj.id
 
+    validated_data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
     object_id = validated_data_dict.get('id')
 
     follower_obj = FollowerClass.get(follower_id, object_id)
@@ -359,3 +358,15 @@ def unfollow_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
+
+def unfollow_group(context, data_dict):
+    '''Stop following a group.
+
+    :param id: the id or name of the group to stop following
+    :type id: string
+
+    '''
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_group_schema())
+    _unfollow(context, data_dict, schema,
+            context['model'].UserFollowingGroup)
