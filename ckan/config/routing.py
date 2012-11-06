@@ -242,6 +242,7 @@ def make_map():
           'follow',
           'unfollow',
           'admins',
+          'about',
           'activity',
           ]))
           )
