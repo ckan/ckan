@@ -131,6 +131,10 @@ class GroupController(BaseController):
 
         context['return_query'] = True
 
+        # c.group_admins is used by CKAN's legacy (Genshi) templates only,
+        # if we drop support for those then we can delete this line.
+        c.group_admins = self.authorizer.get_admins(c.group)
+
         limit = 20
         try:
             page = int(request.params.get('page', 1))
