@@ -44,11 +44,19 @@ def _package_list_with_resources(context, package_revision_list):
 
 def site_read(context,data_dict=None):
     check_access('site_read',context,data_dict)
+    '''Return ``True``.
+
+    :rtype: boolean
+
+    '''
     return True
 
 def package_list(context, data_dict):
-    '''Lists packages by name or id'''
+    '''Return a list of the names of the site's datasets (packages).
 
+    :rtype: list of strings
+
+    '''
     model = context["model"]
     user = context["user"]
     api = context.get("api_version", 1)
@@ -64,6 +72,20 @@ def package_list(context, data_dict):
     return [getattr(p, ref_package_by) for p in packages]
 
 def current_package_list_with_resources(context, data_dict):
+    '''Return a list of the site's datasets (packages) and their resources.
+
+    The list is sorted most-recently-modified first.
+
+    :param limit: if given, the list of datasets will be broken into pages of
+        at most ``limit`` datasets per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param page: when ``limit`` is given, which page to return
+    :type page: int
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
     user = context["user"]
     limit = data_dict.get("limit")
@@ -83,7 +105,11 @@ def current_package_list_with_resources(context, data_dict):
     return _package_list_with_resources(context, pack_rev)
 
 def revision_list(context, data_dict):
+    '''Return a list of the IDs of the site's revisions.
 
+    :rtype: list of strings
+
+    '''
     model = context['model']
 
     check_access('revision_list', context, data_dict)
@@ -92,6 +118,12 @@ def revision_list(context, data_dict):
     return [rev.id for rev in revs]
 
 def package_revision_list(context, data_dict):
+    '''Return a dataset (package)'s revisions as a list of dictionaries.
+
+    :param id: the id or name of the dataset
+    :type id: string
+
+    '''
     model = context["model"]
     id = data_dict["id"]
     pkg = model.Package.get(id)
@@ -109,16 +141,14 @@ def package_revision_list(context, data_dict):
 
 
 def related_show(context, data_dict=None):
-    """
-    Shows a single related item
+    '''Return a single related item.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    :param id: the id of the related item to show
+    :type id: string
 
-    data_dict:
-        id - The ID of the related item we want to show
-    """
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -138,20 +168,18 @@ def related_show(context, data_dict=None):
 
 
 def related_list(context, data_dict=None):
-    """
-    List the related items for a specific package which should be
-    mentioned in the data_dict
+    '''Return a dataset's related items.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
-        session - The current DB session
+    Either the ``id`` or the ``dataset`` parameter must be given.
 
-    data_dict:
-        id - The ID of the dataset to which we want to list related items
-        or
-        dataset - The dataset (package) model
-    """
+    :param id: id or name of the dataset (optional)
+    :type id: string
+    :param dataset: dataset dictionary of the dataset (optional)
+    :type dataset: dictionary
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     dataset = data_dict.get('dataset', None)
@@ -171,20 +199,23 @@ def related_list(context, data_dict=None):
 
 
 def member_list(context, data_dict=None):
-    """
-    Returns a list of (id,type,capacity) tuples that are members of the
-    specified group if the user has permission to 'get' the group.
+    '''Return the members of a group.
 
-    context:
-        model - The CKAN model module
-        user  - The name of the current user
+    The user must have permission to 'get' the group.
 
-    data_dict:
-        id - The ID of the group to which we want to list members
-        object_type - The optional name of the type being added, all lowercase,
-                      e.g. package, or user
-        capacity - The optional capacity of objects that we want to retrieve
-    """
+    :param id: the id or name of the group
+    :type id: string
+    :param object_type: restrict the members returned to those of a given type,
+      e.g. ``'user'`` or ``'package'`` (optional, default: ``None``)
+    :type object_type: string
+    :param capacity: restrict the members returned to those with a given
+      capacity, e.g. ``'member'``, ``'editor'``, ``'admin'``, ``'public'``,
+      ``'private'`` (optional, default: ``None``)
+    :type capacity: string
+
+    :rtype: list of (id, type, capacity) tuples
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -217,7 +248,25 @@ def member_list(context, data_dict=None):
              for m in q.all() ]
 
 def group_list(context, data_dict):
-    '''Returns a list of groups'''
+    '''Return a list of the names of the site's groups.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param groups: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type groups: list of strings
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
 
     model = context['model']
     user = context['user']
@@ -254,11 +303,15 @@ def group_list(context, data_dict):
     return group_list
 
 def group_list_authz(context, data_dict):
-    '''
-    Returns a list of groups which the user is allowed to edit
+    '''Return the list of groups that the user is authorized to edit.
 
-    If 'available_only' is specified, the existing groups in the package are
-    removed.
+    :param available_only: remove the existing groups in the package
+      (optional, default: ``False``)
+    :type available_only: boolean
+
+    :returns: the names of groups that the user is authorized to edit
+    :rtype: list of strings
+
     '''
     model = context['model']
     user = context['user']
@@ -277,6 +330,14 @@ def group_list_authz(context, data_dict):
     return [{'id':group.id,'name':group.name} for group in groups]
 
 def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     id = data_dict['id']
     group = model.Group.get(id)
@@ -293,6 +354,11 @@ def group_revision_list(context, data_dict):
     return revision_dicts
 
 def licence_list(context, data_dict):
+    '''Return the list of licenses available for datasets on the site.
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
 
     check_access('licence_list',context, data_dict)
@@ -303,15 +369,23 @@ def licence_list(context, data_dict):
     return licences
 
 def tag_list(context, data_dict):
-    '''Return a list of tag dictionaries.
-
-    If a query is provided in the data_dict with key 'query' or 'q', then only
-    tags whose names match the given query will be returned. Otherwise, all
-    tags will be returned.
+    '''Return a list of the site's tags.
 
     By default only free tags (tags that don't belong to a vocabulary) are
-    returned. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be returned instead.
+    returned. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be returned instead.
+
+    :param query: a tag name query to search for, if given only tags whose
+        names contain this string will be returned (optional)
+    :type query: string
+    :param vocabulary_id: the id or name of a vocabulary, if give only tags
+        that belong to this vocabulary will be returned (optional)
+    :type vocabulary_id: string
+    :param all_fields: return full tag dictionaries instead of just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of dictionaries
 
     '''
     model = context['model']
@@ -341,7 +415,18 @@ def tag_list(context, data_dict):
     return tag_list
 
 def user_list(context, data_dict):
-    '''Lists the current users'''
+    '''Return a list of the site's user accounts.
+
+    :param q: restrict the users returned to those whose names contain a string
+      (optional)
+    :type q: string
+    :param order_by: which field to sort the list by (optional, default:
+      ``'name'``)
+    :type order_by: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     user = context['user']
 
@@ -400,7 +485,18 @@ def user_list(context, data_dict):
     return users_list
 
 def package_relationships_list(context, data_dict):
+    '''Return a dataset (package)'s relationships.
 
+    :param id: the id or name of the package
+    :type id: string
+    :param id2:
+    :type id2:
+    :param rel:
+    :type rel:
+
+    :rtype: list of dictionaries
+
+    '''
     ##TODO needs to work with dictization layer
     model = context['model']
     user = context['user']
@@ -439,7 +535,14 @@ def package_relationships_list(context, data_dict):
     return relationship_dicts
 
 def package_show(context, data_dict):
+    '''Return the metadata of a dataset (package) and its resources.
 
+    :param id: the id or name of the dataset
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or data_dict['name_or_id']
@@ -473,6 +576,14 @@ def package_show(context, data_dict):
     return package_dict
 
 def resource_show(context, data_dict):
+    '''Return the metadata of a resource.
+
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -486,7 +597,14 @@ def resource_show(context, data_dict):
     return model_dictize.resource_dictize(resource, context)
 
 def resource_status_show(context, data_dict):
+    '''Return the statuses of a resource's tasks.
 
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: list of (status, date_done, traceback, task_status) dictionaries
+
+    '''
     try:
         import ckan.lib.celery_app as celery_app
     except ImportError:
@@ -510,6 +628,14 @@ def resource_status_show(context, data_dict):
 
 
 def revision_show(context, data_dict):
+    '''Return the details of a revision.
+
+    :param id: the id of the revision
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     api = context.get('api_version')
     id = data_dict['id']
@@ -523,7 +649,14 @@ def revision_show(context, data_dict):
     return rev_dict
 
 def group_show(context, data_dict):
-    '''Shows group details'''
+    '''Return the details of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -555,9 +688,16 @@ def group_show(context, data_dict):
     return group_dict
 
 def group_package_show(context, data_dict):
-    """
-    Shows all packages belonging to a group.
-    """
+    '''Return the datasets (packages) of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param limit: the maximum number of datasets to return (optional)
+    :type limit: int
+
+    :rtype: list of dictionaries
+
+    '''
     model = context["model"]
     user = context["user"]
     id = data_dict['id']
@@ -591,8 +731,16 @@ def group_package_show(context, data_dict):
     return result
 
 def tag_show(context, data_dict):
-    '''Shows tag details'''
+    '''Return the details of a tag and all its datasets.
 
+    :param id: the name or id of the tag
+    :type id: string
+
+    :returns: the details of the tag, including a list of all of the tag's
+        datasets and their details
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict['id']
 
@@ -616,7 +764,18 @@ def tag_show(context, data_dict):
     return tag_dict
 
 def user_show(context, data_dict):
-    '''Shows user details'''
+    '''Return a user account.
+
+    Either the ``id`` or the ``user_obj`` parameter must be given.
+
+    :param id: the id or name of the user (optional)
+    :type id: string
+    :param user_obj: the user dictionary of the user (optional)
+    :type user_obj: user dictionary
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
 
     id = data_dict.get('id',None)
@@ -694,9 +853,17 @@ def tag_show_rest(context, data_dict):
     return tag_dict
 
 def package_autocomplete(context, data_dict):
-    '''Returns packages containing the provided string in either the name
-    or the title'''
+    '''Return a list of datasets (packages) that match a string.
 
+    Datasets with names or titles that contain the query string will be
+    returned.
+
+    :param q: the string to search for
+    :type q: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -729,7 +896,17 @@ def package_autocomplete(context, data_dict):
     return pkg_list
 
 def format_autocomplete(context, data_dict):
-    '''Returns formats containing the provided string'''
+    '''Return a list of resource formats whose names contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of resource formats to return (optional,
+        default: 5)
+    :type limit: int
+
+    :rtype: list of strings
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -757,7 +934,18 @@ def format_autocomplete(context, data_dict):
     return [resource.format.lower() for resource in query]
 
 def user_autocomplete(context, data_dict):
-    '''Returns users containing the provided string'''
+    '''Return a list of user names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of user names to return (optional,
+        default: 20)
+    :type limit: int
+
+    :rtype: a list of user dictionaries each with keys ``'name'``,
+        ``'fullname'``, and ``'id'``
+
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -782,6 +970,97 @@ def user_autocomplete(context, data_dict):
     return user_list
 
 def package_search(context, data_dict):
+    '''
+    Searches for packages satisfying a given search criteria.
+
+    This action accepts solr search query parameters (details below), and
+    returns a dictionary of results, including dictized datasets that match
+    the search criteria, a search count and also facet information.
+
+    **Solr Parameters:**
+
+    For more in depth treatment of each paramter, please read the `Solr
+    Documentation <http://wiki.apache.org/solr/CommonQueryParameters>`_.
+
+    This action accepts a *subset* of solr's search query parameters:
+
+    :param q: the solr query.  Optional.  Default: `"*:*"`
+    :type q: string
+    :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
+        is added to this string prior to the query being executed.
+    :type fq: string
+    :param rows: the number of matching rows to return.
+    :type rows: int
+    :param sort: sorting of the search results.  Optional.  Default:
+        "score desc, name asc".  As per the solr documentation, this is a
+        comma-separated string of field names and sort-orderings.
+    :type sort: string
+    :param start: the offset in the complete result for where the set of
+        returned datasets should begin.
+    :type start: int
+    :param qf: the dismax query fields to search within, including boosts.  See
+        the `Solr Dismax Documentation
+        <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
+        for further details.
+    :type qf: string
+    :param facet: whether to enable faceted results.  Default: "true".
+    :type facet: string
+    :param facet.mincount: the minimum counts for facet fields should be
+        included in the results.
+    :type facet.mincount: int
+    :param facet.limit: the maximum number of constraint counts that should be
+        returned for the facet fields. A negative value means unlimited
+    :type facet.limit: int
+    :param facet.field: the fields to facet upon.  Default empty.  If empty,
+        then the returned facet information is empty.
+    :type facet.field: list of strings
+
+    **Results:**
+
+    The result of this action is a dict with the following keys:
+
+    :rtype: A dictionary with the following keys
+    :param count: the number of results found.  Note, this is the total number
+        of results found, not the total number of results returned (which is
+        affected by limit and row parameters used in the input).
+    :type count: int
+    :param results: ordered list of datasets matching the query, where the
+        ordering defined by the sort parameter used in the query.
+    :type results: list of dictized datasets.
+    :param facets: DEPRECATED.  Aggregated information about facet counts.
+    :type facets: DEPRECATED dict
+    :param search_facets: aggregated information about facet counts.  The outer
+        dict is keyed by the facet field name (as used in the search query).
+        Each entry of the outer dict is itself a dict, with a "title" key, and
+        an "items" key.  The "items" key's value is a list of dicts, each with
+        "count", "display_name" and "name" entries.  The display_name is a
+        form of the name that can be used in titles.
+    :type search_facets: nested dict of dicts.
+
+    An example result: ::
+
+     {'count': 2,
+      'results': [ { <snip> }, { <snip> }],
+      'search_facets': {u'tags': {'items': [{'count': 1,
+                                             'display_name': u'tolstoy',
+                                             'name': u'tolstoy'},
+                                            {'count': 2,
+                                             'display_name': u'russian',
+                                             'name': u'russian'}
+                                           ]
+                                 }
+                       }
+     }
+
+    **Limitations:**
+
+    The full solr query language is not exposed, including.
+
+    fl
+        The parameter that controls which fields are returned in the solr
+        query cannot be changed.  CKAN always returns the matched datasets as
+        dictionary objects.
+    '''
     model = context['model']
     session = context['session']
     user = context['user']
@@ -890,6 +1169,76 @@ def package_search(context, data_dict):
     return search_results
 
 def resource_search(context, data_dict):
+    '''
+    Searches for resources satisfying a given search criteria.
+
+    It returns a dictionary with 2 fields: ``count`` and ``results``.  The
+    ``count`` field contains the total number of Resources found without the
+    limit or query parameters having an effect.  The ``results`` field is a
+    list of dictized Resource objects.
+
+    The 'q' parameter is a required field.  It is a string of the form
+    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    each string, ``{field}`` is a field or extra field on the Resource domain
+    object.
+
+    If ``{field}`` is ``"hash"``, then an attempt is made to match the
+    `{term}` as a *prefix* of the ``Resource.hash`` field.
+
+    If ``{field}`` is an extra field, then an attempt is made to match against
+    the extra fields stored against the Resource.
+
+    Note: The search is limited to search against extra fields declared in
+    the config setting ``ckan.extra_resource_fields``.
+
+    Note: Due to a Resource's extra fields being stored as a json blob, the
+    match is made against the json string representation.  As such, false
+    positives may occur:
+
+    If the search criteria is: ::
+
+        query = "field1:term1"
+
+    Then a json blob with the string representation of: ::
+
+        {"field1": "foo", "field2": "term1"}
+
+    will match the search criteria!  This is a known short-coming of this
+    approach.
+
+    All matches are made ignoring case; and apart from the ``"hash"`` field,
+    a term matches if it is a substring of the field's value.
+
+    Finally, when specifying more than one search criteria, the criteria are
+    AND-ed together.
+
+    The ``order`` parameter is used to control the ordering of the results.
+    Currently only ordering one field is available, and in ascending order
+    only.
+
+    The ``fields`` parameter is deprecated as it is not compatible with calling
+    this action with a GET request to the action API.
+
+    The context may contain a flag, `search_query`, which if True will make
+    this action behave as if being used by the internal search api.  ie - the
+    results will not be dictized, and SearchErrors are thrown for bad search
+    queries (rather than ValidationErrors).
+
+    :param query: The search criteria.  See above for description.
+    :type query: string or list of strings of the form "{field}:{term1}"
+    :param fields: Deprecated
+    :type fields: dict of fields to search terms.
+    :param order_by: A field on the Resource model that orders the results.
+    :type order_by: string
+    :param offset: Apply an offset to the query.
+    :type offset: int
+    :param limit: Apply a limit to the query.
+    :type limit: int
+
+    :returns:  A dictionary with a ``count`` field, and a ``results`` field.
+    :rtype: dict
+
+    '''
     model = context['model']
     session = context['session']
 
@@ -997,17 +1346,35 @@ def _tag_search(context, data_dict):
     return q.all(), count
 
 def tag_search(context, data_dict):
-    '''Return a list of tag dictionaries that contain the given string.
+    '''Return a list of tags whose names contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string(s) to search for
+    :type query: string or list of strings
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :param fields: deprecated
+    :type fields: dictionary
+    :param limit: the maximum number of tags to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning tags
+        from
+    :type offset: int
 
-    Returns a dictionary with keys 'count' (the number of tags in the result)
-    and 'results' (the list of tag dicts).
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of tags in the result.
+
+      ``'results'``
+        The list of tags whose names contain the given string, a list of
+        dictionaries.
+
+    :rtype: dictionary
 
     '''
     tags, count = _tag_search(context, data_dict)
@@ -1015,14 +1382,26 @@ def tag_search(context, data_dict):
             'results': [table_dictize(tag, context) for tag in tags]}
 
 def tag_autocomplete(context, data_dict):
-    '''Return a list of tag names that contain the given string.
+    '''Return a list of tag names that contain a given string.
 
-    The query string should be provided in the data_dict with key 'query' or
-    'q'.
+    By default only free tags (tags that don't belong to any vocabulary) are
+    searched. If the ``vocabulary_id`` argument is given then only tags
+    belonging to that vocabulary will be searched instead.
 
-    By default only free tags (tags that don't belong to a vocabulary) are
-    searched. If a 'vocabulary_id' is provided in the data_dict then tags
-    belonging to the given vocabulary (id or name) will be searched instead.
+    :param query: the string to search for
+    :type query: string
+    :param vocabulary_id: the id or name of the tag vocabulary to search in
+      (optional)
+    :type vocabulary_id: string
+    :param fields: deprecated
+    :type fields: dictionary
+    :param limit: the maximum number of tags to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning tags
+        from
+    :type offset: int
+
+    :rtype: list of strings
 
     '''
     check_access('tag_autocomplete', context, data_dict)
@@ -1033,6 +1412,23 @@ def tag_autocomplete(context, data_dict):
         return []
 
 def task_status_show(context, data_dict):
+    '''Return a task status.
+
+    Either the ``id`` parameter *or* the ``entity_id``, ``task_type`` *and*
+    ``key`` parameters must be given.
+
+    :param id: the id of the task status (optional)
+    :type id: string
+    :param entity_id: the entity_id of the task status (optional)
+    :type entity_id: string
+    :param task_type: the task_type of the task status (optional)
+    :type tast_type: string
+    :param key: the key of the task status (optional)
+    :type key: string
+
+    :rtype: dictionary
+
+    '''
     model = context['model']
     id = data_dict.get('id')
 
@@ -1059,6 +1455,22 @@ def task_status_show(context, data_dict):
 
 
 def term_translation_show(context, data_dict):
+    '''Return the translations for the given term(s) and language(s).
+
+    :param terms: the terms to search for translations of, e.g. ``'Russian'``,
+        ``'romantic novel'``
+    :type terms: list of strings
+    :param lang_codes: the language codes of the languages to search for
+        translations into, e.g. ``'en'``, ``'de'`` (optional, default is to
+        search for translations into any language)
+    :type lang_codes: list of language code strings
+
+    :rtype: a list of term translation dictionaries each with keys ``'term'``
+        (the term searched for, in the source language), ``'term_translation'``
+        (the translation of the term into the target language) and
+        ``'lang_code'`` (the language code of the target language)
+
+    '''
     model = context['model']
 
     trans_table = model.term_translation_table
@@ -1102,13 +1514,18 @@ def get_site_user(context, data_dict):
             'apikey': user.apikey}
 
 def roles_show(context, data_dict):
-    '''Returns the roles that users (and authorization groups) have on a
-    particular domain_object.
+    '''Return the roles of all users and authorization groups for an object.
 
-    If you specify a user (or authorization group) then the resulting roles
-    will be filtered by those of that user (or authorization group).
+    :param domain_object: a package, group or authorization_group name or id
+        to filter the results by
+    :type domain_object: string
+    :param user: a user name or id
+    :type user: string
+    :param authorization_group: an authorization group name or id
+    :type authorization_group: string
 
-    domain_object can be a package/group/authorization_group name or id.
+    :rtype: list of dictionaries
+
     '''
     model = context['model']
     session = context['session']
@@ -1158,7 +1575,7 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Provides information about the operation of this CKAN instance.'''
+    '''Return a dictionary with information about the site's configuration.'''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -1170,11 +1587,24 @@ def status_show(context, data_dict):
         }
 
 def vocabulary_list(context, data_dict):
+    '''Return a list of all the site's tag vocabularies.
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
 
 def vocabulary_show(context, data_dict):
+    '''Return a single tag vocabulary.
+
+    :param id: the id or name of the vocabulary
+    :type id: string
+    :return: the vocabulary.
+    :rtype: dictionary
+
+    '''
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
@@ -1186,7 +1616,14 @@ def vocabulary_show(context, data_dict):
     return vocabulary_dict
 
 def user_activity_list(context, data_dict):
-    '''Return a user\'s public activity stream as a list of dicts.'''
+    '''Return a user's public activity stream.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     user_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1197,7 +1634,14 @@ def user_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
-    '''Return a package\'s public activity stream as a list of dicts.'''
+    '''Return a package's activity stream.
+
+    :param id: the id or name of the package
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     package_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1208,7 +1652,14 @@ def package_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
-    '''Return a group\'s public activity stream as a list of dicts.'''
+    '''Return a group's activity stream.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
     model = context['model']
     group_id = data_dict['id']
     query = model.Session.query(model.Activity)
@@ -1219,8 +1670,9 @@ def group_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
-    '''Return an activity stream of all recently added or updated packages as
-    a list of dicts.
+    '''Return the activity stream of all recently added or changed packages.
+
+    :rtype: list of dictionaries
 
     '''
     model = context['model']
@@ -1232,7 +1684,12 @@ def recently_changed_packages_activity_list(context, data_dict):
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
-    '''Return an activity\'s list of activity detail items, as a list of dicts.
+    '''Return an activity's list of activity detail items.
+
+    :param id: the id of the activity
+    :type id: string
+    :rtype: list of dictionaries.
+
     '''
     model = context['model']
     activity_id = data_dict['id']
@@ -1360,41 +1817,58 @@ def _activity_list_to_html(context, activity_stream):
     return webhelpers.html.literal('\n'.join(html))
 
 def user_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a user\'s public activity stream.
+    '''Return a user's public activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: The id or name of the user.
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = user_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a package\'s public activity stream.
+    '''Return a package's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the package
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = package_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def group_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of a group\'s public activity stream.
+    '''Return a group's activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: string
 
     '''
     activity_stream = group_activity_list(context, data_dict)
     return _activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
-    '''Return an HTML rendering of the activity stream of all recently added
-    or updated packages.
+    '''Return the activity stream of all recently changed packages as HTML.
 
-    The activity stream is rendered as a snippet of HTML meant to be included
-    in an HTML page.
+    The activity stream includes all recently added or changed packages. It is
+    rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
+    doesn't have any HTML header or footer.
+
+    :rtype: string
 
     '''
     activity_stream = recently_changed_packages_activity_list(context,
