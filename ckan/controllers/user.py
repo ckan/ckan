@@ -500,6 +500,11 @@ class UserController(BaseController):
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
+
+        # Mark the user's new activities as read whenever they view their
+        # dashboard page.
+        get_action('dashboard_mark_activities_as_read')(context, {})
+
         return render('user/dashboard.html')
 
     def follow(self, id):
