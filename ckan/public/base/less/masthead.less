@@ -164,17 +164,30 @@
       .border-radius(100px);
       .box-shadow(0 -2px 4px rgba(0, 0, 0, 0.3))
     }
-    i {
+    .icon {
       position: absolute;
       top: 0;
       left: 30px;
       line-height: 25px;
     }
+    .notifications {
+      position: absolute;
+      top: -2px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background-color: #B55457;
+      border: 1px solid #E2B5B6;
+      overflow: hidden;
+      text-indent: -10000px;
+      .box-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
+      .border-radius(100px);
+    }
     &:hover {
       opacity: 1;
+      text-decoration: none;
       i {
         font-weight: normal;
-        text-decoration: none;
       }
     }
   }
@@ -215,8 +228,18 @@
     i {
       margin-right: 5px;
     }
+    .label {
+      float: right;
+      margin-left: 10px;
+      padding-right: 6px;
+      .border-radius(100px);
+    }
     &:hover {
       color: @mastheadLinkColor;
+      .label {
+        background-color: @mastheadLinkColor;
+        color: @layoutLinkColor;
+      }
     }
   }
 }
