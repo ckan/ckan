@@ -1,6 +1,10 @@
 @mastheadPadding: 5px 10px 3px;
 @notificationsBg: #C9403A;
 
+@menuActiveBg: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 95%);
+@menuActiveHi: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 85%);
+@menuActiveLo: darken(@menuActiveBg, 10%);
+
 .masthead() {
 	.clearfix();
 	color: @mastheadTextColor;
@@ -67,6 +71,11 @@ header.masthead {
 					font-size: 12px;
 					font-weight: bold;
 					padding: 4px 10px;
+					.border-radius(3px);
+					&.active {
+						background-color: @menuActiveBg;
+						box-shadow: 0 -1px 0 @menuActiveLo, 0 1px 0 @menuActiveHi;
+					}
 				}
 			}
 		}
@@ -164,6 +173,10 @@ header.masthead {
 		&.authed {
 			margin: 0 0 0 30px;
 		}
+		&.not-authed {
+			padding-top: 2px;
+			padding-bottom: 2px;
+		}
 	}
 
 	.dropdown-menu {
@@ -177,10 +190,6 @@ header.masthead {
 				color: @mastheadLinkColor;
 			}
 		}
-	}
-	.notifications-dropdown-menu {
-		margin-right: 4px;
-		min-width: 300px;
 	}
 
 	.debug {

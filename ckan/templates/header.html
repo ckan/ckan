@@ -30,7 +30,7 @@
       {% if c.userobj %}
         <div class="section account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
           <div class="dropdown">
-            <a href="{{ h.url_for(controller='user', action='dashboard') }}" class="button notifications{% if c.new_activities > 0 %} notifications-important{% endif %}">
+            <a href="{{ h.url_for(controller='user', action='dashboard') }}" class="button notifications{% if c.new_activities > 0 %} notifications-important{% endif %}" title="{{ c.new_activities }} {{ _('new notifications') }}">
               {{ c.new_activities }}
             </a>
           </div>
