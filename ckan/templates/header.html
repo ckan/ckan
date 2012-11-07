@@ -15,53 +15,11 @@
       {% endif %}
     </hgroup>
     <div class="content">
-      {% if c.userobj %}
-        <div class="account section avatar authed dropdown" data-me="{{ c.userobj.id }}">
-          <a href="#" class="image dropdown-toggle" data-toggle="dropdown">
-            {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
-            {% if c.new_activities > 0 %}
-              <span class="notifications" title="{{ _('New items in your dashboard') }}">{{ c.new_activities }}</span>
-            {% endif %}
-            <i class="icon icon-caret-down"></i>
-          </a>
-          <ul class="dropdown-menu pull-right" role="menu">
-            <li>
-              <a href="{{ h.url_for(controller='user', action='dashboard') }}">
-                {% if c.new_activities > 0 %}
-                  <span class="label label-important" title="{{ _('New items in your dashboard') }}">{{ c.new_activities }}</span>
-                {% endif %}
-                <i class="icon-dashboard"></i>
-                {{ _('Dashboard') }}
-              </a>
-            </li>
-            <li>
-              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}">
-                <i class="icon-user"></i>
-                {{ _('My Profile') }}
-              </a>
-            </li>
-            <li>
-              <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}">
-                <i class="icon-wrench"></i>
-                {{ _('Edit Profile') }}
-              </a>
-            </li>
-            <li>
-              <a href="{{ h.url_for('/user/_logout') }}">
-                <i class="icon-signout"></i>
-                {{ _('Log out') }}
-              </a>
-            </li>
-          </ul>
-        </div>
-      {% else %}
-        <nav class="account section">
-          <span class="links">
-            {% link_for _('Log in'), controller='user', action='login' %}
-            {% link_for _('Register'), controller='user', action='register', class_='sub' %}
-          </span>
-        </nav>
-      {% endif %}
+      <nav class="section navigation">
+        <ul class="unstyled">
+          {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
+        </ul>
+      </nav>
       <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
         <div class="field">
           <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
@@ -69,11 +27,54 @@
           <button class="btn-search" type="submit">{{ _('Search') }}</button>
         </div>
       </form>
-      <nav class="first section navigation">
-        <ul class="unstyled">
-          {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
-        </ul>
-      </nav>
+      {% if c.userobj %}
+        <div class="section account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
+          <div class="dropdown">
+            <a href="{{ h.url_for(controller='user', action='dashboard') }}" class="button notifications{% if c.new_activities > 0 %} notifications-important{% endif %}">
+              {{ c.new_activities }}
+            </a>
+          </div>
+          <div class="dropdown">
+            <a href="#" class="button image dropdown-toggle" data-toggle="dropdown">
+              {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
+              <i class="icon-chevron-down"></i>
+            </a>
+            <ul class="user-dropdown-menu dropdown-menu pull-right" role="menu">
+              <li>
+                <a href="{{ h.url_for(controller='user', action='dashboard') }}">
+                  <i class="icon-dashboard"></i>
+                  {{ _('Dashboard') }}
+                </a>
+              </li>
+              <li>
+                <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}">
+                  <i class="icon-user"></i>
+                  {{ _('My Profile') }}
+                </a>
+              </li>
+              <li>
+                <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}">
+                  <i class="icon-wrench"></i>
+                  {{ _('Edit Profile') }}
+                </a>
+              </li>
+              <li>
+                <a href="{{ h.url_for('/user/_logout') }}">
+                  <i class="icon-signout"></i>
+                  {{ _('Log out') }}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      {% else %}
+        <nav class="section account not-authed">
+          <ul class="unstyled">
+            <li>{% link_for _('Log in'), controller='user', action='login' %}</li>
+            <li>{% link_for _('Register'), controller='user', action='register', class_='sub' %}</li>
+          </ul>
+        </nav>
+      {% endif %}
     </div>
   </div>
 </header>
