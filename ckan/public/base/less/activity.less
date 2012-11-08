@@ -4,6 +4,7 @@
 	list-style-type: none;
 	background: transparent url('@{imagePath}/dotted.png') 14px 0 repeat-y;
 	.item {
+		position: relative;
 		margin: 0 0 15px 0;
 		padding: 0;
 		.clearfix;
@@ -40,6 +41,20 @@
 			font-size: 12px;
 			white-space: nowrap;
 			margin-left: 5px;
+		}
+		.new {
+			display: block;
+			position: absolute;
+			overflow: hidden;
+			top: -3px;
+			left: -3px;
+			width: 10px;
+			height: 10px;
+			background-color: #A35647;
+			border: 1px solid #FFF;
+			text-indent: -1000px;
+			.border-radius(100px);
+			.box-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 		}
 	}
 }

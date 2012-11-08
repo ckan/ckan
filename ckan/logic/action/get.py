@@ -2153,7 +2153,7 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream, is_dashboard=True)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2179,6 +2179,11 @@ def dashboard_new_activities_count(context, data_dict):
             strptime(activity['timestamp'], fmt) > last_viewed]
     return len(new_activities)
 
+def dashboard_get_last_viewed(context, data_dict):
+    model = context['model']
+    user = model.User.get(context['user']) # The authorized user.
+    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
+    return last_viewed.timetuple()
 
 def dashboard_mark_activities_as_read(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.

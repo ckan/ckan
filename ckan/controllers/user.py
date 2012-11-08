@@ -501,6 +501,8 @@ class UserController(BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
 
+        c.dashboard_activity_stream = h.dashboard_activity_stream(id)
+
         # Mark the user's new activities as read whenever they view their
         # dashboard page.
         get_action('dashboard_mark_activities_as_read')(context, {})
