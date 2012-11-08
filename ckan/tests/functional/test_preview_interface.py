@@ -63,9 +63,17 @@ class TestPluggablePreviews(FunctionalTestCase):
             'user': model.User.get('testsysadmin').name
         }
 
-        l.action.update.resource_update(context, resource_dict)
-        print testpackage.resources[0].format
+        # no preview for type "plain text"
+        preview_url = h.url_for(controller='package',
+                action='resource_datapreview',
+                id=testpackage.id,
+                resource_id=testpackage.resources[0].id)
+        result = self.app.get(preview_url, status=409)
+        assert 'No preview' in result.body, result.body
 
+        l.action.update.resource_update(context, resource_dict)
+
+        #there should be a preview for type "json"
         preview_url = h.url_for(controller='package',
                 action='resource_datapreview',
                 id=testpackage.id,
@@ -75,10 +83,11 @@ class TestPluggablePreviews(FunctionalTestCase):
         assert 'mock-preview' in result.body
         assert 'mock-preview.js' in result.body
 
-        assert self.plugin.calls['can_preview'] == 1, self.plugin.calls
+        assert self.plugin.calls['can_preview'] == 2, self.plugin.calls
         assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 
+        # test whether the json preview is used
         preview_url = h.url_for(controller='package',
                 action='resource_datapreview',
                 id=testpackage.id,
@@ -88,6 +97,6 @@ class TestPluggablePreviews(FunctionalTestCase):
         assert 'mock-json-preview' in result.body
         assert 'mock-json-preview.js' in result.body
 
-        assert self.plugin.calls['can_preview'] == 2, self.plugin.calls
+        assert self.plugin.calls['can_preview'] == 3, self.plugin.calls
         assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
