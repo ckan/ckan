@@ -1,0 +1,80 @@
+.activity {
+	margin: 10px 0;
+	padding: 0;
+	list-style-type: none;
+	background: transparent url('@{imagePath}/dotted.png') 14px 0 repeat-y;
+	.item {
+		margin: 0 0 15px 0;
+		padding: 0;
+		.clearfix;
+		i {
+			display: block;
+			float: left;
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+			text-align: center;
+			color: @activityColorText;
+			text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+			font-weight: normal;
+			font-size: 16px;
+			margin-right: 10px;
+			.border-radius(100px);
+			.box-shadow(inset 0 1px 2px rgba(0, 0, 0, 0.2));
+		}
+		.gravatar {
+			.border-radius(100px);
+		}
+		.actor .gravatar {
+			float: left;
+			margin-top: -5px;
+			margin-right: 10px;
+		}
+		p {
+			font-size: 14px;
+			line-height: 1.5;
+			margin: 5px 0 0 0;
+		}
+		.date {
+			color: #999;
+			font-size: 12px;
+			white-space: nowrap;
+			margin-left: 5px;
+		}
+	}
+}
+
+// For profile information that appears in the popover
+.popover {
+	.about {
+		margin-bottom: 10px;
+	}
+	.popover-close {
+		float: right;
+		text-decoration: none;
+	}
+}
+
+// colors
+.activity .item {
+	&.added-tag i { background-color: spin(@activityColorNew, 60); }
+	&.changed-group i { background-color: @activityColorModify; }
+	&.changed-package i { background-color: spin(@activityColorModify, 20); }
+	&.changed-package_extra i { background-color: spin(@activityColorModify, -20); }
+	&.changed-resource i { background-color: spin(@activityColorModify, 40); }
+	&.changed-user i { background-color: spin(@activityColorModify, -40); }
+	&.deleted-group i { background-color: @activityColorDelete; }
+	&.deleted-package i { background-color: spin(@activityColorDelete, 20); }
+	&.deleted-package_extra i { background-color: spin(@activityColorDelete, -20); }
+	&.deleted-resource i { background-color: spin(@activityColorDelete, 40); }
+	&.new-group i { background-color: @activityColorNew; }
+	&.new-package i { background-color: spin(@activityColorNew, 20); }
+	&.new-package_extra i { background-color: spin(@activityColorNew, -20); }
+	&.new-resource i { background-color: spin(@activityColorNew, -40); }
+	&.new-user i { background-color: spin(@activityColorNew, 40); }
+	&.removed-tag i { background-color: spin(@activityColorDelete, -40); }
+	&.deleted-related-item i { background-color: spin(@activityColorDelete, 60); }
+	&.follow-dataset i { background-color: @activityColorNeutral; }
+	&.follow-user i { background-color: spin(@activityColorNeutral, 20); }
+	&.new-related-item i { background-color: spin(@activityColorNew, -60); }
+}

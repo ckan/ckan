@@ -189,6 +189,8 @@ def make_map():
           'read_ajax',
           'history_ajax',
           'followers',
+          'follow',
+          'unfollow',
           'delete',
           'api_data',
           ]))
@@ -231,7 +233,8 @@ def make_map():
           'members',
           'member_new',
           'member_delete',
-          'history'
+          'history',
+          'activity',
           ]))
           )
         m.connect('group_read', '/group/{id}', action='read')
@@ -268,7 +271,10 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('/user/activity/{id}', action='activity')
         m.connect('/user/dashboard', action='dashboard')
+        m.connect('/user/follow/{id}', action='follow')
+        m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('/user/followers/{id:.*}', action='followers')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')

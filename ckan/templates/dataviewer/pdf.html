@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block page %}
-  <div id="outerContainer" class="module-content" data-module="pdfpreview">
+  <div id="outerContainer" data-module="pdfpreview">
     <div id="sidebarContainer">
       <div id="toolbarSidebar" class="splitToolbarButton toggled">
         <button id="viewThumbnail" class="toolbarButton group toggled" title="Show Thumbnails" tabindex="1" data-l10n-id="thumbs">
@@ -62,8 +62,12 @@
               <input id="fileInput" class="fileInput" type="file" oncontextmenu="return false;" style="visibility: hidden; position: fixed; right: 0; top: 0" />
 
 
-              <button id="fullscreen" class="toolbarButton fullscreen" title="Fullscreen" tabindex="11" data-l10n-id="fullscreen">
-                <span data-l10n-id="fullscreen_label">Fullscreen</span>
+              <button id="fullscreen" class="toolbarButton fullscreen" title="Switch to Presentation Mode" tabindex="11" data-l10n-id="presentation_mode">
+                <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
+              </button>
+
+              <button id="openFile" class="toolbarButton openFile" title="Open File" tabindex="12" data-l10n-id="open_file">
+                 <span data-l10n-id="open_file_label">Open</span>
               </button>
 
               <button id="print" class="toolbarButton print" title="Print" tabindex="13" data-l10n-id="print">

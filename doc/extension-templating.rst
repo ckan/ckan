@@ -26,7 +26,9 @@ templating language:
     <p>This is my map snippet</p>
 
     {# my-snippet-scripts.html #}
-    <script src="{% url_for_static='/javascript/map.js' %}"></script>
+    <script type="text/javascript"
+            src="{{ h.url_for_static('/javascript/map.js') }}">
+    </script>
 
 Theme Extensions
 ----------------

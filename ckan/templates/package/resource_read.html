@@ -15,18 +15,18 @@
   {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
 
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+    <li>{% link_for _('Edit Resource'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
   {% endif %}
 
   {% if res.url %}
     <li>
       <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
         {% if res.resource_type in ('listing', 'service') %}
-          {{ _('View') }}
+          <i class="icon-eye-open"></i> {{ _('View') }}
         {% elif  res.resource_type == 'api' %}
-          {{ _('API Endpoint') }}
+          <i class="icon-key"></i> {{ _('API Endpoint') }}
         {% else %}
-          <i class="icon-large icon-download"></i> {{ _('Download') }}
+          <i class="icon-download"></i> {{ _('Download') }}
         {%endif %}
       </a>
     </li>

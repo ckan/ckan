@@ -25,6 +25,39 @@
       return path;
     },
 
+    /* Simple helper function for both GET's and POST's to the ckan API
+     * 
+     * type - GET or POST
+     * path - The API endpoint
+     * data - Any data you need passing to the endpoint
+     * fn - The callback function that you want the result data passed to
+     *
+     * Examples
+     *
+     *    client.call('GET', 'user_show', { id: 'some-long-id' }, function(json) { console.log(json) })
+     *
+     */
+    call: function(type, path, data, fn, error) {
+      var url = this.url('/api/action/' + path);
+      var error = ( error == 'undefined' ) ? function() {} : error;
+      var options = {
+        contentType: 'application/json',
+        url: url,
+        dataType: 'json',
+        processData: false,
+        success: fn,
+        error: error
+      };
+      if (type == 'POST') {
+        options.type = 'POST';
+        options.data = JSON.stringify(data);
+      } else {
+        options.type = 'GET';
+        options.url += data;
+      }
+      jQuery.ajax(options);
+    },
+
     /* Requests a block of HTML from the snippet API endpoint. Optional
      * parameters can also be provided to the template via the params
      * object.

@@ -12,8 +12,12 @@
 {% endblock %}
 
 {% block actions_content %}
-  <li>{% link_for _('Back to resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='caret-left' %}</li>
+  <li>{% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}</li>
 {% endblock %}
 
 {# logged_in is defined in new_resource.html #}
 {% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, error_summary=error_summary, pkg_name=pkg_dict.name, form_action=c.form_action, allow_upload=logged_in) }}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/info.html', pkg=pkg_dict, active=data.id, action='resource_edit' %}
+{% endblock %}

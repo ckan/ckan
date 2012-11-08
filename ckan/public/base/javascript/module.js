@@ -255,27 +255,40 @@ this.ckan = this.ckan || {};
    * Returns the module object.
    */
   module.initialize = function () {
-    var registry = module.registry;
-
     // Start caching all calls to .publish() until all modules are loaded.
     ckan.pubsub.enqueue();
 
     jQuery('[data-module]', document.body).each(function (index, element) {
-      var names = jQuery.trim(this.getAttribute(MODULE_PREFIX)).split(' ');
-
-      jQuery.each(names, function (index, name) {
-        var Module = registry[name];
-
-        if (Module && typeof Module === 'function') {
-          module.createInstance(Module, element);
-        }
-      });
+      module.initializeElement(this);
     });
 
     // Now trigger all .publish() calls so that all modules receive them.
     ckan.pubsub.dequeue();
 
     return module;
+  };
+
+  /* Initializes an individual dom modules element
+   *
+   * element = DOM node you want to initialize (not jQuery collection)
+   * 
+   * Examples
+   *
+   *    ckan.module.initializeElement(jQuery('[data-module="foo"]')[0])
+   *
+   * Returns nothing
+   */
+  module.initializeElement = function(element) {
+    var registry = module.registry;
+    var names = jQuery.trim(element.getAttribute(MODULE_PREFIX)).split(' ');
+
+    jQuery.each(names, function (index, name) {
+      var Module = registry[name];
+
+      if (Module && typeof Module === 'function') {
+        module.createInstance(Module, element);
+      }
+    });
   };
 
   /* Creates a new module instance for the element provided.

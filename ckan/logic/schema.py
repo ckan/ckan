@@ -44,6 +44,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_name_exists,
                                    role_exists,
                                    url_validator)
+from ckan.logic.converters import (convert_user_name_or_id_to_id,
+                                   convert_package_name_or_id_to_id,)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -425,12 +427,13 @@ def default_create_activity_schema():
     return schema
 
 def default_follow_user_schema():
-    schema = {'id': [not_missing, not_empty, unicode, user_id_or_name_exists]}
+    schema = {'id': [not_missing, not_empty, unicode,
+        convert_user_name_or_id_to_id]}
     return schema
 
 def default_follow_dataset_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-        package_id_or_name_exists]}
+        convert_package_name_or_id_to_id]}
     return schema
 
 

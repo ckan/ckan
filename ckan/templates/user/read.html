@@ -6,105 +6,114 @@
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Users'), controller='user', action='index' %}</li>
-  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
-    <li class="active">{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
-  {% endwith %}
+  <li class="active">{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
 {% endblock %}
 
 {% block actions_content %}
-{% if c.is_myself %}
-{# FIXME dashboard disabled #}
-  {#    <li>{% link_for _('Dashboard'), controller='user', action='dashboard', class_='btn', icon='dashboard' %}</li>  #}
-  {% endif %}
-  {% if h.check_access('user_update', user) %}
-    <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
-  {% endif %}
+{% if h.check_access('user_update', user) %}
+  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}</li>
+{% endif %}
+{% if c.is_myself == false %}
+  <li>{{ h.follow_button('user', user.id) }}</li>
+{% endif %}
 {% endblock %}
 
 {% block primary_content %}
   <article class="module profile">
-    <section class="module-content profile-info">
-      <header class="media">
-        <span class="media-image">{{ h.linked_gravatar(user.email_hash, 150) }}</span>
-        <div class="description">
-          <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
-          {% if c.about_formatted %}
-            {{ c.about_formatted }}
+    <header class="module-content page-header">
+      <ul class="nav nav-tabs">
+        <li{% if c.action == 'read' or c.action == 'me' %} class="active"{% endif %}>
+          {% link_for _('Datasets'), controller='user', action='read', id=user.name, icon='sitemap' %}
+        </li>
+        <li{% if c.action == 'activity' %} class="active"{% endif %}>
+          {% link_for _('Activity Stream'), controller='user', action='activity', id=user.name, icon='time' %}
+        </li>
+        <li{% if c.action == 'followers' %} class="active"{% endif %}>
+          {% link_for _('Followers'), controller='user', action='followers', id=user.name, icon='group' %}
+        </li>
+      </ul>
+    </header>
+    <section class="module-content">
+      {% block primary_content_inner %}
+        <h2 class="hide-heading">{{ _('Datasets') }}</h2>
+        {% if user.datasets %}
+          {% snippet 'snippets/package_list.html', packages=user.datasets %}
+        {% else %}
+
+          {% if c.is_myself %}
+            <p class="empty">
+              {{ _('You haven\'t created any datasets.') }}
+              {% link_for _('Create one now?'), controller='package', action='new' %}.
+            </p>
           {% else %}
             <p class="empty">
-              {% if c.is_myself %}
-                {% trans %}You have not provided a biography.{% endtrans %}
-              {% else %}
-                {% trans %}This user has no biography.{% endtrans %}
-              {% endif %}
+              {{ _('User hasn\'t created any datasets.') }}
             </p>
           {% endif %}
-        </div>
-      </header>
-      <ul class="listing unstyled">
-        <li>
-          {% if user.name.startswith('http://') or user.name.startswith('https://') %}
-            <b class="key">{{ _('Open ID') }}:</b>
-            {{ user.name|urlize(25) }}{# Be great if this just showed the domain #}
-          {% else %}
-            <b class="key">{{ _('Username') }}:</b>
-            <span class="value">{{ user.name }}</span>
-          {% endif %}
-        </li>
-        {% if c.is_myself %}
-          <li>
-            <b class="key">{{ _('Email') }}:</b>
-            <span class="value">{{ user.email }}</span>
-          </li>
-        {% endif %}
-        <li>
-          <b class="key">{{ _('Member Since') }}:</b>
-          <span class="value">{{ h.render_datetime(user.created) }}</span>
-        </li>
-        {% if c.is_myself %}
-          <li>
-            <b class="key">{{ _('API Key') }}:</b>
-            <span class="value">{{ user.apikey }}</span>
-          </li>
-        {% endif %}
-        <li>
-          <b class="key">{{ _('Datasets') }}:</b>
-          <span class="value">{{ user.number_administered_packages }}</span>
-          <b class="key inline">{{ _('Edits') }}:</b>
-          <span class="value">{{ user.number_of_edits }}</span>
-        </li>
-      </ul>
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#datasets" data-toggle="tab">{{ _('Datasets') }}</a></li>
-        <li><a href="#activity" data-toggle="tab">{{ _('Activity Stream') }}</a></li>
-      </ul>
-    </section>
-    <section id="datasets" class="module-content tab-content active clearfix">
-      <h2 class="tab-heading">{{ _('Datasets') }}</h2>
-      {% if user.datasets %}
-        {% snippet 'snippets/package_list.html', packages=user.datasets %}
-      {% else %}
 
-        {% if c.is_myself %}
-          <p class="empty">
-            {{ _('You haven\'t created any datasets.') }}
-            {% link_for _('Create one now?'), controller='package', action='new' %}.
-          </p>
-        {% else %}
-          <p class="empty">
-            {{ _('User hasn\'t created any datasets.') }}
-          </p>
         {% endif %}
-
-      {% endif %}
-    </section>
-    <section id="activity" class="module-content module-activity tab-content">
-      <h2 class="tab-heading">{{ _('Activity Stream') }}</h2>
-      {{ c.user_activity_stream | safe }}
+      {% endblock %}
     </section>
   </article>
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet 'user/snippets/user_search.html' %}
+<div class="module profile-info">
+  <section class="module-content">
+    <div class="avatar">{{ h.linked_gravatar(user.email_hash, 180) }}</div>
+    <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
+    {% if c.about_formatted %}
+      {{ c.about_formatted }}
+    {% else %}
+      <p class="empty">
+        {% if c.is_myself %}
+          {% trans %}You have not provided a biography.{% endtrans %}
+        {% else %}
+          {% trans %}This user has no biography.{% endtrans %}
+        {% endif %}
+      </p>
+    {% endif %}
+    <div class="nums">
+      <dl href="{{ h.url_for(controller='user', action='followers', id=user.name) }}">
+        <dt>{{ _('Followers') }}</dt>
+        <dd>{{ user.num_followers }}</dd>
+      </dl>
+      <dl href="{{ h.url_for(controller='user', action='read', id=user.name) }}">
+        <dt>{{ _('Datasets') }}</dt>
+        <dd>{{ user.number_administered_packages }}</dd>
+      </dl>
+      <dl>
+        <dt>{{ _('Edits') }}</dt>
+        <dd>{{ user.number_of_edits }}</dd>
+      </dl>
+    </div>
+    <div class="info">
+      <dl>
+        {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+          <dt>{{ _('Open ID') }}</dt>
+          <dd>{{ user.name|urlize(25) }}{# Be great if this just showed the domain #}</dd>
+        {% else %}
+          <dt>{{ _('Username') }}</dt>
+          <dd>{{ user.name }}</dd>
+        {% endif %}
+      </dl>
+      {% if c.is_myself %}
+      <dl>
+        <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+        <dd>{{ user.email }}</dd>
+      </dl>
+      {% endif %}
+      <dl>
+        <dt>{{ _('Member Since') }}</dt>
+        <dd>{{ h.render_datetime(user.created) }}</dd>
+      </dl>
+      {% if c.is_myself %}
+      <dl>
+        <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+        <dd class="value"><code>{{ user.apikey }}</code></dd>
+      </dl>
+      {% endif %}
+    </div>
+  </section>
+</div>
 {% endblock %}

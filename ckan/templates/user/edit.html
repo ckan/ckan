@@ -1,12 +1,10 @@
 {% extends 'page.html' %}
 
-{% set user = c.user %}
+{% set user = c.userobj %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('User'), controller='user', action='index' %}</li>
-  {% with title = _('Your Profile') if c.is_myself  else user.display_name %}
-    <li>{% link_for title|truncate(35), controller='user', action='read', id=user.name %}</li>
-  {% endwith %}
+  <li>{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
   <li class="active">{% link_for _('Edit'), controller='user', action='edit', id=user.name %}</li>
 {% endblock %}
 

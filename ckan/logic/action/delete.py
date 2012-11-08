@@ -349,23 +349,28 @@ def package_relationship_delete_rest(context, data_dict):
 
     package_relationship_delete(context, data_dict)
 
-def _unfollow(context, data_dict, FollowerClass):
+def _unfollow(context, data_dict, schema, FollowerClass):
+    validated_data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
 
     if not context.has_key('user'):
-        raise ckan.logic.NotAuthorized
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise ckan.logic.NotAuthorized
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
     follower_id = userobj.id
 
-    object_id = data_dict.get('id')
+    object_id = validated_data_dict.get('id')
 
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
         raise NotFound(
-                _('Could not find follower {follower} -> {object}').format(
-                    follower=follower_id, object=object_id))
+                _('You are not following {0}.').format(data_dict.get('id')))
 
     follower_obj.delete()
     model.repo.commit()
@@ -379,11 +384,7 @@ def unfollow_user(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
-    _unfollow(context, data_dict, context['model'].UserFollowingUser)
+    _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context, data_dict):
     '''Stop following a dataset.
@@ -398,7 +399,8 @@ def unfollow_dataset(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-    _unfollow(context, data_dict, context['model'].UserFollowingDataset)
+    _unfollow(context, data_dict, schema,
+            context['model'].UserFollowingDataset)
 
 
 def _group_or_org_member_delete(context, data_dict=None):

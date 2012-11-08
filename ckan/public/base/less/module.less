@@ -14,6 +14,11 @@
   #gradient > .vertical(@moduleHeadingBackgroundColorStart, @moduleHeadingBackgroundColorEnd);
 }
 
+.module-heading-secondary {
+  .border-radius(0);
+  border-top: 1px solid @moduleHeadingBorderColor;
+}
+
 .module-heading [class^=icon]:before {
   font-size: 1.2em;
   line-height: 1;
@@ -187,5 +192,11 @@
     max-height: 500px;
     max-width: 100%;
     overflow: hidden;
+  }
+}
+
+.package-info {
+  h4 {
+    margin-bottom: 10px;
   }
 }

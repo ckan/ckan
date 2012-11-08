@@ -533,7 +533,7 @@ def check_access(action, data_dict=None):
     return authorized
 
 
-def linked_user(user, maxlength=0):
+def linked_user(user, maxlength=0, avatar=20):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
     if not isinstance(user, model.User):
@@ -543,7 +543,7 @@ def linked_user(user, maxlength=0):
             return user_name
     if user:
         name = user.name if model.User.VALID_NAME.match(user.name) else user.id
-        icon = gravatar(user.email_hash, 20)
+        icon = gravatar(email_hash=user.email_hash, size=avatar)
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
@@ -1327,7 +1327,7 @@ def resource_preview(resource, pkg_id):
         directly = True
         url = resource['url']
     else:
-        log.info('no handler for {}'.format(resource['format']))
+        log.info('No preview handler for resource type {0}'.format(resource['format']))
         return snippet(
             "dataviewer/snippets/no_preview.html",
             resource_type=format_lower

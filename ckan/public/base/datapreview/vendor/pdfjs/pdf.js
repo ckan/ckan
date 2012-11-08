@@ -22,7 +22,7 @@ var PDFJS = {};
   'use strict';
 
   PDFJS.build =
-'574d626';
+'1c31953';
 
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
@@ -69,7 +69,11 @@ function getPdf(arg, callback) {
   var params = arg;
   if (typeof arg === 'string')
     params = { url: arg };
+//#if !B2G
   var xhr = new XMLHttpRequest();
+//#else
+//var xhr = new XMLHttpRequest({mozSystem: true});
+//#endif
   xhr.open('GET', params.url);
 
   var headers = params.headers;
@@ -609,8 +613,6 @@ var PDFDocument = (function PDFDocumentClosure() {
 var log = (function() {
   if ('console' in globalScope && 'log' in globalScope['console']) {
     return globalScope['console']['log'].bind(globalScope['console']);
-  } else if ('print' in globalScope) {
-    return globalScope['print'].bind(globalScope);
   } else {
     return function nop() {
     };
@@ -1696,9 +1698,18 @@ var WorkerTransport = (function WorkerTransportClosure() {
 
       try {
         var worker;
+//#if !(FIREFOX || MOZCENTRAL)
         // Some versions of FF can't create a worker on localhost, see:
         // https://bugzilla.mozilla.org/show_bug.cgi?id=683280
         worker = new Worker(workerSrc);
+//#else
+//      // The firefox extension can't load the worker from the resource://
+//      // url so we have to inline the script and then use the blob loader.
+//      var script = document.querySelector('#PDFJS_SCRIPT_TAG');
+//      var blob = PDFJS.createBlob(script.textContent, script.type);
+//      var blobUrl = window.URL.createObjectURL(blob);
+//      worker = new Worker(blobUrl);
+//#endif
         var messageHandler = new MessageHandler('main', worker);
         this.messageHandler = messageHandler;
 
@@ -2572,9 +2583,10 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       var textHScale2 = textHScale * fontMatrix[0];
       var glyphsLength = glyphs.length;
       var textLayer = this.textLayer;
-      var text = {str: '', length: 0, canvasWidth: 0, geom: {}};
+      var geom;
       var textSelection = textLayer && !skipTextSelection ? true : false;
       var textRenderingMode = current.textRenderingMode;
+      var canvasWidth = 0.0;
 
       // Type3 fonts - each glyph is a "mini-PDF"
       if (font.coded) {
@@ -2587,7 +2599,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
         if (textSelection) {
           this.save();
           ctx.scale(1, -1);
-          text.geom = this.getTextGeometry();
+          geom = this.getTextGeometry();
           this.restore();
         }
         for (var i = 0; i < glyphsLength; ++i) {
@@ -2613,9 +2625,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
           ctx.translate(width, 0);
           current.x += width * textHScale;
 
-          text.str += glyph.unicode;
-          text.length++;
-          text.canvasWidth += width;
+          canvasWidth += width;
         }
         ctx.restore();
       } else {
@@ -2630,7 +2640,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
           lineWidth /= scale;
 
         if (textSelection)
-          text.geom = this.getTextGeometry();
+          geom = this.getTextGeometry();
 
         if (fontSizeScale != 1.0) {
           ctx.scale(fontSizeScale, fontSizeScale);
@@ -2679,17 +2689,19 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
           var glyphUnicode = glyph.unicode === ' ' ? '\u00A0' : glyph.unicode;
           if (glyphUnicode in NormalizedUnicodes)
             glyphUnicode = NormalizedUnicodes[glyphUnicode];
-          text.str += reverseIfRtl(glyphUnicode);
-          text.canvasWidth += charWidth;
+
+          canvasWidth += charWidth;
         }
         current.x += x * textHScale2;
         ctx.restore();
       }
 
-      if (textSelection)
-        this.textLayer.appendText(text, font.fallbackName, fontSize);
+      if (textSelection) {
+        geom.canvasWidth = canvasWidth;
+        this.textLayer.appendText(font.fallbackName, fontSize, geom);
+      }
 
-      return text;
+      return canvasWidth;
     },
     showSpacedText: function CanvasGraphics_showSpacedText(arr) {
       var ctx = this.ctx;
@@ -2701,7 +2713,8 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
         textHScale *= (current.fontMatrix || IDENTITY_MATRIX)[0];
       var arrLength = arr.length;
       var textLayer = this.textLayer;
-      var text = {str: '', length: 0, canvasWidth: 0, geom: {}};
+      var geom;
+      var canvasWidth = 0.0;
       var textSelection = textLayer ? true : false;
 
       if (textSelection) {
@@ -2714,7 +2727,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
           ctx.scale(textHScale, 1);
         } else
           this.applyTextTransforms();
-        text.geom = this.getTextGeometry();
+        geom = this.getTextGeometry();
         ctx.restore();
       }
 
@@ -2724,34 +2737,22 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
           var spacingLength = -e * 0.001 * fontSize * textHScale;
           current.x += spacingLength;
 
-          if (textSelection) {
-            // Emulate precise spacing via HTML spaces
-            text.canvasWidth += spacingLength;
-            if (e < 0 && text.geom.spaceWidth > 0) { // avoid div by zero
-              var numFakeSpaces = Math.round(-e / text.geom.spaceWidth);
-              if (numFakeSpaces > 0) {
-                text.str += '\u00A0';
-              }
-            }
-          }
+          if (textSelection)
+            canvasWidth += spacingLength;
         } else if (isString(e)) {
-          var shownText = this.showText(e, true);
+          var shownCanvasWidth = this.showText(e, true);
 
-          if (textSelection) {
-            if (shownText.str === ' ') {
-              text.str += '\u00A0';
-            } else {
-              text.str += shownText.str;
-            }
-            text.canvasWidth += shownText.canvasWidth;
-          }
+          if (textSelection)
+            canvasWidth += shownCanvasWidth;
         } else {
           error('TJ array element ' + e + ' is not string or num');
         }
       }
 
-      if (textSelection)
-        this.textLayer.appendText(text, font.fallbackName, fontSize);
+      if (textSelection) {
+        geom.canvasWidth = canvasWidth;
+        this.textLayer.appendText(font.fallbackName, fontSize, geom);
+      }
     },
     nextLineShowText: function CanvasGraphics_nextLineShowText(text) {
       this.nextLine();
@@ -13267,6 +13268,21 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           translated = { error: e };
         }
         font.translated = translated;
+
+        var data = translated;
+        if (data.loadCharProcs) {
+          delete data.loadCharProcs;
+
+          var charProcs = font.get('CharProcs').getAll();
+          var fontResources = font.get('Resources') || resources;
+          var charProcOperatorList = {};
+          for (var key in charProcs) {
+            var glyphStream = charProcs[key];
+            charProcOperatorList[key] =
+              this.getOperatorList(glyphStream, fontResources, dependency);
+          }
+          data.charProcOperatorList = charProcOperatorList;
+        }
       }
       return font;
     },
@@ -13298,19 +13314,6 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         var loadedName = font.loadedName;
         if (!font.sent) {
           var data = font.translated;
-          if (data.loadCharProcs) {
-            delete data.loadCharProcs;
-
-            var charProcs = font.get('CharProcs').getAll();
-            var fontResources = font.get('Resources') || resources;
-            var charProcOperatorList = {};
-            for (var key in charProcs) {
-              var glyphStream = charProcs[key];
-              charProcOperatorList[key] =
-                self.getOperatorList(glyphStream, fontResources, dependency);
-            }
-            data.charProcOperatorList = charProcOperatorList;
-          }
 
           if (data instanceof Font)
             data = data.exportData();
@@ -13608,7 +13611,20 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       return queue;
     },
 
-    getTextContent: function partialEvaluatorGetIRQueue(stream, resources) {
+    getTextContent: function partialEvaluatorGetIRQueue(
+                                                    stream, resources, state) {
+      var bidiTexts;
+      var kSpaceFactor = 0.35;
+      var kMultipleSpaceFactor = 1.5;
+
+      if (!state) {
+        bidiTexts = [];
+        state = {
+          bidiTexts: bidiTexts
+        };
+      } else {
+        bidiTexts = state.bidiTexts;
+      }
 
       var self = this;
       var xref = this.xref;
@@ -13618,18 +13634,20 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       }
 
       resources = xref.fetchIfRef(resources) || new Dict();
+      // The xobj is parsed iff it's needed, e.g. if there is a `DO` cmd.
+      var xobjs = null;
 
       var parser = new Parser(new Lexer(stream), false);
       var res = resources;
       var args = [], obj;
 
-      var text = '';
       var chunk = '';
       var font = null;
       while (!isEOF(obj = parser.getObj())) {
         if (isCmd(obj)) {
           var cmd = obj.cmd;
           switch (cmd) {
+            // TODO: Add support for SAVE/RESTORE and XFORM here.
             case 'Tf':
               font = handleSetFont(args[0].name).translated;
               break;
@@ -13638,10 +13656,16 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               for (var j = 0, jj = items.length; j < jj; j++) {
                 if (typeof items[j] === 'string') {
                   chunk += fontCharsToUnicode(items[j], font);
-                } else if (items[j] < 0) {
-                  // making all negative offsets a space - better to have
-                  // a space in incorrect place than not have them at all
-                  chunk += ' ';
+                } else if (items[j] < 0 && font.spaceWidth > 0) {
+                  var fakeSpaces = -items[j] / font.spaceWidth;
+                  if (fakeSpaces > kMultipleSpaceFactor) {
+                    fakeSpaces = Math.round(fakeSpaces);
+                    while (fakeSpaces--) {
+                      chunk += ' ';
+                    }
+                  } else if (fakeSpaces > kSpaceFactor) {
+                    chunk += ' ';
+                  }
                 }
               }
               break;
@@ -13649,14 +13673,69 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               chunk += fontCharsToUnicode(args[0], font);
               break;
             case "'":
-              chunk += fontCharsToUnicode(args[0], font) + ' ';
+              // For search, adding a extra white space for line breaks would be
+              // better here, but that causes too much spaces in the
+              // text-selection divs.
+              chunk += fontCharsToUnicode(args[0], font);
               break;
             case '"':
-              chunk += fontCharsToUnicode(args[2], font) + ' ';
+              // Note comment in "'"
+              chunk += fontCharsToUnicode(args[2], font);
+              break;
+            case 'Do':
+              // Set the chunk such that the following if won't add something
+              // to the state.
+              chunk = '';
+
+              if (args[0].code) {
+                break;
+              }
+
+              if (!xobjs) {
+                xobjs = resources.get('XObject') || new Dict();
+              }
+
+              var name = args[0].name;
+              var xobj = xobjs.get(name);
+              if (!xobj)
+                break;
+              assertWellFormed(isStream(xobj), 'XObject should be a stream');
+
+              var type = xobj.dict.get('Subtype');
+              assertWellFormed(
+                isName(type),
+                'XObject should have a Name subtype'
+              );
+
+              if ('Form' !== type.name)
+                break;
+
+              state = this.getTextContent(
+                xobj,
+                xobj.dict.get('Resources') || resources,
+                state
+              );
+              break;
+            case 'gs':
+              var dictName = args[0];
+              var extGState = resources.get('ExtGState');
+
+              if (!isDict(extGState) || !extGState.has(dictName.name))
+                break;
+
+              var gsState = extGState.get(dictName.name);
+
+              for (var i = 0; i < gsState.length; i++) {
+                if (gsState[i] === 'Font') {
+                  font = handleSetFont(args[0].name).translated;
+                }
+              }
               break;
           } // switch
+
           if (chunk !== '') {
-            text += chunk;
+            bidiTexts.push(PDFJS.bidi(chunk, -1));
+
             chunk = '';
           }
 
@@ -13665,9 +13744,9 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           assertWellFormed(args.length <= 33, 'Too many arguments');
           args.push(obj);
         }
-      }
+      } // while
 
-      return text;
+      return state;
     },
 
     extractDataStructures: function
@@ -14522,6 +14601,7 @@ function mapPrivateUseChars(code) {
 }
 
 var FontLoader = {
+//#if !(MOZCENTRAL)
   loadingContext: {
     requests: [],
     nextRequestId: 0
@@ -14705,6 +14785,22 @@ var FontLoader = {
       document.body.appendChild(frame);
       /** Hack end */
   }
+//#else
+//bind: function fontLoaderBind(fonts, callback) {
+//  assert(!isWorker, 'bind() shall be called from main thread');
+//
+//  for (var i = 0, ii = fonts.length; i < ii; i++) {
+//    var font = fonts[i];
+//    if (font.attached)
+//      continue;
+//
+//    font.attached = true;
+//    font.bindDOM()
+//  }
+//
+//  setTimeout(callback);
+//}
+//#endif
 };
 
 var UnicodeRanges = [
@@ -17973,6 +18069,10 @@ var Font = (function FontClosure() {
     },
 
     get spaceWidth() {
+      if ('_shadowWidth' in this) {
+        return this._shadowWidth;
+      }
+
       // trying to estimate space character width
       var possibleSpaceReplacements = ['space', 'minus', 'one', 'i'];
       var width;
@@ -18000,7 +18100,10 @@ var Font = (function FontClosure() {
           break; // the non-zero width found
       }
       width = (width || this.defaultWidth) * this.widthMultiplier;
-      return shadow(this, 'spaceWidth', width);
+      // Do not shadow the property here. See discussion:
+      // https://github.com/mozilla/pdf.js/pull/2127#discussion_r1662280
+      this._shadowWidth = width;
+      return width;
     },
 
     charToGlyph: function Font_charToGlyph(charcode) {
@@ -31314,6 +31417,7 @@ function MessageHandler(name, comObj) {
     }];
   } else {
     ah['console_error'] = [function ahConsoleError(data) {
+      log.apply(null, data);
     }];
   }
   ah['_warn'] = [function ah_Warn(data) {
@@ -34663,11 +34767,16 @@ var bidi = PDFJS.bidi = (function bidiClosure() {
     }
   }
 
-  function bidi(text, startLevel) {
-    var str = text.str;
+  function BidiResult(str, isLTR) {
+    this.str = str;
+    this.ltr = isLTR;
+  }
+
+  function bidi(str, startLevel) {
+    var isLTR = true;
     var strLength = str.length;
     if (strLength == 0)
-      return str;
+      return new BidiResult(str, ltr);
 
     // get types, fill arrays
 
@@ -34701,16 +34810,16 @@ var bidi = PDFJS.bidi = (function bidiClosure() {
     //  if less than 30% chars are rtl then string is primarily ltr
     //  if more than 30% chars are rtl then string is primarily rtl
     if (numBidi == 0) {
-      text.direction = 'ltr';
-      return str;
+      isLTR = true;
+      return new BidiResult(str, isLTR);
     }
 
     if (startLevel == -1) {
       if ((strLength / numBidi) < 0.3) {
-        text.direction = 'ltr';
+        isLTR = true;
         startLevel = 0;
       } else {
-        text.direction = 'rtl';
+        isLTR = false;
         startLevel = 1;
       }
     }
@@ -34963,7 +35072,8 @@ var bidi = PDFJS.bidi = (function bidiClosure() {
       if (ch != '<' && ch != '>')
         result += ch;
     }
-    return result;
+
+    return new BidiResult(result, isLTR);
   }
 
   return bidi;
@@ -35990,5 +36100,3 @@ var JpegImage = (function jpegImage() {
 
 
 }).call((typeof window === 'undefined') ? this : window);
-
-
