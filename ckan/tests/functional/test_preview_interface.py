@@ -75,9 +75,9 @@ class TestPluggablePreviews(FunctionalTestCase):
         assert 'mock-preview' in result.body
         assert 'mock-preview.js' in result.body
 
-        assert self.plugin.calls['can_preview'] == 1, plugin.call
-        assert self.plugin.calls['setup_template_variables'] == 1, plugin.calls
-        assert self.plugin.calls['preview_templates'] == 1, plugin.calls
+        assert self.plugin.calls['can_preview'] == 1, self.plugin.calls
+        assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
+        assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 
         preview_url = h.url_for(controller='package',
                 action='resource_datapreview',
@@ -85,7 +85,9 @@ class TestPluggablePreviews(FunctionalTestCase):
                 resource_id=testpackage.resources[1].id)
         result = self.app.get(preview_url, status=200)
 
-        assert 'mock-preview' not in result.body, result.body
-        assert 'mock-preview.js' not in result.body, result.body
         assert 'mock-json-preview' in result.body
         assert 'mock-json-preview.js' in result.body
+
+        assert self.plugin.calls['can_preview'] == 2, self.plugin.calls
+        assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
+        assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
