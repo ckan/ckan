@@ -315,6 +315,14 @@ class IPackageController(Interface):
         '''
         return pkg_dict
 
+    def before_search_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the dataset gets
+             displayed as an entry in the search.
+             The dictionary passed will be the one that gets sent to the template.
+        '''
+        return pkg_dict
+
 
 class IPluginObserver(Interface):
     """
