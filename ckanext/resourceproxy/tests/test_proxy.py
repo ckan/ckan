@@ -72,11 +72,11 @@ class TestProxyBasic(tests.WsgiAppCase):
 
     def test_resource_proxy(self):
         url = self.data_dict['resource']['url']
-        result = self.app.get(url, status=200)
-        assert result.status == 200, result.status
-        assert "yes, I'm proxied" in result.body, result.body
+        result = requests.get(url)
+        assert result.status_code == 200, result.status_code
+        assert "yes, I'm proxied" in result.content, result.content
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url).follow()
-        assert result.status == 200, result.status
-        assert "yes, I'm proxied" in result.body, result.body
+        result = requests.get(proxied_url)
+        assert result.status_code == 200, result.status_code
+        assert "yes, I'm proxied" in result.content, result.content
