@@ -31,28 +31,23 @@ class TestProxyBasic(tests.WsgiAppCase):
         CreateTestData.create()
         testpackage = model.Package.get('annakarenina')
 
-        # set the url to a static resource
-        resource_dict = resource_dictize(testpackage.resources[0], {'model': model})
-        resource_dict['url'] = 'http://0.0.0.0:50001/static/test.json'
         context = {
             'model': model,
             'session': model.Session,
             'user': model.User.get('testsysadmin').name
         }
-        l.action.update.resource_update(context, resource_dict)
+
+        # set the url to a static resource
+        resource = l.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
+        package = l.get_action('package_show')(context, {'id': testpackage.id})
+
+        resource['url'] = 'http://0.0.0.0:50001/static/test.json'
+        l.action.update.resource_update(context, resource)
 
         testpackage = model.Package.get('annakarenina')
-        assert testpackage.resources[0].url == resource_dict['url'], testpackage.resources[0].url
+        assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
 
-        cls.data_dict = {
-            'resource': {
-                'id': testpackage.resources[0].id,
-                'url': testpackage.resources[0].url
-            },
-            'package': {
-                'name': testpackage.name
-            }
-        }
+        cls.data_dict = {'resource': resource, 'package': package}
 
         #make sure services are running
         for i in range(0, 50):
@@ -77,6 +72,6 @@ class TestProxyBasic(tests.WsgiAppCase):
         assert "yes, I'm proxied" in result.content, result.content
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = requests.get(proxied_url)
-        assert result.status_code == 200, result.status_code
-        assert "yes, I'm proxied" in result.content, result.content
+        result = self.app.get(proxied_url).follow()
+        assert result.status == 200, result.status
+        assert "yes, I'm proxied" in result.body, result.body
