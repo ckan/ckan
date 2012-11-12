@@ -15,7 +15,7 @@ def proxy_resource(context, data_dict):
         url = resource['url']
         try:
             req = urllib2.urlopen(url)
-        except urllib2.HTTPError, error:
+        except urllib2.URLError, error:
             req = error
         base.response.headers = req.headers
 
