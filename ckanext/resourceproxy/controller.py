@@ -13,7 +13,10 @@ def proxy_resource(context, data_dict):
         log.info('Proxify resource {id}'.format(id=resource_id))
         resource = logic.get_action('resource_show')(context, {'id': resource_id})
         url = resource['url']
-        req = urllib2.urlopen(url)
+        try:
+            req = urllib2.urlopen(url)
+        except urllib2.HTTPError, error:
+            req = error
         base.response.headers = req.headers
 
         import shutil
