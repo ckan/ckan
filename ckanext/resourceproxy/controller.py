@@ -14,13 +14,13 @@ def proxy_resource(context, data_dict):
         resource = logic.get_action('resource_show')(context, {'id': resource_id})
         url = resource['url']
         try:
-            req = urllib2.urlopen(url)
+            res = urllib2.urlopen(url)
         except urllib2.URLError, error:
-            req = error
-        base.response.headers = req.headers
+            res = error
+        base.response.headers = res.headers
 
         import shutil
-        shutil.copyfileobj(req, base.response)
+        shutil.copyfileobj(res, base.response)
 
 
 class ProxyController(base.BaseController):
