@@ -11,7 +11,6 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.dictization.model_dictize import resource_dictize
 
 import ckanext.resourceproxy.plugin as proxy
 
@@ -71,7 +70,10 @@ class TestProxyBasic(tests.WsgiAppCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
+        # fixme: there is a wrong url returned
+        # strangely the before_map in the plugin is never called
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url).follow()
+        print proxied_url
+        result = self.app.get(proxied_url)
         assert result.status == 200, result.status
         assert "yes, I'm proxied" in result.body, result.body
