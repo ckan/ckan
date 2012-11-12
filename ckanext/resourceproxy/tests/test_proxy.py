@@ -4,13 +4,14 @@ import subprocess
 import requests
 import time
 
-from nose.tools import assert_raises, assert_equal
-import ckan.lib.helpers as h
 import ckan.logic as l
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 from ckan.lib.create_test_data import CreateTestData
+from paste.deploy import appconfig
+import paste.fixture
+from ckan.config.middleware import make_app
 
 import ckanext.resourceproxy.plugin as proxy
 
@@ -19,12 +20,15 @@ class TestProxyBasic(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        config = appconfig('config:test.ini', relative_to=tests.conf_dir)
+        config.local_conf['ckan.plugins'] = 'resourceproxy'
+        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+
         static_files_server = os.path.join(os.path.dirname(__file__),
                                            'file_server.py')
         cls.static_files_server = subprocess.Popen(
             ['python', static_files_server])
-
-        plugins.load('resourceproxy')
 
         # create test resource
         CreateTestData.create()
@@ -70,8 +74,6 @@ class TestProxyBasic(tests.WsgiAppCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-        # fixme: there is a wrong url returned
-        # strangely the before_map in the plugin is never called
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         print proxied_url
         result = self.app.get(proxied_url)
