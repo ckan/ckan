@@ -32,25 +32,6 @@ class TestProxyBasic(tests.WsgiAppCase):
 
         # create test resource
         CreateTestData.create()
-        testpackage = model.Package.get('annakarenina')
-
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': model.User.get('testsysadmin').name
-        }
-
-        # set the url to a static resource
-        resource = l.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
-        package = l.get_action('package_show')(context, {'id': testpackage.id})
-
-        resource['url'] = 'http://0.0.0.0:50001/static/test.json'
-        l.action.update.resource_update(context, resource)
-
-        testpackage = model.Package.get('annakarenina')
-        assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
-
-        cls.data_dict = {'resource': resource, 'package': package}
 
         #make sure services are running
         for i in range(0, 50):
@@ -65,17 +46,49 @@ class TestProxyBasic(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        cls.static_files_server.kill()
+        #cls.static_files_server.kill()
         plugins.reset()
 
-    def test_resource_proxy(self):
+    def set_resource_url(self, url):
+        testpackage = model.Package.get('annakarenina')
+
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': model.User.get('testsysadmin').name
+        }
+
+        resource = l.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
+        package = l.get_action('package_show')(context, {'id': testpackage.id})
+
+        resource['url'] = url
+        l.action.update.resource_update(context, resource)
+
+        testpackage = model.Package.get('annakarenina')
+        assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
+
+        self.data_dict = {'resource': resource, 'package': package}
+
+    def test_resource_proxy_on_200(self):
+        self.set_resource_url('http://0.0.0.0:50001/static/test.json')
+
         url = self.data_dict['resource']['url']
         result = requests.get(url)
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        print proxied_url
         result = self.app.get(proxied_url)
         assert result.status == 200, result.status
         assert "yes, I'm proxied" in result.body, result.body
+
+    def test_resource_proxy_on_404(self):
+        self.set_resource_url('http://0.0.0.0:50001/foo.bar')
+
+        url = self.data_dict['resource']['url']
+        result = requests.get(url)
+        assert result.status_code == 404, result.status_code
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url)
+        assert result.status == 404, result.status
