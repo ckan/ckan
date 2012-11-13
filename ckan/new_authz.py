@@ -137,13 +137,15 @@ def has_user_permission_for_some_org(user_name, permission):
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
+    # if not in any groups has no permissions
+    if not group_ids:
+        return False
 
     # see if any of the groups are orgs
     q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == True) \
-        .filter(model.Group.state == 'active')
-    if group_ids:
-        q = q.filter(model.Group.id.in_(group_ids))
+        .filter(model.Group.state == 'active') \
+        .filter(model.Group.id.in_(group_ids))
 
     return bool(q.count())
 
