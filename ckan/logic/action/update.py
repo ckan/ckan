@@ -987,7 +987,7 @@ def package_owner_org_update(context, data_dict):
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
 
-    # FIXME auth
+    _check_access('package_owner_org_update', context, data_dict)
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:

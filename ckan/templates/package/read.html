@@ -103,6 +103,7 @@
     {% if pkg.private %}
       {% snippet "snippets/private.html" %}
     {% endif %}
+  {% endblock %}
 
   {% if not pkg.private %}
     {% block package_groups %}
