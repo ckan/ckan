@@ -25,8 +25,12 @@ class TestAction(tests.WsgiAppCase):
         ## add apikeys as they go along
         cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
 
+        cls.old_perm = new_authz.CONFIG_PERMISSIONS
+        new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
+
     @classmethod
     def teardown_class(cls):
+        new_authz.CONFIG_PERMISSIONS.update(cls.old_perm)
         model.repo.rebuild_db()
 
     def _action_post(self, action, data, user, status=None):
