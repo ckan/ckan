@@ -1,12 +1,7 @@
 <header class="module-content page-header">
 	<ul class="nav nav-tabs">
-		{% for label, url, icon, is_active in items %}
-			<li{%if is_active %} class="active"{% endif %}>
-				<a href="{{ url }}">
-					<i class="icon-{{ icon }}"></i>
-					{{ label }}
-				</a>
-			</li>
+		{% for item in items %}
+			{{ item }}
 		{% endfor %}
 	</ul>
 </header>

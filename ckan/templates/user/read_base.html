@@ -22,9 +22,9 @@
   <article class="module profile">
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
-        ( _('Datasets'), h.url_for(controller='user', action='read', id=user.name), 'sitemap', ( c.action == 'read' or c.action == 'me' ) ),
-        ( _('Activity Stream'), h.url_for(controller='user', action='activity', id=user.name), 'time', c.action == 'activity' ),
-        ( _('Followers'), h.url_for(controller='user', action='followers', id=user.name), 'group', c.action == 'followers' ),
+          h.build_nav_tab('user_datasets', _('Datasets'), id=user.name),
+          h.build_nav_tab('user_activity_stream', _('Activity Stream'), id=user.name),
+          h.build_nav_tab('user_followers', _('Followers'), id=user.name),
         ] %}
     {% endblock %}
     <section class="module-content">
