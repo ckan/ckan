@@ -536,6 +536,10 @@ def format_icon(_format):
     return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default=None):
+
+    if not _display_gravatars():
+        return ''
+
     return literal(
         '<a href="https://gravatar.com/" target="_blank"' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
@@ -544,6 +548,10 @@ def linked_gravatar(email_hash, size=100, default=None):
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
 def gravatar(email_hash, size=100, default=None):
+
+    if not _display_gravatars():
+        return ''
+
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
 
@@ -555,6 +563,9 @@ def gravatar(email_hash, size=100, default=None):
         class="gravatar" />'''
         % (email_hash, size, default)
         )
+
+def _display_gravatars():
+    return asbool(config.get('ckan.display_gravatars', 'true'))
 
 def pager_url(page, partial=None, **kwargs):
     routes_dict = _pylons_default_url.environ['pylons.routes_dict']

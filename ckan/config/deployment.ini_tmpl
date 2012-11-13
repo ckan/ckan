@@ -109,6 +109,9 @@ ckan.favicon = /images/icons/ckan.ico
 ## or "mm").  Or it can be a url, e.g. "http://example.com/images/avatar.jpg"
 ckan.gravatar_default = identicon
 
+## Controls whether gravatars are displayed or not.
+ckan.display_gravatars = no
+
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr
 
