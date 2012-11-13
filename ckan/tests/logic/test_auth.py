@@ -40,8 +40,12 @@ class TestAction(tests.WsgiAppCase):
                              extra_environ={'Authorization': self.apikeys[user]},
                              status=status)
 
-    def test_1_create_org(self):
-        org = {'name': 'org_by_sysadmin',}
+    def test_1_create_orgs(self):
+        org = {'name': 'org_no_user',}
+        self._action_post('organization_create', org, 'random_key', 403)
+        self._action_post('organization_create', org, 'sysadmin')
+
+        org = {'name': 'org_with_user',}
         self._action_post('organization_create', org, 'random_key', 403)
         self._action_post('organization_create', org, 'sysadmin')
 
@@ -67,26 +71,68 @@ class TestAction(tests.WsgiAppCase):
 
     def test_4_create_dataset_with_org(self):
 
-        dataset = {'name': 'admin_create_with_org',
-                   'owner_org': 'org_by_sysadmin'}
+        dataset = {'name': 'admin_create_with_org'}
         res = self._action_post('package_create', dataset, 'sysadmin', 200)
 
-        dataset = {'name': 'should_not_be_created2',
-                   'owner_org': 'org_by_sysadmin'}
+        dataset = {'name': 'should_not_be_created2'}
         res = self._action_post('package_create', dataset, 'no_org', 403)
 
-    def test_5_add_user_to_org(self):
+    def test_5_add_users_to_org(self):
 
-        user = {'name': 'user_as_admin',
+        ## add admin user
+        user = {'name': 'admin',
                 'password': 'pass',
                 'email': 'moo@moo.com'}
         res = self._action_post('user_create', user, 'sysadmin')
-        self.apikeys['with_org'] = str(json.loads(res.body)['result']['apikey'])
+        self.apikeys['admin'] = str(json.loads(res.body)['result']['apikey'])
 
-        member = {'username': 'user_as_admin',
-                  'role': 'editor',
-                  'id': 'org_by_sysadmin'}
-        res = self._action_post('organization_member_create', member, 'no_org', 403)
-
+        member = {'username': 'admin',
+                  'role': 'admin',
+                  'id': 'org_with_user'}
         self._action_post('organization_member_create', member, 'sysadmin')
+
+        ## add editor user,
+        user = {'name': 'editor',
+                'password': 'pass',
+                'email': 'moo@moo.com'}
+        res = self._action_post('user_create', user, 'sysadmin')
+        self.apikeys['editor'] = str(json.loads(res.body)['result']['apikey'])
+
+        ## admin user should be able to add users now
+        member = {'username': 'editor',
+                  'role': 'editor',
+                  'id': 'org_with_user'}
+        self._action_post('organization_member_create', member, 'admin')
+
+    def test_6_admin_add_datasets(self):
+
+        dataset = {'name': 'admin_dataset', 'owner_org': 'org_with_user'}
+        res = self._action_post('package_create', dataset, 'admin', 200)
+
+        dataset = {'name': 'admin_dataset_bad', 'owner_org': 'org_no_user'}
+        res = self._action_post('package_create', dataset, 'admin', 409)
+
+        #no owner org
+        dataset = {'name': 'admin_dataset_bad' }
+        res = self._action_post('package_create', dataset, 'admin', 409)
+
+        #non existant owner org
+        dataset = {'name': 'admin_dataset_bad', 'owner_org': 'org_not_exist' }
+        res = self._action_post('package_create', dataset, 'admin', 409)
+
+    def test_7_editor_add_datasets(self):
+
+        dataset = {'name': 'editor_dataset', 'owner_org': 'org_with_user'}
+        res = self._action_post('package_create', dataset, 'editor', 200)
+
+        dataset = {'name': 'editor_dataset_bad', 'owner_org': 'org_no_user'}
+        res = self._action_post('package_create', dataset, 'editor', 409)
+
+        #no owner org
+        dataset = {'name': 'editor_dataset_bad' }
+        res = self._action_post('package_create', dataset, 'editor', 409)
+
+        #non existant owner org
+        dataset = {'name': 'admin_dataset_bad', 'owner_org': 'org_not_exist' }
+        res = self._action_post('package_create', dataset, 'editor', 409)
 
