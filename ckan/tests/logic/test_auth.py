@@ -13,6 +13,8 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'create_user_via_api': False,
 }
 
+new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
+
 class TestAction(tests.WsgiAppCase):
 
     @classmethod
