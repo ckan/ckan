@@ -306,7 +306,8 @@ def nav_link(text, controller, **kwargs):
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    class_ = _link_class(kwargs)
+    no_active = kwargs.pop('suppress_active_class', False)
+    class_ = _link_class(kwargs, no_active)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
@@ -318,16 +319,22 @@ def nav_link(text, controller, **kwargs):
     return link
 
 
-def _link_class(kwargs):
+def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    highlight_actions = kwargs.pop('highlight_actions',
+    highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split(' ')
-    if (c.controller == kwargs.get('controller')
-                and c.action in highlight_actions):
+    return (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions)
+
+
+def _link_class(kwargs, suppress_active_class=False):
+    ''' creates classes for the link_to calls '''
+    if not suppress_active_class and _link_active(kwargs):
         active = ' active'
     else:
         active = ''
-    return kwargs.pop('class_', '') + active
+    kwargs.pop('highlight_actions', '')
+    return kwargs.pop('class_', '') + active or None
 
 
 def nav_named_link(text, name, **kwargs):
@@ -376,7 +383,23 @@ def build_nav_main(*args):
     return output
 
 
-def _make_menu_item(menu_item, title):
+def build_nav_tab(menu_item, title, **kw):
+    ''' build a tab item used for example in user read
+
+    outputs <li><a href="...">title</a></li>
+
+    :param menu_item: the name of the defined menu item (see _menu_items)
+    :type author: string
+    :param title: text used for the link
+    :type author: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, **kw)
+
+
+def _make_menu_item(menu_item, title, **kw):
     if menu_item not in _menu_items:
         log.error('menu item `%s` cannot be found' % menu_item)
         return literal('<li><a href="#">') + title + literal('</a></li>')
@@ -387,8 +410,12 @@ def _make_menu_item(menu_item, title):
         return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
     else:
         item = copy.copy(_menu_items[menu_item])
+        item.update(kw)
+        active =  _link_active(item)
         controller = item.pop('controller')
-        link = nav_link(title, controller, **item)
+        link = nav_link(title, controller, suppress_active_class=True, **item)
+        if active:
+            return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
 
 
@@ -407,6 +434,10 @@ _menu_items = {
     'about': dict(controller='home', action='about'),
     'login': dict(controller='user', action='login'),
     'register': dict(controller='user', action='register'),
+    'organizations': dict(action='index', controller='organization'),
+    'user_datasets': dict(action='read', controller='user', icon='sitemap'),
+    'user_activity_stream': dict(action='activity', controller='user', icon='time'),
+    'user_followers': dict(action='followers', controller='user', icon='group'),
 }
 
 
@@ -1362,6 +1393,7 @@ __allowed_functions__ = [
            'include_resource',
            'urls_for_resource',
            'build_nav_main',
+           'build_nav_tab',
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
