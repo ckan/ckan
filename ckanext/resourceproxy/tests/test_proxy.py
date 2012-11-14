@@ -1,8 +1,9 @@
 import os
-import json
 import subprocess
 import requests
 import time
+import urllib2
+import unittest
 
 import ckan.logic as l
 import ckan.model as model
@@ -16,12 +17,12 @@ from ckan.config.middleware import make_app
 import ckanext.resourceproxy.plugin as proxy
 
 
-class TestProxyBasic(tests.WsgiAppCase):
+class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
         config = appconfig('config:test.ini', relative_to=tests.conf_dir)
-        config.local_conf['ckan.plugins'] = 'resourceproxy'
+        config.local_conf['ckan.plugins'] = 'resource_proxy'
         wsgiapp = make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
@@ -78,7 +79,7 @@ class TestProxyBasic(tests.WsgiAppCase):
         assert "yes, I'm proxied" in result.content, result.content
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url)
+        result = self.app.get(proxied_url, status='*')
         assert result.status == 200, result.status
         assert "yes, I'm proxied" in result.body, result.body
 
@@ -90,5 +91,18 @@ class TestProxyBasic(tests.WsgiAppCase):
         assert result.status_code == 404, result.status_code
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url)
+        result = self.app.get(proxied_url, status='*')
         assert result.status == 404, result.status
+
+    def test_resource_proxy_non_existent(self):
+        self.set_resource_url('http://foo.bar')
+
+        def f1():
+            url = self.data_dict['resource']['url']
+            requests.get(url)
+        self.assertRaises(requests.ConnectionError, f1)
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url, status='*')
+        assert result.status == 500, result.status
+        assert 'Could not proxy resource' in result.body, result.body

@@ -1,5 +1,8 @@
 import urllib2
+import shutil
 from logging import getLogger
+
+from pylons.controllers.util import abort as abort
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -13,14 +16,21 @@ def proxy_resource(context, data_dict):
         log.info('Proxify resource {id}'.format(id=resource_id))
         resource = logic.get_action('resource_show')(context, {'id': resource_id})
         url = resource['url']
+        had_http_error = False
         try:
             res = urllib2.urlopen(url)
-        except urllib2.URLError, error:
+        except urllib2.HTTPError, error:
             res = error
+            had_http_error = True
+        except urllib2.URLError, error:
+            details = "Could not proxy resource. " + str(error.reason)
+            abort(500, detail=details)
         base.response.headers = res.headers
 
-        import shutil
         shutil.copyfileobj(res, base.response)
+
+        if had_http_error and hasattr(res, 'code'):
+            abort(res.code)
 
 
 class ProxyController(base.BaseController):
