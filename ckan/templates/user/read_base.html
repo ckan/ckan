@@ -5,8 +5,8 @@
 {% block subtitle %}{{ user.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
-  <li class="active">{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
+  {{ h.build_nav('user_index', _('Users')) }}
+  {{ h.build_nav('user_datasets', user.display_name|truncate(35), id=user.name) }}
 {% endblock %}
 
 {% block actions_content %}
@@ -22,9 +22,9 @@
   <article class="module profile">
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
-          h.build_nav_tab('user_datasets', _('Datasets'), id=user.name),
-          h.build_nav_tab('user_activity_stream', _('Activity Stream'), id=user.name),
-          h.build_nav_tab('user_followers', _('Followers'), id=user.name),
+          h.build_nav_icon('user_datasets', _('Datasets'), id=user.name),
+          h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name),
+          h.build_nav_icon('user_followers', _('Followers'), id=user.name),
         ] %}
     {% endblock %}
     <section class="module-content">
