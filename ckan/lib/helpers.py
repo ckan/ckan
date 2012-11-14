@@ -383,15 +383,15 @@ def build_nav_main(*args):
     return output
 
 
-def build_nav_tab(menu_item, title, **kw):
-    ''' build a tab item used for example in user read
+def build_nav_icon(menu_item, title, **kw):
+    ''' build a navigation item used for example in user/read_base.html
 
-    outputs <li><a href="...">title</a></li>
+    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
 
     :param menu_item: the name of the defined menu item (see _menu_items)
-    :type author: string
+    :type menu_item: string
     :param title: text used for the link
-    :type author: string
+    :type title: string
     :param **kw: additional keywords needed for creating url eg id=...
 
     :rtype: HTML literal
@@ -399,46 +399,43 @@ def build_nav_tab(menu_item, title, **kw):
     return _make_menu_item(menu_item, title, **kw)
 
 
+def build_nav(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item (see _menu_items)
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, icon=None, **kw)
+
+
 def _make_menu_item(menu_item, title, **kw):
+    _menu_items = config['routes.menu_item_data']
     if menu_item not in _menu_items:
-        log.error('menu item `%s` cannot be found' % menu_item)
-        return literal('<li><a href="#">') + title + literal('</a></li>')
-    item = _menu_items[menu_item]
-    if 'name' in item:
-        link = nav_named_link(title, **item)
-    elif 'url' in item:
-        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
-    else:
-        item = copy.copy(_menu_items[menu_item])
-        item.update(kw)
-        active =  _link_active(item)
-        controller = item.pop('controller')
-        link = nav_link(title, controller, suppress_active_class=True, **item)
-        if active:
-            return literal('<li class="active">') + link + literal('</li>')
+        raise Exception('menu item `%s` cannot be found' % menu_item)
+    item = copy.copy(_menu_items[menu_item])
+    item.update(kw)
+    active =  _link_active(item)
+    controller = item.pop('controller')
+    needed = item.pop('needed')
+    for need in needed:
+        if need not in kw:
+            raise Exception('menu item `%s` need parameter `%s`'
+                            % (menu_item, need))
+    link = nav_link(title, controller, suppress_active_class=True, **item)
+    if active:
+        return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
 
 
 def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
-
-
-_menu_items = {
-    'add dataset': dict(controller='package', action='new'),
-    'search': dict(controller='package',
-                    action='search',
-                    highlight_actions='index search'),
-    'default_group': dict(name='%s_index' % default_group_type(),
-                          controller='group',
-                          highlight_actions='index search'),
-    'about': dict(controller='home', action='about'),
-    'login': dict(controller='user', action='login'),
-    'register': dict(controller='user', action='register'),
-    'organizations': dict(action='index', controller='organization'),
-    'user_datasets': dict(action='read', controller='user', icon='sitemap'),
-    'user_activity_stream': dict(action='activity', controller='user', icon='time'),
-    'user_followers': dict(action='followers', controller='user', icon='group'),
-}
 
 
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
@@ -1393,7 +1390,8 @@ __allowed_functions__ = [
            'include_resource',
            'urls_for_resource',
            'build_nav_main',
-           'build_nav_tab',
+           'build_nav_icon',
+           'build_nav',
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
