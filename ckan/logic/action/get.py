@@ -1735,11 +1735,7 @@ def user_activity_list(context, data_dict):
     _check_access('user_show', context, data_dict)
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(user_id=user_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.user_activity_list(user_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
@@ -1758,11 +1754,7 @@ def package_activity_list(context, data_dict):
     _check_access('package_show', context, data_dict)
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=package_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.package_activity_list(package_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
@@ -1786,6 +1778,14 @@ def group_activity_list(context, data_dict):
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
+
+    # FIXME: The SQLAlchemy below should be moved into ckan/model/activity.py
+    # (to encapsulate SQLALchemy in the model and avoid using it from the
+    # logic) but it can't be because it requires the list of dataset_ids which
+    # comes from logic.group_package_show() (and I don't want to access the
+    # logic from the model). Need to change it to get the dataset_ids from the
+    # model instead. There seems to be multiple methods for getting a group's
+    # datasets, some in the logic and some in the model.
 
     # Get a list of the IDs of the group's datasets.
     group_package_show = logic.get_action('group_package_show')
@@ -1811,11 +1811,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     model = context['model']
-    query = model.Session.query(model.Activity)
-    query = query.filter(model.Activity.activity_type.endswith('package'))
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.recently_changed_packages_activity_list()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -2219,21 +2215,7 @@ def dashboard_activity_list(context, data_dict):
             _("You must be logged in to access your dashboard."))
     user_id = userobj.id
 
-    activity_query = model.Session.query(model.Activity)
-    user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
-    dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
-
-    from_user_query = activity_query.filter(model.Activity.user_id==user_id)
-    about_user_query = activity_query.filter(model.Activity.object_id==user_id)
-    user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
-    dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
-
-    query = from_user_query.union(about_user_query).union(
-            user_followees_query).union(dataset_followees_query)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
-
+    activity_objects = model.activity.dashboard_activity_list(user_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2247,7 +2229,8 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream, is_dashboard=True)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            is_dashboard=True)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2273,11 +2256,13 @@ def dashboard_new_activities_count(context, data_dict):
             strptime(activity['timestamp'], fmt) > last_viewed]
     return len(new_activities)
 
+
 def dashboard_get_last_viewed(context, data_dict):
     model = context['model']
-    user = model.User.get(context['user']) # The authorized user.
+    user = model.User.get(context['user'])  # The authorized user.
     last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
     return last_viewed.timetuple()
+
 
 def dashboard_mark_activities_as_read(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
