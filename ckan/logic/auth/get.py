@@ -200,7 +200,5 @@ def dashboard_activity_list(context, data_dict):
 
 
 def dashboard_new_activities_count(context, data_dict):
-    if logic.check_access('dashboard_activity_list', context, data_dict):
-        return {'success': True}
-    else:
-        return {'success': False}
+    return ckan.new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
