@@ -29,6 +29,10 @@ class ResourceProxy(p.SingletonPlugin):
       - ``IRoutes`` allows to add a route to the proxy action
     """
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IConfigurer, inherit=True)
+
+    def update_config(self, config):
+        config['ckan.resource_proxy_enabled'] = True
 
     def before_map(self, m):
         m.connect('/dataset/{id}/resource/{resource_id}/proxy',
