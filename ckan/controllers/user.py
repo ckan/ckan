@@ -477,9 +477,8 @@ class UserController(BaseController):
         c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
 
-    def activity(self, id):
+    def activity(self, id, offset=0):
         '''Render this user's public activity stream page.'''
-
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
@@ -491,15 +490,16 @@ class UserController(BaseController):
         self._setup_template_variables(context, data_dict)
 
         c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
+            context, {'id': c.user_dict['id'], 'offset': offset})
 
         return render('user/activity_stream.html')
 
-    def dashboard(self, id=None):
+    def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
+        c.dashboard_offset = int(offset)
         return render('user/dashboard.html')
 
     def follow(self, id):

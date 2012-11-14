@@ -196,11 +196,13 @@ def make_map():
           'history_ajax',
           'followers',
           'follow',
+          'activity',
           'unfollow',
           'delete',
           'api_data',
           ]))
           )
+        m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}',
@@ -232,6 +234,7 @@ def make_map():
         m.connect('group_index', '/group', action='index')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new',  '/group/new', action='new')
+        m.connect('/group/activity/{id}/{offset}', action='activity')
         m.connect('group_action', '/group/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
@@ -264,7 +267,9 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('/user/activity/{id}', action='activity')
+        m.connect('/user/dashboard/{offset}', action='dashboard')
         m.connect('/user/dashboard', action='dashboard')
         m.connect('/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')

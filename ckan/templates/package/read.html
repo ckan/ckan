@@ -45,6 +45,9 @@
           <li{% if c.action == 'read' %} class="active"{% endif %}>
             {% link_for _('Dataset'), controller='package', action='read', id=pkg.name, icon='sitemap' %}
           </li>
+          <li{% if c.action == 'activity' %} class="active"{% endif %}>
+            {% link_for _('Activity Stream'), controller='package', action='activity', id=pkg.name, icon='time' %}
+          </li>
           <li{% if c.action == 'followers' %} class="active"{% endif %}>
             {% link_for _('Followers'), controller='package', action='followers', id=pkg.name, icon='group' %}
           </li>

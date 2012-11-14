@@ -1732,12 +1732,14 @@ def user_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('user_show', context, data_dict)
+    offset = data_dict['offset']
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
     query = query.filter_by(user_id=user_id)
     query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
+    query = query.limit(31)
+    query = query.offset(offset)
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -1755,12 +1757,14 @@ def package_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('package_show', context, data_dict)
+    offset = data_dict['offset']
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
     query = query.filter_by(object_id=package_id)
     query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
+    query = query.limit(31)
+    query = query.offset(offset)
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -1779,6 +1783,7 @@ def group_activity_list(context, data_dict):
     # authorized to read.
     _check_access('group_show', context, data_dict)
 
+    offset = data_dict['offset']
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
@@ -1796,7 +1801,8 @@ def group_activity_list(context, data_dict):
     query = query.filter(_or_(model.Activity.object_id == group_id,
         model.Activity.object_id.in_(dataset_ids)))
     query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
+    query = query.limit(31)
+    query = query.offset(offset)
     activity_objects = query.all()
 
     return model_dictize.activity_list_dictize(activity_objects, context)
@@ -1813,7 +1819,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     query = model.Session.query(model.Activity)
     query = query.filter(model.Activity.activity_type.endswith('package'))
     query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
+    query = query.limit(30)
     activity_objects = query.all()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -1847,7 +1853,14 @@ def user_activity_list_html(context, data_dict):
 
     '''
     activity_stream = user_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict['offset'])
+    activity_params = ({
+        'controller': 'user',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset
+        })
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1862,7 +1875,14 @@ def package_activity_list_html(context, data_dict):
 
     '''
     activity_stream = package_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict['offset'])
+    activity_params = ({
+        'controller': 'package',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset
+        })
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -1877,7 +1897,14 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict['offset'])
+    activity_params = ({
+        'controller': 'group',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset
+        })
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -1940,8 +1967,8 @@ def group_follower_count(context, data_dict):
 
     '''
     return _follower_count(context, data_dict,
-            ckan.logic.schema.default_follow_group_schema(),
-            context['model'].UserFollowingGroup)
+           ckan.logic.schema.default_follow_group_schema(),
+           context['model'].UserFollowingGroup)
 
 
 def _follower_list(context, data_dict, default_schema, FollowerClass):
@@ -2209,6 +2236,7 @@ def dashboard_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+    offset = int(data_dict['offset'])
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
 
@@ -2224,7 +2252,8 @@ def dashboard_activity_list(context, data_dict):
     query = from_user_query.union(about_user_query).union(
             user_followees_query).union(dataset_followees_query)
     query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
+    query = query.limit(31)
+    query = query.offset(offset)
     activity_objects = query.all()
 
     return model_dictize.activity_list_dictize(activity_objects, context)
@@ -2242,7 +2271,14 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict['offset'])
+    activity_params = ({
+        'controller': 'user',
+        'action': 'dashboard',
+        'id': data_dict['id'],
+        'offset': offset
+        })
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):
