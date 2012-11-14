@@ -2201,21 +2201,15 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    if 'user' not in context:
-        raise logic.NotAuthorized(
-            _("You must be logged in to access your dashboard."))
+    _check_access('dashboard_activity_list', context, data_dict)
 
     model = context['model']
+    user_id = model.User.get(context['user']).id
 
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise logic.NotAuthorized(
-            _("You must be logged in to access your dashboard."))
-    user_id = userobj.id
-
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     activity_objects = model.activity.dashboard_activity_list(user_id)
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2242,9 +2236,7 @@ def dashboard_new_activities_count(context, data_dict):
     :rtype: int
 
     '''
-    # We don't bother to do our own auth check in this function, because we
-    # assume dashboard_activity_list will do it.
-    activities = dashboard_activity_list(context, data_dict)
+    _check_access('dashboard_new_activities_count', context, data_dict)
 
     model = context['model']
     user = model.User.get(context['user'])  # The authorized user.
