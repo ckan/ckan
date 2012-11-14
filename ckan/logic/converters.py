@@ -130,3 +130,28 @@ def convert_package_name_or_id_to_id(package_name_or_id, context):
     if not result:
         raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return result.id
+
+def convert_group_name_or_id_to_id(group_name_or_id, context):
+    '''Return the group id for the given group name or id.
+
+    The point of this function is to convert group names to ids. If you have
+    something that may be a group name or id you can pass it into this
+    function and get the id out either way.
+
+    Also validates that a group with the given name or id exists.
+
+    :returns: the id of the group with the given name or id
+    :rtype: string
+    :raises: ckan.lib.navl.dictization_functions.Invalid if there is no
+        group with the given name or id
+
+    '''
+    session = context['session']
+    result = session.query(model.Group).filter_by(
+            id=group_name_or_id).first()
+    if not result:
+        result = session.query(model.Group).filter_by(
+                name=group_name_or_id).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
+    return result.id
