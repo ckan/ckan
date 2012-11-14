@@ -33,7 +33,10 @@ def get_snippet_tag(activity, detail):
     return h.tag_link(detail['data']['tag'])
 
 def get_snippet_group(activity, detail):
-    return h.group_link(activity['data']['group'])
+    link = h.group_link(activity['data']['group'])
+    return literal('''<span data-module="popover-context" data-module-type="group" data-module-id="%s">%s</span>'''
+        % (activity['object_id'], link)
+        )
 
 def get_snippet_extra(activity, detail):
     return '"%s"' % detail['data']['package_extra']['key']
@@ -111,6 +114,9 @@ def activity_stream_string_follow_dataset():
 def activity_stream_string_follow_user():
     return _("{actor} started following {user}")
 
+def activity_stream_string_follow_group():
+    return _("{actor} started following {group}")
+
 def activity_stream_string_new_related_item():
     return _("{actor} created the link to related {related_type} {related_item}")
 
@@ -149,22 +155,23 @@ activity_stream_string_functions = {
   'deleted related item': activity_stream_string_deleted_related_item,
   'follow dataset': activity_stream_string_follow_dataset,
   'follow user': activity_stream_string_follow_user,
+  'follow group': activity_stream_string_follow_group,
   'new related item': activity_stream_string_new_related_item,
 }
 
 # A dictionary mapping activity types to the icons associated to them
 activity_stream_string_icons = {
   'added tag': 'tag',
-  'changed group': 'users',
+  'changed group': 'group',
   'changed package': 'sitemap',
   'changed package_extra': 'edit',
   'changed resource': 'file',
   'changed user': 'user',
-  'deleted group': 'users',
+  'deleted group': 'group',
   'deleted package': 'sitemap',
   'deleted package_extra': 'edit',
   'deleted resource': 'file',
-  'new group': 'users',
+  'new group': 'group',
   'new package': 'sitemap',
   'new package_extra': 'edit',
   'new resource': 'file',
@@ -173,6 +180,7 @@ activity_stream_string_icons = {
   'deleted related item': 'picture',
   'follow dataset': 'sitemap',
   'follow user': 'user',
+  'follow group': 'group',
   'new related item': 'picture',
 }
 
