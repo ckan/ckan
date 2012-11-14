@@ -2228,25 +2228,38 @@ def dashboard_activity_list_html(context, data_dict):
 
 
 def dashboard_new_activities_count(context, data_dict):
-    '''Return the number of new activities in the user's activity stream.
+    '''Return the number of new activities in the user's dashboard.
 
     Return the number of new activities in the authorized user's dashboard
     activity stream.
+
+    Activities from the user herself are not counted by this function even
+    though they appear in the dashboard (users don't want to be notified about
+    things they did themselves).
 
     :rtype: int
 
     '''
     _check_access('dashboard_new_activities_count', context, data_dict)
 
-    model = context['model']
-    user = model.User.get(context['user'])  # The authorized user.
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
+    activities = logic.get_action('dashboard_activity_list')(
+            context, data_dict)
 
+    model = context['model']
+    user_id = model.User.get(context['user']).id
+
+    # Filter out the user's own activities.
+    activities = [activity for activity in activities
+            if activity['user_id'] != user_id]
+
+    # Filter out the old (already seen) activities.
     strptime = datetime.datetime.strptime
     fmt = '%Y-%m-%dT%H:%M:%S.%f'
-    new_activities = [activity for activity in activities if
-            strptime(activity['timestamp'], fmt) > last_viewed]
-    return len(new_activities)
+    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
+    activities = [activity for activity in activities
+            if strptime(activity['timestamp'], fmt) > last_viewed]
+
+    return len(activities)
 
 
 def dashboard_get_last_viewed(context, data_dict):
