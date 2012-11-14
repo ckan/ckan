@@ -199,11 +199,11 @@ def make_map():
         m.connect('related_dashboard', '/apps', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
-        m.connect('/dataset', action='search')
+        m.connect('search', '/dataset', action='search', highlight_actions='index search')
+        m.connect('add dataset', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
           requirements=dict(action='|'.join([
               'list',
-              'new',
               'autocomplete',
               'search'
               ]))
@@ -261,7 +261,7 @@ def make_map():
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index')
+        m.connect('group_index', '/group', action='index', highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new',  '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',
@@ -296,15 +296,15 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
-        m.connect('/user/activity/{id}', action='activity')
+        m.connect('user_activity_stream', '/user/activity/{id}', action='activity', ckan_icon='time')
         m.connect('/user/dashboard', action='dashboard')
-        m.connect('/user/follow/{id}', action='follow')
+        m.connect('user_follow', '/user/follow/{id}', action='fellow')
         m.connect('/user/unfollow/{id}', action='unfollow')
-        m.connect('/user/followers/{id:.*}', action='followers')
+        m.connect('user_followers', '/user/followers/{id:.*}', action='followers', ckan_icon='group')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
-        m.connect('/user/register', action='register')
-        m.connect('/user/login', action='login')
+        m.connect('register', '/user/register', action='register')
+        m.connect('login', '/user/login', action='login')
         m.connect('/user/_logout', action='logout')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
@@ -312,8 +312,8 @@ def make_map():
         m.connect('/user/reset', action='request_reset')
         m.connect('/user/me', action='me')
         m.connect('/user/set_lang/{lang}', action='set_lang')
-        m.connect('/user/{id:.*}', action='read')
-        m.connect('/user', action='index')
+        m.connect('user_datasets', '/user/{id:.*}', action='read', ckan_icon='sitemap')
+        m.connect('user_index', '/user', action='index')
 
     with SubMapper(map, controller='revision') as m:
         m.connect('/revision', action='index')
