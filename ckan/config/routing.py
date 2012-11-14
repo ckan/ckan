@@ -5,12 +5,44 @@ may take precedent over the more generic routes. For more information
 refer to the routes manual at http://routes.groovie.org/docs/
 
 """
+import re
+
 from pylons import config
-from routes import Mapper
+from routes import Mapper as _Mapper
+
 from ckan.plugins import PluginImplementations, IRoutes
 
+named_routes = {}
 
 routing_plugins = PluginImplementations(IRoutes)
+
+
+class Mapper(_Mapper):
+    ''' This Mapper allows us to intercept the connect calls used by routes
+    so that we can collect named routes and later use them to create links
+    via some helper functions like build_nav(). '''
+
+    def connect(self, *args, **kw):
+        ckan_icon = kw.pop('ckan_icon', None)
+        highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+        out = _Mapper.connect(self, *args, **kw)
+        if len(args) == 1 or args[0].startswith('_redirect_'):
+            return out
+        # we have a named route
+        needed = []
+        matches = re.findall('\{([^:}]*)(\}|:)', args[1])
+        for match in matches:
+            needed.append(match[0])
+        route_data = {
+            'icon': ckan_icon,
+            'needed': needed,
+            'controller': kw.get('controller'),
+            'action': kw.get('action', ''),
+            'highlight_actions': highlight_actions
+        }
+        named_routes[args[0]] = route_data
+        return out
+
 
 def make_map():
     """Create, configure and return the routes Mapper"""
