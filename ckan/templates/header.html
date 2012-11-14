@@ -64,7 +64,12 @@
       </form>
       <nav class="first section navigation">
         <ul class="unstyled">
-          {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
+          {{ h.build_nav_main(
+            ('add dataset', _('Add Dataset'), 'package_create'),
+            ('search', _('Datasets')),
+            ('group_index', _('Groups')),
+            ('about', _('About'))
+          ) }}
         </ul>
       </nav>
     </div>
