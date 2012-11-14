@@ -29,6 +29,7 @@ def proxy_resource(context, data_dict):
 
         shutil.copyfileobj(res, base.response)
 
+        # todo only change the status code, not the whole content
         if had_http_error and hasattr(res, 'code'):
             abort(res.code)
 

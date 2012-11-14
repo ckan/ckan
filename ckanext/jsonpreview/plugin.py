@@ -1,3 +1,4 @@
+import pylons
 from logging import getLogger
 
 import ckan.plugins as p
@@ -35,19 +36,23 @@ class JsonPreview(p.SingletonPlugin):
         toolkit.add_template_directory(config, 'theme/templates')
         toolkit.add_resource('theme/public', 'ckanext-jsonpreview')
 
+    def proxy_enabled(self):
+        return pylons.config.get('ckan.resource_proxy_enabled', False)
+
     def can_preview(self, data_dict):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
         if format_lower in self.JSONP_FORMATS:
             return True
-        elif format_lower in self.JSON_FORMATS and (proxy or resource['on_same_domain']):
+        elif format_lower in self.JSON_FORMATS and (self.proxy_enabled() or resource['on_same_domain']):
             return True
         return False
 
     def setup_template_variables(self, context, data_dict):
+        assert self.can_preview(data_dict)
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
-        if format_lower in self.JSON_FORMATS and proxy and not resource['on_same_domain']:
+        if format_lower in self.JSON_FORMATS and self.proxy_enabled() and not resource['on_same_domain']:
             base.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
 
     def preview_template(self, context, data_dict):
