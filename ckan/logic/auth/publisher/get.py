@@ -5,6 +5,10 @@ from ckan.lib.base import _
 from ckan.logic.auth.publisher import _groups_intersect
 from ckan.authz import Authorizer
 from ckan.logic.auth import get_package_object, get_group_object, get_resource_object
+from ckan.logic.auth.get import (
+        dashboard_new_activities_count,
+        dashboard_activity_list,
+        )
 
 def site_read(context, data_dict):
     """\
