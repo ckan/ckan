@@ -3,7 +3,7 @@ import ckan.tests as tests
 import ckanext.jsonpreview.plugin as previewplugin
 
 
-class TestMyPlugin(tests.TestCase):
+class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
@@ -33,8 +33,15 @@ class TestMyPlugin(tests.TestCase):
 
         data_dict = {
             'resource': {
+                'format': 'foo',
+            }
+        }
+        assert not self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
                 'format': 'json',
-                'on_same_domain': True
+                'on_same_domain': False
             }
         }
         assert not self.p.can_preview(data_dict)
