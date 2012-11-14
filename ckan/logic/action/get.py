@@ -2198,7 +2198,14 @@ def group_followee_list(context, data_dict):
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
-    :rtype: list of dictionaries
+    Unlike the activity dictionaries returned by other *_activity_list actions,
+    these activity dictionaries have an extra boolean value with key 'is_new'
+    that tells you whether the activity happened since the user last viewed her
+    dashboard ('is_new': True) or not ('is_new': False).
+
+    The user's own activities are always marked 'is_new': False.
+
+    :rtype: list of activity dictionaries
 
     '''
     _check_access('dashboard_activity_list', context, data_dict)
@@ -2210,7 +2217,22 @@ def dashboard_activity_list(context, data_dict):
     # authorized to read.
     activity_objects = model.activity.dashboard_activity_list(user_id)
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+    activity_dicts = model_dictize.activity_list_dictize(
+            activity_objects, context)
+
+    # Mark the new (not yet seen by user) activities.
+    strptime = datetime.datetime.strptime
+    fmt = '%Y-%m-%dT%H:%M:%S.%f'
+    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
+    for activity in activity_dicts:
+        if activity['user_id'] == user_id:
+            # Never mark the user's own activities as new.
+            activity['is_new'] = False
+        else:
+            activity['is_new'] = (strptime(activity['timestamp'], fmt)
+                    > last_viewed)
+
+    return activity_dicts
 
 
 def dashboard_activity_list_html(context, data_dict):
@@ -2223,8 +2245,7 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream,
-            is_dashboard=True)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2241,25 +2262,9 @@ def dashboard_new_activities_count(context, data_dict):
 
     '''
     _check_access('dashboard_new_activities_count', context, data_dict)
-
     activities = logic.get_action('dashboard_activity_list')(
             context, data_dict)
-
-    model = context['model']
-    user_id = model.User.get(context['user']).id
-
-    # Filter out the user's own activities.
-    activities = [activity for activity in activities
-            if activity['user_id'] != user_id]
-
-    # Filter out the old (already seen) activities.
-    strptime = datetime.datetime.strptime
-    fmt = '%Y-%m-%dT%H:%M:%S.%f'
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
-    activities = [activity for activity in activities
-            if strptime(activity['timestamp'], fmt) > last_viewed]
-
-    return len(activities)
+    return len([activity for activity in activities if activity['is_new']])
 
 
 def dashboard_get_last_viewed(context, data_dict):

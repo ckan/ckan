@@ -187,12 +187,8 @@ activity_stream_string_icons = {
 # A list of activity types that may have details
 activity_stream_actions_with_detail = ['changed package']
 
-def activity_list_to_html(context, activity_stream, is_dashboard=False):
+def activity_list_to_html(context, activity_stream):
     '''Return the given activity stream as a snippet of HTML.'''
-
-    # get the last time they read the dashboard
-    if (is_dashboard):
-      last_viewed = logic.get_action('dashboard_get_last_viewed')(context, {})
 
     activity_list = [] # These are the activity stream messages.
     for activity in activity_stream:
@@ -234,16 +230,12 @@ def activity_list_to_html(context, activity_stream, is_dashboard=False):
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
         timestamp = datetime.datetime.strptime(activity['timestamp'], '%Y-%m-%dT%H:%M:%S.%f').timetuple()
-        if (is_dashboard):
-          is_new = ( timestamp > last_viewed )
-        else:
-          is_new = False;
 
         activity_list.append({'msg': activity_msg,
                               'type': activity_type.replace(' ', '-').lower(),
                               'icon': activity_icon,
                               'data': data,
                               'timestamp': activity['timestamp'],
-                              'is_new': is_new})
+                              'is_new': activity.get('is_new', False)})
     return literal(base.render('activity_streams/activity_stream_items.html',
         extra_vars={'activities': activity_list}))
