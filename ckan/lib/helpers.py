@@ -416,7 +416,7 @@ def build_nav(menu_item, title, **kw):
 
 
 def _make_menu_item(menu_item, title, **kw):
-    _menu_items = config['routes.menu_item_data']
+    _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
