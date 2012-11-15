@@ -104,6 +104,8 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     ''' Check if the user has the given permission for the group '''
     if not group_id:
         return False
+    group_id = model.Group.get(group_id).id
+
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False

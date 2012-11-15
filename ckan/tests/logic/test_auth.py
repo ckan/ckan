@@ -115,7 +115,7 @@ class TestAction(tests.WsgiAppCase):
         member = {'username': 'editor_wannabe',
                   'role': 'editor',
                   'id': 'org_with_user'}
-        self._action_post('organization_member_create', member, 'editor', 409)
+        self._action_post('organization_member_create', member, 'editor', 403)
 
 
     def test_6_admin_add_datasets(self):
