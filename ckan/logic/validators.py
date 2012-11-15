@@ -23,10 +23,10 @@ def owner_org_validator(key, data, errors, context):
         raise StopOnError
 
     model = context['model']
-    try:
-        group_id = model.Group.get(value).id
-    except NotFound:
+    group = model.Group.get(value)
+    if not group:
         raise Invalid('Group does not exist')
+    group_id = group.id
     user = context['user']
     user = model.User.get(user)
     if not(user.sysadmin or user.is_in_group(group_id)):
