@@ -503,9 +503,9 @@ class UserController(BaseController):
 
         c.dashboard_activity_stream = h.dashboard_activity_stream(id)
 
-        # Mark the user's new activities as read whenever they view their
+        # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_activities_as_read')(context, {})
+        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
 
         return render('user/dashboard.html')
 

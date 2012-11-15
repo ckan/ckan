@@ -74,10 +74,10 @@ class TestDashboard(object):
         activity_list = self.dashboard_activity_list(user)
         return [activity for activity in activity_list if activity['is_new']]
 
-    def dashboard_mark_activities_as_read(self, user):
+    def dashboard_mark_all_new_activities_as_old(self, user):
         params = json.dumps({})
         response = self.app.post(
-                '/api/action/dashboard_mark_activities_as_read',
+                '/api/action/dashboard_mark_all_new_activities_as_old',
                 params=params,
                 extra_environ={'Authorization': str(user['apikey'])})
         assert response.json['success'] is True
@@ -104,7 +104,7 @@ class TestDashboard(object):
         # We would have to do this if, when you follow something, you only get
         # the activities from that object since you started following it, and
         # not all its past activities as well.
-        self.dashboard_mark_activities_as_read(self.new_user)
+        self.dashboard_mark_all_new_activities_as_old(self.new_user)
 
         # Create a new dataset.
         params = json.dumps({
@@ -189,6 +189,6 @@ class TestDashboard(object):
         her dashboard activity stream.'''
         assert self.dashboard_new_activities_count(self.new_user) > 0
         assert len(self.dashboard_new_activities(self.new_user)) > 0
-        self.dashboard_mark_activities_as_read(self.new_user)
+        self.dashboard_mark_all_new_activities_as_old(self.new_user)
         assert self.dashboard_new_activities_count(self.new_user) == 0
         assert len(self.dashboard_new_activities(self.new_user)) == 0

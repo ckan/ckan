@@ -2267,7 +2267,7 @@ def dashboard_new_activities_count(context, data_dict):
     return len([activity for activity in activities if activity['is_new']])
 
 
-def dashboard_mark_activities_as_read(context, data_dict):
+def dashboard_mark_all_new_activities_as_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
 
     This will reset dashboard_new_activities_count to 0.
