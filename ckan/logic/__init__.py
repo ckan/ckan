@@ -3,8 +3,9 @@ import logging
 import types
 import re
 
-from ckan.lib.base import _
+from ckan.lib.base import _, c
 import ckan.authz
+import ckan.model as model
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
@@ -193,7 +194,6 @@ def flatten_to_string_key(dict):
 
 
 def check_access(action, context, data_dict=None):
-    model = context['model']
     user = context.get('user')
 
     log.debug('check access - user %r, action %s' % (user, action))
@@ -218,7 +218,6 @@ def check_access(action, context, data_dict=None):
 
 
 def check_access_old(entity, action, context):
-    model = context['model']
     user = context.get('user')
     if context.get('ignore_auth'):
         return True
@@ -287,6 +286,18 @@ def get_action(action):
             fetched_actions[name] = auth_function
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
+
+    # wrap the functions
+    for action_name, _action in _actions.items():
+        def make_wrapped(_action, action_name):
+            def wrapped(context, data_dict=None):
+                context.setdefault('model', model)
+                context.setdefault('session', model.Session)
+                context.setdefault('user', c.user or c.author)
+                return _action(context, data_dict)
+            return wrapped
+        _actions[action_name] = make_wrapped(_action, action_name)
+
     return _actions.get(action)
 
 
