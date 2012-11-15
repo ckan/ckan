@@ -41,9 +41,9 @@
 
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
-        ( _('Dataset'), h.url_for(controller='package', action='read', id=pkg.name), 'sitemap', c.action == 'read' ),
-        ( _('Followers'), h.url_for(controller='package', action='followers', id=pkg.name), 'group', c.action == 'followers' ),
-        ( _('Related'), h.url_for(controller='related', action='list', id=pkg.name), 'picture', c.action == 'related' ),
+          h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
+          h.build_nav_icon('dataset_followers', _('Followers'), id=pkg.name),
+          h.build_nav_icon('related_list', _('Related'), id=pkg.name),
         ] %}
     {% endblock %}
 

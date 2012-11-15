@@ -194,7 +194,7 @@ def make_map():
                   action='edit')
         m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
                   action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list')
+        m.connect('related_list', '/dataset/{id}/related', action='list', ckan_icon='picture')
         m.connect('related_read', '/apps/{id}', action='read')
         m.connect('related_dashboard', '/apps', action='dashboard')
 
@@ -226,15 +226,16 @@ def make_map():
           'history',
           'read_ajax',
           'history_ajax',
-          'followers',
           'follow',
           'unfollow',
           'delete',
           'api_data',
           ]))
           )
+        m.connect('dataset_followers', '/dataset/followers/{id}', action='followers', ckan_icon='group')
+
         m.connect('/dataset/{id}.{format}', action='read')
-        m.connect('/dataset/{id}', action='read')
+        m.connect('dataset_read', '/dataset/{id}', action='read', ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
