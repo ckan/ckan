@@ -38,3 +38,19 @@
 {% if data.group_id %}
   <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
 {% endif %}
+{% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
+  {% set organizations_available = h.organizations_available() %}
+  {% if organizations_available %}
+    <div class="control-group">
+      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <div class="controls">
+        <select id="field-organizations" name="owner_org" data-module="autocomplete">
+          <option value="">{{ _('Select an organization...') }}</option>
+          {% for organization in organizations_available %}
+          <option value="{{ organization.id }}" {% if organization.id == data.owner_org%}selected="selected"{% endif %}>{{ organization.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
