@@ -4,8 +4,8 @@ import re
 
 from pylons.i18n import _
 
-from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
-from ckan.logic import check_access, NotAuthorized
+from ckan.lib.navl.dictization_functions import Invalid, StopOnError, Missing, missing, unflatten
+from ckan.logic import check_access, NotAuthorized, NotFound
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
@@ -13,6 +13,26 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.new_authz
+
+def owner_org_validator(key, data, errors, context):
+
+    value = data.get(key)
+
+    if value is missing or value is None:
+        data.pop(key, None)
+        raise StopOnError
+
+    model = context['model']
+    try:
+        group_id = model.Group.get(value).id
+    except NotFound:
+        raise Invalid('Group does not exist')
+    user = context['user']
+    user = model.User.get(user)
+    if not(user.sysadmin or user.is_in_group(group_id)):
+        raise Invalid('You cannot add a dataset to this group')
+    data[key] = group_id
+
 
 def package_id_not_changed(value, context):
 

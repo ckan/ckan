@@ -41,6 +41,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    activity_type_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
+                                   owner_org_validator,
                                    user_name_exists,
                                    role_exists,
                                    url_validator)
@@ -127,6 +128,7 @@ def default_package_schema():
         'version': [ignore_missing, unicode, package_version_validator],
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
+        'owner_org': [owner_org_validator, unicode],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -157,7 +159,6 @@ def default_update_package_schema():
     schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
 
-    schema['owner_org'] = [ignore_missing, unicode]
     schema['private'] = [ignore_missing, boolean_validator]
     return schema
 
