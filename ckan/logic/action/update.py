@@ -269,7 +269,9 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
-    _get_action('package_owner_org_update')(context,
+    context_no_auth = context.copy()
+    context_no_auth['ignore_auth'] = True
+    _get_action('package_owner_org_update')(context_no_auth,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
 
