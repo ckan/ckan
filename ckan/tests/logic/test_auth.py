@@ -160,8 +160,8 @@ class TestAction(tests.WsgiAppCase):
 
         # editor tries to change owner org
         dataset = {'id': 'editor_dataset', 'owner_org': 'org_no_user'}
-        res = self._action_post('package_update', dataset, 'editor', 403)
+        res = self._action_post('package_update', dataset, 'editor', 409)
 
         #non existant owner org
         dataset = {'id': 'admin_dataset', 'owner_org': 'org_not_exist' }
-        res = self._action_post('package_update', dataset, 'editor', 403)
+        res = self._action_post('package_update', dataset, 'editor', 409)
