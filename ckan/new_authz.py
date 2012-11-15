@@ -61,7 +61,7 @@ def is_authorized(action, context, data_dict=None):
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
-# these are the premissions that roles have
+# these are the permissions that roles have
 ROLE_PERMISSIONS = {
     'admin': ['admin'],
     'editor': ['read', 'update', 'delete_dataset', 'create_dataset', 'update_dataset'],
