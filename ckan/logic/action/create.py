@@ -151,7 +151,9 @@ def package_create(context, data_dict):
     # Needed to let extensions know the package id
     model.Session.flush()
 
-    _get_action('package_owner_org_update')(context,
+    context_no_auth = context.copy()
+    context_no_auth['ignore_auth'] = True
+    _get_action('package_owner_org_update')(context_no_auth,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
 
