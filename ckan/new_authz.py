@@ -251,7 +251,7 @@ def check_config_permission(permission):
 
 
 
-def auth_is_reqistered_user():
+def auth_is_registered_user():
     ''' Do we have a logged in user '''
     try:
         context_user = c.user

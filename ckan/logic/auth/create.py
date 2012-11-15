@@ -6,7 +6,7 @@ import ckan.new_authz as new_authz
 
 def package_create(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_reqistered_user():
+    if not new_authz.auth_is_registered_user():
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
@@ -24,7 +24,7 @@ def package_create(context, data_dict=None):
 
 def file_upload(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_reqistered_user():
+    if not new_authz.auth_is_registered_user():
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 
