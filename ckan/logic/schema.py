@@ -160,6 +160,7 @@ def default_update_package_schema():
     schema["title"] = [ignore_missing, unicode]
 
     schema['private'] = [ignore_missing, boolean_validator]
+    schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
     return schema
 
 def package_form_schema():
