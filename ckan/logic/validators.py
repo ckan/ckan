@@ -19,6 +19,8 @@ def owner_org_validator(key, data, errors, context):
     value = data.get(key)
 
     if value is missing or value is None:
+        if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid('A group must be supplied')
         data.pop(key, None)
         raise StopOnError
 

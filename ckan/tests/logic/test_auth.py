@@ -11,6 +11,7 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'user_create_groups': False,
     'user_create_organizations': False,
     'create_user_via_api': False,
+    'create_unowned_dataset': False,
 }
 
 new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
