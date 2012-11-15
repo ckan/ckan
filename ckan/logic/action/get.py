@@ -2267,13 +2267,6 @@ def dashboard_new_activities_count(context, data_dict):
     return len([activity for activity in activities if activity['is_new']])
 
 
-def dashboard_get_last_viewed(context, data_dict):
-    model = context['model']
-    user = model.User.get(context['user'])  # The authorized user.
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
-    return last_viewed.timetuple()
-
-
 def dashboard_mark_activities_as_read(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
 
