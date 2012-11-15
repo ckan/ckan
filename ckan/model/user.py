@@ -151,7 +151,7 @@ class User(domain_object.DomainObject):
         return q.count()
 
     def is_in_group(self, group):
-        return group in self.get_groups()
+        return group in self.get_group_ids()
 
     def is_in_groups(self, groupids):
         ''' Given a list of group ids, returns True if this user is in
