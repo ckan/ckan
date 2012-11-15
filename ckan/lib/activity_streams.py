@@ -229,7 +229,6 @@ def activity_list_to_html(context, activity_stream):
         for match in matches:
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
-        timestamp = datetime.datetime.strptime(activity['timestamp'], '%Y-%m-%dT%H:%M:%S.%f').timetuple()
 
         activity_list.append({'msg': activity_msg,
                               'type': activity_type.replace(' ', '-').lower(),
