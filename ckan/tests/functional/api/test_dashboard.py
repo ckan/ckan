@@ -95,9 +95,6 @@ class TestDashboard(object):
         '''Make a user do some activities and check that her own activities
         don't increase her new activities count.'''
 
-        # Include following a dataset and doing some stuff to that dataset.
-        # Create a dataset.
-
         # The user has to view her dashboard activity stream first to mark any
         # existing activities as read. For example when she follows a dataset
         # below, past activities from the dataset (e.g. when someone created
