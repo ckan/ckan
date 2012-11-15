@@ -2273,17 +2273,10 @@ def dashboard_mark_all_new_activities_as_old(context, data_dict):
     This will reset dashboard_new_activities_count to 0.
 
     '''
-    if 'user' not in context:
-        raise logic.NotAuthorized(
-            _("You must be logged in to access your dashboard."))
-
+    _check_access('dashboard_mark_all_new_activities_as_old', context,
+            data_dict)
     model = context['model']
-
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise logic.NotAuthorized(
-            _("You must be logged in to access your dashboard."))
-    user_id = userobj.id
+    user_id = model.User.get(context['user']).id
     model.Dashboard.update_activity_stream_last_viewed(user_id)
 
 

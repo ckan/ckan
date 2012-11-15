@@ -8,6 +8,7 @@ from ckan.logic.auth import get_package_object, get_group_object, get_resource_o
 from ckan.logic.auth.get import (
         dashboard_new_activities_count,
         dashboard_activity_list,
+        dashboard_mark_all_new_activities_as_old,
         )
 
 def site_read(context, data_dict):

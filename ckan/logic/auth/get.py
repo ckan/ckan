@@ -202,3 +202,8 @@ def dashboard_activity_list(context, data_dict):
 def dashboard_new_activities_count(context, data_dict):
     return ckan.new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
+
+
+def dashboard_mark_all_new_activities_as_old(context, data_dict):
+    return ckan.new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
