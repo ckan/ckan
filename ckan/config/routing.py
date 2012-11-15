@@ -194,12 +194,14 @@ def make_map():
                   action='edit')
         m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
                   action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list', ckan_icon='picture')
+        m.connect('related_list', '/dataset/{id}/related', action='list',
+                  ckan_icon='picture')
         m.connect('related_read', '/apps/{id}', action='read')
         m.connect('related_dashboard', '/apps', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
-        m.connect('search', '/dataset', action='search', highlight_actions='index search')
+        m.connect('search', '/dataset', action='search',
+                  highlight_actions='index search')
         m.connect('add dataset', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
           requirements=dict(action='|'.join([
@@ -232,10 +234,11 @@ def make_map():
           'api_data',
           ]))
           )
-        m.connect('dataset_followers', '/dataset/followers/{id}', action='followers', ckan_icon='group')
-
+        m.connect('dataset_followers', '/dataset/followers/{id}',
+                  action='followers', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
-        m.connect('dataset_read', '/dataset/{id}', action='read', ckan_icon='sitemap')
+        m.connect('dataset_read', '/dataset/{id}', action='read',
+                  ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
@@ -262,7 +265,8 @@ def make_map():
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index', highlight_actions='index search')
+        m.connect('group_index', '/group', action='index',
+                  highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new',  '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',
@@ -297,11 +301,13 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
-        m.connect('user_activity_stream', '/user/activity/{id}', action='activity', ckan_icon='time')
+        m.connect('user_activity_stream', '/user/activity/{id}',
+                  action='activity', ckan_icon='time')
         m.connect('/user/dashboard', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='fellow')
         m.connect('/user/unfollow/{id}', action='unfollow')
-        m.connect('user_followers', '/user/followers/{id:.*}', action='followers', ckan_icon='group')
+        m.connect('user_followers', '/user/followers/{id:.*}',
+                  action='followers', ckan_icon='group')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
@@ -313,7 +319,8 @@ def make_map():
         m.connect('/user/reset', action='request_reset')
         m.connect('/user/me', action='me')
         m.connect('/user/set_lang/{lang}', action='set_lang')
-        m.connect('user_datasets', '/user/{id:.*}', action='read', ckan_icon='sitemap')
+        m.connect('user_datasets', '/user/{id:.*}', action='read',
+                  ckan_icon='sitemap')
         m.connect('user_index', '/user', action='index')
 
     with SubMapper(map, controller='revision') as m:
