@@ -206,11 +206,11 @@ as it changes over time. So:
   where a short one will do, and try to cut out words where possible
 - Try to avoid repetition
 
-PEP 257
+PEP 257 (Docstring Conventions)
 ```````
 
-Generally, follow `PEP 257`_. We'll only describe the ways that CKAN differs
-from or extends PEP 257 below.
+Generally, follow `PEP 257`_ for docstrings. We'll only describe the ways that
+CKAN differs from or extends PEP 257 below.
 
 .. _PEP 257: http://www.python.org/dev/peps/pep-0257/
 
