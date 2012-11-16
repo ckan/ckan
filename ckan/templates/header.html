@@ -21,7 +21,7 @@
             {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
             <i class="icon-caret-down"></i>
           </a>
-          <ul class="dropdown-menu pull-right" role="menu">
+          <ul id="user-menu" class="dropdown-menu pull-right js-hide" role="menu">
             <li>
               <a href="{{ h.url_for(controller='user', action='dashboard') }}">
                 <i class="icon-dashboard"></i> {{ _('Dashboard') }}
