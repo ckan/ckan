@@ -62,20 +62,24 @@ Longer example CKAN commit message:
  Also fix templates/user/layout.html so that the Followers tab appears on both
  your own user page (when logged in) and on other user's pages.
 
-Feature Branches
-----------------
 
-All ticketed work should be developed on a corresponding feature branch forked
-from master.  The name of the branch should inlude the ticket's number, the
-ticket type, and a brief one-line synopsis of the purpose of the ticket.  eg:
-``2298-feature-add-sort-by-controls-to-search-page``.  This allows the ticket
-number to be esaily searchable through github's web interface.
+Branches, Pull Requests and Code Reviews
+----------------------------------------
+
+Work for a ticket should be committed on a feature or bug branch forked
+from master.  The name of the branch should include the ticket's number, the
+ticket type, and a brief one-line synopsis of the purpose of the ticket, e.g.::
+
+ 2298-feature-add-sort-by-controls-to-search-page
+ 1518-defect-upload-file-with-spaces
+
+Naming branches this way makes it easy to search for a branch by its ticket
+number using GitHub's web interface.
 
 Once work on the branch has been completed and it is ready to be merged into
-master, make a pull request on github.  Another member of the CKAN team will
-review the changes; and provide feedback through the github pull request page.
-If the piece of work touches on an area of code `owned` by another team member,
-then notify them of the changes by email.
+master, make a pull request on GitHub.  Another member of the CKAN team will
+review the changes, and provide feedback through the GitHub pull request page.
+
 
 Submitting Code Patches
 -----------------------
