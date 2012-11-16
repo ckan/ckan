@@ -168,36 +168,15 @@ Imports
 Logging
 -------
 
-- Keep messages short.
+- Keep log messages short.
 
-- Don't include object representations in the log message.  It **is** useful
-  to include an domain model identifier where appropriate.
+- Don't include object representations in the log message.  It *is* useful
+  to include a domain model identifier where appropriate.
 
-- Choose an appropriate log-level:
+- Choose an appropriate log-level (DEBUG, INFO, ERROR, WARNING or CRITICAL,
+  see `Python's Logging HOWTO`_).
 
-  +----------+--------------------------------------------------------------+
-  | Level    | Description                                                  |
-  +==========+==============================================================+
-  | DEBUG    | Detailed information, of no interest when everything is      |
-  |          | working well but invaluable when diagnosing problems.        |
-  +----------+--------------------------------------------------------------+
-  | INFO     | Affirmations that things are working as expected, e.g.       |
-  |          | "service has started" or "indexing run complete". Often      |
-  |          | ignored.                                                     |
-  +----------+--------------------------------------------------------------+
-  | WARNING  | There may be a problem in the near future, and this gives    |
-  |          | advance warning of it. But the application is able to proceed|
-  |          | normally.                                                    |
-  +----------+--------------------------------------------------------------+
-  | ERROR    | The application has been unable to proceed as expected, due  |
-  |          | to the problem being logged.                                 |
-  +----------+--------------------------------------------------------------+
-  | CRITICAL | This is a serious error, and some kind of application        |
-  |          | meltdown might be imminent.                                  |
-  +----------+--------------------------------------------------------------+
-
-  (`Source
-  <http://plumberjack.blogspot.co.uk/2009/09/python-logging-101.html>`_)
+.. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
 
 i18n
 ----
