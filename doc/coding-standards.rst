@@ -178,15 +178,19 @@ Logging
 
 .. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
 
-i18n
-----
+String Formatting
+------------------
 
-To construct an internationalised string, use `str.format`_, giving
-meaningful names to each replacement field.  For example: ::
+Don't use the old `%s` style string formatting, e.g. ``"i am a %s" % sub``.
+This kind of string formatting is not helpful for internationalization and is
+going away in Python 3.
+
+Use the `new .format() method`_ instead, and give meaningful names to each
+replacement field, for example::
 
   _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
 
-.. _str.format: http://docs.python.org/library/stdtypes.html#str.format
+.. _new .format() method: http://docs.python.org/2/library/stdtypes.html#str.format
 
 Docstring Standards
 -------------------
