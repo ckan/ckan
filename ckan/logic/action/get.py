@@ -478,7 +478,6 @@ def user_list(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     _check_access('user_list',context, data_dict)
 
