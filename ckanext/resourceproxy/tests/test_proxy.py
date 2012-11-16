@@ -47,7 +47,7 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def teardown_class(cls):
-        #cls.static_files_server.kill()
+        cls.static_files_server.kill()
         plugins.reset()
 
     def set_resource_url(self, url):
