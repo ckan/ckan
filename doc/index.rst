@@ -99,11 +99,6 @@ For CKAN Developers
    i18n
    test
    release-cycle
-   domain-model
-   domain-model-dataset
-   domain-model-resource
-   domain-model-task-status
-   buildbot
 
 Other material
 ==============
