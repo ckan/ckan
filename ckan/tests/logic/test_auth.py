@@ -49,9 +49,10 @@ class TestAuth(tests.WsgiAppCase):
 class TestAuthOrgs(TestAuth):
 
     def test_01_create_users(self):
-        self.create_user('admin')
+        # actual roles assigned later
+        self.create_user('org_admin')
         self.create_user('no_org')
-        self.create_user('editor')
+        self.create_user('org_editor')
         self.create_user('editor_wannabe')
 
         user = {'name': 'user_no_auth',
@@ -64,15 +65,15 @@ class TestAuthOrgs(TestAuth):
     def test_02_create_orgs(self):
         org = {'name': 'org_no_user',}
         self._action_post('organization_create', org, 'random_key', 403)
-
         self._action_post('organization_create', org, 'sysadmin')
 
         org = {'name': 'org_with_user',}
         self._action_post('organization_create', org, 'random_key', 403)
         self._action_post('organization_create', org, 'sysadmin')
 
-        #no user should be able to create group
-        self._action_post('organization_create', org, 'admin', 403)
+        #no user should be able to create org
+        org = {'name': 'org_should_not_be_created',}
+        self._action_post('organization_create', org, 'org_admin', 403)
 
     def test_03_create_dataset_no_org(self):
 
@@ -95,27 +96,27 @@ class TestAuthOrgs(TestAuth):
 
     def test_05_add_users_to_org(self):
 
-        member = {'username': 'admin',
+        member = {'username': 'org_admin',
                   'role': 'admin',
                   'id': 'org_with_user'}
         self._action_post('organization_member_create', member, 'sysadmin')
 
         ## admin user should be able to add users now
-        member = {'username': 'editor',
+        member = {'username': 'org_editor',
                   'role': 'editor',
                   'id': 'org_with_user'}
-        self._action_post('organization_member_create', member, 'admin')
+        self._action_post('organization_member_create', member, 'org_admin')
 
         ## admin user should be able to add users now
         ## editor should not be able to approve others as editors
         member = {'username': 'editor_wannabe',
                   'role': 'editor',
                   'id': 'org_with_user'}
-        self._action_post('organization_member_create', member, 'editor', 403)
+        self._action_post('organization_member_create', member, 'org_editor', 403)
 
     def _add_datasets(self, user):
 
-        #org admin/editor should be able to add dataset to group.
+        #org admin/editor should be able to add dataset to org.
         dataset = {'name': user + '_dataset', 'owner_org': 'org_with_user'}
         res = self._action_post('package_create', dataset, user, 200)
 
@@ -123,66 +124,66 @@ class TestAuthOrgs(TestAuth):
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
         res = self._action_post('package_create', dataset, user, 409)
 
-        #admin not able to make dataset not owned by a group
+        #admin not able to make dataset not owned by a org
         dataset = {'name': user + '_dataset_bad' }
         res = self._action_post('package_create', dataset, user, 409)
 
-        #not able to add org to not existant group
+        #not able to add org to not existant org
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist' }
         res = self._action_post('package_create', dataset, user, 409)
 
     def test_07_add_datasets(self):
-        self._add_datasets('admin')
-        self._add_datasets('editor')
+        self._add_datasets('org_admin')
+        self._add_datasets('org_editor')
 
     def _update_datasets(self, user):
         ##editor/admin should be able to update dataset
-        dataset = {'id': 'editor_dataset', 'title': 'test'}
+        dataset = {'id': 'org_editor_dataset', 'title': 'test'}
         res = self._action_post('package_update', dataset, user, 200)
         # editor/admin tries to change owner org
-        dataset = {'id': 'editor_dataset', 'owner_org': 'org_no_user'}
+        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_no_user'}
         res = self._action_post('package_update', dataset, user, 409)
         # editor/admin tries to update dataset in different org
         dataset = {'id': 'sysadmin_create_no_user', 'title': 'test'}
         res = self._action_post('package_update', dataset, user, 403)
         #non existant owner org
-        dataset = {'id': 'editor_dataset', 'owner_org': 'org_not_exist' }
+        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist' }
         res = self._action_post('package_update', dataset, user, 409)
- 
+
     def test_08_update_datasets(self):
-        self._update_datasets('admin')
-        self._update_datasets('editor')
+        self._update_datasets('org_admin')
+        self._update_datasets('org_editor')
 
     def _delete_datasets(self, user):
         #editor/admin should be able to update dataset
-        dataset = {'id': 'editor_dataset'}
+        dataset = {'id': 'org_editor_dataset'}
         res = self._action_post('package_delete', dataset, user, 200)
-        #not able to delete dataset in group user does not belong to
+        #not able to delete dataset in org user does not belong to
         dataset = {'id': 'sysadmin_create_no_user'}
         res = self._action_post('package_delete', dataset, user, 403)
 
     def test_09_delete_datasets(self):
-        self._delete_datasets('admin')
-        self._delete_datasets('editor')
+        self._delete_datasets('org_admin')
+        self._delete_datasets('org_editor')
 
     def test_10_edit_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
         #change an org user does not belong to
-        res = self._action_post('organization_update', org, 'editor', 403)
-        res = self._action_post('organization_update', org, 'admin', 403)
+        res = self._action_post('organization_update', org, 'org_editor', 403)
+        res = self._action_post('organization_update', org, 'org_admin', 403)
 
         #change an org a user belongs to
         org = {'id': 'org_with_user', 'title': 'test'}
-        res = self._action_post('organization_update', org, 'editor', 403)
-        res = self._action_post('organization_update', org, 'admin', 200)
+        res = self._action_post('organization_update', org, 'org_editor', 403)
+        res = self._action_post('organization_update', org, 'org_admin', 200)
 
     def test_11_delete_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
-        res = self._action_post('organization_delete', org, 'editor', 403)
-        res = self._action_post('organization_delete', org, 'admin', 403)
+        res = self._action_post('organization_delete', org, 'org_editor', 403)
+        res = self._action_post('organization_delete', org, 'org_admin', 403)
         org = {'id': 'org_with_user'}
-        res = self._action_post('organization_delete', org, 'editor', 403)
-        res = self._action_post('organization_delete', org, 'admin', 403)
+        res = self._action_post('organization_delete', org, 'org_editor', 403)
+        res = self._action_post('organization_delete', org, 'org_admin', 403)
 
 
 class TestAuthGroups(TestAuth):
@@ -199,27 +200,27 @@ class TestAuthGroups(TestAuth):
 
     def test_02_add_users_to_group(self):
 
-        self.create_user('admin')
-        self.create_user('editor')
-        self.create_user('editor_wannabe')
+        self.create_user('org_admin')
+        self.create_user('org_editor')
+        self.create_user('org_editor_wannabe')
         self.create_user('no_group')
 
-        member = {'username': 'admin',
+        member = {'username': 'org_admin',
                   'role': 'admin',
                   'id': 'group_with_user'}
         self._action_post('group_member_create', member, 'sysadmin')
 
         ## admin user should be able to add users now
-        member = {'username': 'editor',
+        member = {'username': 'org_editor',
                   'role': 'editor',
                   'id': 'group_with_user'}
-        self._action_post('group_member_create', member, 'admin')
+        self._action_post('group_member_create', member, 'org_admin')
 
         ## editor should not be able to approve others as editors
-        member = {'username': 'editor_wannabe',
+        member = {'username': 'org_editor_wannabe',
                   'role': 'editor',
                   'id': 'group_with_user'}
-        self._action_post('group_member_create', member, 'editor', 403)
+        self._action_post('group_member_create', member, 'org_editor', 403)
 
     def test_03_add_dataset_to_group(self):
         org = {'name': 'org'}
@@ -231,31 +232,31 @@ class TestAuthGroups(TestAuth):
 
         group = {'id': 'group_with_user', 'packages': [{'id': 'package_added_by_admin'}]}
         self._action_post('group_update', group, 'no_group', 403)
-        self._action_post('group_update', group, 'admin')
+        self._action_post('group_update', group, 'org_admin')
 
-        group = {'id': 'group_with_user', 
+        group = {'id': 'group_with_user',
                  'packages': [{'id': 'package_added_by_admin'}, {'id' :'package_added_by_editor'}]}
-        self._action_post('group_update', group, 'editor')
+        self._action_post('group_update', group, 'org_editor')
 
     def test_04_modify_group(self):
 
         group = {'id': 'group_with_user', 'title': 'moo',
                  'packages': [{'id': 'package_added_by_admin'}]}
 
-        self._action_post('group_update', group, 'admin')
+        self._action_post('group_update', group, 'org_admin')
 
         ###need to think about this as is horrible may just let editor edit group for this case even
         ## though spec says otherwise
-        self._action_post('group_update', group, 'editor', 403)
+        self._action_post('group_update', group, 'org_editor', 403)
 
     def test_05_delete_group(self):
 
         org = {'id': 'group_with_user'}
-        res = self._action_post('group_delete', org, 'editor', 403)
-        res = self._action_post('group_delete', org, 'admin', 403)
+        res = self._action_post('group_delete', org, 'org_editor', 403)
+        res = self._action_post('group_delete', org, 'org_admin', 403)
         org = {'id': 'group_with_user'}
-        res = self._action_post('group_delete', org, 'editor', 403)
-        res = self._action_post('group_delete', org, 'admin', 403)
+        res = self._action_post('group_delete', org, 'org_editor', 403)
+        res = self._action_post('group_delete', org, 'org_admin', 403)
 
 
 
