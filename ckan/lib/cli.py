@@ -541,7 +541,9 @@ class Sysadmin(CkanCommand):
             else:
                 print 'Exiting ...'
                 return
+
         user.sysadmin = True
+        model.Session.add(user)
         model.repo.commit_and_remove()
         print 'Added %s as sysadmin' % username
 
