@@ -2,16 +2,16 @@ import os
 import subprocess
 import requests
 import time
-import urllib2
 import unittest
+
+import paste.fixture
+from paste.deploy import appconfig
 
 import ckan.logic as l
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 from ckan.lib.create_test_data import CreateTestData
-from paste.deploy import appconfig
-import paste.fixture
 from ckan.config.middleware import make_app
 
 import ckanext.resourceproxy.plugin as proxy
