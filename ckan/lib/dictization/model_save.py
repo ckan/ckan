@@ -228,6 +228,8 @@ def package_membership_list_save(group_dicts, package, context):
         id = group_dict.get("id")
         name = group_dict.get("name")
         capacity = group_dict.get("capacity", "public")
+        if capacity == 'organization':
+            continue
         if id:
             group = session.query(model.Group).get(id)
         else:
