@@ -146,11 +146,15 @@ Layout and formatting
 Imports
 -------
 
-- Import whole modules, rather than using ``from foo import bar``.  It's ok
-  to alias imported modules to make things more concise, ie this *is*
-  acceptable: ::
+- Don't use ``from module import *`` or ``from module import name``. Instead
+  just ``import module`` and then access names with ``module.name``.
+  See `Idioms and Anti-Idioms in Python`_.
 
-    import foo.bar.baz as f
+  You can make long module names more concise by aliasing them::
+  
+    import foo.bar.baz as baz
+
+  and then access it with ``baz`` in your code. 
 
 - Make all imports at the start of the file, after the module docstring.
   Imports should be grouped in the following order:
@@ -158,6 +162,8 @@ Imports
   1. Standard library imports
   2. Third-party imports
   3. CKAN imports
+
+.. _Idioms and Anti-Idioms in Python: http://docs.python.org/2/howto/doanddont.html
 
 Logging
 -------
