@@ -2,8 +2,50 @@
 CKAN Coding Standards
 =====================
 
-Commit Guidelines
-=================
+
+How to Contribute Code to CKAN
+------------------------------
+
+CKAN is a free software project and code contributions are welcome. To
+contribute code to CKAN you should fork CKAN to your own GitHub account, push
+your code to a feature branch on your fork, then make a pull request for your
+branch on the central CKAN repo. We'll go through each step in detail below...
+
+
+Fork CKAN on GitHub
+```````````````````
+
+.. _CKAN repo on GitHub: https://github.com/okfn/ckan
+.. _CKAN issue tracker: http://trac.ckan.org
+
+If you don't have access to the central `CKAN repo on GitHub`_ you should sign
+up for a free account on `GitHub.com <https://github.com/>`_ and
+`fork CKAN <https://help.github.com/articles/fork-a-repo>`_, so that you have somewhere to publish your CKAN code.
+
+You can now clone your CKAN fork to your development machine, create a new
+branch to commit your code on, and push your branch to your CKAN fork on GitHub
+to share your code with others.
+
+
+Feature Branches
+````````````````
+
+Work for a feature or bug fix should be developed on a feature or bug branch
+forked from master. Each individual feature or bug fix should be developed on
+its own branch. The name of the branch should include the ticket number (if
+this work has a ticket in the `CKAN issue tracker`_), the branch type
+("feature" or "bug"), and a brief one-line synopsis of the purpose of the
+ticket, for example::
+
+ 2298-feature-add-sort-by-controls-to-search-page
+ 1518-bug-upload-file-with-spaces
+
+Naming branches this way makes it easy to search for a branch by its ticket
+number using GitHub's web interface.
+
+
+Commit Messages
+```````````````
 
 Generally, follow the `commit guidelines from the Pro Git book`_:
 
@@ -19,94 +61,57 @@ Generally, follow the `commit guidelines from the Pro Git book`_:
   codebase to change its behaviour, e.g. *Add tests for...*, *make xyzzy do
   frotz...*, this helps to make the commit message easy to read.
 
-- Try to write the commit message so that a new CKAN developer could understand
-  it, i.e. using plain English as far as possible, and not referring to too
-  much assumed knowledge or to external resources such as mailing list
-  discussions (summarize the relevant points in the commit message instead).
-
 .. _commit guidelines from the Pro Git book: http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
 
-In CKAN we also refer to `trac.ckan.org`_ ticket numbers in commit messages
-wherever relevant. This makes the release manager's job much easier!  Of
-course, you don't have to reference a ticket from your commit message if there
-isn't a ticket for it, e.g. if you find a typo in a docstring and quickly fix
-it you wouldn't bother to create a ticket for this.
+If your commit has a ticket in the `CKAN issue tracker`_ put the ticket number
+at the start of the first line of the commit message like this: ``[#123]``.
+This makes the CKAN release manager's job much easier!
 
-Put the ticket number in square brackets (e.g. ``[#123]``) at the start of the
-first line of the commit message. You can also reference other Trac tickets
-elsewhere in your commit message by just using the ticket number on its own
-(e.g. ``see #456``). For example:
+Here is an example CKAN commit message::
 
-::
+ [#2505] Update source install instructions
 
-    [#2505] Update source install instructions
-    
-    Following feedback from markw (see #2406).
+ Following feedback from markw (see #2406).
 
-.. _trac.ckan.org: http://trac.ckan.org/
 
-Longer example CKAN commit message:
+Pull Requests & Code Review
+```````````````````````````
 
-::
+.. _create a pull request on GitHub: https://help.github.com/articles/creating-a-pull-request
 
- [#2304] Refactor user controller a little
+Once your work on a branch is complete and is ready to be merged into the
+master branch, `create a pull request on GitHub`_.  A member of the CKAN team
+will review your code and provide feedback on the pull request page. The
+reviewer may ask you to make some changes to your code. Once the pull request
+has passed the code review, the reviewer will merge your code into the master
+branch and it will become part of CKAN!
+
+.. note::
+
+ When submitting a pull request:
  
- Move initialisation of a few more template variables into
- _setup_template_variables(), and change read(), edit(), and followers() to use
- it. This removes some code duplication and fixes issues with the followers
- count and follow button not being initialisd on all user controller pages.
-
- Change new() to _not_ use _setup_template_variables() as it only needs
- c.is_sysadmin and not the rest.
-
- Also fix templates/user/layout.html so that the Followers tab appears on both
- your own user page (when logged in) and on other user's pages.
+ - Your branch should contain code for one feature or bug fix only,
+   see `Feature Branches`_.
+ - Your branch should contain new or changed tests for any new or changed
+   code, see `Testing`_.
+ - All the CKAN tests should pass on your branch, see :doc:`test`.
 
 
-Branches, Pull Requests and Code Reviews
-----------------------------------------
+Merging
+```````
 
-Work for a ticket should be committed on a feature or bug branch forked
-from master.  The name of the branch should include the ticket's number, the
-ticket type, and a brief one-line synopsis of the purpose of the ticket, e.g.::
+When merging a feature or bug branch into master:
 
- 2298-feature-add-sort-by-controls-to-search-page
- 1518-defect-upload-file-with-spaces
+- Make sure the tests pass, see :doc:`test`
+- Use the ``--no-ff`` option in the ``git merge`` command
+- Add an entry to the ``CHANGELOG`` file
 
-Naming branches this way makes it easy to search for a branch by its ticket
-number using GitHub's web interface.
-
-Once work on the branch has been completed and it is ready to be merged into
-master, make a pull request on GitHub.  Another member of the CKAN team will
-review the changes, and provide feedback through the GitHub pull request page.
-
-
-Submitting Code Patches
------------------------
-
-See the wiki for instructions on `how to submit a patch`_ via GitHub or email.
-
-.. _how to submit a patch: http://wiki.ckan.org/Submitting_a_code_patch
 
 Releases
 --------
 
 See :doc:`release-cycle` for details on the release process.
 
-Merging
--------
-
-When merging a feature or bug branch into master:
-
-- Use the ``--no-ff`` option in the ``git merge`` command
-- Add an entry to the ``CHANGELOG`` file
-
-The full postgresql test suite must pass before merging into master. ::
-
-  nosetests --ckan --with-pylons=test-core.ini ckan
-
-See :doc:`test` for more information on running tests, including running the
-core extension tests.
 
 Python Coding Standards
 =======================
@@ -590,6 +595,8 @@ When developing for ckan core, only use the helper functions found in
 ``ckan.lib.helpers.__allowed_functions__``.
 
 .. todo:: Jinja2 templates
+
+.. _Testing:
 
 Testing
 -------
