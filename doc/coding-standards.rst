@@ -380,54 +380,46 @@ conformance and general code quality. We recommend using them.
 .. _Syntastic: https://github.com/scrooloose/syntastic
 
 
-CKAN Code Areas
-===============
+CKAN Code Architecture
+======================
 
-This section describes some guidelines for making changes in particular areas
-of the codebase, as well as general concepts particular to CKAN.
+This section tries to give some guidelines for writing code that is consistent
+with the intended, overall design and architecture of CKAN.
 
-General
--------
 
-Some rules to adhere to when making changes to the codebase in general.
+``ckan.model``
+--------------
 
-.. todo:: Is there anything to include in this 'General' section?
+Encapsulate SQLAlchemy in ``ckan.model``
+````````````````````````````````````````
 
-Domain Models
--------------
+Ideally SQLAlchemy should only be used within ``ckan.model`` and not from other
+packages such as ``ckan.logic``.  For example instead of using an SQLAlchemy
+query from the logic package to retrieve a particular user from the database,
+we add a ``get()`` method to ``ckan.model.user.User``::
 
-This section describes things to bear in mind when making changes to the domain
-models.  For more information about CKAN's domain models, see
-:doc:`domain-model`.
+    @classmethod
+    def get(cls, user_id):
+        query = ...
+        .
+        .
+        .
+        return query.first()
 
-The structure of the CKAN data is described in the 'model'. This is in the code
-at `ckan/model`.
+Now we can call this method from the logic package.
 
-Many of the domain objects are Revisioned and some are Stateful. These are
-concepts introduced by `vdm`_.
+Database Migrations
+```````````````````
 
-.. _vdm: http://okfn.org/projects/vdm/
-.. _sqlalchemy migrate: http://code.google.com/p/sqlalchemy-migrate SQLAlchemy Migrate
+When changes are made to the model classes in ``ckan.model`` that alter CKAN's
+database schema, a migration script has to be added to migrate old CKAN
+databases to the new database schema when they upgrade their copies of CKAN.
+These migration scripts are kept in ``ckan.migration.versions``.
 
-Migration
-`````````
-When edits are made to the model code, then before the code can be used on a
-CKAN instance with existing data, the existing data has to be migrated. This is
-achieved with a migration script.
-
-CKAN currently uses to manage these scripts.  When you deploy new code to a
-CKAN instance, as part of the process you run any required migration scripts
-with: ::
+When you upgrade a CKAN instance, as part of the upgrade process you run any
+necessary migration scripts with the ``paster db upgrade`` command::
 
  paster --plugin=ckan db upgrade --config={.ini file}
-
-The scripts give their model version numbers in their filenames and are stored
-in ``ckan/migration/versions/``.
-
-The current version the database is migrated to is also stored in the database.
-When you run the upgrade, as each migration script is run it prints to the
-console something like ``11->12``. If no upgrade is required because it is up
-to date, then nothing is printed.
 
 Creating a new migration script
 ```````````````````````````````
@@ -521,35 +513,48 @@ And the following is run after to make sure that row count is the same: ::
   resource_group_after = migrate_engine.execute('''select count(*) from resource_group''').first()[0]
   assert resource_group_after == package_count
 
-The Action Layer
-----------------
+``ckan.logic``
+--------------
 
-When making changes to the action layer, found in the four modules
-``ckan/logic/action/{create,delete,get,update}`` there are a few things to bear
-in mind.
+Auth Functions and ``check_access()``
+``````````````
 
-Server Errors
+Each action function defined in ``ckan.logic.action`` should use its own
+corresponding auth function defined in ``ckan.logic.auth``. Instead of calling
+its auth function directly, an action function should go through
+``ckan.logic.check_access`` (which is aliased ``_check_access`` in the action
+modules) because this allows plugins to override auth functions using the
+``IAuthFunctions`` plugin interface. For example::
+
+    def package_show(context, data_dict):
+        _check_access('package_show', context, data_dict)
+
+``check_access`` will raise an exception if the user is not authorized, which
+the action function should not catch. When this happens the user will be shown
+an authorization error in their browser (or will receive one in their response
+from the API).
+
+
+``logic.get_or_bust()``
 `````````````
 
-When writing action layer code, bear in mind that the input provided in the
-``data_dict`` may be user-provided.  This means that required fields should be
-checked for existence and validity prior to use.  For example, code such as ::
+The ``data_dict`` parameter of logic action functions may be user provided, so
+required files may be invalid or absent. Naive Code like::
 
   id = data_dict['id']
 
-will raise a ``KeyError`` if the user hasn't provided an ``id`` field in their
-data dict.  This results in a 500 error, and no message to explain what went
-wrong.  The correct response by the action function would be to raise a
-``ValidationError`` instead, as this will be caught and will provide the user
-with a `bad request` response, alongside an error message explaining the issue.
-
-To this end, there's a helper function, ``logic.get_or_bust()`` which can be
-used to safely retrieve a value from a dict: ::
+may raise a ``KeyError`` and cause CKAN to crash with a 500 Server Error
+and no message to explain what went wrong. Instead do::
 
   id = _get_or_bust(data_dict, "id")
 
-Function visibility
-```````````````````
+which will raise ``ValidationError`` if ``"id"`` is not in ``data_dict``. The
+``ValidationError`` will be caught and the user will get a 400 Bad Request
+response and an error message explaining the problem.
+
+
+Action Functions are Automatically Exposed in the API
+`````````````````````````````````````````````````````
 
 **All** publicly visible functions in the
 ``ckan.logic.action.{create,delete,get,update}`` namespaces will be exposed
@@ -575,46 +580,39 @@ care should be taken to:
 
      _get_or_bust = logic.get_or_bust
 
-Documentation
-`````````````
+Action Function Docstrings
+``````````````````````````
 
-Please refer to `CKAN Action API Docstrings`_ for information about writing
-docstrings for the action functions.  It is **very** important that action
-functions are documented as they are not only consumed by CKAN developers but
-by CKAN users.
+See `CKAN Action API Docstrings`_.
 
-Controllers
------------
+``get_action()``
+````````````````
 
-Guidelines when writing controller actions:
-
-- Use ``get_action``, rather than calling the action directly; and rather than
-  calling the action directly, as this allows extensions to overide the action's
-  behaviour. ie use ::
+Don't call ``logic.action`` functions directly, instead use ``get_action()``.
+This allows plugins to override action functions using the ``IActions`` plugin
+interface. For example::
 
     ckan.logic.get_action('group_activity_list_html')(...)
 
-  Instead of ::
+Instead of ::
 
     ckan.logic.action.get.group_activity_list_html(...)
 
-- Controllers have access to helper functions in ``ckan.lib.helpers``.
-  When developing for ckan core, only use the helper functions found in
-  ``ckan.lib.helpers.__allowed_functions__``.
 
-.. todo:: Anything else for controllers?
+``ckan.lib``
+------------
 
-Templating
-----------
+Code in ``ckan.lib`` should not access ``ckan.model`` directly, it should go
+through the action functions in ``ckan.logic.action`` instead.
 
-Helper Functions
-````````````````
 
-Templates have access to a set of helper functions in ``ckan.lib.helpers``.
-When developing for ckan core, only use the helper functions found in
-``ckan.lib.helpers.__allowed_functions__``.
+Controller & Template Helper Functions
+--------------------------------------
 
-.. todo:: Jinja2 templates
+``ckan.lib.helpers`` contains helper functions that can be used from
+``ckan.controllers`` or from templates. When developing for ckan core, only use
+the helper functions found in ``ckan.lib.helpers.__allowed_functions__``.
+
 
 .. _Testing:
 
