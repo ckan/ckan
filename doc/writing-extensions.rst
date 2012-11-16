@@ -143,7 +143,7 @@ Here's a list of some of the more commonly used plugin interfaces:
     Intercept template rendering to modify the output.
 
 :class:`~ckan.plugins.interfaces.IResourcePreview`
-    Add custom previews.
+    Add custom previews. The preview extensions can make use of the resoucre proxy extension, if enabled.
 
 :class:`~ckan.plugins.interfaces.IDomainObjectModification`
     Listens for changes to CKAN domain objects.
