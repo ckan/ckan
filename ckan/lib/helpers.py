@@ -890,7 +890,7 @@ def tag_link(tag):
 
 def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
-    return link_to(group['name'], url)
+    return link_to(group['title'], url)
 
 
 def dump_json(obj, **kw):
@@ -966,7 +966,7 @@ def convert_to_dict(object_type, objs):
     return items
 
 # these are the types of objects that can be followed
-_follow_objects = ['dataset', 'user']
+_follow_objects = ['dataset', 'user', 'group']
 
 
 def follow_button(obj_type, obj_id):
