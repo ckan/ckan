@@ -353,23 +353,32 @@ Example of a ckan.logic.action API docstring:
 
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
 
-Tools
------
 
-Running the `PEP 8 style guide checker`_ is good for checking adherence to `PEP
-8`_ formatting.  As mentioned above, only perform style clean-ups on master to
-help avoid spurious merge conflicts.
+Some Helpful Tools for Python Code Quality
+------------------------------------------
 
-`PyLint`_ is a useful tool for analysing python source code for errors and signs of poor quality.
+There are various tools that can help you to check your Python code for PEP8
+conformance and general code quality. We recommend using them.
 
-`pyflakes`_ is another useful tool for passive analysis of python source code.
-There's also a `pyflakes vim plugin`_ which will highlight unused variables,
-undeclared variables, syntax errors and unused imports.
+* `pep8`_ checks your Python code against some of the style conventions in PEP
+  8. As mentioned above, only perform style clean-ups on master to help avoid
+  spurious merge conflicts.
 
-.. _PEP 8 style guide checker: http://pypi.python.org/pypi/pep8
-.. _PyLint: http://www.logilab.org/857
+* `pylint`_ analyzes Python source code looking for bugs and signs of poor
+  quality.
+
+* `pyflakes`_ also analyzes Python programs to detect errors.
+
+* `flake8`_ combines both pep8 and pyflakes into a single tool.
+
+* `Syntastic`_ is a Vim plugin with support for flake8, pyflakes and pylint.
+
+.. _pep8: http://pypi.python.org/pypi/pep8
+.. _pylint: http://www.logilab.org/857
 .. _pyflakes: http://pypi.python.org/pypi/pyflakes
-.. _pyflakes vim plugin: http://www.vim.org/scripts/script.php?script_id=2441
+.. _flake8: http://pypi.python.org/pypi/flake8
+.. _Syntastic: https://github.com/scrooloose/syntastic
+
 
 CKAN Code Areas
 ===============
