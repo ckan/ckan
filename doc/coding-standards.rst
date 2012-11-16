@@ -72,6 +72,25 @@ Here is an example CKAN commit message::
 
  Following feedback from markw (see #2406).
 
+Keeping Up with master
+----------------------
+
+When developing on a branch you should periodically pull the latest commits
+from the master branch of the central CKAN repo into your feature branch, to
+prevent the two branches from diverging from each other too much and becoming
+difficult to merge.
+
+If you haven't already, add the central repo to your development repo as a
+remote::
+
+    git remote add central git://github.com/okfn/ckan.git
+    git fetch central
+
+Now, every now and then pull the latest commits from the central master branch
+into your feature branch. While on your feature branch, do::
+
+    git pull central master
+
 
 Pull Requests & Code Review
 ---------------------------
@@ -93,6 +112,8 @@ branch and it will become part of CKAN!
    see `Feature Branches`_.
  - Your branch should contain new or changed tests for any new or changed
    code, see `Testing`_.
+ - Your branch should be up to date with the master branch of the central
+   CKAN repo, see `Keeping Up with master`_.
  - All the CKAN tests should pass on your branch, see :doc:`test`.
 
 
