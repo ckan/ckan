@@ -64,6 +64,7 @@ class TestAuthOrgs(TestAuth):
     def test_02_create_orgs(self):
         org = {'name': 'org_no_user',}
         self._action_post('organization_create', org, 'random_key', 403)
+
         self._action_post('organization_create', org, 'sysadmin')
 
         org = {'name': 'org_with_user',}
