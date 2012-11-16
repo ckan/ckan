@@ -399,7 +399,7 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    requester = context['user']
+    requester = context.get('user')
 
     if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
             requester == user.name or
