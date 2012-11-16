@@ -110,7 +110,7 @@ ckan.favicon = /images/icons/ckan.ico
 ckan.gravatar_default = identicon
 
 ## Controls whether gravatars are displayed or not.
-ckan.display_gravatars = no
+ckan.display_gravatars = yes
 
 ## Solr support
 #solr_url = http://127.0.0.1:8983/solr
