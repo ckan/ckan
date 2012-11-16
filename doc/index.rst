@@ -91,6 +91,7 @@ For CKAN Developers
    :maxdepth: 1
 
    contributing
+   contributing-docs
    architecture
    python-coding-standards
    javascript-coding-standards
