@@ -192,8 +192,10 @@ replacement field, for example::
 
 .. _new .format() method: http://docs.python.org/2/library/stdtypes.html#str.format
 
-Docstring Standards
--------------------
+Docstrings
+----------
+
+.. _PEP 257: http://www.python.org/dev/peps/pep-0257/
 
 We want CKAN's docstrings to be clear and easy to read for programmers who are
 smart and competent but who may not know a lot of CKAN technical jargon and
@@ -201,18 +203,17 @@ whose first language may not be English. We also want it to be easy to maintain
 the docstrings and keep them up to date with the actual behaviour of the code
 as it changes over time. So:
 
-- Keep docstrings short, describe only what's necessary and no more
-- Keep docstrings simple, use plain English, try not to use a long word
-  where a short one will do, and try to cut out words where possible
-- Try to avoid repetition
+- All modules and all public functions, classes and methods exported by a
+  module should normally have docstrings (see `PEP 257`_).
+- Keep docstrings short, describe only what's necessary and no more,
+- Keep docstrings simple: use plain, concise English.
+- Try to avoid repetition.
 
 PEP 257 (Docstring Conventions)
 ```````
 
 Generally, follow `PEP 257`_ for docstrings. We'll only describe the ways that
 CKAN differs from or extends PEP 257 below.
-
-.. _PEP 257: http://www.python.org/dev/peps/pep-0257/
 
 CKAN docstrings deviate from PEP 257 in a couple of ways:
 
@@ -222,10 +223,11 @@ CKAN docstrings deviate from PEP 257 in a couple of ways:
 - We use Sphinx directives for documenting parameters, exceptions and return
   values (see below)
 
-Sphinx
-``````
-Use `Sphinx directives`_ for documenting the parameters, exceptions and returns
-of functions:
+Sphinx Field Lists
+``````````````````
+
+Use `Sphinx field lists`_ for documenting the parameters, exceptions and
+returns of functions:
 
 - Use ``:param`` and ``:type`` to describe each parameter
 - Use ``:returns`` and ``:rtype`` to describe each return
@@ -272,11 +274,11 @@ should not start with capital letters or end with full stops. These should be
 short phrases and not full sentences. If more detail is required put it in the
 function description instead.
 
-Indicate optional arguments by ending their descriptions with (optional) in
-brackets. Where relevant also indicate the default value: (optional, default:
-5). It's also helpful to list all required parameters before optional ones.
+Indicate optional arguments by ending their descriptions with ``(optional)`` in
+brackets. Where relevant also indicate the default value: ``(optional, default:
+5)``.
 
-.. _Sphinx directives: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
+.. _Sphinx field lists: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
 
 You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
 ``*stars for emphasis*`` or ````double-backticks for literal text````
@@ -300,9 +302,9 @@ Where practical, it's helpful to give examples of param and return values in
 API docstrings.
 
 CKAN datasets used to be called packages and the old name still appears in the
-source, e.g. in function names like package_list(). When documenting functions
-like this write dataset not package, but the first time you do this put package
-after it in brackets to avoid any confusion, e.g.
+source, e.g. in function names like ``package_list()``. When documenting
+functions like this write dataset not package, but the first time you do this
+put package after it in brackets to avoid any confusion, e.g.
 
 ::
 
