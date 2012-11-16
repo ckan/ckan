@@ -2,9 +2,8 @@
 CKAN Coding Standards
 =====================
 
-
 How to Contribute Code to CKAN
-------------------------------
+==============================
 
 CKAN is a free software project and code contributions are welcome. To
 contribute code to CKAN you should fork CKAN to your own GitHub account, push
@@ -13,7 +12,7 @@ branch on the central CKAN repo. We'll go through each step in detail below...
 
 
 Fork CKAN on GitHub
-```````````````````
+-------------------
 
 .. _CKAN repo on GitHub: https://github.com/okfn/ckan
 .. _CKAN issue tracker: http://trac.ckan.org
@@ -28,7 +27,7 @@ to share your code with others.
 
 
 Feature Branches
-````````````````
+----------------
 
 Work for a feature or bug fix should be developed on a feature or bug branch
 forked from master. Each individual feature or bug fix should be developed on
@@ -45,7 +44,7 @@ number using GitHub's web interface.
 
 
 Commit Messages
-```````````````
+---------------
 
 Generally, follow the `commit guidelines from the Pro Git book`_:
 
@@ -75,7 +74,7 @@ Here is an example CKAN commit message::
 
 
 Pull Requests & Code Review
-```````````````````````````
+---------------------------
 
 .. _create a pull request on GitHub: https://help.github.com/articles/creating-a-pull-request
 
@@ -98,7 +97,7 @@ branch and it will become part of CKAN!
 
 
 Merging
-```````
+-------
 
 When merging a feature or bug branch into master:
 
@@ -108,7 +107,7 @@ When merging a feature or bug branch into master:
 
 
 Releases
---------
+========
 
 See :doc:`release-cycle` for details on the release process.
 
