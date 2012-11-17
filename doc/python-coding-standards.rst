@@ -6,6 +6,11 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
+Some good links about Python code style:
+
+- `Python Coding Standards <http://lists.osafoundation.org/pipermail/dev/2003-March/000479.html>`_ from Yahoo
+- `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
+
 
 Commit Formatting Cleanups on master
 ------------------------------------
