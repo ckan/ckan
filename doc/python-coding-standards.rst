@@ -2,32 +2,25 @@
 Python Coding Standards
 =======================
 
-For python code, we follow `PEP 8`_, plus a few of our own rules.  The
-important bits are laid out below, but if in doubt, refer to `PEP 8`_ and
-common sense.
-
-Layout and formatting
----------------------
-
-- Don't use tabs.  Use 4 spaces.
-
-- Maximum line length is 79 characters.
-
-- Continuation lines should align vertically within the parentheses, or with
-  a hanging indent.  See `PEP 8's Indent Section`_ for more details.
-
-- Avoid extraneous whitespace.  See `PEP 8's Whitespace Section`_ for more details.
-
-- Clean up formatting issues in master, not on a feature branch.  Unless of
-  course you're changing that piece of code anyway.  This will help avoid
-  spurious merge conflicts, and aid in reading pull requests.
-
-- Use the single-quote character, ``'``, rather than the double-quote
-  character, ``"``, for string literals.
+For Python code style follow `PEP 8`_ plus the guidelines below.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
-.. _PEP 8's Indent Section: http://www.python.org/dev/peps/pep-0008/#indentation
-.. _PEP 8's Whitespace Section: http://www.python.org/dev/peps/pep-0008/#whitespace-in-expressions-and-statements
+
+
+Commit Formatting Cleanups on master
+------------------------------------
+
+Clean up formatting and PEP 8 issues on master, not on a feature branch.
+Unless of course you're changing that piece of code anyway.  This will help
+avoid spurious merge conflicts, and aid in reading pull requests.
+
+
+Use Single Quotes
+-----------------
+
+Use the single-quote character, ``'``, rather than the double-quote character,
+``"``, for string literals.
+
 
 Imports
 -------
