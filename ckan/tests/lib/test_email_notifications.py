@@ -1,10 +1,12 @@
 import json
+import email.mime.text
 
 import ckan.model as model
-import ckan.tests.mock_mail_server as mock_mail_server
 import ckan.lib.email_notifications as email_notifications
-import ckan.tests
+import ckan.lib.base
+import ckan.lib.mailer
 import ckan.tests.pylons_controller
+import ckan.tests.mock_mail_server as mock_mail_server
 
 import paste
 import pylons.test
@@ -30,9 +32,17 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         ckan.tests.pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
+    def mime_encode(self, msg, recipient_name):
+        sender_name = ckan.lib.base.g.site_title
+        sender_url = ckan.lib.base.g.site_url
+        body = ckan.lib.mailer.add_msg_niceties(
+                recipient_name, msg, sender_name, sender_url)
+        encoded_body = email.mime.text.MIMEText(
+                body.encode('utf-8'), 'plain', 'utf-8').get_payload().strip()
+        return encoded_body
+
     def test_01_no_email_notifications_after_registration(self):
-        '''Test that a newly registered user who is not following anything
-        doesn't get any email notifications.'''
+        '''A new user who isn't following anything shouldn't get any emails.'''
 
         # Clear any emails already sent due to CreateTestData.create().
         email_notifications.get_and_send_notifications_for_all_users()
@@ -50,29 +60,72 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         assert response['success'] is True
 
         # Save the user for later tests to use.
-        TestEmailNotifications.user = response['result']
+        TestEmailNotifications.sara = response['result']
 
         # No notification emails should be sent to anyone at this point.
         email_notifications.get_and_send_notifications_for_all_users()
         assert len(self.get_smtp_messages()) == 0
 
-    def test_02_fuck_yeah_email_notifications(self):
+    def test_02_one_new_activity(self):
+        '''A user with one new activity should get one email.'''
 
-        # You have to follow something or you don't get any emails.
+        # Make Sara follow something, have to do this to get new activity.
         params = {'id': 'warandpeace'}
-        extra_environ = {'Authorization': str(self.user['apikey'])}
+        extra_environ = {'Authorization': str(self.sara['apikey'])}
         response = self.app.post('/api/action/follow_dataset',
             params=json.dumps(params), extra_environ=extra_environ).json
         assert response['success'] is True
 
-        # Make someone else update the dataset we're following to create an
-        # email notification.
+        # Make someone else update the dataset Sara's following, this should
+        # create a new activity on Sara's dashboard.
         params = {'name': 'warandpeace', 'notes': 'updated'}
         extra_environ = {'Authorization': str(self.joeadmin['apikey'])}
         response = self.app.post('/api/action/package_update',
             params=json.dumps(params), extra_environ=extra_environ).json
         assert response['success'] is True
 
-        # One notification email should be sent to anyone at this point.
+        # Run the email notifier job, it should send one notification email
+        # to Sara.
         email_notifications.get_and_send_notifications_for_all_users()
         assert len(self.get_smtp_messages()) == 1
+        email = self.get_smtp_messages()[0]
+        assert email[1] == 'info@test.ckan.net'
+        assert email[2] == ['sara@sararollins.com']
+        assert 'Subject: =?utf-8?q?You_have_new_activity' in email[3]
+        encoded_body = self.mime_encode(
+                "You have new activity", "Sara Rollins")
+        assert encoded_body in email[3]
+        # TODO: Check that body contains link to dashboard and email prefs.
+
+    def test_03_multiple_new_activities(self):
+        '''Test that a user with multiple new activities gets just one email.
+
+        '''
+
+    def test_04_no_repeat_email_notifications(self):
+        '''Test that a user does not get a second email notification for the
+        same new activity.
+
+        '''
+
+    def test_05_no_email_notifications_when_disabled_site_wide(self):
+        '''Users should not get email notifications when the feature is
+        disabled site-wide by a sysadmin.'''
+
+    def test_06_enable_email_notifications_sitewide(self):
+        '''When a sysadamin enables email notifications site wide, users
+        should not get emails for new activities from before email
+        notifications were enabled.
+
+        '''
+
+    def test_07_no_email_notifications_when_disabled_by_user(self):
+        '''Users should not get email notifications when they have disabled
+        the feature in their user preferences.'''
+
+    def test_08_enable_email_notifications_by_user(self):
+        '''When a user enables email notifications in her user preferences,
+        she should not get emails for new activities from before email
+        notifications were enabled.
+
+        '''
