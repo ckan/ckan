@@ -167,12 +167,11 @@ class GroupController(BaseController):
                         _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
 
-        c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
         context['return_query'] = True
 
         # c.group_admins is used by CKAN's legacy (Genshi) templates only,
         # if we drop support for those then we can delete this line.
-        c.group_admins = self.authorizer.get_admins(c.group)
+        c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
         limit = 20
         try:
@@ -667,7 +666,7 @@ class GroupController(BaseController):
 
     def admins(self, id):
         context = self._get_group_dict(id)
-        c.admins = self.authorizer.get_admins(context['group'])
+        c.admins = ckan.new_authz.get_group_or_org_admin_ids(context['group']['id'])
         return render('group/admins.html')
 
     def about(self, id):
@@ -681,7 +680,7 @@ class GroupController(BaseController):
         data_dict = {'id': id}
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
-            c.admins = self.authorizer.get_admins(context['group'])
+            c.admins = ckan.new_authz.get_group_or_org_admin_ids(context['group']['id'])
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
