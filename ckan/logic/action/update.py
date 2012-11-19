@@ -937,3 +937,9 @@ def user_role_bulk_update(context, data_dict):
                          'domain_object': data_dict['domain_object']}
         user_role_update(context, uro_data_dict)
     return _get_action('roles_show')(context, data_dict)
+
+
+def dashboard_update_email_notification_last_sent(context, data_dict):
+    model = context['model']
+    user = model.User.get(context['user'])  # The authorized user.
+    model.Dashboard.update_activity_stream_last_viewed(user.id)

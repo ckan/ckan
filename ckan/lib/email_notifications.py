@@ -105,6 +105,11 @@ def send_notification(user, email_dict):
     try:
         ckan.lib.mailer.mail_recipient(user['display_name'], user['email'],
                 email_dict['subject'], email_dict['body'])
+        context = {'model': model, 'session': model.Session,
+                'user': user['name']}
+        response = logic.get_action('dashboard_update_email_notification_last_sent')(
+                context, {})
+        # TODO: Do something with response?
     except ckan.lib.mailer.MailerException:
         raise
 
@@ -113,7 +118,10 @@ def get_and_send_notifications_for_user(user):
     # FIXME: Get the time that the last email notification was sent to the
     # user and the time that they last viewed their dashboard, set `since` to
     # whichever is more recent.
-    since = datetime.datetime.min
+    context = {'model': model, 'session': model.Session, 'user': user['name']}
+    since = logic.get_action('dashboard_email_notification_last_sent')(
+            context, {})
+
     notifications = get_notifications(user['id'], since)
     # TODO: Handle failures from send_email_notification.
     for notification in notifications:

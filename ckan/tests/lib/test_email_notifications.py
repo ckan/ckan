@@ -41,6 +41,16 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
                 body.encode('utf-8'), 'plain', 'utf-8').get_payload().strip()
         return encoded_body
 
+    def check_email(self, email, address, name, subject, body):
+        assert email[1] == 'info@test.ckan.net'
+        assert email[2] == [address]
+        encoded_subject = 'Subject: =?utf-8?q?{subject}'.format(
+                subject=subject.replace(' ', '_'))
+        assert encoded_subject in email[3]
+        encoded_body = self.mime_encode(body, name)
+        assert encoded_body in email[3]
+        # TODO: Check that body contains link to dashboard and email prefs.
+
     def test_01_no_email_notifications_after_registration(self):
         '''A new user who isn't following anything shouldn't get any emails.'''
 
@@ -89,24 +99,44 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         email_notifications.get_and_send_notifications_for_all_users()
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
-        assert email[1] == 'info@test.ckan.net'
-        assert email[2] == ['sara@sararollins.com']
-        assert 'Subject: =?utf-8?q?You_have_new_activity' in email[3]
-        encoded_body = self.mime_encode(
-                "You have new activity", "Sara Rollins")
-        assert encoded_body in email[3]
-        # TODO: Check that body contains link to dashboard and email prefs.
+        self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
+                'You have new activity', 'You have new activity')
+
+        self.clear_smtp_messages()
 
     def test_03_multiple_new_activities(self):
         '''Test that a user with multiple new activities gets just one email.
 
         '''
+        # Make someone else update the dataset Sara's following three times,
+        # this should create three new activities on Sara's dashboard.
+        for i in range(1, 4):
+            params = {'name': 'warandpeace',
+                    'notes': 'updated {0} times'.format(i)}
+            extra_environ = {'Authorization': str(self.joeadmin['apikey'])}
+            response = self.app.post('/api/action/package_update',
+                params=json.dumps(params), extra_environ=extra_environ).json
+            assert response['success'] is True
+
+        # Run the email notifier job, it should send one notification email
+        # to Sara.
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 1
+        email = self.get_smtp_messages()[0]
+        self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
+                'You have new activity', 'You have new activity')
+
+        self.clear_smtp_messages()
 
     def test_04_no_repeat_email_notifications(self):
         '''Test that a user does not get a second email notification for the
         same new activity.
 
         '''
+        # TODO: Assert that Sara has some new activities and has already had
+        # an email about them.
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0
 
     def test_05_no_email_notifications_when_disabled_site_wide(self):
         '''Users should not get email notifications when the feature is

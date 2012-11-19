@@ -2300,9 +2300,9 @@ def dashboard_mark_activities_as_read(context, data_dict):
 
 def dashboard_email_notification_last_sent(context, data_dict):
     model = context['model']
-    user = model.User.get(context['user']) # The authorized user.
+    user = model.User.get(context['user'])  # The authorized user.
     last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
-    return last_viewed.timetuple()
+    return last_viewed
 
 
 def get_email_notifications(context, data_dict):
