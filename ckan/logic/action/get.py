@@ -2286,26 +2286,6 @@ def dashboard_email_notification_last_sent(context, data_dict):
     return last_viewed
 
 
-def get_email_notifications(context, data_dict):
-    '''Return a list of new email notifications for the given user.
-
-    :param:
-
-    
-    '''
-    if not context.has_key('user'):
-        raise logic.NotAuthorized
-
-    model = context['model']
-
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise logic.NotAuthorized
-
-    activity_stream = logic.get_action('dashboard_activity_list')(context,
-            data_dict)
-
-
 def _unpick_search(sort, allowed_fields=None, total=None):
     ''' This is a helper function that takes a sort string
     eg 'name asc, last_modified desc' and returns a list of
