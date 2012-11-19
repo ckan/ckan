@@ -773,7 +773,7 @@ class TestFollowerDelete(object):
                         }
                 response = self.app.post('/api/action/{0}'.format(action),
                     params=params, extra_environ=extra_environ,
-                    status=(403,409)).json
+                    status=403).json
                 assert response['success'] is False
                 assert response['error']['message'] == 'Access denied'
 

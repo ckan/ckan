@@ -394,10 +394,6 @@ def unfollow_dataset(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
-    data_dict, errors = validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
 
