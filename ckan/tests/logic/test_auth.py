@@ -80,21 +80,21 @@ class TestAuthOrgs(TestAuth):
     def test_03_create_dataset_no_org(self):
 
         dataset = {'name': 'admin_create_no_org'}
-        res = self._action_post('package_create', dataset, 'sysadmin', 409)
+        self._action_post('package_create', dataset, 'sysadmin', 409)
 
         dataset = {'name': 'should_not_be_created'}
-        res = self._action_post('package_create', dataset, 'no_org', 403)
+        self._action_post('package_create', dataset, 'no_org', 403)
 
     def test_04_create_dataset_with_org(self):
 
         dataset = {'name': 'admin_create_with_user', 'owner_org': 'org_with_user'}
-        res = self._action_post('package_create', dataset, 'sysadmin', 200)
+        self._action_post('package_create', dataset, 'sysadmin', 200)
 
         dataset = {'name': 'sysadmin_create_no_user', 'owner_org': 'org_no_user'}
-        res = self._action_post('package_create', dataset, 'sysadmin', 200)
+        self._action_post('package_create', dataset, 'sysadmin', 200)
 
         dataset = {'name': 'user_create_with_org', 'owner_org': 'org_with_user'}
-        res = self._action_post('package_create', dataset, 'no_org', 403)
+        self._action_post('package_create', dataset, 'no_org', 403)
 
     def test_05_add_users_to_org(self):
 
@@ -120,19 +120,19 @@ class TestAuthOrgs(TestAuth):
 
         #org admin/editor should be able to add dataset to org.
         dataset = {'name': user + '_dataset', 'owner_org': 'org_with_user'}
-        res = self._action_post('package_create', dataset, user, 200)
+        self._action_post('package_create', dataset, user, 200)
 
         #not able to add dataset to org admin does not belong to.
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
-        res = self._action_post('package_create', dataset, user, 409)
+        self._action_post('package_create', dataset, user, 409)
 
         #admin not able to make dataset not owned by a org
         dataset = {'name': user + '_dataset_bad' }
-        res = self._action_post('package_create', dataset, user, 409)
+        self._action_post('package_create', dataset, user, 409)
 
         #not able to add org to not existant org
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist' }
-        res = self._action_post('package_create', dataset, user, 409)
+        self._action_post('package_create', dataset, user, 409)
 
     def test_07_add_datasets(self):
         self._add_datasets('org_admin')
@@ -141,16 +141,16 @@ class TestAuthOrgs(TestAuth):
     def _update_datasets(self, user):
         ##editor/admin should be able to update dataset
         dataset = {'id': 'org_editor_dataset', 'title': 'test'}
-        res = self._action_post('package_update', dataset, user, 200)
+        self._action_post('package_update', dataset, user, 200)
         # editor/admin tries to change owner org
         dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_no_user'}
-        res = self._action_post('package_update', dataset, user, 409)
+        self._action_post('package_update', dataset, user, 409)
         # editor/admin tries to update dataset in different org
         dataset = {'id': 'sysadmin_create_no_user', 'title': 'test'}
-        res = self._action_post('package_update', dataset, user, 403)
+        self._action_post('package_update', dataset, user, 403)
         #non existant owner org
         dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist' }
-        res = self._action_post('package_update', dataset, user, 409)
+        self._action_post('package_update', dataset, user, 409)
 
     def test_08_update_datasets(self):
         self._update_datasets('org_admin')
@@ -159,10 +159,10 @@ class TestAuthOrgs(TestAuth):
     def _delete_datasets(self, user):
         #editor/admin should be able to update dataset
         dataset = {'id': 'org_editor_dataset'}
-        res = self._action_post('package_delete', dataset, user, 200)
+        self._action_post('package_delete', dataset, user, 200)
         #not able to delete dataset in org user does not belong to
         dataset = {'id': 'sysadmin_create_no_user'}
-        res = self._action_post('package_delete', dataset, user, 403)
+        self._action_post('package_delete', dataset, user, 403)
 
     def test_09_delete_datasets(self):
         self._delete_datasets('org_admin')
@@ -171,21 +171,21 @@ class TestAuthOrgs(TestAuth):
     def test_10_edit_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
         #change an org user does not belong to
-        res = self._action_post('organization_update', org, 'org_editor', 403)
-        res = self._action_post('organization_update', org, 'org_admin', 403)
+        self._action_post('organization_update', org, 'org_editor', 403)
+        self._action_post('organization_update', org, 'org_admin', 403)
 
         #change an org a user belongs to
         org = {'id': 'org_with_user', 'title': 'test'}
-        res = self._action_post('organization_update', org, 'org_editor', 403)
-        res = self._action_post('organization_update', org, 'org_admin', 200)
+        self._action_post('organization_update', org, 'org_editor', 403)
+        self._action_post('organization_update', org, 'org_admin', 200)
 
     def test_11_delete_org(self):
         org = {'id': 'org_no_user', 'title': 'test'}
-        res = self._action_post('organization_delete', org, 'org_editor', 403)
-        res = self._action_post('organization_delete', org, 'org_admin', 403)
+        self._action_post('organization_delete', org, 'org_editor', 403)
+        self._action_post('organization_delete', org, 'org_admin', 403)
         org = {'id': 'org_with_user'}
-        res = self._action_post('organization_delete', org, 'org_editor', 403)
-        res = self._action_post('organization_delete', org, 'org_admin', 403)
+        self._action_post('organization_delete', org, 'org_editor', 403)
+        self._action_post('organization_delete', org, 'org_admin', 403)
 
 
 class TestAuthGroups(TestAuth):
@@ -255,11 +255,11 @@ class TestAuthGroups(TestAuth):
     def test_05_delete_group(self):
 
         org = {'id': 'group_with_user'}
-        res = self._action_post('group_delete', org, 'org_editor', 403)
-        res = self._action_post('group_delete', org, 'org_admin', 403)
+        self._action_post('group_delete', org, 'org_editor', 403)
+        self._action_post('group_delete', org, 'org_admin', 403)
         org = {'id': 'group_with_user'}
-        res = self._action_post('group_delete', org, 'org_editor', 403)
-        res = self._action_post('group_delete', org, 'org_admin', 403)
+        self._action_post('group_delete', org, 'org_editor', 403)
+        self._action_post('group_delete', org, 'org_admin', 403)
 
 
 
