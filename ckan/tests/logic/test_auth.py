@@ -236,7 +236,8 @@ class TestAuthGroups(TestAuth):
 
         group = {'id': 'group_with_user',
                  'packages': [{'id': 'package_added_by_admin'}, {'id' :'package_added_by_editor'}]}
-        self._action_post('group_update', group, 'org_editor')
+        # org editor doesn't have edit rights
+        self._action_post('group_update', group, 'org_editor', 403)
 
     def test_04_modify_group(self):
 
