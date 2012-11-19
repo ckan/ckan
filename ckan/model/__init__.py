@@ -136,6 +136,7 @@ from term_translation import (
 from follower import (
     UserFollowingUser,
     UserFollowingDataset,
+    UserFollowingGroup,
 )
 from system_info import (
     system_info_table,

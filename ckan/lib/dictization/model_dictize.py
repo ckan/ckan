@@ -595,3 +595,6 @@ def user_following_user_dictize(follower, context):
 
 def user_following_dataset_dictize(follower, context):
     return d.table_dictize(follower, context)
+
+def user_following_group_dictize(follower, context):
+    return d.table_dictize(follower, context)

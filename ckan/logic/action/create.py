@@ -1028,8 +1028,8 @@ def follow_user(context, data_dict):
                 'You are already following {0}').format(data_dict['id'])
         raise ValidationError({'message': message}, error_summary=message)
 
-    follower = model_save.user_following_user_dict_save(validated_data_dict,
-            context)
+    follower = model_save.follower_dict_save(validated_data_dict, context,
+            model.UserFollowingUser)
 
     activity_dict = {
             'user_id': userobj.id,
@@ -1099,8 +1099,8 @@ def follow_dataset(context, data_dict):
                 'You are already following {0}').format(data_dict['id'])
         raise ValidationError({'message': message}, error_summary=message)
 
-    follower = model_save.user_following_dataset_dict_save(
-            validated_data_dict, context)
+    follower = model_save.follower_dict_save(validated_data_dict, context,
+            model.UserFollowingDataset)
 
     activity_dict = {
             'user_id': userobj.id,
@@ -1166,3 +1166,74 @@ def group_member_create(context, data_dict):
 def organization_member_create(context, data_dict):
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
+
+
+def follow_group(context, data_dict):
+    '''Start following a group.
+
+    You must provide your API key in the Authorization header.
+
+    :param id: the id or name of the group to follow, e.g. ``'roger'``
+    :type id: string
+
+    :returns: a representation of the 'follower' relationship between yourself
+        and the group
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise logic.NotAuthorized(
+                _("You must be logged in to follow a group."))
+
+    model = context['model']
+    session = context['session']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise logic.NotAuthorized(
+                _("You must be logged in to follow a group."))
+
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_group_schema())
+
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    # Don't let a user follow a group she is already following.
+    if model.UserFollowingGroup.is_following(userobj.id,
+            validated_data_dict['id']):
+        message = _(
+                'You are already following {0}').format(data_dict['id'])
+        raise ValidationError({'message': message}, error_summary=message)
+
+    follower = model_save.follower_dict_save(validated_data_dict, context,
+            model.UserFollowingGroup)
+
+    activity_dict = {
+            'user_id': userobj.id,
+            'object_id': validated_data_dict['id'],
+            'activity_type': 'follow group',
+            }
+    activity_dict['data'] = {
+            'group': ckan.lib.dictization.table_dictize(
+                model.Group.get(validated_data_dict['id']), context),
+            }
+    activity_create_context = {
+        'model': model,
+        'user': userobj,
+        'defer_commit': True,
+        'session': session
+    }
+    logic.get_action('activity_create')(activity_create_context,
+            activity_dict, ignore_auth=True)
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+    log.debug(u'User {follower} started following group {object}'.format(
+        follower=follower.follower_id, object=follower.object_id))
+
+    return model_dictize.user_following_group_dictize(follower, context)

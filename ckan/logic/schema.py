@@ -46,7 +46,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    role_exists,
                                    url_validator)
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
-                                   convert_package_name_or_id_to_id,)
+                                   convert_package_name_or_id_to_id,
+                                   convert_group_name_or_id_to_id,)
 from formencode.validators import OneOf
 import ckan.model
 
@@ -446,5 +447,10 @@ def member_schema():
         'username': [user_name_exists, unicode],
         'role': [role_exists, unicode],
     }
+    return schema
 
+
+def default_follow_group_schema():
+    schema = {'id': [not_missing, not_empty, unicode,
+        convert_group_name_or_id_to_id]}
     return schema

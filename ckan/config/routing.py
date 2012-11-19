@@ -234,6 +234,11 @@ def make_map():
           'member_new',
           'member_delete',
           'history',
+          'followers',
+          'follow',
+          'unfollow',
+          'admins',
+          'about',
           'activity',
           ]))
           )
