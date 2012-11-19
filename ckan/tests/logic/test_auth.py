@@ -245,8 +245,8 @@ class TestAuthGroups(TestAuth):
 
         self._action_post('group_update', group, 'org_admin')
 
-        ###need to think about this as is horrible may just let editor edit group for this case even
-        ## though spec says otherwise
+        # need to think about this as is horrible may just let editor edit
+        # group for this case even though spec says otherwise
         self._action_post('group_update', group, 'org_editor', 403)
 
     def test_05_delete_group(self):
