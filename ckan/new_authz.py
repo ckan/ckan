@@ -233,6 +233,8 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_unowned_dataset': True,
     'user_create_groups': True,
     'user_create_organizations': True,
+    'user_delete_groups': True,
+    'user_delete_organizations': True,
     'create_user_via_api': False,
 }
 

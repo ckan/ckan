@@ -10,6 +10,8 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'create_dataset_if_not_in_organization': False,
     'user_create_groups': False,
     'user_create_organizations': False,
+    'user_delete_groups': False,
+    'user_delete_organizations': False,
     'create_user_via_api': False,
     'create_unowned_dataset': False,
 }

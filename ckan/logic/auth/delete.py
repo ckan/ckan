@@ -74,22 +74,29 @@ def package_relationship_delete(context, data_dict):
 def group_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
+    if not new_authz.check_config_permission('user_delete_groups'):
+        return {'success': False,
+            'msg': _('User %s not authorized to delete groups') % user}
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'delete')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (user ,group.id)}
     else:
         return {'success': True}
 
 def organization_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
+    if not new_authz.check_config_permission('user_delete_organizations'):
+        return {'success': False,
+            'msg': _('User %s not authorized to delete organizations') % user}
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'delete')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (str(user),group.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (user ,group.id)}
     else:
         return {'success': True}
+
 def revision_undelete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
