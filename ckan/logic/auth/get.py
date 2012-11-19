@@ -196,5 +196,24 @@ def get_site_user(context, data_dict):
     else:
         return {'success': True}
 
+
 def member_roles_list(context, data_dict):
     return {'success': True}
+
+
+def dashboard_activity_list(context, data_dict):
+    if 'user' in context:
+        return {'success': True}
+    else:
+        return {'success': False,
+                'msg': _("You must be logged in to access your dashboard.")}
+
+
+def dashboard_new_activities_count(context, data_dict):
+    return new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
+
+
+def dashboard_mark_all_new_activities_as_old(context, data_dict):
+    return new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)

@@ -149,6 +149,9 @@ from domain_object import (
     DomainObjectOperation,
     DomainObject,
 )
+from dashboard import (
+    Dashboard,
+)
 
 import ckan.migration
 
