@@ -303,12 +303,14 @@ class TestActivity:
         new_activities = [activity_ for activity_ in
             after['user dashboard activity stream']
             if activity_ not in before['user dashboard activity stream']]
-        assert new_activities == [activity]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
         new_activities = [activity_ for activity_ in
             after['follower dashboard activity stream']
             if activity_ not in before['follower dashboard activity stream']]
-        assert new_activities == [activity]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
     def _create_package(self, user, name=None):
         if user:
@@ -364,7 +366,8 @@ class TestActivity:
         # There will be other new activities besides the 'follow dataset' one
         # because all the dataset's old activities appear in the user's
         # dashboard when she starts to follow the dataset.
-        assert activity in new_activities
+        assert activity['id'] in [
+                activity['id'] for activity in new_activities]
 
         # The new activity should appear in the user "follower"'s dashboard
         # activity stream because she follows all the other users and datasets.
@@ -374,7 +377,8 @@ class TestActivity:
         # There will be other new activities besides the 'follow dataset' one
         # because all the dataset's old activities appear in the user's
         # dashboard when she starts to follow the dataset.
-        assert new_activities == [activity]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
         # The same new activity should appear on the dashboard's of the user's
         # followers.
@@ -385,7 +389,8 @@ class TestActivity:
             grp_new_activities = find_new_activities(
                 before['group activity streams'][group_dict['name']],
                 after['group activity streams'][group_dict['name']])
-            assert grp_new_activities == [activity]
+            assert [activity['id'] for activity in grp_new_activities] == [
+                    activity['id']]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -2122,7 +2127,8 @@ class TestActivity:
         # There will be other new activities besides the 'follow dataset' one
         # because all the dataset's old activities appear in the user's
         # dashboard when she starts to follow the dataset.
-        assert activity in new_activities
+        assert activity['id'] in [
+                activity['id'] for activity in new_activities]
 
         # The new activity should appear in the user "follower"'s dashboard
         # activity stream because she follows all the other users and datasets.
@@ -2132,7 +2138,8 @@ class TestActivity:
         # There will be other new activities besides the 'follow dataset' one
         # because all the dataset's old activities appear in the user's
         # dashboard when she starts to follow the dataset.
-        assert new_activities == [activity]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == self.warandpeace['id'], \
@@ -2183,17 +2190,7 @@ class TestActivity:
         assert len(user_new_activities) == 1, ("There should be 1 new "
             " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
-        assert user_new_activities[0] == activity
-
-        # Check that the new activity appears in the followee's private
-        # activity stream.
-        followee_new_activities = (find_new_activities(
-            followee_before['follower dashboard activity stream'],
-            followee_after['follower dashboard activity stream']))
-        assert len(followee_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" %
-            len(followee_new_activities))
-        assert followee_new_activities[0] == activity
+        assert user_new_activities[0]['id'] == activity['id']
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == self.sysadmin_user['id'], \
