@@ -198,6 +198,7 @@ activity_stream_string_icons = {
   'follow user': 'user',
   'follow group': 'group',
   'new related item': 'picture',
+  'undefined': 'user', # This is when no activity icon can be found
 }
 
 # A list of activity types that may have details
@@ -233,8 +234,7 @@ def activity_list_to_html(context, activity_stream):
                 "type '%s'" % str(activity_type))
 
         if not activity_type in activity_stream_string_icons:
-                  raise NotImplementedError("No activity icon for activity "
-                      "type '%s'" % str(activity_type))
+            activity_icon = activity_stream_string_icons['undefined']
 
         activity_msg = activity_stream_string_functions[activity_type]()
         activity_icon = activity_stream_string_icons[activity_type]
