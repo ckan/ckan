@@ -554,18 +554,18 @@ class GroupController(BaseController):
             h.flash_error(error_message)
         h.redirect_to(controller='group', action='read', id=id)
 
-    def followers(self, id=None):
+    def followers(self, id):
         context = self._get_group_dict(id)
         c.followers = get_action('group_follower_list')(context,
                                                         {'id': c.group_dict['id']})
         return render('group/followers.html')
 
-    def admins(self, id=None):
+    def admins(self, id):
         context = self._get_group_dict(id)
         c.admins = self.authorizer.get_admins(context['group'])
         return render('group/admins.html')
 
-    def about(self, id=None):
+    def about(self, id):
         self._get_group_dict(id)
         return render('group/about.html')
 
