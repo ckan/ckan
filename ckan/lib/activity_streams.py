@@ -233,11 +233,12 @@ def activity_list_to_html(context, activity_stream):
             raise NotImplementedError("No activity renderer for activity "
                 "type '%s'" % str(activity_type))
 
-        if not activity_type in activity_stream_string_icons:
+        if activity_type in activity_stream_string_icons:
+            activity_icon = activity_stream_string_icons[activity_type]
+        else:
             activity_icon = activity_stream_string_icons['undefined']
 
         activity_msg = activity_stream_string_functions[activity_type]()
-        activity_icon = activity_stream_string_icons[activity_type]
 
         # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)
