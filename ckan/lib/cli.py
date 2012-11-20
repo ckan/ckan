@@ -1688,6 +1688,7 @@ class MinifyCommand(CkanCommand):
     min_args = 1
 
     def command(self):
+        self.less()
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
@@ -1731,3 +1732,72 @@ class MinifyCommand(CkanCommand):
             f.write(rjsmin.jsmin(source))
         f.close()
         print "Minified file '{0}'".format(path)
+
+    custom_css = {
+        'fuchsia': '''
+            @layoutLinkColor: #b509b5;
+            @mastheadBackgroundColorStart: #dc0bdc;
+            @mastheadBackgroundColorEnd: #f31df3;
+            @btnPrimaryBackground: #f544f5;
+            @btnPrimaryBackgroundHighlight: #f76bf7;
+            ''',
+
+        'green': '''
+            @layoutLinkColor: #045b04;
+            @mastheadBackgroundColorStart: #068106;
+            @mastheadBackgroundColorEnd: #08a808;
+            @btnPrimaryBackground: #0acf0a;
+            @btnPrimaryBackgroundHighlight: #10f210
+            ''',
+
+        'red': '''
+            @layoutLinkColor: #b50909;
+            @mastheadBackgroundColorStart: #dc0b0b;
+            @mastheadBackgroundColorEnd: #f31d1d;
+            @btnPrimaryBackground: #f54444;
+            @btnPrimaryBackgroundHighlight: #f76b6b;
+            ''',
+
+        'maroon': '''
+            @layoutLinkColor: #5b0404;
+            @mastheadBackgroundColorStart: #810606;
+            @mastheadBackgroundColorEnd: #a80808;
+            @btnPrimaryBackground: #cf0a0a;
+            @btnPrimaryBackgroundHighlight: #f21010;
+            ''',
+    }
+
+    def less(self):
+        ''' Compile less files '''
+        import subprocess
+        command = 'npm bin'
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output = process.communicate()
+        directory = output[0].strip()
+        less_bin = os.path.join(directory, 'lessc')
+
+        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        root = os.path.abspath(root)
+        custom_less = os.path.join(root, 'less', 'custom.less')
+        for color in self.custom_css:
+            f = open(custom_less, 'w')
+            f.write(self.custom_css[color])
+            f.close()
+            self.compile_less(root, less_bin, color)
+        f = open(custom_less, 'w')
+        f.write('// This file is needed in order for ./bin/less to compile in less 1.3.1+\n')
+        f.close()
+        self.compile_less(root, less_bin, 'main')
+
+
+
+    def compile_less(self, root, less_bin, color):
+        print 'compile %s.css' % color
+        import subprocess
+        main_less = os.path.join(root, 'less', 'main.less')
+        main_css = os.path.join(root, 'css', '%s.css' % color)
+
+        command = '%s %s %s' % (less_bin, main_less, main_css)
+
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output = process.communicate()
