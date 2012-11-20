@@ -192,6 +192,8 @@ def get_site_user(context, data_dict):
 
 
 def dashboard_activity_list(context, data_dict):
+    # FIXME: context['user'] could be an IP address but that case is not
+    # handled here. Maybe add an auth helper function like is_logged_in().
     if context.get('user'):
         return {'success': True}
     else:
