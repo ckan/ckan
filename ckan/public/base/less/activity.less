@@ -72,6 +72,7 @@
 
 // colors
 .activity .item {
+	& i { background-color: @activityColorNeutral; } // Non defined
 	&.added-tag i { background-color: spin(@activityColorNew, 60); }
 	&.changed-group i { background-color: @activityColorModify; }
 	&.changed-package i { background-color: spin(@activityColorModify, 20); }
