@@ -1794,8 +1794,11 @@ def group_activity_list(context, data_dict):
 
     # Get the group's activities.
     query = model.Session.query(model.Activity)
-    query = query.filter(_or_(model.Activity.object_id == group_id,
-        model.Activity.object_id.in_(dataset_ids)))
+    if dataset_ids:
+        query = query.filter(_or_(model.Activity.object_id == group_id,
+            model.Activity.object_id.in_(dataset_ids)))
+    else:
+        query = query.filter(model.Activity.object_id == group_id)
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
