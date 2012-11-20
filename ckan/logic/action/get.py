@@ -1947,8 +1947,8 @@ def dataset_follower_count(context, data_dict):
 
     '''
     return _follower_count(context, data_dict,
-            ckan.logic.schema.default_follow_dataset_schema(),
-            context['model'].UserFollowingDataset)
+             ckan.logic.schema.default_follow_dataset_schema(),
+             context['model'].UserFollowingDataset)
 
 
 def group_follower_count(context, data_dict):
@@ -2220,15 +2220,14 @@ def group_followee_list(context, data_dict):
 
 
 def dashboard_activity_list(context, data_dict):
-    '''Return the dashboard activity stream of the given user.
+    '''Return the authorized user's dashboard activity stream.
 
     Unlike the activity dictionaries returned by other *_activity_list actions,
     these activity dictionaries have an extra boolean value with key 'is_new'
     that tells you whether the activity happened since the user last viewed her
     dashboard ('is_new': True) or not ('is_new': False).
 
-    :param id: the id or name of the user
-    :type id: string
+    The user's own activities are always marked 'is_new': False.
 
     :rtype: list of activity dictionaries
 
