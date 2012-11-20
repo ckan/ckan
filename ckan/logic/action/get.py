@@ -2240,7 +2240,6 @@ def dashboard_activity_list(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     offset = int(_get_or_bust(data_dict, 'offset'))
-    print(data_dict)
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
