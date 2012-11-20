@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from pylons.i18n import _
 from webhelpers.html import literal
@@ -228,11 +229,13 @@ def activity_list_to_html(context, activity_stream, activity_params):
         for match in matches:
             snippet = activity_snippet_functions[match](activity, detail)
             data[str(match)] = snippet
+
         activity_list.append({'msg': activity_msg,
                               'type': activity_type.replace(' ', '-').lower(),
                               'icon': activity_icon,
                               'data': data,
-                              'timestamp': activity['timestamp']})
+                              'timestamp': activity['timestamp'],
+                              'is_new': activity.get('is_new', False)})
     activity_params['activities'] = activity_list
     return literal(base.render('activity_streams/activity_stream_items.html',
         extra_vars=activity_params))

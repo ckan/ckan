@@ -479,6 +479,7 @@ class UserController(BaseController):
 
     def activity(self, id, offset=0):
         '''Render this user's public activity stream page.'''
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
@@ -499,7 +500,13 @@ class UserController(BaseController):
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
-        c.dashboard_offset = int(offset)
+
+        c.dashboard_activity_stream = h.dashboard_activity_stream(id, offset)
+
+        # Mark the user's new activities as old whenever they view their
+        # dashboard page.
+        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+
         return render('user/dashboard.html')
 
     def follow(self, id):

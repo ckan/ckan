@@ -214,6 +214,16 @@ class BaseController(WSGIController):
         self._identify_user()
         i18n.handle_request(request, c)
 
+        # If the user is logged in add their number of new activities to the
+        # template context.
+        if c.userobj:
+            from ckan.logic import get_action
+            new_activities_count = get_action(
+                    'dashboard_new_activities_count')
+            context = {'model': model, 'session': model.Session,
+                        'user': c.user or c.author}
+            c.new_activities = new_activities_count(context, { 'offset': 0 })
+
     def _identify_user(self):
         '''
         Identifies the user using two methods:

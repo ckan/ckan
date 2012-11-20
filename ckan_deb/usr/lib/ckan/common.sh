@@ -155,7 +155,7 @@ ckan_ensure_db_exists () {
         COMMAND_OUTPUT=`sudo -u postgres psql -c "select datname from pg_database where datname='$INSTANCE'"`
         if ! [[ "$COMMAND_OUTPUT" =~ ${INSTANCE} ]] ; then
             echo "Creating the database ..."
-            sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE}
+            sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE} -E utf-8
             paster --plugin=ckan db init --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
         fi
     fi
