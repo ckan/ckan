@@ -216,10 +216,14 @@ class TestActivity:
         import ckan.model as model
         model.repo.rebuild_db()
 
-    def dashboard_activity_stream(self, user_id):
-        response = self.app.get(
-                "/api/2/rest/user/{0}/dashboard_activity".format(user_id))
-        return json.loads(response.body)
+    def dashboard_activity_stream(self, apikey):
+
+        response = self.app.get("/api/action/dashboard_activity_list",
+                json.dumps({}),
+                extra_environ={'Authorization': str(apikey)})
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+        return response_dict['result']
 
     def user_activity_stream(self, user_id, apikey=None):
         if apikey:
@@ -286,35 +290,43 @@ class TestActivity:
         details['recently changed datasets stream'] = \
                 self.recently_changed_datasets_stream(apikey)
 
+        details['user dashboard activity stream'] = (
+                self.dashboard_activity_stream(apikey))
+
         details['follower dashboard activity stream'] = (
-                        self.dashboard_activity_stream(self.follower['id']))
+                self.dashboard_activity_stream(self.follower['apikey']))
 
         details['time'] = datetime.datetime.now()
         return details
 
-    def check_dashboard(
-            self,
-            before, after, wanted_difference,
-            potential_followees):
-        difference = find_new_activities(
-                    before['follower dashboard activity stream'],
-                    after['follower dashboard activity stream'])
-        if any(potential_followee in self.followees
-                for potential_followee in potential_followees):
-            assert difference == wanted_difference
-        else:
-            assert len(difference) == 0
+    def check_dashboards(self, before, after, activity):
+        new_activities = [activity_ for activity_ in
+            after['user dashboard activity stream']
+            if activity_ not in before['user dashboard activity stream']]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
+
+        new_activities = [activity_ for activity_ in
+            after['follower dashboard activity stream']
+            if activity_ not in before['follower dashboard activity stream']]
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
     def _create_package(self, user, name=None):
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
+
+        before = self.record_details(user_id, apikey=apikey)
 
         # Create a new package.
         request_data = make_package(name)
         before = self.record_details(user_id=user_id,
-                group_ids=[group['name'] for group in request_data['groups']])
+                group_ids=[group['name'] for group in request_data['groups']],
+                apikey=apikey)
         extra_environ = {'Authorization': str(user['apikey'])}
         response = self.app.post('/api/action/package_create',
                 json.dumps(request_data), extra_environ=extra_environ)
@@ -324,7 +336,8 @@ class TestActivity:
 
         after = self.record_details(user_id=user_id,
             package_id=package_created['id'],
-            group_ids=[group['name'] for group in package_created['groups']])
+            group_ids=[group['name'] for group in package_created['groups']],
+            apikey=apikey)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -345,7 +358,30 @@ class TestActivity:
                 after['recently changed datasets stream'])
         assert new_rcd_activities == [activity]
 
-        self.check_dashboard(before, after, user_new_activities, [user_id])
+        # The new activity should appear in the user's dashboard activity
+        # stream.
+        new_activities = [activity_ for activity_ in
+            after['user dashboard activity stream']
+            if activity_ not in before['user dashboard activity stream']]
+        # There will be other new activities besides the 'follow dataset' one
+        # because all the dataset's old activities appear in the user's
+        # dashboard when she starts to follow the dataset.
+        assert activity['id'] in [
+                activity['id'] for activity in new_activities]
+
+        # The new activity should appear in the user "follower"'s dashboard
+        # activity stream because she follows all the other users and datasets.
+        new_activities = [activity_ for activity_ in
+            after['follower dashboard activity stream']
+            if activity_ not in before['follower dashboard activity stream']]
+        # There will be other new activities besides the 'follow dataset' one
+        # because all the dataset's old activities appear in the user's
+        # dashboard when she starts to follow the dataset.
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
+
+        # The same new activity should appear on the dashboard's of the user's
+        # followers.
 
         # The same new activity should appear in the activity streams of the
         # package's groups.
@@ -353,7 +389,8 @@ class TestActivity:
             grp_new_activities = find_new_activities(
                 before['group activity streams'][group_dict['name']],
                 after['group activity streams'][group_dict['name']])
-            assert grp_new_activities == [activity]
+            assert [activity['id'] for activity in grp_new_activities] == [
+                    activity['id']]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package_created['id'], \
@@ -409,11 +446,13 @@ class TestActivity:
     def _add_resource(self, package, user):
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
 
         before = self.record_details(user_id, package['id'],
-                [group['id'] for group in package['groups']])
+                [group['name'] for group in package['groups']], apikey=apikey)
 
         resource_ids_before = [resource['id'] for resource in
                 package['resources']]
@@ -424,7 +463,7 @@ class TestActivity:
         updated_package = package_update(self.app, package, user['apikey'])
 
         after = self.record_details(user_id, package['id'],
-                [group['id'] for group in package['groups']])
+                [group['name'] for group in package['groups']], apikey=apikey)
         resource_ids_after = [resource['id'] for resource in
                 updated_package['resources']]
         assert len(resource_ids_after) == len(resource_ids_before) + 1
@@ -458,8 +497,7 @@ class TestActivity:
                 after['group activity streams'][group_dict['name']])
             assert grp_new_activities == [activity]
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -497,10 +535,14 @@ class TestActivity:
     def _delete_extra(self, package_dict, user):
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
 
-        before = self.record_details(user_id, package_dict['id'])
+        before = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
 
         extras_before = list(package_dict['extras'])
         assert len(extras_before) > 0, (
@@ -511,7 +553,9 @@ class TestActivity:
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 
-        after = self.record_details(user_id, package_dict['id'])
+        after = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
         extras_after = updated_package['extras']
         assert len(extras_after) == len(extras_before) - 1, (
                 "%s != %s" % (len(extras_after), len(extras_before) - 1))
@@ -545,8 +589,7 @@ class TestActivity:
                 after['group activity streams'][group_dict['name']])
             assert grp_new_activities == [activity]
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -585,11 +628,14 @@ class TestActivity:
     def _update_extra(self, package_dict, user):
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey=None
 
         before = self.record_details(user_id, package_dict['id'],
-                [group['name'] for group in package_dict['groups']])
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
 
         extras_before = package_dict['extras']
         assert len(extras_before) > 0, (
@@ -606,7 +652,8 @@ class TestActivity:
                 user['apikey'])
 
         after = self.record_details(user_id, package_dict['id'],
-                [group['name'] for group in package_dict['groups']])
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
         extras_after = updated_package['extras']
         assert len(extras_after) == len(extras_before), (
                 "%s != %s" % (len(extras_after), len(extras_before)))
@@ -632,8 +679,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -682,10 +728,14 @@ class TestActivity:
             key = 'quality'
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
 
-        before = self.record_details(user_id, package_dict['id'])
+        before = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
 
         # Make a copy of the package's extras before we add a new extra,
         # so we can compare the extras before and after updating the package.
@@ -697,7 +747,9 @@ class TestActivity:
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 
-        after = self.record_details(user_id, package_dict['id'])
+        after = self.record_details(user_id, package_dict['id'],
+                [group['name'] for group in package_dict['groups']],
+                apikey=apikey)
         extras_after = updated_package['extras']
         assert len(extras_after) == len(extras_before) + 1, (
                 "%s != %s" % (len(extras_after), len(extras_before) + 1))
@@ -731,8 +783,7 @@ class TestActivity:
                 after['group activity streams'][group_dict['name']])
             assert grp_new_activities == [activity]
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == updated_package['id'], \
@@ -769,14 +820,16 @@ class TestActivity:
             str(detail['activity_type']))
 
     def _create_activity(self, user, package, params):
-        before = self.record_details(user['id'], package['id'])
+        before = self.record_details(user['id'], package['id'],
+                apikey=user['apikey'])
 
         response = self.app.post('/api/action/activity_create',
             params=json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user['apikey'])})
         assert response.json['success'] is True
 
-        after = self.record_details(user['id'], package['id'])
+        after = self.record_details(user['id'], package['id'],
+                apikey=user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -792,8 +845,7 @@ class TestActivity:
             after['package activity stream']))
         assert pkg_new_activities == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user['id'], package['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == params['object_id'], (
@@ -840,7 +892,7 @@ class TestActivity:
                         new_activities, ("The same activity should also "
                         "appear in the group's activity stream.")
 
-        self.check_dashboard(before, after, new_activities, [user['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group['id'], str(activity['object_id'])
@@ -862,13 +914,15 @@ class TestActivity:
         item and detail are emitted.
 
         """
-        before = self.record_details(user['id'], group_ids=[group['id']])
+        before = self.record_details(user['id'], group_ids=[group['id']],
+                apikey=user['apikey'])
 
         # Update the group.
         group_dict = {'id': group['id'], 'title': 'edited'}
         group_update(self.app, group_dict, user['apikey'])
 
-        after = self.record_details(user['id'], group_ids=[group['id']])
+        after = self.record_details(user['id'], group_ids=[group['id']],
+                apikey=user['apikey'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -883,7 +937,7 @@ class TestActivity:
                         new_activities, ("The same activity should also "
                         "appear in the group's activity stream.")
 
-        self.check_dashboard(before, after, new_activities, [user['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group['id'], str(activity['object_id'])
@@ -912,7 +966,8 @@ class TestActivity:
         assert response_dict['success'] is True
         user_dict = response_dict['result']
 
-        before = self.record_details(user_dict['id'])
+        before = self.record_details(user_dict['id'],
+                apikey=user_dict['apikey'])
 
         # Update the user.
         user_dict['about'] = 'edited'
@@ -921,7 +976,8 @@ class TestActivity:
         self.app.post('/api/action/user_update', json.dumps(user_dict),
                 extra_environ={'Authorization': str(user['apikey'])})
 
-        after = self.record_details(user_dict['id'])
+        after = self.record_details(user_dict['id'],
+                apikey=user_dict['apikey'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -930,7 +986,7 @@ class TestActivity:
             "the user's activity stream, but found %i" % len(new_activities))
         activity = new_activities[0]
 
-        self.check_dashboard(before, after, new_activities, [user_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == user_dict['id'], (
@@ -954,7 +1010,8 @@ class TestActivity:
 
         """
         before = self.record_details(self.normal_user['id'], package['id'],
-                [group['name'] for group in package['groups']])
+                [group['name'] for group in package['groups']],
+                apikey=self.normal_user['apikey'])
 
         num_resources = len(package['resources'])
         assert num_resources > 0, \
@@ -965,7 +1022,8 @@ class TestActivity:
         package_update(self.app, package, self.normal_user['apikey'])
 
         after = self.record_details(self.normal_user['id'], package['id'],
-                [group['name'] for group in package['groups']])
+                [group['name'] for group in package['groups']],
+                apikey=self.normal_user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -996,8 +1054,7 @@ class TestActivity:
                 after['group activity streams'][group_dict['name']])
             assert grp_new_activities == [activity]
 
-        self.check_dashboard(before, after, user_new_activities,
-                [package['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == package['id'], (
@@ -1037,10 +1094,12 @@ class TestActivity:
         """
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
 
-        before = self.record_details(user_id, package['id'])
+        before = self.record_details(user_id, package['id'], apikey=apikey)
 
         # Update the package.
         if package['title'] != 'edited':
@@ -1050,7 +1109,7 @@ class TestActivity:
             package['title'] = 'edited again'
         package_update(self.app, package, user['apikey'])
 
-        after = self.record_details(user_id, package['id'])
+        after = self.record_details(user_id, package['id'], apikey=apikey)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1073,8 +1132,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -1119,16 +1177,18 @@ class TestActivity:
         """
         if user:
             user_id = user['id']
+            apikey = user['apikey']
         else:
             user_id = 'not logged in'
+            apikey = None
 
-        before = self.record_details(user_id, package['id'])
+        before = self.record_details(user_id, package['id'], apikey=apikey)
 
         # Update the resource.
         resource['name'] = 'edited'
         package_update(self.app, package)
 
-        after = self.record_details(user_id, package['id'])
+        after = self.record_details(user_id, package['id'], apikey=apikey)
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1151,8 +1211,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user_id, package['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -1230,8 +1289,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [self.sysadmin_user['id'], package['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -1316,14 +1374,16 @@ class TestActivity:
         assert len(pkg_dict['tags']) >= 1, ("The package has to have at least"
                 " one tag to test removing a tag.")
         before = self.record_details(user['id'], pkg_dict['id'],
-                [group['name'] for group in pkg_dict['groups']])
+                [group['name'] for group in pkg_dict['groups']],
+                apikey=user['apikey'])
         data_dict = {
             'id': pkg_dict['id'],
             'tags': pkg_dict['tags'][0:-1],
             }
         package_update(self.app, data_dict, user['apikey'])
         after = self.record_details(user['id'], pkg_dict['id'],
-                [group['name'] for group in pkg_dict['groups']])
+                [group['name'] for group in pkg_dict['groups']],
+                apikey=user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1346,8 +1406,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user['id'], pkg_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -1491,7 +1550,8 @@ class TestActivity:
         assert response_dict['success'] is True
         user_created = response_dict['result']
 
-        after = self.record_details(user_created['id'])
+        after = self.record_details(user_created['id'],
+                apikey=user_created['apikey'])
 
         user_activities = after['user activity stream']
         assert len(user_activities) == 1, ("There should be 1 activity in "
@@ -1533,7 +1593,7 @@ class TestActivity:
 
         user = self.normal_user
 
-        before = self.record_details(user['id'])
+        before = self.record_details(user['id'], apikey=user['apikey'])
 
         # Create a new group.
         request_data = {'name': 'a-new-group', 'title': 'A New Group'}
@@ -1545,7 +1605,7 @@ class TestActivity:
         group_created = response_dict['result']
 
         after = self.record_details(user['id'],
-                group_ids=[group_created['id']])
+                group_ids=[group_created['id']], apikey=user['apikey'])
 
         # Find the new activity.
         new_activities = find_new_activities(before['user activity stream'],
@@ -1558,7 +1618,7 @@ class TestActivity:
                 new_activities, ("The same activity should also appear in "
                 "the group's activity stream.")
 
-        self.check_dashboard(before, after, new_activities, [user['id']])
+        self.check_dashboards(before, after, activity)
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == group_created['id'], \
@@ -1601,13 +1661,15 @@ class TestActivity:
         pkg_dict = package_show(self.app, {'id': pkg_name})
 
         # Add one new tag to the package.
-        before = self.record_details(user['id'], pkg_dict['id'])
+        before = self.record_details(user['id'], pkg_dict['id'],
+                apikey=user['apikey'])
         new_tag_name = 'test tag'
         assert new_tag_name not in [tag['name'] for tag in pkg_dict['tags']]
 
         pkg_dict['tags'].append({'name': new_tag_name})
         package_update(self.app, pkg_dict, user['apikey'])
-        after = self.record_details(user['id'], pkg_dict['id'])
+        after = self.record_details(user['id'], pkg_dict['id'],
+                apikey=user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -1630,8 +1692,7 @@ class TestActivity:
                 after['recently changed datasets stream']) \
                         == user_new_activities
 
-        self.check_dashboard(before, after, user_new_activities,
-                [user['id'], pkg_dict['id']])
+        self.check_dashboards(before, after, activity)
 
         # If the package has any groups, the same new activity should appear
         # in the activity stream of each group.
@@ -2033,7 +2094,8 @@ class TestActivity:
 
     def test_follow_dataset(self):
         user = self.normal_user
-        before = self.record_details(user['id'])
+        before = self.record_details(user['id'], self.warandpeace['id'],
+                apikey=user['apikey'])
         data = {'id': self.warandpeace['id']}
         extra_environ = {'Authorization': str(user['apikey'])}
         response = self.app.post('/api/action/follow_dataset',
@@ -2041,7 +2103,8 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        after = self.record_details(user['id'], self.warandpeace['id'])
+        after = self.record_details(user['id'], self.warandpeace['id'],
+                apikey=user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -2056,7 +2119,27 @@ class TestActivity:
         for activity in user_new_activities:
             assert activity in pkg_new_activities
 
-        self.check_dashboard(before, after, user_new_activities, [user['id']])
+        # The new activity should appear in the user's dashboard activity
+        # stream.
+        new_activities = [activity_ for activity_ in
+            after['user dashboard activity stream']
+            if activity_ not in before['user dashboard activity stream']]
+        # There will be other new activities besides the 'follow dataset' one
+        # because all the dataset's old activities appear in the user's
+        # dashboard when she starts to follow the dataset.
+        assert activity['id'] in [
+                activity['id'] for activity in new_activities]
+
+        # The new activity should appear in the user "follower"'s dashboard
+        # activity stream because she follows all the other users and datasets.
+        new_activities = [activity_ for activity_ in
+            after['follower dashboard activity stream']
+            if activity_ not in before['follower dashboard activity stream']]
+        # There will be other new activities besides the 'follow dataset' one
+        # because all the dataset's old activities appear in the user's
+        # dashboard when she starts to follow the dataset.
+        assert [activity['id'] for activity in new_activities] == [
+                activity['id']]
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == self.warandpeace['id'], \
@@ -2077,8 +2160,9 @@ class TestActivity:
 
     def test_follow_user(self):
         user = self.normal_user
-        before = self.record_details(user['id'])
-        followee_before = self.record_details(self.sysadmin_user['id'])
+        before = self.record_details(user['id'], apikey=user['apikey'])
+        followee_before = self.record_details(self.sysadmin_user['id'],
+                apikey=self.sysadmin_user['apikey'])
         data = {'id': self.sysadmin_user['id']}
         extra_environ = {'Authorization': str(user['apikey'])}
         response = self.app.post('/api/action/follow_user',
@@ -2086,8 +2170,9 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        after = self.record_details(user['id'])
-        followee_after = self.record_details(self.sysadmin_user['id'])
+        after = self.record_details(user['id'], apikey=user['apikey'])
+        followee_after = self.record_details(self.sysadmin_user['id'],
+                apikey=self.sysadmin_user['apikey'])
 
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
@@ -2105,17 +2190,7 @@ class TestActivity:
         assert len(user_new_activities) == 1, ("There should be 1 new "
             " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
-        assert user_new_activities[0] == activity
-
-        # Check that the new activity appears in the followee's private
-        # activity stream.
-        followee_new_activities = (find_new_activities(
-            followee_before['follower dashboard activity stream'],
-            followee_after['follower dashboard activity stream']))
-        assert len(followee_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" %
-            len(followee_new_activities))
-        assert followee_new_activities[0] == activity
+        assert user_new_activities[0]['id'] == activity['id']
 
         # Check that the new activity has the right attributes.
         assert activity['object_id'] == self.sysadmin_user['id'], \
