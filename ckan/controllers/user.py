@@ -75,9 +75,7 @@ class UserController(BaseController):
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'model': model,
-                   'user': c.user or c.author,
-                   'return_query': True}
+        context = {'return_query': True}
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
@@ -198,9 +196,7 @@ class UserController(BaseController):
             return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'save': 'save' in request.params,
+        context = {'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
                    }
         if id is None:
@@ -308,9 +304,7 @@ class UserController(BaseController):
         ckan.lib.i18n.set_lang(lang)
 
         if c.user:
-            context = {'model': model,
-                       'user': c.user}
-
+            context = None
             data_dict = {'id': c.user}
 
             user_dict = get_action('user_show')(context, data_dict)
@@ -469,8 +463,7 @@ class UserController(BaseController):
             return password1
 
     def followers(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
@@ -496,8 +489,7 @@ class UserController(BaseController):
         return render('user/activity_stream.html')
 
     def dashboard(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
 
