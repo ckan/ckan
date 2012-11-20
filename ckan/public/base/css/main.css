@@ -7301,6 +7301,9 @@ header.masthead .debug {
   float: right;
   text-decoration: none;
 }
+.activity .item i {
+  background-color: #767dce;
+}
 .activity .item.added-tag i {
   background-color: #6995a6;
 }
