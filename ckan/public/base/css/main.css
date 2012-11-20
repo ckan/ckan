@@ -6900,13 +6900,9 @@ header.masthead .account .button {
   -moz-box-shadow: inset 0 1px 0 #007094;
   box-shadow: inset 0 1px 0 #007094;
 }
-header.masthead .account .button.logout {
-  margin: 2px 0 2px 5px;
-  padding: 4px 6px 2px 6px;
-}
 header.masthead .account .image {
   margin: 2px 0;
-  padding: 0 4px 0 0;
+  padding: 0;
   overflow: hidden;
   font-size: 10px;
   -webkit-border-radius: 4px;
@@ -6914,14 +6910,19 @@ header.masthead .account .image {
   border-radius: 4px;
 }
 header.masthead .account .image i {
+  display: none;
   vertical-align: -1px;
 }
 header.masthead .account .image img {
   opacity: 0.7;
   border-right: 1px solid #00536b;
-  -webkit-border-radius: 4px 0 0 4px;
-  -moz-border-radius: 4px 0 0 4px;
-  border-radius: 4px 0 0 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+header.masthead .account .logout {
+  margin: 2px 0 2px 5px;
+  padding: 4px 6px 2px 6px;
 }
 header.masthead .account .notifications {
   padding: 4px 8px 3px 8px;
@@ -6981,7 +6982,18 @@ header.masthead .debug {
   color: rgba(255, 255, 255, 0.5);
   line-height: 1.2;
 }
-.js header.masthead .account .button.logout {
+.js header.masthead .account .image {
+  padding-right: 4px;
+}
+.js header.masthead .account .image i {
+  display: inline;
+}
+.js header.masthead .account .image img {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+}
+.js header.masthead .account .logout {
   display: none;
 }
 .site-footer {
