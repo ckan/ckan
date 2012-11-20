@@ -305,7 +305,14 @@ def get_action(action):
                     pass
                 return _action(context, data_dict, **kw)
             return wrapped
-        _actions[action_name] = make_wrapped(_action, action_name)
+
+        fn = make_wrapped(_action, action_name)
+        # we need to mirror the docstring
+        fn.__doc__ = _action.__doc__
+        # we need to retain the side effect free behaviour
+        if _action.side_effect_free:
+            fn.side_effect_free = True
+        _actions[action_name] = fn
 
     return _actions.get(action)
 
