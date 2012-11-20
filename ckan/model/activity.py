@@ -104,7 +104,7 @@ def _user_activity_query(user_id):
     return q
 
 
-def user_activity_list(user_id, offset=0, limit=31):
+def user_activity_list(user_id, limit=31, offset=0):
     '''Return the given user's public activity stream.
 
     Returns all activities from or about the given user, i.e. where the given
@@ -126,7 +126,7 @@ def _package_activity_query(package_id):
     return q
 
 
-def package_activity_list(package_id, offset=0, limit=15):
+def package_activity_list(package_id, limit=31, offset=0):
     '''Return the given dataset (package)'s public activity stream.
 
     Returns all activities  about the given dataset, i.e. where the given
@@ -165,7 +165,7 @@ def _activities_from_everything_followed_by_user_query(user_id):
     return q
 
 
-def activities_from_everything_followed_by_user(user_id, offset=0, limit=31):
+def activities_from_everything_followed_by_user(user_id, limit=31, offset=0):
     '''Return activities from everything that the given user is following.
 
     Returns all activities where the object of the activity is anything
@@ -182,7 +182,7 @@ def _dashboard_activity_query(user_id):
     return q
 
 
-def dashboard_activity_list(user_id, offset=0, limit=31):
+def dashboard_activity_list(user_id, limit=31, offset=0):
     '''Return the given user's dashboard activity stream.
 
     Returns activities from the user's public activity stream, plus
