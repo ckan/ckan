@@ -192,7 +192,7 @@ def get_site_user(context, data_dict):
 
 
 def dashboard_activity_list(context, data_dict):
-    if 'user' in context:
+    if context.get('user'):
         return {'success': True}
     else:
         return {'success': False,
