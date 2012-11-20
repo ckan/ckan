@@ -196,10 +196,11 @@ class TestDashboard(object):
     def test_07_maximum_number_of_new_activities(self):
         '''Test that the new activities count does not go higher than 15, even
         if there are more than 15 new activities from the user's followers.'''
-        for n in range(0,20):
+        for n in range(0, 20):
             notes = "Updated {n} times".format(n=n)
             params = json.dumps({'name': 'warandpeace', 'notes': notes})
-            response = self.app.post('/api/action/package_update', params=params,
+            response = self.app.post('/api/action/package_update',
+                params=params,
                 extra_environ={'Authorization': str(self.joeadmin['apikey'])})
             assert response.json['success'] is True
         assert self.dashboard_new_activities_count(self.new_user) == 15
