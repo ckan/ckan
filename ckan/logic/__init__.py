@@ -290,11 +290,20 @@ def get_action(action):
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action, action_name):
-            def wrapped(context, data_dict=None):
+            def wrapped(context=None, data_dict=None, **kw):
+                if kw:
+                    log.critical('%s was pass extra keywords %r'
+                                 % (_action.__name__, kw))
+                if context is None:
+                    context = {}
                 context.setdefault('model', model)
                 context.setdefault('session', model.Session)
-                context.setdefault('user', c.user or c.author)
-                return _action(context, data_dict)
+                try:
+                    context.setdefault('user', c.user or c.author)
+                except TypeError:
+                    # c not registered
+                    pass
+                return _action(context, data_dict, **kw)
             return wrapped
         _actions[action_name] = make_wrapped(_action, action_name)
 
