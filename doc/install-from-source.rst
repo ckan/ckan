@@ -94,7 +94,7 @@ prompted::
 
 Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
 
-    sudo -u postgres createdb -O ckanuser ckantest
+    sudo -u postgres createdb -O ckanuser ckantest -E utf-8
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
