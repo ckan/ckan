@@ -1733,10 +1733,12 @@ def user_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('user_show', context, data_dict)
+
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-    offset = _get_or_bust(data_dict, 'offset')
-    activity_objects = model.activity.user_activity_list(user_id, 31, offset)
+    offset = data_dict.get('offset', 0)
+
+    activity_objects = model.activity.user_activity_list(user_id, limit=31, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
@@ -1754,11 +1756,11 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     _check_access('package_show', context, data_dict)
 
-    offset = data_dict['offset']
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
+    offset = data_dict.get('offset', 0)
 
-    activity_objects = model.activity.package_activity_list(package_id, 31, offset)
+    activity_objects = model.activity.package_activity_list(package_id, limit=31, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
@@ -1776,9 +1778,9 @@ def group_activity_list(context, data_dict):
     # authorized to read.
     _check_access('group_show', context, data_dict)
 
-    offset = data_dict['offset']
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
+    offset = data_dict.get('offset', 0)
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
@@ -1850,13 +1852,13 @@ def user_activity_list_html(context, data_dict):
 
     '''
     activity_stream = user_activity_list(context, data_dict)
-    offset = int(data_dict['offset'])
-    activity_params = ({
+    offset = int(data_dict.get('offset', 0))
+    activity_params = {
         'controller': 'user',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset
-        })
+        }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def package_activity_list_html(context, data_dict):
@@ -1872,13 +1874,13 @@ def package_activity_list_html(context, data_dict):
 
     '''
     activity_stream = package_activity_list(context, data_dict)
-    offset = int(data_dict['offset'])
-    activity_params = ({
+    offset = int(data_dict.get('offset', 0))
+    activity_params = {
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset
-        })
+        }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def group_activity_list_html(context, data_dict):
@@ -1894,13 +1896,13 @@ def group_activity_list_html(context, data_dict):
 
     '''
     activity_stream = group_activity_list(context, data_dict)
-    offset = int(data_dict['offset'])
-    activity_params = ({
+    offset = int(data_dict.get('offset', 0))
+    activity_params = {
         'controller': 'group',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset
-        })
+        }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
@@ -2239,11 +2241,11 @@ def dashboard_activity_list(context, data_dict):
 
     model = context['model']
     user_id = model.User.get(context['user']).id
-    offset = int(_get_or_bust(data_dict, 'offset'))
+    offset = data_dict.get('offset', 0)
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id, 31, offset)
+    activity_objects = model.activity.dashboard_activity_list(user_id, limit=31, offset=offset)
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
@@ -2273,13 +2275,13 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    offset = int(data_dict['offset'])
-    activity_params = ({
+    offset = int(data_dict.get('offset', 0))
+    activity_params = {
         'controller': 'dashboard',
         'action': 'dashboard',
         'id': data_dict['id'],
         'offset': offset
-        })
+        }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 
