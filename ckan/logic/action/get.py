@@ -750,34 +750,22 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
-    user = context["user"]
-    id = _get_or_bust(data_dict, 'id')
-    limit = data_dict.get("limit")
+    model = context['model']
+    group_id = _get_or_bust(data_dict, 'id')
 
-    group = model.Group.get(id)
+    # FIXME: What if limit is not an int? Schema and validation needed.
+    limit = data_dict.get('limit')
+
+    group = model.Group.get(group_id)
     context['group'] = group
     if group is None:
         raise NotFound
 
     _check_access('group_show', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)\
-        .filter(model.PackageRevision.state=='active')\
-        .filter(model.PackageRevision.current==True)\
-        .join(model.Member, model.Member.table_id==model.PackageRevision.id)\
-        .join(model.Group, model.Group.id==model.Member.group_id)\
-        .filter_by(id=group.id)\
-        .order_by(model.PackageRevision.name)
-
-    if limit:
-        query = query.limit(limit)
-
-    if context.get('return_query'):
-        return query
-
     result = []
-    for pkg_rev in query.all():
+    for pkg_rev in group.get_package_revisions(limit=limit,
+            return_query=context.get('return_query')):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result

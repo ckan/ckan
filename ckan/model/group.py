@@ -199,6 +199,33 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
         return query
 
+    def get_package_revisions(self, limit=None, return_query=False):
+        '''Return a group's packages.
+
+        :param limit: the maximum number of packages to return
+        :type limit: int
+
+        :returns: a list of the group's packages, sorted by name
+        :rtype: list of PackageRevision objects
+
+        '''
+        import ckan.model as model
+        q = model.Session.query(model.PackageRevision)
+        q = q.filter(model.PackageRevision.state == 'active')
+        q = q.filter(model.PackageRevision.current == True)
+        q = q.join(model.Member,
+                model.Member.table_id == model.PackageRevision.id)
+        q = q.join(model.Group, model.Group.id == model.Member.group_id)
+        q = q.filter_by(id=self.id)
+        q = q.order_by(model.PackageRevision.name)
+        if limit is not None:
+            q = q.limit(limit)
+        if return_query:
+            return q
+        else:
+            return q.all()
+
+
     @classmethod
     def search_by_name_or_title(cls, text_query, group_type=None):
         text_query = text_query.strip().lower()
