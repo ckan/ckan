@@ -37,16 +37,23 @@ config_details = {
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {},
     'ckan.recaptcha.privatekey': {},
-
+    'ckan.template_title_deliminater': {'default': '-'},
+    'ckan.template_head_end': {},
+    'ckan.template_footer_end': {},
+    'ckan.dumps_url': {},
+    'ckan.dumps_format': {},
+    'ckan.api_url': {},
 
     # split string
     'search.facets': {'default': 'groups tags res_format license',
                       'type': 'split',
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
+    'plugins': {'type': 'split'},
 
     # bool
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
+    'debug': {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
