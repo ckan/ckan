@@ -155,47 +155,48 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return [{"id":idf, "name": name, "title": title}
                 for idf, name, title in results]
 
-    def active_packages(self, load_eager=True, with_private=False):
-        query = meta.Session.query(_package.Package).\
-            filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
-            filter(group_table.c.id == self.id).\
-            filter(member_table.c.state == 'active')
+    def packages(self, with_private=False, limit=None,
+            return_query=False):
+        '''Return this group's active and pending packages.
 
-        if not with_private:
-            query = query.filter(member_table.c.capacity == 'public')
+        Returns all packages in this group with VDM revision state ACTIVE or
+        PENDING.
 
-        query = query.join(member_table, member_table.c.table_id ==
-                           _package.Package.id).\
-            join(group_table, group_table.c.id == member_table.c.group_id)
-
-        return query
-
-    def get_package_revisions(self, limit=None, return_query=False):
-        '''Return a group's packages.
+        :param with_private: if True, include the group's private packages
+        :type with_private: boolean
 
         :param limit: the maximum number of packages to return
         :type limit: int
 
-        :returns: a list of the group's packages, sorted by name
-        :rtype: list of PackageRevision objects
+        :param return_query: if True, return the SQLAlchemy query object
+            instead of the list of Packages resulting from the query
+        :type return_query: boolean
+
+        :returns: a list of this group's packages
+        :rtype: list of ckan.model.package.Package objects
 
         '''
-        import ckan.model as model
-        q = model.Session.query(model.PackageRevision)
-        q = q.filter(model.PackageRevision.state == 'active')
-        q = q.filter(model.PackageRevision.current == True)
-        q = q.join(model.Member,
-                model.Member.table_id == model.PackageRevision.id)
-        q = q.join(model.Group, model.Group.id == model.Member.group_id)
-        q = q.filter_by(id=self.id)
-        q = q.order_by(model.PackageRevision.name)
-        if limit is not None:
-            q = q.limit(limit)
-        if return_query:
-            return q
-        else:
-            return q.all()
+        query = meta.Session.query(_package.Package)
+        query = query.filter(
+                or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
+                    _package.Package.state == vdm.sqlalchemy.State.PENDING))
+        query = query.filter(group_table.c.id == self.id)
 
+        if not with_private:
+            query = query.filter(member_table.c.capacity == 'public')
+
+        query = query.join(member_table,
+                member_table.c.table_id == _package.Package.id)
+        query = query.join(group_table,
+                group_table.c.id == member_table.c.group_id)
+
+        if limit is not None:
+            query = query.limit(limit)
+
+        if return_query:
+            return query
+        else:
+            return query.all()
 
     @classmethod
     def search_by_name_or_title(cls, text_query, group_type=None):
@@ -212,7 +213,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return
         package = _package.Package.by_name(package_name)
         assert package
-        if not package in self.active_packages().all():
+        if not package in self.packages():
             member = Member(group=self, table_id=package.id,
                             table_name='package')
             meta.Session.add(member)

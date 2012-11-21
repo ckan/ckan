@@ -187,7 +187,7 @@ class TestGroup(FunctionalTestCase):
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
-        group_packages_count = len(group.active_packages().all())
+        group_packages_count = len(group.packages())
         group_description = group.description
         self.check_named_element(res, 'tr', group_title,
                                  group_packages_count,
@@ -321,7 +321,7 @@ Ho ho ho
         assert group.description == newdesc, group
 
         # now look at datasets
-        assert len(group.active_packages().all()) == 3
+        assert len(group.packages()) == 3
 
     def test_3_edit_form_has_new_package(self):
         # check for dataset in autocomplete
@@ -369,7 +369,7 @@ Ho ho ho
 
         # check package only added to the group once
         group = model.Group.by_name(group_name)
-        pkg_names = [pkg.name for pkg in group.active_packages().all()]
+        pkg_names = [pkg.name for pkg in group.packages()]
         assert_equal(pkg_names, [self.packagename])
 
     def test_edit_plugin_hook(self):
@@ -435,7 +435,7 @@ Ho ho ho
 
         # We have the datasets in the DB, but we should also see that many
         # on the group read page.
-        assert len(group.active_packages().all()) == 3
+        assert len(group.packages()) == 3
 
         offset = url_for(controller='group', action='read', id='newname')
         res = self.app.get(offset, status=200,
@@ -543,9 +543,9 @@ class TestNew(FunctionalTestCase):
         group = model.Group.by_name(group_name)
         assert group.title == group_title, group
         assert group.description == group_description, group
-        assert len(group.active_packages().all()) == 1
+        assert len(group.packages()) == 1
         pkg = model.Package.by_name(self.packagename)
-        assert group.active_packages().all() == [pkg]
+        assert group.packages() == [pkg]
 
     def test_3_new_duplicate_group(self):
         prefix = ''
@@ -702,7 +702,7 @@ class TestOrganizationGroup(FunctionalTestCase):
         groupname = 'david'
         group = model.Group.by_name(unicode(groupname))
         group_title = group.title
-        group_packages_count = len(group.active_packages().all())
+        group_packages_count = len(group.packages())
         group_description = group.description
         self.check_named_element(res, 'tr', group_title,
                                  group_packages_count,
@@ -820,7 +820,7 @@ Ho ho ho
         assert group.description == newdesc, group
 
         # now look at datasets
-        assert len(group.active_packages().all()) == 3
+        assert len(group.packages()) == 3
 
     def test_3_edit_form_has_new_package(self):
         # check for dataset in autocomplete
@@ -868,7 +868,7 @@ Ho ho ho
 
         # check package only added to the group once
         group = model.Group.by_name(group_name)
-        pkg_names = [pkg.name for pkg in group.active_packages().all()]
+        pkg_names = [pkg.name for pkg in group.packages()]
         assert_equal(pkg_names, [self.packagename])
 
     def test_edit_plugin_hook(self):

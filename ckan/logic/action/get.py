@@ -764,7 +764,7 @@ def group_package_show(context, data_dict):
     _check_access('group_show', context, data_dict)
 
     result = []
-    for pkg_rev in group.get_package_revisions(limit=limit,
+    for pkg_rev in group.packages(limit=limit,
             return_query=context.get('return_query')):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
