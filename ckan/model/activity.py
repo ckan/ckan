@@ -151,9 +151,19 @@ def _activities_from_datasets_followed_by_user_query(user_id):
     return q
 
 
+def _activities_from_groups_followed_by_user_query(user_id):
+    import ckan.model as model
+    q = model.Session.query(model.Activity)
+    q = q.join(model.UserFollowingGroup,
+            model.UserFollowingGroup.object_id == model.Activity.object_id)
+    q = q.filter(model.UserFollowingGroup.follower_id == user_id)
+    return q
+
+
 def _activities_from_everything_followed_by_user_query(user_id):
     q = _activites_from_users_followed_by_user_query(user_id)
     q = q.union(_activities_from_datasets_followed_by_user_query(user_id))
+    q = q.union(_activities_from_groups_followed_by_user_query(user_id))
     return q
 
 
