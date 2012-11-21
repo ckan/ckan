@@ -202,7 +202,9 @@ def member_roles_list(context, data_dict):
 
 
 def dashboard_activity_list(context, data_dict):
-    if 'user' in context:
+    # FIXME: context['user'] could be an IP address but that case is not
+    # handled here. Maybe add an auth helper function like is_logged_in().
+    if context.get('user'):
         return {'success': True}
     else:
         return {'success': False,
@@ -210,10 +212,16 @@ def dashboard_activity_list(context, data_dict):
 
 
 def dashboard_new_activities_count(context, data_dict):
+    # FIXME: This should go through check_access() not call is_authorized()
+    # directly, but wait until 2939-orgs is merged before fixing this.
+    # This is so a better not authourized message can be sent.
     return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
 
 
 def dashboard_mark_all_new_activities_as_old(context, data_dict):
+    # FIXME: This should go through check_access() not call is_authorized()
+    # directly, but wait until 2939-orgs is merged before fixing this.
+    # This is so a better not authourized message can be sent.
     return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)

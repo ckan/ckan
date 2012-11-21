@@ -130,6 +130,15 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print 'Initialising DB: SUCCESS'
         elif cmd == 'clean' or cmd == 'drop':
+
+            # remove any *.pyc version files to prevent conflicts
+            v_path = os.path.join(os.path.dirname(__file__),
+                               '..', 'migration', 'versions', '*.pyc')
+            import glob
+            filelist = glob.glob(v_path)
+            for f in filelist:
+                os.remove(f)
+
             model.repo.clean_db()
             search.clear()
             if self.verbose:
