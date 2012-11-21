@@ -5,11 +5,11 @@ All new CKAN features should be coded so that they work in the
 following browsers:
 
 * Internet Explorer: 9, 8 and 7
-* Firefox: Latest
-* Chrome: Latest
+* Firefox: Latest + previous version
+* Chrome: Latest + previous version
 
-These browsers are determined by whatever has >= 1% share on this
-page: http://data.gov.uk/data/site-usage?month=2012-11
+These browsers are determined by whatever has >= 1% share with the
+latest months data from: http://data.gov.uk/data/site-usage
 
 Install browser virtual machines
 ================================
@@ -28,8 +28,7 @@ Testing methodology
 Firstly we have a primer page. If you've touched any of the core
 front-end code you'll need to check if the primer is rendering
 correctly. The primer is located at:
-http://localhost:5000/testing/primer and it should look like:
-https://dl.dropbox.com/s/69y9ecpf3u3zkpe/ckan-primer.png
+http://localhost:5000/testing/primer
 
 Secondly whilst writing a new feature you should endeavour to test
 in at least in your core browser and an alternative browser as often
@@ -54,6 +53,20 @@ This is a good list of keywords not to use in your JavaScript:
 
 https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
 
+::
+
+	/* These are bad */
+	var a = {
+		default: 1,
+		delete: function() {}
+	};
+
+	/* These are good */
+	var a = {
+		default_value: 1,
+		remove: function() {}
+	};
+
 Unclosed JS arrays / objects
 ----------------------------
 
@@ -62,16 +75,14 @@ and arrays. For example:
 
 ::
 
-    var foo = {
-    	bar: 'Test',
+	/* These are bad */
+    var a = {
+    	b: 'c',
     };
+    var a = ['b', 'c', ];
 
-Will break. However:
-
-::
-
-    var foo = {
-    	bar: 'Test'
+    /* These are good */
+    var a = {
+    	c: 'c'
     };
-
-Will not break.
+    var a = ['b', 'c'];
