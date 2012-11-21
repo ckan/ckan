@@ -35,8 +35,8 @@ config_details = {
     'ckan.template_footer_end': {},
         # has been setup in load_environment():
     'ckan.site_id': {},
-    'ckan.recaptcha.publickey': {},
-    'ckan.recaptcha.privatekey': {},
+    'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
+    'ckan.recaptcha.privatekey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_deliminater': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
