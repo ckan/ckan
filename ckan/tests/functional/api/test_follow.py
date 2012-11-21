@@ -1,3 +1,15 @@
+'''Test for the follower API.
+
+This module tests following, unfollowing, getting a list of what you're
+following or the number of things you're following, getting a list of who's
+following you or the number of followers you have, testing whether or not
+you're following something, etc.
+
+This module _does not_ test the user dashboard activity stream (which shows
+activities from everything you're following), that is tested in
+test_dashboard.py.
+
+'''
 import datetime
 import paste
 import pylons.test
