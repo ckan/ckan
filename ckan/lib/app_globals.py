@@ -30,7 +30,7 @@ auto_update = [
 ]
 
 config_details = {
-    'ckan.favicon': {'default': '/images/icons/ckan.ico'},
+    'ckan.favicon': {}, # default gets set in config.environment.py
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
         # has been setup in load_environment():
