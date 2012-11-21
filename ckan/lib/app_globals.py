@@ -29,6 +29,30 @@ auto_update = [
     'ckan.site_custom_css',
 ]
 
+config_details = {
+    'ckan.favicon': {'default': '/images/icons/ckan.ico'},
+    'ckan.template_head_end': {},
+    'ckan.template_footer_end': {},
+        # has been setup in load_environment():
+    'ckan.site_id': {},
+    'ckan.recaptcha.publickey': {},
+    'ckan.recaptcha.privatekey': {},
+
+
+    # split string
+    'search.facets': {'default': 'groups tags res_format license',
+                      'type': 'split',
+                      'name': 'facets'},
+    'package_hide_extras': {'type': 'split'},
+
+    # bool
+    'openid_enabled': {'default': 'true', 'type' : 'bool'},
+
+    # int
+    'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
+}
+
+
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
 
@@ -139,27 +163,26 @@ class _Globals(object):
                 self._mutex.release()
 
     def _init(self):
-        self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
-        facets = config.get('search.facets', 'groups tags res_format license')
-        self.facets = facets.split()
 
-        # has been setup in load_environment():
-        self.site_id = config.get('ckan.site_id')
+        # process the config_details to set globals
+        for name, options in config_details.items():
+            if 'name' in options:
+                key = options['name']
+            elif name.startswith('ckan.'):
+                key = name[5:]
+            else:
+                key = name
+            value = config.get(name, options.get('default', ''))
 
-        self.template_head_end = config.get('ckan.template_head_end', '')
-        self.template_footer_end = config.get('ckan.template_footer_end', '')
+            data_type = options.get('type')
+            if data_type == 'bool':
+                value = asbool(value)
+            elif data_type == 'int':
+                value = int(value)
+            elif data_type == 'split':
+                value = value.split()
 
-        # hide these extras fields on package read
-        package_hide_extras = config.get('package_hide_extras', '').split()
-        self.package_hide_extras = package_hide_extras
-
-        self.openid_enabled = asbool(config.get('openid_enabled', 'true'))
-
-        self.recaptcha_publickey = config.get('ckan.recaptcha.publickey', '')
-        self.recaptcha_privatekey = config.get('ckan.recaptcha.privatekey', '')
-
-        datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
-        self.datasets_per_page = datasets_per_page
+            setattr(self, key, value)
 
 app_globals = _Globals()
 del _Globals
