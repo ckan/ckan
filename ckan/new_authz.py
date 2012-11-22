@@ -35,6 +35,9 @@ def is_sysadmin(username):
     return False
 
 def get_group_or_org_admin_ids(group_id):
+    if not group_id:
+        return []
+    group_id = model.Group.get(group_id).id
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id == group_id) \
         .filter(model.Member.table_name == 'user') \
