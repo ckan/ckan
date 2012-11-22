@@ -198,7 +198,10 @@ activity_stream_string_icons = {
   'follow user': 'user',
   'follow group': 'group',
   'new related item': 'picture',
-  'undefined': 'user', # This is when no activity icon can be found
+  'changed organization': 'briefcase',
+  'deleted organization': 'briefcase',
+  'new organization': 'briefcase',
+  'undefined': 'certificate', # This is when no activity icon can be found
 }
 
 # A list of activity types that may have details
