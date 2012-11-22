@@ -58,6 +58,9 @@ class GroupController(BaseController):
     def _edit_template(self, group_type):
         return lookup_group_plugin(group_type).edit_template()
 
+    def _admins_template(self, group_type):
+        return lookup_group_plugin(group_type).admins_template()
+
     ## end hooks
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
@@ -668,7 +671,7 @@ class GroupController(BaseController):
     def admins(self, id):
         c.group_dict = self._get_group_dict(id)
         c.admins = ckan.new_authz.get_group_or_org_admin_ids(id)
-        return render('group/admins.html')
+        return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
         c.group_dict = self._get_group_dict(id)

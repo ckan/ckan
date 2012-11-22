@@ -11,20 +11,29 @@ Example:
 
 #}
 {% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
-  <section class="module module-narrow module-shallow group">
-  <h2 class="module-heading">{{ _('Owning Organization')  }}</h2>
-    <div class="module-content media media-vertical">
-      <a class="media-image" href="{{ url }}">
-        <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" height="125" alt="{{ organization.name }}" />
-      </a>
-      <div class="media-content">
-        <h3 class="media-heading"><a href={{ url }}>{{ organization.title or organization.name }}</a></h3>
-        {% if organization.description %}
-          <p>{{ h.markdown_extract(organization.description, truncate) }}</p>
-        {% else %}
-          <p class="empty">{{ _('There is no description for this organization') }}</p>
-        {% endif %}
+  <div class="module profile-info">
+    <section class="module-content">
+      <div class="avatar">
+        <a href="{{ url }}">
+          <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
+        </a>
       </div>
-    </div>
-  </section>
+      <h1 class="heading">{{ organization.title or organization.name }}</h1>
+      {% if organization.description %}
+        <p>{{ h.markdown_extract(organization.description, truncate) }}</p>
+      {% else %}
+        <p class="empty">{{ _('There is no description for this organization') }}</p>
+      {% endif %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Members') }}</dt>
+          <dd>{{ organization.members|length }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('Datasets') }}</dt>
+          <dd>{{ organization.packages|length }}</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
 {% endwith %}

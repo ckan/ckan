@@ -346,6 +346,13 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
+    def admins_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the admins page
+        """
+        return 'group/admins.html'
+
     def group_form(self):
         return 'group/new_group_form.html'
 
