@@ -161,5 +161,7 @@ class _Globals(object):
         datasets_per_page = int(config.get('ckan.datasets_per_page', '20'))
         self.datasets_per_page = datasets_per_page
 
+        self.debug_supress_header = asbool(config.get('ckan.debug_supress_header', 'false'))
+
 app_globals = _Globals()
 del _Globals
