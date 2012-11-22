@@ -659,33 +659,33 @@ class GroupController(BaseController):
         h.redirect_to(controller='group', action='read', id=id)
 
     def followers(self, id):
-        context = self._get_group_dict(id)
-        c.followers = get_action('group_follower_list')(context,
-                                                        {'id': c.group_dict['id']})
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+        c.group_dict = self._get_group_dict(id)
+        c.followers = get_action('group_follower_list')(context, {'id': id})
         return render('group/followers.html')
 
     def admins(self, id):
-        context = self._get_group_dict(id)
-        c.admins = ckan.new_authz.get_group_or_org_admin_ids(context['group']['id'])
+        c.group_dict = self._get_group_dict(id)
+        c.admins = ckan.new_authz.get_group_or_org_admin_ids(id)
         return render('group/admins.html')
 
     def about(self, id):
-        self._get_group_dict(id)
+        c.group_dict = self._get_group_dict(id)
         return render('group/about.html')
 
     def _get_group_dict(self, id):
+        ''' returns the result of group_show action or aborts if there is a
+        problem '''
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'for_view': True}
-        data_dict = {'id': id}
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.admins = ckan.new_authz.get_group_or_org_admin_ids(context['group']['id'])
+            return get_action('group_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
-        return context
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
