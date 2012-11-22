@@ -149,6 +149,16 @@ def _group_activity_query(group_id, limit=15):
 
 
 def group_activity_list(group_id, limit=15):
+    '''Return the given group's public activity stream.
+
+    Returns all activities where the given group or one of its datasets is the
+    object of the activity, e.g.:
+
+    "{USER} updated the group {GROUP}"
+    "{USER} updated the dataset {DATASET}"
+    etc.
+
+    '''
     q = _group_activity_query(group_id)
     return _most_recent_activities(q, limit)
 
