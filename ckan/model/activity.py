@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, desc
+from sqlalchemy import orm, types, Column, Table, ForeignKey, desc, or_
 
 import meta
 import types as _types
@@ -133,6 +133,26 @@ def package_activity_list(package_id, limit=15):
     return _most_recent_activities(q, limit)
 
 
+def _group_activity_query(group_id, limit=15):
+    import ckan.model as model
+
+    group = model.Group.get(group_id)
+    dataset_ids = [dataset.id for dataset in group.packages()]
+
+    q = model.Session.query(model.Activity)
+    if dataset_ids:
+        q = q.filter(or_(model.Activity.object_id == group_id,
+            model.Activity.object_id.in_(dataset_ids)))
+    else:
+        q = q.filter(model.Activity.object_id == group_id)
+    return q
+
+
+def group_activity_list(group_id, limit=15):
+    q = _group_activity_query(group_id)
+    return _most_recent_activities(q, limit)
+
+
 def _activites_from_users_followed_by_user_query(user_id):
     import ckan.model as model
     q = model.Session.query(model.Activity)
@@ -153,10 +173,16 @@ def _activities_from_datasets_followed_by_user_query(user_id):
 
 def _activities_from_groups_followed_by_user_query(user_id):
     import ckan.model as model
+
+    # Get a list of the group's that the user is following.
+    follower_objects = model.UserFollowingGroup.followee_list(user_id)
+    if not follower_objects:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter("0=1")
+
     q = model.Session.query(model.Activity)
-    q = q.join(model.UserFollowingGroup,
-            model.UserFollowingGroup.object_id == model.Activity.object_id)
-    q = q.filter(model.UserFollowingGroup.follower_id == user_id)
+    q = q.union_all(*[_group_activity_query(follower.object_id)
+            for follower in follower_objects])
     return q
 
 
