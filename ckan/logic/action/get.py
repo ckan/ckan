@@ -1767,30 +1767,7 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    # FIXME: The SQLAlchemy below should be moved into ckan/model/activity.py
-    # (to encapsulate SQLALchemy in the model and avoid using it from the
-    # logic) but it can't be because it requires the list of dataset_ids which
-    # comes from logic.group_package_show() (and I don't want to access the
-    # logic from the model). Need to change it to get the dataset_ids from the
-    # model instead. There seems to be multiple methods for getting a group's
-    # datasets, some in the logic and some in the model.
-
-    # Get a list of the IDs of the group's datasets.
-    group_package_show = logic.get_action('group_package_show')
-    datasets = group_package_show(context, {'id': group_id})
-    dataset_ids = [dataset['id'] for dataset in datasets]
-
-    # Get the group's activities.
-    query = model.Session.query(model.Activity)
-    if dataset_ids:
-        query = query.filter(_or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
-    else:
-        query = query.filter(model.Activity.object_id == group_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
-
+    activity_objects = model.activity.group_activity_list(group_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
