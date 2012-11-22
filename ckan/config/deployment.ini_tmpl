@@ -235,6 +235,14 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
+
+# DEBUGGING
+
+# ckan.debug_supress_header This option can be set to suppress the debug
+# information showing the controller and action recieving the request being
+# shown in the header.  Note: This info only shows if debug is set to true.
+ckan.debug_supress_header = false
+
 ## ===================================
 ## Extensions
 
