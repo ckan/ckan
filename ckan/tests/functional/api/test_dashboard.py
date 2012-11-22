@@ -46,27 +46,32 @@ class TestDashboard(object):
     def teardown_class(cls):
         ckan.model.repo.rebuild_db()
 
+    def post(self, action, params=None, apikey=None, status=200):
+        '''Post to the CKAN API and return the result.'''
+        if params is None:
+            params = {}
+        params = json.dumps(params)
+        response = self.app.post('/api/action/{0}'.format(action),
+                params=params,
+                extra_environ={'Authorization': str(apikey)},
+                status=status)
+        if status in (200,):
+            assert response.json['success'] is True
+            return response.json['result']
+        else:
+            assert response.json['success'] is False
+            return response.json['error']
+
     def dashboard_new_activities_count(self, user):
         '''Return the given user's new activities count from the CKAN API.'''
-        params = json.dumps({})
-        response = self.app.post('/api/action/dashboard_new_activities_count',
-                params=params,
-                extra_environ={'Authorization': str(user['apikey'])})
-        assert response.json['success'] is True
-        new_activities_count = response.json['result']
-        return new_activities_count
+        return self.post('dashboard_new_activities_count',
+                apikey=user['apikey'])
 
     def dashboard_activity_list(self, user):
         '''Return the given user's dashboard activity list from the CKAN API.
 
         '''
-        params = json.dumps({})
-        response = self.app.post('/api/action/dashboard_activity_list',
-                params=params,
-                extra_environ={'Authorization': str(user['apikey'])})
-        assert response.json['success'] is True
-        activity_list = response.json['result']
-        return activity_list
+        return self.post('dashboard_activity_list', apikey=user['apikey'])
 
     def dashboard_new_activities(self, user):
         '''Return the activities from the user's dashboard activity stream
@@ -75,12 +80,17 @@ class TestDashboard(object):
         return [activity for activity in activity_list if activity['is_new']]
 
     def dashboard_mark_all_new_activities_as_old(self, user):
-        params = json.dumps({})
-        response = self.app.post(
-                '/api/action/dashboard_mark_all_new_activities_as_old',
-                params=params,
-                extra_environ={'Authorization': str(user['apikey'])})
-        assert response.json['success'] is True
+        self.post('dashboard_mark_all_new_activities_as_old',
+                apikey=user['apikey'])
+
+    def test_00_dashboard_activity_list_not_logged_in(self):
+        self.post('dashboard_activity_list', status=403)
+
+    def test_00_dashboard_new_activities_count_not_logged_in(self):
+        self.post('dashboard_new_activities_count', status=403)
+
+    def test_00_dashboard_mark_new_activities_not_logged_in(self):
+        self.post('dashboard_mark_all_new_activities_as_old', status=403)
 
     def test_01_new_activities_count_for_new_user(self):
         '''Test that a newly registered user's new activities count is 0.'''
@@ -196,10 +206,11 @@ class TestDashboard(object):
     def test_07_maximum_number_of_new_activities(self):
         '''Test that the new activities count does not go higher than 15, even
         if there are more than 15 new activities from the user's followers.'''
-        for n in range(0,20):
+        for n in range(0, 20):
             notes = "Updated {n} times".format(n=n)
             params = json.dumps({'name': 'warandpeace', 'notes': notes})
-            response = self.app.post('/api/action/package_update', params=params,
+            response = self.app.post('/api/action/package_update',
+                params=params,
                 extra_environ={'Authorization': str(self.joeadmin['apikey'])})
             assert response.json['success'] is True
         assert self.dashboard_new_activities_count(self.new_user) == 15
