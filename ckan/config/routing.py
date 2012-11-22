@@ -304,7 +304,7 @@ def make_map():
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/user/dashboard', action='dashboard')
-        m.connect('user_follow', '/user/follow/{id}', action='fellow')
+        m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',
                   action='followers', ckan_icon='group')
