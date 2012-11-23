@@ -175,10 +175,20 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted datesets.
+    Receives notification of new, changed and deleted Package, Resource and
+    Group objects.
     """
 
     def notify(self, entity, operation):
+        '''Called when a domain model is created/updated/deleted.
+
+        entity - the instance of the Package, Resource or Group that has been
+                 created/updated/deleted.
+
+        operation - instance of `domain_object.DomainObjectOperation`
+                    identifying whether the `entity` was created, updated or
+                    deleted.
+        '''
         pass
 
 
