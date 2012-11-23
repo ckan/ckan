@@ -12,7 +12,7 @@ These browsers are determined by whatever has >= 1% share with the
 latest months data from: http://data.gov.uk/data/site-usage
 
 Install browser virtual machines
-================================
+--------------------------------
 
 In order to test in all the needed browsers you'll need access to
 all the above browser versions. Firefox and Chrome should be easy
@@ -23,7 +23,7 @@ We suggest you use https://github.com/xdissent/ievms to get your
 Internet Explorer virtual machines.
 
 Testing methodology
-===================
+-------------------
 
 Firstly we have a primer page. If you've touched any of the core
 front-end code you'll need to check if the primer is rendering
@@ -55,17 +55,17 @@ https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
 
 ::
 
-	/* These are bad */
-	var a = {
-		default: 1,
-		delete: function() {}
-	};
+  /* These are bad */
+  var a = {
+    default: 1,
+    delete: function() {}
+  };
 
-	/* These are good */
-	var a = {
-		default_value: 1,
-		remove: function() {}
-	};
+  /* These are good */
+  var a = {
+    default_value: 1,
+    remove: function() {}
+  };
 
 Unclosed JS arrays / objects
 ----------------------------
@@ -75,14 +75,14 @@ and arrays. For example:
 
 ::
 
-	/* These are bad */
-    var a = {
-    	b: 'c',
-    };
-    var a = ['b', 'c', ];
+  /* These are bad */
+  var a = {
+    b: 'c',
+  };
+  var a = ['b', 'c', ];
 
-    /* These are good */
-    var a = {
-    	c: 'c'
-    };
-    var a = ['b', 'c'];
+  /* These are good */
+  var a = {
+    c: 'c'
+  };
+  var a = ['b', 'c'];
