@@ -1,4 +1,3 @@
-from ckan.tests import *
 import ckan.lib.helpers as h
 import ckan.logic as l
 import ckan.model as model
