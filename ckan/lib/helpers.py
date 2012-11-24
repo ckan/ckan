@@ -1269,7 +1269,7 @@ def format_resource_items(items):
 def _compare_domains(urls):
     ''' Return True if the domains of the provided are the same.
     '''
-    domains = set()
+    first_domain = None
     for url in urls:
         # all urls are interpreted as absolute urls,
         # except for urls that start with a /
@@ -1277,8 +1277,13 @@ def _compare_domains(urls):
             url = '//' + url
         parsed = urlparse.urlparse(url.lower(), 'http')
         domain = (parsed.scheme, parsed.hostname, parsed.port)
-        domains.add(domain)
-    return len(domains) == 1
+
+        if not first_domain:
+            first_domain = domain
+            continue
+        if first_domain != domain:
+            return False
+    return True
 
 
 def add_whether_on_same_domain(data_dict):
