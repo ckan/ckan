@@ -1337,7 +1337,7 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            data_dict = h._add_whether_on_same_domain(data_dict)
+            data_dict = h.add_whether_on_same_domain(data_dict)
 
             plugins = p.PluginImplementations(p.IResourcePreview)
             plugins_that_can_preview = [plugin for plugin in plugins if plugin.can_preview(data_dict)]

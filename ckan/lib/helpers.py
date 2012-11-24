@@ -1281,7 +1281,7 @@ def _compare_domains(urls):
     return len(domains) == 1
 
 
-def _add_whether_on_same_domain(data_dict):
+def add_whether_on_same_domain(data_dict):
     ''' sets the ``on_same_domain`` flag to a resource dictionary
     to true if the resource is on the ckan instance domain
     '''
@@ -1303,7 +1303,7 @@ def _can_be_previewed(data_dict):
         The resource dict has to have a value for ``on_same_domain``
     :type data_dict: dictionary
     '''
-    data_dict = _add_whether_on_same_domain(data_dict)
+    data_dict = add_whether_on_same_domain(data_dict)
     plugins = p.PluginImplementations(p.IResourcePreview)
     return any(plugin.can_preview(data_dict) for plugin in plugins)
 
