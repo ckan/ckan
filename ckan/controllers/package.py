@@ -30,7 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
-import ckan.lib.helpers as helpers
+import ckan.lib.helpers as h
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -1337,7 +1337,7 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            data_dict = helpers._add_whether_on_same_domain(data_dict)
+            data_dict = h._add_whether_on_same_domain(data_dict)
 
             plugins = p.PluginImplementations(p.IResourcePreview)
             plugins_that_can_preview = [plugin for plugin in plugins if plugin.can_preview(data_dict)]
