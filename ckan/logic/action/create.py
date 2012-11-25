@@ -1130,8 +1130,9 @@ def subscription_create(context, data_dict):
                         }
 
     subscription = model_save.subscription_dict_save(subscription_dict, context)
-
     if not context.get('defer_commit'):
         model.repo.commit()
+    subscription.update_item_list_when_necessary(context, 0)
+
     return model_dictize.subscription_dictize(subscription, context)
 

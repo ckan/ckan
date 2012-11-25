@@ -55,7 +55,7 @@ class Subscription(domain_object.DomainObject):
         return count
         
         
-    def update_item_list_when_necessary(self, context, timespan_after_last_update=0):
+    def update_item_list_when_necessary(self, context, timespan_after_last_update):
         if self.last_evaluated > datetime.datetime.now() - datetime.timedelta(minutes=timespan_after_last_update):
             return
             
@@ -85,22 +85,21 @@ class Subscription(domain_object.DomainObject):
 
         self.update_item_list(data_list, key_name)
 
+        if not context.get('defer_commit'):
+            context['model'].repo.commit()
+
 
     def update_item_list(self, data_by_definition, key_name):
         self.last_evaluated = datetime.datetime.now()
 
-        if self.definition['data_type'] in ['dataset', 'user']:
-            self._prepare_items()
-            self._prepare_data_by_definition(data_by_definition, key_name)
+        self._prepare_items()
+        self._prepare_data_by_definition(data_by_definition, key_name)
 
-            self._determine_added_items()
-            self._determine_removed_items()
-            self._determine_changed_items()
-            self._determine_remaining_items()
-        
-        elif self.definition['data_type'] == 'data':
-            pass
-        
+        self._determine_added_items()
+        self._determine_removed_items()
+        self._determine_changed_items()
+        self._determine_remaining_items()
+
         self._save_items()
         
         

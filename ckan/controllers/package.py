@@ -195,7 +195,7 @@ class PackageController(BaseController):
                 if not value:
                     continue
                     
-                if param in base.g.facets:
+                if param in g.facets:
                     c.fields.append((param, urllib.unquote(value)))
 
                     if param not in c.fields_grouped:
@@ -221,10 +221,10 @@ class PackageController(BaseController):
             except NotAuthorized:
                 pass
                 
-           search_dict = {
+            search_dict = {
                 'q': q,
                 'filters': c.fields_grouped,
-                'facet.field': base.g.facets,
+                'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,

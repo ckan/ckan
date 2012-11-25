@@ -91,7 +91,7 @@ class SubscriptionController(BaseController):
         definition['data_type'] = data_type
 
         if type_ == 'search' and data_type == 'dataset':
-            definition['query'] = parameters['query'][0] if parameters['query'] else ''
+            definition['query'] = parameters.get('query', [''])[0]
             definition['filters'] = dict([(parameter_name, parameter_list) for (parameter_name, parameter_list) in parameters.iteritems() if parameter_name in g.facets])
         else:
             for plugin in PluginImplementations(ISubscription):
@@ -135,7 +135,7 @@ class SubscriptionController(BaseController):
                     break
 
         if not url:
-            return render('subscription/index.html')
+            return h.redirect_to(controller='subscription', action='index')
 
         return h.redirect_to(str(url))
 

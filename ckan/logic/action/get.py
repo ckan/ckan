@@ -2351,7 +2351,7 @@ def subscription_list(context, data_dict):
     subscriptions = query.all()
     
     for subscription in subscriptions:
-        subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
+        subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
 
     return model_dictize.subscription_list_dictize(subscriptions, context)
 
@@ -2367,9 +2367,6 @@ def subscription_show(context, data_dict):
     or
     :param subscription_definition: the definition of the subscription
     :type subscription_definition: json object
-    or
-    :param subscription_definition_type: the type of definition of the subscription
-    :type subscription_definition_type: string
 
     :rtype: dictionary
 
@@ -2414,6 +2411,9 @@ def subscription_item_list(context, data_dict):
     or
     :param subscription_id: the id of the subscription
     :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
     
     :param last_update: update is deferred until x minutes after last update [optional]
     :type last_update: integer
@@ -2422,7 +2422,7 @@ def subscription_item_list(context, data_dict):
 
     '''
     subscription = action._get_subscription(context, data_dict)
-    subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
 
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
 
@@ -2435,6 +2435,9 @@ def subscription_dataset_list(context, data_dict):
     or
     :param subscription_id: the id of the subscription
     :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
     
     :param last_update: update is deferred until x minutes after last update [optional]
     :type last_update: integer
@@ -2442,7 +2445,7 @@ def subscription_dataset_list(context, data_dict):
     :rtype: dictionary
     '''
     subscription = action._get_subscription(context, data_dict)
-    subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
 
     datasets = subscription.subscribed_objects()
     
