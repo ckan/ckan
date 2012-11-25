@@ -1,11 +1,11 @@
 import ckan.lib.helpers as h
 import ckan.logic as l
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
-from ckan.tests.functional.base import FunctionalTestCase
+import ckan.lib.create_test_data as create_test_data
+import ckan.tests.functional.base as base
 import ckan.plugins as plugins
 import ckan.tests.mock_plugin as mock
-from ckan.lib.dictization.model_dictize import resource_dictize
+import ckan.lib.dictization.model_dictize as model_dictize
 
 
 class MockResourcePreviewExtension(mock.MockSingletonPlugin):
@@ -36,7 +36,7 @@ class JsonMockResourcePreviewExtension(MockResourcePreviewExtension):
         return 'tests/mock_json_resource_preview_template.html'
 
 
-class TestPluggablePreviews(FunctionalTestCase):
+class TestPluggablePreviews(base.FunctionalTestCase):
     @classmethod
     def setup_class(cls):
         cls.plugin = MockResourcePreviewExtension()
@@ -44,7 +44,7 @@ class TestPluggablePreviews(FunctionalTestCase):
         json_plugin = JsonMockResourcePreviewExtension()
         plugins.load(json_plugin)
 
-        CreateTestData.create()
+        create_test_data.CreateTestData.create()
 
     @classmethod
     def teardown_class(cls):
@@ -53,7 +53,7 @@ class TestPluggablePreviews(FunctionalTestCase):
 
     def test_hook(self):
         testpackage = model.Package.get('annakarenina')
-        resource_dict = resource_dictize(testpackage.resources[0], {'model': model})
+        resource_dict = model_dictize.resource_dictize(testpackage.resources[0], {'model': model})
         resource_dict['format'] = 'mock'
 
         context = {
