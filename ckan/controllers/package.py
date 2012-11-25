@@ -1,6 +1,7 @@
 import logging
 from urllib import urlencode
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
@@ -189,38 +190,36 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
-            # c.fields_grouped will contain a dict of params containing
-            # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
             for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
+                if not value:
+                    continue
+                    
+                if param in g.facets:
+                    c.fields.append((param, urllib.unquote(value)))
+
+                    if param not in c.fields_grouped:
+                        c.fields_grouped[param] = [urllib.unquote(value)]
                     else:
-                        search_extras[param] = value
+                        c.fields_grouped[param].append(urllib.unquote(value))
+     
+                elif param.startswith('ext_'):
+                    search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
-            data_dict = {
+            search_dict = {
                 'q': q,
-                'fq': fq,
+                'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
-                'extras': search_extras
-            }
+                'extras': search_extras}
 
-            query = get_action('package_search')(context, data_dict)
+            query = get_action('package_search')(context, search_dict)
 
             c.page = h.Page(
                 collection=query['results'],
