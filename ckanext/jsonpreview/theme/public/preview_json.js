@@ -1,6 +1,11 @@
 // json preview module
 ckan.module('jsonpreview', function (jQuery, _) {
   return {
+    options: {
+      i18n: {
+        error: _('An error occured: %(text)s %(error)s')
+      }
+    },
     initialize: function () {
       var self = this;
       jQuery.ajax(preload_resource['url'], {
@@ -14,7 +19,7 @@ ckan.module('jsonpreview', function (jQuery, _) {
           self.el.html(pretty);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          self.el.html('An error occured: ' + textStatus + ', ' + errorThrown);
+          self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
         }
       });
     },
