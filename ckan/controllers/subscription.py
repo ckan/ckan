@@ -17,6 +17,7 @@ from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
 from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
 from ckan.lib.captcha import check_recaptcha, CaptchaError
+from ckan.plugins import PluginImplementations, ISubscription
 
 log = logging.getLogger(__name__)
 
@@ -81,43 +82,28 @@ class SubscriptionController(BaseController):
 
 
     def create(self, id=None):
+        parameters = request.params.dict_of_lists()
+     
+        name = request.params['subscription_name']
         type_ = request.params['subscription_type']
+        data_type = request.params['subscription_data_type']
         
         definition = {}
         definition['type'] = type_
-        definition['data_type'] = request.params['subscription_data_type']
-             
-        if type_ == 'search':
-            definition['query'] = ''
-            if 'query' in request.params:
-                definition['query'] = urllib.unquote(request.params['query'])
-            
-            definition['filters'] = {}
-            for (param, value) in request.params.items():
-                if param in ['res_format',
-                            'license',
-                            'tags',
-                            'groups',
-                            'organizations',
-                            'topic',
-                            'location_latitude',
-                            'location_longitude',
-                            'location_radius',
-                            'time_min',
-                            'time_max']:
-                    if param not in definition['filters']:
-                        definition['filters'][param] = [urllib.unquote(value)]
-                    else:
-                        definition['filters'][param].append(urllib.unquote(value))
+        definition['data_type'] = data_type
 
-        elif type_ == 'sparql':  
-            definition['query'] = urllib.unquote(request.params['query'])
-            definition['filters'] = {}
+        if type_ == 'search' and data_type == 'dataset':
+            definition['query'] = parameters['query'] if parameters['query'] else ''
+            definition['filters'] = dict([(parameter_name, parameter_list) for (parameter_name, parameter_list) in parameters.iteritems() if parameter_name in g.facets])
+        else:
+            for plugin in PluginImplementations(ISubscription):
+                if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                    definition = plugin.prepare_creation(parameters)
+                    break
 
             
         context = {'model': model, 'session': model.Session, 'user': c.user}
-        data_dict = {'subscription_definition': definition,
-                     'subscription_name': request.params['subscription_name']}
+        data_dict = {'subscription_name': name, 'subscription_definition': definition}
 
         subscription = get_action('subscription_create')(context, data_dict)
 
@@ -130,11 +116,15 @@ class SubscriptionController(BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj, 'subscription_name': subscription_name}
 
         self._setup_template_variables(context, data_dict)
-
-        if not c.subscription or c.subscription['definition']['type'] not in ['search', 'sparql']:
+        
+        if not c.subscription:
             return render('subscription/index.html')
-            
-        if c.subscription['definition']['type'] == 'search':
+
+        type_ = c.subscription['definition']['type']
+        data_type = c.subscription['definition']['data_type']
+
+        url = None
+        if type_ == 'search' and data_type == 'dataset':
             url = h.url_for(controller='package', action='search')
             url += '?q=' + urllib.quote_plus(c.subscription['definition']['query'])
 
@@ -142,9 +132,14 @@ class SubscriptionController(BaseController):
                 for filter_value in filter_value_list:
                     url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
         else:
-            url = h.url_for(controller='ckanext.semantic.controllers.sparql:SPARQLController', action='index')
-            url += '?query=' + urllib.quote_plus(c.subscription['definition']['query'])
+            for plugin in PluginImplementations(ISubscription):
+                if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                    url = plugin.show_url()
+                    break
 
+
+        if not url:
+            return render('subscription/index.html')
 
         return h.redirect_to(str(url))
 

@@ -4,6 +4,7 @@ import dateutil.parser
 import domain_object
 import meta
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from ckan.plugins import PluginImplementations, ISubscription
 import types as _types
 
 __all__ = ['Subscription', 'SubscriptionItem']
@@ -24,7 +25,25 @@ class Subscription(domain_object.DomainObject):
         query = meta.Session.query(SubscriptionItem)
         query = query.filter(SubscriptionItem.subscription_id == self.id)
         return query.all()
+
+
+    def subscribed_objects(self):
+        type_ = definition['type']
+        data_type = definition['data_type']
         
+        objects = []
+        if type_ == 'search' and data_type == 'dataset':
+            for item in self.get_item_list():
+                objects.append(model.Package.get(item.key))
+        else:
+            for plugin in PluginImplementations(ISubscription):
+                if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                    for item in self.get_item_list():
+                        objects.append(plugin.item_to_object(item))
+                    break
+        
+        return objects
+            
         
     def get_updates_count(self):
         count = 0

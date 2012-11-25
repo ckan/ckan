@@ -16,7 +16,8 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
-    'ISearchFacets'
+    'ISearchFacets',
+    'ISubscription'
 ]
 
 from inspect import isclass
@@ -691,4 +692,48 @@ class ISearchFacets(Interface):
         Should return a list of facets names that can be used to further narrow the
         list of items in 'after_search' extension method
         """
+
+
+class ISubscription(Interface):
+    """
+    Allow adding new subscription configurations (definition type + data type)
+    """
+    
+    def definition_type(self):
+        """
+        Should return a subscription definition type.
+        """
+    
+    def data_type(self):
+        """
+        Should return a subscription data type.
+        """
+    
+    def prepare_creation(self, preliminary_definition, parameters):
+        """
+        Should return a subscription definition dictionary.
+        Get the preliminary_definition and parameter in form of a dict of lists.
+        """
+        
+    def item_to_object(self, item):
+        """
+        Convert a item to a model object according to subscription's data type
+        """
+    
+    def show_url(self):
+        """
+        """
+
+    def show_controller(self):
+        """
+        """
+
+    def show_action(self):
+        """
+        """
+
+    def show_parameters(self):
+        """
+        """
+
 

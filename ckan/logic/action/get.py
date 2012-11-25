@@ -2507,17 +2507,7 @@ def subscription_search_dataset(context, data_dict):
     search_dict = {
         'q': definition['query'],
         'filters': definition['filters'],
-        'facet.field': ['res_format',
-                        'license',
-                        'tags',
-                        'groups',
-                        'organizations',
-                        'topic',
-                        'location_latitude',
-                        'location_longitude',
-                        'location_radius',
-                        'time_min',
-                        'time_max'],
+        'facet.field': g.facets,
         'rows': 50,
         'start': 0,
         'sort': 'metadata_modified desc',
@@ -2564,12 +2554,6 @@ def subscription_dataset_list(context, data_dict):
     if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
         logic.get_action('subscription_item_list_update')(context, data_dict)
 
-    datasets = []
-    if subscription.definition['type'] == 'search':
-        for item in subscription.get_item_list():
-            datasets.append(model_dictize.package_dictize(model.Package.get(item.key), context))
-    else:
-        action_name = 'subscription_' + subscription.definition['type'] + '_' + subscription.definition['data_type'] + '_list'
-        datasets = logic.get_action(action_name)(context, data_dict)
+    datasets = subscription.subscribed_objects()
     
-    return datasets
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
