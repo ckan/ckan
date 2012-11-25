@@ -6,7 +6,7 @@ from threading import Lock
 
 from paste.deploy.converters import asbool
 from pylons import config
-from ckan.plugins import PluginImplementations, ISearchFilters
+from ckan.plugins import PluginImplementations, ISearchFacets
 
 import ckan.model as model
 

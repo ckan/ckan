@@ -1,10 +1,7 @@
 import uuid
 import logging
 import json
-<<<<<<< HEAD
 import urllib
-=======
->>>>>>> master
 import datetime
 
 from pylons import config
