@@ -53,7 +53,7 @@ class SubscriptionController(BaseController):
 
         if data_dict.has_key('subscription_name'):
             try:
-                c.subscription = get_action('subscription')(context, data_dict)
+                c.subscription = get_action('subscription_show')(context, data_dict)
             except NotFound:
                 h.redirect_to(controller='subscription', action='index')
             except NotAuthorized:
@@ -134,11 +134,11 @@ class SubscriptionController(BaseController):
                     url = plugin.show_url(c.subscription)
                     break
 
-
         if not url:
             return render('subscription/index.html')
 
         return h.redirect_to(str(url))
+
 
     def show_my_datasets(self, id=None):
         context = {'model': model, 'session': model.Session,

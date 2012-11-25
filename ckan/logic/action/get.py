@@ -12,6 +12,7 @@ import ckan.authz
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.action as action
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -20,7 +21,6 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.base as base
-from ckan.plugins import PluginImplementations, ISubscription
 
 log = logging.getLogger('ckan.logic')
 
@@ -1133,7 +1133,7 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
-        # a dict is more convenient that a clumsy string
+        # a dict is more convenient than a clumsy string
         if 'filters' in data_dict:
             search_params = dict(data_dict)
             del search_params['filters']
@@ -2350,16 +2350,13 @@ def subscription_list(context, data_dict):
     query = query.order_by(model.Subscription.name)
     subscriptions = query.all()
     
-    # to be up-to-date, please refactor
     for subscription in subscriptions:
-        if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
-            logic.get_action('subscription_item_list_update')(context, {'subscription_id': subscription.id})
-        
-        
+        subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
+
     return model_dictize.subscription_list_dictize(subscriptions, context)
 
 
-def subscription(context, data_dict):
+def subscription_show(context, data_dict):
     '''Return a subscriptions of a user.
 
     :param subscription_name: the name of the subscription
@@ -2377,75 +2374,12 @@ def subscription(context, data_dict):
     :rtype: dictionary
 
     '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
-    model = context['model']
-    user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
+    try:
+        subscription = action._get_subscription(context, data_dict)
+    except NotFound:
+        return None
 
-    
-    if 'subscription_id' in data_dict:
-        subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        subscription = model.Subscription.get(subscription_id)
-
-    elif 'subscription_name' in data_dict:
-        subscription_name = _get_or_bust(data_dict, 'subscription_name')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==subscription_name)
-        try:
-            subscription = query.one()
-        except:
-            return None
-        
-    elif 'subscription_definition' in data_dict:
-        definition = _get_or_bust(data_dict, 'subscription_definition')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
-        subscription = None
-        for row in query.all():
-            if subscription_equal_definition(row, definition):
-                subscription = row
-                break
-        if not subscription:
-            return None
-            
-
-    subscription_dict = model_dictize.subscription_dictize(subscription, context)
-
-    return subscription_dict
-    
-
-def subscription_equal_definition(subscription, definition):
-    type_ = definition['type']
-    data_type = definition['data_type']
-        
-    if type_ == 'search' and data_type == 'dataset':
-        if subscription.definition['type'] != definition['type']:
-            return False
-            
-        if subscription.definition['data_type'] != definition['data_type']:
-            return False
-            
-        if subscription.definition['query'] != definition['query']:
-            return False
-            
-        if set(subscription.definition['filters']) ^ set(definition['filters']):
-            return False
-            
-        for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
-            if set(filter_value_list) ^ set(definition['filters'][filter_name]):
-                return False
-                    
-        return True
-    else:
-        for plugin in PluginImplementations(ISubscription):
-            if plugin.definition_type() == type_ and plugin.data_type() == data_type:
-                return plugin.subscription_equal_definition(subscription, definition)
-
-    return False
-
+    return model_dictize.subscription_dictize(subscription, context)
 
 def subscription_check_name(context, data_dict):
     '''Create a subscription.
@@ -2480,34 +2414,15 @@ def subscription_item_list(context, data_dict):
     or
     :param subscription_id: the id of the subscription
     :type subscription_id: string
-
+    
+    :param last_update: update is deferred until x minutes after last update [optional]
+    :type last_update: integer
+    
     :rtype: dictionary
 
     '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
-    model = context['model']
-    user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
-        
-    
-    if 'subscription_id' in data_dict:
-        subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.id==subscription_id)
-
-    elif 'subscription_name' in data_dict:
-        subscription_name = _get_or_bust(data_dict, 'subscription_name')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==subscription_name)
-
-    subscription = query.one()
-
-    # to be up-to-date, please refactor
-    if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
-        logic.get_action('subscription_item_list_update')(context, data_dict)
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
 
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
 
@@ -2520,33 +2435,16 @@ def subscription_dataset_list(context, data_dict):
     or
     :param subscription_id: the id of the subscription
     :type subscription_id: string
-
-    :rtype: dictionary
-
-    '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
-    model = context['model']
-    user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
-
-    if 'subscription_id' in data_dict:
-        subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.id==subscription_id)
-
-    elif 'subscription_name' in data_dict:
-        subscription_name = _get_or_bust(data_dict, 'subscription_name')
-        query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==subscription_name)
     
-    subscription = query.one()
-    # to be up-to-date, please refactor
-    if subscription.last_evaluated < datetime.datetime.now() - datetime.timedelta(minutes=1):
-        logic.get_action('subscription_item_list_update')(context, data_dict)
+    :param last_update: update is deferred until x minutes after last update [optional]
+    :type last_update: integer
+    
+    :rtype: dictionary
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
 
     datasets = subscription.subscribed_objects()
     
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+

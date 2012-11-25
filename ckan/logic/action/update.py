@@ -7,6 +7,7 @@ from vdm.sqlalchemy.base import SQLAlchemySession
 import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
+import ckan.logic.action as action
 import ckan.logic.schema
 import ckan.lib.base as base
 import ckan.lib.dictization
@@ -990,7 +991,7 @@ def subscription_update(context, data_dict):
     subscription = model_save.subscription_dict_save(subscription_dict, context)
 
     if not context.get('defer_commit'):
-        model.repo.commit()
+        context['model'].repo.commit()
 
     return model_dictize.subscription_dictize(subscription, context)
 
@@ -1004,55 +1005,15 @@ def subscription_item_list_update(context, data_dict):
     :param subscription_name: the name of the subscription
     :type subscription_name: string
     
+    :param last_update: update is deferred until x minutes after last update [optional]
+    :type last_update: integer
+    
     '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
-    model = context['model']
-    user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
-        
-        
-    query = model.Session.query(model.Subscription)
-    if 'subscription_id' in data_dict:
-        subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = query.filter(model.Subscription.id==subscription_id)
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(data_dict.get('last_update', 1))
 
-    elif 'subscription_name' in data_dict:
-        subscription_name = _get_or_bust(data_dict, 'subscription_name')
-        query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==subscription_name)
-
-    subscription = query.first()
-    
-    
-    definition = subscription.definition
-    type_ = definition['type']
-    data_type = definition['data_type']
-    
-    if type_ == 'search' and data_type == 'dataset':
-        search_dict = {
-            'q': definition['query'],
-            'filters': definition['filters'],
-            'facet.field': base.g.facets,
-            'rows': 50,
-            'start': 0,
-            'sort': 'metadata_modified desc',
-            'extras': ''
-        }
-        results = package_search(context, search_dict)['results']
-        data_list = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
-        key_name = 'id'
-    else:
-        for plugin in PluginImplementations(ISubscription):
-            if plugin.definition_type() == type_ and plugin.data_type() == data_type:
-                data_list, key_name = plugin.item_data_and_key_name(definition)
-                break
-
-    subscription.update_item_list(data_list, key_name)
-    
     if not context.get('defer_commit'):
-        model.repo.commit()
+        context['model'].repo.commit()
 
 
 def subscription_mark_changes_as_seen(context, data_dict):
@@ -1065,27 +1026,9 @@ def subscription_mark_changes_as_seen(context, data_dict):
     :type subscription_name: string
     
     '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
-    model = context['model']
-    user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
-        
-    query = model.Session.query(model.Subscription)
-    if 'subscription_id' in data_dict:
-        subscription_id = _get_or_bust(data_dict, 'subscription_id')
-        query = query.filter(model.Subscription.id==subscription_id)
-
-    elif 'subscription_name' in data_dict:
-        subscription_name = _get_or_bust(data_dict, 'subscription_name')
-        query = query.filter(model.Subscription.owner_id==user.id)
-        query = query.filter(model.Subscription.name==subscription_name)
-
-    subscription = query.one()
-    
+    subscription = action._get_subscription(context, data_dict)
     subscription.mark_item_list_changes_as_seen()
-    
+
     if not context.get('defer_commit'):
-        model.repo.commit()
+        context['model'].repo.commit()
 

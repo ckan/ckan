@@ -174,11 +174,10 @@ class PackageController(BaseController):
             return search_url(params)
 
         c.sort_by = _sort_by
-        if sort_by is '':
-            c.sort_by_fields = []
+        if sort_by:
+            c.sort_by_fields = [field.split()[0] for field in sort_by.split(',')]
         else:
-            c.sort_by_fields = [field.split()[0]
-                                for field in sort_by.split(',')]
+            c.sort_by_fields = []
         c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
@@ -189,25 +188,14 @@ class PackageController(BaseController):
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
-            filter_names = ['res_format',
-                            'license',
-                            'tags',
-                            'groups',
-                            'organizations',
-                            'topic',
-                            'location_latitude',
-                            'location_longitude',
-                            'location_radius',
-                            'time_min',
-                            'time_max']
-
             c.fields = []
             c.fields_grouped = {}
             search_extras = {}
             for (param, value) in request.params.items():
-                if value == '':
+                if not value:
                     continue
-                if param in filter_names:
+                    
+                if param in base.g.facets:
                     c.fields.append((param, urllib.unquote(value)))
 
                     if param not in c.fields_grouped:
@@ -229,37 +217,32 @@ class PackageController(BaseController):
             definition['type'] = 'search'
             definition['data_type'] = 'dataset'
             try:
-                c.subscription = get_action('subscription')(context, {'subscription_definition': definition})
+                c.subscription = get_action('subscription_show')(context, {'subscription_definition': definition})
             except NotAuthorized:
                 pass
+                
+           search_dict = {
+                'q': q,
+                'filters': c.fields_grouped,
+                'facet.field': base.g.facets,
+                'rows': limit,
+                'start': (page - 1) * limit,
+                'sort': sort_by,
+                'extras': search_extras}
+                
             if c.subscription:
-                search_dict = {
-                    'q': definition['query'],
-                    'filters': c.fields_grouped,
-                    'facet.field': filter_names,
-                    'rows': 50,
-                    'start': 0,
-                    'sort': 'metadata_modified desc',
-                    'extras': ''
-                }
-            else:
-                search_dict = {
-                    'q': q,
-                    'filters': c.fields_grouped,
-                    'facet.field': filter_names,
-                    'rows': limit,
-                    'start': (page - 1) * limit,
-                    'sort': sort_by,
-                    'extras': search_extras
-                }
+                search_dict['q'] = definition['query']
+                search_dict['rows'] = 50
+                search_dict['start'] = 0
+                search_dict['sort'] = 'metadata_modified desc'
+                search_dict['extras'] = ''
                 
             query = get_action('package_search')(context, search_dict)
 
 
-            #marking dataset as new if they are
+            #marking dataset as new/changed if they are
             if c.subscription:
-                subscription_dict = {'subscription_id': c.subscription['id']}
-                get_action('subscription_item_list_update')(context, subscription_dict)
+                subscription_dict = {'subscription_id': c.subscription['id'], 'last_update': 1}
                 item_list = get_action('subscription_item_list')(context, subscription_dict)
                 for result in query['results']:
                     for item in item_list:

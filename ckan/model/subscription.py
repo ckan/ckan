@@ -1,4 +1,3 @@
-import ckan
 import datetime
 import dateutil.parser
 import domain_object
@@ -54,6 +53,37 @@ class Subscription(domain_object.DomainObject):
                 count += 1
         
         return count
+        
+        
+    def update_item_list_when_necessary(self, context, timespan_after_last_update=0):
+        if self.last_evaluated > datetime.datetime.now() - datetime.timedelta(minutes=timespan_after_last_update):
+            return
+            
+        type_ = self.definition['type']
+        data_type = self.definition['data_type']
+        
+        if type_ == 'search' and data_type == 'dataset':
+            import ckan.lib.base as base
+            import ckan.logic.action.get as get
+            search_dict = {
+                'q': self.definition['query'],
+                'filters': self.definition['filters'],
+                'facet.field': base.g.facets,
+                'rows': 50,
+                'start': 0,
+                'sort': 'metadata_modified desc',
+                'extras': ''
+            }
+            results = get.package_search(context, search_dict)['results']
+            data_list = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
+            key_name = 'id'
+        else:
+            for plugin in PluginImplementations(ISubscription):
+                if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                    data_list, key_name = plugin.item_data_and_key_name(self.definition)
+                    break
+
+        self.update_item_list(data_list, key_name)
 
 
     def update_item_list(self, data_by_definition, key_name):
@@ -72,6 +102,7 @@ class Subscription(domain_object.DomainObject):
             pass
         
         self._save_items()
+        
         
     def mark_item_list_changes_as_seen(self):
         self._item_list = self.get_item_list()
