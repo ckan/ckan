@@ -159,13 +159,14 @@ def _activities_from_subscriptions_by_user_query(user_id, q):
     for subscription in subscription_query.all():
         for subscribed_object in subscription.subscribed_objects():
             q = q.union(activity_query.filter(model.Activity.object_id==subscribed_object.id))
+    
+    return q
 
 
 def _activities_from_everything_followed_by_user_query(user_id):
     q = _activites_from_users_followed_by_user_query(user_id)
     q = q.union(_activities_from_datasets_followed_by_user_query(user_id))
-    
-    _activities_from_subscriptions_by_user_query(user_id, q)
+    q = _activities_from_subscriptions_by_user_query(user_id, q)
 
     return q
 

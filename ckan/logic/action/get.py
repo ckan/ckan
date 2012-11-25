@@ -2242,7 +2242,7 @@ def dashboard_activity_list(context, data_dict):
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
-
+    
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = '%Y-%m-%dT%H:%M:%S.%f'
