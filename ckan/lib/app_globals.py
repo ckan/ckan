@@ -145,7 +145,7 @@ class _Globals(object):
         self.facets = facets.split()
 
         for plugin in PluginImplementations(ISearchFacets):
-           self.facets.extend(plugin.additional_search_facets())
+           self.facets.extend(plugin.search_facets())
 
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')

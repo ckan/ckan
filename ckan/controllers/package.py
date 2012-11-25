@@ -33,6 +33,7 @@ import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+from ckan.plugins import PluginImplementations, ISearchFacets
 
 log = logging.getLogger(__name__)
 
@@ -244,7 +245,9 @@ class PackageController(BaseController):
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
-                          'license': _('Licence'), }
+                          'license': _('Licence') }
+        for plugin in PluginImplementations(ISearchFacets):
+            c.facet_titles.update(plugin.search_facet_titles())
 
         maintain.deprecate_context_item(
           'facets',

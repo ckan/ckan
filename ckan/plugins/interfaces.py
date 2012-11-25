@@ -678,9 +678,13 @@ class ISearchFacets(Interface):
     Allow adding new facets to serach interface
     """
     
-    def additional_search_facets(self):
+    def search_facets(self):
         """
         Should return a list of facets names that can be used to further narrow the
         list of items in 'after_search' extension method
         """
 
+    def search_facet_titles(self):
+        """
+        Should return a dictionary from facet name to facets titles (latter get displayed on the search page).
+        """
