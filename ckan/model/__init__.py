@@ -135,6 +135,7 @@ from term_translation import (
 from follower import (
     UserFollowingUser,
     UserFollowingDataset,
+    UserFollowingGroup,
 )
 from system_info import (
     system_info_table,
@@ -146,6 +147,9 @@ from system_info import (
 from domain_object import (
     DomainObjectOperation,
     DomainObject,
+)
+from dashboard import (
+    Dashboard,
 )
 
 import ckan.migration

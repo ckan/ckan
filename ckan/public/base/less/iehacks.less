@@ -48,6 +48,31 @@
   }
 }
 
+// Internet Explorer 7 + 8
+.ie7,
+.ie8 {
+  .masthead {
+    nav ul li a.active {
+      position: relative;
+      top: -1px;
+      background-color: lighten(@mastheadBackgroundColorStart, 2);
+      border-top: 1px solid darken(@mastheadBackgroundColorStart, 3);
+      border-bottom: 1px solid lighten(@mastheadBackgroundColorStart, 5);
+    }
+  }  
+}
+
+
+// Internet Explorer 8
+.ie8 {
+  .masthead .account a.image {
+    display: block;
+    width: 25px;
+    padding-right: 10px;
+    white-space: nowrap;
+  }
+}
+
 // Internet Explorer 7
 .ie7 {
 
@@ -133,6 +158,8 @@
 
   // Header
   .masthead {
+    position: relative;
+    z-index: 1;
     .logo img,
     nav {
       .ie7-inline-block;
@@ -153,6 +180,9 @@
     .header-image {
       display: block;
     }
+    .account .dropdown-menu {
+      z-index: 10000;
+    }
   }
 
   // Footer
@@ -164,10 +194,6 @@
   }
 
   // Navs
-  .nav-item.active > a {
-    background-image: url(../images/background-tag-ie7.png);
-    background-position: 0 0;
-  }
   .module-narrow .nav-item.image {
     .clearfix;
   }

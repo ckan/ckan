@@ -66,6 +66,13 @@ c. Install the Python modules that CKAN requires into your virtualenv::
 
        pip install -r ~/pyenv/src/ckan/pip-requirements.txt
 
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   virtualenv's copies of commands like ``paster`` rather than any system-wide
+   installed copies::
+
+    deactivate
+    . ~/pyenv/bin/activate
+
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,7 +101,7 @@ prompted::
 
 Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
 
-    sudo -u postgres createdb -O ckanuser ckantest
+    sudo -u postgres createdb -O ckanuser ckantest -E utf-8
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

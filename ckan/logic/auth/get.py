@@ -189,3 +189,27 @@ def get_site_user(context, data_dict):
         return {'success': False, 'msg': 'Only internal services allowed to use this action'}
     else:
         return {'success': True}
+
+
+def dashboard_activity_list(context, data_dict):
+    # FIXME: context['user'] could be an IP address but that case is not
+    # handled here. Maybe add an auth helper function like is_logged_in().
+    if context.get('user'):
+        return {'success': True}
+    else:
+        return {'success': False,
+                'msg': _("You must be logged in to access your dashboard.")}
+
+
+def dashboard_new_activities_count(context, data_dict):
+    # FIXME: This should go through check_access() not call is_authorized()
+    # directly, but wait until 2939-orgs is merged before fixing this.
+    return ckan.new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
+
+
+def dashboard_mark_all_new_activities_as_old(context, data_dict):
+    # FIXME: This should go through check_access() not call is_authorized()
+    # directly, but wait until 2939-orgs is merged before fixing this.
+    return ckan.new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
