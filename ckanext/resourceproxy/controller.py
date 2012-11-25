@@ -8,7 +8,6 @@ import ckan.lib.base as base
 log = getLogger(__name__)
 
 
-@logic.side_effect_free
 def proxy_resource(context, data_dict):
         resource_id = data_dict['resource_id']
         log.info('Proxify resource {id}'.format(id=resource_id))
