@@ -1,7 +1,7 @@
 from logging import getLogger
 
 import ckan.plugins as p
-import ckan.lib.base as base
+import ckan.lib.helpers as h
 
 log = getLogger(__name__)
 
@@ -11,7 +11,7 @@ def get_proxified_resource_url(data_dict):
     :param data_dict: contains a resource and package dict
     :type data_dict: dictionary
     '''
-    url = base.h.url_for(
+    url = h.url_for(
         action='proxy_resource',
         controller='ckanext.resourceproxy.controller:ProxyController',
         id=data_dict['package']['name'],
