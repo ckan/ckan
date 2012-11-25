@@ -2507,7 +2507,7 @@ def subscription_search_dataset(context, data_dict):
     search_dict = {
         'q': definition['query'],
         'filters': definition['filters'],
-        'facet.field': g.facets,
+        'facet.field': base.g.facets,
         'rows': 50,
         'start': 0,
         'sort': 'metadata_modified desc',

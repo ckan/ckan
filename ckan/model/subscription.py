@@ -3,6 +3,7 @@ import datetime
 import dateutil.parser
 import domain_object
 import meta
+from . import Package
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from ckan.plugins import PluginImplementations, ISubscription
 import types as _types
@@ -28,13 +29,13 @@ class Subscription(domain_object.DomainObject):
 
 
     def subscribed_objects(self):
-        type_ = definition['type']
-        data_type = definition['data_type']
+        type_ = self.definition['type']
+        data_type = self.definition['data_type']
         
         objects = []
         if type_ == 'search' and data_type == 'dataset':
             for item in self.get_item_list():
-                objects.append(model.Package.get(item.key))
+                objects.append(Package.get(item.key))
         else:
             for plugin in PluginImplementations(ISubscription):
                 if plugin.definition_type() == type_ and plugin.data_type() == data_type:

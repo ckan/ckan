@@ -93,7 +93,7 @@ class SubscriptionController(BaseController):
         definition['data_type'] = data_type
 
         if type_ == 'search' and data_type == 'dataset':
-            definition['query'] = parameters['query'] if parameters['query'] else ''
+            definition['query'] = parameters['query'][0] if parameters['query'] else ''
             definition['filters'] = dict([(parameter_name, parameter_list) for (parameter_name, parameter_list) in parameters.iteritems() if parameter_name in g.facets])
         else:
             for plugin in PluginImplementations(ISubscription):
