@@ -7,12 +7,12 @@ import unittest
 import paste.fixture
 from paste.deploy import appconfig
 
-import ckan.logic as l
+import ckan.logic as logic
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
-from ckan.lib.create_test_data import CreateTestData
-from ckan.config.middleware import make_app
+import ckan.lib.create_test_data as create_test_data
+import ckan.config.middleware as middleware
 
 import ckanext.resourceproxy.plugin as proxy
 
@@ -23,7 +23,7 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
     def setup_class(cls):
         config = appconfig('config:test.ini', relative_to=tests.conf_dir)
         config.local_conf['ckan.plugins'] = 'resource_proxy'
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        wsgiapp = middleware.make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         static_files_server = os.path.join(os.path.dirname(__file__),
@@ -32,7 +32,7 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
             ['python', static_files_server])
 
         # create test resource
-        CreateTestData.create()
+        create_test_data.CreateTestData.create()
 
         #make sure services are running
         for i in range(0, 50):
@@ -59,11 +59,11 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
             'user': model.User.get('testsysadmin').name
         }
 
-        resource = l.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
-        package = l.get_action('package_show')(context, {'id': testpackage.id})
+        resource = logic.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
+        package = logic.get_action('package_show')(context, {'id': testpackage.id})
 
         resource['url'] = url
-        l.action.update.resource_update(context, resource)
+        logic.action.update.resource_update(context, resource)
 
         testpackage = model.Package.get('annakarenina')
         assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
