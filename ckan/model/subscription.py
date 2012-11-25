@@ -1,5 +1,4 @@
 import datetime
-import dateutil.parser
 import domain_object
 import meta
 from . import Package
@@ -12,6 +11,18 @@ __all__ = ['Subscription', 'SubscriptionItem']
 
 
 class Subscription(domain_object.DomainObject):
+    '''
+    Describes a user interest in a general way.
+    For instance a user could subscribe to a search in order to receive
+    notifications when a new datasets that matches the search criteria
+    is published.
+    This domain object stores a name, owner and a definition (in case of a search
+    the search criteria).
+    When evaluating a subscription's definition, new entities that fulfill the 
+    definition could show up and other could disappear.
+    Therefore, subscription items will be stored.
+    '''
+    
     def __init__(self, name = None, definition = None, owner_id = None):
         self.id = _types.make_uuid()
         self.definition = definition
@@ -196,6 +207,20 @@ class Subscription(domain_object.DomainObject):
 
 
 class SubscriptionItem(domain_object.DomainObject):
+    '''
+    Every subscription results in a dynamic list of entities that
+    match the definition in the corresponding subscription.
+    In order to keep track of each of them and not to re-evaluate the
+    subscription's definition to often, a list of these entities is saved.
+    A subscription item is a dict. Often, this dict contains a reference (or more)
+    to the original entity + several field that reflect certain attributes of the
+    entity.
+    In case of a dataset-search-subscription it is {id, modified} where id is
+    the id of the dataset and modified the timestamp of the last modification.
+    Each item should have a key-attribute (in case of dataset-search: id) that
+    identified the item within the list of all items for one subscription.
+    Ohterwise a hash value is used.
+    '''
     def __init__(self, subscription_id, data, key, status):
         self.id = _types.make_uuid()
         self.subscription_id = subscription_id
