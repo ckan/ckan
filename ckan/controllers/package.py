@@ -255,7 +255,7 @@ class PackageController(BaseController):
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
-                          'license': _('Licence'), 'topic': _('Topic'), }
+                          'license': _('Licence')}
 
         maintain.deprecate_context_item(
           'facets',
