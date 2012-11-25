@@ -127,7 +127,9 @@ The following functions, classes and exceptions are provided by the toolkit.
   ``markupsafe.Markup``.  This brings some new methods: ``.escape`` (class
   method), ``.unescape``, and ``.striptags``.
   
-  
+**url_for** (*\*args, **kw*)
+  Wrapper for pylons ``routes.url_for``. Returns a URL for a defined route.
+
 
 
 **render** (*template_name, data=None*)
