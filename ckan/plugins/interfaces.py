@@ -673,14 +673,14 @@ class IGroupForm(Interface):
     ##### End of hooks                                                   #####
 
 
-class ISearchFilters(Interface):
+class ISearchFacets(Interface):
     """
-    Allow adding new filters to serach interface
+    Allow adding new facets to serach interface
     """
     
-    def additional_search_filters(self):
+    def additional_search_facets(self):
         """
-        Should return a list of filter names that can be used to further narrow the
-        list of item in 'after_search' extension method
+        Should return a list of facets names that can be used to further narrow the
+        list of items in 'after_search' extension method
         """
 

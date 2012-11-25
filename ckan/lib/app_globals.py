@@ -144,8 +144,8 @@ class _Globals(object):
         facets = config.get('search.facets', 'groups tags res_format license')
         self.facets = facets.split()
 
-        for plugin in PluginImplementations(ISearchFilters):
-           self.facets.extend(plugin.additional_search_filters())
+        for plugin in PluginImplementations(ISearchFacets):
+           self.facets.extend(plugin.additional_search_facets())
 
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
