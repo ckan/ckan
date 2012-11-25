@@ -40,7 +40,7 @@ class Subscription(domain_object.DomainObject):
             for plugin in PluginImplementations(ISubscription):
                 if plugin.definition_type() == type_ and plugin.data_type() == data_type:
                     for item in self.get_item_list():
-                        objects.append(plugin.item_to_object(item))
+                        objects.extend(plugin.item_to_objects(item))
                     break
         
         return objects

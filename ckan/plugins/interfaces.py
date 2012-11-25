@@ -715,9 +715,9 @@ class ISubscription(Interface):
         Get the preliminary_definition and parameter in form of a dict of lists.
         """
         
-    def item_to_object(self, item):
+    def item_to_objects(self, item):
         """
-        Convert a item to a model object according to subscription's data type
+        Convert a item to a list of model objects according to subscription's data type
         """
     
     def show_url(self):
