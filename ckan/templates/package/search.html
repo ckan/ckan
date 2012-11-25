@@ -83,6 +83,33 @@
 {% endblock %}
 
 {% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-medium icon-caret-left"></i> {{ h.nav_link(_('Subscriptions'), controller='subscription', action='index') }}</h2>
+    <div class="module-content">
+      {% if c.subscription %}
+        <form name="delete_subscription_form" method="post" onsubmit="return set_return_url();" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
+          <p><b>Name</b>: {{ c.subscription.name }}</p>
+          <input type="hidden" name="return_url" value="" class="return_url" />
+          <input type="submit" class="btn" value="Unsubscribe" />
+        </form>
+      {% else %}
+        <form name="create_subscription_form" method="post" onsubmit="return validate_subscription_name();" action="{{ h.url_for(controller='subscription', action='create') }}">
+          <p>
+            Be <b>informed</b> in case <b>new</b> datasets match the search criteria and
+            datasets of that search <b>change</b>.
+          </p>
+             
+          <input type="text" name="subscription_name" placeholder="Name of this search" style="height:14px; width:160px" />
+          <input type="hidden" name="subscription_type" value="search" />
+          <input type="hidden" name="subscription_data_type" value="dataset" />
+          <input type="hidden" name="query" value="{{ c.q }}" />
+          {% snippet "snippets/params_to_hidden.html", name_value_pairs=c.search_url_params %}
+          <input type="submit" class="btn" value="Subscribe" />
+        </form>          
+      {% endif %}
+    </div>
+  </section>
+
   {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags') }}
   {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format') }}
   {{ h.snippet('snippets/facet_list.html', title='Groups', name='groups') }}

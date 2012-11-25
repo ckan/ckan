@@ -16,6 +16,8 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'ISearchFacets',
+    'ISubscription'
 ]
 
 from inspect import isclass
@@ -312,6 +314,14 @@ class IPackageController(Interface):
              Extensions will recieve this before the dataset gets
              displayed. The dictionary passed will be the one that gets
              sent to the template.
+        '''
+        return pkg_dict
+
+    def before_search_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the dataset gets
+             displayed as an entry in the search.
+             The dictionary passed will be the one that gets sent to the template.
         '''
         return pkg_dict
 
@@ -670,3 +680,60 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+
+class ISearchFacets(Interface):
+    """
+    Allow adding new facets to serach interface
+    """
+    
+    def additional_search_facets(self):
+        """
+        Should return a list of facets names that can be used to further narrow the
+        list of items in 'after_search' extension method
+        """
+
+
+class ISubscription(Interface):
+    """
+    Allow adding new subscription configurations (definition type + data type)
+    """
+    
+    def definition_type(self):
+        """
+        Should return a subscription definition type.
+        """
+    
+    def data_type(self):
+        """
+        Should return a subscription data type.
+        """
+    
+    def prepare_creation(self, subscription_definition, parameters):
+        """
+        Should return a subscription definition dictionary.
+        Get the preliminary subscription definition and parameter in form of a dict of lists.
+        """
+
+    def item_data_and_key_name(self, subscription_definition):
+        """
+        Should return a list of items according to the definition and the name of the item's key
+        """
+
+    def item_to_objects(self, subscription_item):
+        """
+        Convert a item to a list of model objects according to subscription's data type
+        """
+    
+    def show_url(self, subscription):
+        """
+        Should return a URL for diplaying the subscriptions items/subscribed objects.
+        """
+
+    def subscription_equal_definition(self, subscription, definition):
+        """
+        Should return True when the given subscription fits the given definition and so
+        a equivalence between the definition and the subscription could be assumed
+        Otherwise False
+        """
+

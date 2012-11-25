@@ -1,0 +1,85 @@
+{% extends 'page.html' %}
+
+{% block subtitle %}{{ _("Subscriptions") }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('Subscriptions'), controller='subscription', action='index') }}</li>
+{% endblock %}
+
+
+{% block primary_content %}
+  <section class="module">
+    <h2 class="module-heading">How to subscribe...</h2>
+    <div class="module-content">
+      <h3>What are subscriptions?</h3>
+      <p>
+        Subscriptions are a way to express your <b>interests</b> on CKAN.
+        On the left-hand side, you can see various forms of subscriptions.
+        Just click on any of them and you will get list of items that are
+        relevant to you.
+      </p>
+      <p>
+        For each item you are interested in, you will receive <b>notifications</b>
+        in forms of emails and on-site notifications. The latter appear
+        as a bubble with a number in it.
+      </p>
+      <h3>Follow</h3>
+      <p>
+        When you follow a person on CKAN you will receive news about this person
+        in order to be up-to-date what he is doing on CKAN.
+        The same goes for datasets. When you are interested in a specific
+        dataset, just follow it to receive news from it.
+      </p>
+      <h3>My Datasets</h3>
+      <p>
+        You have published a dataset? Good, then you will also be informed
+        of any changes other users apply to them.
+      </p>
+      <h3>Search Subscriptions</h3>
+      <p>
+        You might be not interested in a specific dataset, but neverthless want
+        to be up-to-date about a specific kind of datasets then just search for them
+        and save that search in order to be notified when a new item matches this
+        search.
+      </p>
+      <p>
+        Furthermore, you will also be notified in case already seen datasets
+        have changed.
+      </p>
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">General</h2>
+    <ul class="nav nav-simple">
+      <li class="nav-item">
+        {{ h.nav_link(_('My Datasets'), controller='subscription', action='show', subscription_name='my_datasets') }}
+      </li>
+      <li class="nav-item">
+        {{ h.nav_link(_('Datasets followed'), controller='subscription', action='show', subscription_name='dataset_followees') }}
+      </li>
+      <li class="nav-item">
+        {{ h.nav_link(_('Users followed'), controller='subscription', action='show', subscription_name='user_followees') }}
+      </li>
+    </ul>
+  </section>
+
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ h.nav_link(_('Search'), controller='package', action='search') }} Subscriptions</h2>
+    {% if c.subscriptions.search|length > 0 %}
+    <ul class="nav nav-simple">
+      {% for subscription in c.subscriptions.search %}
+        <li class="nav-item">
+           {{ h.nav_link(_(subscription.name) + ' updates: ' + _(subscription.updates_count), controller='subscription', action='show', subscription_name=subscription.name) }}
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <div class="module-content">
+        <p class="empty">No search subscriptions here. What about {{ h.nav_link(_('creating'), controller='package', action='search') }} one?</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

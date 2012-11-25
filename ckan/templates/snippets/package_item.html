@@ -20,12 +20,17 @@ Example:
 
 <li class="{{ item_class or "dataset-item" }}">
   <div class="dataset-content">
+  {% block package_item_content %}
     <h3 class="dataset-heading">
       {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
-      {% if package.get(state, '').startswith('draft') %}
+      {% if package.state.startswith('draft') %}
         <span class="label label-info">{{ _('Draft') }}</span>
-      {% elif package.get(state, '').startswith('deleted') %}
+      {% elif package.state.startswith('deleted') %}
         <span class="label label-important">{{ _('Deleted') }}</span>
+      {% elif package.status == 'added' %}
+        <span class="label label-success">{{ _('** NEW **') }}</span>
+      {% elif package.status == 'changed' %}
+        <span class="label label-success">{{ _('** CHANGED **') }}</span>
       {% endif %}
       {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
     </h3>
@@ -47,4 +52,6 @@ Example:
       {% endfor %}
     </ul>
   {% endif %}
+  {% endblock %}
 </li>
+
