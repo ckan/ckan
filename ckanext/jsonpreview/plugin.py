@@ -1,7 +1,6 @@
 from logging import getLogger
 
 import ckan.plugins as p
-import ckan.lib.base as base
 
 log = getLogger(__name__)
 
@@ -54,7 +53,7 @@ class JsonPreview(p.SingletonPlugin):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
         if format_lower in self.JSON_FORMATS and self.proxy_is_enabled and not resource['on_same_domain']:
-            base.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
+            p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
 
     def preview_template(self, context, data_dict):
         return 'json.html'
