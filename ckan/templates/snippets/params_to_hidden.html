@@ -1,0 +1,29 @@
+{#
+Contructs input type=hidden elements for each param passed
+
+name_value_pairs
+  "name1=value1&name2=value2&..."
+
+except_names
+except
+
+#}
+
+{% if not except_names %}
+  {% set except_names = {} %}
+{% endif %}
+
+{% if not except %}
+  {% set except = {} %}
+{% endif %}
+
+
+{% for name_value_pair in name_value_pairs.split('&') %}
+  {% set name_value = name_value_pair.split('=') %}
+  {% set name = name_value[0] %}
+  {% set value = h.unquote(name_value[1]) %}
+  
+  {% if name and value and not except_names[name] and not except[name + '=' + value] %}
+    <input type="hidden" name="{{ name }}" value="{{ value }}" />
+  {% endif %}
+{% endfor %}
