@@ -9,7 +9,7 @@ log = getLogger(__name__)
 proxy = False
 try:
     import ckanext.resourceproxy.plugin as proxy
-except:
+except ImportError:
     pass
 
 
