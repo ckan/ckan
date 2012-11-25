@@ -21,7 +21,7 @@ def proxy_resource(context, data_dict):
             res = error
             had_http_error = True
         except urllib2.URLError, error:
-            details = "Could not proxy resource. " + str(error.reason)
+            details = "Could not proxy resource. %s" % str(error.reason)
             base.abort(500, detail=details)
         base.response.headers = res.headers
 
