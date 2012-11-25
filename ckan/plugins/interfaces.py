@@ -16,6 +16,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'ISearchFilters'
 ]
 
 from inspect import isclass
@@ -670,3 +671,16 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+
+class ISearchFilters(Interface):
+    """
+    Allow adding new filters to serach interface
+    """
+    
+    def additional_search_filters(self):
+        """
+        Should return a list of filter names that can be used to further narrow the
+        list of item in 'after_search' extension method
+        """
+
