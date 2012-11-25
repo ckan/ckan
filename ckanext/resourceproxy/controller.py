@@ -2,8 +2,6 @@ import urllib2
 import shutil
 from logging import getLogger
 
-from pylons.controllers.util import abort as abort
-
 import ckan.logic as logic
 import ckan.lib.base as base
 
@@ -24,14 +22,14 @@ def proxy_resource(context, data_dict):
             had_http_error = True
         except urllib2.URLError, error:
             details = "Could not proxy resource. " + str(error.reason)
-            abort(500, detail=details)
+            base.abort(500, detail=details)
         base.response.headers = res.headers
 
         shutil.copyfileobj(res, base.response)
 
         # todo only change the status code, not the whole content
         if had_http_error and hasattr(res, 'code'):
-            abort(res.code)
+            base.abort(res.code)
 
 
 class ProxyController(base.BaseController):
