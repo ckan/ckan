@@ -1124,32 +1124,30 @@ def package_search(context, data_dict):
     _check_access('package_search', context, data_dict)
 
     # check if some extension needs to modify the search params
+    search_params = dict(data_dict)
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+        search_params = item.before_search(search_params)
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search',False)
+    abort = search_params.get('abort_search',False)
 
     results = []
     if not abort:
         # a dict is more convenient than a clumsy string
-        if 'filters' in data_dict:
-            search_params = dict(data_dict)
-            del search_params['filters']
-            
+        if 'filters' in search_params:
             search_params['fq'] = ''
-            for filter_name, filter_value_list in data_dict['filters'].iteritems():
+            for filter_name, filter_value_list in search_params['filters'].iteritems():
                 if filter_name not in base.g.facets:
                     continue
                     
                 for filter_value in filter_value_list:
                     search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
-            #add fq string for old plugins
-            data_dict['fq'] = search_params['fq']
-        else:
-            search_params = dict(data_dict)
 
+            data_dict['fq'] = search_params['fq']
+
+            del search_params['filters']
+            
         # return a list of package ids
         search_params['fl'] = 'id data_dict'
 
