@@ -84,6 +84,14 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 404, result.status
 
+    def test_large_file(self):
+        self.set_resource_url('http://0.0.0.0:50001/huge.json')
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url, status='*')
+        assert result.status == 500, result.status
+        assert 'too large' in result.body, result.body
+
     def test_resource_proxy_non_existent(self):
         self.set_resource_url('http://foo.bar')
 
@@ -95,4 +103,4 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
         assert result.status == 500, result.status
-        assert 'Could not proxy resource' in result.body, result.body
+        assert 'connection error' in result.body, result.body

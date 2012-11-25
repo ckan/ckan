@@ -7,15 +7,15 @@ import ckan.lib.base as base
 
 log = getLogger(__name__)
 
+MAX_FILE_SIZE = 1024 * 1024 * 2  # 2MB
+CHUNK_SIZE = 256
+
 
 def proxy_resource(context, data_dict):
         resource_id = data_dict['resource_id']
         log.info('Proxify resource {id}'.format(id=resource_id))
         resource = logic.get_action('resource_show')(context, {'id': resource_id})
         url = resource['url']
-
-        MAX_FILE_SIZE = 1024 * 1024 * 2  # 2MB
-        CHUNK_SIZE = 256
 
         try:
             r = requests.get(url, prefetch=False)
