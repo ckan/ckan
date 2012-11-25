@@ -230,27 +230,8 @@ class PackageController(BaseController):
                 'sort': sort_by,
                 'extras': search_extras}
                 
-            if c.subscription:
-                search_dict['q'] = definition['query']
-                search_dict['rows'] = 50
-                search_dict['start'] = 0
-                search_dict['sort'] = 'metadata_modified desc'
-                search_dict['extras'] = ''
-                
             query = get_action('package_search')(context, search_dict)
-
-
-            #marking dataset as new/changed if they are
-            if c.subscription:
-                subscription_dict = {'subscription_id': c.subscription['id'], 'last_update': 1}
-                item_list = get_action('subscription_item_list')(context, subscription_dict)
-                for result in query['results']:
-                    for item in item_list:
-                        if result['id'] == item['data']['id']:
-                            result['status'] = item['status']
-                            break
-                get_action('subscription_mark_changes_as_seen')(context, subscription_dict)
-                   
+                               
             c.page = h.Page(
                 collection=query['results'],
                 page=page,
@@ -274,7 +255,7 @@ class PackageController(BaseController):
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
-                          'license': _('Licence'), }
+                          'license': _('Licence'), 'topic': _('Topic'), }
 
         maintain.deprecate_context_item(
           'facets',
