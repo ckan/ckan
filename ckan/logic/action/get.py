@@ -1,7 +1,10 @@
 import uuid
 import logging
 import json
+<<<<<<< HEAD
 import urllib
+=======
+>>>>>>> master
 import datetime
 
 from pylons import config
@@ -732,6 +735,10 @@ def group_show(context, data_dict):
             'context': context })
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
+
+    group_dict['num_followers'] = logic.get_action('group_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': group_dict['id']})
 
     if schema:
         group_dict, errors = _validate(group_dict, schema, context=context)
@@ -1738,23 +1745,26 @@ def vocabulary_show(context, data_dict):
 def user_activity_list(context, data_dict):
     '''Return a user's public activity stream.
 
+    You must be authorized to view the user's profile.
+
     :param id: the id or name of the user
     :type id: string
 
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('user_show', context, data_dict)
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(user_id=user_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.user_activity_list(user_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
     '''Return a package's activity stream.
+
+    You must be authorized to view the package.
 
     :param id: the id or name of the package
     :type id: string
@@ -1762,17 +1772,18 @@ def package_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('package_show', context, data_dict)
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=package_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.package_activity_list(package_id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
     '''Return a group's activity stream.
+
+    You must be authorized to view the group.
 
     :param id: the id or name of the group
     :type id: string
@@ -1780,13 +1791,41 @@ def group_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('group_show', context, data_dict)
+
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
+
+    # Convert group_id (could be id or name) into id.
+    group_show = logic.get_action('group_show')
+    group_id = group_show(context, {'id': group_id})['id']
+
+    # FIXME: The SQLAlchemy below should be moved into ckan/model/activity.py
+    # (to encapsulate SQLALchemy in the model and avoid using it from the
+    # logic) but it can't be because it requires the list of dataset_ids which
+    # comes from logic.group_package_show() (and I don't want to access the
+    # logic from the model). Need to change it to get the dataset_ids from the
+    # model instead. There seems to be multiple methods for getting a group's
+    # datasets, some in the logic and some in the model.
+
+    # Get a list of the IDs of the group's datasets.
+    group_package_show = logic.get_action('group_package_show')
+    datasets = group_package_show(context, {'id': group_id})
+    dataset_ids = [dataset['id'] for dataset in datasets]
+
+    # Get the group's activities.
     query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=group_id)
+    if dataset_ids:
+        query = query.filter(_or_(model.Activity.object_id == group_id,
+            model.Activity.object_id.in_(dataset_ids)))
+    else:
+        query = query.filter(model.Activity.object_id == group_id)
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
@@ -1795,12 +1834,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
-    query = model.Session.query(model.Activity)
-    query = query.filter(model.Activity.activity_type.endswith('package'))
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    activity_objects = model.activity.recently_changed_packages_activity_list()
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -1811,12 +1848,13 @@ def activity_detail_list(context, data_dict):
     :rtype: list of dictionaries.
 
     '''
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
     activity_detail_objects = model.Session.query(
         model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
-
 
 
 def user_activity_list_html(context, data_dict):
@@ -1878,6 +1916,15 @@ def recently_changed_packages_activity_list_html(context, data_dict):
             data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
+
+def _follower_count(context, data_dict, default_schema, ModelClass):
+    schema = context.get('schema', default_schema)
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+    return ModelClass.follower_count(data_dict['id'])
+
+
 def user_follower_count(context, data_dict):
     '''Return the number of followers of a user.
 
@@ -1887,12 +1934,10 @@ def user_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingUser.follower_count(data_dict['id'])
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
+            context['model'].UserFollowingUser)
+
 
 def dataset_follower_count(context, data_dict):
     '''Return the number of followers of a dataset.
@@ -1903,14 +1948,31 @@ def dataset_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def group_follower_count(context, data_dict):
+    '''Return the number of followers of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _follower_count(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _follower_list(context, data_dict, default_schema, FollowerClass):
+    schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
-    return ckan.model.UserFollowingDataset.follower_count(data_dict['id'])
 
-def _follower_list(context, data_dict, FollowerClass):
     # Get the list of Follower objects.
     model = context['model']
     object_id = data_dict.get('id')
@@ -1923,6 +1985,7 @@ def _follower_list(context, data_dict, FollowerClass):
     # Dictize the list of User objects.
     return model_dictize.user_list_dictize(users, context)
 
+
 def user_follower_list(context, data_dict):
     '''Return the list of users that are following the given user.
 
@@ -1932,13 +1995,10 @@ def user_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
     return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
+
 
 def dataset_follower_list(context, data_dict):
     '''Return the list of users that are following the given dataset.
@@ -1949,16 +2009,32 @@ def dataset_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def group_follower_list(context, data_dict):
+    '''Return the list of users that are following the given group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    return _follower_list(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _am_following(context, data_dict, default_schema, FollowerClass):
+    schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
-    return _follower_list(context, data_dict,
-            context['model'].UserFollowingDataset)
 
-def _am_following(context, data_dict, FollowerClass):
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise logic.NotAuthorized
 
     model = context['model']
@@ -1971,6 +2047,7 @@ def _am_following(context, data_dict, FollowerClass):
 
     return FollowerClass.is_following(userobj.id, object_id)
 
+
 def am_following_user(context, data_dict):
     '''Return ``True`` if you're following the given user, ``False`` if not.
 
@@ -1980,14 +2057,10 @@ def am_following_user(context, data_dict):
     :rtype: boolean
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
+
 
 def am_following_dataset(context, data_dict):
     '''Return ``True`` if you're following the given dataset, ``False`` if not.
@@ -1998,14 +2071,33 @@ def am_following_dataset(context, data_dict):
     :rtype: boolean
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_dataset_schema())
+    return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
+
+
+def am_following_group(context, data_dict):
+    '''Return ``True`` if you're following the given group, ``False`` if not.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: boolean
+
+    '''
+    return _am_following(context, data_dict,
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
+
+
+def _followee_count(context, data_dict, FollowerClass):
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
+    return FollowerClass.followee_count(data_dict['id'])
 
-    return _am_following(context, data_dict,
-            context['model'].UserFollowingDataset)
 
 def user_followee_count(context, data_dict):
     '''Return the number of users that are followed by the given user.
@@ -2016,12 +2108,9 @@ def user_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingUser.followee_count(data_dict['id'])
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingUser)
+
 
 def dataset_followee_count(context, data_dict):
     '''Return the number of datasets that are followed by the given user.
@@ -2032,12 +2121,22 @@ def dataset_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-    return ckan.model.UserFollowingDataset.followee_count(data_dict['id'])
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingDataset)
+
+
+def group_followee_count(context, data_dict):
+    '''Return the number of groups that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _followee_count(context, data_dict,
+            context['model'].UserFollowingGroup)
+
 
 def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
@@ -2093,8 +2192,9 @@ def dataset_followee_list(context, data_dict):
     # Dictize the list of Package objects.
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
-def dashboard_activity_list(context, data_dict):
-    '''Return the dashboard activity stream of the given user.
+
+def group_followee_list(context, data_dict):
+    '''Return the list of groups that are followed by the given user.
 
     :param id: the id or name of the user
     :type id: string
@@ -2102,48 +2202,108 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    # Get the list of UserFollowingGroup objects.
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'id')
-    
-    activity_query = model.Session.query(model.Activity)
-    user_followees_query = activity_query.join(model.UserFollowingUser, model.UserFollowingUser.object_id == model.Activity.user_id)
-    dataset_followees_query = activity_query.join(model.UserFollowingDataset, model.UserFollowingDataset.object_id == model.Activity.object_id)
+    user_id = data_dict.get('id')
+    followees = model.UserFollowingGroup.followee_list(user_id)
 
-    from_user_query = activity_query.filter(model.Activity.user_id==user_id)
-    about_user_query = activity_query.filter(model.Activity.object_id==user_id)
-    user_followees_query = user_followees_query.filter(model.UserFollowingUser.follower_id==user_id)
-    dataset_followees_query = dataset_followees_query.filter(model.UserFollowingDataset.follower_id==user_id)
+    # Convert the UserFollowingGroup objects to a list of Group objects.
+    groups = [model.Group.get(followee.object_id) for followee in followees]
+    groups = [group for group in groups if group is not None]
 
-    query = from_user_query.union(about_user_query).union(
-            user_followees_query).union(dataset_followees_query)
+    # Dictize the list of Group objects.
+    return [model_dictize.group_dictize(group, context) for group in groups]
 
-    subscription_query = model.Session.query(model.Subscription).filter(model.Subscription.owner_id==user_id)
-    for subscription in subscription_query.all():
-        dataset_list = logic.get_action('subscription_dataset_list')(context, {'subscription_id': subscription.id})
-        for dataset in dataset_list:
-            query = query.union(activity_query.filter(model.Activity.object_id==dataset['id']))
-    
-    
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
 
-    return model_dictize.activity_list_dictize(activity_objects, context)
+def dashboard_activity_list(context, data_dict):
+    '''Return the authorized user's dashboard activity stream.
+
+    Unlike the activity dictionaries returned by other *_activity_list actions,
+    these activity dictionaries have an extra boolean value with key 'is_new'
+    that tells you whether the activity happened since the user last viewed her
+    dashboard ('is_new': True) or not ('is_new': False).
+
+    The user's own activities are always marked 'is_new': False.
+
+    :rtype: list of activity dictionaries
+
+    '''
+    _check_access('dashboard_activity_list', context, data_dict)
+
+    model = context['model']
+    user_id = model.User.get(context['user']).id
+
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    activity_objects = model.activity.dashboard_activity_list(user_id)
+
+    activity_dicts = model_dictize.activity_list_dictize(
+            activity_objects, context)
+
+    # Mark the new (not yet seen by user) activities.
+    strptime = datetime.datetime.strptime
+    fmt = '%Y-%m-%dT%H:%M:%S.%f'
+    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
+    for activity in activity_dicts:
+        if activity['user_id'] == user_id:
+            # Never mark the user's own activities as new.
+            activity['is_new'] = False
+        else:
+            activity['is_new'] = (strptime(activity['timestamp'], fmt)
+                    > last_viewed)
+
+    return activity_dicts
+
 
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the dashboard activity stream of the given user as HTML.
+    '''Return the authorized user's dashboard activity stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
-
-    :param id: The id or name of the user.
-    :type id: string
 
     :rtype: string
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
+
+
+def dashboard_new_activities_count(context, data_dict):
+    '''Return the number of new activities in the user's dashboard.
+
+    Return the number of new activities in the authorized user's dashboard
+    activity stream.
+
+    Activities from the user herself are not counted by this function even
+    though they appear in the dashboard (users don't want to be notified about
+    things they did themselves).
+
+    :rtype: int
+
+    '''
+    _check_access('dashboard_new_activities_count', context, data_dict)
+    activities = logic.get_action('dashboard_activity_list')(
+            context, data_dict)
+    return len([activity for activity in activities if activity['is_new']])
+
+
+def dashboard_mark_all_new_activities_as_old(context, data_dict):
+    '''Mark all the authorized user's new dashboard activities as old.
+
+    This will reset dashboard_new_activities_count to 0.
+
+    '''
+    _check_access('dashboard_mark_all_new_activities_as_old', context,
+            data_dict)
+    model = context['model']
+    user_id = model.User.get(context['user']).id
+    model.Dashboard.update_activity_stream_last_viewed(user_id)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):

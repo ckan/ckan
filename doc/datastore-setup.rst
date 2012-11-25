@@ -55,7 +55,7 @@ Create a read-only user called ``readonlyuser``, and enter pass for the password
 
 Create the database (owned by ``writeuser``), which we’ll call ``datastore``::
 
- sudo -u postgres createdb -O writeuser datastore
+ sudo -u postgres createdb -O writeuser datastore -E utf-8
 
 Set URLs
 --------
