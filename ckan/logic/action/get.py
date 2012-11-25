@@ -1129,21 +1129,38 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
+        # a dict is more convenient than a clumsy string
+        if 'filters' in data_dict:
+            search_params = dict(data_dict)
+            del search_params['filters']
+            
+            search_params['fq'] = ''
+            for filter_name, filter_value_list in data_dict['filters'].iteritems():
+                if filter_name not in base.g.facets:
+                    continue
+                    
+                for filter_value in filter_value_list:
+                    search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+            #add fq string for old plugins
+            data_dict['fq'] = search_params['fq']
+        else:
+            search_params = dict(data_dict)
+
         # return a list of package ids
-        data_dict['fl'] = 'id data_dict'
+        search_params['fl'] = 'id data_dict'
 
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
+        fq = search_params.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            search_params['fq'] = fq + ' capacity:"public"'
 
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(search_params)
 
         for package in query.results:
             # get the package object
@@ -1167,7 +1184,7 @@ def package_search(context, data_dict):
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations( plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
+                        package_dict = item.before_search_view(package_dict)
                 results.append(package_dict)
             else:
                 results.append(model_dictize.package_dictize(pkg,context))
@@ -1206,7 +1223,7 @@ def package_search(context, data_dict):
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
     search_results['search_facets'] = restructured_facets
-
+    
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
@@ -1219,7 +1236,7 @@ def package_search(context, data_dict):
                 key=lambda facet: facet['display_name'], reverse=True)
 
     return search_results
-
+    
 def resource_search(context, data_dict):
     '''
     Searches for resources satisfying a given search criteria.
