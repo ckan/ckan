@@ -1,7 +1,4 @@
-import os
-import subprocess
 import requests
-import time
 import unittest
 
 import paste.fixture
@@ -15,9 +12,12 @@ import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
 import ckanext.resourceproxy.plugin as proxy
+import file_server
 
 
 class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
+
+    serving = False
 
     @classmethod
     def setup_class(cls):
@@ -26,28 +26,18 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         wsgiapp = middleware.make_app(config.global_conf, **config.local_conf)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
-        static_files_server = os.path.join(os.path.dirname(__file__),
-                                           'file_server.py')
-        cls.static_files_server = subprocess.Popen(
-            ['python', static_files_server])
+        if not cls.serving:
+            file_server.serve()
+            cls.serving = True
+            # gets shutdown when nose finishes all tests,
+            # so don't restart ever
 
         # create test resource
         create_test_data.CreateTestData.create()
 
-        #make sure services are running
-        for i in range(0, 50):
-            time.sleep(0.1)
-            response = requests.get('http://0.0.0.0:50001')
-            if not response:
-                continue
-            return
-
-        cls.teardown_class()
-        raise Exception('services did not start!')
-
     @classmethod
     def teardown_class(cls):
-        cls.static_files_server.kill()
+        model.repo.rebuild_db()
         plugins.reset()
 
     def set_resource_url(self, url):
@@ -71,7 +61,7 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         self.data_dict = {'resource': resource, 'package': package}
 
     def test_resource_proxy_on_200(self):
-        self.set_resource_url('http://0.0.0.0:50001/static/test.json')
+        self.set_resource_url('http://0.0.0.0:50001/test.json')
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
