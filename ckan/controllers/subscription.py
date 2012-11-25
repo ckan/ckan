@@ -60,25 +60,6 @@ class SubscriptionController(BaseController):
                 abort(401, _('Not authorized to see this page'))
 
 
-    def index(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
-        self._setup_template_variables(context, data_dict)
-        
-        subscriptions = c.subscriptions
-        
-        c.subscriptions = {}
-        for subscription in subscriptions:
-            type_ = subscription['definition']['type']
-            if type_ in c.subscriptions:
-                c.subscriptions[type_].append(subscription)
-            else:
-                c.subscriptions[type_] = [subscription]
-
-        return render('subscription/index.html')
-
-
     def create(self, id=None):
         parameters = request.params.dict_of_lists()
      
@@ -138,49 +119,6 @@ class SubscriptionController(BaseController):
             return h.redirect_to(controller='subscription', action='index')
 
         return h.redirect_to(str(url))
-
-
-    def show_my_datasets(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
-        self._setup_template_variables(context, data_dict)
-
-        return render('subscription/my_datasets.html')
-        
-               
-    def show_dataset_followees(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
-        self._setup_template_variables(context, data_dict)
-        dataset_followee_list = get_action('dataset_followee_list')
-        c.dataset_followees = dataset_followee_list(context, {'id': c.user_dict['id']})
-
-        return render('subscription/dataset_followees.html')
-        
-        
-    def show_user_followees(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
-        self._setup_template_variables(context, data_dict)
-        user_followee_list = get_action('user_followee_list')
-        c.user_followees = user_followee_list(context, {'id': c.user_dict['id']})
-
-        return render('subscription/user_followees.html')
-
-               
-    def edit(self, subscription_name):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
-        data_dict = {'subscription_name': subscription_name,
-                     'new_subscription_definition': request.params['subscription_definition'],
-                     'new_subscription_name': request.params['subscription_name']}
-
-        subscription = get_action('subscription_update')(context, data_dict)
-
-        return h.redirect_to(controller='subscription', action='show', subscription_name=subscription['name'])
 
 
     def mark_changes_as_seen(self, subscription_name=None):
