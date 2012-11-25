@@ -3,7 +3,7 @@ import pylons
 import paste.fixture
 from paste.deploy import appconfig
 
-import ckan.logic as l
+import ckan.logic as logic
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
@@ -33,9 +33,9 @@ class TestJsonPreview(tests.WsgiAppCase):
         }
 
         cls.package = model.Package.get('annakarenina')
-        cls.resource = l.get_action('resource_show')(context, {'id': cls.package.resources[1].id})
+        cls.resource = logic.get_action('resource_show')(context, {'id': cls.package.resources[1].id})
         cls.resource['url'] = pylons.config.get('ckan.site_url', '//localhost:5000')
-        l.action.update.resource_update(context, cls.resource)
+        logic.action.update.resource_update(context, cls.resource)
 
     @classmethod
     def teardown_class(cls):
