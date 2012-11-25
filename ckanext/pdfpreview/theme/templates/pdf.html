@@ -1,7 +1,7 @@
 {% extends 'dataviewer/base.html' %}
 
 {% block styles %}
-  <link rel="resource" type="application/l10n" href="{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfviewer/locale.properties')[-1] }}"/>
+  <link rel="resource" type="application/l10n" href="{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfviewer/locale.properties.js')[-1] }}"/>
 {% endblock %}
 
 {% block page %}
@@ -158,6 +158,5 @@
     var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfjs/pdf.js')[-1] }}";
   </script>
   {% resource 'ckanext-pdfpreview/vendor/pdfjs/pdf.js' %}
-  {% resource 'ckanext-pdfpreview/vendor/pdfviewer/locale.properties' %}
   {% resource 'ckanext-pdfpreview/main' %}
 {% endblock %}
