@@ -3,7 +3,7 @@ ckan.module('jsonpreview', function (jQuery, _) {
   return {
     options: {
       i18n: {
-        error: _('An error occured: %(text)s %(error)s')
+        error: _('An error occurred: %(text)s %(error)s')
       }
     },
     initialize: function () {
