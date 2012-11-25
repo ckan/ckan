@@ -33,7 +33,7 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-# Note: Add ``json_preview pdf_preview recline_preview`` to enable the resource previews
+# Note: Add ``pdf_preview`` to enable the resource preview for PDFs
 #		Add the resource_proxy plugin to enable resorce proxying and get around the same origin policy
 ckan.plugins = stats json_preview recline_preview
 
