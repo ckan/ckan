@@ -8,12 +8,14 @@ import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema
+import ckan.lib.base as base
 import ckan.lib.dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
+from ckan.plugins import PluginImplementations, ISubscription
 
 log = logging.getLogger(__name__)
 
@@ -1023,9 +1025,30 @@ def subscription_item_list_update(context, data_dict):
 
     subscription = query.first()
     
-    action_name = 'subscription_' + subscription.definition['type'] + '_' + subscription.definition['data_type']
-    data_list, key_name = logic.get_action(action_name)(context, subscription.definition)
     
+    definition = subscription.definition
+    type_ = definition['type']
+    data_type = definition['data_type']
+    
+    if type_ == 'search' and data_type == 'dataset':
+        search_dict = {
+            'q': definition['query'],
+            'filters': definition['filters'],
+            'facet.field': base.g.facets,
+            'rows': 50,
+            'start': 0,
+            'sort': 'metadata_modified desc',
+            'extras': ''
+        }
+        results = package_search(context, search_dict)['results']
+        data_list = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
+        key_name = 'id'
+    else:
+        for plugin in PluginImplementations(ISubscription):
+            if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                data_list, key_name = plugin.item_data_and_key_name(definition)
+                break
+
     subscription.update_item_list(data_list, key_name)
     
     if not context.get('defer_commit'):

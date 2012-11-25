@@ -20,6 +20,7 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.base as base
+from ckan.plugins import PluginImplementations, ISubscription
 
 log = logging.getLogger('ckan.logic')
 
@@ -2404,7 +2405,7 @@ def subscription(context, data_dict):
         query = query.filter(model.Subscription.owner_id==user.id)
         subscription = None
         for row in query.all():
-            if subscription_fit_definition(row, definition):
+            if subscription_equal_definition(row, definition):
                 subscription = row
                 break
         if not subscription:
@@ -2416,24 +2417,34 @@ def subscription(context, data_dict):
     return subscription_dict
     
 
-def subscription_fit_definition(subscription, definition):
-    if subscription.definition['type'] != definition['type']:
-        return False
+def subscription_equal_definition(subscription, definition):
+    type_ = definition['type']
+    data_type = definition['data_type']
         
-    if subscription.definition['data_type'] != definition['data_type']:
-        return False
-        
-    if subscription.definition['query'] != definition['query']:
-        return False
-        
-    if set(subscription.definition['filters']) ^ set(definition['filters']):
-        return False
-        
-    for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
-        if set(filter_value_list) ^ set(definition['filters'][filter_name]):
+    if type_ == 'search' and data_type == 'dataset':
+        if subscription.definition['type'] != definition['type']:
             return False
-        
-    return True
+            
+        if subscription.definition['data_type'] != definition['data_type']:
+            return False
+            
+        if subscription.definition['query'] != definition['query']:
+            return False
+            
+        if set(subscription.definition['filters']) ^ set(definition['filters']):
+            return False
+            
+        for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
+            if set(filter_value_list) ^ set(definition['filters'][filter_name]):
+                return False
+                    
+        return True
+    else:
+        for plugin in PluginImplementations(ISubscription):
+            if plugin.definition_type() == type_ and plugin.data_type() == data_type:
+                return plugin.subscription_equal_definition(subscription, definition)
+
+    return False
 
 
 def subscription_check_name(context, data_dict):
@@ -2499,24 +2510,6 @@ def subscription_item_list(context, data_dict):
         logic.get_action('subscription_item_list_update')(context, data_dict)
 
     return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
-
-
-def subscription_search_dataset(context, data_dict):
-    definition = data_dict
-    
-    search_dict = {
-        'q': definition['query'],
-        'filters': definition['filters'],
-        'facet.field': base.g.facets,
-        'rows': 50,
-        'start': 0,
-        'sort': 'metadata_modified desc',
-        'extras': ''
-    }
-    results = package_search(context, search_dict)['results']
-    results = [{'id': result['id'], 'modified': result['metadata_modified']} for result in results]
-
-    return results, 'id'
 
 
 def subscription_dataset_list(context, data_dict):

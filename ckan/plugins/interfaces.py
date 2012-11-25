@@ -709,31 +709,31 @@ class ISubscription(Interface):
         Should return a subscription data type.
         """
     
-    def prepare_creation(self, preliminary_definition, parameters):
+    def prepare_creation(self, subscription_definition, parameters):
         """
         Should return a subscription definition dictionary.
-        Get the preliminary_definition and parameter in form of a dict of lists.
+        Get the preliminary subscription definition and parameter in form of a dict of lists.
         """
-        
-    def item_to_objects(self, item):
+
+    def item_data_and_key_name(self, subscription_definition):
+        """
+        Should return a list of items according to the definition and the name of the item's key
+        """
+
+    def item_to_objects(self, subscription_item):
         """
         Convert a item to a list of model objects according to subscription's data type
         """
     
-    def show_url(self):
+    def show_url(self, subscription):
         """
-        """
-
-    def show_controller(self):
-        """
+        Should return a URL for diplaying the subscriptions items/subscribed objects.
         """
 
-    def show_action(self):
+    def subscription_equal_definition(self, subscription, definition):
         """
+        Should return True when the given subscription fits the given definition and so
+        a equivalence between the definition and the subscription could be assumed
+        Otherwise False
         """
-
-    def show_parameters(self):
-        """
-        """
-
 

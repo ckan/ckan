@@ -4,8 +4,6 @@ from pylons import session
 from pylons.controllers.util import redirect
 
 import genshi
-from urllib import quote
-
 import ckan.misc
 import ckan.lib.i18n
 from ckan.lib.base import *
@@ -98,9 +96,8 @@ class SubscriptionController(BaseController):
         else:
             for plugin in PluginImplementations(ISubscription):
                 if plugin.definition_type() == type_ and plugin.data_type() == data_type:
-                    definition = plugin.prepare_creation(parameters)
+                    definition = plugin.prepare_creation(definition, parameters)
                     break
-
             
         context = {'model': model, 'session': model.Session, 'user': c.user}
         data_dict = {'subscription_name': name, 'subscription_definition': definition}
@@ -134,7 +131,7 @@ class SubscriptionController(BaseController):
         else:
             for plugin in PluginImplementations(ISubscription):
                 if plugin.definition_type() == type_ and plugin.data_type() == data_type:
-                    url = plugin.show_url()
+                    url = plugin.show_url(c.subscription)
                     break
 
 
