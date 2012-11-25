@@ -5,6 +5,7 @@ from ckan.logic.auth import (get_package_object, get_resource_object,
 from ckan.logic.auth.create import _check_group_auth, package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
+import ckan.new_authz
 
 def make_latest_pending_package_active(context, data_dict):
     return package_update(context, data_dict)
@@ -178,6 +179,14 @@ def term_translation_update(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % str(user)}
     else:
         return {'success': True}
+
+
+def dashboard_mark_activities_old(context, data_dict):
+    # FIXME: This should go through check_access() not call is_authorized()
+    # directly, but wait until 2939-orgs is merged before fixing this.
+    return ckan.new_authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
+
 
 ## Modifications for rest api
 

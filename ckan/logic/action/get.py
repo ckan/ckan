@@ -2269,19 +2269,6 @@ def dashboard_new_activities_count(context, data_dict):
     return len([activity for activity in activities if activity['is_new']])
 
 
-def dashboard_mark_all_new_activities_as_old(context, data_dict):
-    '''Mark all the authorized user's new dashboard activities as old.
-
-    This will reset dashboard_new_activities_count to 0.
-
-    '''
-    _check_access('dashboard_mark_all_new_activities_as_old', context,
-            data_dict)
-    model = context['model']
-    user_id = model.User.get(context['user']).id
-    model.Dashboard.update_activity_stream_last_viewed(user_id)
-
-
 def dashboard_email_notification_last_sent(context, data_dict):
     model = context['model']
     user = model.User.get(context['user'])  # The authorized user.

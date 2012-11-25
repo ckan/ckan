@@ -79,8 +79,8 @@ class TestDashboard(object):
         activity_list = self.dashboard_activity_list(user)
         return [activity for activity in activity_list if activity['is_new']]
 
-    def dashboard_mark_all_new_activities_as_old(self, user):
-        self.post('dashboard_mark_all_new_activities_as_old',
+    def dashboard_mark_activities_old(self, user):
+        self.post('dashboard_mark_activities_old',
                 apikey=user['apikey'])
 
     def test_00_dashboard_activity_list_not_logged_in(self):
@@ -90,7 +90,7 @@ class TestDashboard(object):
         self.post('dashboard_new_activities_count', status=403)
 
     def test_00_dashboard_mark_new_activities_not_logged_in(self):
-        self.post('dashboard_mark_all_new_activities_as_old', status=403)
+        self.post('dashboard_mark_activities_old', status=403)
 
     def test_01_new_activities_count_for_new_user(self):
         '''Test that a newly registered user's new activities count is 0.'''
@@ -114,7 +114,7 @@ class TestDashboard(object):
         # We would have to do this if, when you follow something, you only get
         # the activities from that object since you started following it, and
         # not all its past activities as well.
-        self.dashboard_mark_all_new_activities_as_old(self.new_user)
+        self.dashboard_mark_activities_old(self.new_user)
 
         # Create a new dataset.
         params = json.dumps({
@@ -199,7 +199,7 @@ class TestDashboard(object):
         her dashboard activity stream.'''
         assert self.dashboard_new_activities_count(self.new_user) > 0
         assert len(self.dashboard_new_activities(self.new_user)) > 0
-        self.dashboard_mark_all_new_activities_as_old(self.new_user)
+        self.dashboard_mark_activities_old(self.new_user)
         assert self.dashboard_new_activities_count(self.new_user) == 0
         assert len(self.dashboard_new_activities(self.new_user)) == 0
 

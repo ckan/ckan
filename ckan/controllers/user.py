@@ -505,7 +505,7 @@ class UserController(BaseController):
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+        get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html')
 
