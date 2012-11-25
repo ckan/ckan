@@ -1,7 +1,6 @@
 from logging import getLogger
 
 import ckan.plugins as p
-import ckan.plugins.toolkit as toolkit
 import ckan.lib.base as base
 
 log = getLogger(__name__)
@@ -30,9 +29,9 @@ class PdfPreview(p.SingletonPlugin):
         ''' Set up the resource library, public directory and
         template directory for the preview
         '''
-        toolkit.add_public_directory(config, 'theme/public')
-        toolkit.add_template_directory(config, 'theme/templates')
-        toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
+        p.toolkit.add_public_directory(config, 'theme/public')
+        p.toolkit.add_template_directory(config, 'theme/templates')
+        p.toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
 
     def can_preview(self, data_dict):
         resource = data_dict['resource']
