@@ -153,7 +153,7 @@ class PackageController(BaseController):
 
         c.remove_field = remove_field
 
-        sort_by = request.params.get('sort', None)
+        sort_by = request.params.get('sort', '')
         params_nosort = [(k, v) for k, v in params_nopage if k != 'sort']
 
         def _sort_by(fields):
@@ -174,11 +174,10 @@ class PackageController(BaseController):
             return search_url(params)
 
         c.sort_by = _sort_by
-        if sort_by is None:
-            c.sort_by_fields = []
+        if sort_by:
+            c.sort_by_fields = [field.split()[0] for field in sort_by.split(',')]
         else:
-            c.sort_by_fields = [field.split()[0]
-                                for field in sort_by.split(',')]
+            c.sort_by_fields = []
         c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
