@@ -33,8 +33,7 @@ def proxy_resource(context, data_dict):
             base.response.headers = r.headers
 
             # we have to pretend that the response is not gzipped or deflated
-            # because we don't want request to unzip the content. There is a
-            # pull request pending that adds an option to iter_content.
+            # because we don't want request to unzip the content.
             r.headers['content-encoding'] = ''
 
             length = 0
