@@ -256,7 +256,9 @@ class PackageController(BaseController):
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
                           'license': _('Licence')}
-
+        for plugin in PluginImplementations(ISearchFacets):
+            c.facet_titles.update(plugin.search_facet_titles())
+            
         maintain.deprecate_context_item(
           'facets',
           'Use `c.search_facets` instead.')
