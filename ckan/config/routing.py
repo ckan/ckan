@@ -265,7 +265,7 @@ def make_map():
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
         m.connect('/user/activity/{id}', action='activity')
-        m.connect('/user/dashboard', action='dashboard')
+        m.connect('/dashboard', action='dashboard')
         m.connect('/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('/user/followers/{id:.*}', action='followers')
