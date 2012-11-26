@@ -194,6 +194,7 @@ def make_map():
           'history',
           'read_ajax',
           'history_ajax',
+          'activity',
           'followers',
           'follow',
           'unfollow',
