@@ -217,7 +217,8 @@ class PackageController(BaseController):
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
-                'extras': search_extras}
+                'extras': search_extras,
+            }
 
             query = get_action('package_search')(context, search_dict)
 
@@ -243,7 +244,8 @@ class PackageController(BaseController):
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
-                          'license': _('Licence') }
+                          'license': _('Licence'),
+        }
         for plugin in PluginImplementations(ISearchFacets):
             c.facet_titles.update(plugin.search_facet_titles())
 

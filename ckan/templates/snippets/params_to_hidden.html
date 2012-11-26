@@ -9,13 +9,8 @@ except
 
 #}
 
-{% if not except_names %}
-  {% set except_names = {} %}
-{% endif %}
-
-{% if not except %}
-  {% set except = {} %}
-{% endif %}
+{% set except_names = except_names or {} %}
+{% set except = except or {} %}
 
 
 {% for name_value_pair in name_value_pairs.split('&') %}
