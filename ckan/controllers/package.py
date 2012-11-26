@@ -319,13 +319,6 @@ class PackageController(BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
 
-        # Add the package's activity stream (already rendered to HTML) to the
-        # template context for the package/read.html template to retrieve
-        # later.
-        c.package_activity_stream = \
-            get_action('package_activity_list_html')(
-                context, {'id': c.current_package_id})
-
         PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template(package_type)
@@ -1240,6 +1233,26 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html')
+
+    def activity(self, id):
+        '''Render this package's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+            c.package_activity_stream = get_action(
+                    'package_activity_list_html')(context,
+                            {'id': c.pkg_dict['id']})
+            c.related_count = c.pkg.related_count
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        return render('package/activity.html')
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
