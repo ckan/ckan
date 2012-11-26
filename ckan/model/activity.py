@@ -75,7 +75,7 @@ def _most_recent_activities(q, limit):
         q = q.limit(limit)
     return q.all()
 
-def _activities_at_offset(q, offset, limit):
+def _activities_at_offset(q, limit, offset):
     import ckan.model as model
     q = q.order_by(desc(model.Activity.timestamp))
     if offset:
@@ -116,7 +116,7 @@ def user_activity_list(user_id, limit=31, offset=0):
 
     '''
     q = _user_activity_query(user_id)
-    return _activities_at_offset(q, offset, limit)
+    return _activities_at_offset(q, limit, offset)
 
 
 def _package_activity_query(package_id):
@@ -138,7 +138,7 @@ def package_activity_list(package_id, limit=31, offset=0):
 
     '''
     q = _package_activity_query(package_id)
-    return _activities_at_offset(q, offset, limit)
+    return _activities_at_offset(q, limit, offset)
 
 
 def _activites_from_users_followed_by_user_query(user_id):
@@ -173,7 +173,7 @@ def activities_from_everything_followed_by_user(user_id, limit=31, offset=0):
 
     '''
     q = _activities_from_everything_followed_by_user_query(user_id)
-    return _activities_at_offset(q, offset, limit)
+    return _activities_at_offset(q, limit, offset)
 
 
 def _dashboard_activity_query(user_id):
@@ -193,7 +193,7 @@ def dashboard_activity_list(user_id, limit=31, offset=0):
 
     '''
     q = _dashboard_activity_query(user_id)
-    return _activities_at_offset(q, offset, limit)
+    return _activities_at_offset(q, limit, offset)
 
 
 def _recently_changed_packages_activity_query():

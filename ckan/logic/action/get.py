@@ -1738,7 +1738,7 @@ def user_activity_list(context, data_dict):
     user_id = _get_or_bust(data_dict, 'id')
     offset = data_dict.get('offset', 0)
 
-    activity_objects = model.activity.user_activity_list(user_id, limit=31, offset=offset)
+    activity_objects = model.activity.user_activity_list(user_id, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
@@ -1760,7 +1760,7 @@ def package_activity_list(context, data_dict):
     package_id = _get_or_bust(data_dict, 'id')
     offset = data_dict.get('offset', 0)
 
-    activity_objects = model.activity.package_activity_list(package_id, limit=31, offset=offset)
+    activity_objects = model.activity.package_activity_list(package_id, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
@@ -2245,7 +2245,7 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id, limit=31, offset=offset)
+    activity_objects = model.activity.dashboard_activity_list(user_id, offset=offset)
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
