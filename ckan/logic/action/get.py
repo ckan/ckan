@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
@@ -1056,6 +1057,8 @@ def package_search(context, data_dict):
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
+    :param filters: filters used to define extra params of solr query
+    :type filters: dict of lists {'filed': [values]}
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1132,11 +1135,19 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
+        fq = data_dict.get('fq','')
+
+        # filters get converted to solr query params
+        filters = data_dict.get('filters', {})
+        for filter_name, filter_value_list in filters.iteritems():
+            for filter_value in filter_value_list:
+                fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+        # update the data_dict
+        data_dict['fq'] = fq
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
