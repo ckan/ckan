@@ -212,9 +212,9 @@ def _activities_from_groups_followed_by_user_query(user_id):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    q = model.Session.query(model.Activity)
+    q = _group_activity_query(follower_objects[0].object_id)
     q = q.union_all(*[_group_activity_query(follower.object_id)
-            for follower in follower_objects])
+        for follower in follower_objects[1:]])
     return q
 
 
