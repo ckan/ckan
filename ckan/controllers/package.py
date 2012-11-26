@@ -33,6 +33,7 @@ import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
