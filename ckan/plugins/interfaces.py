@@ -683,16 +683,13 @@ class IGroupForm(Interface):
 
 class ISearchFacets(Interface):
     """
-    Allow adding new facets to serach interface
+    Allow adding new facets to search interface.
+    Plugins should add new facets should be added to the 'search.facets'
+    config via the IConfigurer interface.
     """
-    
-    def search_facets(self):
-        """
-        Should return a list of facets names that can be used to further narrow the
-        list of items in 'after_search' extension method
-        """
 
     def search_facet_titles(self):
         """
-        Should return a dictionary from facet name to facets titles (latter get displayed on the search page).
+        Should update and return a dictionary from facet name to facets
+        titles (latter get displayed on the search page).
         """

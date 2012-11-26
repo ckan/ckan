@@ -1056,6 +1056,8 @@ def package_search(context, data_dict):
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
+    :param filters: filters used to define extra params of solr query
+    :type filters: dict of lists {'filed': [values]}
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1120,45 +1122,42 @@ def package_search(context, data_dict):
     _check_access('package_search', context, data_dict)
 
     # check if some extension needs to modify the search params
-    search_params = dict(data_dict)
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_params = item.before_search(search_params)
+        data_dict = item.before_search(data_dict)
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = search_params.get('abort_search',False)
+    abort = data_dict.get('abort_search',False)
 
     results = []
     if not abort:
-        # a dict is more convenient than a clumsy string
-        if 'filters' in search_params:
-            search_params['fq'] = ''
-            for filter_name, filter_value_list in search_params['filters'].iteritems():
-                if filter_name not in base.g.facets:
-                    continue
-                    
-                for filter_value in filter_value_list:
-                    search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
-
-            data_dict['fq'] = search_params['fq']
-
-            del search_params['filters']
-            
         # return a list of package ids
-        search_params['fl'] = 'id data_dict'
+        data_dict['fl'] = 'id data_dict'
+
+
+        fq = data_dict.get('fq', '')
+        # filters get converted to solr query params
+        filters = data_dict.get('filters', {})
+        for filter_name, filter_value_list in filters.iteritems():
+            for filter_value in filter_value_list:
+                fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+
+        # update the data_dict
+        data_dict['fq'] = fq
+        del data_dict['filters']
 
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = search_params.get('fq','')
+        fq = data_dict.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
-            search_params['fq'] = fq + ' capacity:"public"'
+            data_dict['fq'] = fq + ' capacity:"public"'
 
         query = search.query_for(model.Package)
-        query.run(search_params)
+        query.run(data_dict)
 
         for package in query.results:
             # get the package object

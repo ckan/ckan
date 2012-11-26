@@ -6,7 +6,6 @@ from threading import Lock
 
 from paste.deploy.converters import asbool
 from pylons import config
-from ckan.plugins import PluginImplementations, ISearchFacets
 
 import ckan.model as model
 
@@ -143,9 +142,6 @@ class _Globals(object):
         self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
         facets = config.get('search.facets', 'groups tags res_format license')
         self.facets = facets.split()
-
-        for plugin in PluginImplementations(ISearchFacets):
-           self.facets.extend(plugin.search_facets())
 
         # has been setup in load_environment():
         self.site_id = config.get('ckan.site_id')
