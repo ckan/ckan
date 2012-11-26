@@ -32,7 +32,7 @@ import ckan.misc
 import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
-import ckan.lib.plugins as p
+from ckan.lib.plugins import lookup_package_plugin
 
 log = logging.getLogger(__name__)
 
@@ -55,39 +55,39 @@ def search_url(params):
 class PackageController(BaseController):
 
     def _package_form(self, package_type=None):
-        return p.lookup_package_plugin(package_type).package_form()
+        return lookup_package_plugin(package_type).package_form()
 
     def _form_to_db_schema(self, package_type=None):
-        return p.lookup_package_plugin(package_type).form_to_db_schema()
+        return lookup_package_plugin(package_type).form_to_db_schema()
 
     def _db_to_form_schema(self, package_type=None):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return p.lookup_package_plugin(package_type).db_to_form_schema()
+        return lookup_package_plugin(package_type).db_to_form_schema()
 
     def _check_data_dict(self, data_dict, package_type=None):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
-        return p.lookup_package_plugin(package_type).check_data_dict(data_dict)
+        return lookup_package_plugin(package_type).check_data_dict(data_dict)
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
-        return p.lookup_package_plugin(package_type).\
+        return lookup_package_plugin(package_type).\
             setup_template_variables(context, data_dict)
 
     def _new_template(self, package_type):
-        return p.lookup_package_plugin(package_type).new_template()
+        return lookup_package_plugin(package_type).new_template()
 
     def _comments_template(self, package_type):
-        return p.lookup_package_plugin(package_type).comments_template()
+        return lookup_package_plugin(package_type).comments_template()
 
     def _search_template(self, package_type):
-        return p.lookup_package_plugin(package_type).search_template()
+        return lookup_package_plugin(package_type).search_template()
 
     def _read_template(self, package_type):
-        return p.lookup_package_plugin(package_type).read_template()
+        return lookup_package_plugin(package_type).read_template()
 
     def _history_template(self, package_type):
-        return p.lookup_package_plugin(package_type).history_template()
+        return lookup_package_plugin(package_type).history_template()
 
     def _guess_package_type(self, expecting_name=False):
         """
