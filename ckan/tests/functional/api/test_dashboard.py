@@ -316,3 +316,18 @@ class TestDashboard(object):
                 extra_environ={'Authorization': str(self.joeadmin['apikey'])})
             assert response.json['success'] is True
         assert self.dashboard_new_activities_count(self.new_user) == 15
+
+    def test_09_activities_that_should_not_show(self):
+        '''Test that other activities do not appear on the user's dashboard.'''
+
+        before = self.dashboard_activity_list(self.new_user)
+
+        # Make someone else who new_user is not following create a new dataset.
+        params = json.dumps({'name': 'irrelevant_dataset'})
+        response = self.app.post('/api/action/package_create', params=params,
+            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+        assert response.json['success'] is True
+
+        after = self.dashboard_activity_list(self.new_user)
+
+        assert before == after
