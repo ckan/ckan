@@ -1135,12 +1135,14 @@ def package_search(context, data_dict):
         data_dict['fl'] = 'id data_dict'
 
 
-        fq = data_dict.get('fq', '')
         # filters get converted to solr query params
+        # only those that appear in facet.field
+        fq = data_dict.get('fq', '')
         filters = data_dict.get('filters', {})
         for filter_name, filter_value_list in filters.iteritems():
             for filter_value in filter_value_list:
-                fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+                if filter_name in data_dict['facet.field']:
+                    fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
 
         # update the data_dict
         data_dict['fq'] = fq

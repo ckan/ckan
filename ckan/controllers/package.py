@@ -195,8 +195,10 @@ class PackageController(BaseController):
             for (param, value) in request.params.items():
                 if not value:
                     continue
-                    
-                if param in g.facets:
+                
+                if param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
                     c.fields.append((param, urllib.unquote(value)))
 
                     if param not in c.fields_grouped:
@@ -204,9 +206,6 @@ class PackageController(BaseController):
                     else:
                         c.fields_grouped[param].append(urllib.unquote(value))
      
-                elif param.startswith('ext_'):
-                    search_extras[param] = value
-
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
