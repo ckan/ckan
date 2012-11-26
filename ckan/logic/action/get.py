@@ -1167,7 +1167,10 @@ def package_search(context, data_dict):
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations( plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
+                        # NOTE: Prior to ckan 2.0 before_view() was called
+                        # but this behaviour has been changed to improve
+                        # performance.
+                        package_dict = item.before_search_view(package_dict)
                 results.append(package_dict)
             else:
                 results.append(model_dictize.package_dictize(pkg,context))
