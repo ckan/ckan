@@ -209,17 +209,17 @@ class PackageController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
-            search_dict = {
+            data_dict = {
                 'q': q,
                 'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
-                'extras': search_extras,
+                'extras': search_extras
             }
 
-            query = get_action('package_search')(context, search_dict)
+            query = get_action('package_search')(context, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
