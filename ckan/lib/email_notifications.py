@@ -108,8 +108,7 @@ def send_notification(user, email_dict):
         # FIXME: We are accessing model from lib here but I'm not sure what
         # else to do unless we add a update_activity_stream_last_viewed()
         # logic function which would only be needed by this lib.
-        model.Dashboard.update_last_activity_stream_email_notification(
-                user['id'])
+        model.Dashboard.update_email_last_sent(user['id'])
         # TODO: Do something with response?
     except ckan.lib.mailer.MailerException:
         raise
@@ -122,8 +121,7 @@ def get_and_send_notifications_for_user(user):
     # FIXME: We are accessing model from lib here but I'm not sure what else
     # to do unless we add a get_activity_stream_last_viewed() logic function
     # which would only be needed by this lib.
-    since = model.Dashboard.get_last_activity_stream_email_notification(
-            user['id'])
+    since = model.Dashboard.get_email_last_sent(user['id'])
 
     notifications = get_notifications(user['id'], since)
     # TODO: Handle failures from send_email_notification.
