@@ -17,25 +17,16 @@
 
 {% block primary_content %}
   <section class="module">
-    {#
-    {% block primary_content_header %}
-      <header class="module-content page-header">
-        <ul class="nav nav-tabs">
-          <li{% if c.action == 'read' %} class="active"{% endif %}>
-            {% link_for _('Datasets'), controller='organization', action='read', id=c.group_dict.name, icon='sitemap' %}
-          </li>
-          {% if h.check_access('organization_member_create', {'id': c.group_dict.id}) %}
-          <li{% if c.action == 'members' or c.action =='member_new' %} class="active"{% endif %}>
-            {% link_for _('Members'), controller='organization', action='members', id=c.group_dict.name, icon='group' %}
-          </li>
-          {% endif %}
-          <li{% if c.action == 'admins' %} class="active"{% endif %}>
-            {% link_for _('Administrators'), controller='organization', action='admins', id=c.group_dict.name, icon='cog' %}
-          </li>
-        </ul>
-      </header>
-    {% endblock %}
-    #}
+    <header class="module-content page-header">
+      <ul class="nav nav-tabs">
+        <li{% if c.action == 'read' %} class="active"{% endif %}>
+          {% link_for _('Datasets'), controller='organization', action='read', id=c.group_dict.name, icon='sitemap' %}
+        </li>
+        <li{% if c.action == 'about' %} class="active"{% endif %}>
+          {% link_for _('About'), controller='organization', action='about', id=c.group_dict.name, icon='info-sign' %}
+        </li>
+      </ul>
+    </header>
     {% block primary_content_inner %}
     {% endblock %}
   </section>

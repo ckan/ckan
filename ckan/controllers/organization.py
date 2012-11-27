@@ -31,6 +31,9 @@ class OrganizationController(group.GroupController):
     def _new_template(self, group_type):
         return 'organization/new.html'
 
+    def _about_template(self, group_type):
+        return 'organization/about.html'
+
     def _index_template(self, group_type):
         return 'organization/index.html'
 

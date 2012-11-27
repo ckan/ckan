@@ -20,9 +20,12 @@ Example:
       </div>
       <h1 class="heading">{{ organization.title or organization.name }}</h1>
       {% if organization.description %}
-        <p>{{ h.markdown_extract(organization.description, truncate) }}</p>
+        <p>
+          {{ h.markdown_extract(organization.description, 180) }}
+          {% link_for _('read more'), controller='organization', action='about', id=organization.name %}
+        </p>
       {% else %}
-        <p class="empty">{{ _('There is no description for this organization') }}</p>
+        <p class="empty">{{ _('There is no description for this group') }}</p>
       {% endif %}
       <div class="nums">
         <dl>

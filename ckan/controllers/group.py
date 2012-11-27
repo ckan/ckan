@@ -49,6 +49,9 @@ class GroupController(BaseController):
     def _index_template(self, group_type):
         return lookup_group_plugin(group_type).index_template()
 
+    def _about_template(self, group_type):
+        return lookup_group_plugin(group_type).about_template()
+
     def _read_template(self, group_type):
         return lookup_group_plugin(group_type).read_template()
 
@@ -676,7 +679,7 @@ class GroupController(BaseController):
 
     def about(self, id):
         c.group_dict = self._get_group_dict(id)
-        return render('group/about.html')
+        return render(self._about_template(c.group_dict['type']))
 
     def _get_group_dict(self, id):
         ''' returns the result of group_show action or aborts if there is a

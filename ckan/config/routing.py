@@ -257,7 +257,8 @@ def make_map():
           'members',
           'member_new',
           'member_delete',
-          'history'
+          'history',
+          'about'
           ]))
           )
         m.connect('organization_read', '/organization/{id}', action='read')
