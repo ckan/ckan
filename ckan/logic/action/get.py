@@ -1138,8 +1138,8 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq','')
 
         # filters get converted to solr query params
-        # FIXME we are destructively removing dat_dict['filters'] so it is
-        # no longer availbale.  Is this what we want.  We do it to keep SOLR
+        # FIXME we are destructively removing data_dict['filters'] so it is
+        # no longer available.  Is this what we want.  We do it to keep SOLR
         # happy.
         filters = data_dict.pop('filters', {})
         for filter_name, filter_value_list in filters.iteritems():
