@@ -343,6 +343,10 @@ def load_environment(global_conf, app_conf):
     if not model.meta.engine:
         model.init_model(engine)
 
+    # set which data types can be previewed natively
+    os.environ['DIRECT_EMBEDS'] = 'png, jpg, gif'
+    os.environ['LOADABLE'] = '''html, htm, rdf+xml, owl+xml, xml,
+        n3, n-triples, turtle, plain, atom, tsv, rss, txt, json'''
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
