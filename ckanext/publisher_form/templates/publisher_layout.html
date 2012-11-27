@@ -21,7 +21,7 @@
         <div class="dropdown-appears"><div class="white-box"></div></div>
         <a href="${h.url_for(controller='package', action='new')}?groups__0__id=${c.group.id}">
           ${h.icon('add') + _('Add Dataset')}</a>
-        &nbsp;&nbsp;<img class="dropdown-arrow" src="/images/icons/arrow-open.gif"/>
+        &nbsp;&nbsp;<img class="dropdown-arrow" src="${h.url_for_static('/images/icons/arrow-open.gif')}"/>
       </li>
       <li py:attrs="{'class':'current-tab'} if c.action=='edit' else {}" py:if="h.check_access('group_update',{'id':c.group.id})">
         <!-- TODO: We need to be able to change the URL below based on the type of the group -->
