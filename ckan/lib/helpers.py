@@ -1308,13 +1308,12 @@ def resource_preview(resource, pkg_id):
         embed=directly,
         resource_url=url
         )
-        
+
+
 def unquote(string):
-    if string:
-        return urllib.unquote(string)
-        
-    return None
-        
+    return urllib.unquote(string) if string else None
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
