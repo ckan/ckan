@@ -2225,7 +2225,7 @@ def dashboard_activity_list(context, data_dict):
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = '%Y-%m-%dT%H:%M:%S.%f'
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
+    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
     for activity in activity_dicts:
         if activity['user_id'] == user_id:
             # Never mark the user's own activities as new.

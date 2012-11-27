@@ -106,9 +106,10 @@ def send_notification(user, email_dict):
         ckan.lib.mailer.mail_recipient(user['display_name'], user['email'],
                 email_dict['subject'], email_dict['body'])
         # FIXME: We are accessing model from lib here but I'm not sure what
-        # else to do unless we add a update_activity_stream_last_viewed()
+        # else to do unless we add a update_email_last_sent()
         # logic function which would only be needed by this lib.
-        model.Dashboard.update_email_last_sent(user['id'])
+        model.Dashboard.get(user['id']).email_last_sent = (
+            datetime.datetime.now())
         # TODO: Do something with response?
     except ckan.lib.mailer.MailerException:
         raise
@@ -119,9 +120,9 @@ def get_and_send_notifications_for_user(user):
     # was sent _or_ the time the user last viewed her dashboard, whichever is
     # newer.
     # FIXME: We are accessing model from lib here but I'm not sure what else
-    # to do unless we add a get_activity_stream_last_viewed() logic function
+    # to do unless we add a get_email_last_sent() logic function
     # which would only be needed by this lib.
-    since = model.Dashboard.get_email_last_sent(user['id'])
+    since = model.Dashboard.get(user['id']).email_last_sent
 
     notifications = get_notifications(user['id'], since)
     # TODO: Handle failures from send_email_notification.

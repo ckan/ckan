@@ -23,57 +23,21 @@ class Dashboard(object):
         self.email_last_sent = datetime.datetime.now()
 
     @classmethod
-    def _get(cls, user_id):
-        '''
+    def get(cls, user_id):
+        '''Return the Dashboard object for the given user_id.
 
-        :raises: sqlalchemy.orm.exc.NoResultFound
+        If there's no dashboard row in the database for this user_id, a fresh
+        one will be created and returned.
 
         '''
         query = meta.Session.query(Dashboard)
         query = query.filter(Dashboard.user_id == user_id)
-        row = query.one()
+        try:
+            row = query.one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            row = Dashboard(user_id)
+            meta.Session.add(row)
+            meta.Session.commit()
         return row
-
-    @classmethod
-    def get_activity_stream_last_viewed(cls, user_id):
-        try:
-            row = cls._get(user_id)
-            return row.activity_stream_last_viewed
-        except sqlalchemy.orm.exc.NoResultFound:
-            # No dashboard row has been created for this user so they have no
-            # activity_stream_last_viewed date. Return the oldest date we can
-            # (i.e. all activities are new to this user).
-            return datetime.datetime.min
-
-    @classmethod
-    def update_activity_stream_last_viewed(cls, user_id):
-        try:
-            row = cls._get(user_id)
-            row.activity_stream_last_viewed = datetime.datetime.now()
-        except sqlalchemy.orm.exc.NoResultFound:
-            row = Dashboard(user_id)
-            meta.Session.add(row)
-        meta.Session.commit()
-
-    @classmethod
-    def get_email_last_sent(cls, user_id):
-        try:
-            row = cls._get(user_id)
-            return row.email_last_sent
-        except sqlalchemy.orm.exc.NoResultFound:
-            # No dashboard row has been created for this user so they have no
-            # email_last_sent date. Return the oldest date we can (i.e. all
-            # activities are new to this user).
-            return datetime.datetime.min
-
-    @classmethod
-    def update_email_last_sent(cls, user_id):
-        try:
-            row = cls._get(user_id)
-            row.email_last_sent = datetime.datetime.now()
-        except sqlalchemy.orm.exc.NoResultFound:
-            row = Dashboard(user_id)
-            meta.Session.add(row)
-        meta.Session.commit()
 
 meta.mapper(Dashboard, dashboard_table)
