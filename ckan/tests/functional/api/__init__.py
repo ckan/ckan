@@ -41,5 +41,4 @@ def assert_dicts_equal_ignoring_ordering(dict1, dict2):
     dicts = [copy.deepcopy(dict1), copy.deepcopy(dict2)]
     for d in dicts:
         d = change_lists_to_sets(d)
-    #from nose.tools import set_trace; set_trace()
     assert_equal(dicts[0], dicts[1])
