@@ -10,13 +10,14 @@
 {% block actions_content %}
   {% if h.check_access('organization_update', {'id': c.group.id}) %}
     <li>{% link_for _('Add Dataset to Organization'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
-    <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}</li>
+    <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
 {% block primary_content %}
   <section class="module">
+    {#
     {% block primary_content_header %}
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
@@ -34,6 +35,7 @@
         </ul>
       </header>
     {% endblock %}
+    #}
     {% block primary_content_inner %}
     {% endblock %}
   </section>

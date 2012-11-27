@@ -1,4 +1,4 @@
-{% extends "organization/read_base.html" %}
+{% extends "organization/edit_base.html" %}
 {% import 'macros/form.html' as form %}
 
 {% block subtitle %}{{ _('Members') }} - {{ c.group_dict.display_name }}{% endblock %}
@@ -19,7 +19,20 @@
       {% endif %}
       {% set format_attrs = {'data-module': 'autocomplete'} %}
       {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
-      <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
+      <div class="form-actions">
+        {% if c.user_name %}
+          <a href="{% url_for controller='organization', action='members', id=c.group_dict.id %}" class="btn">
+            {{ _('Cancel') }}
+          </a>
+          <button class="btn btn-primary" type="submit" name="submit" >
+            {{ _('Save') }}
+          </button>
+        {% else %}
+          <button class="btn btn-primary" type="submit" name="submit" >
+            {{ _('Add') }}
+          </button>
+        {% endif %}        
+      </div>
     </form>
   </div>
 {% endblock %}

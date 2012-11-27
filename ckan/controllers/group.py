@@ -331,6 +331,7 @@ class GroupController(BaseController):
 
         group = context.get("group")
         c.group = group
+        c.group_dict = self._action('group_show')(context, data_dict)
 
         try:
             self._check_access('group_update', context)
