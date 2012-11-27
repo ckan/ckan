@@ -40,7 +40,6 @@ import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.plugins as p
-import ckan.plugins.toolkit as toolkit
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
