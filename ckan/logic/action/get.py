@@ -1131,36 +1131,39 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
-        search_dict = dict(data_dict)
         # return a list of package ids
-        search_dict['fl'] = 'id data_dict'
+        data_dict['fl'] = 'id data_dict'
 
 
         # filters get converted to solr query params
         # only those that appear in facet.field
-        fq = search_dict.get('fq', '')
-        filters = search_dict.get('filters', {})
+        fq = data_dict.get('fq', '')
+        filters = data_dict.get('filters', {})
         for filter_name, filter_value_list in filters.iteritems():
             for filter_value in filter_value_list:
-                if filter_name in search_dict['facet.field']:
+                if filter_name in data_dict['facet.field']:
                     fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
 
-        # update the search_dict
-        search_dict['fq'] = fq
-        del search_dict['filters']
+        # update the data_dict
+        data_dict['fq'] = fq
+        # SOLR cannot handle other search parameters
+        del data_dict['filters']
 
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = search_dict.get('fq','')
+        fq = data_dict.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
-            search_dict['fq'] = fq + ' capacity:"public"'
+            data_dict['fq'] = fq + ' capacity:"public"'
 
         query = search.query_for(model.Package)
-        query.run(search_dict)
+        query.run(data_dict)
+        
+        #re-adding filters for extensions
+        data_dict['filters'] = filters
 
         for package in query.results:
             # get the package object
