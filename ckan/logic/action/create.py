@@ -13,6 +13,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.logic.auth as auth
+import json
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -1023,8 +1024,8 @@ def follow_dataset(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
-
-
+    
+    
 def follow_group(context, data_dict):
     '''Start following a group.
 
@@ -1094,3 +1095,44 @@ def follow_group(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
+    
+    
+def subscription_create(context, data_dict):
+    '''Create a subscription.
+
+    You must provide your API key in the Authorization header.
+
+    :param subscription_name: the name of the subscription, e.g. ``'health care'``
+    :type subscription_name: string
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: string
+
+    :returns: a representation of the 'subscription' object
+    :rtype: dictionary
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+        
+    name = _get_or_bust(data_dict, 'subscription_name')
+    definition = _get_or_bust(data_dict, 'subscription_definition')
+
+    _get_action('subscription_check_name')(context, {'subscription_name': name})
+        
+    subscription_dict = {
+                            'name': name,
+                            'owner_id': user.id,
+                            'definition': definition
+                        }
+
+    subscription = model_save.subscription_dict_save(subscription_dict, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    subscription.update_item_list_when_necessary(context, 0)
+
+    return model_dictize.subscription_dictize(subscription, context)
+

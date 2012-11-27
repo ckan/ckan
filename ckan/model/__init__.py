@@ -43,6 +43,10 @@ from user import (
     User,
     user_table,
 )
+from subscription import (
+    Subscription,
+    SubscriptionItem,
+)
 from authz import (
     NotRealUserException,
     Enum,

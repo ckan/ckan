@@ -151,9 +151,23 @@ def _activities_from_datasets_followed_by_user_query(user_id):
     return q
 
 
+def _activities_from_subscriptions_by_user_query(user_id, q):
+    import ckan.model as model
+    activity_query = model.Session.query(model.Activity)
+    subscription_query = model.Session.query(model.Subscription).filter(model.Subscription.owner_id==user_id)
+
+    for subscription in subscription_query.all():
+        for subscribed_object in subscription.subscribed_objects():
+            q = q.union(activity_query.filter(model.Activity.object_id==subscribed_object.id))
+    
+    return q
+
+
 def _activities_from_everything_followed_by_user_query(user_id):
     q = _activites_from_users_followed_by_user_query(user_id)
     q = q.union(_activities_from_datasets_followed_by_user_query(user_id))
+    q = _activities_from_subscriptions_by_user_query(user_id, q)
+
     return q
 
 
@@ -171,6 +185,7 @@ def activities_from_everything_followed_by_user(user_id, limit=15):
 def _dashboard_activity_query(user_id):
     q = _user_activity_query(user_id)
     q = q.union(_activities_from_everything_followed_by_user_query(user_id))
+
     return q
 
 

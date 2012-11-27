@@ -1,6 +1,7 @@
 import uuid
 import logging
 import json
+import urllib
 import datetime
 
 from pylons import config
@@ -11,6 +12,7 @@ import ckan.authz
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.action as action
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -18,6 +20,7 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
+import ckan.lib.base as base
 
 log = logging.getLogger('ckan.logic')
 
@@ -1022,6 +1025,7 @@ def user_autocomplete(context, data_dict):
 
     return user_list
 
+
 def package_search(context, data_dict):
     '''
     Searches for packages satisfying a given search criteria.
@@ -1120,30 +1124,45 @@ def package_search(context, data_dict):
     _check_access('package_search', context, data_dict)
 
     # check if some extension needs to modify the search params
+    search_params = dict(data_dict)
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+        search_params = item.before_search(search_params)
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search',False)
+    abort = search_params.get('abort_search',False)
 
     results = []
     if not abort:
+        # a dict is more convenient than a clumsy string
+        if 'filters' in search_params:
+            search_params['fq'] = ''
+            for filter_name, filter_value_list in search_params['filters'].iteritems():
+                if filter_name not in base.g.facets:
+                    continue
+                    
+                for filter_value in filter_value_list:
+                    search_params['fq'] += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+
+            data_dict['fq'] = search_params['fq']
+
+            del search_params['filters']
+            
         # return a list of package ids
-        data_dict['fl'] = 'id data_dict'
+        search_params['fl'] = 'id data_dict'
 
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
+        fq = search_params.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            search_params['fq'] = fq + ' capacity:"public"'
 
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(search_params)
 
         for package in query.results:
             # get the package object
@@ -1167,7 +1186,7 @@ def package_search(context, data_dict):
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations( plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
+                        package_dict = item.before_search_view(package_dict)
                 results.append(package_dict)
             else:
                 results.append(model_dictize.package_dictize(pkg,context))
@@ -1206,7 +1225,7 @@ def package_search(context, data_dict):
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
     search_results['search_facets'] = restructured_facets
-
+    
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
@@ -2222,7 +2241,7 @@ def dashboard_activity_list(context, data_dict):
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
-
+    
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = '%Y-%m-%dT%H:%M:%S.%f'
@@ -2308,3 +2327,125 @@ def _unpick_search(sort, allowed_fields=None, total=None):
         raise logic.ParameterError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
+
+
+def subscription_list(context, data_dict):
+    '''Return the list of all subscriptions of the user that is logged in.
+
+    :rtype: list of dictionaries
+
+    '''
+    if not context.has_key('user'):
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+
+    query = query.order_by(model.Subscription.name)
+    subscriptions = query.all()
+    
+    for subscription in subscriptions:
+        subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    return model_dictize.subscription_list_dictize(subscriptions, context)
+
+
+def subscription_show(context, data_dict):
+    '''Return a subscriptions of a user.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
+
+    :rtype: dictionary
+
+    '''
+    try:
+        subscription = action._get_subscription(context, data_dict)
+    except NotFound:
+        return None
+
+    return model_dictize.subscription_dictize(subscription, context)
+
+def subscription_check_name(context, data_dict):
+    '''Create a subscription.
+
+    You must provide your API key in the Authorization header.
+
+    :param subscription_name: the name of the subscription to be checked
+    :type subscription_name: string
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+    query = query.filter(model.Subscription.name==data_dict['subscription_name'])
+    subscription = query.first()
+            
+    if subscription:
+        raise ckan.logic.ParameterError('subscription name is already taken by this user')
+
+
+def subscription_item_list(context, data_dict):
+    '''Return the list of items of a subscription.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
+    
+    :param last_update: update is deferred until x minutes after last update [optional]
+    :type last_update: integer
+    
+    :rtype: dictionary
+
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
+
+
+def subscription_dataset_list(context, data_dict):
+    '''Return the list of datasets of a dataset subscription.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
+    
+    :param last_update: update is deferred until x minutes after last update [optional]
+    :type last_update: integer
+    
+    :rtype: dictionary
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    datasets = subscription.subscribed_objects()
+    
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+

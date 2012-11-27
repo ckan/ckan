@@ -2,6 +2,7 @@ from pylons.i18n import _
 
 import ckan.logic
 import ckan.logic.action
+import ckan.logic.action as action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
 validate = ckan.lib.navl.dictization_functions.validate
@@ -356,8 +357,14 @@ def unfollow_dataset(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
+
+    data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
+
 
 def unfollow_group(context, data_dict):
     '''Stop following a group.
@@ -370,3 +377,22 @@ def unfollow_group(context, data_dict):
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
+
+
+def subscription_delete(context, data_dict):
+    '''Delete a subscription.
+
+    :param subscription_name: the name of the subscription
+    :type subscription_name: string
+    or
+    :param subscription_id: the id of the subscription
+    :type subscription_id: string
+    or
+    :param subscription_definition: the definition of the subscription
+    :type subscription_definition: json object
+
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.delete()
+    model.repo.commit()
+
