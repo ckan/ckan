@@ -47,7 +47,7 @@
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
           <option value="">{{ _('Select an organization...') }}</option>
           {% for organization in organizations_available %}
-          <option value="{{ organization.id }}" {% if organization.id == data.owner_org%}selected="selected"{% endif %}>{{ organization.name }}</option>
+          <option value="{{ organization.id }}"{% if organization.id == data.group_id%} selected="selected"{% endif %}>{{ organization.name }}</option>
           {% endfor %}
         </select>
       </div>
