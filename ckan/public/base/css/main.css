@@ -4506,13 +4506,13 @@ ul.icons li .icon-large:before {
 .simple-list:after {
   clear: both;
 }
-.simple-list  > li {
+.simple-list > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.simple-list  > li:last-of-type {
+.simple-list > li:last-of-type {
   border-bottom: 0;
 }
 .simple-list .ckan-icon {
@@ -4671,8 +4671,6 @@ ul.icons li .icon-large:before {
 .module-grid {
   margin: 0;
   list-style: none;
-  margin: 0;
-  list-style: none;
   *zoom: 1;
   margin-left: -20px;
   padding: 0;
@@ -4693,7 +4691,6 @@ ul.icons li .icon-large:before {
   width: 33.33%;
   padding-left: 20px;
   padding-bottom: 25px;
-  float: left;
   float: left;
   margin-left: 20px;
   width: 460px;
@@ -4720,10 +4717,10 @@ ul.icons li .icon-large:before {
 .ckanext-datapreview {
   position: relative;
 }
-.ckanext-datapreview  > iframe {
+.ckanext-datapreview > iframe {
   min-height: 400px;
 }
-.ckanext-datapreview  > img {
+.ckanext-datapreview > img {
   max-height: 500px;
   max-width: 100%;
   overflow: hidden;
@@ -4887,13 +4884,13 @@ ol.media-grid:after {
 .nav-simple:after {
   clear: both;
 }
-.nav-simple  > li {
+.nav-simple > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.nav-simple  > li:last-of-type {
+.nav-simple > li:last-of-type {
   border-bottom: 0;
 }
 .nav-simple .ckan-icon {
@@ -4915,12 +4912,10 @@ ol.media-grid:after {
 }
 .nav-item.active > a {
   background: url("../../../base/images/background-tag.png") no-repeat -13px center;
-  position: relative;
   display: block;
   font-size: 11px;
   line-height: 27px;
   color: #187794;
-  padding-left: 10px;
   padding-right: 5px;
   margin-right: 11px;
   -webkit-box-sizing: border-box;
@@ -5132,6 +5127,7 @@ textarea {
   float: right;
   width: 265px;
   margin-top: 0;
+  padding-bottom: 0;
 }
 .form-horizontal .control-medium .info-block.info-inline {
   width: 165px;
@@ -5209,8 +5205,6 @@ textarea {
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
-  width: 17px;
-  height: 17px;
   background-position: -51px -16px;
   position: absolute;
   display: block;
@@ -5804,8 +5798,6 @@ textarea {
   vertical-align: text-bottom;
   position: relative;
   top: 2px;
-  width: 16px;
-  height: 16px;
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
@@ -6661,7 +6653,6 @@ li .icon-large:before {
   float: right;
 }
 [role=main] .secondary {
-  float: left;
   margin-left: 20px;
   width: 220px;
   margin-left: 0;
@@ -6980,11 +6971,9 @@ header.masthead .user-dropdown-menu a:hover {
 }
 header.masthead .debug {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   left: 10px;
-  font-size: 11px;
   color: rgba(255, 255, 255, 0.5);
-  line-height: 1.2;
 }
 .site-footer {
   *zoom: 1;
@@ -7148,6 +7137,10 @@ header.masthead .debug {
 .lang-dropdown .select2-result-label[data-value*="/pt_BR/"]:before {
   background-position: 0 -132px;
 }
+.editing [role="main"],
+.editing .main {
+  background: #efefef url("../../../base/images/editing.png?2") 0 0 repeat-x;
+}
 .profile .empty,
 .profile .dataset-list {
   margin-bottom: 20px;
@@ -7165,6 +7158,9 @@ header.masthead .debug {
 .profile-info .avatar img,
 .profile-info .avatar a {
   display: block;
+}
+.profile-info p {
+  overflow: auto;
 }
 .profile-info code {
   font-weight: normal;
@@ -7215,6 +7211,9 @@ header.masthead .debug {
   font-weight: 700;
   line-height: 1.2;
   margin-left: 0;
+}
+.profile-info.editing .module-content {
+  margin-top: 0;
 }
 .activity {
   margin: 10px 0;
@@ -7302,7 +7301,7 @@ header.masthead .debug {
   text-decoration: none;
 }
 .activity .item i {
-  background-color: #767dce;
+  background-color: #999999;
 }
 .activity .item.added-tag i {
   background-color: #6995a6;
@@ -7322,6 +7321,9 @@ header.masthead .debug {
 .activity .item.changed-user i {
   background-color: #76b8ce;
 }
+.activity .item.changed-organization i {
+  background-color: #699fa6;
+}
 .activity .item.deleted-group i {
   background-color: #b95252;
 }
@@ -7333,6 +7335,9 @@ header.masthead .debug {
 }
 .activity .item.deleted-resource i {
   background-color: #b99752;
+}
+.activity .item.deleted-organization i {
+  background-color: #b95297;
 }
 .activity .item.new-group i {
   background-color: #69a67a;
@@ -7348,6 +7353,9 @@ header.masthead .debug {
 }
 .activity .item.new-user i {
   background-color: #69a6a3;
+}
+.activity .item.new-organization i {
+  background-color: #81a669;
 }
 .activity .item.removed-tag i {
   background-color: #b95297;
