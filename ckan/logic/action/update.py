@@ -939,12 +939,6 @@ def user_role_bulk_update(context, data_dict):
     return _get_action('roles_show')(context, data_dict)
 
 
-def dashboard_update_email_notification_last_sent(context, data_dict):
-    model = context['model']
-    user = model.User.get(context['user'])  # The authorized user.
-    model.Dashboard.update_activity_stream_last_viewed(user.id)
-
-
 def dashboard_mark_activities_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
 
@@ -956,5 +950,3 @@ def dashboard_mark_activities_old(context, data_dict):
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.update_activity_stream_last_viewed(user_id)
-
-

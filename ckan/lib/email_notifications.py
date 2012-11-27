@@ -105,22 +105,25 @@ def send_notification(user, email_dict):
     try:
         ckan.lib.mailer.mail_recipient(user['display_name'], user['email'],
                 email_dict['subject'], email_dict['body'])
-        context = {'model': model, 'session': model.Session,
-                'user': user['name']}
-        response = logic.get_action('dashboard_update_email_notification_last_sent')(
-                context, {})
+        # FIXME: We are accessing model from lib here but I'm not sure what
+        # else to do unless we add a update_activity_stream_last_viewed()
+        # logic function which would only be needed by this lib.
+        model.Dashboard.update_last_activity_stream_email_notification(
+                user['id'])
         # TODO: Do something with response?
     except ckan.lib.mailer.MailerException:
         raise
 
 
 def get_and_send_notifications_for_user(user):
-    # FIXME: Get the time that the last email notification was sent to the
-    # user and the time that they last viewed their dashboard, set `since` to
-    # whichever is more recent.
-    context = {'model': model, 'session': model.Session, 'user': user['name']}
-    since = logic.get_action('dashboard_email_notification_last_sent')(
-            context, {})
+    # FIXME: `since` here should be the time that the last email notification
+    # was sent _or_ the time the user last viewed her dashboard, whichever is
+    # newer.
+    # FIXME: We are accessing model from lib here but I'm not sure what else
+    # to do unless we add a get_activity_stream_last_viewed() logic function
+    # which would only be needed by this lib.
+    since = model.Dashboard.get_last_activity_stream_email_notification(
+            user['id'])
 
     notifications = get_notifications(user['id'], since)
     # TODO: Handle failures from send_email_notification.

@@ -2269,13 +2269,6 @@ def dashboard_new_activities_count(context, data_dict):
     return len([activity for activity in activities if activity['is_new']])
 
 
-def dashboard_email_notification_last_sent(context, data_dict):
-    model = context['model']
-    user = model.User.get(context['user'])  # The authorized user.
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user.id)
-    return last_viewed
-
-
 def _unpick_search(sort, allowed_fields=None, total=None):
     ''' This is a helper function that takes a sort string
     eg 'name asc, last_modified desc' and returns a list of
