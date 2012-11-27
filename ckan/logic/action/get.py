@@ -1226,7 +1226,7 @@ def package_search(context, data_dict):
             new_facet_dict['count'] = value_
             restructured_facets[key]['items'].append(new_facet_dict)
     search_results['search_facets'] = restructured_facets
-    
+
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
         search_results = item.after_search(search_results,data_dict)
@@ -1239,7 +1239,7 @@ def package_search(context, data_dict):
                 key=lambda facet: facet['display_name'], reverse=True)
 
     return search_results
-    
+
 def resource_search(context, data_dict):
     '''
     Searches for resources satisfying a given search criteria.
