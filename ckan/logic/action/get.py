@@ -1058,7 +1058,8 @@ def package_search(context, data_dict):
         for further details.
     :type qf: string
     :param filters: filters used to define extra params of solr query
-    :type filters: dict of lists {'filed': [values]}
+    :type filters: dict of values {'field': [values]} values may be a string
+    or a list of strings.
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1138,13 +1139,17 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq','')
 
         # filters get converted to solr query params
+        # value can be a single string value or a list of strings
         # FIXME we are destructively removing data_dict['filters'] so it is
         # no longer available.  Is this what we want.  We do it to keep SOLR
         # happy.
         filters = data_dict.pop('filters', {})
-        for filter_name, filter_value_list in filters.iteritems():
-            for filter_value in filter_value_list:
-                fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+        for key, values in filters.iteritems():
+            if isinstance(values, basestring):
+                fq += ' %s:"%s"' % (key, urllib.unquote(values))
+            else:
+                for value in values:
+                    fq += ' %s:"%s"' % (key, urllib.unquote(value))
         # update the data_dict
         data_dict['fq'] = fq
 
