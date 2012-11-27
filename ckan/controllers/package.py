@@ -451,7 +451,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to create a package'))
 
         if context['save'] and not data:
-            return self._save_new(context)
+            return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
@@ -481,7 +481,8 @@ class PackageController(BaseController):
                 'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
-        self._setup_template_variables(context, {'id': id})
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
