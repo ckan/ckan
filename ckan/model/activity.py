@@ -150,6 +150,10 @@ def _group_activity_query(group_id, limit=15):
     import ckan.model as model
 
     group = model.Group.get(group_id)
+    if not group:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter("0=1")
+
     dataset_ids = [dataset.id for dataset in group.packages()]
 
     q = model.Session.query(model.Activity)
