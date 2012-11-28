@@ -674,14 +674,15 @@ class IGroupForm(Interface):
 
 
 class ISearchFacets(Interface):
-    """
-    Allow adding new facets to search interface.
-    Plugins should add new facets should be added to the 'search.facets'
+    '''
+    Allow defining new facet titles.
+    New SOLR facets should be added to the 'search.facets'
     config via the IConfigurer interface.
-    """
+    '''
 
     def search_facet_titles(self):
-        """
-        Should update and return a dictionary from facet name to facets
-        titles (latter get displayed on the search page).
-        """
+        '''
+        Return a dictionary mapping facet names to facet titles.
+        Example: {'facet_name': 'The title of the facet'}
+        The title will be displayed on the search page.
+        '''
