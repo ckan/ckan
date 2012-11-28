@@ -1147,6 +1147,7 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
+
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
