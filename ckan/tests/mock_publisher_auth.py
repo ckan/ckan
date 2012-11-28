@@ -1,5 +1,8 @@
 from ckan.new_authz import is_authorized
 from ckan.logic import NotAuthorized
+import logging
+
+log = logging.getLogger("mock_publisher_auth")
 
 class MockPublisherAuth(object):
     """
