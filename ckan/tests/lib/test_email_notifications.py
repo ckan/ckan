@@ -12,6 +12,18 @@ import paste
 import pylons.test
 
 
+def post(app, action, apikey=None, status=200, **kwargs):
+    params = json.dumps(kwargs)
+    response = app.post('/api/action/{0}'.format(action), params=params,
+            extra_environ={'Authorization': str(apikey)}, status=status)
+    if status in (200,):
+        assert response.json['success'] is True
+        return response.json['result']
+    else:
+        assert response.json['success'] is False
+        return response.json['error']
+
+
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         ckan.tests.pylons_controller.PylonsTestCase):
 
@@ -59,18 +71,12 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         self.clear_smtp_messages()
 
         # Register a new user.
-        params = {'name': 'sara',
-                'email': 'sara@sararollins.com',
-                'password': 'sara',
-                'fullname': 'Sara Rollins',
-                }
-        extra_environ = {'Authorization': str(self.joeadmin['apikey'])}
-        response = self.app.post('/api/action/user_create',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        sara = post(self.app, 'user_create', apikey=self.joeadmin['apikey'],
+                name='sara', email='sara@sararollins.com', password='sara',
+                fullname='Sara Rollins')
 
         # Save the user for later tests to use.
-        TestEmailNotifications.sara = response['result']
+        TestEmailNotifications.sara = sara
 
         # No notification emails should be sent to anyone at this point.
         email_notifications.get_and_send_notifications_for_all_users()
@@ -80,19 +86,13 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         '''A user with one new activity should get one email.'''
 
         # Make Sara follow something, have to do this to get new activity.
-        params = {'id': 'warandpeace'}
-        extra_environ = {'Authorization': str(self.sara['apikey'])}
-        response = self.app.post('/api/action/follow_dataset',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        post(self.app, 'follow_dataset', apikey=self.sara['apikey'],
+                id='warandpeace')
 
         # Make someone else update the dataset Sara's following, this should
         # create a new activity on Sara's dashboard.
-        params = {'name': 'warandpeace', 'notes': 'updated'}
-        extra_environ = {'Authorization': str(self.joeadmin['apikey'])}
-        response = self.app.post('/api/action/package_update',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                name='warandpeace', notes='updated')
 
         # Run the email notifier job, it should send one notification email
         # to Sara.
@@ -111,12 +111,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         # Make someone else update the dataset Sara's following three times,
         # this should create three new activities on Sara's dashboard.
         for i in range(1, 4):
-            params = {'name': 'warandpeace',
-                    'notes': 'updated {0} times'.format(i)}
-            extra_environ = {'Authorization': str(self.joeadmin['apikey'])}
-            response = self.app.post('/api/action/package_update',
-                params=json.dumps(params), extra_environ=extra_environ).json
-            assert response['success'] is True
+            post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                    name='warandpeace', notes='updated {0} times'.format(i))
 
         # Run the email notifier job, it should send one notification email
         # to Sara.
