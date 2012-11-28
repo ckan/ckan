@@ -1,13 +1,20 @@
 {#
-Contructs input type=hidden elements for each param passed
+Contructs input type=hidden elements for each name-value pair.
 
 name_value_pairs
   "name1=value1&name2=value2&..."
 
-except_names
-except
+Two parameter for excluding several names or name-value pairs.
 
+except_names - a dictionary mapping from names to booleans indicating whether or not the name should be excluded
+except       - a dictionary mapping from pairs to booleans indicating whether or not the pair should be excluded
+
+
+Example:
+    {% snippet "snippets/params_to_hidden.html", name_value_pairs=c.search_url_params, except={'topic=xyz':True} %}
+    {% snippet "snippets/params_to_hidden.html", name_value_pairs=c.search_url_params, except_names={'time_min':True, 'time_max':True} %}
 #}
+
 
 {% set except_names = except_names or {} %}
 {% set except = except or {} %}
