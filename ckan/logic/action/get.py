@@ -1122,6 +1122,18 @@ def package_search(context, data_dict):
 
     _check_access('package_search', context, data_dict)
 
+
+    # filters get converted to SOLR query params
+    filters = None
+    if 'filters' in data_dict:
+        filters = data_dict['filters']
+        fq = data_dict.get('fq', '')
+        for filter_name, filter_value_list in filters.iteritems():
+            for filter_value in filter_value_list:
+                if filter_name in data_dict['facet.field']:
+                    fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+        data_dict['fq'] = fq
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1135,22 +1147,6 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
-
-        # filters get converted to solr query params
-        # only those that appear in facet.field
-        fq = data_dict.get('fq', '')
-        filters = data_dict.get('filters', {})
-        for filter_name, filter_value_list in filters.iteritems():
-            for filter_value in filter_value_list:
-                if filter_name in data_dict['facet.field']:
-                    fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
-
-        # update the data_dict
-        data_dict['fq'] = fq
-        # SOLR cannot handle other search parameters
-        del data_dict['filters']
-
-
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
@@ -1160,11 +1156,16 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # SOLR cannot handle other search parameters like filters
+        if 'filters' in data_dict:
+            del data_dict['filters']
+
         query = search.query_for(model.Package)
         query.run(data_dict)
-        
-        #re-adding filters for extensions
-        data_dict['filters'] = filters
+
+        #re-adding filters for extensions when it was available via data_dict
+        if filters:
+            data_dict['filters'] = filters
 
         for package in query.results:
             # get the package object
