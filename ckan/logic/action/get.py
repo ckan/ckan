@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
