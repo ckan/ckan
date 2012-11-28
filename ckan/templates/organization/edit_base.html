@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block actions_content %}
-  {% if h.check_access('organization_update', {'id': c.group.id}) %}
+  {% if organization and h.check_access('organization_update', {'id': c.group.id}) %}
     <li><a href="{% url_for controller='organization', action='read', id=organization.name %}" class="btn">{{ _('View organization') }} <i class="icon-arrow-right"></i></a></li>
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
@@ -43,7 +43,9 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet 'snippets/organization.html', organization=organization %}
+  {% if organization %}
+    {% snippet 'snippets/organization.html', organization=organization %}
+  {% endif %}
 {% endblock %}
 
 {% block links %}
