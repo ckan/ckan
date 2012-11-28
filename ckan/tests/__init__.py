@@ -401,8 +401,8 @@ class StatusCodes:
     STATUS_409_CONFLICT = 409
 
 
-def post(app, action, apikey=None, status=200, **kwargs):
-    '''Post to the CKAN API and return the result.
+def call_action_api(app, action, apikey=None, status=200, **kwargs):
+    '''POST an HTTP request to the CKAN API and return the result.
 
     Any additional keyword arguments that you pass to this function as **kwargs
     are posted as params to the API.
