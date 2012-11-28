@@ -8,6 +8,8 @@ from ckan.logic.auth import get_package_object, get_group_object, get_resource_o
 from ckan.logic.auth.get import (
         dashboard_new_activities_count,
         dashboard_activity_list,
+        )
+from ckan.logic.auth.update import (
         dashboard_mark_activities_old,
         )
 
