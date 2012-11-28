@@ -79,6 +79,9 @@ class PackageController(BaseController):
     def _new_template(self, package_type):
         return lookup_package_plugin(package_type).new_template()
 
+    def _edit_template(self, package_type):
+        return lookup_package_plugin(package_type).edit_template()
+
     def _comments_template(self, package_type):
         return lookup_package_plugin(package_type).comments_template()
 
@@ -764,7 +767,8 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        return render('package/edit.html')
+        return render(self._edit_template(package_type),
+                      extra_vars={'stage': vars['stage']})
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
