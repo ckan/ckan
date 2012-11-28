@@ -713,7 +713,7 @@ class PackageController(BaseController):
                    'pending': True}
 
         if context['save'] and not data:
-            return self._save_edit(id, context)
+            return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             context['for_edit'] = True
@@ -905,7 +905,7 @@ class PackageController(BaseController):
                                 id=pkg_dict['name'])
                 redirect(url)
 
-            self._form_save_redirect(pkg_dict['name'], 'new')
+            self._form_save_redirect(pkg_dict['name'], 'new', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -931,7 +931,7 @@ class PackageController(BaseController):
             data_dict['state'] = 'none'
             return self.new(data_dict, errors, error_summary)
 
-    def _save_edit(self, name_or_id, context):
+    def _save_edit(self, name_or_id, context, package_type=None):
         from ckan.lib.search import SearchIndexError
         log.debug('Package save request name: %s POST: %r',
                   name_or_id, request.POST)
@@ -957,7 +957,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_dict = pkg
 
-            self._form_save_redirect(pkg['name'], 'edit')
+            self._form_save_redirect(pkg['name'], 'edit', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
@@ -975,7 +975,7 @@ class PackageController(BaseController):
             error_summary = e.error_summary
             return self.edit(name_or_id, data_dict, errors, error_summary)
 
-    def _form_save_redirect(self, pkgname, action):
+    def _form_save_redirect(self, pkgname, action, package_type=None):
         '''This redirects the user to the CKAN package/read page,
         unless there is request parameter giving an alternate location,
         perhaps an external website.
@@ -988,7 +988,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            url = h.url_for(controller='package', action='read', id=pkgname)
+            if package_type:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
+            else:
+                url = h.url_for(controller='package', action='read', id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
