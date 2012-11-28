@@ -1,4 +1,3 @@
-from ckan.new_authz import is_authorized
 from ckan.logic import NotAuthorized
 import logging
 
