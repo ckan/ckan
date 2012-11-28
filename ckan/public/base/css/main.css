@@ -5895,6 +5895,10 @@ textarea {
 .group-list .module-heading h3 a {
   color: #333333;
 }
+.group-list .module-heading .media-image {
+  overflow: hidden;
+  max-height: 60px;
+}
 .toolbar {
   *zoom: 1;
   margin-top: -10px;
