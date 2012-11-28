@@ -116,13 +116,13 @@ def send_notification(user, email_dict):
 
 
 def get_and_send_notifications_for_user(user):
-    # FIXME: `since` here should be the time that the last email notification
-    # was sent _or_ the time the user last viewed her dashboard, whichever is
-    # newer.
     # FIXME: We are accessing model from lib here but I'm not sure what else
     # to do unless we add a get_email_last_sent() logic function
     # which would only be needed by this lib.
-    since = model.Dashboard.get(user['id']).email_last_sent
+    email_last_sent = model.Dashboard.get(user['id']).email_last_sent
+    activity_stream_last_viewed = (
+            model.Dashboard.get(user['id']).activity_stream_last_viewed)
+    since = max(email_last_sent, activity_stream_last_viewed)
 
     notifications = get_notifications(user['id'], since)
     # TODO: Handle failures from send_email_notification.

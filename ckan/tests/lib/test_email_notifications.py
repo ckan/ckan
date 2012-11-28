@@ -134,6 +134,33 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         email_notifications.get_and_send_notifications_for_all_users()
         assert len(self.get_smtp_messages()) == 0
 
+    def test_05_no_email_if_seen_on_dashboard(self):
+        '''Test that emails are not sent for activities already seen on dash.
+
+        If a user gets some new activities in her dashboard activity stream,
+        then views her dashboard activity stream, then she should not got any
+        email notifications about these new activities.
+
+        '''
+        # Make someone else update the dataset Sara's following, this should
+        # create a new activity on Sara's dashboard.
+        post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                name='warandpeace',
+                notes='updated by test_05_no_email_if_seen_on_dashboard')
+
+        # At this point Sara should have a new activity on her dashboard.
+        num_new_activities = post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey'])
+        assert num_new_activities > 0, num_new_activities
+
+        # View Sara's dashboard.
+        post(self.app, 'dashboard_mark_activities_old',
+                apikey=self.sara['apikey'])
+
+        # No email should be sent.
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0
+
     def test_05_no_email_notifications_when_disabled_site_wide(self):
         '''Users should not get email notifications when the feature is
         disabled site-wide by a sysadmin.'''
