@@ -173,6 +173,13 @@ class DefaultDatasetForm(object):
         """
         return 'package/new.html'
 
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'package/edit.html'
+
     def comments_template(self):
         """
         Returns a string representing the location of the template to be
