@@ -467,7 +467,8 @@ class GroupController(BaseController):
                    'user': c.user or c.author}
 
         try:
-            c.members = self._action('member_list')(context, {'id': id})
+            c.members = self._action('member_list')(context, {'id': id,
+                                                              'object_type': 'user'})
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
