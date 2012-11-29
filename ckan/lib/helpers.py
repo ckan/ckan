@@ -1310,6 +1310,10 @@ def resource_preview(resource, pkg_id):
         )
 
 
+def unquote(string):
+    return urllib.unquote(string) if string else ''
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1393,4 +1397,5 @@ __allowed_functions__ = [
            'radio',
            'submit',
            'asbool',
+           'unquote',
 ]

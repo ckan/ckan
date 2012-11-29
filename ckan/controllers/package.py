@@ -1,6 +1,7 @@
 import logging
 from urllib import urlencode
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
@@ -33,6 +34,7 @@ import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +154,7 @@ class PackageController(BaseController):
 
         c.remove_field = remove_field
 
-        sort_by = request.params.get('sort', None)
+        sort_by = request.params.get('sort', '')
         params_nosort = [(k, v) for k, v in params_nopage if k != 'sort']
 
         def _sort_by(fields):
@@ -173,11 +175,10 @@ class PackageController(BaseController):
             return search_url(params)
 
         c.sort_by = _sort_by
-        if sort_by is None:
-            c.sort_by_fields = []
+        if sort_by:
+            c.sort_by_fields = [field.split()[0] for field in sort_by.split(',')]
         else:
-            c.sort_by_fields = [field.split()[0]
-                                for field in sort_by.split(',')]
+            c.sort_by_fields = []
         c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
@@ -189,30 +190,28 @@ class PackageController(BaseController):
 
         try:
             c.fields = []
-            # c.fields_grouped will contain a dict of params containing
-            # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
             for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
-                    else:
-                        search_extras[param] = value
+                if not value:
+                    continue
+                
+                if param.startswith('ext_'):
+                    search_extras[param] = value
+                else:
+                    c.fields.append((param, urllib.unquote(value)))
 
+                    if param not in c.fields_grouped:
+                        c.fields_grouped[param] = [urllib.unquote(value)]
+                    else:
+                        c.fields_grouped[param].append(urllib.unquote(value))
+     
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
@@ -241,10 +240,15 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
+        
+        # Facet titles
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
-                          'license': _('Licence'), }
+                          'license': _('Licence'),
+        }
+        for plugin in p.PluginImplementations(p.ISearchFacets):
+            c.facet_titles.update(plugin.search_facet_titles())
 
         maintain.deprecate_context_item(
           'facets',

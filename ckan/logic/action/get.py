@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
@@ -1044,6 +1045,8 @@ def package_search(context, data_dict):
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
+    :param filters: filters used to define extra params of solr query
+    :type filters: dict of lists {'filed': [values]}
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1107,6 +1110,18 @@ def package_search(context, data_dict):
 
     _check_access('package_search', context, data_dict)
 
+
+    # filters get converted to SOLR query params
+    filters = None
+    if 'filters' in data_dict:
+        filters = data_dict['filters']
+        fq = data_dict.get('fq', '')
+        for filter_name, filter_value_list in filters.iteritems():
+            for filter_value in filter_value_list:
+                if filter_name in data_dict['facet.field']:
+                    fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+        data_dict['fq'] = fq
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1130,8 +1145,16 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # SOLR cannot handle other search parameters like filters
+        if 'filters' in data_dict:
+            del data_dict['filters']
+
         query = search.query_for(model.Package)
         query.run(data_dict)
+
+        #re-adding filters for extensions when it was available via data_dict
+        if filters:
+            data_dict['filters'] = filters
 
         for package in query.results:
             # get the package object
