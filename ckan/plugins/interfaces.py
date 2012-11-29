@@ -16,6 +16,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'ISearchFacets',
 ]
 
 from inspect import isclass
@@ -669,4 +670,17 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
-    ##### End of hooks                                                   #####
+
+class ISearchFacets(Interface):
+    '''
+    Allow adding new facets to search interface.
+    Plugins should add new facets should be added to the `search.facets`
+    config via the IConfigurer interface.
+    '''
+
+    def search_facet_titles(self, titles_dict):
+        '''
+        Should update and return a dictionary from facet name to facets
+        titles (latter get displayed on the search page).
+        '''
+        return titles_dict

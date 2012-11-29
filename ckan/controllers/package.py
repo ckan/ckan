@@ -33,6 +33,7 @@ import ckan.lib.accept as accept
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -241,10 +242,15 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-        c.facet_titles = {'groups': _('Groups'),
-                          'tags': _('Tags'),
-                          'res_format': _('Formats'),
-                          'license': _('Licence'), }
+
+        # Facet titles
+        facet_titles = {'groups': _('Groups'),
+                        'tags': _('Tags'),
+                        'res_format': _('Formats'),
+                        'license': _('Licence'), }
+        for plugin in p.PluginImplementations(p.ISearchFacets):
+            facet_titles = plugin.search_facet_titles(facet_titles)
+        c.facet_titles = facet_titles
 
         maintain.deprecate_context_item(
           'facets',

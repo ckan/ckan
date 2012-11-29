@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import urllib
 
 from pylons import config
 from pylons.i18n import _
@@ -16,6 +17,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
+import ckan.lib.search.query as search_query
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 
@@ -1044,6 +1046,9 @@ def package_search(context, data_dict):
         <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
         for further details.
     :type qf: string
+    :param filters: filters used to define extra params of solr query
+    :type filters: dict of values {'field': [values]} values may be a string
+    or a list of strings.
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1120,18 +1125,39 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
+        fq = data_dict.get('fq','')
+
+        # filters get converted to solr query params
+        # value can be a single string value or a list of strings
+        filters = data_dict.get('filters', {})
+        for key, values in filters.iteritems():
+            if isinstance(values, basestring):
+                fq += ' %s:"%s"' % (key, urllib.unquote(values))
+            else:
+                for value in values:
+                    fq += ' %s:"%s"' % (key, urllib.unquote(value))
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
         if not context.get('ignore_capacity_check',False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            fq += ' capacity:"public"'
+
+        # NOTE: We store this amended 'fq' in the data_dict but maybe we
+        # should not.
+        data_dict['fq'] = fq
+
+        # Create a clean dict for solr containing only valid fields from
+        # data_dict
+        solr_dict = {}
+        for key in search_query.VALID_SOLR_PARAMETERS :
+            if key in data_dict:
+                solr_dict[key] = data_dict[key]
 
         query = search.query_for(model.Package)
-        query.run(data_dict)
+        query.run(solr_dict)
 
         for package in query.results:
             # get the package object
