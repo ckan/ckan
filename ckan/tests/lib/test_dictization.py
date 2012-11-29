@@ -901,6 +901,7 @@ class TestBasicDictize:
                               'name': u'annafan',
                               'number_administered_packages': 1L,
                               'number_of_edits': 0L,
+                              'email_notifications': False,
                               }],
                     'name': u'help',
                     'display_name': u'help',
