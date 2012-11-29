@@ -57,13 +57,23 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['after_search'] += 1
         return search_results
 
-    def before_index(self, search_params):
+    def before_index(self, data_dict):
         self.calls['before_index'] += 1
-        return search_params
+        return data_dict
 
-    def before_view(self, search_params):
+    def before_view(self, data_dict):
         self.calls['before_view'] += 1
-        return search_params
+        return data_dict
+
+    def after_create(self, data_dict):
+        self.calls['after_create'] += 1
+        self.id_in_dict = 'id' in data_dict
+
+        return data_dict
+
+    def after_update(self, data_dict):
+        self.calls['after_update'] += 1
+        return data_dict
 
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
@@ -943,6 +953,26 @@ class TestEdit(TestPackageForm):
         finally:
             self._reset_data()
 
+    def test_after_update_plugin_hook(self):
+        # just the absolute basics
+        try:
+            plugin = MockPackageControllerPlugin()
+            plugins.load(plugin)
+            res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
+            new_name = u'new-name'
+            new_title = u'New Title'
+            fv = res.forms['dataset-edit']
+            prefix = ''
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
+            # get redirected ...
+            assert plugin.calls['after_update'] == 1, plugin.calls
+            assert plugin.calls['after_create'] == 0, plugin.calls
+            plugins.unload(plugin)
+        finally:
+            self._reset_data()
+
     def test_edit_700_groups_add(self):
         try:
             pkg = model.Package.by_name(u'editpkgtest')
@@ -1274,6 +1304,23 @@ class TestNew(TestPackageForm):
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
 
+    def test_after_create_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+        new_name = u'plugged2'
+        fv = res.forms['dataset-edit']
+        prefix = ''
+        fv[prefix + 'name'] = new_name
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
+        # get redirected ...
+        assert plugin.calls['after_update'] == 0, plugin.calls
+        assert plugin.calls['after_create'] == 1, plugin.calls
+
+        assert plugin.id_in_dict
+
+        plugins.unload(plugin)
 
     def test_new_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'

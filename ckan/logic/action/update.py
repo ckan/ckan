@@ -271,6 +271,9 @@ def package_update(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
+
+        item.after_update(data)
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
