@@ -116,6 +116,12 @@ def send_notification(user, email_dict):
 
 
 def get_and_send_notifications_for_user(user):
+
+    # Don't send email if the user has her email notifications preference
+    # turned off.
+    if not user['email_notifications']:
+        return
+
     # FIXME: We are accessing model from lib here but I'm not sure what else
     # to do unless we add a get_email_last_sent() logic function
     # which would only be needed by this lib.

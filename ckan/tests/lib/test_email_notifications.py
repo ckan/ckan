@@ -73,7 +73,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         # Register a new user.
         sara = post(self.app, 'user_create', apikey=self.joeadmin['apikey'],
                 name='sara', email='sara@sararollins.com', password='sara',
-                fullname='Sara Rollins')
+                fullname='Sara Rollins', email_notifications=True)
 
         # Save the user for later tests to use.
         TestEmailNotifications.sara = sara
@@ -172,13 +172,92 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
 
         '''
 
-    def test_07_no_email_notifications_when_disabled_by_user(self):
-        '''Users should not get email notifications when they have disabled
-        the feature in their user preferences.'''
 
-    def test_08_enable_email_notifications_by_user(self):
-        '''When a user enables email notifications in her user preferences,
-        she should not get emails for new activities from before email
-        notifications were enabled.
+# It's just easier to separate these tests into their own test class.
+class TestEmailNotificationsUserPreference(mock_mail_server.SmtpServerHarness,
+        ckan.tests.pylons_controller.PylonsTestCase):
+    '''Tests for the email notifications (on/off) user preference.'''
 
-        '''
+    @classmethod
+    def setup_class(cls):
+        mock_mail_server.SmtpServerHarness.setup_class()
+        ckan.tests.pylons_controller.PylonsTestCase.setup_class()
+        ckan.tests.CreateTestData.create()
+        cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        joeadmin = model.User.get('joeadmin')
+        cls.joeadmin = {'id': joeadmin.id,
+                'apikey': joeadmin.apikey,
+                }
+
+    @classmethod
+    def teardown_class(self):
+        mock_mail_server.SmtpServerHarness.teardown_class()
+        ckan.tests.pylons_controller.PylonsTestCase.teardown_class()
+        model.repo.rebuild_db()
+
+    def test_00_email_notifications_disabled_by_default(self):
+        '''Email notifications should be disabled for new users.'''
+
+        # Register a new user.
+        sara = post(self.app, 'user_create', apikey=self.joeadmin['apikey'],
+                name='sara', email='sara@sararollins.com', password='sara',
+                fullname='Sara Rollins')
+
+        # Save the user for later tests to use.
+        TestEmailNotificationsUserPreference.sara = sara
+
+        # Email notifications should be disabled for the new user.
+        assert sara['email_notifications'] is False
+        assert post(self.app, 'user_show', apikey=self.sara['apikey'],
+                id='sara')['email_notifications'] is False
+
+    def test_01_no_email_notifications_when_disabled(self):
+        '''Users with email notifications turned off should not get emails.'''
+
+        # First make Sara follow something so she gets some new activity in
+        # her dashboard activity stream.
+        post(self.app, 'follow_dataset', apikey=self.sara['apikey'],
+                id='warandpeace')
+
+        # Now make someone else update the dataset so Sara gets a new activity.
+        post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                id='warandpeace', notes='updated')
+
+        # Test that Sara has a new activity, just to make sure.
+        assert post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey']) > 0
+
+        # No email notifications should be sent to Sara.
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0
+
+    def test_02_enable_email_notifications(self):
+        '''Users should be able to turn email notifications on.'''
+
+        self.sara['email_notifications'] = True
+        post(self.app, 'user_update', **self.sara)
+
+        post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                id='warandpeace', notes='updated again')
+
+        assert post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey']) > 0
+
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 1
+        self.clear_smtp_messages()
+
+    def test_03_disable_email_notifications(self):
+        '''Users should be able to turn email notifications off.'''
+
+        self.sara['email_notifications'] = False
+        post(self.app, 'user_update', **self.sara)
+
+        post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                id='warandpeace', notes='updated yet again')
+
+        assert post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey']) > 0
+
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0
