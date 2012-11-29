@@ -234,15 +234,45 @@ class TestEmailNotificationsUserPreference(mock_mail_server.SmtpServerHarness,
     def test_02_enable_email_notifications(self):
         '''Users should be able to turn email notifications on.'''
 
+        # Mark all Sara's new activities as old, just to get a fresh start.
+        post(self.app, 'dashboard_mark_activities_old',
+                apikey=self.sara['apikey'])
+        assert post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey']) == 0
+
+        # Update the followed dataset a few times so Sara gets a few new
+        # activities.
+        for i in range(1, 4):
+            post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
+                    id='warandpeace', notes='updated {0} times'.format(i))
+
+        # Now Sara should have new activities.
+        assert post(self.app, 'dashboard_new_activities_count',
+                apikey=self.sara['apikey']) == 3
+
+        # Run the email notifier job.
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0
+
+        # Enable email notifications for Sara.
         self.sara['email_notifications'] = True
         post(self.app, 'user_update', **self.sara)
 
+        email_notifications.get_and_send_notifications_for_all_users()
+        assert len(self.get_smtp_messages()) == 0, ("After a user enables "
+            "email notifications she should _not_ get emails about activities "
+            "that happened before she enabled them, even if those activities "
+            "are still marked as 'new' on her dashboard.")
+
+        # Update the package to generate another new activity.
         post(self.app, 'package_update', apikey=self.joeadmin['apikey'],
-                id='warandpeace', notes='updated again')
+                id='warandpeace', notes='updated yet again')
 
+        # Check that Sara has a new activity.
         assert post(self.app, 'dashboard_new_activities_count',
-                apikey=self.sara['apikey']) > 0
+                apikey=self.sara['apikey']) == 4
 
+        # Run the email notifier job, this time Sara should get one email.
         email_notifications.get_and_send_notifications_for_all_users()
         assert len(self.get_smtp_messages()) == 1
         self.clear_smtp_messages()
