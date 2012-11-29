@@ -23,7 +23,7 @@ class TestDashboard(object):
             'password': 'iammrnew',
             })
         response = cls.app.post('/api/action/user_create', params=params,
-                extra_environ={'Authorization': str(cls.joeadmin['apikey'])})
+                extra_environ={'Authorization': str(cls.testsysadmin['apikey'])})
         assert response.json['success'] is True
         new_user = response.json['result']
         return new_user
