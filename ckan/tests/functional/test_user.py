@@ -187,8 +187,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # then get redirected to user's dashboard
         res = res.follow()
         assert_equal(res.status, 302)
-        assert res.header('Location').startswith('http://localhost/user/dashboard') or \
-               res.header('Location').startswith('/user/dashboard')
+        assert res.header('Location').startswith('http://localhost/dashboard') or \
+               res.header('Location').startswith('/dashboard')
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body
