@@ -72,14 +72,18 @@ def register_package_plugins(map):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
-            map.connect('/%s/new' % package_type,
+
+            map.connect('%s_new' % package_type, '/%s/new' % package_type,
                         controller='package', action='new')
             map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
                         controller='package', action='read')
-            map.connect('%s_action' % package_type,
-                        '/%s/{action}/{id}' % package_type, controller='package',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
-            )
+
+            for action in ['edit', 'authz', 'history']:
+                map.connect('%s_%s' % (package_type, action),
+                        '/%s/%s/{id}' % (package_type, action),
+                        controller='package',
+                        action=action
+                )
 
             if package_type in _package_plugins:
                 raise ValueError, "An existing IDatasetForm is "\
