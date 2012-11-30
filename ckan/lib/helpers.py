@@ -1322,8 +1322,7 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    # todo: add package
-    data_dict = {'resource': resource, 'package': None}
+    data_dict = {'resource': resource, 'package': c.package}
 
     if not resource['url']:
         log.info('No url for resource {0} defined.'.format(resource['id']))
