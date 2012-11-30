@@ -1,4 +1,7 @@
 <li class="item {{ activity.type|lower }}">
+	{% if activity.is_new %}
+	<span class="new" title="{{ _('New activity item') }}">{{ _('New activity item') }}</span>
+	{% endif %}
 	<i class="icon-{{ activity.icon }}"></i>
 	<p>
 		{{ h.literal(activity.msg.format(**activity.data)) }}

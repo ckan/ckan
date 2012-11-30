@@ -5,7 +5,6 @@
 {% block subtitle %}{{ _('Dashboard') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
   <li class="active"><a href="">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
@@ -17,9 +16,9 @@
 
 {% block primary_content %}
   <article class="module">
-    <div class="module-content">
+    <div class="module-content" data-module="dashboard">
       <h2 class="page-heading">{{ _('News feed') }} <small>{{ _('Activity from users and datasets that you follow') }}</small></h2>
-      {{ h.dashboard_activity_stream(c.user_dict['id']) }}
+      {{ c.dashboard_activity_stream }}
     </div>
   </article>
 {% endblock %}

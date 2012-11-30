@@ -1,6 +1,5 @@
 # These are packages that required when running ckan tests
 
 nose
-requests==0.6.4
 -e git+https://github.com/okfn/ckanclient#egg=ckanclient
 

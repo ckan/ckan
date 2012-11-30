@@ -244,6 +244,13 @@ ckan.feeds.author_link =
 preview.direct = png jpg gif
 preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 
+# DEBUGGING
+
+# ckan.debug_supress_header This option can be set to suppress the debug
+# information showing the controller and action recieving the request being
+# shown in the header.  Note: This info only shows if debug is set to true.
+ckan.debug_supress_header = false
+
 ## ===================================
 ## Extensions
 

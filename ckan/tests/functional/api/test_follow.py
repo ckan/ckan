@@ -1,9 +1,21 @@
+'''Test for the follower API.
+
+This module tests following, unfollowing, getting a list of what you're
+following or the number of things you're following, getting a list of who's
+following you or the number of followers you have, testing whether or not
+you're following something, etc.
+
+This module _does not_ test the user dashboard activity stream (which shows
+activities from everything you're following), that is tested in
+test_dashboard.py.
+
+'''
 import datetime
 import paste
 import pylons.test
 import ckan
-from ckan.lib.helpers import json
 from ckan.tests import are_foreign_keys_supported, SkipTest
+import ckan.tests
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -24,83 +36,54 @@ def follow_user(app, follower_id, apikey, object_id, object_arg):
 
     '''
     # Record the object's followers count before.
-    params = json.dumps({'id': object_id})
-    response = app.post('/api/action/user_follower_count',
-            params=params).json
-    assert response['success'] is True
-    follower_count_before = response['result']
+    follower_count_before = ckan.tests.call_action_api(app,
+            'user_follower_count', id=object_id)
 
     # Record the follower's followees count before.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/user_followee_count',
-            params=params).json
-    assert response['success'] is True
-    followee_count_before = response['result']
+    followee_count_before = ckan.tests.call_action_api(app,
+            'user_followee_count', id=follower_id)
 
     # Check that the user is not already following the object.
-    params = json.dumps({'id': object_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_user',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is False
+    result = ckan.tests.call_action_api(app, 'am_following_user',
+            id=object_id, apikey=apikey)
+    assert result is False
 
     # Make the  user start following the object.
     before = datetime.datetime.now()
-    params = {'id': object_arg}
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/follow_user',
-        params=json.dumps(params), extra_environ=extra_environ).json
+    follower = ckan.tests.call_action_api(app, 'follow_user', id=object_arg,
+            apikey=apikey)
     after = datetime.datetime.now()
-    assert response['success'] is True
-    assert response['result']
-    follower = response['result']
     assert follower['follower_id'] == follower_id
     assert follower['object_id'] == object_id
     timestamp = datetime_from_string(follower['datetime'])
     assert (timestamp >= before and timestamp <= after), str(timestamp)
 
     # Check that am_following_user now returns True.
-    params = json.dumps({'id': object_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_user',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is True
+    result = ckan.tests.call_action_api(app, 'am_following_user',
+            id=object_id, apikey=apikey)
+    assert result is True
 
     # Check that the follower appears in the object's list of followers.
-    params = json.dumps({'id': object_id})
-    response = app.post('/api/action/user_follower_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followers = response['result']
+    followers = ckan.tests.call_action_api(app, 'user_follower_list',
+            id=object_id)
     assert len(followers) == follower_count_before + 1
     assert len([follower for follower in followers if follower['id'] == follower_id]) == 1
 
     # Check that the object appears in the follower's list of followees.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/user_followee_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followees = response['result']
+    followees = ckan.tests.call_action_api(app, 'user_followee_list',
+            id=follower_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees if followee['id'] == object_id]) == 1
 
     # Check that the object's follower count has increased by 1.
-    params = json.dumps({'id': object_id})
-    response = app.post('/api/action/user_follower_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == follower_count_before + 1
+    follower_count_after = ckan.tests.call_action_api(app,
+            'user_follower_count', id=object_id)
+    assert follower_count_after == follower_count_before + 1
 
     # Check that the follower's followee count has increased by 1.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/user_followee_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == followee_count_before + 1
+    followee_count_after = ckan.tests.call_action_api(app,
+            'user_followee_count', id=follower_id)
+    assert followee_count_after == followee_count_before + 1
 
 def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
     '''Test a user starting to follow a dataset via the API.
@@ -113,83 +96,54 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
 
     '''
     # Record the dataset's followers count before.
-    params = json.dumps({'id': dataset_id})
-    response = app.post('/api/action/dataset_follower_count',
-            params=params).json
-    assert response['success'] is True
-    follower_count_before = response['result']
+    follower_count_before = ckan.tests.call_action_api(app,
+            'dataset_follower_count', id=dataset_id)
 
     # Record the follower's followees count before.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/dataset_followee_count',
-            params=params).json
-    assert response['success'] is True
-    followee_count_before = response['result']
+    followee_count_before = ckan.tests.call_action_api(app,
+            'dataset_followee_count', id=follower_id)
 
     # Check that the user is not already following the dataset.
-    params = json.dumps({'id': dataset_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_dataset',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is False
+    result = ckan.tests.call_action_api(app, 'am_following_dataset',
+            id=dataset_id, apikey=apikey)
+    assert result is False
 
     # Make the  user start following the dataset.
     before = datetime.datetime.now()
-    params = {'id': dataset_arg}
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/follow_dataset',
-        params=json.dumps(params), extra_environ=extra_environ).json
+    follower = ckan.tests.call_action_api(app, 'follow_dataset',
+            id=dataset_arg, apikey=apikey)
     after = datetime.datetime.now()
-    assert response['success'] is True
-    assert response['result']
-    follower = response['result']
     assert follower['follower_id'] == follower_id
     assert follower['object_id'] == dataset_id
     timestamp = datetime_from_string(follower['datetime'])
     assert (timestamp >= before and timestamp <= after), str(timestamp)
 
     # Check that am_following_dataset now returns True.
-    params = json.dumps({'id': dataset_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_dataset',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is True
+    result = ckan.tests.call_action_api(app, 'am_following_dataset',
+            id=dataset_id, apikey=apikey)
+    assert result is True
 
     # Check that the follower appears in the dataset's list of followers.
-    params = json.dumps({'id': dataset_id})
-    response = app.post('/api/action/dataset_follower_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followers = response['result']
+    followers = ckan.tests.call_action_api(app, 'dataset_follower_list',
+            id=dataset_id)
     assert len(followers) == follower_count_before + 1
     assert len([follower for follower in followers if follower['id'] == follower_id]) == 1
 
     # Check that the dataset appears in the follower's list of followees.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/dataset_followee_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followees = response['result']
+    followees = ckan.tests.call_action_api(app, 'dataset_followee_list',
+            id=follower_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees if followee['id'] == dataset_id]) == 1
 
     # Check that the dataset's follower count has increased by 1.
-    params = json.dumps({'id': dataset_id})
-    response = app.post('/api/action/dataset_follower_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == follower_count_before + 1
+    follower_count_after = ckan.tests.call_action_api(app,
+            'dataset_follower_count', id=dataset_id)
+    assert follower_count_after == follower_count_before + 1
 
     # Check that the follower's followee count has increased by 1.
-    params = json.dumps({'id': follower_id})
-    response = app.post('/api/action/dataset_followee_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == followee_count_before + 1
+    followee_count_after = ckan.tests.call_action_api(app,
+            'dataset_followee_count', id=follower_id)
+    assert followee_count_after == followee_count_before + 1
 
 def follow_group(app, user_id, apikey, group_id, group_arg):
     '''Test a user starting to follow a group via the API.
@@ -202,85 +156,56 @@ def follow_group(app, user_id, apikey, group_id, group_arg):
 
     '''
     # Record the group's followers count before.
-    params = json.dumps({'id': group_id})
-    response = app.post('/api/action/group_follower_count',
-            params=params).json
-    assert response['success'] is True
-    follower_count_before = response['result']
+    follower_count_before = ckan.tests.call_action_api(app,
+            'group_follower_count', id=group_id)
 
     # Record the user's followees count before.
-    params = json.dumps({'id': user_id})
-    response = app.post('/api/action/group_followee_count',
-            params=params).json
-    assert response['success'] is True
-    followee_count_before = response['result']
+    followee_count_before = ckan.tests.call_action_api(app,
+            'group_followee_count', id=user_id)
 
     # Check that the user is not already following the group.
-    params = json.dumps({'id': group_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_group',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is False
+    result = ckan.tests.call_action_api(app, 'am_following_group',
+            id=group_id, apikey=apikey)
+    assert result is False
 
     # Make the  user start following the group.
     before = datetime.datetime.now()
-    params = {'id': group_id}
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/follow_group',
-        params=json.dumps(params), extra_environ=extra_environ).json
+    follower = ckan.tests.call_action_api(app, 'follow_group', id=group_id,
+            apikey=apikey)
     after = datetime.datetime.now()
-    assert response['success'] is True
-    assert response['result']
-    follower = response['result']
     assert follower['follower_id'] == user_id
     assert follower['object_id'] == group_id
     timestamp = datetime_from_string(follower['datetime'])
     assert (timestamp >= before and timestamp <= after), str(timestamp)
 
     # Check that am_following_group now returns True.
-    params = json.dumps({'id': group_id})
-    extra_environ = {'Authorization': str(apikey)}
-    response = app.post('/api/action/am_following_group',
-            params=params, extra_environ=extra_environ).json
-    assert response['success'] is True
-    assert response['result'] is True
+    result = ckan.tests.call_action_api(app, 'am_following_group',
+            id=group_id, apikey=apikey)
+    assert result is True
 
     # Check that the user appears in the group's list of followers.
-    params = json.dumps({'id': group_id})
-    response = app.post('/api/action/group_follower_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followers = response['result']
+    followers = ckan.tests.call_action_api(app, 'group_follower_list',
+            id=group_id)
     assert len(followers) == follower_count_before + 1
     assert len([follower for follower in followers
         if follower['id'] == user_id]) == 1
 
     # Check that the group appears in the user's list of followees.
-    params = json.dumps({'id': user_id})
-    response = app.post('/api/action/group_followee_list',
-            params=params).json
-    assert response['success'] is True
-    assert response['result']
-    followees = response['result']
+    followees = ckan.tests.call_action_api(app, 'group_followee_list',
+            id=user_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees
         if followee['id'] == group_id]) == 1
 
     # Check that the group's follower count has increased by 1.
-    params = json.dumps({'id': group_id})
-    response = app.post('/api/action/group_follower_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == follower_count_before + 1
+    follower_count_after = ckan.tests.call_action_api(app,
+            'group_follower_count', id=group_id)
+    assert follower_count_after == follower_count_before + 1
 
     # Check that the user's followee count has increased by 1.
-    params = json.dumps({'id': user_id})
-    response = app.post('/api/action/group_followee_count',
-            params=params).json
-    assert response['success'] is True
-    assert response['result'] == followee_count_before + 1
+    followee_count_after = ckan.tests.call_action_api(app,
+            'group_followee_count', id=user_id)
+    assert followee_count_after == followee_count_before + 1
 
 
 class TestFollow(object):
@@ -333,82 +258,61 @@ class TestFollow(object):
 
     def test_01_user_follow_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.russianfan['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/follow_user',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] is False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, 'follow_user',
+                    id=self.russianfan['id'], apikey=apikey,
+                    status=403)
+            assert error['message'] == 'Access denied'
 
     def test_01_user_follow_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.warandpeace['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/follow_dataset',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] is False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, 'follow_dataset',
+                    id=self.warandpeace['id'], apikey=apikey,
+                    status=403)
+            assert error['message'] == 'Access denied'
 
     def test_01_user_follow_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.rogers_group['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/follow_group',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] is False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, 'follow_group',
+                    id=self.rogers_group['id'], apikey=apikey,
+                    status=403)
+            assert error['message'] == 'Access denied'
 
     def test_01_user_follow_user_missing_apikey(self):
-        params = json.dumps({'id': self.russianfan['id']})
-        response = self.app.post('/api/action/follow_user',
-            params=params, status=403).json
-        assert response['success'] is False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'follow_user',
+                id=self.russianfan['id'], status=403)
+        assert error['message'] == 'Access denied'
 
     def test_01_user_follow_dataset_missing_apikey(self):
-        params = json.dumps({'id': self.warandpeace['id']})
-        response = self.app.post('/api/action/follow_dataset',
-            params=params, status=403).json
-        assert response['success'] is False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'follow_dataset',
+                id=self.warandpeace['id'], status=403)
+        assert error['message'] == 'Access denied'
 
     def test_01_user_follow_group_missing_apikey(self):
-        params = json.dumps({'id': self.rogers_group['id']})
-        response = self.app.post('/api/action/follow_group',
-            params=params, status=403).json
-        assert response['success'] is False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'follow_group',
+                id=self.rogers_group['id'], status=403)
+        assert error['message'] == 'Access denied'
 
     def test_01_follow_bad_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
-                params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan['apikey'])}
-                response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, extra_environ=extra_environ,
-                    status=409).json
-                assert response['success'] is False
-                assert response['error']['id'][0].startswith('Not found')
+                error = ckan.tests.call_action_api(self.app, action,
+                        id=object_id,
+                        apikey=self.annafan['apikey'], status=409)
+                assert error['id'][0].startswith('Not found')
 
     def test_01_follow_empty_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
             for object_id in ('', None):
-                params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan['apikey'])}
-                response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, extra_environ=extra_environ,
-                    status=409).json
-                assert response['success'] is False
-                assert response['error']['id'] == ['Missing value']
+                error = ckan.tests.call_action_api(self.app, action,
+                        id=object_id,
+                        apikey=self.annafan['apikey'], status=409)
+                assert error['id'] == ['Missing value']
 
     def test_01_follow_missing_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
-            params = json.dumps({})
-            extra_environ = {'Authorization': str(self.annafan['apikey'])}
-            response = self.app.post('/api/action/{0}'.format(action),
-                params=params, extra_environ=extra_environ, status=409).json
-            assert response['success'] is False
-            assert response['error']['id'] == ['Missing value']
+            error = ckan.tests.call_action_api(self.app, action,
+                    apikey=self.annafan['apikey'], status=409)
+            assert error['id'] == ['Missing value']
 
     def test_02_user_follow_user_by_id(self):
         follow_user(self.app, self.annafan['id'], self.annafan['apikey'],
@@ -437,204 +341,142 @@ class TestFollow(object):
     def test_03_user_follow_user_already_following(self):
         for object_id in (self.russianfan['id'], self.russianfan['name'],
                 self.testsysadmin['id'], self.testsysadmin['name']):
-            params = json.dumps({'id': object_id})
-            extra_environ = {
-                    'Authorization': str(self.annafan['apikey']),
-                    }
-            response = self.app.post('/api/action/follow_user',
-                params=params, extra_environ=extra_environ, status=409).json
-            assert response['success'] == False
-            assert response['error']['message'].startswith(
-                    'You are already following ')
+            error = ckan.tests.call_action_api(self.app, 'follow_user',
+                    id=object_id, apikey=self.annafan['apikey'],
+                    status=409)
+            assert error['message'].startswith('You are already following ')
 
     def test_03_user_follow_dataset_already_following(self):
         for object_id in (self.warandpeace['id'], self.warandpeace['name']):
-            params = json.dumps({'id': object_id})
-            extra_environ = {
-                    'Authorization': str(self.annafan['apikey']),
-                    }
-            response = self.app.post('/api/action/follow_dataset',
-                params=params, extra_environ=extra_environ, status=409).json
-            assert response['success'] == False
-            assert response['error']['message'].startswith(
-                    'You are already following ')
+            error = ckan.tests.call_action_api(self.app, 'follow_dataset',
+                    id=object_id, apikey=self.annafan['apikey'],
+                    status=409)
+            assert error['message'].startswith('You are already following ')
 
     def test_03_user_follow_group_already_following(self):
         for group_id in (self.rogers_group['id'], self.rogers_group['name']):
-            params = json.dumps({'id': group_id})
-            extra_environ = {
-                    'Authorization': str(self.annafan['apikey']),
-                    }
-            response = self.app.post('/api/action/follow_group',
-                params=params, extra_environ=extra_environ, status=409).json
-            assert response['success'] is False
-            assert response['error']['message'].startswith(
-                    'You are already following ')
+            error = ckan.tests.call_action_api(self.app, 'follow_group',
+                    id=group_id, apikey=self.annafan['apikey'],
+                    status=409)
+            assert error['message'].startswith('You are already following ')
 
     def test_03_user_cannot_follow_herself(self):
-        params = json.dumps({'id': self.annafan['id']})
-        extra_environ = {
-                'Authorization': str(self.annafan['apikey']),
-                }
-        response = self.app.post('/api/action/follow_user',
-            params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['message'] == 'You cannot follow yourself'
+        error = ckan.tests.call_action_api(self.app, 'follow_user',
+                apikey=self.annafan['apikey'], status=409,
+                id=self.annafan['id'])
+        assert error['message'] == 'You cannot follow yourself'
 
     def test_04_follower_count_bad_id(self):
         for action in ('user_follower_count', 'dataset_follower_count',
                 'group_follower_count'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
-                params = json.dumps({'id': object_id})
-                response = self.app.post('/api/action/{0}'.format(action),
-                        params=params, status=409).json
-                assert response['success'] is False
-                assert 'id' in response['error']
+                error = ckan.tests.call_action_api(self.app, action,
+                        status=409, id=object_id)
+                assert 'id' in error
 
     def test_04_follower_count_missing_id(self):
         for action in ('user_follower_count', 'dataset_follower_count',
                 'group_follower_count'):
-            params = json.dumps({})
-            response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, status=409).json
-            assert response['success'] is False
-            assert response['error']['id'] == ['Missing value']
+            error = ckan.tests.call_action_api(self.app, action, status=409)
+            assert error['id'] == ['Missing value']
 
     def test_04_user_follower_count_no_followers(self):
-        params = json.dumps({'id': self.annafan['id']})
-        response = self.app.post('/api/action/user_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == 0
+        follower_count = ckan.tests.call_action_api(self.app,
+                'user_follower_count', id=self.annafan['id'])
+        assert follower_count == 0
 
     def test_04_dataset_follower_count_no_followers(self):
-        params = json.dumps({'id': self.annakarenina['id']})
-        response = self.app.post('/api/action/dataset_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == 0
+        follower_count = ckan.tests.call_action_api(self.app,
+                'dataset_follower_count', id=self.annakarenina['id'])
+        assert follower_count == 0
 
     def test_04_group_follower_count_no_followers(self):
-        params = json.dumps({'id': self.davids_group['id']})
-        response = self.app.post('/api/action/group_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == 0
+        follower_count = ckan.tests.call_action_api(self.app,
+                'group_follower_count', id=self.davids_group['id'])
+        assert follower_count == 0
 
     def test_04_follower_list_bad_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
-                params = json.dumps({'id': object_id})
-                response = self.app.post('/api/action/{0}'.format(action),
-                        params=params, status=409).json
-                assert response['success'] is False
-                assert response['error']['id']
+                error = ckan.tests.call_action_api(self.app, action,
+                        status=409, id=object_id)
+                assert error['id']
 
     def test_04_follower_list_missing_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
-            params = json.dumps({})
-            response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, status=409).json
-            assert response['success'] is False
-            assert response['error']['id'] == ['Missing value']
+            error = ckan.tests.call_action_api(self.app, action, status=409)
+            assert error['id'] == ['Missing value']
 
     def test_04_user_follower_list_no_followers(self):
-        params = json.dumps({'id': self.annafan['id']})
-        response = self.app.post('/api/action/user_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == []
+        followers = ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=self.annafan['id'])
+        assert followers == []
 
     def test_04_dataset_follower_list_no_followers(self):
-        params = json.dumps({'id': self.annakarenina['id']})
-        response = self.app.post('/api/action/dataset_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == []
+        followers = ckan.tests.call_action_api(self.app,
+                'dataset_follower_list', id=self.annakarenina['id'])
+        assert followers == []
 
     def test_04_group_follower_list_no_followers(self):
-        params = json.dumps({'id': self.davids_group['id']})
-        response = self.app.post('/api/action/group_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == []
+        followers = ckan.tests.call_action_api(self.app, 'group_follower_list',
+                id=self.davids_group['id'])
+        assert followers == []
 
     def test_04_am_following_bad_id(self):
         for action in ('am_following_dataset', 'am_following_user',
                 'am_following_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
-                params = json.dumps({'id': object_id})
-                extra_environ = {'Authorization': str(self.annafan['apikey'])}
-                response = self.app.post('/api/action/{0}'.format(action),
-                        params=params, extra_environ=extra_environ,
-                        status=409).json
-                assert response['success'] is False
-                assert response['error']['id'][0].startswith('Not found: ')
+                error = ckan.tests.call_action_api(self.app, action,
+                    apikey=self.annafan['apikey'], status=409, id=object_id)
+                assert error['id'][0].startswith('Not found: ')
 
     def test_04_am_following_missing_id(self):
         for action in ('am_following_dataset', 'am_following_user',
                 'am_following_group'):
             for id in ('missing', None, ''):
                 if id == 'missing':
-                    params = json.dumps({})
+                    error = ckan.tests.call_action_api(self.app, action,
+                            apikey=self.annafan['apikey'], status=409)
                 else:
-                    params = json.dumps({'id':id})
-                extra_environ = {'Authorization': str(self.annafan['apikey'])}
-                response = self.app.post('/api/action/{0}'.format(action),
-                        params=params, extra_environ=extra_environ,
-                        status=409).json
-                assert response['success'] is False
-                assert response['error']['id'] == [u'Missing value']
+                    error = ckan.tests.call_action_api(self.app, action,
+                            apikey=self.annafan['apikey'], status=409, id=id)
+                assert error['id'] == [u'Missing value']
 
     def test_04_am_following_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.warandpeace['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/am_following_dataset',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] == False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app,
+                    'am_following_dataset', apikey=apikey, status=403,
+                    id=self.warandpeace['id'])
+            assert error['message'] == 'Access denied'
 
     def test_04_am_following_dataset_missing_apikey(self):
-        params = json.dumps({'id': self.warandpeace['id']})
-        response = self.app.post('/api/action/am_following_dataset',
-            params=params, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'am_following_dataset',
+                status=403, id=self.warandpeace['id'])
+        assert error['message'] == 'Access denied'
 
     def test_04_am_following_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.annafan['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/am_following_user',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] == False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, 'am_following_user',
+                    apikey=apikey, status=403, id=self.annafan['id'])
+            assert error['message'] == 'Access denied'
 
     def test_04_am_following_user_missing_apikey(self):
-        params = json.dumps({'id': self.annafan['id']})
-        response = self.app.post('/api/action/am_following_user',
-            params=params, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'am_following_user',
+                status=403, id=self.annafan['id'])
+        assert error['message'] == 'Access denied'
 
     def test_04_am_following_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
-            params = json.dumps({'id': self.rogers_group['id']})
-            extra_environ = {'Authorization': apikey}
-            response = self.app.post('/api/action/am_following_group',
-                params=params, extra_environ=extra_environ, status=403).json
-            assert response['success'] == False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, 'am_following_group',
+                    apikey=apikey, status=403, id=self.rogers_group['id'])
+            assert error['message'] == 'Access denied'
 
     def test_04_am_following_group_missing_apikey(self):
-        params = json.dumps({'id': self.rogers_group['id']})
-        response = self.app.post('/api/action/am_following_group',
-            params=params, status=403).json
-        assert response['success'] == False
-        assert response['error']['message'] == 'Access denied'
+        error = ckan.tests.call_action_api(self.app, 'am_following_group',
+                status=403, id=self.rogers_group['id'])
+        assert error['message'] == 'Access denied'
 
 
 class TestFollowerDelete(object):
@@ -717,45 +559,30 @@ class TestFollowerDelete(object):
         she is not following.
 
         '''
-        params = json.dumps({'id': self.russianfan['id']})
-        extra_environ = {
-                'Authorization': str(self.annafan['apikey']),
-                }
-        response = self.app.post('/api/action/unfollow_user',
-            params=params, extra_environ=extra_environ, status=404).json
-        assert response['success'] == False
-        assert response['error']['message'].startswith(
-                'Not found: You are not following ')
+        error = ckan.tests.call_action_api(self.app, 'unfollow_user',
+                apikey=self.annafan['apikey'], status=404,
+                id=self.russianfan['id'])
+        assert error['message'].startswith('Not found: You are not following ')
 
     def test_01_unfollow_dataset_not_exists(self):
         '''Test the error response when a user tries to unfollow a dataset that
         she is not following.
 
         '''
-        params = json.dumps({'id': self.annakarenina['id']})
-        extra_environ = {
-                'Authorization': str(self.annafan['apikey']),
-                }
-        response = self.app.post('/api/action/unfollow_dataset',
-            params=params, extra_environ=extra_environ, status=404).json
-        assert response['success'] == False
-        assert response['error']['message'].startswith(
-                'Not found: You are not following ')
+        error = ckan.tests.call_action_api(self.app, 'unfollow_dataset',
+                apikey=self.annafan['apikey'], status=404,
+                id=self.annakarenina['id'])
+        assert error['message'].startswith('Not found: You are not following')
 
     def test_01_unfollow_group_not_exists(self):
         '''Test the error response when a user tries to unfollow a group that
         she is not following.
 
         '''
-        params = json.dumps({'id': self.rogers_group['id']})
-        extra_environ = {
-                'Authorization': str(self.annafan['apikey']),
-                }
-        response = self.app.post('/api/action/unfollow_group',
-            params=params, extra_environ=extra_environ, status=404).json
-        assert response['success'] is False
-        assert response['error']['message'].startswith(
-                'Not found: You are not following ')
+        error = ckan.tests.call_action_api(self.app, 'unfollow_group',
+                apikey=self.annafan['apikey'], status=404,
+                id=self.rogers_group['id'])
+        assert error['message'].startswith('Not found: You are not following')
 
     def test_01_unfollow_bad_apikey(self):
         '''Test the error response when a user tries to unfollow something
@@ -765,58 +592,36 @@ class TestFollowerDelete(object):
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
             for apikey in ('bad api key', '', '     ', 'None', '3', '35.7',
                     'xxx'):
-                params = json.dumps({
-                    'id': self.joeadmin['id'],
-                    })
-                extra_environ = {
-                        'Authorization': apikey,
-                        }
-                response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, extra_environ=extra_environ,
-                    status=(403,409)).json
-                assert response['success'] is False
-                assert response['error']['message'] == 'Access denied'
+                error = ckan.tests.call_action_api(self.app, action,
+                        apikey=apikey, status=403, id=self.joeadmin['id'])
+                assert error['message'] == 'Access denied'
 
     def test_01_unfollow_missing_apikey(self):
         '''Test error response when calling unfollow_* without api key.'''
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
-            params = json.dumps({
-                'id': self.joeadmin['id'],
-                })
-            response = self.app.post('/api/action/{0}'.format(action),
-                params=params, status=403).json
-            assert response['success'] is False
-            assert response['error']['message'] == 'Access denied'
+            error = ckan.tests.call_action_api(self.app, action, status=403,
+                    id=self.joeadmin['id'])
+            assert error['message'] == 'Access denied'
 
     def test_01_unfollow_bad_object_id(self):
         '''Test error response when calling unfollow_* with bad object id.'''
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
             for object_id in ('bad id', '     ', 3, 35.7, 'xxx'):
-                params = json.dumps({
-                    'id': object_id,
-                    })
-                extra_environ = {
-                        'Authorization': str(self.annafan['apikey']),
-                        }
-                response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, extra_environ=extra_environ,
-                    status=409).json
-                assert response['success'] is False
-                assert response['error']['id'][0].startswith('Not found')
+                error = ckan.tests.call_action_api(self.app, action,
+                        apikey=self.annafan['apikey'], status=409,
+                        id=object_id)
+                assert error['id'][0].startswith('Not found')
 
     def test_01_unfollow_missing_object_id(self):
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
             for id in ('missing', None, ''):
                 if id == 'missing':
-                    params = json.dumps({})
+                    error = ckan.tests.call_action_api(self.app, action,
+                            apikey=self.annafan['apikey'], status=409)
                 else:
-                    params = json.dumps({'id': id})
-                extra_environ = {'Authorization': str(self.annafan['apikey'])}
-                response = self.app.post('/api/action/{0}'.format(action),
-                    params=params, extra_environ=extra_environ,
-                    status=409).json
-                assert response['success'] is False
-                assert response['error']['id'] == [u'Missing value']
+                    error = ckan.tests.call_action_api(self.app, action,
+                            apikey=self.annafan['apikey'], status=409, id=id)
+                assert error['id'] == [u'Missing value']
 
     def _unfollow_user(self, follower_id, apikey, object_id, object_arg):
         '''Test a user unfollowing a user via the API.
@@ -829,53 +634,33 @@ class TestFollowerDelete(object):
 
         '''
         # Record the user's number of followers before.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/user_follower_count',
-                params=params).json
-        assert response['success'] is True
-        count_before = response['result']
+        count_before = ckan.tests.call_action_api(self.app,
+                'user_follower_count', id=object_id)
 
         # Check that the user is following the object.
-        params = json.dumps({'id': object_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_user',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is True
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_user', apikey=apikey, id=object_id)
+        assert am_following is True
 
         # Make the user unfollow the object.
-        params = {
-            'id': object_arg,
-            }
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/unfollow_user',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        ckan.tests.call_action_api(self.app, 'unfollow_user', apikey=apikey,
+                id=object_arg)
 
         # Check that am_following_user now returns False.
-        params = json.dumps({'id': object_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_user',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is False
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_user', apikey=apikey, id=object_id)
+        assert am_following is False
 
         # Check that the user doesn't appear in the object's list of followers.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/user_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result']
-        followers = response['result']
+        followers = ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=object_id)
         assert len([follower for follower in followers if follower['id'] ==
                 follower_id]) == 0
 
         # Check that the object's follower count has decreased by 1.
-        params = json.dumps({'id': object_id})
-        response = self.app.post('/api/action/user_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'user_follower_count', id=object_id)
+        assert count_after == count_before - 1
 
     def _unfollow_dataset(self, user_id, apikey, dataset_id, dataset_arg):
         '''Test a user unfollowing a dataset via the API.
@@ -888,54 +673,34 @@ class TestFollowerDelete(object):
 
         '''
         # Record the dataset's number of followers before.
-        params = json.dumps({'id': dataset_id})
-        response = self.app.post('/api/action/dataset_follower_count',
-                params=params).json
-        assert response['success'] is True
-        count_before = response['result']
+        count_before = ckan.tests.call_action_api(self.app,
+                'dataset_follower_count', id=dataset_id)
 
         # Check that the user is following the dataset.
-        params = json.dumps({'id': dataset_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_dataset',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is True
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_dataset', apikey=apikey, id=dataset_id)
+        assert am_following is True
 
         # Make the user unfollow the dataset.
-        params = {
-            'id': dataset_arg,
-            }
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/unfollow_dataset',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        ckan.tests.call_action_api(self.app, 'unfollow_dataset', apikey=apikey,
+                id=dataset_arg)
 
         # Check that am_following_dataset now returns False.
-        params = json.dumps({'id': dataset_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_dataset',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is False
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_dataset', apikey=apikey, id=dataset_id)
+        assert am_following is False
 
         # Check that the user doesn't appear in the dataset's list of
         # followers.
-        params = json.dumps({'id': dataset_id})
-        response = self.app.post('/api/action/dataset_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert response['result']
-        followers = response['result']
+        followers = ckan.tests.call_action_api(self.app,
+                'dataset_follower_list', id=dataset_id)
         assert len([follower for follower in followers if follower['id'] ==
                 user_id]) == 0
 
         # Check that the dataset's follower count has decreased by 1.
-        params = json.dumps({'id': dataset_id})
-        response = self.app.post('/api/action/dataset_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'dataset_follower_count', id=dataset_id)
+        assert count_after == count_before - 1
 
     def _unfollow_group(self, user_id, apikey, group_id, group_arg):
         '''Test a user unfollowing a group via the API.
@@ -948,54 +713,34 @@ class TestFollowerDelete(object):
 
         '''
         # Record the group's number of followers before.
-        params = json.dumps({'id': group_id})
-        response = self.app.post('/api/action/group_follower_count',
-                params=params).json
-        assert response['success'] is True
-        count_before = response['result']
+        count_before = ckan.tests.call_action_api(self.app,
+                'group_follower_count', id=group_id)
 
         # Check that the user is following the group.
-        params = json.dumps({'id': group_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_group',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is True
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_group', apikey=apikey, id=group_id)
+        assert am_following is True
 
         # Make the user unfollow the group.
-        params = {
-            'id': group_arg,
-            }
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/unfollow_group',
-            params=json.dumps(params), extra_environ=extra_environ).json
-        assert response['success'] is True
+        ckan.tests.call_action_api(self.app, 'unfollow_group', apikey=apikey,
+                id=group_arg)
 
         # Check that am_following_group now returns False.
-        params = json.dumps({'id': group_id})
-        extra_environ = {'Authorization': str(apikey)}
-        response = self.app.post('/api/action/am_following_group',
-                params=params, extra_environ=extra_environ).json
-        assert response['success'] is True
-        assert response['result'] is False
+        am_following = ckan.tests.call_action_api(self.app,
+                'am_following_group', apikey=apikey, id=group_id)
+        assert am_following is False
 
         # Check that the user doesn't appear in the group's list of
         # followers.
-        params = json.dumps({'id': group_id})
-        response = self.app.post('/api/action/group_follower_list',
-                params=params).json
-        assert response['success'] is True
-        assert 'result' in response
-        followers = response['result']
+        followers = ckan.tests.call_action_api(self.app, 'group_follower_list',
+                id=group_id)
         assert len([follower for follower in followers if follower['id'] ==
                 user_id]) == 0
 
         # Check that the group's follower count has decreased by 1.
-        params = json.dumps({'id': group_id})
-        response = self.app.post('/api/action/group_follower_count',
-                params=params).json
-        assert response['success'] is True
-        assert response['result'] == count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'group_follower_count', id=group_id)
+        assert count_after == count_before - 1
 
     def test_02_follower_delete_by_id(self):
         self._unfollow_user(self.annafan['id'], self.annafan['apikey'],
@@ -1102,136 +847,93 @@ class TestFollowerCascade(object):
 
         '''
         # It should no longer be possible to get joeadmin's follower list.
-        params = json.dumps({'id': 'joeadmin'})
-        response = self.app.post('/api/action/user_follower_list',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'user_follower_list',
+                status=409, id='joeadmin')
+        assert 'id' in error
 
         # It should no longer be possible to get warandpeace's follower list.
-        params = json.dumps({'id': 'warandpeace'})
-        response = self.app.post('/api/action/dataset_follower_list',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'dataset_follower_list',
+                status=409, id='warandpeace')
+        assert 'id' in error
 
         # It should no longer be possible to get david's follower list.
-        params = json.dumps({'id': 'david'})
-        response = self.app.post('/api/action/group_follower_list',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'group_follower_list',
+                status=409, id='david')
+        assert 'id' in error
 
         # It should no longer be possible to get joeadmin's follower count.
-        params = json.dumps({'id': 'joeadmin'})
-        response = self.app.post('/api/action/user_follower_count',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'user_follower_count',
+                status=409, id='joeadmin')
+        assert 'id' in error
 
         # It should no longer be possible to get warandpeace's follower count.
-        params = json.dumps({'id': 'warandpeace'})
-        response = self.app.post('/api/action/dataset_follower_count',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'dataset_follower_count',
+                status=409, id='warandpeace')
+        assert 'id' in error
 
         # It should no longer be possible to get david's follower count.
-        params = json.dumps({'id': 'david'})
-        response = self.app.post('/api/action/group_follower_count',
-                params=params, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'group_follower_count',
+                status=409, id='david')
+        assert 'id' in error
 
         # It should no longer be possible to get am_following for joeadmin.
-        params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
-        response = self.app.post('/api/action/am_following_user',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'am_following_user',
+                apikey=self.testsysadmin['apikey'], status=409, id='joeadmin')
+        assert 'id' in error
 
         # It should no longer be possible to get am_following for warandpeace.
-        params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
-        response = self.app.post('/api/action/am_following_dataset',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'am_following_dataset',
+                apikey=self.testsysadmin['apikey'], status=409,
+                id='warandpeace')
+        assert 'id' in error
 
         # It should no longer be possible to get am_following for david.
-        params = json.dumps({'id': 'david'})
-        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
-        response = self.app.post('/api/action/am_following_group',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'am_following_group',
+                apikey=self.testsysadmin['apikey'], status=409, id='david')
+        assert 'id' in error
 
         # It should no longer be possible to unfollow joeadmin.
-        params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.tester['apikey'])}
-        response = self.app.post('/api/action/unfollow_user',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['id'] == ['Not found: User']
+        error = ckan.tests.call_action_api(self.app, 'unfollow_user',
+                apikey=self.tester['apikey'], status=409, id='joeadmin')
+        assert error['id'] == ['Not found: User']
 
         # It should no longer be possible to unfollow warandpeace.
-        params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
-        response = self.app.post('/api/action/unfollow_dataset',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['id'] == ['Not found: Dataset']
+        error = ckan.tests.call_action_api(self.app, 'unfollow_dataset',
+                apikey=self.testsysadmin['apikey'], status=409,
+                id='warandpeace')
+        assert error['id'] == ['Not found: Dataset']
 
         # It should no longer be possible to unfollow david.
-        params = json.dumps({'id': 'david'})
-        extra_environ = {'Authorization': str(self.testsysadmin['apikey'])}
-        response = self.app.post('/api/action/unfollow_group',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error']['id'] == ['Not found: Group']
+        error = ckan.tests.call_action_api(self.app, 'unfollow_group',
+                apikey=self.testsysadmin['apikey'], status=409, id='david')
+        assert error['id'] == ['Not found: Group']
 
         # It should no longer be possible to follow joeadmin.
-        params = json.dumps({'id': 'joeadmin'})
-        extra_environ = {'Authorization': str(self.annafan['apikey'])}
-        response = self.app.post('/api/action/follow_user',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'follow_user',
+                apikey=self.annafan['apikey'], status=409, id='joeadmin')
+        assert 'id' in error
 
         # It should no longer be possible to follow warandpeace.
-        params = json.dumps({'id': 'warandpeace'})
-        extra_environ = {'Authorization': str(self.annafan['apikey'])}
-        response = self.app.post('/api/action/follow_dataset',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'follow_dataset',
+                apikey=self.annafan['apikey'], status=409, id='warandpeace')
+        assert 'id' in error
 
         # It should no longer be possible to follow david.
-        params = json.dumps({'id': 'david'})
-        extra_environ = {'Authorization': str(self.annafan['apikey'])}
-        response = self.app.post('/api/action/follow_group',
-                params=params, extra_environ=extra_environ, status=409).json
-        assert response['success'] is False
-        assert response['error'].has_key('id')
+        error = ckan.tests.call_action_api(self.app, 'follow_group',
+                apikey=self.annafan['apikey'], status=409, id='david')
+        assert 'id' in error
 
         # Users who joeadmin was following should no longer have him in their
         # follower list.
-        params = json.dumps({'id': self.testsysadmin['id']})
-        response = self.app.post('/api/action/user_follower_list',
-                params=params).json
-        assert response['success'] is True
-        followers = [follower['name'] for follower in response['result']]
-        assert 'joeadmin' not in followers
+        followers = ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=self.testsysadmin['id'])
+        assert 'joeadmin' not in [follower['name'] for follower in followers]
 
         # Datasets who joeadmin was following should no longer have him in
         # their follower list.
-        params = json.dumps({'id': self.annakarenina['id']})
-        response = self.app.post('/api/action/dataset_follower_list',
-                params=params).json
-        assert response['success'] is True
-        followers = [follower['name'] for follower in response['result']]
-        assert 'joeadmin' not in followers
+        followers = ckan.tests.call_action_api(self.app,
+                'dataset_follower_list', id=self.annakarenina['id'])
+        assert 'joeadmin' not in [follower['name'] for follower in followers]
 
     def test_02_on_delete_cascade_db(self):
         if not are_foreign_keys_supported():
