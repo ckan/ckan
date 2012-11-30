@@ -8,6 +8,7 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckanext.jsonpreview.plugin as previewplugin
+import ckan.plugins as p
 from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
@@ -82,3 +83,9 @@ class TestJsonPreview(tests.WsgiAppCase):
         assert 'preview_json.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="jsonpreview"' in result.body, result.body
+
+    def test_iframe_is_shown(self):
+        url = p.toolkit.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
+        result = self.app.get(url)
+        assert 'data-module="data-viewer"' in result.body, result.body
+        assert '<iframe' in result.body, result.body
