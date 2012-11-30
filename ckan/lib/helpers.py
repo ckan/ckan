@@ -1315,10 +1315,8 @@ def resource_preview(resource, pkg_id):
     embeds a web page, recline or a pdf preview.
     '''
 
-    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
-    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
-                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
-                'txt', 'json']
+    direct_embed = config.get('preview.direct', '').split(' ')
+    loadable_in_iframe = config.get('preview.loadable', '').split(' ')
 
     format_lower = resource['format'].lower()
     directly = False
@@ -1338,10 +1336,10 @@ def resource_preview(resource, pkg_id):
     if _can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in DIRECT_EMBEDS:
+    elif format_lower in direct_embed:
         directly = True
         url = resource['url']
-    elif format_lower in LOADABLE:
+    elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
         log.info('No preview handler for resource type {0}'.format(format_lower))

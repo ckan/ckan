@@ -237,6 +237,13 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
+## Previews
+#
+# Set the file types that should be previewed inline (e.g. images) or directly in an iframe.
+
+preview.direct = png jpg gif
+preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
+
 ## ===================================
 ## Extensions
 
