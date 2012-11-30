@@ -388,6 +388,7 @@ def group_dict_save(group_dict, context):
     session = context["session"]
     group = context.get("group")
     allow_partial_update = context.get("allow_partial_update", False)
+    prevent_packages_update = context.get("prevent_packages_update", False)
 
     Group = model.Group
     if group:
@@ -399,7 +400,17 @@ def group_dict_save(group_dict, context):
 
     context['group'] = group
 
-    pkgs_edited = group_member_save(context, group_dict, 'packages')
+    # Under the new org rules we do not want to be able to update datasets
+    # via group edit so we need a way to prevent this.  It may be more
+    # sensible in future to send a list of allowed/disallowed updates for
+    # groups, users, tabs etc.
+    if not prevent_packages_update:
+        pkgs_edited = group_member_save(context, group_dict, 'packages')
+    else:
+        pkgs_edited = {
+            'added': [],
+            'removed': []
+        }
     group_users_changed = group_member_save(context, group_dict, 'users')
     group_groups_changed = group_member_save(context, group_dict, 'groups')
     group_tags_changed = group_member_save(context, group_dict, 'tags')
