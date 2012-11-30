@@ -14,7 +14,6 @@ import pprint
 import copy
 from urllib import urlencode
 import urlparse
-import os
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -1316,6 +1315,11 @@ def resource_preview(resource, pkg_id):
     embeds a web page, recline or a pdf preview.
     '''
 
+    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
+    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
+                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
+                'txt', 'json']
+
     format_lower = resource['format'].lower()
     directly = False
     url = ''
@@ -1334,10 +1338,10 @@ def resource_preview(resource, pkg_id):
     if _can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in os.environ.get('DIRECT_EMBEDS').split(','):
+    elif format_lower in DIRECT_EMBEDS:
         directly = True
         url = resource['url']
-    elif format_lower in os.environ.get('LOADABLE').split(','):
+    elif format_lower in LOADABLE:
         url = resource['url']
     else:
         log.info('No preview handler for resource type {0}'.format(format_lower))
