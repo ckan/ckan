@@ -1,10 +1,16 @@
 from nose.tools import assert_equal
 import copy
 
+
 def change_lists_to_sets(iterable):
-    '''recursive method to drill down into iterables to
-    convert any list or tuples into sets. Does not work
-    though for dictionaries in lists.'''
+    '''Convert any lists or tuples in `iterable` into sets.
+
+    Recursively drill down into iterable and convert any list or tuples to
+    sets.
+
+    Does not work for dictionaries in lists.
+
+    '''
     if isinstance(iterable, dict):
         for key in iterable:
             if isinstance(iterable[key], (list, tuple)):
@@ -25,11 +31,14 @@ def change_lists_to_sets(iterable):
     else:
         raise NotImplementedError
 
+
 def assert_dicts_equal_ignoring_ordering(dict1, dict2):
-    '''Asserts dicts are equal, assuming that the ordering of
-    any lists is unimportant.'''                
+    '''Assert that dict1 and dict2 are equal.
+
+    Assumes that the ordering of any lists in the dicts is unimportant.
+
+    '''
     dicts = [copy.deepcopy(dict1), copy.deepcopy(dict2)]
     for d in dicts:
         d = change_lists_to_sets(d)
-    #from nose.tools import set_trace; set_trace()
     assert_equal(dicts[0], dicts[1])

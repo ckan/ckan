@@ -400,3 +400,61 @@ class StatusCodes:
     STATUS_404_NOT_FOUND = 404
     STATUS_409_CONFLICT = 409
 
+
+def call_action_api(app, action, apikey=None, status=200, **kwargs):
+    '''POST an HTTP request to the CKAN API and return the result.
+
+    Any additional keyword arguments that you pass to this function as **kwargs
+    are posted as params to the API.
+
+    Usage:
+
+        package_dict = post(app, 'package_create', apikey=apikey,
+                name='my_package')
+        assert package_dict['name'] == 'my_package'
+
+        num_followers = post(app, 'user_follower_count', id='annafan')
+
+    If you are expecting an error from the API and want to check the contents
+    of the error dict, you have to use the status param otherwise an exception
+    will be raised:
+
+        error_dict = post(app, 'group_activity_list', status=403,
+                id='invalid_id')
+        assert error_dict['message'] == 'Access Denied'
+
+    :param app: the test app to post to
+    :type app: paste.fixture.TestApp
+
+    :param action: the action to post to, e.g. 'package_create'
+    :type action: string
+
+    :param apikey: the API key to put in the Authorization header of the post
+        (optional, default: None)
+    :type apikey: string
+
+    :param status: the HTTP status code expected in the response from the CKAN
+        API, e.g. 403, if a different status code is received an exception will
+        be raised (optional, default: 200)
+    :type status: int
+
+    :param **kwargs: any other keyword arguments passed to this function will
+        be posted to the API as params
+
+    :raises paste.fixture.AppError: if the HTTP status code of the response
+        from the CKAN API is different from the status param passed to this
+        function
+
+    :returns: the 'result' or 'error' dictionary from the CKAN API response
+    :rtype: dictionary
+
+    '''
+    params = json.dumps(kwargs)
+    response = app.post('/api/action/{0}'.format(action), params=params,
+            extra_environ={'Authorization': str(apikey)}, status=status)
+    if status in (200,):
+        assert response.json['success'] is True
+        return response.json['result']
+    else:
+        assert response.json['success'] is False
+        return response.json['error']

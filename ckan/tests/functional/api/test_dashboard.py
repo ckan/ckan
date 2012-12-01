@@ -1,3 +1,10 @@
+'''Test for the dashboard API.
+
+This module tests the various functions of the user dashboard, such as the
+contents of the dashboard activity stream and reporting the number of new
+activities.
+
+'''
 import ckan
 from ckan.lib.helpers import json
 import paste
@@ -92,6 +99,16 @@ class TestDashboard(object):
     def test_00_dashboard_mark_new_activities_not_logged_in(self):
         self.post('dashboard_mark_all_new_activities_as_old', status=403)
 
+    def test_01_dashboard_activity_list_for_new_user(self):
+        '''Test the contents of a new user's dashboard activity stream.'''
+        activities = self.dashboard_activity_list(self.new_user)
+        # We expect to find a single 'new user' activity.
+        assert len(activities) == 1
+        activity = activities[0]
+        assert activity['activity_type'] == 'new user'
+        assert activity['user_id'] == activity['object_id']
+        assert activity['user_id'] == self.new_user['id']
+
     def test_01_new_activities_count_for_new_user(self):
         '''Test that a newly registered user's new activities count is 0.'''
         assert self.dashboard_new_activities_count(self.new_user) == 0
@@ -151,14 +168,38 @@ class TestDashboard(object):
         # User's own actions should not increase her activity count.
         assert self.dashboard_new_activities_count(self.new_user) == 0
 
+    def test_03_dashboard_activity_list_own_activities(self):
+        '''Test that a user's own activities appear in her dashboard.'''
+        activities = self.dashboard_activity_list(self.new_user)
+
+        # FIXME: There should actually be 6 activities here, but when you
+        # follow something it's old activities (from before you followed it)
+        # appear in your activity stream. So here we get more activities than
+        # expected.
+        assert len(activities) == 8
+
+        assert activities[0]['activity_type'] == 'changed package'
+        assert activities[1]['activity_type'] == 'follow group'
+        assert activities[2]['activity_type'] == 'follow user'
+        assert activities[3]['activity_type'] == 'follow dataset'
+        assert activities[4]['activity_type'] == 'new package'
+        assert activities[5]['activity_type'] == 'new user'
+
+        # FIXME: Shouldn't need the [:6] here, it's because when you follow
+        # something its old activities (from before you started following it)
+        # appear in your dashboard.
+        for activity in activities[:6]:
+            assert activity['user_id'] == self.new_user['id']
+
     def test_03_own_activities_not_marked_as_new(self):
         '''Make a user do some activities and check that her own activities
         aren't marked as new in her dashboard activity stream.'''
         assert len(self.dashboard_new_activities(self.new_user)) == 0
 
-    def test_04_new_activities_count(self):
-        '''Test that new activities from objects that a user follows increase
-        her new activities count.'''
+    def test_04_activities_from_followed_datasets(self):
+        '''Activities from followed datasets should show in dashboard.'''
+
+        activities_before = self.dashboard_activity_list(self.new_user)
 
         # Make someone else who new_user is not following update a dataset that
         # new_user is following.
@@ -167,34 +208,95 @@ class TestDashboard(object):
                 extra_environ={'Authorization': str(self.joeadmin['apikey'])})
         assert response.json['success'] is True
 
+        # Check the new activity in new_user's dashboard.
+        activities = self.dashboard_activity_list(self.new_user)
+        new_activities = [activity for activity in activities
+                if activity not in activities_before]
+        assert len(new_activities) == 1
+        activity = new_activities[0]
+        assert activity['activity_type'] == 'changed package'
+        assert activity['user_id'] == self.joeadmin['id']
+        assert activity['data']['package']['name'] == 'warandpeace'
+
+    def test_04_activities_from_followed_users(self):
+        '''Activities from followed users should show in the dashboard.'''
+
+        activities_before = self.dashboard_activity_list(self.new_user)
+
         # Make someone that the user is following create a new dataset.
         params = json.dumps({'name': 'annas_new_dataset'})
         response = self.app.post('/api/action/package_create', params=params,
                 extra_environ={'Authorization': str(self.annafan['apikey'])})
         assert response.json['success'] is True
 
-        # Make someone that the user is not following update a dataset that
-        # the user is not following, but that belongs to a group that the user
-        # is following.
+        # Check the new activity in new_user's dashboard.
+        activities = self.dashboard_activity_list(self.new_user)
+        new_activities = [activity for activity in activities
+                if activity not in activities_before]
+        assert len(new_activities) == 1
+        activity = new_activities[0]
+        assert activity['activity_type'] == 'new package'
+        assert activity['user_id'] == self.annafan['id']
+        assert activity['data']['package']['name'] == 'annas_new_dataset'
+
+    def test_04_activities_from_followed_groups(self):
+        '''Activities from followed groups should show in the dashboard.'''
+
+        activities_before = self.dashboard_activity_list(self.new_user)
+
+        # Make someone that the user is not following update a group that the
+        # user is following.
+        params = json.dumps({'id': 'roger', 'description': 'updated'})
+        response = self.app.post('/api/action/group_update', params=params,
+            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+        assert response.json['success'] is True
+
+        # Check the new activity in new_user's dashboard.
+        activities = self.dashboard_activity_list(self.new_user)
+        new_activities = [activity for activity in activities
+                if activity not in activities_before]
+        assert len(new_activities) == 1
+        activity = new_activities[0]
+        assert activity['activity_type'] == 'changed group'
+        assert activity['user_id'] == self.testsysadmin['id']
+        assert activity['data']['group']['name'] == 'roger'
+
+    def test_04_activities_from_datasets_of_followed_groups(self):
+        '''Activities from datasets of followed groups should show in the
+        dashboard.
+
+        '''
+        activities_before = self.dashboard_activity_list(self.new_user)
+
+        # Make someone that the user is not following update a dataset that the
+        # user is not following either, but that belongs to a group that the
+        # user is following.
         params = json.dumps({'name': 'annakarenina', 'notes': 'updated'})
         response = self.app.post('/api/action/package_update', params=params,
             extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
         assert response.json['success'] is True
 
-        # FIXME: The number here should be 3 but activities from followed
-        # groups are not appearing in dashboard. When that is fixed, fix this
-        # number.
-        assert self.dashboard_new_activities_count(self.new_user) == 2
+        # Check the new activity in new_user's dashboard.
+        activities = self.dashboard_activity_list(self.new_user)
+        new_activities = [activity for activity in activities
+                if activity not in activities_before]
+        assert len(new_activities) == 1
+        activity = new_activities[0]
+        assert activity['activity_type'] == 'changed package'
+        assert activity['user_id'] == self.testsysadmin['id']
+        assert activity['data']['package']['name'] == 'annakarenina'
 
-    def test_05_activities_marked_as_new(self):
+    def test_05_new_activities_count(self):
+        '''Test that new activities from objects that a user follows increase
+        her new activities count.'''
+        assert self.dashboard_new_activities_count(self.new_user) == 4
+
+    def test_06_activities_marked_as_new(self):
         '''Test that new activities from objects that a user follows are
         marked as new in her dashboard activity stream.'''
-        # FIXME: The number here should be 3 but activities from followed
-        # groups are not appearing in dashboard. When that is fixed, fix this
-        # number.
-        assert len(self.dashboard_new_activities(self.new_user)) == 2
+        assert len(self.dashboard_new_activities(self.new_user)) == 4
 
-    def test_06_mark_new_activities_as_read(self):
+    def test_07_mark_new_activities_as_read(self):
         '''Test that a user's new activities are marked as old when she views
         her dashboard activity stream.'''
         assert self.dashboard_new_activities_count(self.new_user) > 0
@@ -203,7 +305,7 @@ class TestDashboard(object):
         assert self.dashboard_new_activities_count(self.new_user) == 0
         assert len(self.dashboard_new_activities(self.new_user)) == 0
 
-    def test_07_maximum_number_of_new_activities(self):
+    def test_08_maximum_number_of_new_activities(self):
         '''Test that the new activities count does not go higher than 15, even
         if there are more than 15 new activities from the user's followers.'''
         for n in range(0, 20):
@@ -214,3 +316,18 @@ class TestDashboard(object):
                 extra_environ={'Authorization': str(self.joeadmin['apikey'])})
             assert response.json['success'] is True
         assert self.dashboard_new_activities_count(self.new_user) == 15
+
+    def test_09_activities_that_should_not_show(self):
+        '''Test that other activities do not appear on the user's dashboard.'''
+
+        before = self.dashboard_activity_list(self.new_user)
+
+        # Make someone else who new_user is not following create a new dataset.
+        params = json.dumps({'name': 'irrelevant_dataset'})
+        response = self.app.post('/api/action/package_create', params=params,
+            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+        assert response.json['success'] is True
+
+        after = self.dashboard_activity_list(self.new_user)
+
+        assert before == after

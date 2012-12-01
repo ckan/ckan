@@ -236,6 +236,8 @@ def make_map():
           )
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
+        m.connect('dataset_activity', '/dataset/activity/{id}',
+                  action='activity', ckan_icon='time')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')

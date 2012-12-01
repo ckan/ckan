@@ -42,6 +42,7 @@
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
           h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
+          h.build_nav_icon('dataset_Activity', _('Activity Stream'), id=pkg.name),
           h.build_nav_icon('dataset_followers', _('Followers'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
         ] %}
