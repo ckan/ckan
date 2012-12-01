@@ -6,6 +6,7 @@ from sqlalchemy.orm import class_mapper
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
+import ckan.new_authz as new_authz
 
 log = logging.getLogger(__name__)
 
@@ -215,6 +216,7 @@ def package_membership_list_save(group_dicts, package, context):
     model = context["model"]
     session = context["session"]
     pending = context.get('pending')
+    user = context.get('user')
 
     members = session.query(model.Member) \
             .filter(model.Member.table_id == package.id) \
@@ -247,19 +249,21 @@ def package_membership_list_save(group_dicts, package, context):
                                       group_id=group.id,
                                       state = 'active')
             session.add(member_obj)
-
-
     for group in set(group_member.keys()) - groups:
         member_obj = group_member[group]
-        member_obj.capacity = capacity
-        member_obj.state = 'deleted'
-        session.add(member_obj)
+        if new_authz.has_user_permission_for_group_or_org(
+                member_obj.group_id, user, 'read'):
+            member_obj.capacity = capacity
+            member_obj.state = 'deleted'
+            session.add(member_obj)
 
     for group in set(group_member.keys()) & groups:
         member_obj = group_member[group]
-        member_obj.capacity = capacity
-        member_obj.state = 'active'
-        session.add(member_obj)
+        if new_authz.has_user_permission_for_group_or_org(
+                member_obj.group_id, user, 'read'):
+            member_obj.capacity = capacity
+            member_obj.state = 'active'
+            session.add(member_obj)
 
 
 def relationship_list_save(relationship_dicts, package, attr, context):
