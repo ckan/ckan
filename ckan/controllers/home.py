@@ -104,11 +104,6 @@ class HomeController(BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        @property
-        def recently_changed_packages_activity_stream():
-            return ckan.logic.action.get.recently_changed_packages_activity_list_html(context, {})
-        c.recently_changed_packages_activity_stream = recently_changed_packages_activity_stream
-
         # START OF DIRTYNESS
         def get_group(id):
             def _get_group_type(id):

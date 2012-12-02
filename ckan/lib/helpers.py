@@ -1190,6 +1190,13 @@ def dashboard_activity_stream(user_id):
                                                             {'id': user_id})
 
 
+def recently_changed_packages_activity_stream():
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+    return logic.get_action('recently_changed_packages_activity_list_html')(
+            context, {})
+
+
 def escape_js(str_to_escape):
     '''Escapes special characters from a JS string.
 
@@ -1381,6 +1388,7 @@ __allowed_functions__ = [
            'add_url_param',
            'groups_available',
            'dashboard_activity_stream',
+           'recently_changed_packages_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
            'get_request_param',
