@@ -68,7 +68,7 @@ class HomeController(BaseController):
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
 
-            data_dict = {'order_by': 'packages', 'all_fields': 1}
+            data_dict = {'sort': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
             if 'groups' in c.search_facets:
