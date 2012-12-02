@@ -128,7 +128,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
         # Jinja2 templates
         if template_type == 'jinja2':
-            # We do't want to have the config in templates it should be
+            # We don't want to have the config in templates it should be
             # accessed via g (app_globals) as this gives us flexability such
             # as changing via database settings.
             del globs['config']
