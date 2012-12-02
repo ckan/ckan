@@ -54,6 +54,7 @@ config_details = {
     # bool
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
+    'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
@@ -190,6 +191,7 @@ class _Globals(object):
                 value = value.split()
 
             setattr(self, key, value)
+
 
 app_globals = _Globals()
 del _Globals

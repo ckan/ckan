@@ -25,7 +25,7 @@ class TestGroup(object):
         grp = model.Group.by_name(u'group1')
         assert grp.title == u'Test Group'
         assert grp.description == u'This is a test group'
-        assert grp.active_packages().all() == []
+        assert grp.packages() == []
 
     def test_2_add_packages(self):
         model.repo.new_revision()
@@ -50,7 +50,7 @@ class TestGroup(object):
         assert grp.title == u'Russian Group'
         anna = model.Package.by_name(u'annakarenina')
         war = model.Package.by_name(u'warandpeace')
-        assert set(grp.active_packages().all()) == set((anna, war)), grp.active_packages().all()
+        assert set(grp.packages()) == set((anna, war)), grp.packages()
         assert grp in anna.get_groups()
 
     def test_3_search(self):
