@@ -31,6 +31,7 @@ import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
 import ckan.lib.helpers as h
+import ckan.lib.datapreview as datapreview
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -1350,14 +1351,17 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            data_dict['resource']['on_same_domain'] = h.resource_is_on_same_domain(data_dict)
+            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
+            data_dict['resource']['on_same_domain'] = on_same_domain
 
             plugins = p.PluginImplementations(p.IResourcePreview)
-            plugins_that_can_preview = [plugin for plugin in plugins if plugin.can_preview(data_dict)]
+            plugins_that_can_preview = [plugin for plugin in plugins
+                                    if plugin.can_preview(data_dict)]
             if len(plugins_that_can_preview) == 0:
                 abort(409, _('No preview has been defined.'))
             if len(plugins_that_can_preview) > 1:
-                log.warn('Multiple previews are possible. {0}'.format(plugins_that_can_preview))
+                log.warn('Multiple previews are possible. {0}'.format(
+                                            plugins_that_can_preview))
 
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, data_dict)

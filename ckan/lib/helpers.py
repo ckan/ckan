@@ -13,7 +13,6 @@ import urllib
 import pprint
 import copy
 from urllib import urlencode
-import urlparse
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -39,7 +38,7 @@ from pylons.i18n import _, ungettext
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
-import ckan.plugins as p
+import ckan.lib.datapreview as datapreview
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1265,47 +1264,6 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def _compare_domains(urls):
-    ''' Return True if the domains of the provided are the same.
-    '''
-    first_domain = None
-    for url in urls:
-        # all urls are interpreted as absolute urls,
-        # except for urls that start with a /
-        if not urlparse.urlparse(url).scheme and not url.startswith('/'):
-            url = '//' + url
-        parsed = urlparse.urlparse(url.lower(), 'http')
-        domain = (parsed.scheme, parsed.hostname, parsed.port)
-
-        if not first_domain:
-            first_domain = domain
-            continue
-        if first_domain != domain:
-            return False
-    return True
-
-
-def resource_is_on_same_domain(data_dict):
-    # compare CKAN domain and resource URL
-    ckan_url = config.get('ckan.site_url', '//localhost:5000')
-    resource_url = data_dict['resource']['url']
-
-    return _compare_domains([ckan_url, resource_url])
-
-
-def _can_be_previewed(data_dict):
-    '''
-    Determines whether there is an extension that can preview the resource.
-
-    :param data_dict: contains a resource and package dict.
-        The resource dict has to have a value for ``on_same_domain``
-    :type data_dict: dictionary
-    '''
-    data_dict['resource']['on_same_domain'] = resource_is_on_same_domain(data_dict)
-    plugins = p.PluginImplementations(p.IResourcePreview)
-    return any(plugin.can_preview(data_dict) for plugin in plugins)
-
-
 def resource_preview(resource, pkg_id):
     '''
     Returns a rendered snippet for a embedded resource preview.
@@ -1314,9 +1272,6 @@ def resource_preview(resource, pkg_id):
     This could be an img tag where the image is loaded directly or an iframe that
     embeds a web page, recline or a pdf preview.
     '''
-
-    direct_embed = config.get('preview.direct', '').split(' ')
-    loadable_in_iframe = config.get('preview.loadable', '').split(' ')
 
     format_lower = resource['format'].lower()
     directly = False
@@ -1332,13 +1287,13 @@ def resource_preview(resource, pkg_id):
             reason='No valid resource url has been defined.'
             )
 
-    if _can_be_previewed(data_dict):
+    if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in direct_embed:
+    elif format_lower in datapreview.direct_embed:
         directly = True
         url = resource['url']
-    elif format_lower in loadable_in_iframe:
+    elif format_lower in datapreview.loadable_in_iframe:
         url = resource['url']
     else:
         log.info('No preview handler for resource type {0}'.format(format_lower))
