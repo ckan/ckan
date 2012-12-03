@@ -8,7 +8,7 @@ from email import Utils
 from urlparse import urljoin
 
 from pylons.i18n.translation import _
-from pylons import config, g
+from pylons import config
 from ckan import model, __version__
 from ckan.lib.helpers import url_for
 
@@ -51,7 +51,8 @@ def _mail_recipient(recipient_name, recipient_email,
 def mail_recipient(recipient_name, recipient_email, subject,
         body, headers={}):
     return _mail_recipient(recipient_name, recipient_email,
-            g.site_title, g.site_url, subject, body, headers=headers)
+            config.get('ckan.site_title'), config.get('ckan.site_url'),
+            subject, body, headers=headers)
 
 def mail_user(recipient, subject, body, headers={}):
     if (recipient.email is None) or not len(recipient.email):
@@ -76,7 +77,7 @@ def create_reset_key(user):
     model.repo.commit_and_remove()
 
 def get_reset_link(user):
-    return urljoin(g.site_url,
+    return urljoin(config.get('ckan.site_url'),
                    url_for(controller='user',
                            action='perform_reset',
                            id=user.id,
@@ -85,7 +86,7 @@ def get_reset_link(user):
 def get_reset_link_body(user):
     d = {
         'reset_link': get_reset_link(user),
-        'site_title': g.site_title
+        'site_title': config.get('ckan.site_title')
         }
     return RESET_LINK_MESSAGE % d
 
