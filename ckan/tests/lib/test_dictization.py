@@ -374,7 +374,9 @@ class TestBasicDictize:
     def test_09_package_alter(self):
 
         context = {"model": model,
-                   "session": model.Session}
+                   "session": model.Session,
+                   "user": 'testsysadmin'
+                   }
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
@@ -384,6 +386,7 @@ class TestBasicDictize:
         anna_dictized["resources"][0]["url"] = u'http://new_url'
 
         model.repo.new_revision()
+
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -412,6 +415,7 @@ class TestBasicDictize:
 
         context = {'model': model,
                    'session': model.Session,
+                   "user": 'testsysadmin',
                    'pending': True}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
@@ -504,6 +508,7 @@ class TestBasicDictize:
 
         context = {'model': model,
                    'session': model.Session,
+                   "user": 'testsysadmin',
                    'pending': True}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()

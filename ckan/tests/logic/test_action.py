@@ -801,7 +801,7 @@ class TestAction(WsgiAppCase):
         get_action('package_update')(context, pkg)
 
         group_packages = get_action('group_package_show')(context, {'id': group['id']})
-        assert len(group_packages) == 2, group_packages
+        assert len(group_packages) == 2, (len(group_packages), group_packages)
         group_names = set([g.get('name') for g in group_packages])
         assert group_names == set(['annakarenina', 'test_pending_package']), group_names
 
