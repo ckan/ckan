@@ -7,6 +7,7 @@ import re
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
+import ckan.lib.email_notifications as email_notifications
 
 import paste.script
 from paste.registry import Registry
@@ -1740,3 +1741,21 @@ class MinifyCommand(CkanCommand):
             f.write(rjsmin.jsmin(source))
         f.close()
         print "Minified file '{0}'".format(path)
+
+
+class EmailNotificationsCommand(CkanCommand):
+    '''Send any pending email notifications to users.
+
+    Usage:
+
+        paster send-email-notifications
+
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 0
+
+    def command(self):
+        self._load_config()
+        self._setup_app()
+        email_notifications.get_and_send_notifications_for_all_users()

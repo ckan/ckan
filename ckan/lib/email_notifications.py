@@ -8,7 +8,6 @@ import datetime
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.lib.mailer
 
 
 def _notifications_for_activities(activities):
@@ -97,6 +96,7 @@ def get_notifications(user_id, since):
 
 def send_notification(user, email_dict):
     '''Email `email_dict` to `user`.'''
+    import ckan.lib.mailer
 
     if not user.get('email'):
         # FIXME: Raise an exception.
