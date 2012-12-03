@@ -113,9 +113,9 @@ def get_and_send_notifications_for_user(user):
 
     if user['email_notifications']:
 
-        # FIXME: We are accessing model from lib here but I'm not sure what else
-        # to do unless we add a get_email_last_sent() logic function
-        # which would only be needed by this lib.
+        # FIXME: We are accessing model from lib here but I'm not sure what
+        # else to do unless we add a get_email_last_sent() logic function which
+        # would only be needed by this lib.
         email_last_sent = model.Dashboard.get(user['id']).email_last_sent
         activity_stream_last_viewed = (
                 model.Dashboard.get(user['id']).activity_stream_last_viewed)
@@ -129,9 +129,8 @@ def get_and_send_notifications_for_user(user):
 
     # Whether the user had har 'email_notifications' preference turned on or
     # not, we still update her email_last_sent time. This prevents users from
-    # getting me emails about old activities when they turn on email
+    # getting emails about old activities when they turn on email
     # notifications.
-    '''Update the given user's email_last_sent time to the current time.'''
     # FIXME: We are accessing model from lib here but I'm not sure what
     # else to do unless we add a update_email_last_sent()
     # logic function which would only be needed by this lib.
