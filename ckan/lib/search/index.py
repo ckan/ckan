@@ -236,7 +236,7 @@ class PackageSearchIndex(SearchIndex):
     def commit(self):
         try:
             conn = make_connection()
-            conn.commit(wait_flush=False, wait_searcher=False)
+            conn.commit(wait_searcher=False)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
