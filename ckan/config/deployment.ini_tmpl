@@ -15,8 +15,26 @@
 debug = false
 
 email_to = you@yourdomain.com
-smtp_server = localhost
 error_email_from = paste@localhost
+
+# The SMTP server to connect to when sending emails to users, with optional
+# port (default: 25). For example: lavabit.com, or smtp.gmail.com:587. To
+# connect to a local sendmail process enter 'localhost'.
+smtp.server = localhost
+
+# Whether or not to use STARTTLS when connecting to the SMTP server.
+smtp.starttls = False
+
+# The username and password to use to authenticate with the SMTP server.
+# Optional, if these are left commented-out then CKAN will try to send email
+# to the SMTP server without logging in first.
+#smtp.user = your_username@gmail.com
+#smtp.password = your_password
+
+# The email address that emails sent by CKAN to users should appear to come
+# from. Optional (default: None, note that the SMTP server may insert its own
+# from address).
+#smtp.mail_from =
 
 [server:main]
 use = egg:Paste#http
