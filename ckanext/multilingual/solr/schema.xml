@@ -354,6 +354,7 @@
     <field name="site_id" type="string" indexed="true" stored="true" required="true" />
     <field name="title" type="text" indexed="true" stored="true" />
     <field name="entity_type" type="string" indexed="true" stored="true" omitNorms="true" />
+    <field name="dataset_type" type="string" indexed="true" stored="true" />
     <field name="state" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="name" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="revision_id" type="string" indexed="true" stored="true" omitNorms="true" />
