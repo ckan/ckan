@@ -134,7 +134,9 @@ def get_and_send_notifications_for_user(user):
     # FIXME: We are accessing model from lib here but I'm not sure what
     # else to do unless we add a update_email_last_sent()
     # logic function which would only be needed by this lib.
-    model.Dashboard.get(user['id']).email_last_sent = datetime.datetime.now()
+    dash = model.Dashboard.get(user['id'])
+    dash.email_last_sent = datetime.datetime.now()
+    model.repo.commit()
 
 
 def get_and_send_notifications_for_all_users():
