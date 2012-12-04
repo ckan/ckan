@@ -39,10 +39,10 @@ def _mail_recipient(recipient_name, recipient_email,
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
-    if 'test_smtp_server' in config:
-        # If 'test_smtp_server' is configured we assume we're running tests,
+    if 'smtp.test_server' in config:
+        # If 'smtp.test_server' is configured we assume we're running tests,
         # and don't use the smtp.server, starttls, user, password etc. options.
-        smtp_server = config['test_smtp_server']
+        smtp_server = config['smtp.test_server']
         smtp_starttls = False
         smtp_user = None
         smtp_password = None
