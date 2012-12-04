@@ -7,6 +7,7 @@ import json
 import re
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -223,6 +224,8 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
+            if asbool(config.get('ckan.no_solr_commit', 'false')):
+                commit = False
             conn.add_many([pkg_dict], _commit=commit)
         except Exception, e:
             log.exception(e)
@@ -251,7 +254,8 @@ class PackageSearchIndex(SearchIndex):
                                                        config.get('ckan.site_id'))
         try:
             conn.delete_query(query)
-            conn.commit()
+            if not asbool(config.get('ckan.no_solr_commit', 'false')):
+                conn.commit()
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
