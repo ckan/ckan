@@ -11,6 +11,7 @@ from pylons.i18n.translation import _
 from pylons import config
 from ckan import model, __version__
 from ckan.lib.helpers import url_for
+import paste.deploy.converters
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +49,8 @@ def _mail_recipient(recipient_name, recipient_email,
         smtp_password = None
     else:
         smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = config.get('smtp.starttls')
+        smtp_starttls = paste.deploy.converters.asbool(
+                config.get('smtp.starttls'))
         smtp_user = config.get('smtp.user')
         smtp_password = config.get('smtp.password')
     smtp_connection.connect(smtp_server)
