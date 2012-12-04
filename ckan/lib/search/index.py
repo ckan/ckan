@@ -224,7 +224,7 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
-            if asbool(config.get('ckan.no_solr_commit', 'false')):
+            if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
         except Exception, e:
@@ -254,7 +254,7 @@ class PackageSearchIndex(SearchIndex):
                                                        config.get('ckan.site_id'))
         try:
             conn.delete_query(query)
-            if not asbool(config.get('ckan.no_solr_commit', 'false')):
+            if asbool(config.get('ckan.search.solr_commit', 'true')):
                 conn.commit()
         except Exception, e:
             log.exception(e)
