@@ -6,6 +6,7 @@ from pylons import config
 from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
+from paste.deploy.converters import asbool
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -214,9 +215,18 @@ class PackageController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
+            if package_type and package_type != 'dataset':
+                # Only show datasets of this particular type
+                fq += ' +dataset_type:{type}'.format(type=package_type)
+            else:
+                # Unless changed via config options, don't show non standard
+                # dataset types on the default search page
+                if not asbool(config.get('ckan.search.show_all_types','False')):
+                    fq += ' +dataset_type:dataset'
+
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': fq.strip(),
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
