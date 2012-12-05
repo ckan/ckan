@@ -4,6 +4,7 @@ import datetime
 import pylons
 from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
+import paste.deploy.converters
 
 import ckan.authz as authz
 import ckan.plugins as plugins
@@ -970,4 +971,10 @@ def send_email_notifications(context, data_dict):
     # authorization.
     if not pylons.request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
+
+    if not paste.deploy.converters.asbool(
+            pylons.config.get('ckan.email_notifications')):
+        raise logic.ActionError(
+                'ckan.email_notifications is not enabled in config')
+
     ckan.lib.email_notifications.get_and_send_notifications_for_all_users()
