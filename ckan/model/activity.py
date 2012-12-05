@@ -109,10 +109,10 @@ def _user_activity_query(user_id):
 
 
 def user_activity_list(user_id, limit=31, offset=0):
-    '''Return the given user's public activity stream.
+    '''Return user_id's public activity stream.
 
-    Returns all activities from or about the given user, i.e. where the given
-    user is the subject or object of the activity, e.g.:
+    Return a list of all activities from or about the given user, i.e. where
+    the given user is the subject or object of the activity, e.g.:
 
     "{USER} created the dataset {DATASET}"
     "{OTHER_USER} started following {USER}"
