@@ -73,6 +73,9 @@ def register_package_plugins(map):
             # Create a connection between the newly named type and the
             # package controller
 
+            map.connect('%s_search' % package_type, '/%s' % package_type,
+                        controller='package', action='search')
+
             map.connect('%s_new' % package_type, '/%s/new' % package_type,
                         controller='package', action='new')
             map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
