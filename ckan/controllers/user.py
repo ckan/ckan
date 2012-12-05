@@ -256,6 +256,11 @@ class UserController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # FIXME: Do I really have to do this here?
+            if 'email_notifications' not in data_dict:
+                data_dict['email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])

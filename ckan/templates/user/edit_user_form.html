@@ -23,6 +23,13 @@
 		{{ form.input('password2', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium']) }}
 	</fieldset>
 
+    <fieldset>
+        <legend>{{ _('Change your preferences') }}</legend>
+
+		{{ form.checkbox('email_notifications', label=_('Email Notifications'), id='field-email-notifications', value=True, checked=c.userobj.email_notifications, classes=['control-medium']) }}
+
+    </fieldset>
+
 	<div class="form-actions">
 		<button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
 	</div>
