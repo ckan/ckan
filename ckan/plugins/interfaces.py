@@ -16,6 +16,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'ISearchFacets',
 ]
 
 from inspect import isclass
@@ -670,3 +671,20 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+
+class ISearchFacets(Interface):
+    '''
+    Allow (re-)defining facet titles.
+    Additional SOLR facets should be added to
+    the 'search.facets' config via the IConfigurer interface.
+    '''
+    def update_facet_titles(self, facet_titles):
+        '''
+        Update the dictionary mapping facet names to facet titles.
+        Example: {'facet_name': 'The title of the facet'}
+        Called after the serach operations are performed and 
+        before the search page will be displayed.
+        The titles show up on the search page.
+        '''
+
