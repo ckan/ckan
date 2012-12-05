@@ -39,23 +39,12 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
 
-    def mime_encode(self, msg, recipient_name):
-        sender_name = ckan.lib.base.g.site_title
-        sender_url = ckan.lib.base.g.site_url
-        body = ckan.lib.mailer.add_msg_niceties(
-                recipient_name, msg, sender_name, sender_url)
-        encoded_body = email.mime.text.MIMEText(
-                body.encode('utf-8'), 'plain', 'utf-8').get_payload().strip()
-        return encoded_body
-
-    def check_email(self, email, address, name, subject, body):
+    def check_email(self, email, address, name, subject):
         assert email[1] == 'info@test.ckan.net'
         assert email[2] == [address]
         encoded_subject = 'Subject: =?utf-8?q?{subject}'.format(
                 subject=subject.replace(' ', '_'))
         assert encoded_subject in email[3]
-        encoded_body = self.mime_encode(body, name)
-        assert encoded_body in email[3]
         # TODO: Check that body contains link to dashboard and email prefs.
 
     def test_00_send_email_notifications_not_logged_in(self):
@@ -114,7 +103,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
-                'You have new activity', 'You have new activity')
+                'New activity from CKAN')
 
         self.clear_smtp_messages()
 
@@ -136,7 +125,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
-                'You have new activity', 'You have new activity')
+                'New activity from CKAN')
 
         self.clear_smtp_messages()
 
