@@ -1,0 +1,10 @@
+{% extends "package/read.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }} - {{ c.pkg_dict.title or c.pkg_dict.name }}{% endblock %}
+
+{% block package_content %}
+  <section class="module-content">
+    <h1 class="hide-heading">{{ _('Activity Stream') }}</h1>
+    {{ c.package_activity_stream | safe }}
+  </section>
+{% endblock %}
