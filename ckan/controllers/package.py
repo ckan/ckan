@@ -343,6 +343,9 @@ class PackageController(BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
 
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
         PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template(package_type)
