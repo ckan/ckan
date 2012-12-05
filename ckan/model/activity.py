@@ -148,7 +148,7 @@ def package_activity_list(package_id, limit=31, offset=0):
     return _activities_at_offset(q, limit, offset)
 
 
-def _group_activity_query(group_id, limit=15):
+def _group_activity_query(group_id, limit=31):
     '''Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
@@ -173,7 +173,7 @@ def _group_activity_query(group_id, limit=15):
     return q
 
 
-def group_activity_list(group_id, limit=15):
+def group_activity_list(group_id, limit=31, offset=0):
     '''Return the given group's public activity stream.
 
     Returns all activities where the given group or one of its datasets is the
@@ -185,7 +185,7 @@ def group_activity_list(group_id, limit=15):
 
     '''
     q = _group_activity_query(group_id)
-    return _most_recent_activities(q, limit)
+    return _activities_at_offset(q, limit, offset)
 
 
 def _activites_from_users_followed_by_user_query(user_id):

@@ -1774,18 +1774,7 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    activity_objects = model.activity.group_activity_list(group_id)
-    dataset_ids = [dataset['id'] for dataset in datasets]
-
-    # Get the group's activities.
-    query = model.Session.query(model.Activity)
-    query = query.filter(_or_(model.Activity.object_id == group_id,
-        model.Activity.object_id.in_(dataset_ids)))
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(31)
-    query = query.offset(offset)
-    activity_objects = query.all()
-
+    activity_objects = model.activity.group_activity_list(group_id, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
@@ -1837,7 +1826,7 @@ def user_activity_list_html(context, data_dict):
         'id': data_dict['id'],
         'offset': offset
         }
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1895,7 +1884,14 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     '''
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    activity_params = {
+        'controller': 'package',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
@@ -1930,8 +1926,8 @@ def dataset_follower_count(context, data_dict):
 
     '''
     return _follower_count(context, data_dict,
-             ckan.logic.schema.default_follow_dataset_schema(),
-             context['model'].UserFollowingDataset)
+            ckan.logic.schema.default_follow_dataset_schema(),
+            context['model'].UserFollowingDataset)
 
 
 def group_follower_count(context, data_dict):
@@ -1944,8 +1940,8 @@ def group_follower_count(context, data_dict):
 
     '''
     return _follower_count(context, data_dict,
-           ckan.logic.schema.default_follow_group_schema(),
-           context['model'].UserFollowingGroup)
+            ckan.logic.schema.default_follow_group_schema(),
+            context['model'].UserFollowingGroup)
 
 
 def _follower_list(context, data_dict, default_schema, FollowerClass):
@@ -2219,11 +2215,10 @@ def dashboard_activity_list(context, data_dict):
 
     model = context['model']
     user_id = model.User.get(context['user']).id
-    offset = data_dict.get('offset', 0)
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id, offset=offset)
+    activity_objects = model.activity.dashboard_activity_list(user_id)
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
@@ -2256,7 +2251,7 @@ def dashboard_activity_list_html(context, data_dict):
     offset = int(data_dict.get('offset', 0))
     activity_params = {
         'controller': 'dashboard',
-        'action': 'dashboard',
+        'action': 'activity',
         'id': data_dict['id'],
         'offset': offset
         }
