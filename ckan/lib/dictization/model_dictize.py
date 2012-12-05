@@ -275,7 +275,8 @@ def package_dictize(pkg, context):
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
 
     # type
-    result_dict['type']= pkg.type
+    # if null assign the default value to make searching easier
+    result_dict['type']= pkg.type if pkg.type else u'dataset'
 
     # licence
     if pkg.license and pkg.license.url:
