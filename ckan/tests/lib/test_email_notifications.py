@@ -1,7 +1,6 @@
 import email.mime.text
 
 import ckan.model as model
-import ckan.lib.email_notifications as email_notifications
 import ckan.lib.base
 import ckan.lib.mailer
 import ckan.tests as tests
@@ -24,6 +23,10 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
+                }
+        testsysadmin = model.User.get('testsysadmin')
+        cls.testsysadmin = {'id': testsysadmin.id,
+                'apikey': testsysadmin.apikey,
                 }
 
     @classmethod
@@ -55,7 +58,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         '''A new user who isn't following anything shouldn't get any emails.'''
 
         # Clear any emails already sent due to CreateTestData.create().
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         self.clear_smtp_messages()
 
         # Register a new user.
@@ -68,7 +72,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         TestEmailNotifications.sara = sara
 
         # No notification emails should be sent to anyone at this point.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
     def test_02_one_new_activity(self):
@@ -86,7 +91,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
 
         # Run the email notifier job, it should send one notification email
         # to Sara.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
@@ -107,7 +113,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
 
         # Run the email notifier job, it should send one notification email
         # to Sara.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
@@ -122,7 +129,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         '''
         # TODO: Assert that Sara has some new activities and has already had
         # an email about them.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
     def test_05_no_email_if_seen_on_dashboard(self):
@@ -149,7 +157,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
                 apikey=self.sara['apikey'])
 
         # No email should be sent.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
     def test_05_no_email_notifications_when_disabled_site_wide(self):
@@ -179,6 +188,10 @@ class TestEmailNotificationsUserPreference(
         joeadmin = model.User.get('joeadmin')
         cls.joeadmin = {'id': joeadmin.id,
                 'apikey': joeadmin.apikey,
+                }
+        testsysadmin = model.User.get('testsysadmin')
+        cls.testsysadmin = {'id': testsysadmin.id,
+                'apikey': testsysadmin.apikey,
                 }
 
     @classmethod
@@ -223,7 +236,8 @@ class TestEmailNotificationsUserPreference(
             'dashboard_new_activities_count', apikey=self.sara['apikey']) > 0
 
         # No email notifications should be sent to Sara.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
     def test_02_enable_email_notifications(self):
@@ -247,14 +261,16 @@ class TestEmailNotificationsUserPreference(
             'dashboard_new_activities_count', apikey=self.sara['apikey']) == 3
 
         # Run the email notifier job.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
 
         # Enable email notifications for Sara.
         self.sara['email_notifications'] = True
         tests.call_action_api(self.app, 'user_update', **self.sara)
 
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0, ("After a user enables "
             "email notifications she should _not_ get emails about activities "
             "that happened before she enabled them, even if those activities "
@@ -270,7 +286,8 @@ class TestEmailNotificationsUserPreference(
             'dashboard_new_activities_count', apikey=self.sara['apikey']) == 4
 
         # Run the email notifier job, this time Sara should get one email.
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 1
         self.clear_smtp_messages()
 
@@ -287,5 +304,6 @@ class TestEmailNotificationsUserPreference(
         assert tests.call_action_api(self.app,
             'dashboard_new_activities_count', apikey=self.sara['apikey']) > 0
 
-        email_notifications.get_and_send_notifications_for_all_users()
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
