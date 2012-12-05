@@ -342,7 +342,7 @@ class GroupController(BaseController):
         appearing on the read page for the group (as they're connected via
         the group name)'''
         group = model.Group.get(grp['name'])
-        for dataset in group.active_packages().all():
+        for dataset in group.packages():
             search.rebuild(dataset.name)
 
     def _save_edit(self, id, context):

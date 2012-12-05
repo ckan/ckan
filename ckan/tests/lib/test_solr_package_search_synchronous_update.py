@@ -71,7 +71,7 @@ class TestSearchOverallWithSynchronousIndexing:
 
     def test_02_add_package_from_dict(self):
         check_search_results('', 3)
-        check_search_results('test-spatial', 1, ['council-owned-litter-bins'])
+        check_search_results('spatial', 1, ['council-owned-litter-bins'])
 
     def test_03_update_package_from_dict(self):
         package = model.Package.by_name('council-owned-litter-bins')
@@ -93,7 +93,7 @@ class TestSearchOverallWithSynchronousIndexing:
         model.repo.commit_and_remove()
 
         check_search_results('', 3)
-        check_search_results('test-spatial', 1, ['council-owned-litter-bins'])
+        check_search_results('spatial', 1, ['council-owned-litter-bins'])
 
     def test_04_delete_package_from_dict(self):
         package = model.Package.by_name('council-owned-litter-bins')

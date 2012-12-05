@@ -62,12 +62,12 @@ class TestSearch(FunctionalTestCase):
 
     def test_2_title(self):
         # exact title, one word
-        res = self.app.get('/dataset?q=Opengov.se')
+        res = self.app.get('/dataset?q=Opengov')
         result = self._check_results(res, 1, 'se-opengov')
 
         # multiple words
         res = self.app.get('/dataset?q=Government%20Expenditure')
-        result = self._check_results(res, 5, 'uk-government-expenditure')
+        result = self._check_results(res, 1, 'uk-government-expenditure')
 
 class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
@@ -158,7 +158,7 @@ class TestNonActivePackages(FunctionalTestCase):
         res = self.app.get(offset)
         assert 'Search - ' in res
         form = res.forms['dataset-search']
-        form['q'] =  str(self.non_active_name)
+        form['q'] =  'name:' + str(self.non_active_name)
         results_page = form.submit()
         assert 'Search - ' in results_page, results_page
         assert '<strong>0</strong> datasets found' in results_page, (self.non_active_name, results_page)

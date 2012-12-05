@@ -267,33 +267,7 @@ class PackageController(BaseController):
         ct, mu, ext = accept.parse_header(request.headers.get('Accept', ''))
         return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
 
-    def activity(self, id, offset=0):
-        package_type = self._get_package_type(id.split('@')[0])
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'for_view': True}
-        data_dict = {'id': id}
-
-        #check if package exists
-        try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg = context['package']
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        # Add the package's activity stream (already rendered to HTML) to the
-        # template context for the package/read.html template to retrieve
-        # later.
-        c.package_activity_stream = \
-            get_action('package_activity_list_html')(
-                context, {'id': c.pkg_dict['id'], 'offset': offset})
-
-        return render('package/activity_stream.html')
-
-
-    def read(self, id, format='html', offset=0):
+    def read(self, id, format='html'):
         if not format == 'html':
             ctype, extension, loader = \
                 self._content_type_from_extension(format)
@@ -344,13 +318,6 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
-
-        # Add the package's activity stream (already rendered to HTML) to the
-        # template context for the package/read.html template to retrieve
-        # later.
-        c.package_activity_stream = \
-            get_action('package_activity_list_html')(
-                context, {'id': c.current_package_id, 'offset': offset})
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -1266,6 +1233,26 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html')
+
+    def activity(self, id):
+        '''Render this package's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+            c.package_activity_stream = get_action(
+                    'package_activity_list_html')(context,
+                            {'id': c.pkg_dict['id']})
+            c.related_count = c.pkg.related_count
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        return render('package/activity.html')
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):

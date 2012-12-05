@@ -23,8 +23,16 @@ avoid spurious merge conflicts, and aid in reading pull requests.
 Use Single Quotes
 -----------------
 
-Use the single-quote character, ``'``, rather than the double-quote character,
-``"``, for string literals.
+Use single-quotes for string literals, e.g. ``'my-identifier'``, *but* use
+double-quotes for strings that are likely to contain single-quote characters as
+part of the string itself (such as error messages, or any strings containing
+natural language), e.g.  ``"You've got an error!"``.
+
+Single-quotes are easier to read and to type, but if a string contains
+single-quote characters then double-quotes are better than escaping the
+single-quote characters or wrapping the string in double single-quotes.
+
+We also use triple single-quotes for docstrings, see `Docstrings`_.
 
 
 Imports

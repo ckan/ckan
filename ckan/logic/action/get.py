@@ -750,34 +750,22 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
-    user = context["user"]
-    id = _get_or_bust(data_dict, 'id')
-    limit = data_dict.get("limit")
+    model = context['model']
+    group_id = _get_or_bust(data_dict, 'id')
 
-    group = model.Group.get(id)
+    # FIXME: What if limit is not an int? Schema and validation needed.
+    limit = data_dict.get('limit')
+
+    group = model.Group.get(group_id)
     context['group'] = group
     if group is None:
         raise NotFound
 
     _check_access('group_show', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)\
-        .filter(model.PackageRevision.state=='active')\
-        .filter(model.PackageRevision.current==True)\
-        .join(model.Member, model.Member.table_id==model.PackageRevision.id)\
-        .join(model.Group, model.Group.id==model.Member.group_id)\
-        .filter_by(id=group.id)\
-        .order_by(model.PackageRevision.name)
-
-    if limit:
-        query = query.limit(limit)
-
-    if context.get('return_query'):
-        return query
-
     result = []
-    for pkg_rev in query.all():
+    for pkg_rev in group.packages(limit=limit,
+            return_query=context.get('return_query')):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
@@ -1786,17 +1774,7 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    # FIXME: The SQLAlchemy below should be moved into ckan/model/activity.py
-    # (to encapsulate SQLALchemy in the model and avoid using it from the
-    # logic) but it can't be because it requires the list of dataset_ids which
-    # comes from logic.group_package_show() (and I don't want to access the
-    # logic from the model). Need to change it to get the dataset_ids from the
-    # model instead. There seems to be multiple methods for getting a group's
-    # datasets, some in the logic and some in the model.
-
-    # Get a list of the IDs of the group's datasets.
-    group_package_show = logic.get_action('group_package_show')
-    datasets = group_package_show(context, {'id': group_id})
+    activity_objects = model.activity.group_activity_list(group_id)
     dataset_ids = [dataset['id'] for dataset in datasets]
 
     # Get the group's activities.
@@ -1859,7 +1837,7 @@ def user_activity_list_html(context, data_dict):
         'id': data_dict['id'],
         'offset': offset
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.

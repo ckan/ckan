@@ -194,6 +194,7 @@ def make_map():
           'history',
           'read_ajax',
           'history_ajax',
+          'activity',
           'followers',
           'follow',
           'activity',
@@ -234,7 +235,6 @@ def make_map():
         m.connect('group_index', '/group', action='index')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new',  '/group/new', action='new')
-        m.connect('/group/activity/{id}/{offset}', action='activity')
         m.connect('group_action', '/group/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
@@ -249,6 +249,7 @@ def make_map():
           'activity',
           ]))
           )
+        m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
         m.connect('group_read', '/group/{id}', action='read')
 
     register_package_plugins(map)
@@ -269,8 +270,8 @@ def make_map():
         # in the route.
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('/user/activity/{id}', action='activity')
-        m.connect('/user/dashboard/{offset}', action='dashboard')
-        m.connect('/user/dashboard', action='dashboard')
+        m.connect('/dashboard/{offset}', action='dashboard')
+        m.connect('/dashboard', action='dashboard')
         m.connect('/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('/user/followers/{id:.*}', action='followers')
