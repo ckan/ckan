@@ -5,6 +5,9 @@ from ckan.logic.auth.publisher import _groups_intersect
 from ckan.logic.auth.publisher.create import package_relationship_create
 from ckan.authz import Authorizer
 from ckan.lib.base import _
+from ckan.logic.auth.update import (
+        send_email_notifications,
+        )
 
 # FIXME: Which is worse, 'from module import foo' or duplicating these
 # functions in this module?

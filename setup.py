@@ -90,7 +90,6 @@ setup(
     trans = ckan.lib.cli:TranslationsCommand
     minify = ckan.lib.cli:MinifyCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
-    send-email-notifications = ckan.lib.cli:EmailNotificationsCommand
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command

@@ -1,6 +1,7 @@
 import logging
 import datetime
 
+import pylons
 from pylons.i18n import _
 from vdm.sqlalchemy.base import SQLAlchemySession
 
@@ -14,6 +15,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
+import ckan.lib.email_notifications
 
 log = logging.getLogger(__name__)
 
@@ -953,3 +955,19 @@ def dashboard_mark_activities_old(context, data_dict):
             datetime.datetime.now())
     if not context.get('defer_commit'):
         model.repo.commit()
+
+
+def send_email_notifications(context, data_dict):
+    '''Send any pending activity stream notification emails to users.
+
+    You must provide a sysadmin's API key in the Authorization header of the
+    request, or call this action from the command-line via a `paster post ...`
+    command.
+
+    '''
+    # If paste.command_request is True then this function has been called
+    # by a `paster post ...` command not a real HTTP request, so skip the
+    # authorization.
+    if not pylons.request.environ.get('paste.command_request'):
+        _check_access('send_email_notifications', context, data_dict)
+    ckan.lib.email_notifications.get_and_send_notifications_for_all_users()

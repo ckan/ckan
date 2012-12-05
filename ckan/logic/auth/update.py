@@ -188,6 +188,10 @@ def dashboard_mark_activities_old(context, data_dict):
             context, data_dict)
 
 
+def send_email_notifications(context, data_dict):
+    return {'success': Authorizer.is_sysadmin(context['user'])}
+
+
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):
