@@ -28,6 +28,10 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         cls.testsysadmin = {'id': testsysadmin.id,
                 'apikey': testsysadmin.apikey,
                 }
+        annafan = model.User.get('annafan')
+        cls.annafan = {'id': annafan.id,
+                'apikey': annafan.apikey,
+                }
 
     @classmethod
     def teardown_class(self):
@@ -53,6 +57,20 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         encoded_body = self.mime_encode(body, name)
         assert encoded_body in email[3]
         # TODO: Check that body contains link to dashboard and email prefs.
+
+    def test_00_send_email_notifications_not_logged_in(self):
+        '''Not-logged-in users shouldn't be able to send email notifications.
+
+        '''
+        tests.call_action_api(self.app, 'send_email_notifications',
+                status=403)
+
+    def test_00_send_email_notifications_not_authorized(self):
+        '''Unauthorized users shouldn't be able to send email notifications.
+
+        '''
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.annafan['apikey'], status=403)
 
     def test_01_no_email_notifications_after_registration(self):
         '''A new user who isn't following anything shouldn't get any emails.'''
