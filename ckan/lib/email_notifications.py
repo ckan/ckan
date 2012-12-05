@@ -6,11 +6,14 @@ users.
 '''
 import datetime
 
+import pylons
+
 import ckan.model as model
 import ckan.logic as logic
+import ckan.lib.base as base
 
 
-def _notifications_for_activities(activities):
+def _notifications_for_activities(activities, user_dict):
     '''Return one or more email notifications covering the given activities.
 
     This function handles grouping multiple activities into a single digest
@@ -33,27 +36,33 @@ def _notifications_for_activities(activities):
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
+    subject = "New activity from {0}".format(
+            pylons.config.get('ckan.site_title'))
+    body = base.render(
+            'activity_streams/activity_stream_email_notifications.text',
+            extra_vars={'user': user_dict})
     notifications = [{
-        'subject': "You have new activity",
-        'body': "You have new activity"
+        'subject': subject,
+        'body': body
         }]
 
     return notifications
 
 
-def _notifications_from_dashboard_activity_list(user_id, since):
-    '''Return any email notifications from user_id's dashboard activity list
-    since `since`.
+def _notifications_from_dashboard_activity_list(user_dict, since):
+    '''Return any email notifications from the given user's dashboard activity
+    list since `since`.
 
     '''
     # Get the user's dashboard activity stream.
-    context = {'model': model, 'session': model.Session, 'user': user_id}
+    context = {'model': model, 'session': model.Session,
+            'user': user_dict['id']}
     activity_list = logic.get_action('dashboard_activity_list')(context, {})
 
     # Filter out the user's own activities., so they don't get an email every
     # time they themselves do something (we are not Trac).
     activity_list = [activity for activity in activity_list
-            if activity['user_id'] != user_id]
+            if activity['user_id'] != user_dict['id']]
 
     # Filter out the old activities.
     strptime = datetime.datetime.strptime
@@ -61,7 +70,7 @@ def _notifications_from_dashboard_activity_list(user_id, since):
     activity_list = [activity for activity in activity_list
             if strptime(activity['timestamp'], fmt) > since]
 
-    return _notifications_for_activities(activity_list)
+    return _notifications_for_activities(activity_list, user_dict)
 
 
 # A list of functions that provide email notifications for users from different
@@ -72,14 +81,15 @@ _notifications_functions = [
     ]
 
 
-def get_notifications(user_id, since):
-    '''Return any email notifications for `user_id` since `since`.
+def get_notifications(user_dict, since):
+    '''Return any email notifications for the given user since `since`.
 
     For example email notifications about activity streams will be returned for
     any activities the occurred since `since`.
 
-    :param user_id: id of the user to return notifications for
-    :type user_id: string
+    :param user_dict: a dictionary representing the user, should contain 'id'
+        and 'name'
+    :type user_dict: dictionary
 
     :param since: datetime after which to return notifications from
     :rtype since: datetime.datetime
@@ -90,7 +100,7 @@ def get_notifications(user_id, since):
     '''
     notifications = []
     for function in _notifications_functions:
-        notifications.extend(function(user_id, since))
+        notifications.extend(function(user_dict, since))
     return notifications
 
 
@@ -121,7 +131,7 @@ def get_and_send_notifications_for_user(user):
                 model.Dashboard.get(user['id']).activity_stream_last_viewed)
         since = max(email_last_sent, activity_stream_last_viewed)
 
-        notifications = get_notifications(user['id'], since)
+        notifications = get_notifications(user, since)
 
         # TODO: Handle failures from send_email_notification.
         for notification in notifications:
