@@ -269,6 +269,10 @@ class PackageController(BaseController):
         maintain.deprecate_context_item(
           'facets',
           'Use `c.search_facets` instead.')
+
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):
@@ -494,7 +498,7 @@ class PackageController(BaseController):
                 'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
-        self._setup_template_variables(context, {'id': id},
+        self._setup_template_variables(context, {},
                                        package_type=package_type)
 
         # TODO: This check is to maintain backwards compatibility with the
