@@ -188,7 +188,13 @@ activity_stream_string_icons = {
 activity_stream_actions_with_detail = ['changed package']
 
 def activity_list_to_html(context, activity_stream, activity_params):
-    '''Return the given activity stream as a snippet of HTML.'''
+    '''Return the given activity stream as a snippet of HTML.
+
+    :param activity_stream: Array of activity items
+    :param activity_params: Dictionary of params that the load more button needs for context
+
+    :rtype html of activity list
+    '''
 
     activity_list = [] # These are the activity stream messages.
     for activity in activity_stream:
