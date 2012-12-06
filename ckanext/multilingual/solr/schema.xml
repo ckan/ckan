@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="ckan" version="1.4">
+<schema name="ckan" version="2.0">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -354,6 +354,7 @@
     <field name="site_id" type="string" indexed="true" stored="true" required="true" />
     <field name="title" type="text" indexed="true" stored="true" />
     <field name="entity_type" type="string" indexed="true" stored="true" omitNorms="true" />
+    <field name="dataset_type" type="string" indexed="true" stored="true" />
     <field name="state" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="name" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="revision_id" type="string" indexed="true" stored="true" omitNorms="true" />
@@ -436,7 +437,12 @@
 
     <field name="data_dict" type="string" indexed="false" stored="true" />
 
+    <field name="_version_" type="string" indexed="true" stored="true"/>
+
+    <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="false"/>
+
     <dynamicField name="extras_*" type="text" indexed="true" stored="true" multiValued="false"/>
+    <dynamicField name="vocab_*" type="string" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="*" type="string" indexed="true"  stored="false"/>
 </fields>
 

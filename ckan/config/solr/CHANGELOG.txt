@@ -1,6 +1,13 @@
 CKAN SOLR schemas changelog
 ===========================
 
+v2.0 - (ckan>=2.0)
+--------------------
+* Add _version_ field to make it compatible with solr 4.0
+* Remove stopwords
+* Add dataset_type field.
+* Add *_date autofield.
+
 v1.4 - (ckan>=1.7)
 --------------------
 * Add Ascii folding filter to text fields.
