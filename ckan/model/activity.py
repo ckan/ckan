@@ -77,6 +77,7 @@ def _most_recent_activities(q, limit):
     return q.all()
 
 def _activities_at_offset(q, limit, offset):
+     '''Return an SQLAlchemy query for all activities at an offset with a limit'''
     import ckan.model as model
     q = q.order_by(desc(model.Activity.timestamp))
     if offset:

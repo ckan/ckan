@@ -1824,7 +1824,7 @@ def user_activity_list_html(context, data_dict):
         'controller': 'user',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset
+        'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
@@ -1846,7 +1846,7 @@ def package_activity_list_html(context, data_dict):
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset
+        'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
@@ -1868,7 +1868,7 @@ def group_activity_list_html(context, data_dict):
         'controller': 'group',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset
+        'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
@@ -1889,7 +1889,7 @@ def recently_changed_packages_activity_list_html(context, data_dict):
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset
+        'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
@@ -2253,7 +2253,7 @@ def dashboard_activity_list_html(context, data_dict):
         'controller': 'dashboard',
         'action': 'activity',
         'id': data_dict['id'],
-        'offset': offset
+        'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
 
