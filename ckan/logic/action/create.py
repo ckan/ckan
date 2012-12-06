@@ -156,7 +156,7 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(data)
+        item.after_create(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
