@@ -393,7 +393,8 @@ def build_nav_icon(menu_item, title, **kw):
 
     outputs <li><a href="..."><i class="icon.."></i> title</a></li>
 
-    :param menu_item: the name of the defined menu item (see _menu_items)
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
@@ -409,7 +410,8 @@ def build_nav(menu_item, title, **kw):
 
     outputs <li><a href="..."></i> title</a></li>
 
-    :param menu_item: the name of the defined menu item (see _menu_items)
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
@@ -421,6 +423,21 @@ def build_nav(menu_item, title, **kw):
 
 
 def _make_menu_item(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+
+    This function is called by wrapper functions.
+    '''
     _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
         raise Exception('menu item `%s` cannot be found' % menu_item)
