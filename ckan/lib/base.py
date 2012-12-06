@@ -222,7 +222,7 @@ class BaseController(WSGIController):
                     'dashboard_new_activities_count')
             context = {'model': model, 'session': model.Session,
                         'user': c.user or c.author}
-            c.new_activities = new_activities_count(context, {'offset': 0})
+            c.new_activities = new_activities_count(context, {})
 
     def _identify_user(self):
         '''
