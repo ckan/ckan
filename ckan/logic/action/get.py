@@ -1712,6 +1712,8 @@ def user_activity_list(context, data_dict):
 
     You must be authorized to view the user's profile.
 
+    offset = Where to start getting activity items from
+
     :param id: the id or name of the user
     :type id: string
 
@@ -1734,6 +1736,8 @@ def package_activity_list(context, data_dict):
 
     You must be authorized to view the package.
 
+    offset = Where to start getting activity items from
+
     :param id: the id or name of the package
     :type id: string
 
@@ -1755,6 +1759,8 @@ def group_activity_list(context, data_dict):
     '''Return a group's activity stream.
 
     You must be authorized to view the group.
+
+    offset = Where to start getting activity items format_autocomplete
 
     :param id: the id or name of the group
     :type id: string
@@ -1812,6 +1818,8 @@ def user_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    offset = Where to start getting activity items from
+
     :param id: The id or name of the user.
     :type id: string
 
@@ -1833,6 +1841,8 @@ def package_activity_list_html(context, data_dict):
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    offset = Where to start getting activity items from
 
     :param id: the id or name of the package
     :type id: string
@@ -1856,6 +1866,8 @@ def group_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    offset = Where to start getting activity items from
+
     :param id: the id or name of the group
     :type id: string
 
@@ -1878,6 +1890,8 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     The activity stream includes all recently added or changed packages. It is
     rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
     doesn't have any HTML header or footer.
+
+    offset = Where to start getting activity items from
 
     :rtype: string
 
@@ -2243,6 +2257,8 @@ def dashboard_activity_list_html(context, data_dict):
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    offset = Where to start getting activity items from
 
     :rtype: string
 
