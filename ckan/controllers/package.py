@@ -248,7 +248,7 @@ class PackageController(BaseController):
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
-        for plugin in plugins.PluginImplementations(plugins.ISearchFacets):
+        for plugin in plugins.PluginImplementations(plugins.IPackageController):
             c.facet_titles = plugin.update_facet_titles(c.facet_titles)
 
 
