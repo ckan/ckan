@@ -310,7 +310,7 @@ def get_action(action):
         # we need to mirror the docstring
         fn.__doc__ = _action.__doc__
         # we need to retain the side effect free behaviour
-        if _action.side_effect_free:
+        if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
 
