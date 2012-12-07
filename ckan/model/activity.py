@@ -68,16 +68,10 @@ meta.mapper(ActivityDetail, activity_detail_table, properties = {
     })
 
 
-def _most_recent_activities(q, limit):
-    '''Return the 'limit' most recent activites from activity query 'q'.'''
-    import ckan.model as model
-    q = q.order_by(desc(model.Activity.timestamp))
-    if limit:
-        q = q.limit(limit)
-    return q.all()
-
 def _activities_at_offset(q, limit, offset):
-    '''Return an SQLAlchemy query for all activities at an offset with a limit.'''
+    '''Return an SQLAlchemy query for all activities at an offset with a limit.
+
+    '''
     import ckan.model as model
     q = q.order_by(desc(model.Activity.timestamp))
     if offset:
@@ -109,7 +103,7 @@ def _user_activity_query(user_id):
     return q
 
 
-def user_activity_list(user_id, limit=31, offset=0):
+def user_activity_list(user_id, limit, offset):
     '''Return user_id's public activity stream.
 
     Return a list of all activities from or about the given user, i.e. where
@@ -134,7 +128,7 @@ def _package_activity_query(package_id):
     return q
 
 
-def package_activity_list(package_id, limit=31, offset=0):
+def package_activity_list(package_id, limit, offset):
     '''Return the given dataset (package)'s public activity stream.
 
     Returns all activities  about the given dataset, i.e. where the given
@@ -149,7 +143,7 @@ def package_activity_list(package_id, limit=31, offset=0):
     return _activities_at_offset(q, limit, offset)
 
 
-def _group_activity_query(group_id, limit=31):
+def _group_activity_query(group_id):
     '''Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
@@ -174,7 +168,7 @@ def _group_activity_query(group_id, limit=31):
     return q
 
 
-def group_activity_list(group_id, limit=31, offset=0):
+def group_activity_list(group_id, limit, offset):
     '''Return the given group's public activity stream.
 
     Returns all activities where the given group or one of its datasets is the
@@ -239,7 +233,7 @@ def _activities_from_everything_followed_by_user_query(user_id):
     return q
 
 
-def activities_from_everything_followed_by_user(user_id, limit=31, offset=0):
+def activities_from_everything_followed_by_user(user_id, limit, offset):
     '''Return activities from everything that the given user is following.
 
     Returns all activities where the object of the activity is anything
@@ -257,7 +251,7 @@ def _dashboard_activity_query(user_id):
     return q
 
 
-def dashboard_activity_list(user_id, limit=31, offset=0):
+def dashboard_activity_list(user_id, limit, offset):
     '''Return the given user's dashboard activity stream.
 
     Returns activities from the user's public activity stream, plus
@@ -283,7 +277,7 @@ def _changed_packages_activity_query():
     return q
 
 
-def recently_changed_packages_activity_list(limit=15):
+def recently_changed_packages_activity_list(limit, offset):
     '''Return the site-wide stream of recently changed package activities.
 
     This activity stream includes recent 'new package', 'changed package' and
@@ -291,4 +285,4 @@ def recently_changed_packages_activity_list(limit=15):
 
     '''
     q = _changed_packages_activity_query()
-    return _most_recent_activities(q, limit)
+    return _activities_at_offset(q, limit, offset)

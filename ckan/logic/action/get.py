@@ -1718,6 +1718,10 @@ def user_activity_list(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1728,9 +1732,12 @@ def user_activity_list(context, data_dict):
 
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-    offset = data_dict.get('offset', 0)
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.user_activity_list(user_id, offset=offset)
+    activity_objects = model.activity.user_activity_list(user_id, limit=limit,
+            offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
@@ -1743,6 +1750,10 @@ def package_activity_list(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1753,9 +1764,12 @@ def package_activity_list(context, data_dict):
 
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
-    offset = data_dict.get('offset', 0)
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.package_activity_list(package_id, offset=offset)
+    activity_objects = model.activity.package_activity_list(package_id,
+            limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
@@ -1768,6 +1782,10 @@ def group_activity_list(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1778,17 +1796,28 @@ def group_activity_list(context, data_dict):
 
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
-    offset = data_dict.get('offset', 0)
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    activity_objects = model.activity.group_activity_list(group_id, offset=offset)
+    activity_objects = model.activity.group_activity_list(group_id,
+            limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
+
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1796,7 +1825,13 @@ def recently_changed_packages_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     model = context['model']
-    activity_objects = model.activity.recently_changed_packages_activity_list()
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    activity_objects = model.activity.recently_changed_packages_activity_list(
+            limit=limit, offset=offset)
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -1827,6 +1862,10 @@ def user_activity_list_html(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
@@ -1853,6 +1892,10 @@ def package_activity_list_html(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
@@ -1879,6 +1922,10 @@ def group_activity_list_html(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
@@ -1904,6 +1951,10 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
@@ -2235,6 +2286,13 @@ def dashboard_activity_list(context, data_dict):
 
     The user's own activities are always marked 'is_new': False.
 
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+
     :rtype: list of activity dictionaries
 
     '''
@@ -2242,10 +2300,14 @@ def dashboard_activity_list(context, data_dict):
 
     model = context['model']
     user_id = model.User.get(context['user']).id
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id)
+    activity_objects = model.activity.dashboard_activity_list(user_id,
+            limit=limit, offset=offset)
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
@@ -2274,6 +2336,10 @@ def dashboard_activity_list_html(context, data_dict):
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
