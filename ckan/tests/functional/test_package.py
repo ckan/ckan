@@ -75,6 +75,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['after_update'] += 1
         return data_dict
 
+    def after_show(self, context, data_dict):
+        self.calls['after_show'] += 1
+        return data_dict
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
@@ -379,12 +383,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
 
-        # There are now two reads of the package.  The first to find out
-        # the package's type.  And the second is the actual read that
-        # existed before.  I don't know if this is a problem?  I expect it
-        # can be fixed by allowing the package to be passed in to the plugin,
-        # either via the function argument, or adding it to the c object.
         assert plugin.calls['read'] == 1, plugin.calls
+        assert plugin.calls['after_show'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_resource_list(self):
