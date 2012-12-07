@@ -974,7 +974,7 @@ def send_email_notifications(context, data_dict):
 
     if not paste.deploy.converters.asbool(
             pylons.config.get('ckan.email_notifications')):
-        raise logic.ActionError(
+        raise logic.ParameterError(
                 'ckan.email_notifications is not enabled in config')
 
     ckan.lib.email_notifications.get_and_send_notifications_for_all_users()

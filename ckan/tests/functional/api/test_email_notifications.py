@@ -6,8 +6,10 @@ import ckan.lib.mailer
 import ckan.tests as tests
 import ckan.tests.mock_mail_server as mock_mail_server
 import ckan.tests.pylons_controller as pylons_controller
+import ckan.config.middleware
 
 import paste
+import paste.deploy
 import pylons.test
 
 
@@ -32,6 +34,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         cls.annafan = {'id': annafan.id,
                 'apikey': annafan.apikey,
                 }
+        pylons.config['ckan.email_notifications'] = True
 
     @classmethod
     def teardown_class(self):
@@ -313,4 +316,85 @@ class TestEmailNotificationsUserPreference(
 
         tests.call_action_api(self.app, 'send_email_notifications',
                 apikey=self.testsysadmin['apikey'])
+        assert len(self.get_smtp_messages()) == 0
+
+
+class TestEmailNotificationsIniSetting(
+        mock_mail_server.SmtpServerHarness,
+        pylons_controller.PylonsTestCase):
+    '''Tests for the ckan.email_notifications config setting.'''
+
+    @classmethod
+    def setup_class(cls):
+        config = paste.deploy.appconfig('config:test.ini',
+                relative_to=ckan.tests.conf_dir)
+
+        # Disable the email notifications feature.
+        config.local_conf['ckan.email_notifications'] = False
+
+        wsgiapp = ckan.config.middleware.make_app(config.global_conf,
+                **config.local_conf)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+
+        mock_mail_server.SmtpServerHarness.setup_class()
+        pylons_controller.PylonsTestCase.setup_class()
+        tests.CreateTestData.create()
+
+        joeadmin = model.User.get('joeadmin')
+        cls.joeadmin = {'id': joeadmin.id,
+                'apikey': joeadmin.apikey,
+                }
+        testsysadmin = model.User.get('testsysadmin')
+        cls.testsysadmin = {'id': testsysadmin.id,
+                'apikey': testsysadmin.apikey,
+                }
+
+    @classmethod
+    def teardown_class(self):
+        mock_mail_server.SmtpServerHarness.teardown_class()
+        pylons_controller.PylonsTestCase.teardown_class()
+        model.repo.rebuild_db()
+
+    def test_00_send_email_notifications_feature_disabled(self):
+        '''Send_email_notifications API should error when feature disabled.'''
+
+        # Register a new user.
+        sara = tests.call_action_api(self.app, 'user_create',
+                apikey=self.joeadmin['apikey'], name='sara',
+                email='sara@sararollins.com', password='sara',
+                fullname='Sara Rollins')
+
+        # Save the user for later tests to use.
+        TestEmailNotificationsIniSetting.sara = sara
+
+        # Enable the new user's email notifications preference.
+        sara['email_notifications'] = True
+        tests.call_action_api(self.app, 'user_update', **sara)
+        assert (tests.call_action_api(self.app, 'user_show',
+                apikey=self.sara['apikey'], id='sara')['email_notifications']
+                is True)
+
+        # Make Sara follow something so she gets some new activity in her
+        # dashboard activity stream.
+        tests.call_action_api(self.app, 'follow_dataset',
+                apikey=self.sara['apikey'], id='warandpeace')
+
+        # Now make someone else update the dataset so Sara gets a new activity.
+        tests.call_action_api(self.app, 'package_update',
+                apikey=self.joeadmin['apikey'], id='warandpeace',
+                notes='updated')
+
+        # Test that Sara has a new activity, just to make sure.
+        assert tests.call_action_api(self.app,
+            'dashboard_new_activities_count', apikey=self.sara['apikey']) > 0
+
+        # We expect an error when trying to call the send_email_notifications
+        # API, because the feature is disabled by the ini file setting.
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'], status=409)
+
+    def test_01_no_emails_sent_if_turned_off(self):
+        '''No emails should be sent if the feature is disabled site-wide.'''
+
+        # No emails should have been sent by the last test.
         assert len(self.get_smtp_messages()) == 0
