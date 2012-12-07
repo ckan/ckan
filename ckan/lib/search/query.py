@@ -338,7 +338,9 @@ class PackageSearchQuery(SearchQuery):
         if ':' not in query['q']:
             query['defType'] = 'dismax'
             query['tie'] = '0.1'
-            query['mm'] = '1'
+            # this minimum match is explained
+            # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
+            query['mm'] = '2<-1 5<80%'
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()

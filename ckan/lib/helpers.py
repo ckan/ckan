@@ -332,6 +332,11 @@ def _link_class(kwargs):
 
 def nav_named_link(text, name, **kwargs):
     class_ = _link_class(kwargs)
+
+    icon = kwargs.pop('icon', None)
+    if icon:
+        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+
     return link_to(
         text,
         url_for(name, **kwargs),
