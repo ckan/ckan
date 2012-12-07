@@ -1712,10 +1712,12 @@ def user_activity_list(context, data_dict):
 
     You must be authorized to view the user's profile.
 
-    offset = Where to start getting activity items from
 
     :param id: the id or name of the user
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: list of dictionaries
 
@@ -1736,10 +1738,11 @@ def package_activity_list(context, data_dict):
 
     You must be authorized to view the package.
 
-    offset = Where to start getting activity items from
-
     :param id: the id or name of the package
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: list of dictionaries
 
@@ -1760,10 +1763,11 @@ def group_activity_list(context, data_dict):
 
     You must be authorized to view the group.
 
-    offset = Where to start getting activity items format_autocomplete
-
     :param id: the id or name of the group
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: list of dictionaries
 
@@ -1818,10 +1822,11 @@ def user_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    offset = Where to start getting activity items from
-
     :param id: The id or name of the user.
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: string
 
@@ -1843,10 +1848,11 @@ def package_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    offset = Where to start getting activity items from
-
     :param id: the id or name of the package
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: string
 
@@ -1868,10 +1874,11 @@ def group_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    offset = Where to start getting activity items from
-
     :param id: the id or name of the group
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: string
 
@@ -1894,7 +1901,9 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
     doesn't have any HTML header or footer.
 
-    offset = Where to start getting activity items from
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: string
 
@@ -2262,7 +2271,9 @@ def dashboard_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    offset = Where to start getting activity items from
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
 
     :rtype: string
 
