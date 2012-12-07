@@ -1828,13 +1828,14 @@ def user_activity_list_html(context, data_dict):
     '''
     activity_stream = user_activity_list(context, data_dict)
     offset = int(data_dict.get('offset', 0))
-    activity_params = {
+    extra_vars = {
         'controller': 'user',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1852,13 +1853,14 @@ def package_activity_list_html(context, data_dict):
     '''
     activity_stream = package_activity_list(context, data_dict)
     offset = int(data_dict.get('offset', 0))
-    activity_params = {
+    extra_vars = {
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -1876,13 +1878,14 @@ def group_activity_list_html(context, data_dict):
     '''
     activity_stream = group_activity_list(context, data_dict)
     offset = int(data_dict.get('offset', 0))
-    activity_params = {
+    extra_vars = {
         'controller': 'group',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -1899,13 +1902,14 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
     offset = int(data_dict.get('offset', 0))
-    activity_params = {
+    extra_vars = {
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
@@ -2265,13 +2269,14 @@ def dashboard_activity_list_html(context, data_dict):
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
     offset = int(data_dict.get('offset', 0))
-    activity_params = {
+    extra_vars = {
         'controller': 'dashboard',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
         }
-    return activity_streams.activity_list_to_html(context, activity_stream, activity_params)
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):
