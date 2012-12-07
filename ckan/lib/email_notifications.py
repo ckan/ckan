@@ -11,6 +11,7 @@ import pylons
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
+import ckan.lib.helpers as helpers
 
 
 def _notifications_for_activities(activities, user_dict):
@@ -123,13 +124,24 @@ def get_and_send_notifications_for_user(user):
 
     if user['email_notifications']:
 
+        # Parse the email_notifications_since config setting, email
+        # notifications from longer ago than this time will not be sent.
+        email_notifications_since = pylons.config.get(
+                'ckan.email_notifications_since', '2 days')
+        email_notifications_since = helpers.string_to_timedelta(
+                email_notifications_since)
+        email_notifications_since = (datetime.datetime.now()
+                - email_notifications_since)
+
         # FIXME: We are accessing model from lib here but I'm not sure what
         # else to do unless we add a get_email_last_sent() logic function which
         # would only be needed by this lib.
         email_last_sent = model.Dashboard.get(user['id']).email_last_sent
         activity_stream_last_viewed = (
                 model.Dashboard.get(user['id']).activity_stream_last_viewed)
-        since = max(email_last_sent, activity_stream_last_viewed)
+
+        since = max(email_notifications_since, email_last_sent,
+                activity_stream_last_viewed)
 
         notifications = get_notifications(user, since)
 

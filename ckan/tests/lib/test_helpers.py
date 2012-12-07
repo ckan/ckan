@@ -177,3 +177,20 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found','default_value'), 'default_value')
+
+    def test_string_to_time_delta(self):
+        assert h.string_to_timedelta('2 days') == datetime.timedelta(days=2)
+        assert h.string_to_timedelta('14 days') == datetime.timedelta(
+                days=14)
+        assert h.string_to_timedelta('4:35:00') == datetime.timedelta(
+                hours=4, minutes=35, seconds=00)
+        assert h.string_to_timedelta('4:35:12.087465') == datetime.timedelta(
+                hours=4, minutes=35, seconds=12, milliseconds=87,
+                microseconds=465)
+        assert h.string_to_timedelta('7 days, 3:23:34') == datetime.timedelta(
+                days=7, hours=3, minutes=23, seconds=34)
+        assert h.string_to_timedelta('7 days, 3:23:34.087465') == (
+                datetime.timedelta(days=7, hours=3, minutes=23, seconds=34,
+                    milliseconds=87, microseconds=465))
+        assert h.string_to_timedelta('.123456') == datetime.timedelta(
+                milliseconds=123, microseconds=456)

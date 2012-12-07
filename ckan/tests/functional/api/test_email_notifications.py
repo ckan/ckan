@@ -1,4 +1,4 @@
-import email.mime.text
+import time
 
 import ckan.model as model
 import ckan.lib.base
@@ -397,4 +397,85 @@ class TestEmailNotificationsIniSetting(
         '''No emails should be sent if the feature is disabled site-wide.'''
 
         # No emails should have been sent by the last test.
+        assert len(self.get_smtp_messages()) == 0
+
+
+class TestEmailNotificationsSinceIniSetting(
+        mock_mail_server.SmtpServerHarness,
+        pylons_controller.PylonsTestCase):
+    '''Tests for the ckan.email_notifications_since config setting.'''
+
+    @classmethod
+    def setup_class(cls):
+        config = paste.deploy.appconfig('config:test.ini',
+                relative_to=ckan.tests.conf_dir)
+
+        # Don't send email notifications for activities older than 1
+        # microsecond.
+        config.local_conf['ckan.email_notifications_since'] = '.000001'
+
+        wsgiapp = ckan.config.middleware.make_app(config.global_conf,
+                **config.local_conf)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+
+        mock_mail_server.SmtpServerHarness.setup_class()
+        pylons_controller.PylonsTestCase.setup_class()
+        tests.CreateTestData.create()
+
+        joeadmin = model.User.get('joeadmin')
+        cls.joeadmin = {'id': joeadmin.id,
+                'apikey': joeadmin.apikey,
+                }
+        testsysadmin = model.User.get('testsysadmin')
+        cls.testsysadmin = {'id': testsysadmin.id,
+                'apikey': testsysadmin.apikey,
+                }
+
+    @classmethod
+    def teardown_class(self):
+        mock_mail_server.SmtpServerHarness.teardown_class()
+        pylons_controller.PylonsTestCase.teardown_class()
+        model.repo.rebuild_db()
+
+    def test_00_email_notifications_since(self):
+        '''No emails should be sent for activities older than
+        email_notifications_since.
+
+        '''
+        # Register a new user.
+        sara = tests.call_action_api(self.app, 'user_create',
+                apikey=self.joeadmin['apikey'], name='sara',
+                email='sara@sararollins.com', password='sara',
+                fullname='Sara Rollins')
+
+        # Save the user for later tests to use.
+        TestEmailNotificationsSinceIniSetting.sara = sara
+
+        # Enable the new user's email notifications preference.
+        sara['email_notifications'] = True
+        tests.call_action_api(self.app, 'user_update', **sara)
+        assert (tests.call_action_api(self.app, 'user_show',
+                apikey=self.sara['apikey'], id='sara')['email_notifications']
+                is True)
+
+        # Make Sara follow something so she gets some new activity in her
+        # dashboard activity stream.
+        tests.call_action_api(self.app, 'follow_dataset',
+                apikey=self.sara['apikey'], id='warandpeace')
+
+        # Now make someone else update the dataset so Sara gets a new activity.
+        tests.call_action_api(self.app, 'package_update',
+                apikey=self.joeadmin['apikey'], id='warandpeace',
+                notes='updated')
+
+        # Test that Sara has a new activity, just to make sure.
+        assert tests.call_action_api(self.app,
+            'dashboard_new_activities_count', apikey=self.sara['apikey']) > 0
+
+        # Wait 1 microsecond, just to make sure we're passed the 'since' time.
+        time.sleep(0.000001)
+
+        # No emails should be sent.
+        tests.call_action_api(self.app, 'send_email_notifications',
+                apikey=self.testsysadmin['apikey'])
         assert len(self.get_smtp_messages()) == 0
