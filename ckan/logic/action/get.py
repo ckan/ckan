@@ -2117,6 +2117,7 @@ def followee_list(context, data_dict):
         returned by user_show, package_show or group_show)
 
     '''
+    # TODO: Validation, authorization.
 
     def display_name(followee):
         '''Return a display name for the given user, group or dataset dict.'''
@@ -2125,10 +2126,6 @@ def followee_list(context, data_dict):
         title = followee.get('title')
         name = followee.get('name')
         return display_name or fullname or title or name
-
-    # This function doesn't do its own authorization or validation because
-    # it's just a wrapper for the *_followee_list() functions that each do
-    # their own.
 
     # Get the followed objects.
     # TODO: Catch exceptions raised by these *_followee_list() functions?
