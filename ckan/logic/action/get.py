@@ -2147,9 +2147,7 @@ def followee_list(context, data_dict):
         q = q.strip().lower()
         matching_followee_dicts = []
         for followee_dict in followee_dicts:
-            display_name = _followee_key_function(followee_dict)
-            display_name = display_name.strip().lower()
-            if display_name.startswith(q):
+            if followee_dict['display_name'].strip().lower().startswith(q):
                 matching_followee_dicts.append(followee_dict)
         followee_dicts = matching_followee_dicts
 
