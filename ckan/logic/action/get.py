@@ -2106,6 +2106,10 @@ def followee_list(context, data_dict):
     :param id: the id of the user
     :type id: string
 
+    :param q: a query string to limit results by, only objects whose display
+        name begins with the given string (case-insensitive) wil be returned
+    :type q: string
+
     :rtype: list of dictionaries, each with keys 'type' (e.g. 'user',
         'dataset' or 'group'), 'display_name' (e.g. a user's display name,
         or a package's title) and 'dict' (e.g. a dict representing the
