@@ -2041,6 +2041,23 @@ def _followee_count(context, data_dict, FollowerClass):
     return FollowerClass.followee_count(data_dict['id'])
 
 
+def followee_count(context, data_dict):
+    '''Return the number of users that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    model = context['model']
+    return sum((
+        _followee_count(context, data_dict, model.UserFollowingUser),
+        _followee_count(context, data_dict, model.UserFollowingDataset),
+        _followee_count(context, data_dict, model.UserFollowingGroup),
+        ))
+
+
 def user_followee_count(context, data_dict):
     '''Return the number of users that are followed by the given user.
 
@@ -2078,6 +2095,43 @@ def group_followee_count(context, data_dict):
     '''
     return _followee_count(context, data_dict,
             context['model'].UserFollowingGroup)
+
+
+def _followee_key_function(followee):
+    '''A key function used to sort a list of followee dicts.'''
+    display_name = followee.get('display_name')
+    fullname = followee.get('fullname')
+    title = followee.get('title')
+    name = followee.get('name')
+    return display_name or fullname or title or name
+
+
+def followee_list(context, data_dict):
+    '''Return the list of objects that are followed by the given user.
+
+    Returns all objects, of any type, that the given user is following
+    (e.g. followed users, followed datasets, followed groups).
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    # This function doesn't do its own authorization or validation because
+    # it's just a wrapper for the *_followee_list() functions that each do
+    # their own.
+
+    # Get the followed objects.
+    # TODO: Catch exceptions raised by these *_followee_list() functions?
+    followee_dicts = []
+    for followee_list_function in (user_followee_list, dataset_followee_list,
+            group_followee_list):
+        followee_dicts.extend(followee_list_function(context, data_dict))
+
+    followee_dicts.sort(key=_followee_key_function)
+
+    return followee_dicts
 
 
 def user_followee_list(context, data_dict):

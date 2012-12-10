@@ -25,6 +25,43 @@ def datetime_from_string(s):
     '''
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
+
+def follow(func):
+    '''Return a wrapper function for a follow_* function.
+
+    The wrapper functions test the `followee_list` and `followee_count` API
+    calls, in addition to any tests carried out by the wrapped function.
+
+    '''
+    def wrapped_func(app, follower_id, apikey, object_id, object_arg):
+        followee_count_before = ckan.tests.call_action_api(app,
+                'followee_count', id=follower_id)
+        followees_before = ckan.tests.call_action_api(app, 'followee_list',
+                id=follower_id)
+
+        func(app, follower_id, apikey, object_id, object_arg)
+
+        followee_count_after = ckan.tests.call_action_api(app,
+                'followee_count', id=follower_id)
+        followees_after = ckan.tests.call_action_api(app, 'followee_list',
+                id=follower_id)
+
+        assert followee_count_after == followee_count_before + 1, (
+                "After a user follows an object, the user's `followee_count` "
+                "should increase by 1")
+
+        assert len(followees_after) == len(followees_before) + 1, (
+                "After a user follows an object, the object should appear in "
+                "the user's `followee_list`")
+        assert len([followee for followee in followees_after
+            if followee['id'] == object_id]) == 1, (
+                "After a user follows an object, the object should appear in "
+                "the user's `followee_list`")
+
+    return wrapped_func
+
+
+@follow
 def follow_user(app, follower_id, apikey, object_id, object_arg):
     '''Test a user starting to follow another user via the API.
 
@@ -85,6 +122,8 @@ def follow_user(app, follower_id, apikey, object_id, object_arg):
             'user_followee_count', id=follower_id)
     assert followee_count_after == followee_count_before + 1
 
+
+@follow
 def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
     '''Test a user starting to follow a dataset via the API.
 
@@ -145,6 +184,8 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg):
             'dataset_followee_count', id=follower_id)
     assert followee_count_after == followee_count_before + 1
 
+
+@follow
 def follow_group(app, user_id, apikey, group_id, group_arg):
     '''Test a user starting to follow a group via the API.
 
