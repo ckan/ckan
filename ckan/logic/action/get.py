@@ -2042,7 +2042,10 @@ def _followee_count(context, data_dict, FollowerClass):
 
 
 def followee_count(context, data_dict):
-    '''Return the number of users that are followed by the given user.
+    '''Return the number of objects that are followed by the given user.
+
+    Counts all objects, of any type, that the given user is following
+    (e.g. followed users, followed datasets, followed groups).
 
     :param id: the id of the user
     :type id: string
