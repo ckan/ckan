@@ -183,20 +183,32 @@ def group_activity_list(group_id, limit=15):
 def _activites_from_users_followed_by_user_query(user_id):
     '''Return a query for all activities from users that user_id follows.'''
     import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.join(model.UserFollowingUser,
-            model.UserFollowingUser.object_id == model.Activity.user_id)
-    q = q.filter(model.UserFollowingUser.follower_id == user_id)
+
+    # Get a list of the users that the given user is following.
+    follower_objects = model.UserFollowingUser.followee_list(user_id)
+    if not follower_objects:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter("0=1")
+
+    q = _user_activity_query(follower_objects[0].object_id)
+    q = q.union_all(*[_user_activity_query(follower.object_id)
+        for follower in follower_objects[1:]])
     return q
 
 
 def _activities_from_datasets_followed_by_user_query(user_id):
     '''Return a query for all activities from datasets that user_id follows.'''
     import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.join(model.UserFollowingDataset,
-            model.UserFollowingDataset.object_id == model.Activity.object_id)
-    q = q.filter(model.UserFollowingDataset.follower_id == user_id)
+
+    # Get a list of the datasets that the user is following.
+    follower_objects = model.UserFollowingDataset.followee_list(user_id)
+    if not follower_objects:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter("0=1")
+
+    q = _package_activity_query(follower_objects[0].object_id)
+    q = q.union_all(*[_package_activity_query(follower.object_id)
+        for follower in follower_objects[1:]])
     return q
 
 
