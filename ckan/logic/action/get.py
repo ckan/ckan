@@ -2131,6 +2131,17 @@ def followee_list(context, data_dict):
 
     followee_dicts.sort(key=_followee_key_function)
 
+    q = data_dict.get('q')
+    if q:
+        q = q.strip().lower()
+        matching_followee_dicts = []
+        for followee_dict in followee_dicts:
+            display_name = _followee_key_function(followee_dict)
+            display_name = display_name.strip().lower()
+            if display_name.startswith(q):
+                matching_followee_dicts.append(followee_dict)
+        followee_dicts = matching_followee_dicts
+
     return followee_dicts
 
 
