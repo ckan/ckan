@@ -2097,15 +2097,6 @@ def group_followee_count(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
-def _followee_key_function(followee):
-    '''A key function used to sort a list of followee dicts.'''
-    display_name = followee.get('display_name')
-    fullname = followee.get('fullname')
-    title = followee.get('title')
-    name = followee.get('name')
-    return display_name or fullname or title or name
-
-
 def followee_list(context, data_dict):
     '''Return the list of objects that are followed by the given user.
 
@@ -2115,9 +2106,22 @@ def followee_list(context, data_dict):
     :param id: the id of the user
     :type id: string
 
-    :rtype: list of dictionaries
+    :rtype: list of dictionaries, each with keys 'type' (e.g. 'user',
+        'dataset' or 'group'), 'display_name' (e.g. a user's display name,
+        or a package's title) and 'dict' (e.g. a dict representing the
+        followed user, package or group, the same as the dict that would be
+        returned by user_show, package_show or group_show)
 
     '''
+
+    def display_name(followee):
+        '''Return a display name for the given user, group or dataset dict.'''
+        display_name = followee.get('display_name')
+        fullname = followee.get('fullname')
+        title = followee.get('title')
+        name = followee.get('name')
+        return display_name or fullname or title or name
+
     # This function doesn't do its own authorization or validation because
     # it's just a wrapper for the *_followee_list() functions that each do
     # their own.
@@ -2125,11 +2129,18 @@ def followee_list(context, data_dict):
     # Get the followed objects.
     # TODO: Catch exceptions raised by these *_followee_list() functions?
     followee_dicts = []
-    for followee_list_function in (user_followee_list, dataset_followee_list,
-            group_followee_list):
-        followee_dicts.extend(followee_list_function(context, data_dict))
+    for followee_list_function, followee_type in (
+            (user_followee_list, 'user'),
+            (dataset_followee_list, 'dataset'),
+            (group_followee_list, 'group')):
+        dicts = followee_list_function(context, data_dict)
+        for d in dicts:
+            followee_dicts.append(
+                    {'type': followee_type,
+                    'display_name': display_name(d),
+                    'dict': d})
 
-    followee_dicts.sort(key=_followee_key_function)
+    followee_dicts.sort(key=lambda d: d['display_name'])
 
     q = data_dict.get('q')
     if q:

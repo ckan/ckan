@@ -54,7 +54,7 @@ def follow(func):
                 "After a user follows an object, the object should appear in "
                 "the user's `followee_list`")
         assert len([followee for followee in followees_after
-            if followee['id'] == object_id]) == 1, (
+            if followee['dict']['id'] == object_id]) == 1, (
                 "After a user follows an object, the object should appear in "
                 "the user's `followee_list`")
 
