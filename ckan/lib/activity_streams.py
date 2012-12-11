@@ -187,9 +187,18 @@ activity_stream_string_icons = {
 # A list of activity types that may have details
 activity_stream_actions_with_detail = ['changed package']
 
-def activity_list_to_html(context, activity_stream):
-    '''Return the given activity stream as a snippet of HTML.'''
+def activity_list_to_html(context, activity_stream, extra_vars):
+    '''Return the given activity stream as a snippet of HTML.
 
+    :param activity_stream: the activity stream to render
+    :type activity_stream: list of activity dictionaries
+    :param extra_vars: extra variables to pass to the activity stream items
+        template when rendering it
+    :type extra_vars: dictionary
+
+    :rtype: HTML-formatted string
+
+    '''
     activity_list = [] # These are the activity stream messages.
     for activity in activity_stream:
         detail = None
@@ -236,5 +245,6 @@ def activity_list_to_html(context, activity_stream):
                               'data': data,
                               'timestamp': activity['timestamp'],
                               'is_new': activity.get('is_new', False)})
+    extra_vars['activities'] = activity_list
     return literal(base.render('activity_streams/activity_stream_items.html',
-        extra_vars={'activities': activity_list}))
+        extra_vars=extra_vars))
