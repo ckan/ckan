@@ -242,7 +242,7 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-        
+
         # Facet titles
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
