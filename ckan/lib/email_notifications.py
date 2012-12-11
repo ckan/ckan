@@ -5,13 +5,69 @@ users.
 
 '''
 import datetime
+import re
 
 import pylons
 
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
-import ckan.lib.helpers as helpers
+
+
+def string_to_timedelta(s):
+    '''Parse a string s and return a standard datetime.timedelta object.
+
+    Handles days, hours, minutes, seconds, and microseconds.
+
+    Accepts strings in these formats:
+
+    2 days
+    14 days
+    4:35:00 (hours, minutes and seconds)
+    4:35:12.087465 (hours, minutes, seconds and microseconds)
+    7 days, 3:23:34
+    7 days, 3:23:34.087465
+    .087465 (microseconds only)
+
+    :raises ckan.logic.ParameterError: if the given string does not match any
+        of the recognised formats
+
+    '''
+    patterns = []
+    days_only_pattern = '(?P<days>\d+) days'
+    patterns.append(days_only_pattern)
+    hms_only_pattern = '(?P<hours>\d?\d):(?P<minutes>\d\d):(?P<seconds>\d\d)'
+    patterns.append(hms_only_pattern)
+    ms_only_pattern = '.(?P<milliseconds>\d\d\d)(?P<microseconds>\d\d\d)'
+    patterns.append(ms_only_pattern)
+    hms_and_ms_pattern = hms_only_pattern + ms_only_pattern
+    patterns.append(hms_and_ms_pattern)
+    days_and_hms_pattern = '{0}, {1}'.format(days_only_pattern,
+            hms_only_pattern)
+    patterns.append(days_and_hms_pattern)
+    days_and_hms_and_ms_pattern = days_and_hms_pattern + ms_only_pattern
+    patterns.append(days_and_hms_and_ms_pattern)
+
+    for pattern in patterns:
+        match = re.match('^{0}$'.format(pattern), s)
+        if match:
+            break
+
+    if not match:
+        import ckan.logic
+        raise ckan.logic.ParameterError('Not a valid time: {0}'.format(s))
+
+    gd = match.groupdict()
+    days = int(gd.get('days', '0'))
+    hours = int(gd.get('hours', '0'))
+    minutes = int(gd.get('minutes', '0'))
+    seconds = int(gd.get('seconds', '0'))
+    milliseconds = int(gd.get('milliseconds', '0'))
+    microseconds = int(gd.get('microseconds', '0'))
+    delta = datetime.timedelta(days=days, hours=hours, minutes=minutes,
+            seconds=seconds, milliseconds=milliseconds,
+            microseconds=microseconds)
+    return delta
 
 
 def _notifications_for_activities(activities, user_dict):
@@ -128,7 +184,7 @@ def get_and_send_notifications_for_user(user):
         # notifications from longer ago than this time will not be sent.
         email_notifications_since = pylons.config.get(
                 'ckan.email_notifications_since', '2 days')
-        email_notifications_since = helpers.string_to_timedelta(
+        email_notifications_since = string_to_timedelta(
                 email_notifications_since)
         email_notifications_since = (datetime.datetime.now()
                 - email_notifications_since)
