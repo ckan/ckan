@@ -213,7 +213,7 @@ class PackageController(BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
