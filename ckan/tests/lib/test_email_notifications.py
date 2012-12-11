@@ -11,6 +11,8 @@ import ckan.lib.email_notifications as email_notifications
 
 
 def test_string_to_time_delta():
+    assert email_notifications.string_to_timedelta('1 day') == (
+            datetime.timedelta(days=1))
     assert email_notifications.string_to_timedelta('2 days') == (
             datetime.timedelta(days=2))
     assert email_notifications.string_to_timedelta('14 days') == (
@@ -20,6 +22,8 @@ def test_string_to_time_delta():
     assert email_notifications.string_to_timedelta('4:35:12.087465') == (
             datetime.timedelta(hours=4, minutes=35, seconds=12,
                 milliseconds=87, microseconds=465))
+    assert email_notifications.string_to_timedelta('1 day, 3:23:34') == (
+            datetime.timedelta(days=1, hours=3, minutes=23, seconds=34))
     assert email_notifications.string_to_timedelta('7 days, 3:23:34') == (
             datetime.timedelta(days=7, hours=3, minutes=23, seconds=34))
     assert email_notifications.string_to_timedelta(

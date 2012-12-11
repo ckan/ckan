@@ -34,7 +34,7 @@ def string_to_timedelta(s):
 
     '''
     patterns = []
-    days_only_pattern = '(?P<days>\d+) days'
+    days_only_pattern = '(?P<days>\d+) day(s)?'
     patterns.append(days_only_pattern)
     hms_only_pattern = '(?P<hours>\d?\d):(?P<minutes>\d\d):(?P<seconds>\d\d)'
     patterns.append(hms_only_pattern)
