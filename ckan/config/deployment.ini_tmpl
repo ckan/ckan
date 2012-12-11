@@ -264,6 +264,12 @@ ckan.feeds.author_link =
 # '7 days, 3:23:34', etc.
 # ckan.email_notifications_since = 2 days
 
+# Activity Streams
+#
+# Default maximum number of activities to show in an activity stream.
+# ckan.activity_list_limit = 31
+
+
 # DEBUGGING
 
 # ckan.debug_supress_header This option can be set to suppress the debug
