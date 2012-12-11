@@ -10,6 +10,10 @@
 <!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
 {%- endblock -%}
 
+<!-- 
+{{ g }}
+-->
+
   {# Allows custom attributes to be added to the <head> tag #}
   <head{% block headtag %}{% endblock %}>
     {#
@@ -41,7 +45,7 @@
     <title>
       {%- block title -%}
         {%- block subtitle %}{% endblock -%}
-        {%- if self.subtitle()|trim %} {{ g.template_title_delimiter }} {% endif -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_deliminater }} {% endif -%}
         {{ g.site_title }}
       {%- endblock -%}
     </title>
