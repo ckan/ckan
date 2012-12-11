@@ -54,7 +54,6 @@ def string_to_timedelta(s):
             break
 
     if not match:
-        import ckan.logic
         raise ckan.logic.ParameterError('Not a valid time: {0}'.format(s))
 
     gd = match.groupdict()
