@@ -5,8 +5,12 @@
     	<i class="icon-info-sign"></i> More details...
     </button>
     <div id="demo" class="collapse">
-	    {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
-	    {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+      {% if reason %}
+        {{_(reason)}}
+      {% else %}
+        {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
+        {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+      {% endif %}
   	</div>
   </div>
 </div>
