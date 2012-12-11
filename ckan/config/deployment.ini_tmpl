@@ -260,7 +260,7 @@ ckan.feeds.author_link =
 #ckan.email_notifications = True
 
 # Email notifications for events older than this time delta will not be sent.
-# Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes seconds),
+# Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds),
 # '7 days, 3:23:34', etc.
 # ckan.email_notifications_since = 2 days
 
