@@ -1,7 +1,7 @@
 You have new activities on your {{ g.site_title }} dashboard. To view your dashboard, click on this link:
 
-{{ h.url_for(controller='user', action='dashboard', qualified=True) }}
+{{ g.site_url + '/dashboard' }}
 
 You can turn off these email notifications in your {{ g.site_title }} preferences. To change your preferences, click on this link:
 
-{{ h.url_for(controller='user', action='edit', id=user['name'], qualified=True) }}
+{{ g.site_url + '/user/edit' }}
