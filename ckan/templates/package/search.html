@@ -19,9 +19,7 @@
 
         {% if c.fields -%}
           <span>
-            {%- for k, v in c.fields -%}
-              <input type="hidden" name="{{ k }}" value="{{ v }}" />
-            {% endfor -%}
+            {% snippet "snippets/fields_to_hidden.html", fields=c.fields %}
           </span>
         {%- endif %}
 
