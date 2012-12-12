@@ -193,12 +193,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                     .filter(Member.table_id == user_id)
             user_is_org_member = len(query.all()) != 0
 
-
-          ##  filter(
-          ##      or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
-          ##          _package.Package.state == vdm.sqlalchemy.State.PENDING)). \
         query = meta.Session.query(_package.Package).\
-            filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
+            filter(
+                or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
+                    _package.Package.state == vdm.sqlalchemy.State.PENDING)). \
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 
