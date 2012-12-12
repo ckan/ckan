@@ -11,14 +11,20 @@
 			View Group
 		</a>
 	</div>
+	{% if num_followers or num_datasets %}
 	<div class="nums">
+		{% if num_followers %}
 		<dl>
 			<dt>{{ _('Followers') }}</dt>
 			<dd>{{ num_followers }}</dd>
 		</dl>
+		{% endif %}
+		{% if num_datasets %}
 		<dl>
 			<dt>{{ _('Datasets') }}</dt>
 			<dd>{{ num_datasets }}</dd>
 		</dl>
+		{% endif %}
 	</div>
+	{% endif %}
 </div>

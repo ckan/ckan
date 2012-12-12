@@ -1,15 +1,5 @@
 {% extends "page.html" %}
 
-{% macro followee_icon(type) -%}
-  {% if type == 'dataset' %}
-    <i class="icon-sitemap"></i>
-  {% elif type == 'user' %}
-    <i class="icon-user"></i>
-  {% elif type == 'group' %}
-    <i class="icon-group"></i>
-  {% endif %}
-{%- endmacro %}
-
 {% set user = c.user_dict %}
 
 {% block subtitle %}{{ _('Dashboard') }}{% endblock %}
@@ -28,41 +18,7 @@
   <article class="dashboard module">
     <div class="module-content">
       <section class="dashboard-main" data-module="dashboard">
-        <div id="followee-filter" class="pull-right">
-          <a href="#followee-popover" class="btn">
-            {{ _('Show me:') }}
-            <span>{{ c.dashboard_activity_stream_context.context }}</span>
-            <span class="caret"></span>
-          </a>
-          <form id="followee-popover" action="/dashboard" class="dropdown js-hide">
-            <div class="popover-header">
-              <div class="input-prepend">
-                <span class="add-on"><i class="icon-search"></i></span>
-                <input type="text" name="q" placeholder="{{ _('Search list...') }}" value="{{c.dashboard_activity_stream_context.q}}">
-              </div>
-            </div>
-            {% if c.followee_list %}
-              <ul class="nav nav-pills nav-stacked">
-                <li{% if c.dashboard_activity_stream_context.selected_id == False %} class="active"{% endif %}>
-                  <a href="{{ h.url_for(controller='user', action='dashboard') }}">
-                    <i class="icon-star"></i>
-                    <span>Everything</span>
-                  </a>
-                </li>
-                {% for followee in c.followee_list %}
-                <li{% if c.dashboard_activity_stream_context.selected_id == followee.dict.id %} class="active"{% endif %}>
-                  <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}">
-                    {{followee_icon(followee.type)}}
-                    <span>{{followee.display_name}}</span>
-                  </a>
-                </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <p class="empty">{{ _('You currently not following anything') }}</p>
-            {% endif %}
-          </form>
-        </div>
+        {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
         <h2 class="page-heading">
           {{ _('News feed') }}
           <small>{{ _('Activity from items that you follow') }}</small>
@@ -70,6 +26,11 @@
         {{ c.dashboard_activity_stream }}
       </section>
       <aside class="dashboard-aside">
+        {% if not c.dashboard_activity_stream_context.dict == None %}
+          <div class="dashboard-aside-context">
+            {% snippet 'snippets/popover_context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
+          </div>
+        {% endif %}
         <h2>{{ _('My Datasets') }}</h2>
         {% if c.user_dict['datasets'] %}
           <ul>

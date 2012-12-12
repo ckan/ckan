@@ -1,0 +1,10 @@
+{%if type == 'user' %}
+  <h2>{{ dict.name }}</h2>
+  {% snippet 'ajax_snippets/popover-context-user.html', id=dict.id, name=dict.name, about=dict.about, is_me='false', num_followers=dict.num_followers, number_administered_packages=dict.number_administered_packages, number_of_edits=dict.number_of_edits %}
+{%elif type == 'dataset' %}
+  <h2>{{ dict.title }}</h2>
+  {% snippet 'ajax_snippets/popover-context-dataset.html', id=dict.id, name=dict.name, notes=dict.notes, num_resources=dict.num_resources, num_tags=dict.num_tags %}
+{%elif type == 'group' %}
+  <h2>{{ dict.title }}</h2>
+  {% snippet 'ajax_snippets/popover-context-group.html', id=dict.id, name=dict.name, description=dict.description, num_followers=dict.num_followers, num_datasets=dict.num_datasets %}
+{% endif %}

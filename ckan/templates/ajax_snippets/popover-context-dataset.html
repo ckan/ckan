@@ -11,14 +11,20 @@
 			View Dataset
 		</a>
 	</div>
+	{% if num_resources or num_tags %}
 	<div class="nums">
+		{% if num_resources %}
 		<dl>
 			<dt>{{ _('Resources') }}</dt>
 			<dd>{{ num_resources }}</dd>
 		</dl>
+		{% endif %}
+		{% if num_tags %}
 		<dl>
 			<dt>{{ _('Tags') }}</dt>
 			<dd>{{ num_tags }}</dd>
 		</dl>
+		{% endif %}
 	</div>
+	{% endif %}
 </div>
