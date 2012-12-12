@@ -1,8 +1,12 @@
 language: python
 python:
   - "2.7"
-install: "pip install -r pip-requirements.txt --use-mirrors"
+install:
+  - "pip install -r pip-requirements.txt --use-mirrors"
+  - "pip install -r pip-requirements-test.txt --use-mirrors"
 before_script:
   - psql -c 'create database ckan_test;' -U postgres
   - psql -c 'create database datastore_test;' -U postgres
+  - paster --plugin=ckan db init
+  - mkdir data sstore
 script: "nosetests --ckan --with-pylons=test-travis.ini ckanext/jsonpreview/tests"
