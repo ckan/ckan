@@ -1,7 +1,7 @@
-You have new activities on your {{ g.site_title }} dashboard. To view your dashboard, click on this link:
+{{ _('You have new activities on your {site_title} dashboard.').format(site_title=g.site_title) }} {{ _('To view your dashboard, click on this link:') }}
 
 {{ g.site_url + '/dashboard' }}
 
-You can turn off these email notifications in your {{ g.site_title }} preferences. To change your preferences, click on this link:
+{{ _('You can turn off these email notifications in your {site_title} preferences. To change your preferences, click on this link:').format(site_title=g.site_title) }}
 
 {{ g.site_url + '/user/edit' }}
