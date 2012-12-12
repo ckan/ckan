@@ -273,7 +273,7 @@ class TestDashboard(object):
         # user is following.
         params = json.dumps({'name': 'annakarenina', 'notes': 'updated'})
         response = self.app.post('/api/action/package_update', params=params,
-            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+            extra_environ={'Authorization': str(self.joeadmin['apikey'])})
         assert response.json['success'] is True
 
         # Check the new activity in new_user's dashboard.
@@ -283,7 +283,7 @@ class TestDashboard(object):
         assert len(new_activities) == 1
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed package'
-        assert activity['user_id'] == self.testsysadmin['id']
+        assert activity['user_id'] == self.joeadmin['id']
         assert activity['data']['package']['name'] == 'annakarenina'
 
     def test_05_new_activities_count(self):
