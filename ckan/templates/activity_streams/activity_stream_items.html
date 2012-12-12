@@ -1,5 +1,9 @@
-<ul class="activity">
-{% for activity in activities %}
-	{% snippet 'snippets/activity_item.html', activity=activity %}
-{% endfor %}
-</ul>
+{% if activities %}
+  <ul class="activity">
+  {% for activity in activities %}
+    {% snippet 'snippets/activity_item.html', activity=activity %}
+  {% endfor %}
+  </ul>
+{% else %}
+  <p class="empty">{{ _('No activities are within this activity stream') }}</p>
+{% endif %}

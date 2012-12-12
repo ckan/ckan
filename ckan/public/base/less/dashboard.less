@@ -1,5 +1,79 @@
-.module-my-datasets {
-	.empty {
-		padding: 10px;
+.dashboard {
+	.module-content {
+		.clearfix();
+		background: transparent url("@{imagePath}/full-width-nav-right.png") 100% 0 repeat-y;
+	}
+	.dashboard-main {
+		float: left;
+		width: 630px;
+		margin-right: 20px;
+	}
+	.dashboard-aside {
+		float: left;
+		width: 220px;
+		padding-left: 20px;
+	}
+}
+
+.popover-followee {
+	.popover-title {
+		display: none;
+	}
+	.popover-content {
+		padding: 0;
+		.border-radius(3px);
+	}
+	.popover-header {
+		.clearfix();
+		background-color: whiteSmoke;
+		padding: 5px;
+		border-bottom: 1px solid @inputBorder;
+		.border-radius(3px 3px 0 0);
+		.add-on,
+		input {
+			float: left;
+			margin: 0;
+		}
+		.add-on {
+			padding: 4px 8px 4px 12px;
+			border-right-width: 0;
+			.border-radius(100px 0 0 100px);
+		}
+		input {
+			padding: 4px 12px 4px 8px;
+			font-size: 13px;
+			width: 211px;
+			.border-radius(0 100px 100px 0);
+		}
+	}
+	.nav {
+		padding: 0;
+		max-height: 205px;
+		overflow: auto;
+		.border-radius(0 0 3px 3px);
+		li {
+			a {
+				display: block;
+				padding: 7px 10px 7px 15px;
+				margin: 0;
+				.border-radius(0);
+				i {
+					background-color: @layoutLinkColor;
+					color: @inputBackground;
+					margin-right: 11px;
+					padding: 3px 5px;
+					line-height: 1;
+					.border-radius(100px);
+					.box-shadow(inset 0 1px 2x rgba(0, 0, 0, 0.2));
+				}
+				&:hover i {
+					background-color: #000;	
+				}
+			}
+			&.active a i {
+				color: @layoutLinkColor;
+				background-color: @inputBackground;
+			}
+		}
 	}
 }

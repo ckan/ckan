@@ -1174,7 +1174,7 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-def dashboard_activity_stream(user_id):
+def dashboard_activity_stream(user_id, filter_type=None, filter_id=None):
     '''Return the dashboard activity stream of the given user.
 
     :param user_id: the id of the user
@@ -1186,8 +1186,14 @@ def dashboard_activity_stream(user_id):
     '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('dashboard_activity_list_html')(context,
-                                                            {'id': user_id})
+    if filter_type == 'user':
+        return logic.get_action('user_activity_list_html')(context, {'id': filter_id})
+    elif filter_type == 'dataset':
+        return logic.get_action('package_activity_list_html')(context, {'id': filter_id})
+    elif filter_type == 'group':
+        return logic.get_action('group_activity_list_html')(context, {'id': filter_id})
+    else:
+        return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
 
 
 def escape_js(str_to_escape):
