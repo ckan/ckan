@@ -229,6 +229,7 @@ def make_map():
           'read_ajax',
           'history_ajax',
           'follow',
+          'activity',
           'unfollow',
           'delete',
           'api_data',
@@ -238,6 +239,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
+        m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
@@ -285,6 +287,7 @@ def make_map():
           'activity',
           ]))
           )
+        m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
         m.connect('group_read', '/group/{id}', action='read')
 
     register_package_plugins(map)
@@ -303,8 +306,10 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
+        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('/dashboard', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')

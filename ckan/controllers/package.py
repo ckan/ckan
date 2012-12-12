@@ -30,6 +30,7 @@ import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
+import ckan.plugins as plugins
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -241,10 +242,15 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
+
+        # Facet titles
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
+        for plugin in plugins.PluginImplementations(plugins.IPackageController):
+            c.facet_titles = plugin.update_facet_titles(c.facet_titles)
+
 
         maintain.deprecate_context_item(
           'facets',
