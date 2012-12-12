@@ -97,7 +97,7 @@
 {%- block scripts %}
     {% resource 'base/main' %}
     {% resource 'base/ckan' %}
-    {% if config.get('ckan.tracking_enabled', 'false') %}
+    {% if g.tracking_enabled %}
         {% resource 'base/tracking.js' %}
     {% endif %}
   {{ super() }}
