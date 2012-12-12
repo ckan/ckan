@@ -578,9 +578,12 @@ class UserCmd(CkanCommand):
       user                            - lists users
       user list                       - lists users
       user <user-name>                - shows user properties
-      user add <user-name> [apikey=<apikey>] [password=<password>]
-                                      - add a user (prompts for password if
-                                        not supplied)
+      user add <user-name> [<field>=<value>]
+                                      - add a user (prompts for password
+                                        if not supplied).
+                                        Field can be: apikey
+                                                      password
+                                                      email
       user setpass <user-name>        - set user password (prompts)
       user remove <user-name>         - removes user from users
       user search <query>             - searches for a user name
