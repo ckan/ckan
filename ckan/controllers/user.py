@@ -259,7 +259,7 @@ class UserController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
-            # FIXME: Do I really have to do this here?
+            # MOAN: Do I really have to do this here?
             if 'email_notifications' not in data_dict:
                 data_dict['email_notifications'] = False
 
