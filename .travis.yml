@@ -6,4 +6,5 @@ install:
   - "pip install -r pip-requirements-test.txt --use-mirrors"
 before_script:
   - python setup.py develop
-script: "nosetests --ckan ckan -vs"
+  - paster make-config ckan development.ini
+script: "nosetests --ckan --with-pylons=test-travis.ini ckan -vs"
