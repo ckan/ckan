@@ -944,15 +944,17 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+
 ## Used by the Tracking class
 _ViewCount = collections.namedtuple("ViewCount", "id name count")
+
 
 class Tracking(CkanCommand):
     '''Update tracking statistics
 
     Usage:
-      tracking update [start-date]          - update tracking stats
-      tracking export <file> [start-date]   - export tracking stats to a csv file
+      tracking update [start-date]        - update tracking stats
+      tracking export <file> [start-date] - export tracking stats to a csv file
     '''
 
     summary = __doc__.split('\n')[0]
@@ -972,14 +974,14 @@ class Tracking(CkanCommand):
         elif cmd == 'export':
             if len(self.args) <= 1:
                 print self.__class__.__doc__
-                exit(1)
+                sys.exit(1)
             output_file = self.args[1]
             start_date = self.args[2] if len(self.args) > 2 else None
             self.update_all(engine, start_date)
             self.export_tracking(engine, output_file)
         else:
             print self.__class__.__doc__
-            exit(1)
+            sys.exit(1)
 
     def update_all(self, engine, start_date=None):
         if start_date:
@@ -1017,11 +1019,9 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
-
-        return [ _ViewCount(*t) for t in engine.execute(sql).fetchall() ]
+        return [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
 
     def _recent_views(self, engine, measure_from):
-
         sql = '''
             SELECT p.id,
                    p.name,
@@ -1032,20 +1032,17 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
-
-        return [ _ViewCount(*t) for t in engine.execute(
-                        sql,
-                        measure_from=str(measure_from)
-                    ).fetchall() ]
+        return [_ViewCount(*t) for t in engine.execute(
+                    sql, measure_from=str(measure_from)
+                ).fetchall()]
 
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
-
         HEADINGS = [
-                "dataset id",
-                "dataset name",
-                "total views",
-                "recent views (last 2 weeks)",
+            "dataset id",
+            "dataset name",
+            "total views",
+            "recent views (last 2 weeks)",
         ]
 
         measure_from = datetime.date.today() - datetime.timedelta(days=14)
@@ -1055,12 +1052,12 @@ class Tracking(CkanCommand):
         with open(output_filename, 'w') as fh:
             f_out = csv.writer(fh)
             f_out.writerow(HEADINGS)
-            recent_views_for_id = dict( (r.id, r.count) for r in recent_views )
-            f_out.writerows([ (r.id,
-                               r.name,
-                               r.count,
-                               recent_views_for_id.get(r.id, 0))
-                                    for r in total_views ])
+            recent_views_for_id = dict((r.id, r.count) for r in recent_views)
+            f_out.writerows([(r.id,
+                              r.name,
+                              r.count,
+                              recent_views_for_id.get(r.id, 0))
+                              for r in total_views])
 
     def update_tracking(self, engine, summary_date):
         PACKAGE_URL = '/dataset/'
