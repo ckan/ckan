@@ -191,11 +191,13 @@ def make_map():
           'activity',
           'followers',
           'follow',
+          'activity',
           'unfollow',
           'delete',
           'api_data',
           ]))
           )
+        m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('/dataset/{id}', action='read')
         m.connect('/dataset/{id}/resource/{resource_id}',
@@ -243,6 +245,7 @@ def make_map():
           'activity',
           ]))
           )
+        m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
         m.connect('group_read', '/group/{id}', action='read')
 
     # organizations these basically end up being the same as groups
@@ -279,7 +282,9 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('/user/activity/{id}', action='activity')
+        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('/dashboard', action='dashboard')
         m.connect('/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')

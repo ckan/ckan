@@ -606,7 +606,7 @@ class GroupController(BaseController):
             return feed.writeString('utf-8')
         return render(self._history_template(c.group_dict['type']))
 
-    def activity(self, id):
+    def activity(self, id, offset=0):
         '''Render this group's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
@@ -627,7 +627,7 @@ class GroupController(BaseController):
         # template context for the group/read.html template to retrieve later.
         c.group_activity_stream = \
             get_action('group_activity_list_html')(context,
-                                                   {'id': c.group_dict['id']})
+                                                   {'id': c.group_dict['id'], 'offset': offset})
 
         return render('group/activity_stream.html')
 

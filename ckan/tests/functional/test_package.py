@@ -65,6 +65,9 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['before_view'] += 1
         return search_params
 
+    def update_facet_titles(self, facet_titles):
+        return facet_titles
+
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
 
