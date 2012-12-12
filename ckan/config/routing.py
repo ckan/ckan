@@ -23,6 +23,15 @@ class Mapper(_Mapper):
     via some helper functions like build_nav(). '''
 
     def connect(self, *args, **kw):
+        ''' This is like the standard connect except it also takes some
+        custom parameters.
+
+        :param ckan_icon: the icon to be associated with this route
+        :type ckan_icon: string
+        :param highlight_actions: actions that should be treated as the same
+        as this for menu highlighting purposes
+        :type highlight_actions: string space separated action names
+        '''
         ckan_icon = kw.pop('ckan_icon', None)
         highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
         out = _Mapper.connect(self, *args, **kw)
@@ -35,6 +44,8 @@ class Mapper(_Mapper):
             needed.append(match[0])
         route_data = {
             'icon': ckan_icon,
+            # needed lists the names of the parameters that need defining
+            # for the route to be generated
             'needed': needed,
             'controller': kw.get('controller'),
             'action': kw.get('action', ''),
