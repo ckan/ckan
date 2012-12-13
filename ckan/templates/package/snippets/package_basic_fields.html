@@ -39,7 +39,7 @@
   <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
 {% endif %}
 {% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
-  {% set organizations_available = h.organizations_available() %}
+  {% set organizations_available = h.organizations_available('create_dataset') %}
   {% if organizations_available %}
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>

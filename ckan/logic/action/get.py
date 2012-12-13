@@ -445,7 +445,11 @@ def group_list_authz(context, data_dict):
 def organization_list_for_user(context, data_dict):
     '''Return the list of organizations that the user is a member of.
 
-    :returns: the names of organizations that the user is authorized to edit
+    :param permission: the permission the user has against the returned organizations
+      (optional, default: ``edit_group``)
+    :type permission: string
+
+    :returns: the names of organizations the user is authorized to do specific permission
     :rtype: list of strings
 
     '''
@@ -454,7 +458,9 @@ def organization_list_for_user(context, data_dict):
 
     _check_access('organization_list_for_user',context, data_dict)
 
-    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    permission = data_dict.get('permission', 'edit_group')
+
+    roles = ckan.new_authz.get_roles_with_permission(permission)
 
     if not roles:
         return []

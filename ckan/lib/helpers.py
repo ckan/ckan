@@ -1185,12 +1185,13 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-def organizations_available():
+def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user}
-    return logic.get_action('organization_list_for_user')(context, {})
+    data_dict = {'permission': permission}
+    return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
 def user_in_org_or_group(group_id):
