@@ -211,12 +211,17 @@ thing as it would be confusing for users anyway.
 The member table has field called capacity which should be used as follows:
 
 *  When a dataset is a member of an Organization it must have capacity of
-   either public/private.
+   'ozganization'.
 *  When a dataset is a member of a Group it must have capacity of 'member'.
 *  When a user is a member of a Group/Organization it must have capacity
-   of admin/editor.
+   of the users role eg. admin, editor, memeber
 
 
+The package table has gained two new fields
+
+owner_org - the id of the owning organization
+private - determines if the dataset is public or private
+`
 Config options
 ==============
 
