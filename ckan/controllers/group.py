@@ -232,7 +232,7 @@ class GroupController(BaseController):
 
             fq = 'capacity:"public"'
             user_member_of_orgs = [org['id'] for org
-                                   in h.organizations_available('member')]
+                                   in h.organizations_available('read')]
 
             if (c.group and c.group.id in user_member_of_orgs):
                 fq = ''
