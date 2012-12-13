@@ -109,6 +109,11 @@ branch and it will become part of CKAN!
    see `Feature Branches`_.
  - Your branch should contain new or changed tests for any new or changed
    code, see :ref:`Testing`.
+ - Your branch should contain updates to the
+   `CHANGELOG file <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
+   briefly summarising your code changes.
+ - Your branch should contain new or updated documentation for any new or
+   updated code, see :doc:`contributing-docs`.
  - Your branch should be up to date with the master branch of the central
    CKAN repo, see `Keeping Up with master`_.
  - All the CKAN tests should pass on your branch, see :doc:`test`.
