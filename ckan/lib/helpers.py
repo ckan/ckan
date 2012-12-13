@@ -306,7 +306,8 @@ def nav_link(text, controller, **kwargs):
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    class_ = _link_class(kwargs)
+    no_active = kwargs.pop('suppress_active_class', False)
+    class_ = _link_class(kwargs, no_active)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
@@ -318,16 +319,22 @@ def nav_link(text, controller, **kwargs):
     return link
 
 
-def _link_class(kwargs):
+def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    highlight_actions = kwargs.pop('highlight_actions',
+    highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split(' ')
-    if (c.controller == kwargs.get('controller')
-                and c.action in highlight_actions):
+    return (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions)
+
+
+def _link_class(kwargs, suppress_active_class=False):
+    ''' creates classes for the link_to calls '''
+    if not suppress_active_class and _link_active(kwargs):
         active = ' active'
     else:
         active = ''
-    return kwargs.pop('class_', '') + active
+    kwargs.pop('highlight_actions', '')
+    return kwargs.pop('class_', '') + active or None
 
 
 def nav_named_link(text, name, **kwargs):
@@ -381,19 +388,71 @@ def build_nav_main(*args):
     return output
 
 
-def _make_menu_item(menu_item, title):
+def build_nav_icon(menu_item, title, **kw):
+    ''' build a navigation item used for example in user/read_base.html
+
+    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, **kw)
+
+
+def build_nav(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, icon=None, **kw)
+
+
+def _make_menu_item(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+
+    This function is called by wrapper functions.
+    '''
+    _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
-        log.error('menu item `%s` cannot be found' % menu_item)
-        return literal('<li><a href="#">') + title + literal('</a></li>')
-    item = _menu_items[menu_item]
-    if 'name' in item:
-        link = nav_named_link(title, **item)
-    elif 'url' in item:
-        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
-    else:
-        item = copy.copy(_menu_items[menu_item])
-        controller = item.pop('controller')
-        link = nav_link(title, controller, **item)
+        raise Exception('menu item `%s` cannot be found' % menu_item)
+    item = copy.copy(_menu_items[menu_item])
+    item.update(kw)
+    active =  _link_active(item)
+    controller = item.pop('controller')
+    needed = item.pop('needed')
+    for need in needed:
+        if need not in kw:
+            raise Exception('menu item `%s` need parameter `%s`'
+                            % (menu_item, need))
+    link = nav_link(title, controller, suppress_active_class=True, **item)
+    if active:
+        return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
 
 
@@ -572,7 +631,7 @@ def markdown_extract(text, extract_length=190):
     plain = re.sub(r'<.*?>', '', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return plain
-    return truncate(plain, length=extract_length, indicator='...', whole_word=True)
+    return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
 def icon_url(name):
@@ -1411,6 +1470,8 @@ __allowed_functions__ = [
            'include_resource',
            'urls_for_resource',
            'build_nav_main',
+           'build_nav_icon',
+           'build_nav',
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
