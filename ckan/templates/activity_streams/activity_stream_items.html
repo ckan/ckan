@@ -1,4 +1,4 @@
-{% set has_more_length = config.get("ckan.activity_list_limit", 30)|int %}
+{% set has_more_length = g.activity_list_limit|int %}
 {% set has_more = activities|length > has_more_length %}
 
 <ul class="activity" data-module="activity-stream" data-module-more="{{ has_more }}" data-module-context="{{ controller }}" data-module-id="{{ id }}" data-module-offset="{{ offset }}">
