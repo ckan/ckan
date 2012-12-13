@@ -9,7 +9,10 @@ before_script:
   - psql -c 'create database datastore_test;' -U postgres
   - python setup.py develop
   - paster make-config ckan development.ini
+  - curl https://raw.github.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=4.0.0 bash
+  - mv apache-solr-4.0.0/example/solr/collection1/conf/schema.xml apache-solr-4.0.0/example/solr/collection1/conf/schema.xml.bak
+  - cp ckan/config/solr/schema-2.0.xml apache-solr-4.0.0/example/solr/collection1/conf/schema.xml
+  - curl "http://localhost:8983/solr/admin/cores?action=RELOAD&core=collection1"
   - paster --plugin=ckan db init --config test-travis.ini
   - mkdir data sstore
-  - curl https://raw.github.com/moliware/travis-solr/master/travis-solr.sh | SOLR_VERSION=3.6.1 bash
 script: "nosetests --ckan --with-pylons=test-travis.ini ckan ckanext -vs"
