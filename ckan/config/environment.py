@@ -173,6 +173,7 @@ def load_environment(global_conf, app_conf):
     search.check_solr_schema_version()
 
     config['routes.map'] = routing.make_map()
+    config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
     # initialise the globals
     config['pylons.app_globals']._init()
