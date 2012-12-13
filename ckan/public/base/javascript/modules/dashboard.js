@@ -1,8 +1,22 @@
+/* User Dashboard
+ * Handles the filter dropdown menu and the reduction of the notifications number
+ * within the header to zero
+ *
+ * Examples
+ *
+ *   <div data-module="dashboard"></div>
+ *
+ */
 this.ckan.module('dashboard', function ($, _) {
   return {
     button: null,
     popover: null,
     searchTimeout: null,
+
+    /* Initialises the module setting up elements and event listeners.
+     *
+     * Returns nothing.
+     */
     initialize: function () {
       $.proxyAll(this, /_on/);
       this.button = $('#followee-filter .btn').
@@ -14,12 +28,32 @@ this.ckan.module('dashboard', function ($, _) {
           content: $('#followee-popover').html()
         });
       this.popover = this.button.data('popover').tip().addClass('popover-followee');
+      // Are there new items in the dashboard? If so... reset the 
+      // notifications number to zero
       if ($('.new', this.el)) {
         setTimeout(function() {
           $('.masthead .notifications').removeClass('notifications-important').html('0');
-        }, 1000);
+        }, 2000);
       }
     },
+
+    /* Handles click event on the 'show me:' dropdown button
+     *
+     * Returns nothing.
+     */
+    _onShowFolloweeDropdown: function() {
+      this.button.toggleClass('active');
+      if (this.button.hasClass('active')) {
+        setTimeout(this._onInitSearch, 100);
+      }
+      return false;
+    },
+
+    /* Handles focusing on the input and making sure that the keyup 
+     * even is applied to the input
+     *
+     * Returns nothing.
+     */
     _onInitSearch: function() {
       var input = $('input', this.popover);
       if (!input.hasClass('inited')) {
@@ -29,11 +63,21 @@ this.ckan.module('dashboard', function ($, _) {
       }
       input.focus();
     },
+
+    /* Handles the keyup event
+     *
+     * Returns nothing.
+     */
     _onSearchKeyUp: function() {
       clearTimeout(this.searchTimeout);
       this.searchTimeout = setTimeout(this._onSearchKeyUpTimeout, 300);
     },
-    _onSearchKeyUpTimeout: function(e) {
+
+    /* Handles the actual filtering of search results
+     *
+     * Returns nothing.
+     */
+    _onSearchKeyUpTimeout: function() {
       var input = $('input', this.popover);
       var q = input.val().toLowerCase();
       if (q) {
@@ -42,13 +86,6 @@ this.ckan.module('dashboard', function ($, _) {
       } else {
         $('li', this.popover).show();
       }
-    },
-    _onShowFolloweeDropdown: function() {
-      this.button.toggleClass('active');
-      if (this.button.hasClass('active')) {
-        setTimeout(this._onInitSearch, 100);
-      }
-      return false;
     }
   };
 });

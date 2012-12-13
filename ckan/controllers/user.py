@@ -496,6 +496,7 @@ class UserController(BaseController):
         return render('user/activity_stream.html')
 
     def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
+        '''Returns dict which is needed by the dashboard view to determine context'''
 
         def display_name(followee):
             '''Return a display name for the given user, group or dataset dict.'''
