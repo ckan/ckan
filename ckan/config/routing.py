@@ -23,14 +23,23 @@ class Mapper(_Mapper):
     via some helper functions like build_nav(). '''
 
     def connect(self, *args, **kw):
-        ''' This is like the standard connect except it also takes some
-        custom parameters.
+        '''Connect a new route, storing any named routes for later.
 
-        :param ckan_icon: the icon to be associated with this route
+        This custom connect() method wraps the standard connect() method,
+        and additionally saves any named routes that are connected in a dict
+        ckan.routing.named_routes, which ends up being accessible via the
+        Pylons config as config['routes.named_routes'].
+
+        Also takes some additional params:
+
+        :param ckan_icon: name of the icon to be associated with this route,
+            e.g. 'group', 'time'
         :type ckan_icon: string
-        :param highlight_actions: actions that should be treated as the same
-        as this for menu highlighting purposes
-        :type highlight_actions: string space separated action names
+        :param highlight_actions: space-separated list of controller actions
+            that should be treated as the same as this named route for menu
+            highlighting purposes, e.g. 'index search'
+        :type highlight_actions: string
+
         '''
         ckan_icon = kw.pop('ckan_icon', None)
         highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
