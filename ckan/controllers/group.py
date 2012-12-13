@@ -231,7 +231,10 @@ class GroupController(BaseController):
                         search_extras[param] = value
 
             fq = 'capacity:"public"'
-            if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
+            user_member_of_orgs = [org['id'] for org
+                                   in h.organizations_available('member')]
+
+            if (c.group and c.group.id in user_member_of_orgs):
                 fq = ''
                 context['ignore_capacity_check'] = True
 
