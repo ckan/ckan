@@ -34,7 +34,7 @@
         {% endif %}
         <h2>{{ _('My Datasets') }}</h2>
         {% if c.user_dict['datasets'] %}
-          <ul>
+          <ul class="nav nav-list">
             {% for package in c.user_dict['datasets'] %}
               {% set title = package.title or package.name %}
               <li>
