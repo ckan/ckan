@@ -1,17 +1,40 @@
 import datetime
-from pylons.i18n import _
 from itertools import count
 import re
-from pylons.i18n import _, ungettext, N_, gettext
-from ckan.lib.navl.dictization_functions import Invalid, Missing, missing, unflatten
-from ckan.authz import Authorizer
-from ckan.logic import check_access, NotAuthorized
+
+from pylons.i18n import _
+
+from ckan.lib.navl.dictization_functions import Invalid, StopOnError, Missing, missing, unflatten
+from ckan.logic import check_access, NotAuthorized, NotFound
 from ckan.lib.helpers import date_str_to_datetime
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
+import ckan.new_authz
+
+def owner_org_validator(key, data, errors, context):
+
+    value = data.get(key)
+
+    if value is missing or value is None:
+        if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid('A group must be supplied')
+        data.pop(key, None)
+        raise StopOnError
+
+    model = context['model']
+    group = model.Group.get(value)
+    if not group:
+        raise Invalid('Group does not exist')
+    group_id = group.id
+    user = context['user']
+    user = model.User.get(user)
+    if not(user.sysadmin or user.is_in_group(group_id)):
+        raise Invalid('You cannot add a dataset to this group')
+    data[key] = group_id
+
 
 def package_id_not_changed(value, context):
 
@@ -30,6 +53,13 @@ def int_validator(value, context):
         return int(value)
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
+
+def boolean_validator(value, context):
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ['true', 'yes', 't', 'y', '1']:
+        return True
+    return False
 
 def isodate(value, context):
     if isinstance(value, datetime.datetime):
@@ -187,6 +217,9 @@ object_id_validators = {
     'new group' : group_id_exists,
     'changed group' : group_id_exists,
     'deleted group' : group_id_exists,
+    'new organization' : group_id_exists,
+    'changed organization' : group_id_exists,
+    'deleted organization' : group_id_exists,
     'follow group' : group_id_exists,
     'new related item': related_id_exists,
     'deleted related item': related_id_exists
@@ -359,7 +392,7 @@ def ignore_not_package_admin(key, data, errors, context):
     if 'ignore_auth' in context:
         return
 
-    if user and Authorizer.is_sysadmin(user):
+    if user and ckan.new_authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -386,7 +419,7 @@ def ignore_not_group_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
-    if user and Authorizer.is_sysadmin(user):
+    if user and ckan.new_authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -544,3 +577,19 @@ def url_validator(key, data, errors, context):
        return
 
     errors[key].append(_('Please provide a valid URL'))
+
+
+
+def user_name_exists(user_name, context):
+    model = context['model']
+    session = context['session']
+    result = session.query(model.User).filter_by(name=user_name).first()
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+    return result.name
+
+
+def role_exists(role, context):
+    if role not in ckan.new_authz.ROLE_PERMISSIONS:
+        raise Invalid(_('role does not exist.'))
+    return role

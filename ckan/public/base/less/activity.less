@@ -75,21 +75,25 @@
 
 // colors
 .activity .item {
+	& i { background-color: @activityColorBlank; } // Non defined
 	&.added-tag i { background-color: spin(@activityColorNew, 60); }
 	&.changed-group i { background-color: @activityColorModify; }
 	&.changed-package i { background-color: spin(@activityColorModify, 20); }
 	&.changed-package_extra i { background-color: spin(@activityColorModify, -20); }
 	&.changed-resource i { background-color: spin(@activityColorModify, 40); }
 	&.changed-user i { background-color: spin(@activityColorModify, -40); }
+	&.changed-organization i { background-color: spin(@activityColorNew, 50); }
 	&.deleted-group i { background-color: @activityColorDelete; }
 	&.deleted-package i { background-color: spin(@activityColorDelete, 20); }
 	&.deleted-package_extra i { background-color: spin(@activityColorDelete, -20); }
 	&.deleted-resource i { background-color: spin(@activityColorDelete, 40); }
+	&.deleted-organization i { background-color: spin(@activityColorDelete, -40); }
 	&.new-group i { background-color: @activityColorNew; }
 	&.new-package i { background-color: spin(@activityColorNew, 20); }
 	&.new-package_extra i { background-color: spin(@activityColorNew, -20); }
 	&.new-resource i { background-color: spin(@activityColorNew, -40); }
 	&.new-user i { background-color: spin(@activityColorNew, 40); }
+	&.new-organization i { background-color: spin(@activityColorNew, -40); }
 	&.removed-tag i { background-color: spin(@activityColorDelete, -40); }
 	&.deleted-related-item i { background-color: spin(@activityColorDelete, 60); }
 	&.follow-dataset i { background-color: @activityColorNeutral; }

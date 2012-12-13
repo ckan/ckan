@@ -1,20 +1,31 @@
+from pylons.i18n import _
+
 import ckan.logic as logic
-from ckan.authz import Authorizer
-from ckan.lib.base import _
+import ckan.new_authz as new_authz
+
 
 def package_create(context, data_dict=None):
-    model = context['model']
     user = context['user']
-    check1 = logic.check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
+    if not new_authz.auth_is_registered_user():
+        check1 = new_authz.check_config_permission('anon_create_dataset')
+    else:
+        check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
+            or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
 
     if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
+        return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     else:
 
         check2 = _check_group_auth(context,data_dict)
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 
+    return {'success': True}
+
+def file_upload(context, data_dict=None):
+    user = context['user']
+    if not new_authz.auth_is_registered_user():
+        return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 
 def related_create(context, data_dict=None):
@@ -27,9 +38,7 @@ def related_create(context, data_dict=None):
     userobj = model.User.get( user )
 
     if userobj:
-        if (data_dict.get('featured', 0) != 0 and
-            not Authorizer().is_sysadmin(unicode(user))):
-
+        if data_dict.get('featured', 0) != 0:
             return {'success': False,
                     'msg': _('You must be a sysadmin to create a featured '
                              'related item')}
@@ -40,59 +49,58 @@ def related_create(context, data_dict=None):
 def resource_create(context, data_dict):
     # resource_create runs through package_update, no need to
     # check users eligibility to add resource to package here.
-    model = context['model']
-    user = context['user']
-    check1 = logic.check_access_old(model.System(), model.Action.PACKAGE_CREATE, context)
 
-    if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to create packages') % str(user)}
-    else:
-
-        check2 = _check_group_auth(context,data_dict)
-        if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
-
-    return {'success': True}
+    # FIXME This is identical behaviour to what existed but feels like we
+    # should be using package_update permissions and have better errors.  I
+    # am also not sure about the need for the group issue
+    return new_authz.is_authorized('package_create', context, data_dict)
 
 def package_relationship_create(context, data_dict):
-    model = context['model']
     user = context['user']
 
     id = data_dict['subject']
     id2 = data_dict['object']
-    pkg1 = model.Package.get(id)
-    pkg2 = model.Package.get(id2)
 
-    authorized = Authorizer().\
-                    authorized_package_relationship(\
-                    user, pkg1, pkg2, action=model.Action.EDIT)
+    # If we can update each package we can see the relationships
+    authorized1 = new_authz.is_authorized_boolean(
+        'package_update', context, {'id': id})
+    authorized2 = new_authz.is_authorized_boolean(
+        'package_update', context, {'id': id2})
 
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % str(user)}
+    if not authorized1 and authorized2:
+        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
 
 def group_create(context, data_dict=None):
-    model = context['model']
     user = context['user']
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
 
-    authorized = logic.check_access_old(model.System(), model.Action.GROUP_CREATE, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to create groups') % str(user)}
-    else:
+    if user and new_authz.check_config_permission('user_create_groups'):
         return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create groups') % user}
+
+
+def organization_create(context, data_dict=None):
+    user = context['user']
+    user = new_authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and new_authz.check_config_permission('user_create_organizations'):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create organizations') % user}
 
 def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
 def user_create(context, data_dict=None):
-    model = context['model']
     user = context['user']
 
-    authorized = logic.check_access_old(model.System(), model.Action.USER_CREATE, context)
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to create users') % str(user)}
+    if ('api_version' in context
+            and not new_authz.check_config_permission('create_user_via_api')):
+        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
     else:
         return {'success': True}
 
@@ -102,6 +110,7 @@ def _check_group_auth(context, data_dict):
         return True
 
     model = context['model']
+    user = context['user']
     pkg = context.get("package")
 
     api_version = context.get('api_version') or '1'
@@ -130,7 +139,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not logic.check_access_old(group, model.Action.EDIT, context):
+        if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
             return False
 
     return True
@@ -154,13 +163,26 @@ def group_create_rest(context, data_dict):
     return group_create(context, data_dict)
 
 def vocabulary_create(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def activity_create(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def tag_create(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+def _group_or_org_member_create(context, data_dict):
     user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    group_id = data_dict['id']
+    if not new_authz.has_user_permission_for_group_or_org(group_id, user, 'membership'):
+        return {'success': False, 'msg': _('User %s not authorized to add members') % user}
+    return {'success': True}
+
+def organization_member_create(context, data_dict):
+    return _group_or_org_member_create(context, data_dict)
+
+def group_member_create(context, data_dict):
+    return _group_or_org_member_create(context, data_dict)

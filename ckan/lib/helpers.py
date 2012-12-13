@@ -460,6 +460,21 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
+_menu_items = {
+    'add dataset': dict(controller='package', action='new'),
+    'search': dict(controller='package',
+                    action='search',
+                    highlight_actions='index search'),
+    'default_group': dict(name='%s_index' % default_group_type(),
+                          controller='group',
+                          highlight_actions='index search'),
+    'about': dict(controller='home', action='about'),
+    'login': dict(controller='user', action='login'),
+    'register': dict(controller='user', action='register'),
+    'organizations': dict(action='index', controller='organization'),
+}
+
+
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
@@ -608,9 +623,14 @@ def group_name_to_title(name):
 
 
 def markdown_extract(text, extract_length=190):
+    ''' return the plain text representation of markdown encoded text.  That
+    is the texted without any html tags.  If extract_length is 0 then it
+    will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
+    if not extract_length or len(plain) < extract_length:
+        return plain
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
@@ -940,6 +960,11 @@ def group_link(group):
     return link_to(group['title'], url)
 
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
+
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
@@ -1219,6 +1244,31 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
+def organizations_available(permission='edit_group'):
+    ''' return a list of available organizations '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user}
+    data_dict = {'permission': permission}
+    return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+def user_in_org_or_group(group_id):
+    ''' Check if user is in a group or organization '''
+    # we need a user
+    if not c.userobj:
+        return False
+    # sysadmins can do anything
+    if c.userobj.sysadmin:
+        return True
+    query = model.Session.query(model.Member) \
+            .filter(model.Member.state == 'active') \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.group_id == group_id) \
+            .filter(model.Member.table_id == c.userobj.id)
+    return len(query.all()) != 0
+
+
 def dashboard_activity_stream(user_id, offset=0):
     '''Return the dashboard activity stream of the given user.
 
@@ -1435,6 +1485,8 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'organizations_available',
+           'user_in_org_or_group',
            'dashboard_activity_stream',
            'recently_changed_packages_activity_stream',
            'escape_js',
