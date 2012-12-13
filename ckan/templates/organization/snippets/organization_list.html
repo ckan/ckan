@@ -1,0 +1,17 @@
+{#
+Display a grid of organization items.
+
+organizations - A list of organizations.
+
+Example:
+
+    {% snippet "organization/snippets/organization_list.html" %}
+
+#}
+<ul class="media-grid">
+  {% for organization in organizations %}
+    {% set first = loop.index0 % 3 == 0 %}
+    {% set last  = loop.index0 % 3 == 2 %}
+    {% snippet "organization/snippets/organization_item.html", organization=organization, first=first, last=last %}
+  {% endfor %}
+</ul>

@@ -1,3 +1,4 @@
+import re
 import logging
 import genshi
 import datetime
@@ -12,9 +13,9 @@ from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
 from ckan.logic import tuplize_dict, clean_dict, parse_params
-import ckan.forms
 import ckan.logic.action.get
 import ckan.lib.search as search
+import ckan.new_authz
 
 from ckan.lib.plugins import lookup_group_plugin
 
@@ -22,6 +23,8 @@ log = logging.getLogger(__name__)
 
 
 class GroupController(BaseController):
+
+    group_type = 'group'
 
     ## hooks for subclasses
 
@@ -46,6 +49,9 @@ class GroupController(BaseController):
     def _index_template(self, group_type):
         return lookup_group_plugin(group_type).index_template()
 
+    def _about_template(self, group_type):
+        return lookup_group_plugin(group_type).about_template()
+
     def _read_template(self, group_type):
         return lookup_group_plugin(group_type).read_template()
 
@@ -55,7 +61,39 @@ class GroupController(BaseController):
     def _edit_template(self, group_type):
         return lookup_group_plugin(group_type).edit_template()
 
+    def _admins_template(self, group_type):
+        return lookup_group_plugin(group_type).admins_template()
+
     ## end hooks
+    def _replace_group_org(self, string):
+        ''' substitute organization for group if this is an org'''
+        if self.group_type == 'organization':
+            string = re.sub('^group', 'organization', string)
+        return string
+
+    def _action(self, action_name):
+        ''' select the correct group/org action '''
+        return get_action(self._replace_group_org(action_name))
+
+    def _check_access(self, action_name, *args, **kw):
+        ''' select the correct group/org check_access '''
+        return check_access(self._replace_group_org(action_name), *args, **kw)
+
+    def _render_template(self, template_name):
+        ''' render the correct group/org template '''
+        return render(self._replace_group_org(template_name))
+
+    def _redirect_to(self, *args, **kw):
+        ''' wrapper to ensue the correct controller is used '''
+        if self.group_type == 'organization' and 'controller' in kw:
+            kw['controller'] = 'organization'
+        return h.redirect_to(*args, **kw)
+
+    def _url_for(self, *args, **kw):
+        ''' wrapper to ensue the correct controller is used '''
+        if self.group_type == 'organization' and 'controller' in kw:
+            kw['controller'] = 'organization'
+        return h.url_for(*args, **kw)
 
     def _guess_group_type(self, expecting_name=False):
         """
@@ -84,11 +122,17 @@ class GroupController(BaseController):
         data_dict = {'all_fields': True}
 
         try:
-            check_access('site_read', context)
+            self._check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
-        results = get_action('group_list')(context, data_dict)
+        # pass user info to context as needed to view private datasets of
+        # orgs correctly
+        if c.userobj:
+            context['user_id'] = c.userobj.id
+            context['user_is_admin'] = c.userobj.sysadmin
+
+        results = self._action('group_list')(context, data_dict)
 
         c.page = Page(
             collection=results,
@@ -110,7 +154,7 @@ class GroupController(BaseController):
         q = c.q = request.params.get('q', '')
 
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
+            c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
             abort(404, _('Group not found'))
@@ -133,7 +177,7 @@ class GroupController(BaseController):
 
         # c.group_admins is used by CKAN's legacy (Genshi) templates only,
         # if we drop support for those then we can delete this line.
-        c.group_admins = self.authorizer.get_admins(c.group)
+        c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
         limit = 20
         try:
@@ -148,7 +192,7 @@ class GroupController(BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            url = h.url_for(controller='group', action='read',
+            url = self._url_for(controller='group', action='read',
                             id=c.group_dict.get('name'))
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
@@ -187,7 +231,10 @@ class GroupController(BaseController):
                         search_extras[param] = value
 
             fq = 'capacity:"public"'
-            if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
+            user_member_of_orgs = [org['id'] for org
+                                   in h.organizations_available('read')]
+
+            if (c.group and c.group.id in user_member_of_orgs):
                 fq = ''
                 context['ignore_capacity_check'] = True
 
@@ -247,7 +294,7 @@ class GroupController(BaseController):
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
-            check_access('group_create', context)
+            self._check_access('group_create', context)
         except NotAuthorized:
             abort(401, _('Unauthorized to create a group'))
 
@@ -279,7 +326,7 @@ class GroupController(BaseController):
             return self._save_edit(id, context)
 
         try:
-            old_data = get_action('group_show')(context, data_dict)
+            old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             data = data or old_data
@@ -290,9 +337,10 @@ class GroupController(BaseController):
 
         group = context.get("group")
         c.group = group
+        c.group_dict = self._action('group_show')(context, data_dict)
 
         try:
-            check_access('group_update', context)
+            self._check_access('group_update', context)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
@@ -321,7 +369,7 @@ class GroupController(BaseController):
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
-            group = get_action('group_create')(context, data_dict)
+            group = self._action('group_create')(context, data_dict)
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
@@ -352,7 +400,7 @@ class GroupController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             context['allow_partial_update'] = True
-            group = get_action('group_update')(context, data_dict)
+            group = self._action('group_update')(context, data_dict)
 
             if id != group['name']:
                 self._force_reindex(group)
@@ -379,7 +427,7 @@ class GroupController(BaseController):
         try:
             context = \
                 {'model': model, 'user': c.user or c.author, 'group': group}
-            check_access('group_edit_permissions', context)
+            self._check_access('group_edit_permissions', context)
             c.authz_editable = True
             c.group = context['group']
         except NotAuthorized:
@@ -395,27 +443,94 @@ class GroupController(BaseController):
 
     def delete(self, id):
         if 'cancel' in request.params:
-            h.redirect_to(controller='group', action='edit', id=id)
+            self._redirect_to(controller='group', action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
         try:
-            check_access('group_delete', context, {'id': id})
+            self._check_access('group_delete', context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
 
         try:
             if request.method == 'POST':
-                get_action('group_delete')(context, {'id': id})
+                self._action('group_delete')(context, {'id': id})
                 h.flash_notice(_('Group has been deleted.'))
-                h.redirect_to(controller='group', action='index')
-            c.group_dict = get_action('group_show')(context, {'id': id})
+                self._redirect_to(controller='group', action='index')
+            c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return render('group/confirm_delete.html')
+        return self._render_template('group/confirm_delete.html')
+
+    def members(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            c.members = self._action('member_list')(context, {'id': id,
+                                                              'object_type': 'user'})
+            c.group_dict = self._action('group_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return self._render_template('group/members.html')
+
+    def member_new(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        #self._check_access('group_delete', context, {'id': id})
+        try:
+            if request.method == 'POST':
+                data_dict = clean_dict(unflatten(
+                    tuplize_dict(parse_params(request.params))))
+                data_dict['id'] = id
+                c.group_dict = self._action('group_member_create')(context, data_dict)
+                self._redirect_to(controller='group', action='members', id=id)
+            else:
+                user = request.params.get('user')
+                if user:
+                    user= model.Session.query(model.User).get(user)
+                    c.user_name = user.name
+                c.group_dict = self._action('group_show')(context, {'id': id})
+                c.roles = self._action('member_roles_list')(context, {})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to add member to group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return self._render_template('group/member_new.html')
+
+    def member_delete(self, id):
+        if 'cancel' in request.params:
+            self._redirect_to(controller='group', action='members', id=id)
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+        try:
+            self._check_access('group_member_delete', context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s members') % '')
+
+        try:
+            user_id = request.params.get('user')
+            if request.method == 'POST':
+                self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
+                h.flash_notice(_('Group member has been deleted.'))
+                self._redirect_to(controller='group', action='members', id=id)
+            c.user_dict = self._action('user_show')(context, {'id': user_id})
+            c.user_id = user_id
+            c.group_id = id
+        except NotAuthorized:
+            abort(401, _('Unauthorized to delete group %s') % '')
+        except NotFound:
+            abort(404, _('Group not found'))
+        return self._render_template('group/confirm_delete_member.html')
+
 
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
@@ -439,8 +554,8 @@ class GroupController(BaseController):
                    'extras_as_string': True}
         data_dict = {'id': id}
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.group_revisions = get_action('group_revision_list')(context,
+            c.group_dict = self._action('group_show')(context, data_dict)
+            c.group_revisions = self._action('group_revision_list')(context,
                                                                   data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
@@ -456,7 +571,7 @@ class GroupController(BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=h.url_for(controller='group', action='read',
+                link=self._url_for(controller='group', action='read',
                                id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
@@ -555,38 +670,37 @@ class GroupController(BaseController):
         h.redirect_to(controller='group', action='read', id=id)
 
     def followers(self, id):
-        context = self._get_group_dict(id)
-        c.followers = get_action('group_follower_list')(context,
-                                                        {'id': c.group_dict['id']})
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+        c.group_dict = self._get_group_dict(id)
+        c.followers = get_action('group_follower_list')(context, {'id': id})
         return render('group/followers.html')
 
     def admins(self, id):
-        context = self._get_group_dict(id)
-        c.admins = self.authorizer.get_admins(context['group'])
-        return render('group/admins.html')
+        c.group_dict = self._get_group_dict(id)
+        c.admins = ckan.new_authz.get_group_or_org_admin_ids(id)
+        return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
-        self._get_group_dict(id)
-        return render('group/about.html')
+        c.group_dict = self._get_group_dict(id)
+        return render(self._about_template(c.group_dict['type']))
 
     def _get_group_dict(self, id):
+        ''' returns the result of group_show action or aborts if there is a
+        problem '''
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'for_view': True}
-        data_dict = {'id': id}
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.admins = self.authorizer.get_admins(context['group'])
+            return get_action('group_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
-        return context
 
     def _render_edit_form(self, fs):
         # errors arrive in c.error and fs.errors
         c.fieldset = fs
-        c.fieldset2 = ckan.forms.get_package_group_fieldset()
         return render('group/edit_form.html')
 
     def _update(self, fs, group_name, group_id):

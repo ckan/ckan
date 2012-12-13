@@ -146,15 +146,19 @@ class PackageSearchIndex(SearchIndex):
         # add groups
         groups = pkg_dict.pop('groups', [])
 
-        # Capacity is different to the default only if using organizations
-        # where the dataset is only in one group. We will add the capacity
-        # from the single group that it is a part of if we have a group
-        if len(groups):
-            pkg_dict['capacity'] = groups[0].get('capacity', 'public')
+        # we use the capacity to make things private in the search index
+        if pkg_dict['private']:
+            pkg_dict['capacity'] = 'private'
         else:
             pkg_dict['capacity'] = 'public'
 
         pkg_dict['groups'] = [group['name'] for group in groups]
+
+        # if there is an owner_org we want to add this to groups for index
+        # purposes
+        if pkg_dict['owner_org']:
+            pkg_dict['groups'].append(pkg_dict['organization']['name'])
+
 
         # tracking
         tracking_summary = pkg_dict.pop('tracking_summary', None)

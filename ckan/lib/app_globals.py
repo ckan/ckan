@@ -58,6 +58,7 @@ config_details = {
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
+    'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
 }
 
 
@@ -171,6 +172,9 @@ class _Globals(object):
                 self._mutex.release()
 
     def _init(self):
+        self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
+        facets = config.get('search.facets', 'groups tags res_format license capacity')
+        self.facets = facets.split()
 
         # process the config_details to set globals
         for name, options in config_details.items():

@@ -23,7 +23,7 @@ class TestDashboard(object):
             'password': 'iammrnew',
             })
         response = cls.app.post('/api/action/user_create', params=params,
-                extra_environ={'Authorization': str(cls.joeadmin['apikey'])})
+                extra_environ={'Authorization': str(cls.testsysadmin['apikey'])})
         assert response.json['success'] is True
         new_user = response.json['result']
         return new_user
@@ -246,10 +246,10 @@ class TestDashboard(object):
 
         # Make someone that the user is not following update a group that the
         # user is following.
-        params = json.dumps({'id': 'roger', 'description': 'updated'})
-        response = self.app.post('/api/action/group_update', params=params,
-            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
-        assert response.json['success'] is True
+        group = self.post('group_show', {'id': 'roger'},
+        apikey=self.testsysadmin['apikey'])
+        group['description'] = 'updated'
+        self.post('group_update', group, apikey=self.testsysadmin['apikey'])
 
         # Check the new activity in new_user's dashboard.
         activities = self.dashboard_activity_list(self.new_user)
@@ -273,7 +273,7 @@ class TestDashboard(object):
         # user is following.
         params = json.dumps({'name': 'annakarenina', 'notes': 'updated'})
         response = self.app.post('/api/action/package_update', params=params,
-            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+            extra_environ={'Authorization': str(self.joeadmin['apikey'])})
         assert response.json['success'] is True
 
         # Check the new activity in new_user's dashboard.
@@ -283,7 +283,7 @@ class TestDashboard(object):
         assert len(new_activities) == 1
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed package'
-        assert activity['user_id'] == self.testsysadmin['id']
+        assert activity['user_id'] == self.joeadmin['id']
         assert activity['data']['package']['name'] == 'annakarenina'
 
     def test_05_new_activities_count(self):

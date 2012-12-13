@@ -204,10 +204,6 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/package/new', controller='package_formalchemy', action='new')
-    ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
-
     with SubMapper(map, controller='related') as m:
         m.connect('related_new',  '/dataset/{id}/related/new', action='new')
         m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
@@ -235,7 +231,6 @@ def make_map():
           requirements=dict(action='|'.join([
           'read',
           'edit',
-          'authz',
           'history',
           ]))
         )
@@ -244,7 +239,6 @@ def make_map():
           'edit',
           'new_metadata',
           'new_resource',
-          'authz',
           'history',
           'read_ajax',
           'history_ajax',
@@ -296,8 +290,10 @@ def make_map():
         m.connect('group_action', '/group/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
-          'authz',
           'delete',
+          'members',
+          'member_new',
+          'member_delete',
           'history',
           'followers',
           'follow',
@@ -310,6 +306,24 @@ def make_map():
         m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
         m.connect('group_read', '/group/{id}', action='read')
 
+    # organizations these basically end up being the same as groups
+    with SubMapper(map, controller='organization') as m:
+        m.connect('organizations_index', '/organization', action='index')
+        m.connect('/organization/list', action='list')
+        m.connect('/organization/new', action='new')
+        m.connect('/organization/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'delete',
+          'admins',
+          'members',
+          'member_new',
+          'member_delete',
+          'history',
+          'about'
+          ]))
+          )
+        m.connect('organization_read', '/organization/{id}', action='read')
     register_package_plugins(map)
     register_group_plugins(map)
 
