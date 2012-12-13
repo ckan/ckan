@@ -23,14 +23,14 @@
     </div>
     {% if followees %}
       <ul class="nav nav-pills nav-stacked">
-        <li{% if context.selected_id == False %} class="active"{% endif %}>
+        <li class="everything {% if context.selected_id == False %} active{% endif %}">
           <a href="{{ h.url_for(controller='user', action='dashboard') }}">
             <i class="icon-star"></i>
             <span>Everything</span>
           </a>
         </li>
         {% for followee in followees %}
-        <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %}>
+        <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
           <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}">
             {{followee_icon(followee.type)}}
             <span>{{followee.display_name}}</span>
