@@ -28,6 +28,7 @@
       <aside class="dashboard-aside">
         {% if not c.dashboard_activity_stream_context.dict == None %}
           <div class="dashboard-aside-context">
+            <span class="arrow"></span>
             {% snippet 'snippets/popover_context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
           </div>
         {% endif %}
