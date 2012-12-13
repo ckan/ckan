@@ -20,13 +20,15 @@ this.ckan.module('dashboard', function ($, _) {
     initialize: function () {
       $.proxyAll(this, /_on/);
       this.button = $('#followee-filter .btn').
-        on('click', this._onShowFolloweeDropdown).
-        popover({
+        on('click', this._onShowFolloweeDropdown);
+      var title = this.button.prop('title');
+      this.button.popover({
           placement: 'bottom',
           title: 'Filter',
           html: true,
           content: $('#followee-popover').html()
         });
+      this.button.prop('title', title);
       this.popover = this.button.data('popover').tip().addClass('popover-followee');
       // Are there new items in the dashboard? If so... reset the 
       // notifications number to zero

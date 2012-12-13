@@ -9,8 +9,8 @@
 {%- endmacro %}
 
 <div id="followee-filter" class="pull-right">
-  <a href="#followee-popover" class="btn">
-    {{ _('Show me:') }}
+  <a href="#followee-popover" class="btn" title="{{ _('Activity from:') }} {{ context.context }}">
+    {{ _('Activity from:') }}
     <strong>{{ context.context }}</strong>
     <span class="caret"></span>
   </a>
