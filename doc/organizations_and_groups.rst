@@ -80,7 +80,7 @@ User Stories that apply to both Organizations and Groups
 
 * **Anyone** can see a list of all the site's organizations.
 * **Anyone** can see a list of all the site's groups.
-* **Anyone** can see a list of all an organization's _public_ datasets 
+* **Anyone** can see a list of all an organization's _public_ datasets
 * **Anyone** can see a list of all a group's datasets (groups can't have
   private datasets, they're all public)
 * **Sysadmins** can create new organizations, and automatically become admins
@@ -141,7 +141,7 @@ organization is specified. Users who are not a member of an organization will
 be able to add datasets to this default organization.
 
 * **Sysadmins** can move datasets from one organization to another.
-    
+
 * **Sysadmins** can delete organizations, and this deletes all of the
   organization's datasets.
 
@@ -188,150 +188,48 @@ Technical FAQ
 
 
 The data model will not change from how it is currently::
-  
+
                                            +------------+
                                            |            |
                                        +---+  dataset   |
     +------------+     +-----------+   |   |            |
     |            |     |           +---+   +------------+
-    |  group     +-----+ member    |       
+    |  group     +-----+ member    |
     |            |     |           +---+   +------------+
     +------------+     +-----------+   |   |            |
                                        +---+   user     |
                                            |            |
                                            +------------+
 
-The group table has a "type" field specifying if the table is an "organization" 
-or a "group". 
+The group table has a "type" field specifying if the table is an "organization"
+or a "group".
 
 Using the one 'group' table for both organizations and groups means you can't
 have an organization and a group with the same name. This is probably a good
 thing as it would be confusing for users anyway.
 
-The member table has field called capacity which should be used as follows: 
+The member table has field called capacity which should be used as follows:
 
-*  When a dataset is a member of an Organization it must have capacity of 
+*  When a dataset is a member of an Organization it must have capacity of
    either public/private.
-*  When a dataset is a member of a Group it must have capacity of 'member'. 
-*  When a user is a member of a Group/Organization it must have capacity 
+*  When a dataset is a member of a Group it must have capacity of 'member'.
+*  When a user is a member of a Group/Organization it must have capacity
    of admin/editor.
 
 
-Transition
-==========
+Config options
+==============
 
+The following config options have been created.
 
-I'd remove the member table as horrible and move to this model
-::
+ckan.auth.user_create_organizations
+ckan.auth.user_create_groups
 
+ckan.auth.create_user_via_api
+ckan.auth.create_dataset_if_not_in_organization
 
-                        +------------+
-                        |            |
-                    +---+  dataset   |
-    +-----------+   |   |            |
-    | group     +---+   +------------+
-    | ownership |
-    |           +---+   +------------+
-    +-----------+   |   |            |
-                    +---+   group    |
-                        |            |
-                        +------------+
+ckan.auth.anon_create_dataset
+ckan.auth.user_delete_groups
 
-
-
-                        +------------+
-                        |            |
-                    +---+  user      |
-    +-----------+   |   |            |
-    | group     +---+   +------------+
-    | membership|
-    |           +---+   +------------+
-    +-----------+   |   |            |
-                    +---+   group    |
-                        |            |
-                        +------------+
-
-    +----------------+
-    |group_membership|
-    +----------------+
-    |Group/Org       |
-    |User            |
-    |Role            |
-    +----------------+
-
-    +----------------+
-    |group_ownership |
-    +----------------+
-    |Group/Org       |
-    |Dataset         |
-    +----------------+
-
-Orgs would just be a group type with it's own forms and a field that
-destiguishes it as an org.  Probably it's own schema etc
-
-An organisation would only be different from a group by this type unless I
-am given explict differences (note: I have no real knowledge of groups only
-that in the code)
-
-If possible all actions will just be group_.... not organization_....
-
-Any changes to the group model would be as minimal as possible
-
-
-Admin
-`````
-
-Need to add some stuff to allow admin of group datasets etc both for
-admin/sysadmins
-
-
-Searches
-````````
-
-Search Indexes would be updated to contain privacy information for groups
-
-Searches would be updated to not return private data.  This may need some
-thought to keep things running fast - public users would almost definatly be
-a special case as this is a common usage
-
-
-Need methods for group/org applications and admin
-
-Do we need to move/migrate existing data?
-
-Group/Org searches should seem different to the user so searching groups
-only shows groups etc
-
-I may need some help with the search stuff
-
-Auth
-````
-
-All auth functions would be group_... but these would then internally use
-the org_... functionality if the group is an org
-
-Try to remove any old auth stuff if possible
-
-Permissions to just be hard coded (as user stories) in this first phase but
-keep an eye on future upgrades
-
-Sysadmins will have magic powers to see do anything
-
-
-Tests
-`````
-
-Attempt to keep existing tests running and look at some tests for new
-functionality.
-
-Misc
-````
-
-There will be some integration issues but they are outside the scope of this
-doc and the development cycle
-
-API
-```
-
-Only actions will be supported for orgs - any v1/2 apis will only work for
-groups orgs will 500
+ckan.auth.user_delete_organizations
+ckan.auth.create_unowned_dataset
