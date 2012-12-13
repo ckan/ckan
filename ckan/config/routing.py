@@ -8,7 +8,7 @@ refer to the routes manual at http://routes.groovie.org/docs/
 import re
 
 from pylons import config
-from routes import Mapper as _Mapper
+from routes.mapper import SubMapper, Mapper as _Mapper
 
 from ckan.plugins import PluginImplementations, IRoutes
 
@@ -425,36 +425,3 @@ def make_map():
     map.connect('/*url', controller='template', action='view')
 
     return map
-
-class SubMapper(object):
-    # FIXME this is only used due to a bug in routes 1.11
-    # hopefully we can use map.submapper(...) in version 1.12
-    """Partial mapper for use with_options"""
-    def __init__(self, obj, **kwargs):
-        self.kwargs = kwargs
-        self.obj = obj
-
-    def connect(self, *args, **kwargs):
-        newkargs = {}
-        newargs = args
-        for key in self.kwargs:
-            if key == 'path_prefix':
-                if len(args) > 1:
-                    newargs = (args[0], self.kwargs[key] + args[1])
-                else:
-                    newargs = (self.kwargs[key] + args[0],)
-            elif key in kwargs:
-                newkargs[key] = self.kwargs[key] + kwargs[key]
-            else:
-                newkargs[key] = self.kwargs[key]
-        for key in kwargs:
-            if key not in self.kwargs:
-                newkargs[key] = kwargs[key]
-        return self.obj.connect(*newargs, **newkargs)
-
-    # Provided for those who prefer using the 'with' syntax in Python 2.5+
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, tb):
-        pass
