@@ -184,10 +184,13 @@ def member_delete(context, data_dict=None):
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == "active").first()
     if member:
+        rev = model.repo.new_revision()
+        rev.author = context.get('user')
+        rev.message = _(u'REST API: Delete Member: %s') % obj_id
         member.delete()
         model.repo.commit()
 
-def group_delete(context, data_dict):
+def _group_or_org_delete(context, data_dict, is_org=False):
     '''Delete a group.
 
     You must be authorized to delete the group.
@@ -207,17 +210,52 @@ def group_delete(context, data_dict):
 
     revisioned_details = 'Group: %s' % group.name
 
-    _check_access('group_delete', context, data_dict)
+    if is_org:
+        _check_access('organization_delete', context, data_dict)
+    else:
+        _check_access('group_delete', context, data_dict)
+
+    # organization delete will delete all datasets for that org
+    if is_org:
+        for pkg in group.active_packages().all():
+            _get_action('package_delete')(context, {id: pkg.id})
 
     rev = model.repo.new_revision()
     rev.author = user
     rev.message = _(u'REST API: Delete %s') % revisioned_details
     group.delete()
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.delete(group)
 
     model.repo.commit()
+
+def group_delete(context, data_dict):
+    '''Delete a group.
+
+    You must be authorized to delete the group.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict)
+
+def organization_delete(context, data_dict):
+    '''Delete a organization.
+
+    You must be authorized to delete the organization.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict, is_org=True)
 
 def task_status_delete(context, data_dict):
     '''Delete a task status.
@@ -358,6 +396,35 @@ def unfollow_dataset(context, data_dict):
             ckan.logic.schema.default_follow_dataset_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
+
+
+def _group_or_org_member_delete(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+    session = context['session']
+
+    group_id = data_dict.get('id')
+    group = model.Group.get(group_id)
+    user_id = data_dict.get('user_id')
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+    }
+    member_context = {
+        'model': model,
+        'user': user,
+        'session': session
+    }
+    _get_action('member_delete')(member_context, member_dict)
+
+
+def group_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict)
+
+def organization_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict)
+
 
 def unfollow_group(context, data_dict):
     '''Stop following a group.

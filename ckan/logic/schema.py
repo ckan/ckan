@@ -30,6 +30,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
+                                   boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
                                    vocabulary_id_not_changed,
@@ -39,6 +40,10 @@ from ckan.logic.validators import (package_id_not_changed,
                                    object_id_validator,
                                    activity_type_exists,
                                    tag_not_in_vocabulary,
+                                   group_id_exists,
+                                   owner_org_validator,
+                                   user_name_exists,
+                                   role_exists,
                                    url_validator)
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -124,6 +129,7 @@ def default_package_schema():
         'version': [ignore_missing, unicode, package_version_validator],
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
+        'owner_org': [owner_org_validator, unicode],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -154,6 +160,8 @@ def default_update_package_schema():
     schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
 
+    schema['private'] = [ignore_missing, boolean_validator]
+    schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
     return schema
 
 def package_form_schema():
@@ -217,6 +225,7 @@ def default_group_schema():
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
+        'is_organization': [ignore_missing],
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
@@ -430,6 +439,17 @@ def default_follow_dataset_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_package_name_or_id_to_id]}
     return schema
+
+
+def member_schema():
+
+    schema = {
+        'id': [group_id_exists, unicode],
+        'username': [user_name_exists, unicode],
+        'role': [role_exists, unicode],
+    }
+    return schema
+
 
 def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,

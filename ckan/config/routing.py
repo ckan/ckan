@@ -5,12 +5,64 @@ may take precedent over the more generic routes. For more information
 refer to the routes manual at http://routes.groovie.org/docs/
 
 """
+import re
+
 from pylons import config
-from routes import Mapper
+from routes.mapper import SubMapper, Mapper as _Mapper
+
 from ckan.plugins import PluginImplementations, IRoutes
 
+named_routes = {}
 
 routing_plugins = PluginImplementations(IRoutes)
+
+
+class Mapper(_Mapper):
+    ''' This Mapper allows us to intercept the connect calls used by routes
+    so that we can collect named routes and later use them to create links
+    via some helper functions like build_nav(). '''
+
+    def connect(self, *args, **kw):
+        '''Connect a new route, storing any named routes for later.
+
+        This custom connect() method wraps the standard connect() method,
+        and additionally saves any named routes that are connected in a dict
+        ckan.routing.named_routes, which ends up being accessible via the
+        Pylons config as config['routes.named_routes'].
+
+        Also takes some additional params:
+
+        :param ckan_icon: name of the icon to be associated with this route,
+            e.g. 'group', 'time'
+        :type ckan_icon: string
+        :param highlight_actions: space-separated list of controller actions
+            that should be treated as the same as this named route for menu
+            highlighting purposes, e.g. 'index search'
+        :type highlight_actions: string
+
+        '''
+        ckan_icon = kw.pop('ckan_icon', None)
+        highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+        out = _Mapper.connect(self, *args, **kw)
+        if len(args) == 1 or args[0].startswith('_redirect_'):
+            return out
+        # we have a named route
+        needed = []
+        matches = re.findall('\{([^:}]*)(\}|:)', args[1])
+        for match in matches:
+            needed.append(match[0])
+        route_data = {
+            'icon': ckan_icon,
+            # needed lists the names of the parameters that need defining
+            # for the route to be generated
+            'needed': needed,
+            'controller': kw.get('controller'),
+            'action': kw.get('action', ''),
+            'highlight_actions': highlight_actions
+        }
+        named_routes[args[0]] = route_data
+        return out
+
 
 def make_map():
     """Create, configure and return the routes Mapper"""
@@ -152,26 +204,24 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/package/new', controller='package_formalchemy', action='new')
-    ##map.connect('/package/edit/{id}', controller='package_formalchemy', action='edit')
-
     with SubMapper(map, controller='related') as m:
         m.connect('related_new',  '/dataset/{id}/related/new', action='new')
         m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
                   action='edit')
         m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
                   action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list')
+        m.connect('related_list', '/dataset/{id}/related', action='list',
+                  ckan_icon='picture')
         m.connect('related_read', '/apps/{id}', action='read')
         m.connect('related_dashboard', '/apps', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
-        m.connect('/dataset', action='search')
+        m.connect('search', '/dataset', action='search',
+                  highlight_actions='index search')
+        m.connect('add dataset', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
           requirements=dict(action='|'.join([
               'list',
-              'new',
               'autocomplete',
               'search'
               ]))
@@ -181,7 +231,6 @@ def make_map():
           requirements=dict(action='|'.join([
           'read',
           'edit',
-          'authz',
           'history',
           ]))
         )
@@ -190,12 +239,9 @@ def make_map():
           'edit',
           'new_metadata',
           'new_resource',
-          'authz',
           'history',
           'read_ajax',
           'history_ajax',
-          'activity',
-          'followers',
           'follow',
           'activity',
           'unfollow',
@@ -203,9 +249,14 @@ def make_map():
           'api_data',
           ]))
           )
+        m.connect('dataset_followers', '/dataset/followers/{id}',
+                  action='followers', ckan_icon='group')
+        m.connect('dataset_activity', '/dataset/activity/{id}',
+                  action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
-        m.connect('/dataset/{id}', action='read')
+        m.connect('dataset_read', '/dataset/{id}', action='read',
+                  ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
@@ -232,14 +283,17 @@ def make_map():
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
-        m.connect('group_index', '/group', action='index')
+        m.connect('group_index', '/group', action='index',
+                  highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
         m.connect('group_new',  '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',
           requirements=dict(action='|'.join([
           'edit',
-          'authz',
           'delete',
+          'members',
+          'member_new',
+          'member_delete',
           'history',
           'followers',
           'follow',
@@ -252,6 +306,24 @@ def make_map():
         m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
         m.connect('group_read', '/group/{id}', action='read')
 
+    # organizations these basically end up being the same as groups
+    with SubMapper(map, controller='organization') as m:
+        m.connect('organizations_index', '/organization', action='index')
+        m.connect('/organization/list', action='list')
+        m.connect('/organization/new', action='new')
+        m.connect('/organization/{action}/{id}',
+          requirements=dict(action='|'.join([
+          'edit',
+          'delete',
+          'admins',
+          'members',
+          'member_new',
+          'member_delete',
+          'history',
+          'about'
+          ]))
+          )
+        m.connect('organization_read', '/organization/{id}', action='read')
     register_package_plugins(map)
     register_group_plugins(map)
 
@@ -269,16 +341,18 @@ def make_map():
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
         m.connect('/user/activity/{id}/{offset}', action='activity')
-        m.connect('/user/activity/{id}', action='activity')
+        m.connect('user_activity_stream', '/user/activity/{id}',
+                  action='activity', ckan_icon='time')
         m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('/dashboard', action='dashboard')
-        m.connect('/user/follow/{id}', action='follow')
+        m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
-        m.connect('/user/followers/{id:.*}', action='followers')
+        m.connect('user_followers', '/user/followers/{id:.*}',
+                  action='followers', ckan_icon='group')
         m.connect('/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
-        m.connect('/user/register', action='register')
-        m.connect('/user/login', action='login')
+        m.connect('register', '/user/register', action='register')
+        m.connect('login', '/user/login', action='login')
         m.connect('/user/_logout', action='logout')
         m.connect('/user/logged_in', action='logged_in')
         m.connect('/user/logged_out', action='logged_out')
@@ -286,8 +360,9 @@ def make_map():
         m.connect('/user/reset', action='request_reset')
         m.connect('/user/me', action='me')
         m.connect('/user/set_lang/{lang}', action='set_lang')
-        m.connect('/user/{id:.*}', action='read')
-        m.connect('/user', action='index')
+        m.connect('user_datasets', '/user/{id:.*}', action='read',
+                  ckan_icon='sitemap')
+        m.connect('user_index', '/user', action='index')
 
     with SubMapper(map, controller='revision') as m:
         m.connect('/revision', action='index')
@@ -350,36 +425,3 @@ def make_map():
     map.connect('/*url', controller='template', action='view')
 
     return map
-
-class SubMapper(object):
-    # FIXME this is only used due to a bug in routes 1.11
-    # hopefully we can use map.submapper(...) in version 1.12
-    """Partial mapper for use with_options"""
-    def __init__(self, obj, **kwargs):
-        self.kwargs = kwargs
-        self.obj = obj
-
-    def connect(self, *args, **kwargs):
-        newkargs = {}
-        newargs = args
-        for key in self.kwargs:
-            if key == 'path_prefix':
-                if len(args) > 1:
-                    newargs = (args[0], self.kwargs[key] + args[1])
-                else:
-                    newargs = (self.kwargs[key] + args[0],)
-            elif key in kwargs:
-                newkargs[key] = self.kwargs[key] + kwargs[key]
-            else:
-                newkargs[key] = self.kwargs[key]
-        for key in kwargs:
-            if key not in self.kwargs:
-                newkargs[key] = kwargs[key]
-        return self.obj.connect(*newargs, **newkargs)
-
-    # Provided for those who prefer using the 'with' syntax in Python 2.5+
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, tb):
-        pass

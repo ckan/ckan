@@ -25,8 +25,8 @@ class TestAdminController(WsgiAppCase):
                 extra_environ={'REMOTE_USER': username})
         assert 'Administration' in response, response
 
-
-class TestAdminAuthzController(WsgiAppCase):
+##   This is no longer used
+class _TestAdminAuthzController(WsgiAppCase):
     @classmethod
     def setup_class(cls):
         # setup test data including testsysadmin user
@@ -227,11 +227,11 @@ class TestAdminTrashController(WsgiAppCase):
         edit_url = url_for(controller='package', action='edit', id=id)
 
         # Manually create a revision
-        res = self.app.get(edit_url)
+        res = self.app.get(edit_url, extra_environ=as_testsysadmin)
         fv = res.forms['dataset-edit']
         fv['title'] = 'RevisedTitle'
         fv['log_message'] = log_message
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=as_testsysadmin)
 
         # Delete that revision
         rev = model.repo.youngest_revision()
@@ -247,7 +247,7 @@ class TestAdminTrashController(WsgiAppCase):
         res = res.follow(extra_environ=as_testsysadmin)
 
         # Verify the edit page can be loaded (ie. does not 404)
-        res = self.app.get(edit_url)
+        res = self.app.get(edit_url, extra_environ=as_testsysadmin)
 
     def test_undelete(self):
         as_testsysadmin = {'REMOTE_USER': 'testsysadmin'}

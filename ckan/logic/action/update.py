@@ -3,6 +3,7 @@ import datetime
 
 import pylons
 from pylons.i18n import _
+from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
 import paste.deploy.converters
 
@@ -272,6 +273,12 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
+    context_no_auth = context.copy()
+    context_no_auth['ignore_auth'] = True
+    _get_action('package_owner_org_update')(context_no_auth,
+                                            {'id': pkg.id,
+                                             'organization_id': pkg.owner_org})
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
     if not context.get('defer_commit'):
@@ -387,23 +394,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
-def group_update(context, data_dict):
-    '''Update a group.
-
-    You must be authorized to edit the group.
-
-    Plugins may change the parameters of this function depending on the value
-    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
-
-    For further parameters see ``group_create()``.
-
-    :param id: the name or id of the group to update
-    :type id: string
-
-    :returns: the updated group
-    :rtype: dictionary
-
-    '''
+def _group_or_org_update(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
@@ -424,7 +415,10 @@ def group_update(context, data_dict):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    _check_access('group_update', context, data_dict)
+    if is_org:
+        _check_access('organization_update', context, data_dict)
+    else:
+        _check_access('group_update', context, data_dict)
 
     if 'api_version' not in context:
         # old plugins do not support passing the schema so we need
@@ -452,6 +446,13 @@ def group_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
+    # when editing an org we do not want to update the packages if using the
+    # new templates.
+    if ((not is_org)
+            and not paste.deploy.converters.asbool(
+                config.get('ckan.legacy_templates', False))
+            and 'api_version' not in context):
+        context['prevent_packages_update'] = True
     group = model_save.group_dict_save(data, context)
 
     if parent:
@@ -471,14 +472,23 @@ def group_update(context, data_dict):
             log.debug('Group %s is made child of group %s',
                       group.name, parent_group.name)
 
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    for item in plugins.PluginImplementations(plugin_type):
         item.edit(group)
+
+    if is_org:
+        activity_type = 'changed organization'
+    else:
+        activity_type = 'changed group'
 
     activity_dict = {
             'user_id': model.User.by_name(user.decode('utf8')).id,
             'object_id': group.id,
-            'activity_type': 'changed group',
+            'activity_type': activity_type,
             }
     # Handle 'deleted' groups.
     # When the user marks a group as deleted this comes through here as
@@ -513,6 +523,41 @@ def group_update(context, data_dict):
         model.repo.commit()
 
     return model_dictize.group_dictize(group, context)
+
+def group_update(context, data_dict):
+    '''Update a group.
+
+    You must be authorized to edit the group.
+
+    Plugins may change the parameters of this function depending on the value
+    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+
+    For further parameters see ``group_create()``.
+
+    :param id: the name or id of the group to update
+    :type id: string
+
+    :returns: the updated group
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_update(context, data_dict)
+
+def organization_update(context, data_dict):
+    '''Update a organization.
+
+    You must be authorized to edit the organization.
+
+    For further parameters see ``organization_create()``.
+
+    :param id: the name or id of the organization to update
+    :type id: string
+
+    :returns: the updated organization
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context, data_dict):
     '''Update a user account.
@@ -883,13 +928,13 @@ def user_role_update(context, data_dict):
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
-    if isinstance(domain_object, model.Package):
-        _check_access('package_edit_permissions', context, data_dict)
-    elif isinstance(domain_object, model.Group):
-        _check_access('group_edit_permissions', context, data_dict)
-    # Todo: 'system' object
-    else:
-        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
+#    if isinstance(domain_object, model.Package):
+#        _check_access('package_edit_permissions', context, data_dict)
+#    elif isinstance(domain_object, model.Group):
+#        _check_access('group_edit_permissions', context, data_dict)
+#    # Todo: 'system' object
+#    else:
+#        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
@@ -978,3 +1023,58 @@ def send_email_notifications(context, data_dict):
                 'ckan.email_notifications is not enabled in config')
 
     ckan.lib.email_notifications.get_and_send_notifications_for_all_users()
+
+
+def package_owner_org_update(context, data_dict):
+    '''Update the owning organization of a dataset
+
+    :param id: the name or id of the dataset to update
+    :type id: string
+
+    :param organization_id: the name or id of the owning organization
+    :type id: string
+    '''
+    model = context['model']
+    name_or_id = data_dict.get('id')
+    organization_id = data_dict.get('organization_id')
+
+    _check_access('package_owner_org_update', context, data_dict)
+
+    pkg = model.Package.get(name_or_id)
+    if pkg is None:
+        raise NotFound(_('Package was not found.'))
+    if organization_id:
+        org = model.Group.get(organization_id)
+        if org is None or not org.is_organization:
+            raise NotFound(_('Organization was not found.'))
+
+        # FIXME check we are in that org
+        pkg.owner_org = org.id
+    else:
+        org = None
+        pkg.owner_org = None
+
+
+    members = model.Session.query(model.Member) \
+            .filter(model.Member.table_id == pkg.id) \
+            .filter(model.Member.capacity == 'organization')
+
+    need_update = True
+    for member_obj in members:
+        if org and member_obj.group_id == org.id:
+            need_update = False
+        else:
+            member_obj.state = 'deleted'
+            member_obj.save()
+
+    # add the organization to memeber table
+    if org and need_update:
+        member_obj = model.Member(table_id=pkg.id,
+                                  table_name='package',
+                                  group=org,
+                                  capacity='organization',
+                                  group_id=org.id,
+                                  state='active')
+        model.Session.add(member_obj)
+
+    model.Session.commit()

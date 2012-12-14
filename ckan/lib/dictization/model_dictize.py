@@ -1,10 +1,8 @@
 import datetime
 from pylons import config
 from sqlalchemy.sql import select
-import datetime
 import ckan.authz
-import ckan.model
-import ckan.misc
+import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
@@ -32,11 +30,14 @@ def group_list_dictize(obj_list, context,
         group_dict['display_name'] = obj.display_name
 
         group_dict['packages'] = \
-                len(obj.packages(with_private=with_private))
+                len(obj.packages(with_private=with_private, context=context))
 
         if context.get('for_view'):
-            for item in plugins.PluginImplementations(
-                    plugins.IGroupController):
+            if group_dict['is_organization']:
+                plugin = plugins.IOrganizationController
+            else:
+                plugin = plugins.IGroupController
+            for item in plugins.PluginImplementations(plugin):
                 group_dict = item.before_view(group_dict)
 
         result_list.append(group_dict)
@@ -239,9 +240,21 @@ def package_dictize(pkg, context):
     q = select([group, member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
-                .where(member_rev.c.state == 'active')
+                .where(member_rev.c.state == 'active') \
+                .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = d.obj_list_dictize(result, context)
+    #owning organization
+    group_rev = model.group_revision_table
+    q = select([group_rev]
+               ).where(group_rev.c.id == pkg.owner_org) \
+                .where(group_rev.c.state == 'active')
+    result = _execute_with_revision(q, group_rev, context)
+    organizations = d.obj_list_dictize(result, context)
+    if organizations:
+        result_dict["organization"] = organizations[0]
+    else:
+        result_dict["organization"] = None
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
@@ -322,7 +335,11 @@ def group_dictize(group, context):
     context['with_capacity'] = False
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(plugins.IGroupController):
+        if result_dict['is_organization']:
+            plugin = plugins.IOrganizationController
+        else:
+            plugin = plugins.IGroupController
+        for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
     return result_dict
@@ -401,7 +418,7 @@ def user_dictize(user, context):
 
     requester = context.get('user')
 
-    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+    if not (ckan.new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
@@ -467,7 +484,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+    dictized['notes_rendered'] = misc.MarkdownFormat().to_html(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)
     if site_url:

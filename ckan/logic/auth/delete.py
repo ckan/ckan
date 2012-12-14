@@ -1,16 +1,14 @@
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan.logic.auth import get_package_object, get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
-from ckan.logic.auth.create import package_relationship_create
-from ckan.authz import Authorizer
 from ckan.lib.base import _
 
 def package_delete(context, data_dict):
-    model = context['model']
     user = context['user']
     package = get_package_object(context, data_dict)
 
-    authorized = logic.check_access_old(package, model.Action.PURGE, context)
+    authorized = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'delete_dataset')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (str(user),package.id)}
     else:
@@ -45,9 +43,6 @@ def related_delete(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Only the owner can delete a related item')}
 
-    if Authorizer().is_sysadmin(unicode(user)):
-        return {'success': True}
-
     related = get_related_object(context, data_dict)
     userobj = model.User.get( user )
 
@@ -66,28 +61,39 @@ def related_delete(context, data_dict):
 
 
 def package_relationship_delete(context, data_dict):
-    can_edit_this_relationship = package_relationship_create(context, data_dict)
-    if not can_edit_this_relationship['success']:
-        return can_edit_this_relationship
-
-    model = context['model']
     user = context['user']
     relationship = context['relationship']
 
-    authorized = logic.check_access_old(relationship, model.Action.PURGE, context)
+    # If you can create this relationship the you can also delete it
+    authorized = new_authz.is_authorized_boolean('package_relationship_create', context, data_dict)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (str(user),relationship.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (user ,relationship.id)}
     else:
         return {'success': True}
 
 def group_delete(context, data_dict):
-    model = context['model']
-    user = context['user']
     group = get_group_object(context, data_dict)
-
-    authorized = logic.check_access_old(group, model.Action.PURGE, context)
+    user = context['user']
+    if not new_authz.check_config_permission('user_delete_groups'):
+        return {'success': False,
+            'msg': _('User %s not authorized to delete groups') % user}
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user, 'delete')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (str(user),group.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (user ,group.id)}
+    else:
+        return {'success': True}
+
+def organization_delete(context, data_dict):
+    group = get_group_object(context, data_dict)
+    user = context['user']
+    if not new_authz.check_config_permission('user_delete_organizations'):
+        return {'success': False,
+            'msg': _('User %s not authorized to delete organizations') % user}
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user, 'delete')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (user ,group.id)}
     else:
         return {'success': True}
 
@@ -98,18 +104,31 @@ def revision_delete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 
 def task_status_delete(context, data_dict):
+    # sysadmins only
     user = context['user']
-
-    authorized =  Authorizer().is_sysadmin(unicode(user))
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete task_status') % str(user)}
-    else:
-        return {'success': True}
+    return {'success': False, 'msg': _('User %s not authorized to delete task_status') % user}
 
 def vocabulary_delete(context, data_dict):
-    user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    # sysadmins only
+    return {'success': False}
 
 def tag_delete(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+def _group_or_org_member_delete(context, data_dict):
+    group = get_group_object(context, data_dict)
     user = context['user']
-    return {'success': Authorizer.is_sysadmin(user)}
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user, 'delete_member')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete organization %s members') % (str(user),group.id)}
+    else:
+        return {'success': True}
+    return {'success': True}
+
+def group_member_delete(context, data_dict):
+    return _group_or_org_member_delete(context, data_dict)
+
+def organization_member_delete(context, data_dict):
+    return _group_or_org_member_delete(context, data_dict)

@@ -1,3 +1,5 @@
+import collections
+import csv
 import os
 import datetime
 import sys
@@ -522,13 +524,12 @@ class Sysadmin(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Sysadmins:'
-        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
+        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
-                                        sysadmin.user.name,
-                                        sysadmin.user.id)
+            print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
+                                        sysadmin.name,
+                                        sysadmin.id)
 
     def add(self):
         import ckan.model as model
@@ -550,7 +551,9 @@ class Sysadmin(CkanCommand):
             else:
                 print 'Exiting ...'
                 return
-        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+
+        user.sysadmin = True
+        model.Session.add(user)
         model.repo.commit_and_remove()
         print 'Added %s as sysadmin' % username
 
@@ -566,7 +569,7 @@ class Sysadmin(CkanCommand):
         if not user:
             print 'Error: user "%s" not found!' % username
             return
-        model.remove_user_from_role(user, model.Role.ADMIN, model.System())
+        user.sysadmin = False
         model.repo.commit_and_remove()
 
 
@@ -928,30 +931,52 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+
+## Used by the Tracking class
+_ViewCount = collections.namedtuple("ViewCount", "id name count")
+
+
 class Tracking(CkanCommand):
     '''Update tracking statistics
 
     Usage:
-      tracking   - update tracking stats
+      tracking update [start-date]        - update tracking stats
+      tracking export <file> [start-date] - export tracking stats to a csv file
     '''
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 1
-    min_args = 0
+    max_args = 3
+    min_args = 1
 
     def command(self):
         self._load_config()
         import ckan.model as model
         engine = model.meta.engine
 
-        if len(self.args) == 1:
-            # Get summeries from specified date
-            start_date = datetime.datetime.strptime(self.args[0], '%Y-%m-%d')
+        cmd = self.args[0]
+        if cmd == 'update':
+            start_date = self.args[1] if len(self.args) > 1 else None
+            self.update_all(engine, start_date)
+        elif cmd == 'export':
+            if len(self.args) <= 1:
+                print self.__class__.__doc__
+                sys.exit(1)
+            output_file = self.args[1]
+            start_date = self.args[2] if len(self.args) > 2 else None
+            self.update_all(engine, start_date)
+            self.export_tracking(engine, output_file)
+        else:
+            print self.__class__.__doc__
+            sys.exit(1)
+
+    def update_all(self, engine, start_date=None):
+        if start_date:
+            start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         else:
             # No date given. See when we last have data for and get data
             # from 2 days before then in case new data is available.
-            # If no date here then use 2010-01-01 as the start date
+            # If no date here then use 2011-01-01 as the start date
             sql = '''SELECT tracking_date from tracking_summary
                      ORDER BY tracking_date DESC LIMIT 1;'''
             result = engine.execute(sql).fetchall()
@@ -970,6 +995,56 @@ class Tracking(CkanCommand):
             self.update_tracking(engine, start_date)
             print 'tracking updated for %s' % start_date
             start_date = stop_date
+
+    def _total_views(self, engine):
+        sql = '''
+            SELECT p.id,
+                   p.name,
+                   COALESCE(SUM(s.count), 0) AS total_views
+               FROM package AS p
+               LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
+               GROUP BY p.id, p.name
+               ORDER BY total_views DESC
+        '''
+        return [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
+
+    def _recent_views(self, engine, measure_from):
+        sql = '''
+            SELECT p.id,
+                   p.name,
+                   COALESCE(SUM(s.count), 0) AS total_views
+               FROM package AS p
+               LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
+               WHERE s.tracking_date >= %(measure_from)s
+               GROUP BY p.id, p.name
+               ORDER BY total_views DESC
+        '''
+        return [_ViewCount(*t) for t in engine.execute(
+                    sql, measure_from=str(measure_from)
+                ).fetchall()]
+
+    def export_tracking(self, engine, output_filename):
+        '''Write tracking summary to a csv file.'''
+        HEADINGS = [
+            "dataset id",
+            "dataset name",
+            "total views",
+            "recent views (last 2 weeks)",
+        ]
+
+        measure_from = datetime.date.today() - datetime.timedelta(days=14)
+        recent_views = self._recent_views(engine, measure_from)
+        total_views = self._total_views(engine)
+
+        with open(output_filename, 'w') as fh:
+            f_out = csv.writer(fh)
+            f_out.writerow(HEADINGS)
+            recent_views_for_id = dict((r.id, r.count) for r in recent_views)
+            f_out.writerows([(r.id,
+                              r.name,
+                              r.count,
+                              recent_views_for_id.get(r.id, 0))
+                              for r in total_views])
 
     def update_tracking(self, engine, summary_date):
         PACKAGE_URL = '/dataset/'
