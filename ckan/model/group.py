@@ -43,6 +43,7 @@ group_table = Table('group', meta.metadata,
                     Column('image_url', types.UnicodeText),
                     Column('created', types.DateTime,
                            default=datetime.datetime.now),
+                    Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
                            default=u"approved"))
 
@@ -143,35 +144,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         if status == "denied":
             pass
 
-    def members_of_type(self, object_type, capacity=None):
-        from ckan import model
-        object_type_string = object_type.__name__.lower()
-        query = meta.Session.query(object_type).\
-            filter(model.Group.id == self.id).\
-            filter(model.Member.state == 'active').\
-            filter(model.Member.table_name == object_type_string)
-
-        if hasattr(object_type, 'state'):
-            query = query.filter(object_type.state == 'active')
-
-        if capacity:
-            query = query.filter(model.Member.capacity == capacity)
-
-        query = query.join(model.Member, member_table.c.table_id ==
-                           getattr(object_type, 'id')).\
-            join(model.Group, group_table.c.id == member_table.c.group_id)
-
-        return query
-
-    def add_child(self, object_instance):
-        object_type_string = object_instance.__class__.__name__.lower()
-        if not object_instance in self.members_of_type(
-                object_instance.__class__).all():
-            member = Member(group=self,
-                            table_id=getattr(object_instance, 'id'),
-                            table_name=object_type_string)
-            meta.Session.add(member)
-
     def get_children_groups(self, type='group'):
         # Returns a list of dicts where each dict contains "id", "name",
         # and "title" When querying with a CTE specifying a model in the
@@ -184,20 +156,69 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return [{"id":idf, "name": name, "title": title}
                 for idf, name, title in results]
 
-    def active_packages(self, load_eager=True, with_private=False):
+
+    def packages(self, with_private=False, limit=None,
+            return_query=False, context=None):
+        '''Return this group's active and pending packages.
+
+        Returns all packages in this group with VDM revision state ACTIVE or
+        PENDING.
+
+        :param with_private: if True, include the group's private packages
+        :type with_private: boolean
+
+        :param limit: the maximum number of packages to return
+        :type limit: int
+
+        :param return_query: if True, return the SQLAlchemy query object
+            instead of the list of Packages resulting from the query
+        :type return_query: boolean
+
+        :returns: a list of this group's packages
+        :rtype: list of ckan.model.package.Package objects
+
+        '''
+        user_is_org_member = False
+        context = context or {}
+        user_is_admin = context.get('user_is_admin', False)
+        user_id = context.get('user_id')
+        if user_is_admin:
+            user_is_org_member = True
+
+        elif self.is_organization and user_id:
+            query = meta.Session.query(Member) \
+                    .filter(Member.state == 'active') \
+                    .filter(Member.table_name == 'user') \
+                    .filter(Member.group_id == self.id) \
+                    .filter(Member.table_id == user_id)
+            user_is_org_member = len(query.all()) != 0
+
         query = meta.Session.query(_package.Package).\
-            filter_by(state=vdm.sqlalchemy.State.ACTIVE).\
+            filter(
+                or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
+                    _package.Package.state == vdm.sqlalchemy.State.PENDING)). \
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 
-        if not with_private:
-            query = query.filter(member_table.c.capacity == 'public')
+        # orgs do not show private datasets unless the user is a member
+        if self.is_organization and not user_is_org_member:
+            query = query.filter(_package.Package.private == False)
+        # groups (not orgs) never show private datasets
+        if not self.is_organization:
+            query = query.filter(_package.Package.private == False)
 
-        query = query.join(member_table, member_table.c.table_id ==
-                           _package.Package.id).\
-            join(group_table, group_table.c.id == member_table.c.group_id)
+        query = query.join(member_table,
+                member_table.c.table_id == _package.Package.id)
+        query = query.join(group_table,
+                group_table.c.id == member_table.c.group_id)
 
-        return query
+        if limit is not None:
+            query = query.limit(limit)
+
+        if return_query:
+            return query
+        else:
+            return query.all()
 
     @classmethod
     def search_by_name_or_title(cls, text_query, group_type=None):
@@ -209,23 +230,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             q = q.filter(cls.type == group_type)
         return q.order_by(cls.title)
 
-    def as_dict(self, ref_package_by='name'):
-        _dict = domain_object.DomainObject.as_dict(self)
-        _dict['packages'] = [getattr(package, ref_package_by)
-                             for package in self.packages]
-        _dict['extras'] = dict([(key, value) for key, value
-                                in self.extras.items()])
-        if (self.type == 'organization'):
-            _dict['users'] = [getattr(user, "name")
-                              for user in self.members_of_type(_user.User)]
-        return _dict
-
     def add_package_by_name(self, package_name):
         if not package_name:
             return
         package = _package.Package.by_name(package_name)
         assert package
-        if not package in self.members_of_type(package.__class__).all():
+        if not package in self.packages():
             member = Member(group=self, table_id=package.id,
                             table_name='package')
             meta.Session.add(member)

@@ -5,6 +5,7 @@ import datetime
 
 from pylons import config
 from pylons.i18n import _
+from pylons import c
 import sqlalchemy
 
 import ckan.authz
@@ -18,6 +19,7 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
+import ckan.new_authz as new_authz
 
 log = logging.getLogger('ckan.logic')
 
@@ -26,7 +28,6 @@ log = logging.getLogger('ckan.logic')
 # actions in the action API.
 _validate = ckan.lib.navl.dictization_functions.validate
 _table_dictize = ckan.lib.dictization.table_dictize
-Authorizer = ckan.authz.Authorizer
 _check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
@@ -48,6 +49,7 @@ def _package_list_with_resources(context, package_revision_list):
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
+
 
 def site_read(context,data_dict=None):
     '''Return ``True``.
@@ -290,26 +292,7 @@ def member_list(context, data_dict=None):
     return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
              for m in q.all() ]
 
-def group_list(context, data_dict):
-    '''Return a list of the names of the site's groups.
-
-    :param order_by: the field to sort the list by, must be ``'name'`` or
-      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
-    :type order_by: string
-    :param sort: sorting of the search results.  Optional.  Default:
-        "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
-    :type sort: string
-    :param groups: a list of names of the groups to return, if given only
-        groups whose names are in this list will be returned (optional)
-    :type groups: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
-        (optional, default: ``False``)
-    :type all_fields: boolean
-
-    :rtype: list of strings
-
-    '''
+def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
     api = context.get('api_version')
@@ -335,13 +318,14 @@ def group_list(context, data_dict):
 
     all_fields = data_dict.get('all_fields', None)
 
-    _check_access('group_list', context, data_dict)
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state=='active')
     query = query.filter(model.GroupRevision.current==True)
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
+
+    query = query.filter(model.GroupRevision.is_organization==is_org)
 
     groups = query.all()
     group_list = model_dictize.group_list_dictize(groups, context,
@@ -352,6 +336,58 @@ def group_list(context, data_dict):
         group_list = [group[ref_group_by] for group in group_list]
 
     return group_list
+
+
+def group_list(context, data_dict):
+    '''Return a list of the names of the site's groups.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param groups: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type groups: list of strings
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
+    _check_access('group_list', context, data_dict)
+    data_dict['type'] = 'group'
+    return _group_or_org_list(context, data_dict)
+
+
+def organization_list(context, data_dict):
+    '''Return a list of the names of the site's organizations.
+
+    :param order_by: the field to sort the list by, must be ``'name'`` or
+      ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
+    :type order_by: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        "name asc" string of field name and sort-order. The allowed fields are
+        'name' and 'packages'
+    :type sort: string
+    :param organizations: a list of names of the groups to return, if given only
+        groups whose names are in this list will be returned (optional)
+    :type organizations: list of strings
+    :param all_fields: return full group dictionaries instead of  just names
+        (optional, default: ``False``)
+    :type all_fields: boolean
+
+    :rtype: list of strings
+
+    '''
+    _check_access('organization_list', context, data_dict)
+    data_dict['groups'] = data_dict.pop('organizations', [])
+    data_dict['type'] = 'organization'
+    return _group_or_org_list(context, data_dict, is_org=True)
+
 
 def group_list_authz(context, data_dict):
     '''Return the list of groups that the user is authorized to edit.
@@ -370,15 +406,84 @@ def group_list_authz(context, data_dict):
 
     _check_access('group_list_authz',context, data_dict)
 
-    query = Authorizer().authorized_query(user, model.Group, model.Action.EDIT)
-    groups = set(query.all())
+    sysadmin = new_authz.is_sysadmin(user)
+    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    if not roles:
+        return []
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    if not user_id:
+        return []
+
+    if not sysadmin:
+        q = model.Session.query(model.Member) \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.capacity.in_(roles)) \
+            .filter(model.Member.table_id == user_id)
+        group_ids = []
+        for row in q.all():
+            group_ids.append(row.group_id)
+
+        if not group_ids:
+            return []
+
+    q = model.Session.query(model.Group) \
+        .filter(model.Group.is_organization == False) \
+        .filter(model.Group.state == 'active')
+
+    if not sysadmin:
+        q = q.filter(model.Group.id.in_(group_ids))
+
+    groups = q.all()
 
     if available_only:
         package = context.get('package')
         if package:
-            groups = groups - set(package.get_groups())
+            groups = set(groups) - set(package.get_groups())
 
     return [{'id':group.id,'name':group.name} for group in groups]
+
+def organization_list_for_user(context, data_dict):
+    '''Return the list of organizations that the user is a member of.
+
+    :param permission: the permission the user has against the returned organizations
+      (optional, default: ``edit_group``)
+    :type permission: string
+
+    :returns: the names of organizations the user is authorized to do specific permission
+    :rtype: list of strings
+
+    '''
+    model = context['model']
+    user = context['user']
+
+    _check_access('organization_list_for_user',context, data_dict)
+
+    permission = data_dict.get('permission', 'edit_group')
+
+    roles = ckan.new_authz.get_roles_with_permission(permission)
+
+    if not roles:
+        return []
+    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    if not user_id:
+        return []
+
+    q = model.Session.query(model.Member) \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.capacity.in_(roles)) \
+        .filter(model.Member.table_id == user_id)
+    group_ids = []
+    for row in q.all():
+        group_ids.append(row.group_id)
+
+    if not group_ids:
+        return []
+
+    q = model.Session.query(model.Group) \
+        .filter(model.Group.id.in_(group_ids)) \
+        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.state == 'active')
+    return [{'id':org.id,'name':org.name} for org in q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -571,9 +676,8 @@ def package_relationships_list(context, data_dict):
     _check_access('package_relationships_list',context, data_dict)
 
     # TODO: How to handle this object level authz?
-    relationships = Authorizer().\
-                    authorized_package_relationships(\
-                    user, pkg1, pkg2, rel, model.Action.READ)
+    # Currently we don't care
+    relationships = pkg1.get_relationships(with_package=pkg2, type=rel)
 
     if rel and not relationships:
         raise NotFound('Relationship "%s %s %s" not found.'
@@ -697,15 +801,7 @@ def revision_show(context, data_dict):
                                       ref_package_by=ref_package_by)
     return rev_dict
 
-def group_show(context, data_dict):
-    '''Return the details of a group.
-
-    :param id: the id or name of the group
-    :type id: string
-
-    :rtype: dictionary
-
-    '''
+def _group_or_org_show(context, data_dict, is_org=False):
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -715,11 +811,19 @@ def group_show(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_show',context, data_dict)
+    if is_org:
+        _check_access('organization_show',context, data_dict)
+    else:
+        _check_access('group_show',context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context)
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
@@ -739,6 +843,30 @@ def group_show(context, data_dict):
         group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
 
+
+def group_show(context, data_dict):
+    '''Return the details of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_show(context, data_dict)
+
+def organization_show(context, data_dict):
+    '''Return the details of a organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    return _group_or_org_show(context, data_dict, is_org=True)
+
+
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
 
@@ -750,34 +878,22 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
-    user = context["user"]
-    id = _get_or_bust(data_dict, 'id')
-    limit = data_dict.get("limit")
+    model = context['model']
+    group_id = _get_or_bust(data_dict, 'id')
 
-    group = model.Group.get(id)
+    # FIXME: What if limit is not an int? Schema and validation needed.
+    limit = data_dict.get('limit')
+
+    group = model.Group.get(group_id)
     context['group'] = group
     if group is None:
         raise NotFound
 
     _check_access('group_show', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)\
-        .filter(model.PackageRevision.state=='active')\
-        .filter(model.PackageRevision.current==True)\
-        .join(model.Member, model.Member.table_id==model.PackageRevision.id)\
-        .join(model.Group, model.Group.id==model.Member.group_id)\
-        .filter_by(id=group.id)\
-        .order_by(model.PackageRevision.name)
-
-    if limit:
-        query = query.limit(limit)
-
-    if context.get('return_query'):
-        return query
-
     result = []
-    for pkg_rev in query.all():
+    for pkg_rev in group.packages(limit=limit,
+            return_query=context.get('return_query')):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
@@ -1621,7 +1737,8 @@ def get_site_user(context, data_dict):
         user = model.User(name=site_id,
                           password=apikey,
                           apikey=apikey)
-        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+        # make sysadmin
+        user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
         if not context.get('defer_commit'):
@@ -1724,8 +1841,16 @@ def user_activity_list(context, data_dict):
 
     You must be authorized to view the user's profile.
 
+
     :param id: the id or name of the user
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1733,9 +1858,15 @@ def user_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('user_show', context, data_dict)
+
     model = context['model']
     user_id = _get_or_bust(data_dict, 'id')
-    activity_objects = model.activity.user_activity_list(user_id)
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    activity_objects = model.activity.user_activity_list(user_id, limit=limit,
+            offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
@@ -1745,6 +1876,13 @@ def package_activity_list(context, data_dict):
 
     :param id: the id or name of the package
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1752,9 +1890,15 @@ def package_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('package_show', context, data_dict)
+
     model = context['model']
     package_id = _get_or_bust(data_dict, 'id')
-    activity_objects = model.activity.package_activity_list(package_id)
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    activity_objects = model.activity.package_activity_list(package_id,
+            limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
@@ -1764,6 +1908,13 @@ def group_activity_list(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1774,36 +1925,52 @@ def group_activity_list(context, data_dict):
 
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    # FIXME: The SQLAlchemy below should be moved into ckan/model/activity.py
-    # (to encapsulate SQLALchemy in the model and avoid using it from the
-    # logic) but it can't be because it requires the list of dataset_ids which
-    # comes from logic.group_package_show() (and I don't want to access the
-    # logic from the model). Need to change it to get the dataset_ids from the
-    # model instead. There seems to be multiple methods for getting a group's
-    # datasets, some in the logic and some in the model.
+    activity_objects = model.activity.group_activity_list(group_id,
+            limit=limit, offset=offset)
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
-    # Get a list of the IDs of the group's datasets.
-    group_package_show = logic.get_action('group_package_show')
-    datasets = group_package_show(context, {'id': group_id})
-    dataset_ids = [dataset['id'] for dataset in datasets]
+def organization_activity_list(context, data_dict):
+    '''Return a organization's activity stream.
 
-    # Get the group's activities.
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    # FIXME This is a duplicate of group_activity_list and
+    # package_activity_list but they claim to get the group/package by name
+    # or id but I think that they only get by id.  Either they need fixing
+    # and remain seperate or they should share code - probably should share
+    # code anyway.
+
+    model = context['model']
+    group_id = _get_or_bust(data_dict, 'id')
     query = model.Session.query(model.Activity)
-    query = query.filter(_or_(model.Activity.object_id == group_id,
-        model.Activity.object_id.in_(dataset_ids)))
+    query = query.filter_by(object_id=group_id)
     query = query.order_by(_desc(model.Activity.timestamp))
     query = query.limit(15)
     activity_objects = query.all()
-
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
+
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: list of dictionaries
 
@@ -1811,7 +1978,13 @@ def recently_changed_packages_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     model = context['model']
-    activity_objects = model.activity.recently_changed_packages_activity_list()
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    activity_objects = model.activity.recently_changed_packages_activity_list(
+            limit=limit, offset=offset)
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -1839,12 +2012,27 @@ def user_activity_list_html(context, data_dict):
 
     :param id: The id or name of the user.
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
     '''
     activity_stream = user_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'user',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def package_activity_list_html(context, data_dict):
     '''Return a package's activity stream as HTML.
@@ -1854,12 +2042,27 @@ def package_activity_list_html(context, data_dict):
 
     :param id: the id or name of the package
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
     '''
     activity_stream = package_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'package',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -1869,11 +2072,42 @@ def group_activity_list_html(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
 
     :rtype: string
 
     '''
     activity_stream = group_activity_list(context, data_dict)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'group',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
+
+def organization_activity_list_html(context, data_dict):
+    '''Return a organization's activity stream as HTML.
+
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: string
+
+    '''
+    # FIXME does this work with a name? same issue with package/group
+    activity_stream = organization_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
@@ -1883,12 +2117,28 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     rendered as a snippet of HTML meant to be included in an HTML page, i.e. it
     doesn't have any HTML header or footer.
 
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
+
     :rtype: string
 
     '''
     activity_stream = recently_changed_packages_activity_list(context,
             data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'package',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
@@ -2205,6 +2455,13 @@ def dashboard_activity_list(context, data_dict):
 
     The user's own activities are always marked 'is_new': False.
 
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+
     :rtype: list of activity dictionaries
 
     '''
@@ -2212,10 +2469,14 @@ def dashboard_activity_list(context, data_dict):
 
     model = context['model']
     user_id = model.User.get(context['user']).id
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id)
+    activity_objects = model.activity.dashboard_activity_list(user_id,
+            limit=limit, offset=offset)
 
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
@@ -2241,11 +2502,27 @@ def dashboard_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    :param offset: where to start getting activity items from
+        (optional, default: 0)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: 31, the default value is configurable via the
+        ckan.activity_list_limit setting)
+    :type limit: int
+
     :rtype: string
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'dashboard',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2305,3 +2582,7 @@ def _unpick_search(sort, allowed_fields=None, total=None):
         raise logic.ParameterError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
+
+
+def member_roles_list(context, data_dict):
+    return new_authz.roles_list()

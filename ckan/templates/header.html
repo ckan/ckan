@@ -1,5 +1,5 @@
 <header class="masthead">
-  {% if config.debug %}
+  {% if g.debug and not g.debug_supress_header %}
     <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
   {% endif %}
   <div class="container">
@@ -17,7 +17,13 @@
     <div class="content">
       <nav class="section navigation">
         <ul class="unstyled">
-          {{ h.build_nav_main(('add dataset', _('Add Dataset'), 'package_create'), ('search', _('Datasets')), ('default_group', _('Groups')), ('about', _('About'))) }}
+          {{ h.build_nav_main(
+            ('add dataset', _('Add Dataset'), 'package_create'),
+            ('search', _('Datasets')),
+            ('organizations_index', _('Organizations')),
+            ('group_index', _('Groups')),
+            ('about', _('About'))
+          ) }}
         </ul>
       </nav>
       <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">

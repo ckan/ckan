@@ -19,11 +19,7 @@ Example:
       <div class="media-content">
         <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
         {% if group.description %}
-          {% if truncate %}
-            <p>{{ group.description }}</p>
-          {% else %}
-            <p>{{ h.markdown_extract(group.description, truncate) }}</p>
-          {% endif %}
+          <p>{{ h.markdown_extract(group.description, truncate) }}</p>
         {% else %}
           <p class="empty">{{ _('There is no description for this group') }}</p>
         {% endif %}

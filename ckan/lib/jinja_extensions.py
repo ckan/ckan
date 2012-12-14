@@ -29,6 +29,8 @@ def truncate(value, length=255, killwords=None, end='...'):
     ''' A more clever truncate. If killwords is supplied we use the default
     truncate.  Otherwise we try to truncate using killwords=False, if this
     truncates the whole value we try again with killwords=True '''
+    if value is None:
+        return None
     if killwords is not None:
         return do_truncate(value, length=length, killwords=killwords, end=end)
     result = do_truncate(value, length=length, killwords=False, end=end)

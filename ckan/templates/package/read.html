@@ -1,114 +1,38 @@
-{% extends "page.html" %}
+{% extends "package/read_base.html" %}
 
 {% set pkg = c.pkg_dict %}
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
-{% block breadcrumb_content %}
-  {% set dataset = pkg.title or pkg.name %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
-{% endblock %}
+{% block primary_content_inner %}
 
-{% block actions_content %}
-  {# NOTE: Not implemented in stage 1 #}
-  {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
-  {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn btn-primary', icon='wrench' %}</li>
-  {% endif %}
-  <li>{{ h.follow_button('dataset', pkg.id) }}</li>
-{% endblock %}
-
-{% block primary_content %}
-  {% block package_revision_info %}
-    {% if c.pkg_revision_id %}
-      <div class="module info">
-        <p class="module-content">
-          {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-          {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
-
-          {% if c.pkg_revision_not_latest %}
-            {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
-          {% else %}
-            {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
-          {% endif %}
+  {% block package_description %}
+    <section class="module-content">
+      <h1>{{ pkg.title or pkg.name }}
+        {% if pkg.state.startswith('draft') %}
+          [{{ _('Draft') }}]
+        {% endif %}
+      </h1>
+      {% if c.pkg_notes_formatted %}
+        <div class="notes embedded-content">
+          {{ c.pkg_notes_formatted }}
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+      {# FIXME why is this here? seems wrong #}
+      <span class="insert-comment-thread"></span>
+    </section>
   {% endblock %}
 
-  <article class="module prose">
-
-    {% block package_header %}
-      <header class="module-content page-header">
-        <ul class="nav nav-tabs">
-          <li{% if c.action == 'read' %} class="active"{% endif %}>
-            {% link_for _('Dataset'), controller='package', action='read', id=pkg.name, icon='sitemap' %}
-          </li>
-          <li{% if c.action == 'followers' %} class="active"{% endif %}>
-            {% link_for _('Followers'), controller='package', action='followers', id=pkg.name, icon='group' %}
-          </li>
-          <li{% if c.action == 'related' %} class="active"{% endif %}>
-            {% link_for _('Related'), controller='related', action='list', id=pkg.name, icon='picture' %}
-          </li>
-        </ul>
-      </header>
-    {% endblock %}
-
-    {% block package_content %}
-
-      {% block package_description %}
-        <section class="module-content">
-          <h1>{{ pkg.title or pkg.name }}
-            {% if pkg.state.startswith('draft') %}
-              [{{ _('Draft') }}]
-            {% endif %}
-          </h1>
-          {% if c.pkg_notes_formatted %}
-            <div class="notes embedded-content">
-              {{ c.pkg_notes_formatted }}
-            </div>
-          {% endif %}
-          <span class="insert-comment-thread"></span>
-        </section>
-      {% endblock %}
-
-      {% block package_resources %}
-        {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
-      {% endblock %}
-
-      {% block package_tags %}
-        {% snippet "package/snippets/tags.html", tags=pkg.tags %}
-      {% endblock %}
-
-      {% block package_additional_info %}
-        {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
-      {% endblock %}
-
-    {% endblock %}
-  </article>
-{% endblock %}
-
-{% block secondary_content %}
-
-  {% block secondary_help_content %}{% endblock %}
-
-  {% block package_groups %}
-    {% for group in pkg.groups %}
-      {% snippet "snippets/group.html", group=group, truncate=70 %}
-    {% endfor %}
+  {% block package_resources %}
+    {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
   {% endblock %}
 
-  {% block package_social %}
-    {% snippet "snippets/social.html" %}
+  {% block package_tags %}
+    {% snippet "package/snippets/tags.html", tags=pkg.tags %}
   {% endblock %}
 
-  {% block package_related %}
-    {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
-  {% endblock %}
-
-  {% block package_license %}
-    {% snippet "snippets/license.html", pkg_dict=pkg %}
+  {% block package_additional_info %}
+    {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
   {% endblock %}
 
 {% endblock %}

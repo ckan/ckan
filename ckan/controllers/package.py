@@ -25,11 +25,11 @@ from ckan.logic import (tuplize_dict,
                         parse_params,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
-import ckan.forms
 import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
+import ckan.plugins as plugins
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
@@ -113,7 +113,6 @@ class PackageController(BaseController):
 
         return pt
 
-    authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
@@ -241,10 +240,15 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
+
+        # Facet titles
         c.facet_titles = {'groups': _('Groups'),
                           'tags': _('Tags'),
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
+        for plugin in plugins.PluginImplementations(plugins.IPackageController):
+            c.facet_titles = plugin.update_facet_titles(c.facet_titles)
+
 
         maintain.deprecate_context_item(
           'facets',
@@ -318,13 +322,6 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
-
-        # Add the package's activity stream (already rendered to HTML) to the
-        # template context for the package/read.html template to retrieve
-        # later.
-        c.package_activity_stream = \
-            get_action('package_activity_list_html')(
-                context, {'id': c.current_package_id})
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -1240,6 +1237,26 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html')
+
+    def activity(self, id):
+        '''Render this package's public activity stream page.'''
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+            c.package_activity_stream = get_action(
+                    'package_activity_list_html')(context,
+                            {'id': c.pkg_dict['id']})
+            c.related_count = c.pkg.related_count
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        return render('package/activity.html')
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
