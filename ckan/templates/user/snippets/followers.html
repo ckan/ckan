@@ -1,9 +1,10 @@
 {% if followers %}
 	<ul class="unstyled follower-list">
 	{% for follower in followers %}
+    {# HACK: (for group/admins) follower can be the id of the user or a user_dict #}
 		<li>
 			<span data-module="popover-context" data-module-type="user" data-module-id="{{ follower.id }}">
-				{{ h.linked_user(follower.name, maxlength=20) }}
+				{{ h.linked_user(follower.name or follower, maxlength=20) }}
 			</span>
 		</li>
 	{% endfor %}

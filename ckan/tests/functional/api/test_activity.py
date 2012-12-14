@@ -17,6 +17,23 @@ import paste.fixture
 from ckan.lib.helpers import json
 
 
+##<<<<<<< HEAD
+##def package_update(context, data_dict):
+##    # These tests call package_update directly which is really bad
+##    # setting api_version in context make things seem like the api key
+##    # is ok etc
+##    context['api_version'] = 3
+##    context['ignore_auth'] = True
+##    return _package_update(context, data_dict)
+##
+##def package_create(context, data_dict):
+##    # These tests call package_update directly which is really bad
+##    # setting api_version in context make things seem like the api key
+##    # is ok etc
+##    context['api_version'] = 3
+##    context['ignore_auth'] = True
+##    return _package_create(context, data_dict)
+##=======
 def package_show(app, data_dict, apikey=None):
     if apikey:
         extra_environ = {'Authorization': str(apikey)}
@@ -203,6 +220,7 @@ class TestActivity:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
+        print '@@@@@@@@', extra_environ
         response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
                 extra_environ=extra_environ)
         return json.loads(response.body)
@@ -1983,7 +2001,7 @@ class TestActivity:
             self._delete_extra(package_dict, user=self.normal_user)
 
     def test_follow_dataset(self):
-        user = self.normal_user
+        user = self.sysadmin_user
         before = self.record_details(user['id'], self.warandpeace['id'],
                 apikey=user['apikey'])
         data = {'id': self.warandpeace['id']}

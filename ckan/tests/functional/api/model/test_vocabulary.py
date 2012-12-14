@@ -36,9 +36,9 @@ class TestVocabulary(object):
         if not self.sysadmin_user:
             normal_user = ckan.model.User(name=u'normal', password=u'annafan')
             sysadmin_user = ckan.model.User(name=u'admin', password=u'testsysadmin')
+            sysadmin_user.sysadmin = True
             ckan.model.Session.add(normal_user)
             ckan.model.Session.add(sysadmin_user)
-            ckan.model.add_user_to_role(sysadmin_user, ckan.model.Role.ADMIN, ckan.model.System())
             ckan.model.Session.commit()
             self.sysadmin_user = ckan.model.User.get('admin')
             self.normal_user = ckan.model.User.get('normal')

@@ -155,6 +155,7 @@ class TestBasicDictize:
         expected = {'description': u'These are books that David likes.',
                                  'id': group.id,
                                  'name': u'david',
+                                 'is_organization': False,
                                  'type': u'group',
                                  'image_url': u'',
                                  'packages': sorted([{'id': group_pack[0].id,

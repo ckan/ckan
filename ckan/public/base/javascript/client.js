@@ -160,10 +160,10 @@
       }
 
       var map = {};
-      var raw = data.ResultSet && data.ResultSet.Result || {};
+      var raw = jQuery.isArray(data) ? data : data.ResultSet && data.ResultSet.Result || {};
 
       var items = jQuery.map(raw, function (item) {
-        item = typeof item === 'string' ? item : item.Name || item.Format || '';
+        item = typeof item === 'string' ? item : item.name || item.Name || item.Format || '';
         item = jQuery.trim(item);
 
         var lowercased = item.toLowerCase();

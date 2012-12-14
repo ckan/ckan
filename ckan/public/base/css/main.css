@@ -5127,6 +5127,7 @@ textarea {
   float: right;
   width: 265px;
   margin-top: 0;
+  padding-bottom: 0;
 }
 .form-horizontal .control-medium .info-block.info-inline {
   width: 165px;
@@ -5893,6 +5894,10 @@ textarea {
 }
 .group-list .module-heading h3 a {
   color: #333333;
+}
+.group-list .module-heading .media-image {
+  overflow: hidden;
+  max-height: 60px;
 }
 .toolbar {
   *zoom: 1;
@@ -6970,11 +6975,9 @@ header.masthead .user-dropdown-menu a:hover {
 }
 header.masthead .debug {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   left: 10px;
-  font-size: 11px;
   color: rgba(255, 255, 255, 0.5);
-  line-height: 1.2;
 }
 .site-footer {
   *zoom: 1;
@@ -7138,6 +7141,10 @@ header.masthead .debug {
 .lang-dropdown .select2-result-label[data-value*="/pt_BR/"]:before {
   background-position: 0 -132px;
 }
+.editing [role="main"],
+.editing .main {
+  background: #efefef url("../../../base/images/editing.png?2") 0 0 repeat-x;
+}
 .profile .empty,
 .profile .dataset-list {
   margin-bottom: 20px;
@@ -7155,6 +7162,9 @@ header.masthead .debug {
 .profile-info .avatar img,
 .profile-info .avatar a {
   display: block;
+}
+.profile-info p {
+  overflow: auto;
 }
 .profile-info code {
   font-weight: normal;
@@ -7205,6 +7215,9 @@ header.masthead .debug {
   font-weight: 700;
   line-height: 1.2;
   margin-left: 0;
+}
+.profile-info.editing .module-content {
+  margin-top: 0;
 }
 .activity {
   margin: 10px 0;
@@ -7291,6 +7304,9 @@ header.masthead .debug {
   float: right;
   text-decoration: none;
 }
+.activity .item i {
+  background-color: #999999;
+}
 .activity .item.added-tag i {
   background-color: #6995a6;
 }
@@ -7309,6 +7325,9 @@ header.masthead .debug {
 .activity .item.changed-user i {
   background-color: #76b8ce;
 }
+.activity .item.changed-organization i {
+  background-color: #699fa6;
+}
 .activity .item.deleted-group i {
   background-color: #b95252;
 }
@@ -7320,6 +7339,9 @@ header.masthead .debug {
 }
 .activity .item.deleted-resource i {
   background-color: #b99752;
+}
+.activity .item.deleted-organization i {
+  background-color: #b95297;
 }
 .activity .item.new-group i {
   background-color: #69a67a;
@@ -7335,6 +7357,9 @@ header.masthead .debug {
 }
 .activity .item.new-user i {
   background-color: #69a6a3;
+}
+.activity .item.new-organization i {
+  background-color: #81a669;
 }
 .activity .item.removed-tag i {
   background-color: #b95297;
