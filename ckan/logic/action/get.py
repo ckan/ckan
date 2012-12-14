@@ -8,7 +8,6 @@ from pylons.i18n import _
 from pylons import c
 import sqlalchemy
 
-import ckan.authz
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
