@@ -220,6 +220,33 @@ def check_access(action, context, data_dict=None):
 _actions = {}
 
 def get_action(action):
+    ''' This function is used to get the logic action functions in ckan.
+    This function should always be used to get actions as they could be
+    overriden by extensions and so linking directly to the function would
+    prevent this from working correctly.
+
+    The function that is returned should be called with the context and
+    data_dict parameters.
+
+    As the context is commonly
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
+    The returned function will actually add these parameters to the context
+    if they are not defined.  This is especially useful for extensions as
+    they should not really be importing parts of ckan eg ckan.model and as
+    such do not have access to model or model.Session.  If a context of None
+    is given then the context dict will be created.
+
+    a typical usage of this function would be
+
+    result = get_action(<action name>)(context, data_dict)
+
+    :param action: Name of the action requested
+    :type action: string
+    '''
+
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
