@@ -7,7 +7,10 @@ ckan.test.functional.api. This test module contains some additional unit tests.
 '''
 import datetime
 
+import nose.tools
+
 import ckan.lib.email_notifications as email_notifications
+import ckan.logic as logic
 
 
 def test_string_to_time_delta():
@@ -39,3 +42,5 @@ def test_string_to_time_delta():
                     minutes=23, seconds=34, milliseconds=87, microseconds=465)
     assert email_notifications.string_to_timedelta('.123456') == (
             datetime.timedelta(milliseconds=123, microseconds=456))
+    nose.tools.assert_raises(logic.ParameterError,
+        email_notifications.string_to_timedelta, 'foobar')
