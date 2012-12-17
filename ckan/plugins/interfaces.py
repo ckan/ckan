@@ -283,6 +283,13 @@ class IPackageController(Interface):
         '''
         pass
 
+    def after_delete(self, context, pkg_dict):
+        '''
+            Extensions will receive the data dict (tipically containing
+            just the package id) after the package has been deleted.
+        '''
+        pass
+
     def after_show(self, context, pkg_dict):
         '''
             Extensions will receive the validated data dict after the package

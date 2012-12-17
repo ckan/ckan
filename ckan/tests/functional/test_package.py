@@ -75,6 +75,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['after_update'] += 1
         return data_dict
 
+    def after_delete(self, context, data_dict):
+        self.calls['after_delete'] += 1
+        return data_dict
+
     def after_show(self, context, data_dict):
         self.calls['after_show'] += 1
         return data_dict
@@ -1065,6 +1069,41 @@ class TestEdit(TestPackageForm):
 
         finally:
             self._reset_data()
+
+class TestDelete(TestPackageForm):
+
+    pkg_names = []
+
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+        CreateTestData.create()
+        CreateTestData.create_test_user()
+
+#        self.admin = model.User.by_name(u'russianfan')
+
+#        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_tester = {'REMOTE_USER': 'tester'}
+
+    @classmethod
+    def teardown_class(self):
+        self.purge_packages(self.pkg_names)
+        model.repo.rebuild_db()
+
+    def test_delete(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+
+        offset = url_for(controller='package', action='delete',
+                id='warandpeace')
+        self.app.post(offset, extra_environ=self.extra_environ_tester)
+
+        assert model.Package.get('warandpeace').state == u'deleted'
+
+        assert plugin.calls['delete'] == 1
+        assert plugin.calls['after_delete'] == 1
+
+        plugins.unload(plugin)
 
 class TestNew(TestPackageForm):
     pkg_names = []
