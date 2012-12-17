@@ -104,8 +104,6 @@ def package_create(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    model.Session.remove()
-    model.Session()._context = context
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
@@ -179,8 +177,6 @@ def package_create(context, data_dict):
 def package_create_validate(context, data_dict):
     model = context['model']
     schema = lib_plugins.lookup_package_plugin().form_to_db_schema()
-    model.Session.remove()
-    model.Session()._context = context
 
     _check_access('package_create',context,data_dict)
 
@@ -866,9 +862,6 @@ def vocabulary_create(context, data_dict):
     '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
-
-    model.Session.remove()
-    model.Session()._context = context
 
     _check_access('vocabulary_create', context, data_dict)
 
