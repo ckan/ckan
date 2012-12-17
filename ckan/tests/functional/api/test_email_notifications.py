@@ -34,7 +34,6 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         cls.annafan = {'id': annafan.id,
                 'apikey': annafan.apikey,
                 }
-        pylons.config['ckan.activity_streams_email_notifications'] = True
 
     @classmethod
     def teardown_class(self):
