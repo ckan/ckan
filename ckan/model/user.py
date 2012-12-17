@@ -23,7 +23,8 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
-        Column('email_notifications', types.Boolean, default=False),
+        Column('activity_streams_email_notifications', types.Boolean,
+            default=False),
         Column('sysadmin', types.Boolean, default=False),
         )
 

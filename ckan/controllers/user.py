@@ -247,7 +247,7 @@ class UserController(BaseController):
 
         c.is_myself = True
         c.show_email_notifications = asbool(
-                config.get('ckan.email_notifications'))
+                config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -260,8 +260,8 @@ class UserController(BaseController):
             data_dict['id'] = id
 
             # MOAN: Do I really have to do this here?
-            if 'email_notifications' not in data_dict:
-                data_dict['email_notifications'] = False
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
 
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))

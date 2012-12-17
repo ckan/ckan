@@ -27,7 +27,7 @@
       <fieldset>
           <legend>{{ _('Change your preferences') }}</legend>
 
-            {{ form.checkbox('email_notifications', label=_('Email Notifications'), id='field-email-notifications', value=True, checked=c.userobj.email_notifications, classes=['control-medium']) }}
+            {{ form.checkbox('email_notifications', label=_('Email Notifications'), id='field-email-notifications', value=True, checked=c.userobj.activity_streams_email_notifications, classes=['control-medium']) }}
 
       </fieldset>
     {% endif %}

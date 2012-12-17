@@ -353,7 +353,7 @@ def default_user_schema():
         'openid': [ignore_missing],
         'apikey': [ignore],
         'reset_key': [ignore],
-        'email_notifications': [ignore_missing],
+        'activity_streams_email_notifications': [ignore_missing],
     }
     return schema
 

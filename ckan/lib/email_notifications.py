@@ -86,6 +86,9 @@ def _notifications_for_activities(activities, user_dict):
     if not activities:
         return []
 
+    if not user_dict.get('activity_streams_email_notifications'):
+        return []
+
     # We just group all activities into a single "new activity" email that
     # doesn't say anything about _what_ new activities they are.
     # TODO: Here we could generate some smarter content for the emails e.g.
@@ -177,37 +180,31 @@ def send_notification(user, email_dict):
 
 def get_and_send_notifications_for_user(user):
 
-    if user['email_notifications']:
+    # Parse the email_notifications_since config setting, email notifications
+    # from longer ago than this time will not be sent.
+    email_notifications_since = pylons.config.get(
+            'ckan.email_notifications_since', '2 days')
+    email_notifications_since = string_to_timedelta(
+            email_notifications_since)
+    email_notifications_since = (datetime.datetime.now()
+            - email_notifications_since)
 
-        # Parse the email_notifications_since config setting, email
-        # notifications from longer ago than this time will not be sent.
-        email_notifications_since = pylons.config.get(
-                'ckan.email_notifications_since', '2 days')
-        email_notifications_since = string_to_timedelta(
-                email_notifications_since)
-        email_notifications_since = (datetime.datetime.now()
-                - email_notifications_since)
+    # FIXME: We are accessing model from lib here but I'm not sure what
+    # else to do unless we add a get_email_last_sent() logic function which
+    # would only be needed by this lib.
+    email_last_sent = model.Dashboard.get(user['id']).email_last_sent
+    activity_stream_last_viewed = (
+            model.Dashboard.get(user['id']).activity_stream_last_viewed)
 
-        # FIXME: We are accessing model from lib here but I'm not sure what
-        # else to do unless we add a get_email_last_sent() logic function which
-        # would only be needed by this lib.
-        email_last_sent = model.Dashboard.get(user['id']).email_last_sent
-        activity_stream_last_viewed = (
-                model.Dashboard.get(user['id']).activity_stream_last_viewed)
+    since = max(email_notifications_since, email_last_sent,
+            activity_stream_last_viewed)
 
-        since = max(email_notifications_since, email_last_sent,
-                activity_stream_last_viewed)
+    notifications = get_notifications(user, since)
 
-        notifications = get_notifications(user, since)
+    # TODO: Handle failures from send_email_notification.
+    for notification in notifications:
+        send_notification(user, notification)
 
-        # TODO: Handle failures from send_email_notification.
-        for notification in notifications:
-            send_notification(user, notification)
-
-    # Whether the user had har 'email_notifications' preference turned on or
-    # not, we still update her email_last_sent time. This prevents users from
-    # getting emails about old activities when they turn on email
-    # notifications.
     # FIXME: We are accessing model from lib here but I'm not sure what
     # else to do unless we add a update_email_last_sent()
     # logic function which would only be needed by this lib.

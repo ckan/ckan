@@ -34,7 +34,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         cls.annafan = {'id': annafan.id,
                 'apikey': annafan.apikey,
                 }
-        pylons.config['ckan.email_notifications'] = True
+        pylons.config['ckan.activity_streams_email_notifications'] = True
 
     @classmethod
     def teardown_class(self):
@@ -76,7 +76,8 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         sara = tests.call_action_api(self.app, 'user_create',
                 apikey=self.testsysadmin['apikey'], name='sara',
                 email='sara@sararollins.com', password='sara',
-                fullname='Sara Rollins', email_notifications=True)
+                fullname='Sara Rollins',
+                activity_streams_email_notifications=True)
 
         # Save the user for later tests to use.
         TestEmailNotifications.sara = sara
@@ -223,10 +224,10 @@ class TestEmailNotificationsUserPreference(
         TestEmailNotificationsUserPreference.sara = sara
 
         # Email notifications should be disabled for the new user.
-        assert sara['email_notifications'] is False
+        assert sara['activity_streams_email_notifications'] is False
         assert (tests.call_action_api(self.app, 'user_show',
-                apikey=self.sara['apikey'], id='sara')['email_notifications']
-                is False)
+                apikey=self.sara['apikey'], id='sara')[
+                    'activity_streams_email_notifications'] is False)
 
     def test_01_no_email_notifications_when_disabled(self):
         '''Users with email notifications turned off should not get emails.'''
@@ -276,7 +277,7 @@ class TestEmailNotificationsUserPreference(
         assert len(self.get_smtp_messages()) == 0
 
         # Enable email notifications for Sara.
-        self.sara['email_notifications'] = True
+        self.sara['activity_streams_email_notifications'] = True
         tests.call_action_api(self.app, 'user_update', **self.sara)
 
         tests.call_action_api(self.app, 'send_email_notifications',
@@ -304,7 +305,7 @@ class TestEmailNotificationsUserPreference(
     def test_03_disable_email_notifications(self):
         '''Users should be able to turn email notifications off.'''
 
-        self.sara['email_notifications'] = False
+        self.sara['activity_streams_email_notifications'] = False
         tests.call_action_api(self.app, 'user_update', **self.sara)
 
         tests.call_action_api(self.app, 'package_update',
@@ -322,15 +323,16 @@ class TestEmailNotificationsUserPreference(
 class TestEmailNotificationsIniSetting(
         mock_mail_server.SmtpServerHarness,
         pylons_controller.PylonsTestCase):
-    '''Tests for the ckan.email_notifications config setting.'''
+    '''Tests for the ckan.activity_streams_email_notifications config setting.
 
+    '''
     @classmethod
     def setup_class(cls):
         config = paste.deploy.appconfig('config:test.ini',
                 relative_to=ckan.tests.conf_dir)
 
         # Disable the email notifications feature.
-        config.local_conf['ckan.email_notifications'] = False
+        config.local_conf['ckan.activity_streams_email_notifications'] = False
 
         wsgiapp = ckan.config.middleware.make_app(config.global_conf,
                 **config.local_conf)
@@ -368,10 +370,11 @@ class TestEmailNotificationsIniSetting(
         TestEmailNotificationsIniSetting.sara = sara
 
         # Enable the new user's email notifications preference.
-        sara['email_notifications'] = True
+        sara['activity_streams_email_notifications'] = True
         tests.call_action_api(self.app, 'user_update', **sara)
         assert (tests.call_action_api(self.app, 'user_show',
-                apikey=self.sara['apikey'], id='sara')['email_notifications']
+                apikey=self.sara['apikey'], id='sara')[
+                    'activity_streams_email_notifications']
                 is True)
 
         # Make Sara follow something so she gets some new activity in her
@@ -452,10 +455,11 @@ class TestEmailNotificationsSinceIniSetting(
         TestEmailNotificationsSinceIniSetting.sara = sara
 
         # Enable the new user's email notifications preference.
-        sara['email_notifications'] = True
+        sara['activity_streams_email_notifications'] = True
         tests.call_action_api(self.app, 'user_update', **sara)
         assert (tests.call_action_api(self.app, 'user_show',
-                apikey=self.sara['apikey'], id='sara')['email_notifications']
+                apikey=self.sara['apikey'], id='sara')[
+                    'activity_streams_email_notifications']
                 is True)
 
         # Make Sara follow something so she gets some new activity in her

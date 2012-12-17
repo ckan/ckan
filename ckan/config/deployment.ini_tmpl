@@ -257,7 +257,7 @@ ckan.feeds.author_link =
 # 
 # Uncomment this line to enable activity streams email notifications.
 # You also need to setup a cron job to send the emails, see the documentation.
-#ckan.email_notifications = True
+#ckan.activity_streams_email_notifications = True
 
 # Email notifications for events older than this time delta will not be sent.
 # Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds),

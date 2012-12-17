@@ -40,11 +40,11 @@ notifications for a CKAN site, a sysadmin must:
 
 
 2. CKAN will not send out any email notifications, nor show the email
-   notifications preference to users, unless the ``ckan.email_notifications``
-   option is set to ``True``, so put this line in the ``[app:main]`` section of
-   your CKAN config file::
+   notifications preference to users, unless the
+   ``ckan.activity_streams_email_notifications`` option is set to ``True``, so
+   put this line in the ``[app:main]`` section of your CKAN config file::
 
-    ckan.email_notifications = True
+    ckan.activity_streams_email_notifications = True
 
 
 3. Make sure that ``ckan.site_url`` is set correctly in the ``[app:main]``
