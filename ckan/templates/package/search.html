@@ -20,7 +20,7 @@
 
         {% if c.fields -%}
           <span>
-            {{ form.hidden(fields=c.fields) }}
+            {{ form.hidden_list(fields=c.fields) }}
           </span>
         {%- endif %}
 
