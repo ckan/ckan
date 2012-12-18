@@ -294,26 +294,6 @@ def are_there_flash_messages():
     return flash.are_there_messages()
 
 
-def nav_link(text, controller, **kwargs):
-    '''
-    params
-    class_: pass extra class(s) to add to the <a> tag
-    icon: name of ckan icon to use within the link
-    condition: if False then no link is returned
-    '''
-    kwargs['controller'] = controller
-    class_ = _link_class(kwargs)
-    if kwargs.pop('condition', True):
-        link = link_to(
-            _create_link_text(text, **kwargs),
-            url_for(**kwargs),
-            class_=class_
-        )
-    else:
-        link = ''
-    return link
-
-
 def _create_link_text(text, **kwargs):
     ''' Update link text to add a icon or span if specified in the kwargs '''
     if kwargs.pop('inner_span', None):
@@ -343,23 +323,38 @@ def _link_class(kwargs):
     return kwargs.pop('class_', '') + active or None
 
 
-def nav_named_link(text, name, **kwargs):
+def _link_to(text, *args, **kwargs):
+    assert len(args)<2, 'Too many unnamed arguments'
     class_ = _link_class(kwargs)
     return link_to(
         _create_link_text(text, **kwargs),
-        url_for(name, **kwargs),
+        url_for(*args, **kwargs),
         class_=class_
     )
+
+
+def nav_link(text, controller, **kwargs):
+    '''
+    params
+    class_: pass extra class(s) to add to the <a> tag
+    icon: name of ckan icon to use within the link
+    condition: if False then no link is returned
+    '''
+    if kwargs.pop('condition', True):
+        kwargs['controller'] = controller
+        link = _link_to(text, **kwargs)
+    else:
+        link = ''
+    return link
+
+
+def nav_named_link(text, name, **kwargs):
+    return _link_to(text, name, **kwargs)
 
 
 def subnav_link(text, action, **kwargs):
     kwargs['action'] = action
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(**kwargs),
-        class_=class_
-    )
+    return _link_to(text, **kwargs)
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
