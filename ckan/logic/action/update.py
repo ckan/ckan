@@ -106,7 +106,6 @@ def make_latest_pending_package_active(context, data_dict):
 
     if not context.get('defer_commit'):
         session.commit()
-    session.remove()
 
 
 def related_update(context, data_dict):
@@ -128,7 +127,6 @@ def related_update(context, data_dict):
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
-    model.Session.remove()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -169,7 +167,6 @@ def resource_update(context, data_dict):
     user = context['user']
     id = _get_or_bust(data_dict, "id")
     schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
-    model.Session.remove()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -223,8 +220,6 @@ def package_update(context, data_dict):
     model = context['model']
     user = context['user']
     name_or_id = data_dict.get("id") or data_dict['name']
-    model.Session.remove()
-    model.Session()._context = context
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
@@ -295,8 +290,6 @@ def package_update_validate(context, data_dict):
     user = context['user']
 
     id = _get_or_bust(data_dict, "id")
-    model.Session.remove()
-    model.Session()._context = context
 
     pkg = model.Package.get(id)
     context["package"] = pkg
