@@ -457,21 +457,6 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-_menu_items = {
-    'add dataset': dict(controller='package', action='new'),
-    'search': dict(controller='package',
-                    action='search',
-                    highlight_actions='index search'),
-    'default_group': dict(name='%s_index' % default_group_type(),
-                          controller='group',
-                          highlight_actions='index search'),
-    'about': dict(controller='home', action='about'),
-    'login': dict(controller='user', action='login'),
-    'register': dict(controller='user', action='register'),
-    'organizations': dict(action='index', controller='organization'),
-}
-
-
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
