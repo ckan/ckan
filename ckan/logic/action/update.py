@@ -6,7 +6,6 @@ from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
 from paste.deploy.converters import asbool
 
-import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema

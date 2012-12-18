@@ -25,7 +25,6 @@ from ckan.logic import (tuplize_dict,
                         parse_params,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
-import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
