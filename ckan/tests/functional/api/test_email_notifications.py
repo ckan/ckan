@@ -106,7 +106,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
-                'New activity from CKAN')
+                '1 new activity from CKAN')
 
         self.clear_smtp_messages()
 
@@ -128,7 +128,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         assert len(self.get_smtp_messages()) == 1
         email = self.get_smtp_messages()[0]
         self.check_email(email, 'sara@sararollins.com', 'Sara Rollins',
-                'New activity from CKAN')
+                '3 new activities from CKAN')
 
         self.clear_smtp_messages()
 

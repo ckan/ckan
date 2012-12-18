@@ -8,6 +8,7 @@ import datetime
 import re
 
 import pylons
+import pylons.i18n
 
 import ckan.model as model
 import ckan.logic as logic
@@ -95,11 +96,15 @@ def _notifications_for_activities(activities, user_dict):
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
-    subject = "New activity from {0}".format(
-            pylons.config.get('ckan.site_title'))
+    subject = pylons.i18n.ungettext(
+        "1 new activity from {site_title}",
+        "{n} new activities from {site_title}",
+        len(activities)).format(
+                site_title=pylons.config.get('ckan.site_title'),
+                n=len(activities))
     body = base.render(
             'activity_streams/activity_stream_email_notifications.text',
-            extra_vars={'user': user_dict})
+            extra_vars={'activities': activities})
     notifications = [{
         'subject': subject,
         'body': body
