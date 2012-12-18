@@ -1,7 +1,6 @@
 import datetime
 from pylons import config
 from sqlalchemy.sql import select
-import ckan.authz
 import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins

@@ -276,7 +276,7 @@ def init_authz_const_data():
     meta.Session.commit()
     meta.Session.remove()
 
-## TODO: this should be in ckan/authz.py
+## TODO: this should be removed
 def setup_user_roles(_domain_object, visitor_roles, logged_in_roles, admins=[]):
     '''NB: leaves caller to commit change'''
     assert type(admins) == type([])
