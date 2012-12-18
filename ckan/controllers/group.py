@@ -138,7 +138,7 @@ class GroupController(BaseController):
             collection=results,
             page=request.params.get('page', 1),
             url=h.pager_url,
-            items_per_page=20
+            items_per_page=21
         )
         return render(self._index_template(group_type))
 
