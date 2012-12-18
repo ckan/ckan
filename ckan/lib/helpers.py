@@ -301,21 +301,26 @@ def nav_link(text, controller, **kwargs):
     condition: if False then no link is returned
     '''
     kwargs['controller'] = controller
-    if kwargs.get('inner_span'):
-        text = literal('<span>') + text + literal('</span>')
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
     class_ = _link_class(kwargs)
     if kwargs.pop('condition', True):
         link = link_to(
-            text,
+            _create_link_text(text, **kwargs),
             url_for(**kwargs),
             class_=class_
         )
     else:
         link = ''
     return link
+
+
+def _create_link_text(text, **kwargs):
+    ''' Update link text to add a icon or span if specified in the kwargs '''
+    if kwargs.pop('inner_span', None):
+        text = literal('<span>') + text + literal('</span>')
+    icon = kwargs.pop('icon', None)
+    if icon:
+        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+    return text
 
 
 def _link_active(kwargs):
@@ -339,13 +344,8 @@ def _link_class(kwargs):
 
 def nav_named_link(text, name, **kwargs):
     class_ = _link_class(kwargs)
-
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-
     return link_to(
-        text,
+        _create_link_text(text, **kwargs),
         url_for(name, **kwargs),
         class_=class_
     )
