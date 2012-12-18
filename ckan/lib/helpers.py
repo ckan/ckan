@@ -328,8 +328,7 @@ def _link_active(kwargs):
 
 def _link_class(kwargs):
     ''' creates classes for the link_to calls '''
-  #  suppress_active_class = kwargs.pop('suppress_active_class', False)
-    suppress_active_class = False
+    suppress_active_class = kwargs.pop('suppress_active_class', False)
     if not suppress_active_class and _link_active(kwargs):
         active = ' active'
     else:
