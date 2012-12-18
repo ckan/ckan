@@ -16,7 +16,7 @@
 
     {% if c.show_email_notifications %}
       {% call form.checkbox('email_notifications', label=_('Subscribe to activity notification emails'), id='field-email-notifications', value=True, checked=c.userobj.email_notifications) %}
-        {{ form.help(_('Whenever there\'s a new activity on the site related to a thing that you follow you\'ll get a notification email'), classes=['info-help-tight']) }}
+        {{ form.info(_('Whenever there\'s a new activity on the site related to a thing that you follow you\'ll get a notification email'), classes=['info-help', 'info-help-tight']) }}
       {% endcall %}
     {% endif %}
 

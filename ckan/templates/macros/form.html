@@ -310,28 +310,6 @@ Example
 {% endmacro %}
 
 {#
-Renders an small help box with a description. This will usually be used
-with in a call block when creating an input element.
-
-text    - The text to include as a helper.
-inline  - If true displays the info box inline with the input.
-classes - A list of classes to add to the info box.
-
-Example
-
-  {% import 'macros/form.html' as form %}
-  {% call form.input('name') %}
-    {{ form.help(_('A little bit of text describing the input')) }}
-  {% endcall %}
-
-#}
-{% macro help(text='', inline=false, classes=[]) %}
-  {%- if text -%}
-    <div class="info-block info-help{{ " " ~ classes | join(' ') }}">{{ text }}</div>
-  {%- endif -%}
-{% endmacro %}
-
-{#
 Builds a space seperated list of html attributes from a dict of key/value pairs.
 Generally only used internally by macros.
 
