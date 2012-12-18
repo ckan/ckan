@@ -306,8 +306,7 @@ def nav_link(text, controller, **kwargs):
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    no_active = kwargs.pop('suppress_active_class', False)
-    class_ = _link_class(kwargs, no_active)
+    class_ = _link_class(kwargs)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
@@ -327,8 +326,10 @@ def _link_active(kwargs):
                 and c.action in highlight_actions)
 
 
-def _link_class(kwargs, suppress_active_class=False):
+def _link_class(kwargs):
     ''' creates classes for the link_to calls '''
+  #  suppress_active_class = kwargs.pop('suppress_active_class', False)
+    suppress_active_class = False
     if not suppress_active_class and _link_active(kwargs):
         active = ' active'
     else:
