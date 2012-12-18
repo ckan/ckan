@@ -332,6 +332,13 @@ class DefaultGroupForm(object):
         """
         return 'group/read.html'
 
+    def about_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the about page
+        """
+        return 'group/about.html'
+
     def history_template(self):
         """
         Returns a string representing the location of the template to be
