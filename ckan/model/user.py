@@ -23,6 +23,7 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
+        Column('sysadmin', types.Boolean, default=False),
         )
 
 
@@ -150,7 +151,7 @@ class User(domain_object.DomainObject):
         return q.count()
 
     def is_in_group(self, group):
-        return group in self.get_groups()
+        return group in self.get_group_ids()
 
     def is_in_groups(self, groupids):
         ''' Given a list of group ids, returns True if this user is in

@@ -24,7 +24,6 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-import ckan.authz as authz
 from ckan.lib import i18n
 import lib.render
 import ckan.lib.helpers as h
@@ -128,6 +127,10 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
         # Jinja2 templates
         if template_type == 'jinja2':
+            # We don't want to have the config in templates it should be
+            # accessed via g (app_globals) as this gives us flexability such
+            # as changing via database settings.
+            del globs['config']
             # TODO should we raise error if genshi filters??
             return render_jinja2(template_name, globs)
 
@@ -204,7 +207,6 @@ class ValidationException(Exception):
 
 class BaseController(WSGIController):
     repo = model.repo
-    authorizer = authz.Authorizer()
     log = logging.getLogger(__name__)
 
     def __before__(self, action, **params):
@@ -476,44 +478,6 @@ class BaseController(WSGIController):
     def _get_timing_cache_path(self):
 
         return path
-
-    @classmethod
-    def _get_user_editable_groups(cls):
-        if not hasattr(c, 'user'):
-            c.user = model.PSEUDO_USER__VISITOR
-        import ckan.authz   # Todo: Move import to top of this file?
-        groups = ckan.authz.Authorizer.authorized_query(
-            c.user, model.Group, action=model.Action.EDIT).all()
-        return [g for g in groups if g.state == model.State.ACTIVE]
-
-    def _get_package_dict(self, *args, **kwds):
-        import ckan.forms
-        user_editable_groups = self._get_user_editable_groups()
-        package_dict = ckan.forms.get_package_dict(
-            user_editable_groups=user_editable_groups,
-            *args, **kwds
-        )
-        return package_dict
-
-    def _edit_package_dict(self, *args, **kwds):
-        import ckan.forms
-        return ckan.forms.edit_package_dict(*args, **kwds)
-
-    @classmethod
-    def _get_package_fieldset(cls, is_admin=False, **kwds):
-        kwds.update(request.params)
-        kwds['user_editable_groups'] = cls._get_user_editable_groups()
-        kwds['is_admin'] = is_admin
-        from ckan.forms import GetPackageFieldset
-        return GetPackageFieldset(**kwds).fieldset
-
-    def _get_standard_package_fieldset(self):
-        import ckan.forms
-        user_editable_groups = self._get_user_editable_groups()
-        fieldset = ckan.forms.get_standard_fieldset(
-            user_editable_groups=user_editable_groups
-        )
-        return fieldset
 
     def _handle_update_of_authz(self, domain_object):
         '''In the event of a post request to a domain object\'s authz form,

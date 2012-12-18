@@ -53,10 +53,6 @@
           ${h.subnav_link(h.icon('package_edit') + _('Settings'), controller='package', action='edit', id=c.pkg.name)}
         </li>
       </py:if>
-
-      <li class="${'active' if c.action=='authz' else ''}" py:if="h.check_access('package_edit_permissions',{'id':c.pkg.id})">
-        ${h.subnav_link(h.icon('lock') + _('Authorization'), controller='package', action='authz', id=c.pkg.name)}
-      </li>
       <li py:if="c.user" style="float:right;">
         ${h.follow_button('dataset', c.pkg_dict.id)}
       </li>

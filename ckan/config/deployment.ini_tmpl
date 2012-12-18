@@ -244,6 +244,12 @@ ckan.feeds.author_link =
 preview.direct = png jpg gif
 preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 
+# Activity Streams
+#
+# Default maximum number of activities to show in an activity stream.
+# ckan.activity_list_limit = 31
+
+
 # DEBUGGING
 
 # ckan.debug_supress_header This option can be set to suppress the debug

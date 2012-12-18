@@ -1,3 +1,4 @@
+import re
 from pylons import config
 from solr import SolrException
 from paste.deploy.converters import asbool
@@ -20,6 +21,12 @@ VALID_SOLR_PARAMETERS = set([
 # for (solr) package searches, this specifies the fields that are searched
 # and their relative weighting
 QUERY_FIELDS = "name^4 title^4 tags^2 groups^2 text"
+
+solr_regex = re.compile(r'([\\+\-&|!(){}\[\]^"~*?:])')
+
+def escape_legacy_argument(val):
+    # escape special chars \+-&|!(){}[]^"~*?:
+        return solr_regex.sub(r'\\\1', val)
 
 def convert_legacy_parameters_to_solr(legacy_params):
     '''API v1 and v2 allowed search params that the SOLR syntax does not
@@ -54,9 +61,10 @@ def convert_legacy_parameters_to_solr(legacy_params):
                 tag_list = [value_obj]
             else:
                 raise SearchQueryError('Was expecting either a string or JSON list for the tags parameter: %r' % value)
-            solr_q_list.extend(['tags:"%s"' % tag for tag in tag_list])
+            solr_q_list.extend(['tags:"%s"' % escape_legacy_argument(tag) for tag in tag_list])
         else:
             if len(value.strip()):
+                value = escape_legacy_argument(value)
                 if ' ' in value:
                     value = '"%s"' % value
                 solr_q_list.append('%s:%s' % (search_key, value))
@@ -338,7 +346,9 @@ class PackageSearchQuery(SearchQuery):
         if ':' not in query['q']:
             query['defType'] = 'dismax'
             query['tie'] = '0.1'
-            query['mm'] = '1'
+            # this minimum match is explained
+            # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
+            query['mm'] = '2<-1 5<80%'
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()

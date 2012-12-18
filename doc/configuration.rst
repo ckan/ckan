@@ -525,6 +525,16 @@ to occur asynchronously, set this option to 0.
 
 Note, this is equivalent to explicitly load the `synchronous_search` plugin.
 
+ckan.search.solr_commit
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.solr_commit = false
+
+Default value:  ``true``
+
+Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
 
 simple_search
 ^^^^^^^^^^^^^

@@ -307,7 +307,8 @@ def nav_link(text, controller, **kwargs):
     icon = kwargs.pop('icon', None)
     if icon:
         text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    class_ = _link_class(kwargs)
+    no_active = kwargs.pop('suppress_active_class', False)
+    class_ = _link_class(kwargs, no_active)
     if kwargs.pop('condition', True):
         link = link_to(
             text,
@@ -319,20 +320,31 @@ def nav_link(text, controller, **kwargs):
     return link
 
 
-def _link_class(kwargs):
+def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
-    highlight_actions = kwargs.pop('highlight_actions',
+    highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split(' ')
-    if (c.controller == kwargs.get('controller')
-                and c.action in highlight_actions):
+    return (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions)
+
+
+def _link_class(kwargs, suppress_active_class=False):
+    ''' creates classes for the link_to calls '''
+    if not suppress_active_class and _link_active(kwargs):
         active = ' active'
     else:
         active = ''
-    return kwargs.pop('class_', '') + active
+    kwargs.pop('highlight_actions', '')
+    return kwargs.pop('class_', '') + active or None
 
 
 def nav_named_link(text, name, **kwargs):
     class_ = _link_class(kwargs)
+
+    icon = kwargs.pop('icon', None)
+    if icon:
+        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+
     return link_to(
         text,
         url_for(name, **kwargs),
@@ -377,19 +389,71 @@ def build_nav_main(*args):
     return output
 
 
-def _make_menu_item(menu_item, title):
+def build_nav_icon(menu_item, title, **kw):
+    ''' build a navigation item used for example in user/read_base.html
+
+    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, **kw)
+
+
+def build_nav(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, icon=None, **kw)
+
+
+def _make_menu_item(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+
+    This function is called by wrapper functions.
+    '''
+    _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
-        log.error('menu item `%s` cannot be found' % menu_item)
-        return literal('<li><a href="#">') + title + literal('</a></li>')
-    item = _menu_items[menu_item]
-    if 'name' in item:
-        link = nav_named_link(title, **item)
-    elif 'url' in item:
-        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
-    else:
-        item = copy.copy(_menu_items[menu_item])
-        controller = item.pop('controller')
-        link = nav_link(title, controller, **item)
+        raise Exception('menu item `%s` cannot be found' % menu_item)
+    item = copy.copy(_menu_items[menu_item])
+    item.update(kw)
+    active =  _link_active(item)
+    controller = item.pop('controller')
+    needed = item.pop('needed')
+    for need in needed:
+        if need not in kw:
+            raise Exception('menu item `%s` need parameter `%s`'
+                            % (menu_item, need))
+    link = nav_link(title, controller, suppress_active_class=True, **item)
+    if active:
+        return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
 
 
@@ -408,6 +472,7 @@ _menu_items = {
     'about': dict(controller='home', action='about'),
     'login': dict(controller='user', action='login'),
     'register': dict(controller='user', action='register'),
+    'organizations': dict(action='index', controller='organization'),
 }
 
 
@@ -559,9 +624,14 @@ def group_name_to_title(name):
 
 
 def markdown_extract(text, extract_length=190):
+    ''' return the plain text representation of markdown encoded text.  That
+    is the texted without any html tags.  If extract_length is 0 then it
+    will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
+    if not extract_length or len(plain) < extract_length:
+        return plain
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
@@ -891,6 +961,11 @@ def group_link(group):
     return link_to(group['title'], url)
 
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
+
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
@@ -1170,7 +1245,32 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-def dashboard_activity_stream(user_id):
+def organizations_available(permission='edit_group'):
+    ''' return a list of available organizations '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user}
+    data_dict = {'permission': permission}
+    return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+def user_in_org_or_group(group_id):
+    ''' Check if user is in a group or organization '''
+    # we need a user
+    if not c.userobj:
+        return False
+    # sysadmins can do anything
+    if c.userobj.sysadmin:
+        return True
+    query = model.Session.query(model.Member) \
+            .filter(model.Member.state == 'active') \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.group_id == group_id) \
+            .filter(model.Member.table_id == c.userobj.id)
+    return len(query.all()) != 0
+
+
+def dashboard_activity_stream(user_id, offset=0):
     '''Return the dashboard activity stream of the given user.
 
     :param user_id: the id of the user
@@ -1183,7 +1283,15 @@ def dashboard_activity_stream(user_id):
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('dashboard_activity_list_html')(context,
-                                                            {'id': user_id})
+                                                            {'id': user_id,
+                                                             'offset': offset})
+
+
+def recently_changed_packages_activity_stream():
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+    return logic.get_action('recently_changed_packages_activity_list_html')(
+            context, {})
 
 
 def escape_js(str_to_escape):
@@ -1361,6 +1469,8 @@ __allowed_functions__ = [
            'include_resource',
            'urls_for_resource',
            'build_nav_main',
+           'build_nav_icon',
+           'build_nav',
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
@@ -1374,7 +1484,10 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'organizations_available',
+           'user_in_org_or_group',
            'dashboard_activity_stream',
+           'recently_changed_packages_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
            'get_request_param',

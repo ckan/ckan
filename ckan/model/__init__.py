@@ -69,6 +69,7 @@ from group import (
     Member,
     Group,
     member_revision_table,
+    group_revision_table,
     group_table,
     GroupRevision,
     MemberRevision,

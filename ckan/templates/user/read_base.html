@@ -1,0 +1,97 @@
+{% extends "page.html" %}
+
+{% set user = c.user_dict %}
+
+{% block subtitle %}{{ user.display_name }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ h.build_nav('user_index', _('Users')) }}
+  {{ h.build_nav('user_datasets', user.display_name|truncate(35), id=user.name) }}
+{% endblock %}
+
+{% block actions_content %}
+{% if h.check_access('user_update', user) %}
+  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}</li>
+{% endif %}
+{% if c.is_myself == false %}
+  <li>{{ h.follow_button('user', user.id) }}</li>
+{% endif %}
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module profile">
+    {% block page_header %}
+      {% snippet 'snippets/page_header.html', items=[
+          h.build_nav_icon('user_datasets', _('Datasets'), id=user.name),
+          h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name),
+          h.build_nav_icon('user_followers', _('Followers'), id=user.name),
+        ] %}
+    {% endblock %}
+    <section class="module-content">
+      {% block primary_content_inner %}{% endblock %}
+    </section>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module profile-info">
+  <section class="module-content">
+    {% block secondary_content_inner %}
+      <div class="avatar">{{ h.linked_gravatar(user.email_hash, 180) }}</div>
+      <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
+      {% if c.about_formatted %}
+        {{ c.about_formatted }}
+      {% else %}
+        <p class="empty">
+          {% if c.is_myself %}
+            {% trans %}You have not provided a biography.{% endtrans %}
+          {% else %}
+            {% trans %}This user has no biography.{% endtrans %}
+          {% endif %}
+        </p>
+      {% endif %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Followers') }}</dt>
+          <dd>{{ user.num_followers }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('Datasets') }}</dt>
+          <dd>{{ user.number_administered_packages }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('Edits') }}</dt>
+          <dd>{{ user.number_of_edits }}</dd>
+        </dl>
+      </div>
+      <div class="info">
+        <dl>
+          {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+            <dt>{{ _('Open ID') }}</dt>
+            <dd>{{ user.name|urlize(25) }}{# Be great if this just showed the domain #}</dd>
+          {% else %}
+            <dt>{{ _('Username') }}</dt>
+            <dd>{{ user.name }}</dd>
+          {% endif %}
+        </dl>
+        {% if c.is_myself %}
+        <dl>
+          <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+          <dd>{{ user.email }}</dd>
+        </dl>
+        {% endif %}
+        <dl>
+          <dt>{{ _('Member Since') }}</dt>
+          <dd>{{ h.render_datetime(user.created) }}</dd>
+        </dl>
+        {% if c.is_myself %}
+        <dl>
+          <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+          <dd class="value"><code>{{ user.apikey }}</code></dd>
+        </dl>
+        {% endif %}
+      </div>
+    {% endblock %}
+  </section>
+</div>
+{% endblock %}
