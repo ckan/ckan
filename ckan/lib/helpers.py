@@ -367,7 +367,7 @@ def subnav_link(text, action, **kwargs):
 def subnav_named_route(text, routename, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return subnav_named_route(text, routename, **kwargs)
+    return nav_named_link(text, routename, **kwargs)
 
 
 def build_nav_main(*args):
