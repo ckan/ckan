@@ -588,7 +588,7 @@ class PackageController(BaseController):
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
-                if not len(data_dict['resources']):
+                if not len(data_dict.get('resources', [])):
                     # no data so keep on page
                     h.flash_error(_('You must add at least one data resource'))
                     redirect(h.url_for(controller='package',
