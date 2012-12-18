@@ -38,6 +38,7 @@ from pylons.i18n import _, ungettext
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
+import ckan.lib.maintain as maintain
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -361,16 +362,12 @@ def subnav_link(text, action, **kwargs):
     )
 
 
+@maintain.deprecated('h.subnav_named_route is deprecated please '
+                     'use h.nav_named_link')
 def subnav_named_route(text, routename, **kwargs):
-    """ Generate a subnav element based on a named route """
-    # FIXME this is the same as _nav_named_link
-    # they should be combined
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(str(routename), **kwargs),
-        class_=class_
-    )
+    '''Generate a subnav element based on a named route
+    Deprecated in ckan 2.0 '''
+    return subnav_named_route(text, routename, **kwargs)
 
 
 def build_nav_main(*args):
