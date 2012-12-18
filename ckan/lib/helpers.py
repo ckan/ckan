@@ -294,16 +294,6 @@ def are_there_flash_messages():
     return flash.are_there_messages()
 
 
-def _create_link_text(text, **kwargs):
-    ''' Update link text to add a icon or span if specified in the kwargs '''
-    if kwargs.pop('inner_span', None):
-        text = literal('<span>') + text + literal('</span>')
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    return text
-
-
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.get('highlight_actions',
@@ -312,19 +302,30 @@ def _link_active(kwargs):
                 and c.action in highlight_actions)
 
 
-def _link_class(kwargs):
-    ''' creates classes for the link_to calls '''
-    suppress_active_class = kwargs.pop('suppress_active_class', False)
-    if not suppress_active_class and _link_active(kwargs):
-        active = ' active'
-    else:
-        active = ''
-    kwargs.pop('highlight_actions', '')
-    return kwargs.pop('class_', '') + active or None
-
-
 def _link_to(text, *args, **kwargs):
+    '''Common link making code for several helper functions'''
     assert len(args)<2, 'Too many unnamed arguments'
+
+    def _link_class(kwargs):
+        ''' creates classes for the link_to calls '''
+        suppress_active_class = kwargs.pop('suppress_active_class', False)
+        if not suppress_active_class and _link_active(kwargs):
+            active = ' active'
+        else:
+            active = ''
+        kwargs.pop('highlight_actions', '')
+        return kwargs.pop('class_', '') + active or None
+
+    def _create_link_text(text, **kwargs):
+        ''' Update link text to add a icon or span if specified in the
+        kwargs '''
+        if kwargs.pop('inner_span', None):
+            text = literal('<span>') + text + literal('</span>')
+        icon = kwargs.pop('icon', None)
+        if icon:
+            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+        return text
+
     class_ = _link_class(kwargs)
     return link_to(
         _create_link_text(text, **kwargs),
@@ -349,10 +350,12 @@ def nav_link(text, controller, **kwargs):
 
 
 def nav_named_link(text, name, **kwargs):
+    '''Create a link for a named route.'''
     return _link_to(text, name, **kwargs)
 
 
 def subnav_link(text, action, **kwargs):
+    '''Create a link for a named route.'''
     kwargs['action'] = action
     return _link_to(text, **kwargs)
 
