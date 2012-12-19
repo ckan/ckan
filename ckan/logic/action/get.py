@@ -1746,8 +1746,13 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     _check_access('package_show', context, data_dict)
     model = context['model']
-    package_id = _get_or_bust(data_dict, 'id')
-    activity_objects = model.activity.package_activity_list(package_id)
+
+    package_ref = _get_or_bust(data_dict, 'id')  # May be name or ID.
+    package = model.Package.get(package_ref)
+    if package is None:
+        raise logic.NotFound
+
+    activity_objects = model.activity.package_activity_list(package.id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def group_activity_list(context, data_dict):
