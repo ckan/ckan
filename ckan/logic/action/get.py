@@ -608,6 +608,8 @@ def package_show(context, data_dict):
 
     package_dict = model_dictize.package_dictize(pkg, context)
 
+    package_dict['num_resources'] = len(package_dict.get('resources', []))
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
