@@ -337,10 +337,10 @@ except       - list of name-value pairs to be excluded
 
 
 Example:
-    {% form.hidden(fields=c.fields, except=[('topic', 'xyz')]) %}
-    {% form.hidden(fields=c.fields, except_names=['time_min', 'time_max']) %}
+    {% form.hidden_from_list(fields=c.fields, except=[('topic', 'xyz')]) %}
+    {% form.hidden_from_list(fields=c.fields, except_names=['time_min', 'time_max']) %}
 #}
-{% macro hidden_list(fields, except_names=None, except=None) %}
+{% macro hidden_from_list(fields, except_names=None, except=None) %}
   {% set except_names = except_names or [] %}
   {% set except = except or [] %}
 
