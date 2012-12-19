@@ -5014,6 +5014,13 @@ ol.media-grid:after {
 label {
   font-weight: bold;
 }
+.btn-rounded {
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
 label {
   cursor: pointer;
   font-size: 14px;
@@ -6840,7 +6847,7 @@ header.masthead .navigation ul.unstyled li a {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-header.masthead .navigation ul.unstyled li a.active {
+header.masthead .navigation ul.unstyled li.active a {
   background-color: #0d6581;
   box-shadow: 0 -1px 0 #084152, 0 1px 0 #26758e;
 }
@@ -7296,6 +7303,9 @@ header.masthead .debug {
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.activity .load-less {
+  margin-bottom: 15px;
 }
 .popover .about {
   margin-bottom: 10px;
