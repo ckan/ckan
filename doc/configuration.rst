@@ -207,9 +207,9 @@ ckan.preview.loadable
 ^^^^^^^^^^^^^^^^^^^^^
 
 Example::
- ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
+ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
 
-Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json``
+Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
 
 Defines the resource formats which should be loaded directly in an `iframe`
 tag when previewing them.

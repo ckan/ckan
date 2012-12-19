@@ -12,7 +12,7 @@ import pylons.config as config
 import ckan.plugins as p
 
 DEFAULT_DIRECT_EMBED = ['png', 'jpg', 'gif']
-DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3', 'n-triples', 'turtle', 'plain', 'atom', 'csv', 'tsv', 'rss', 'txt', 'json']
+DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3', 'n-triples', 'turtle', 'plain', 'atom', 'rss', 'txt']
 
 
 def compare_domains(urls):
