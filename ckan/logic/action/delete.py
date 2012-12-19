@@ -268,8 +268,6 @@ def task_status_delete(context, data_dict):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-    model.Session.remove()
-    model.Session()._context = context
 
     entity = model.TaskStatus.get(id)
 

@@ -3,7 +3,6 @@ from pylons import config
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
 import ckan.logic

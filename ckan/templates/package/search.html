@@ -1,4 +1,5 @@
 {% extends "page.html" %}
+{% import 'macros/form.html' as form %}
 
 {% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
@@ -19,9 +20,7 @@
 
         {% if c.fields -%}
           <span>
-            {%- for k, v in c.fields -%}
-              <input type="hidden" name="{{ k }}" value="{{ v }}" />
-            {% endfor -%}
+            {{ form.hidden_from_list(fields=c.fields) }}
           </span>
         {%- endif %}
 

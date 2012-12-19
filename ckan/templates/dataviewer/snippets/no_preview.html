@@ -1,12 +1,16 @@
 <div class="module-content">
   <div class="alert alert-block">
     <h4 class="pull-left">{{ _('This resource cannot be previewed.') }} </h4>
-    <button class="btn btn-link btn-mini" data-toggle="collapse" data-target="#demo">
-    	<i class="icon-info-sign"></i> More details...
+    <button class="btn btn-link btn-mini" data-toggle="collapse" data-target="#details">
+      <i class="icon-info-sign"></i> {{ _('More details...') }}
     </button>
-    <div id="demo" class="collapse">
-	    {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
-	    {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+    <div id="details" class="collapse">
+      {% if reason %}
+        {{_(reason)}}
+      {% else %}
+        {% set t = '<code>'|safe + resource_type + '</code>'|safe %}
+        {{ gettext('No handler defined for data type: %(type)s.', type=t) }}
+      {% endif %}
   	</div>
   </div>
 </div>
