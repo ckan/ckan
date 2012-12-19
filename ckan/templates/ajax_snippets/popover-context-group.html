@@ -19,7 +19,7 @@
 			<dd>{{ num_followers }}</dd>
 		</dl>
 		{% endif %}
-		{% if num_datasets %}
+		{% if num_datasets is defined %}
 		<dl>
 			<dt>{{ _('Datasets') }}</dt>
 			<dd>{{ num_datasets }}</dd>
