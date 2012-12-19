@@ -6,6 +6,7 @@
   <div class="container">
     {# The .header-image class hides the main text and uses image replacement for the title #}
     <hgroup class="{{ g.header_class }}">
+
       {% block header_logo %}
         {% if g.site_logo %}
           <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
@@ -16,6 +17,7 @@
           {% if g.site_description %}<h2>{{ g.site_description }}</h2>{% endif %}
         {% endif %}
       {% endblock %}
+
     </hgroup>
     <div class="content">
 
@@ -93,6 +95,7 @@
           </nav>
         {% endif %}
       {% endblock %}
+
     </div>
   </div>
 </header>
