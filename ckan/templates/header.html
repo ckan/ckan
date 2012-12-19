@@ -35,15 +35,18 @@
       </form>
       {% if c.userobj %}
         <div class="section account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
-          <div class="dropdown">
+          <div class="wrap">
             <a href="{{ h.url_for(controller='user', action='dashboard') }}" class="button notifications{% if c.new_activities > 0 %} notifications-important{% endif %}" title="{{ c.new_activities }} {{ _('new notifications') }}">
               {{ c.new_activities }}
             </a>
           </div>
-          <div class="dropdown">
+          <div class="wrap dropdown">
             <a href="#" class="button image dropdown-toggle" data-toggle="dropdown">
               {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=25) }}
               <i class="icon-chevron-down"></i>
+            </a>
+            <a href="{{ h.url_for('/user/_logout') }}" class="button logout" title="{{ _('Log out') }}" class="js-hide">
+              <i class="icon-signout"></i>
             </a>
             <ul class="user-dropdown-menu dropdown-menu pull-right" role="menu">
               <li>

@@ -113,10 +113,11 @@ header.masthead {
 				}
 			}
 		}
-		.dropdown {
+		.wrap {
 			float: left;
 		}
 		.button {
+			float: left;
 			display: block;
 			text-decoration: none;
 			background-color: @mastheadBackgroundColorStart;
@@ -127,18 +128,23 @@ header.masthead {
 		}
 		.image {
 			margin: 2px 0;
-			padding: 0 4px 0 0;
+			padding: 0;
 			overflow: hidden;
 			font-size: 10px;
 			.border-radius(4px);
 			i {
+				display: none;
 				vertical-align: -1px;
 			}
 			img {
 				opacity: 0.7;
 				border-right: 1px solid @mastheadBackgroundColorEnd;
-				.border-radius(4px 0 0 4px);
+				.border-radius(4px);
 			}
+		}
+		.logout {
+			margin: 2px 0 2px 5px;
+			padding: 4px 6px 2px 6px;
 		}
 		.notifications {
 			padding: 4px 8px 3px 8px;
@@ -197,5 +203,22 @@ header.masthead {
 		top: 10px;
 		left: 10px;
 		color: rgba(255, 255, 255, 0.5);
+	}
+}
+
+.js {
+	header.masthead .account {
+		.image {
+			padding-right: 4px;
+			i {
+				display: inline;
+			}
+			img {
+				.border-radius(4px 0 0 4px);
+			}
+		}
+		.logout {
+			display: none;
+		}
 	}
 }
