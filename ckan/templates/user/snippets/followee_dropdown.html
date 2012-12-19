@@ -10,7 +10,7 @@
 
 <div id="followee-filter" class="pull-right">
   <a href="#followee-popover" class="btn" title="{{ _('Activity from:') }} {{ context.context }}">
-    {{ _('Activity from:') }}
+    <span>{{ _('Activity from:') }}</span>
     <strong>{{ context.context }}</strong>
     <span class="caret"></span>
   </a>
@@ -31,7 +31,7 @@
         </li>
         {% for followee in followees %}
         <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
-          <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}">
+          <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}" title="{{followee.display_name}}">
             {{followee_icon(followee.type)}}
             <span>{{followee.display_name}}</span>
           </a>
