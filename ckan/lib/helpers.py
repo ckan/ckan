@@ -30,8 +30,7 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 import i18n
 import ckan.exceptions
-from pylons import request
-from pylons import session
+from pylons import request, session
 from pylons import c, g
 from pylons.i18n import _, ungettext
 
