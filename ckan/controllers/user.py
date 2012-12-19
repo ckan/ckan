@@ -529,8 +529,6 @@ class UserController(BaseController):
                 abort(401, _('Unauthorized to read {0} {1}').format(
                     filter_type, id))
 
-            print(followee)
-
             if followee is not None:
                 return {
                     'filter_type': filter_type,
@@ -558,9 +556,12 @@ class UserController(BaseController):
         filter_type = request.params.get('type', u'')
         filter_id = request.params.get('name', u'')
 
-        c.followee_list = get_action('followee_list')(context,{'id': c.userobj.id, 'q': q})
-        c.dashboard_activity_stream_context = self._get_dashboard_context(filter_type, filter_id, q)
-        c.dashboard_activity_stream = h.dashboard_activity_stream(id, filter_type, filter_id)
+        c.followee_list = get_action('followee_list')(
+            context,{'id': c.userobj.id, 'q': q})
+        c.dashboard_activity_stream_context = self._get_dashboard_context(
+            filter_type, filter_id, q)
+        c.dashboard_activity_stream = h.dashboard_activity_stream(
+            id, filter_type, filter_id)
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.

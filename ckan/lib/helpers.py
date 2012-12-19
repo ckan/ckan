@@ -1180,20 +1180,29 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None):
     :param user_id: the id of the user
     :type user_id: string
 
+    :param filter_type: the type of thing to filter by
+    :type filter_type: string
+
+    :param filter_id: the id of item to filter by
+    :type filter_id: string
+
     :returns: an activity stream as an HTML snippet
     :rtype: string
 
     '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    if filter_type == 'user':
-        return logic.get_action('user_activity_list_html')(context, {'id': filter_id})
-    elif filter_type == 'dataset':
-        return logic.get_action('package_activity_list_html')(context, {'id': filter_id})
-    elif filter_type == 'group':
-        return logic.get_action('group_activity_list_html')(context, {'id': filter_id})
+    action_functions = {
+            'dataset': logic.get_action('package_activity_list_html'),
+            'user': logic.get_action('user_activity_list_html'),
+            'group': logic.get_action('group_activity_list_html'),
+            }
+    action_function = action_functions.get(filter_type)
+    if action_function is None:
+        return logic.get_action('dashboard_activity_list_html')(
+            context, {'id': user_id})
     else:
-        return logic.get_action('dashboard_activity_list_html')(context, {'id': user_id})
+        return action_function(context, {'id': filter_id})
 
 
 def escape_js(str_to_escape):
