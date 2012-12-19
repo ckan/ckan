@@ -11,9 +11,8 @@ import pylons.config as config
 
 import ckan.plugins as p
 
-
-direct_embed = config.get('preview.direct', '').split(' ')
-loadable_in_iframe = config.get('preview.loadable', '').split(' ')
+DEFAULT_DIRECT_EMBED = ['png', 'jpg', 'gif']
+DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3', 'n-triples', 'turtle', 'plain', 'atom', 'csv', 'tsv', 'rss', 'txt', 'json']
 
 
 def compare_domains(urls):

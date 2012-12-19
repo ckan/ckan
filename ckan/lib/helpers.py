@@ -1394,14 +1394,20 @@ def resource_preview(resource, pkg_id):
             resource_type=format_lower,
             reason='No valid resource url has been defined.'
             )
+    direct_embed = config.get('ckan.preview.direct', '').split()
+    if not direct_embed:
+        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
+    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
+    if not loadable_in_iframe:
+        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
     if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
             resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in datapreview.direct_embed:
+    elif format_lower in direct_embed:
         directly = True
         url = resource['url']
-    elif format_lower in datapreview.loadable_in_iframe:
+    elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
         log.info('No preview handler for resource type {0}'.format(format_lower))
