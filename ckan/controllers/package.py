@@ -50,8 +50,11 @@ def url_with_params(url, params):
     return url + u'?' + urlencode(params)
 
 
-def search_url(params):
-    url = h.url_for(controller='package', action='search')
+def search_url(params, package_type=None):
+    if not package_type or package_type == 'dataset':
+        url = h.url_for(controller='package', action='search')
+    else:
+        url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -175,7 +178,7 @@ class PackageController(BaseController):
             if fields:
                 sort_string = ', '.join('%s %s' % f for f in fields)
                 params.append(('sort', sort_string))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.sort_by = _sort_by
         if sort_by is None:
@@ -188,7 +191,7 @@ class PackageController(BaseController):
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
