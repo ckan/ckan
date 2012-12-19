@@ -536,7 +536,7 @@ class UserController(BaseController):
             else:
                 raise abort(404, _('Follow item not found'))
 
-            if not followee == None:
+            if not followee is not None:
                 return {
                     'filter_type': filter_type,
                     'q': q,
