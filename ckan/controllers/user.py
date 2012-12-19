@@ -511,32 +511,27 @@ class UserController(BaseController):
                    'user': c.user or c.author, 'for_view': True}
             data_dict = {'id': filter_id}
             followee = None
-            # Is this a valid type?
-            if filter_type == 'dataset':
-                try:
-                    followee = get_action('package_show')(context, data_dict)
-                except NotFound:
-                    abort(404, _('Dataset not found'))
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to read package %s') % id)
-            elif filter_type == 'user':
-                try:
-                    followee = get_action('user_show')(context, data_dict)
-                except NotFound:
-                    abort(404, _('User not found'))
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to read user %s') % id)
-            elif filter_type == 'group':
-                try:
-                    followee = get_action('group_show')(context, data_dict)
-                except NotFound:
-                    abort(404, _('Group not found'))
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to read group %s') % id)
-            else:
-                raise abort(404, _('Follow item not found'))
 
-            if not followee is not None:
+            action_functions = {
+                    'dataset': get_action('package_show'),
+                    'user': get_action('user_show'),
+                    'group': get_action('group_show'),
+                    }
+            action_function = action_functions.get(filter_type)
+            # Is this a valid type?
+            if action_function is None:
+                raise abort(404, _('Follow item not found'))
+            try:
+                followee = action_function(context, data_dict)
+            except NotFound:
+                abort(404, _('{0} not found').format(filter_type))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to read {0} {1}').format(
+                    filter_type, id))
+
+            print(followee)
+
+            if followee is not None:
                 return {
                     'filter_type': filter_type,
                     'q': q,
@@ -563,7 +558,7 @@ class UserController(BaseController):
         filter_type = request.params.get('type', u'')
         filter_id = request.params.get('name', u'')
 
-        c.followee_list = get_action('followee_list')(context, {'id': c.userobj.id, 'q': q})
+        c.followee_list = get_action('followee_list')(context,{'id': c.userobj.id, 'q': q})
         c.dashboard_activity_stream_context = self._get_dashboard_context(filter_type, filter_id, q)
         c.dashboard_activity_stream = h.dashboard_activity_stream(id, filter_type, filter_id)
 
