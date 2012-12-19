@@ -1727,8 +1727,13 @@ def user_activity_list(context, data_dict):
     # authorized to read.
     _check_access('user_show', context, data_dict)
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'id')
-    activity_objects = model.activity.user_activity_list(user_id)
+
+    user_ref = _get_or_bust(data_dict, 'id')  # May be user name or id.
+    user = model.User.get(user_ref)
+    if user is None:
+        raise logic.NotFound
+
+    activity_objects = model.activity.user_activity_list(user.id)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def package_activity_list(context, data_dict):
