@@ -23,9 +23,17 @@
 
 #followee-filter {
 	.btn {
-		font-weight: normal;
+		.clearfix();
+		span, strong {
+			display: block;
+			float: left;
+			line-height: 1.5;
+		}
+		span {
+			font-weight: normal;
+		}
 		strong {
-			display: inline-block;
+			margin: 0 5px;
 			white-space: nowrap;
 			max-width: 100px;
 			overflow: hidden;
@@ -64,6 +72,9 @@
 		padding: 0;
 		.border-radius(3px);
 	}
+	.empty {
+		padding: 10px;
+	}
 	.popover-header {
 		.clearfix();
 		background-color: whiteSmoke;
@@ -95,6 +106,9 @@
 		li {
 			a {
 				display: block;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
 				padding: 7px 10px 7px 15px;
 				margin: 0;
 				.border-radius(0);
