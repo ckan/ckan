@@ -1,20 +1,25 @@
 // json preview module
-ckan.module('jsonpreview', function (jQuery) {
+ckan.module('jsonpreview', function (jQuery, _) {
   return {
+    options: {
+      i18n: {
+        error: _('An error occurred: %(text)s %(error)s')
+      }
+    },
     initialize: function () {
       var self = this;
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
         async: false,
         contentType: "application/json",
-        dataType: 'jsonp',
+        dataType: preload_resource['format'],
         success: function(data, textStatus, jqXHR) {
           var html = JSON.stringify(data, null, 4);
           var pretty = self._syntaxHighlight(html);
           self.el.html(pretty);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          this.sandbox.notify(message, 'textStatus');
+          self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
         }
       });
     },

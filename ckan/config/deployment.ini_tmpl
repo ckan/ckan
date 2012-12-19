@@ -33,7 +33,9 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = stats
+# Note: Add ``pdf_preview`` to enable the resource preview for PDFs
+#		Add the resource_proxy plugin to enable resorce proxying and get around the same origin policy
+ckan.plugins = stats json_preview recline_preview
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -235,6 +237,12 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
+## Previews
+#
+# Set the file types that should be previewed inline (e.g. images) or directly in an iframe.
+
+ckan.preview.direct = png jpg gif
+ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 
 # Activity Streams
 #
