@@ -1,7 +1,7 @@
 import logging
 from pylons.i18n import _
 
-import ckan.authz as authz
+import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -12,7 +12,6 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
-import ckan.logic.auth as auth
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -105,8 +104,6 @@ def package_create(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    model.Session.remove()
-    model.Session()._context = context
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
@@ -152,6 +149,12 @@ def package_create(context, data_dict):
     # Needed to let extensions know the package id
     model.Session.flush()
 
+    context_no_auth = context.copy()
+    context_no_auth['ignore_auth'] = True
+    _get_action('package_owner_org_update')(context_no_auth,
+                                            {'id': pkg.id,
+                                             'organization_id': pkg.owner_org})
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
@@ -174,8 +177,6 @@ def package_create(context, data_dict):
 def package_create_validate(context, data_dict):
     model = context['model']
     schema = lib_plugins.lookup_package_plugin().form_to_db_schema()
-    model.Session.remove()
-    model.Session()._context = context
 
     _check_access('package_create',context,data_dict)
 
@@ -444,70 +445,13 @@ def member_create(context, data_dict=None):
 
     return model_dictize.member_dictize(member, context)
 
-def group_create(context, data_dict):
-    '''Create a new group.
-
-    You must be authorized to create groups.
-
-    Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
-
-    :param name: the name of the group, a string between 2 and 100 characters
-        long, containing only lowercase alphanumeric characters, ``-`` and
-        ``_``
-    :type name: string
-    :param id: the id of the group (optional)
-    :type id: string
-    :param title: the title of the group (optional)
-    :type title: string
-    :param description: the description of the group (optional)
-    :type description: string
-    :param image_url: the URL to an image to be displayed on the group's page
-        (optional)
-    :type image_url: string
-    :param type: the type of the group (optional), ``IGroupForm`` plugins
-        associate themselves with different group types and provide custom
-        group handling behaviour for these types
-    :type type: string
-    :param state: the current state of the group, e.g. ``'active'`` or
-        ``'deleted'``, only active groups show up in search results and
-        other lists of groups, this parameter will be ignored if you are not
-        authorized to change the state of the group (optional, default:
-        ``'active'``)
-    :type state: string
-    :param approval_status: (optional)
-    :type approval_status: string
-    :param extras: the group's extras (optional), extras are arbitrary
-        (key: value) metadata items that can be added to groups, each extra
-        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
-    :type extras: list of dataset extra dictionaries
-    :param packages: the datasets (packages) that belong to the group, a list
-        of dictionaries each with keys ``'name'`` (string, the id or name of
-        the dataset) and optionally ``'title'`` (string, the title of the
-        dataset)
-    :type packages: list of dictionaries
-    :param groups: the groups that belong to the group, a list of dictionaries
-        each with key ``'name'`` (string, the id or name of the group) and
-        optionally ``'capacity'`` (string, the capacity in which the group is
-        a member of the group)
-    :type groups: list of dictionaries
-    :param users: the users that belong to the group, a list of dictionaries
-        each with key ``'name'`` (string, the id or name of the user) and
-        optionally ``'capacity'`` (string, the capacity in which the user is
-        a member of the group)
-    :type users: list of dictionaries
-
-    :returns: the newly created group
-    :rtype: dictionary
-
-    '''
+def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
     parent = context.get('parent', None)
+    data_dict['is_organization'] = is_org
 
-    _check_access('group_create', context, data_dict)
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
@@ -561,13 +505,25 @@ def group_create(context, data_dict):
     # Needed to let extensions know the group id
     session.flush()
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.create(group)
 
+    if is_org:
+        activity_type = 'new organization'
+    else:
+        activity_type = 'new group'
+
+    user_id = model.User.by_name(user.decode('utf8')).id
+
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
+            'user_id': user_id,
             'object_id': group.id,
-            'activity_type': 'new group',
+            'activity_type': activity_type,
             }
     activity_dict['data'] = {
             'group': ckan.lib.dictization.table_dictize(group, context)
@@ -585,8 +541,152 @@ def group_create(context, data_dict):
         model.repo.commit()
     context["group"] = group
     context["id"] = group.id
+
+    # creator of group/org becomes an admin
+    # this needs to be after the repo.commit or else revisions break
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+        'capacity': 'admin',
+    }
+    member_create_context = {
+        'model': model,
+        'user': user,
+        'ignore_auth': True, # we are not a member of the group at this point
+        'session': session
+    }
+    logic.get_action('member_create')(member_create_context, member_dict)
+
     log.debug('Created object %s' % str(group.name))
     return model_dictize.group_dictize(group, context)
+
+
+def group_create(context, data_dict):
+    '''Create a new group.
+
+    You must be authorized to create groups.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the group, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the group (optional)
+    :type id: string
+    :param title: the title of the group (optional)
+    :type title: string
+    :param description: the description of the group (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the group's page
+        (optional)
+    :type image_url: string
+    :param type: the type of the group (optional), ``IGroupForm`` plugins
+        associate themselves with different group types and provide custom
+        group handling behaviour for these types
+        Cannot be 'organization'
+    :type type: string
+    :param state: the current state of the group, e.g. ``'active'`` or
+        ``'deleted'``, only active groups show up in search results and
+        other lists of groups, this parameter will be ignored if you are not
+        authorized to change the state of the group (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the group's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to groups, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the group, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+    :param groups: the groups that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the group) and
+        optionally ``'capacity'`` (string, the capacity in which the group is
+        a member of the group)
+    :type groups: list of dictionaries
+    :param users: the users that belong to the group, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the group)
+    :type users: list of dictionaries
+
+    :returns: the newly created group
+    :rtype: dictionary
+
+    '''
+    # wrapper for creating groups
+    if data_dict.get('type') == 'organization':
+        # FIXME better exception?
+        raise Exception(_('Trying to create an organization as a group'))
+    _check_access('group_create', context, data_dict)
+    return _group_or_org_create(context, data_dict)
+
+def organization_create(context, data_dict):
+    '''Create a new organization.
+
+    You must be authorized to create organizations.
+
+    Plugins may change the parameters of this function depending on the value
+    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+
+    :param name: the name of the organization, a string between 2 and 100 characters
+        long, containing only lowercase alphanumeric characters, ``-`` and
+        ``_``
+    :type name: string
+    :param id: the id of the organization (optional)
+    :type id: string
+    :param title: the title of the organization (optional)
+    :type title: string
+    :param description: the description of the organization (optional)
+    :type description: string
+    :param image_url: the URL to an image to be displayed on the organization's page
+        (optional)
+    :type image_url: string
+    :param state: the current state of the organization, e.g. ``'active'`` or
+        ``'deleted'``, only active organizations show up in search results and
+        other lists of organizations, this parameter will be ignored if you are not
+        authorized to change the state of the organization (optional, default:
+        ``'active'``)
+    :type state: string
+    :param approval_status: (optional)
+    :type approval_status: string
+    :param extras: the organization's extras (optional), extras are arbitrary
+        (key: value) metadata items that can be added to organizations, each extra
+        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
+        string), and optionally ``'deleted'``
+    :type extras: list of dataset extra dictionaries
+    :param packages: the datasets (packages) that belong to the organization, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name of
+        the dataset) and optionally ``'title'`` (string, the title of the
+        dataset)
+    :type packages: list of dictionaries
+ ##   :param groups: the groups that belong to the group, a list of dictionaries
+ ##       each with key ``'name'`` (string, the id or name of the group) and
+ ##       optionally ``'capacity'`` (string, the capacity in which the group is
+ ##       a member of the group)
+ ##   :type groups: list of dictionaries
+    :param users: the users that belong to the organization, a list of dictionaries
+        each with key ``'name'`` (string, the id or name of the user) and
+        optionally ``'capacity'`` (string, the capacity in which the user is
+        a member of the organization)
+    :type users: list of dictionaries
+
+    :returns: the newly created organization
+    :rtype: dictionary
+
+    '''
+    # wrapper for creating organizations
+    data_dict['type'] = 'organization'
+    _check_access('organization_create', context, data_dict)
+    return _group_or_org_create(context, data_dict, is_org=True)
+
 
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
@@ -762,9 +862,6 @@ def vocabulary_create(context, data_dict):
     '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
-
-    model.Session.remove()
-    model.Session()._context = context
 
     _check_access('vocabulary_create', context, data_dict)
 
@@ -1023,6 +1120,45 @@ def follow_dataset(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_dataset_dictize(follower, context)
+
+
+def _group_or_org_member_create(context, data_dict, is_org=False):
+    # creator of group/org becomes an admin
+    # this needs to be after the repo.commit or else revisions break
+    model = context['model']
+    user = context['user']
+    session = context['session']
+
+    schema = ckan.logic.schema.member_schema()
+    data, errors = _validate(data_dict, schema, context)
+
+    username = _get_or_bust(data_dict, 'username')
+    role = data_dict.get('role')
+    group_id = data_dict.get('id')
+    group = model.Group.get(group_id)
+    result = session.query(model.User).filter_by(name=username).first()
+    if result:
+        user_id = result.id
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+        'capacity': role,
+    }
+    member_create_context = {
+        'model': model,
+        'user': user,
+        'session': session
+    }
+    logic.get_action('member_create')(member_create_context, member_dict)
+
+def group_member_create(context, data_dict):
+    _check_access('group_member_create', context, data_dict)
+    return _group_or_org_member_create(context, data_dict)
+
+def organization_member_create(context, data_dict):
+    _check_access('organization_member_create', context, data_dict)
+    return _group_or_org_member_create(context, data_dict, is_org=True)
 
 
 def follow_group(context, data_dict):

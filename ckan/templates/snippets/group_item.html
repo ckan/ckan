@@ -3,7 +3,7 @@
     {% set url=h.url_for(controller='group', action='read', id=group.name) %}
     {% set truncate=truncate or 0 %}
     <a class="media-image" href="{{ url }}">
-      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="100" height="60" alt="{{ group.name }}" />
+      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="100" alt="{{ group.name }}" />
     </a>
     <div class="media-content">
       <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>

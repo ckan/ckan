@@ -28,7 +28,11 @@ extras
 #}
 {% with items = items or h.get_facet_items_dict(name) %}
   <section class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-medium icon-filter"></i> {{ h.get_facet_title(name) }} <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">{{ _('Clear All') }}</a></h2>
+    <h2 class="module-heading">
+      <i class="icon-medium icon-filter"></i>
+      {{ title or h.get_facet_title(name) }}
+      <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">{{ _('Clear All') }}</a>
+    </h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">

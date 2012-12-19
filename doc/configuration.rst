@@ -192,6 +192,27 @@ Default value:  ``20``
 
 This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
 
+ckan.preview.direct
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.preview.direct = png jpg gif
+
+Default value: ``png jpg gif``
+
+Defines the resource formats which should be embedded directly in an `img` tag
+when previewing them.
+
+ckan.preview.loadable
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
+
+Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
+
+Defines the resource formats which should be loaded directly in an `iframe`
+tag when previewing them.
 
 Authentication Settings
 -----------------------

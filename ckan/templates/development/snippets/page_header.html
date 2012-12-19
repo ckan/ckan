@@ -1,0 +1,8 @@
+{% with items=(
+h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
+h.literal('<li class="active">') + h.link_to('Active Tab', '#') + h.literal('</li>'),
+h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
+h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
+) %}
+	{% snippet 'snippets/page_header.html', items=items %}
+{% endwith %}

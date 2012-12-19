@@ -55,7 +55,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_201_CREATED,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
         # Check the returned package is as expected
         pkg = self.loads(res.body)
@@ -119,7 +119,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_409_CONFLICT,
-                extra_environ=self.extra_environ)
+                extra_environ=self.admin_extra_environ)
         model.Session.remove()
 
     def test_register_post_with_group(self):
@@ -127,7 +127,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
 
         test_groups = [u'david']
-        user = model.User.by_name(u'russianfan')
+        user = model.User.by_name(u'testsysadmin')
 
         groups = self.get_groups_identifiers(test_groups,[user])
 
@@ -209,7 +209,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
         data = self.dumps(self.package_fixture_data)
         res = self.post_json(offset, data, status=self.STATUS_201_CREATED,
-                             extra_environ=self.extra_environ)
+                             extra_environ=self.admin_extra_environ)
         # Check the database record.
         model.Session.remove()
         package = self.get_package_by_name(self.package_fixture_data['name'])
@@ -224,7 +224,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                                 content_type='something/unheard_of',
                                 status=[self.STATUS_400_BAD_REQUEST,
                                         self.STATUS_201_CREATED],
-                                extra_environ=self.extra_environ)
+                                extra_environ=self.admin_extra_environ)
         model.Session.remove()
         # Some versions of webob work, some don't. No matter, we record this
         # behaviour.
@@ -243,7 +243,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.offset('/rest/dataset')
         postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams, status=self.STATUS_400_BAD_REQUEST,
-                extra_environ=self.extra_environ)
+                extra_environ=self.admin_extra_environ)
 
     def test_register_post_denied(self):
         offset = self.offset('/rest/dataset')
@@ -259,7 +259,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
 
     def test_register_post_indexerror(self):
@@ -276,7 +276,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             offset = self.package_offset()
             data = self.dumps(self.package_fixture_data)
 
-            self.post_json(offset, data, status=500, extra_environ=self.extra_environ)
+            self.post_json(offset, data, status=500, extra_environ=self.admin_extra_environ)
             model.Session.remove()
         finally:
             plugins.unload('synchronous_search')
@@ -289,7 +289,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset()
         data = self.dumps(pkg)
         res = self.post_json(offset, data, status=self.STATUS_409_CONFLICT,
-                             extra_environ=self.extra_environ)
+                             extra_environ=self.admin_extra_environ)
         assert 'length is more than maximum 100' in res.body, res.body
         assert 'tagok' not in res.body
 
@@ -324,7 +324,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         data_returned = self.loads(res.body)
         assert_equal(data['name'], data_returned['name'])
         assert_equal(data['license_id'], data_returned['license_id'])
@@ -340,7 +340,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         # use russianfan now because he has rights to add this package to
         # the 'david' group.
-        extra_environ = {'REMOTE_USER': 'russianfan'}
+        extra_environ = {'REMOTE_USER': 'testsysadmin'}
         res = self.app.post(self.package_offset(), params=postparams,
                             status=self.STATUS_201_CREATED,
                             extra_environ=extra_environ)
@@ -360,7 +360,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         assert "Cannot change value of key from" in res.body, res.body
         assert "to illegally changed value. This key is read-only" in res.body, res.body
 
@@ -378,7 +378,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_404_NOT_FOUND,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
     def create_package_with_admin_user(self, package_data):
         '''Creates a package with self.user as admin and provided package_data.
@@ -433,7 +433,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         params = '%s=1' % self.dumps(new_fixture_data)
         method_func = getattr(self.app, method_str)
         res = method_func(offset, params=params, status=self.STATUS_200_OK,
-                          extra_environ=self.extra_environ)
+                          extra_environ=self.admin_extra_environ)
 
         try:
             # Check the returned package is as expected
@@ -525,7 +525,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params,
                             status=self.STATUS_409_CONFLICT,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         res_dict = self.loads(res.body)
         assert len(res_dict['resources']) == 2, res_dict['resources']
         assert_equal(res_dict['resources'][0], {u'size': [u'Invalid integer']})
@@ -548,7 +548,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
         try:
             # Check the returned package is as expected
@@ -582,7 +582,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
         try:
             # Check the returned package is as expected
@@ -613,7 +613,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(name)
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
         # Check the returned package is as expected
         pkg = self.loads(res.body)
@@ -626,7 +626,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # now reinstate the tag
         params = '%s=1' % self.dumps(old_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         pkg = self.loads(res.body)
         assert_equal(pkg['tags'], ['tag 1.', 'tag2'])
 
@@ -640,7 +640,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         try:
             package1_offset = self.package_offset(package1_name)
             # trying to rename package 1 to package 2's name
-            self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT)
+            print package1_offset, package2_data
+            self.post(package1_offset, package2_data, self.STATUS_409_CONFLICT, extra_environ=self.admin_extra_environ)
         finally:
             self.purge_package_by_name(package2_name)
 
@@ -695,7 +696,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         offset = self.package_offset(old_fixture_data['name'])
         params = '%s=1' % self.dumps(new_fixture_data)
         res = self.app.post(offset, params=params, status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
 
         try:
             # Check the returned package is as expected
@@ -718,7 +719,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.app.delete(offset, status=self.STATUS_200_OK,
-                              extra_environ=self.extra_environ)
+                              extra_environ=self.admin_extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()
@@ -731,7 +732,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
         res = self.delete_request(offset, status=self.STATUS_200_OK,
-                                  extra_environ=self.extra_environ)
+                                  extra_environ=self.admin_extra_environ)
         package = self.get_package_by_name(self.package_fixture_data['name'])
         self.assert_equal(package.state, 'deleted')
         model.Session.remove()
@@ -741,7 +742,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         assert not model.Session.query(model.Package).filter_by(name=package_name).count()
         offset = self.offset('/rest/dataset/%s' % package_name)
         res = self.app.delete(offset, status=self.STATUS_404_NOT_FOUND,
-                              extra_environ=self.extra_environ)
+                              extra_environ=self.admin_extra_environ)
 
     def test_package_revisions(self):
         # check original revision
@@ -787,7 +788,7 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         offset = self.package_offset()
         postparams = '%s=1' % self.dumps(test_params)
         res = self.app.post(offset, params=postparams,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         model.Session.remove()
         pkg = self.get_package_by_name(test_params['name'])
         assert pkg
@@ -818,7 +819,7 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         offset = self.package_offset(test_params['name'])
         postparams = '%s=1' % self.dumps(pkg_vals)
         res = self.app.post(offset, params=postparams, status=[200],
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         model.Session.remove()
         pkg = model.Session.query(model.Package).filter_by(name=test_params['name']).one()
         assert len(pkg.resources) == 1, pkg.resources
@@ -826,4 +827,3 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
 
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
 class TestPackagesUnversioned(UnversionedTestCase, PackagesTestCase): pass
-

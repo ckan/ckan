@@ -84,7 +84,7 @@ class TestPaginationGroup(TestController):
     def setup_class(cls):
         # no. entities per page is hardcoded into the controllers, so
         # create enough of each here so that we can test pagination
-        cls.num_groups = 21
+        cls.num_groups = 22
 
         groups = [u'group_%s' % str(i).zfill(2) for i in range(0, cls.num_groups)]
 
@@ -100,12 +100,12 @@ class TestPaginationGroup(TestController):
         res = self.app.get(url_for(controller='group', action='index'))
         assert 'href="/group?page=2"' in res, res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], grp_numbers)
+        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], grp_numbers)
 
         res = self.app.get(url_for(controller='group', action='index', page=2))
         assert 'href="/group?page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
-        assert_equal(['20'], grp_numbers)
+        assert_equal(['21'], grp_numbers)
 
 class TestPaginationUsers(TestController):
     @classmethod

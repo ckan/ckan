@@ -122,7 +122,6 @@ class RelatedController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
-        c.action = 'related'
         return base.render("package/related_list.html")
 
     def _edit_or_new(self, id, related_id, is_edit):
