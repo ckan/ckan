@@ -246,7 +246,10 @@ def resource_create(context, data_dict):
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
-        errors = e.error_dict['resources'][-1]
+        if 'resources' in e.error_dict:
+            errors = e.error_dict['resources'][-1]
+        else:
+            errors = e.error_dict
         raise ValidationError(errors)
 
     return pkg_dict['resources'][-1]
