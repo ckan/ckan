@@ -1,12 +1,14 @@
 import datetime
+
 from pylons import config
 from sqlalchemy.sql import select
-import ckan.model
+
 import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
+import ckan.new_authz as new_authz
 
 ## package save
 
@@ -266,7 +268,7 @@ def package_dictize(pkg, context):
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, ckan.model.PackageRevision):
+    if isinstance(pkg, model.PackageRevision):
         pkg = model.Package.get(pkg.id)
 
     # isopen
@@ -418,7 +420,7 @@ def user_dictize(user, context):
 
     requester = context.get('user')
 
-    if not (ckan.new_authz.is_sysadmin(requester) or
+    if not (new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
