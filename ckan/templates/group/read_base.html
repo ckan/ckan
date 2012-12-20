@@ -1,5 +1,7 @@
 {% extends "page.html" %}
 
+{% import "macros/format.html" as format %}
+
 {% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
@@ -67,11 +69,11 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ c.group_dict.num_followers }}</dd>
+          <dd>{{ format.num(c.group_dict.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ c.group_dict.packages|length }}</dd>
+          <dd>{{ format.num(c.group_dict.packages|length) }}</dd>
         </dl>
       </div>
     </section>

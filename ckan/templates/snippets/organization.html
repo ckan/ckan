@@ -10,6 +10,9 @@ Example:
     {% snippet 'snippets/organization, organization=c.group_dict %}
 
 #}
+
+{% import "macros/format.html" as format %}
+
 {% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
   <div class="module profile-info">
     <section class="module-content">
@@ -30,11 +33,11 @@ Example:
       <div class="nums">
         <dl>
           <dt>{{ _('Members') }}</dt>
-          <dd>{{ organization.members|length }}</dd>
+          <dd>{{ format.num(organization.members|length) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ organization.packages|length }}</dd>
+          <dd>{{ format.num(organization.packages|length) }}</dd>
         </dl>
       </div>
     </section>

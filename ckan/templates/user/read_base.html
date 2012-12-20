@@ -1,5 +1,7 @@
 {% extends "page.html" %}
 
+{% import "macros/format.html" as format %}
+
 {% set user = c.user_dict %}
 
 {% block subtitle %}{{ user.display_name }}{% endblock %}
@@ -53,15 +55,15 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ user.num_followers }}</dd>
+          <dd>{{ format.num(user.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ user.number_administered_packages }}</dd>
+          <dd>{{ format.num(user.number_administered_packages) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Edits') }}</dt>
-          <dd>{{ user.number_of_edits }}</dd>
+          <dd>{{ format.num(user.number_of_edits) }}</dd>
         </dl>
       </div>
       <div class="info">

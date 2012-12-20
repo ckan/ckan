@@ -1,3 +1,5 @@
+{% import "macros/format.html" as format %}
+
 <div class="popover-context profile-info">
 	{% if notes != 'null' %}
 		<p class="about">
@@ -14,11 +16,11 @@
 	<div class="nums">
 		<dl>
 			<dt>{{ _('Followers') }}</dt>
-			<dd>{{ num_followers }}</dd>
+			<dd>{{ format.num(num_followers) }}</dd>
 		</dl>
 		<dl>
 			<dt>{{ _('Datasets') }}</dt>
-			<dd>{{ num_datasets }}</dd>
+			<dd>{{ format.num(num_datasets) }}</dd>
 		</dl>
 	</div>
 </div>
