@@ -23,17 +23,9 @@ ALTER TABLE "group"
 ALTER TABLE group_revision
     ADD COLUMN is_organization boolean DEFAULT FALSE;
 
+UPDATE "user" SET sysadmin=true WHERE id in ( SELECT user_id FROM user_object_role WHERE role='admin' AND context='System');
+
 COMMIT;
 
 '''
     migrate_engine.execute(update_schema)
-
-
-    # transform sysadmins
-    import ckan.model as model
-    sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
-    for sysadmin in sysadmins:
-
-        user = model.User.get(sysadmin.user.id)
-        user.sysadmin = True
-        model.Session.commit()
