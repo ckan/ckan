@@ -11,6 +11,12 @@ label {
   font-weight: bold;
 }
 
+.btn-rounded {
+  .border-radius(100px);
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
 label {
   cursor: pointer;
   font-size: 14px;
@@ -137,10 +143,21 @@ textarea {
   margin-top: 6px;
 }
 
+.form-horizontal .info-help {
+  padding: 6px 0;
+  &:before {
+    display: none;
+  }
+}
+.form-horizontal .info-help-tight {
+  margin-top: -10px;
+}
+
 .form-horizontal .info-inline {
   float: right;
   width: 265px;
   margin-top: 0;
+  padding-bottom: 0;
 }
 
 .form-horizontal .control-medium .info-block.info-inline {

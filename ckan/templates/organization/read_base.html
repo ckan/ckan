@@ -1,0 +1,49 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='organization', action='read', id=c.group_dict.name %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  {% if h.check_access('organization_update', {'id': c.group.id}) %}
+    <li>{% link_for _('Add Dataset to Organization'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
+    <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
+  {% endif %}
+  {# <li>{% link_for _('History'), controller='organization', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <header class="module-content page-header">
+      <ul class="nav nav-tabs">
+        <li{% if c.action == 'read' %} class="active"{% endif %}>
+          {% link_for _('Datasets'), controller='organization', action='read', id=c.group_dict.name, icon='sitemap' %}
+        </li>
+        <li{% if c.action == 'about' %} class="active"{% endif %}>
+          {% link_for _('About'), controller='organization', action='about', id=c.group_dict.name, icon='info-sign' %}
+        </li>
+      </ul>
+    </header>
+    {% block primary_content_inner %}
+    {% endblock %}
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'snippets/organization.html', organization=c.group_dict %}
+
+  {% if h.user_in_org_or_group(c.group_dict.id) %}
+    {{ h.snippet('snippets/facet_list.html', title='Visibility', name='capacity', extras={'id':c.group_dict.id}) }}
+  {% endif %}
+
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
+{% endblock %}
+
+{% block links %}
+  {{ super() }}
+  {% include "organization/snippets/feeds.html" %}
+{% endblock %}

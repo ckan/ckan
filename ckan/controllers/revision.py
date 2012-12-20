@@ -7,7 +7,6 @@ from ckan.logic import NotAuthorized, check_access
 
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
-import ckan.authz
 
 
 class RevisionController(BaseController):

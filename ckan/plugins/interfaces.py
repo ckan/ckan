@@ -10,9 +10,11 @@ __all__ = [
     'IMiddleware',
     'IAuthFunctions',
     'IDomainObjectModification', 'IGroupController',
+    'IOrganizationController',
     'IPackageController', 'IPluginObserver',
-    'IConfigurable', 'IConfigurer', 'IAuthorizer',
+    'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IResourcePreview',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -191,6 +193,38 @@ class IResourceUrlChange(Interface):
         pass
 
 
+class IResourcePreview(Interface):
+    """
+    Hook into the resource previews in helpers.py. This lets you
+    create custom previews for example for xml files.
+    """
+
+    def can_preview(self, data_dict):
+        '''
+        Return True if the extension can preview the resource. The ``data_dict``
+        contains the resource and the package.
+
+        Make sure you also make sure to ckeck the ``on_same_domain`` value of the
+        resource or the url if your preview requires the resource to be on
+        the same domain because of the same origin policy.
+        '''
+
+    def setup_template_variables(self, context, data_dict):
+        '''
+        Add variables to c just prior to the template being rendered.
+        The ``data_dict`` contains the resource and the package.
+
+        Change the url to a proxied domain if necessary.
+        '''
+
+    def preview_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page.
+        The ``data_dict`` contains the resource and the package.
+        '''
+
+
 class ITagController(Interface):
     '''
     Hook into the Tag controller. These will usually be called just before
@@ -236,6 +270,41 @@ class IGroupController(Interface):
     def before_view(self, pkg_dict):
         '''
              Extensions will recieve this before the group gets
+             displayed. The dictionary passed will be the one that gets
+             sent to the template.
+        '''
+        return pkg_dict
+
+
+class IOrganizationController(Interface):
+    """
+    Hook into the Organization controller. These will
+    usually be called just before committing or returning the
+    respective object, i.e. all validation, synchronization
+    and authorization setup are complete.
+    """
+
+    def read(self, entity):
+        pass
+
+    def create(self, entity):
+        pass
+
+    def edit(self, entity):
+        pass
+
+    def authz_add_role(self, object_role):
+        pass
+
+    def authz_remove_role(self, object_role):
+        pass
+
+    def delete(self, entity):
+        pass
+
+    def before_view(self, pkg_dict):
+        '''
+             Extensions will recieve this before the organization gets
              displayed. The dictionary passed will be the one that gets
              sent to the template.
         '''
@@ -296,6 +365,18 @@ class IPackageController(Interface):
         '''
 
         return search_results
+
+    def update_facet_titles(self, facet_titles):
+        '''
+            Update the dictionary mapping facet names to facet titles.
+
+            Example: {'facet_name': 'The title of the facet'}
+
+            Called after the search operation was performed and
+            before the search page will be displayed.
+            The titles show up on the search page.
+        '''
+        return facet_titles
 
     def before_index(self, pkg_dict):
         '''
@@ -368,28 +449,6 @@ class IConfigurer(Interface):
         available to plugins. The config should be updated in place.
 
         :param config: ``pylons.config`` object
-        """
-
-
-class IAuthorizer(Interface):
-    """
-    Allow customisation of default Authorization implementation
-    """
-
-    def get_roles(self, username, domain_obj):
-        """
-        Called by Authorizer to extend the list of roles which a user
-        has in the context of the supplied object.  Should return a
-        list of strings which are the names of valid UserObjectRoles.
-        """
-
-    def is_authorized(self, username, action, domain_obj):
-        """
-        Called by Authorizer to assert that a user ```username``` can
-        perform ``action``` on ```domain_obj```.
-
-        Should return True or False.  A value of False will allow
-        other Authorizers to run; True will shortcircuit and return.
         """
 
 

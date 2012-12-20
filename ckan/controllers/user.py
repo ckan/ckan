@@ -8,7 +8,7 @@ import ckan.misc
 import ckan.lib.i18n
 from ckan.lib.base import *
 from ckan.lib import mailer
-from ckan.authz import Authorizer
+import ckan.new_authz
 from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
@@ -49,7 +49,7 @@ class UserController(BaseController):
         into a format suitable for the form (optional)'''
 
     def _setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
@@ -156,7 +156,7 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -232,7 +232,7 @@ class UserController(BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user))
+        if not (ckan.new_authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
@@ -246,6 +246,8 @@ class UserController(BaseController):
                                        data_dict)
 
         c.is_myself = True
+        c.show_email_notifications = asbool(
+                config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -256,6 +258,11 @@ class UserController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # MOAN: Do I really have to do this here?
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
@@ -477,7 +484,7 @@ class UserController(BaseController):
         c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
 
-    def activity(self, id):
+    def activity(self, id, offset=0):
         '''Render this user's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
@@ -491,15 +498,16 @@ class UserController(BaseController):
         self._setup_template_variables(context, data_dict)
 
         c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
+            context, {'id': c.user_dict['id'], 'offset': offset})
 
         return render('user/activity_stream.html')
 
-    def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
-        '''Returns dict which is needed by the dashboard view to determine context'''
+    def _get_dashboard_context(self, filter_type=None, filter_id=None,
+            q=None):
+        '''Return a dict needed by the dashboard view to determine context.'''
 
         def display_name(followee):
-            '''Return a display name for the given user, group or dataset dict.'''
+            '''Return a display name for a user, group or dataset dict.'''
             display_name = followee.get('display_name')
             fullname = followee.get('fullname')
             title = followee.get('title')
@@ -546,10 +554,10 @@ class UserController(BaseController):
             'dict': None,
         }
 
-    def dashboard(self, id=None):
+    def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
 
         q = request.params.get('q', u'')
@@ -557,15 +565,15 @@ class UserController(BaseController):
         filter_id = request.params.get('name', u'')
 
         c.followee_list = get_action('followee_list')(
-            context,{'id': c.userobj.id, 'q': q})
+            context, {'id': c.userobj.id, 'q': q})
         c.dashboard_activity_stream_context = self._get_dashboard_context(
             filter_type, filter_id, q)
         c.dashboard_activity_stream = h.dashboard_activity_stream(
-            id, filter_type, filter_id)
+            id, filter_type, filter_id, offset)
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+        get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html')
 

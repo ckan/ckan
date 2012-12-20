@@ -92,7 +92,8 @@ class GroupsTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(data)
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_200_OK,
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
+        res = self.set_env(self.extra_environ)
 
     def test_05_get_group_entity_not_found(self):
         offset = self.offset('/rest/group/22222')
@@ -110,7 +111,7 @@ class GroupsTestCase(BaseModelApiTestCase):
             model.Session.remove()
             group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
-        assert len(group.member_all) == 2, group.member_all
+        assert len(group.member_all) == 3, group.member_all
         user = model.User.by_name(self.user_name)
         model.setup_default_user_roles(group, [user])
 
@@ -126,10 +127,10 @@ class GroupsTestCase(BaseModelApiTestCase):
         package = model.Session.query(model.Package).filter_by(name='annakarenina').one()
         assert group.name == group_vals['name']
         assert group.title == group_vals['title']
-        assert len(group.member_all) == 2, group.member_all
-        assert len([mem for mem in group.member_all if mem.state == 'active']) == 1, group.member_all
+        assert len(group.member_all) == 3, group.member_all
+        assert len([mem for mem in group.member_all if mem.state == 'active']) == 2, group.member_all
         for mem in group.member_all:
-            if mem.state == 'active':
+            if mem.state == 'active' and mem.capacity == 'package':
                 assert mem.table_id == package.id
 
     def test_10_edit_group_name_duplicate(self):
@@ -162,8 +163,9 @@ class GroupsTestCase(BaseModelApiTestCase):
         offset = self.group_offset(self.testgroupvalues['name'])
         postparams = '%s=1' % self.dumps(group_vals)
         res = self.app.post(offset, params=postparams, status=[409],
-                            extra_environ=self.extra_environ)
+                            extra_environ=self.admin_extra_environ)
         self.assert_json_response(res, 'Group name already exists')
+        res = self.set_env(self.extra_environ)
 
     def test_11_delete_group(self):
         # Test Groups Entity Delete 200.
@@ -188,16 +190,22 @@ class GroupsTestCase(BaseModelApiTestCase):
         # delete it
         offset = self.group_offset(self.testgroupvalues['name'])
         res = self.app.delete(offset, status=[200],
-                extra_environ=self.extra_environ)
+                extra_environ=self.admin_extra_environ)
+
+        res = self.set_env(self.extra_environ)
 
         group = model.Group.by_name(self.testgroupvalues['name'])
         assert group
         assert group.state == 'deleted', group.state
 
-        res = self.app.get(offset, status=[403])
-        self.assert_json_response(res, 'Access denied')
+        # Anyone can see groups especially sysadmins
+        # maybe we want to do something different with
+        # deleted groups but that would be a new requirement
+        #res = self.app.get(offset, status=[403])
+        #self.assert_json_response(res, 'Access denied')
         res = self.app.get(offset, status=[200],
-                           extra_environ=self.extra_environ)
+                           extra_environ=self.admin_extra_environ)
+        res = self.set_env(self.extra_environ)
 
     def test_12_get_group_404(self):
         # Test Package Entity Get 404.

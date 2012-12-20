@@ -1,15 +1,13 @@
 {% import 'macros/form.html' as form %}
 
-{% set groups_available = h.groups_available() %}
-{% if groups_available %}
+
+{% if data.owner_org %}
   <div class="control-group">
-    {% set groups = h.dict_list_reduce(data.groups, 'id') %}
-    <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
+    <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
     <div class="controls">
-      <select id="field-groups" name="groups__{{ groups | count }}__id" data-module="autocomplete">
-        <option value="">{{ _('Select a group...') }}</option>
-        {% for group in groups_available %}
-        <option value="{{ group.id }}" {% if group.id in groups %}selected="selected"{% endif %}>{{ group.name }}</option>
+      <select id="field-private" name="private" data-module="autocomplete">
+        {% for option in [(true, 'Private'), (false, 'Public')] %}
+        <option value="{{ option[0] }}" {% if option[0] == data.private%}selected="selected"{% endif %}>{{ option[1] }}</option>
         {% endfor %}
       </select>
     </div>
@@ -27,3 +25,23 @@
 {% block custom_fields %}
   {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
 {% endblock %}
+
+
+  {% block dataset_fields %}
+    {% if data.groups %}
+      <div class="control-group">
+        <label class="control-label">{{ _('Groups') }}</label>
+        <div class="controls">
+          {% for group in data.groups %}
+            <label class="checkbox" for="field-group-{{ loop.index0 }}">
+              <input id="field-group-{{ loop.index0 }}" type="checkbox" name="groups__{{ loop.index0 }}__id" value="{{ group.id }}" checked="checked" />
+              {{ group.title }}
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    {% set group_name = 'groups__%s__name' % data.groups|length %}
+    {% set group_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/group/autocomplete?q=?'} %}
+    {{ form.input(group_name, label=_('Add Group'), id="field-group", value=data[group_name], classes=['control-medium'], attrs=group_attrs) }}
+  {% endblock %}

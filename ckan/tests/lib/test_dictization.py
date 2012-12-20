@@ -48,6 +48,7 @@ class TestBasicDictize:
                         'image_url': u'',
                         'type': u'group',
                         'state': u'active',
+                        'is_organization': False,
                         'title': u"Dave's books",
                         "approval_status": u"approved"},
                        {'description': u'Roger likes these books.',
@@ -56,11 +57,15 @@ class TestBasicDictize:
                         'image_url': u'',
                         'type': u'group',
                         'state': u'active',
+                        'is_organization': False,
                         'title': u"Roger's books",
                         "approval_status": u"approved"}],
             'isopen': True,
             'license_id': u'other-open',
             'license_title': u'Other (Open)',
+            'owner_org': None,
+            'private': False,
+            'organization': None,
             'maintainer': None,
             'maintainer_email': None,
             'type': None,
@@ -172,6 +177,8 @@ class TestBasicDictize:
             'title': u'A Novel By Tolstoy',
             'type': None,
             'url': u'http://www.annakarenina.com',
+            'owner_org': None,
+            'private': False,
             'version': u'0.7a'
         }
         assert result == expected, pprint(result)
@@ -248,7 +255,10 @@ class TestBasicDictize:
         asdict['download_url'] = asdict['resources'][0]['url']
         asdict['license_title'] = u'Other (Open)'
 
-        assert package_to_api1(pkg, context) == asdict
+        dictize = package_to_api1(pkg, context)
+        # the is_dict method doesn't care about organizations
+        del dictize['organization']
+        assert dictize == asdict
 
     def test_04_package_to_api1_with_relationship(self):
 
@@ -267,6 +277,8 @@ class TestBasicDictize:
         as_dict["relationships"].sort(key=lambda x:x.items())
         dictize["relationships"].sort(key=lambda x:x.items())
 
+        # the is_dict method doesn't care about organizations
+        del dictize['organization']
         as_dict_string = pformat(as_dict)
         dictize_string = pformat(dictize)
         print as_dict_string
@@ -305,6 +317,8 @@ class TestBasicDictize:
         as_dict["relationships"].sort(key=lambda x:x.items())
         dictize["relationships"].sort(key=lambda x:x.items())
 
+        # the is_dict method doesn't care about organizations
+        del dictize['organization']
         as_dict_string = pformat(as_dict)
         dictize_string = pformat(dictize)
         print as_dict_string
@@ -360,7 +374,9 @@ class TestBasicDictize:
     def test_09_package_alter(self):
 
         context = {"model": model,
-                   "session": model.Session}
+                   "session": model.Session,
+                   "user": 'testsysadmin'
+                   }
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
@@ -370,6 +386,7 @@ class TestBasicDictize:
         anna_dictized["resources"][0]["url"] = u'http://new_url'
 
         model.repo.new_revision()
+
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
@@ -398,6 +415,7 @@ class TestBasicDictize:
 
         context = {'model': model,
                    'session': model.Session,
+                   "user": 'testsysadmin',
                    'pending': True}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
@@ -490,6 +508,7 @@ class TestBasicDictize:
 
         context = {'model': model,
                    'session': model.Session,
+                   "user": 'testsysadmin',
                    'pending': True}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
@@ -693,6 +712,7 @@ class TestBasicDictize:
         second_dictized['extras'][0]['value'] = u'"new_value"'
         second_dictized['state'] = 'pending'
 
+        print '\n'.join(unified_diff(pformat(second_dictized).split('\n'), pformat(third_dictized).split('\n')))
         assert second_dictized == third_dictized
 
         context['revision_id'] = sorted_packages[3].revision_id #original state
@@ -890,20 +910,25 @@ class TestBasicDictize:
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
+                               'is_organization': False,
                                'title': u'simple',
                                'type': u'organization',
                                'approval_status': u'approved'}],
                     'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
                               'display_name': u'annafan',
                               'capacity' : 'public',
+                              'sysadmin': False,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
                               'name': u'annafan',
                               'number_administered_packages': 1L,
-                              'number_of_edits': 0L}],
+                              'number_of_edits': 0L,
+                              'activity_streams_email_notifications': False,
+                              }],
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
+                    'is_organization': False,
                     'packages': [{'author': None,
                                   'author_email': None,
                                   'license_id': u'other-open',
@@ -915,6 +940,8 @@ class TestBasicDictize:
                                   'state': u'active',
                                   'capacity' : 'in',
                                   'title': u'A Novel By Tolstoy',
+                                  'private': False,
+                                  'owner_org': None,
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'},
                                  {'author': None,
@@ -929,6 +956,8 @@ class TestBasicDictize:
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
                                   'title': u'A Novel By Tolstoy',
+                                  'private': False,
+                                  'owner_org': None,
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],
                     'state': u'active',
@@ -942,6 +971,8 @@ class TestBasicDictize:
 
         assert_equal(sorted(result.keys()), sorted(expected.keys()))
         for key in result:
+            if key == 'is_organization':
+                continue
             assert_equal(sorted(result[key]), sorted(expected[key]))
 
     def test_17_group_apis_to_dict(self):

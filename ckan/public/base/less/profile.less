@@ -1,3 +1,10 @@
+.editing {
+	[role="main"],
+	.main {
+		background: #EFEFEF url("@{imagePath}/editing.png?2") 0 0 repeat-x;
+	}
+}
+
 .profile {
 	.empty,
 	.dataset-list {
@@ -17,6 +24,9 @@
 		a {
 			display: block;
 		}
+	}
+	p {
+		overflow: auto;
 	}
 	code {
 		font-weight: normal;
@@ -58,6 +68,14 @@
 				line-height: 1.2;
 				margin-left: 0;
 			}
+		}
+	}
+	&.editing {
+		.module-heading {
+
+		}
+		.module-content {
+			margin-top: 0;
 		}
 	}
 }

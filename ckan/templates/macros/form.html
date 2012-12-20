@@ -310,6 +310,48 @@ Example
 {% endmacro %}
 
 {#
+Builds a single hidden input.
+
+name  - name of the hidden input
+value - value of the hidden input
+
+Example
+
+  {% import 'macros/form.html' as form %}
+  {{ form.hidden('name', 'value') }}
+
+#}
+{% macro hidden(name, value) %}
+  <input type="hidden" name="{{ name }}" value="{{ value }}" }} />
+{% endmacro %}
+
+{#
+Contructs hidden inputs for each name-value pair.
+
+fields - [('name1', 'value1'), ('name2', 'value2'), ...]
+
+Two parameter for excluding several names or name-value pairs.
+
+except_names - list of names to be excluded
+except       - list of name-value pairs to be excluded
+
+
+Example:
+    {% form.hidden_from_list(fields=c.fields, except=[('topic', 'xyz')]) %}
+    {% form.hidden_from_list(fields=c.fields, except_names=['time_min', 'time_max']) %}
+#}
+{% macro hidden_from_list(fields, except_names=None, except=None) %}
+  {% set except_names = except_names or [] %}
+  {% set except = except or [] %}
+
+  {% for name, value in fields %}
+    {% if name and value and name not in except_names and (name, value) not in except %}
+      {{ hidden(name, value) }}
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
+{#
 Builds a space seperated list of html attributes from a dict of key/value pairs.
 Generally only used internally by macros.
 

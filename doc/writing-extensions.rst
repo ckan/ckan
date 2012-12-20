@@ -2,14 +2,14 @@
 Understand and Write Extensions
 ===============================
 
-If you want to extend CKAN core functionality, the best way to do so is by writing extensions. 
+If you want to extend CKAN core functionality, the best way to do so is by writing extensions.
 
 Extensions allow you to customise CKAN for your own requirements, without interfering with the basic CKAN system.
 
 To meet the need to customize CKAN efficiently, we have introduced the concepts of CKAN extensions and plugin
 interfaces. These work together to provide a simple mechanism to extend core CKAN functionality.
 
-.. warning:: This is an advanced topic. We are working to make the most popular extensions more easily available as Debian packages. 
+.. warning:: This is an advanced topic. We are working to make the most popular extensions more easily available as Debian packages.
 
 .. note:: The terms **extension** and **plugin interface** have very precise meanings: the use of the generic word **plugin** to describe any way in which CKAN might be extended is deprecated.
 
@@ -26,7 +26,7 @@ package which means that they can be imported like this:
     $ python
     >>> import ckanext.example
 
-Individual CKAN *extensions* may implement one or more *plugin interfaces* 
+Individual CKAN *extensions* may implement one or more *plugin interfaces*
 to provide their functionality.
 
 Creating CKAN Extensions
@@ -45,7 +45,7 @@ You'll get prompted to complete a number of variables which will be used in your
 
     Selected and implied templates:
       ckan#ckanext  CKAN extension project template
-    
+
     Variables:
       egg:      ckanext_myextension
       package:  ckanextmyextension
@@ -87,9 +87,9 @@ Once you've run this, you should now install the extension in your virtual envir
     >>> import ckanext.myextension
     >>>
 
-.. note:: 
+.. note::
     Running ``python setup.py develop`` will add a ``.egg-link`` file to your python
-    site-packages directory (which is on your python path). 
+    site-packages directory (which is on your python path).
     This allows your extension to be imported and used, with
     any changes made to the extension source code showing up immediately without needing
     to be reinstalled, which is very useful during development.
@@ -99,14 +99,14 @@ Once you've run this, you should now install the extension in your virtual envir
 
 To build useful extensions you need to be able to "hook into" different parts
 of CKAN in order to extend its functionality. You do this using CKAN's plugin
-architecture. We'll look at this in the next section. 
+architecture. We'll look at this in the next section.
 
 
 Plugins: An Overview
 --------------------
 
 Plugin interfaces provide a specification which extensions can implement in
-order to "hook into" core CKAN functionality. 
+order to "hook into" core CKAN functionality.
 
 The CKAN plugin implementation is based on the PyUtilib_ component architecture
 (PCA). Here's a quick summary, we'll go through all this in much more detail in
@@ -117,8 +117,8 @@ a minute:
    mapping layer would need to implement the ``IMapperExtension`` interface.
 
 #. A plugin is a class that derives from ``ckan.plugins.Plugin`` or more
-   commonly ``SingletonPlugin``. It must also implement one of the plugin 
-   interfaces exposed in ``ckan.plugins.interfaces``. The choice interface 
+   commonly ``SingletonPlugin``. It must also implement one of the plugin
+   interfaces exposed in ``ckan.plugins.interfaces``. The choice interface
    determines the functionality the plugin is expected to provide.
 
 #. Plugin objects must be registered as setuptools entry points. The
@@ -130,37 +130,38 @@ a minute:
 Here's a list of some of the more commonly used plugin interfaces:
 
 
-``IDatasetForm``
+:class:`~ckan.plugins.interfaces.IDatasetForm`
     Provide a custom dataset form and schema.
 
-``IMapper``
+:class:`~ckan.plugins.interfaces.IMapper`
     Listens and react to every database change.
 
-``IRoutes`` and ``IController``
+:class:`~ckan.plugins.interfaces.IRoutes`
     Provide an implementation to handle a particular URL.
 
-``IGenshiStreamFilter``
+:class:`~ckan.plugins.interfaces.IGenshiStreamFilter`
     Intercept template rendering to modify the output.
 
-``IDomainObjectModification``
+:class:`~ckan.plugins.interfaces.IResourcePreview`
+    Add custom previews. The preview extensions can make use of the resoucre proxy extension, if enabled.
+
+:class:`~ckan.plugins.interfaces.IDomainObjectModification`
     Listens for changes to CKAN domain objects.
 
-``IGroupController``
-    Plugins for in the groups controller. These will 
+:class:`~ckan.plugins.interfaces.IGroupController`
+    Plugins for in the groups controller. These will
     usually be called just before committing or returning the
-    respective object, i.e. all validation, synchronization 
-    and authorization setup are complete. 
+    respective object, i.e. all validation, synchronization
+    and authorization setup are complete.
 
-``IConfigurable``
+:class:`~ckan.plugins.interfaces.IConfigurable`
     Pass configuration to plugins and extensions.
 
-``IAuthorizer``
+:class:`~ckan.plugins.interfaces.IAuthorizer`
     Allows customisation of the default Authorization behaviour.
 
-If you look in `ckan/plugins/interfaces.py
-<https://github.com/okfn/ckan/blob/master/ckan/plugins/interfaces.py>`_ you
-will see the latest plugin interfaces. 
-Alternatively see the `Plugin API documentation`_ below.
+See the `Plugin API documentation`_ below to find a complete
+list of all interfaces and their documentation.
 
 .. .. note::
 ..    The existing 'IRoutesExtension', 'IMapperExtension' and 'ISessionExtension'
@@ -179,10 +180,10 @@ Have a look at the README file for installation instructions.
 Publishing Extensions
 ---------------------
 
-At this point you might want to share your extension with the public. 
+At this point you might want to share your extension with the public.
 
 First check you have chosen an open source licence (e.g. the `MIT
-<http://opensource.org/licenses/mit-license.html>`_ licence) and then 
+<http://opensource.org/licenses/mit-license.html>`_ licence) and then
 update the ``long_description`` variable in ``setup.py`` to
 explain what the extension does and which entry point names a user of the
 extension will need to add to their ``ckan.plugins`` configuration.
@@ -205,7 +206,7 @@ http://wiki.ckan.org/Extensions.
 Writing a Plugin Interface
 --------------------------
 
-This describes how to add a plugin interface to make core CKAN code pluggable. 
+This describes how to add a plugin interface to make core CKAN code pluggable.
 
 Suppose you have a class such as this::
 
@@ -290,7 +291,7 @@ similar to the following to ensure that your plugin is loaded while testing::
            plugins.reset()
 
 The exception to using ``plugins.load()`` is for when your plug-in is for routes.
-In this case, the plugin must be configured before the WSGI app is started. 
+In this case, the plugin must be configured before the WSGI app is started.
 Here is an example test set-up::
 
     from paste.deploy import appconfig
@@ -315,7 +316,7 @@ Ordering of Extensions
 ----------------------
 
 .. caution ::
- 
+
   The order in which extensions are initially loaded is **different** to the order that their plugins are run.
 
 The order in which extensions are initially loaded is as follows:
@@ -354,7 +355,7 @@ Guidelines for writing extensions:
 - Extensions should use actions where possible via ``get_action()``.
 
 - No foreign key constraints into core as these cause problems.
-  
+
 .. Did we decide upon this, this seems like quite a restriction?
 
 - The ``Session`` object is available through the toolkit.
