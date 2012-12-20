@@ -7452,10 +7452,29 @@ header.masthead .debug {
   padding: 5px 20px;
 }
 #followee-filter .btn {
+  *zoom: 1;
+}
+#followee-filter .btn:before,
+#followee-filter .btn:after {
+  display: table;
+  content: "";
+}
+#followee-filter .btn:after {
+  clear: both;
+}
+#followee-filter .btn span,
+#followee-filter .btn strong {
+  display: block;
+  float: left;
+  line-height: 1.5;
+}
+#followee-filter .btn span {
   font-weight: normal;
 }
 #followee-filter .btn strong {
-  max-width: 50px;
+  margin: 0 5px;
+  white-space: nowrap;
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -7490,6 +7509,9 @@ header.masthead .debug {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
+}
+.popover-followee .empty {
+  padding: 10px;
 }
 .popover-followee .popover-header {
   *zoom: 1;
@@ -7538,6 +7560,9 @@ header.masthead .debug {
 }
 .popover-followee .nav li a {
   display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   padding: 7px 10px 7px 15px;
   margin: 0;
   -webkit-border-radius: 0;
@@ -7563,6 +7588,9 @@ header.masthead .debug {
 .popover-followee .nav li.active a i {
   color: #187794;
   background-color: #ffffff;
+}
+.ie8 .dashboard-aside {
+  width: 218px;
 }
 body {
   background-color: #00536b;

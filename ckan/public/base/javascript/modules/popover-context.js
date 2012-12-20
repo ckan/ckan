@@ -155,11 +155,47 @@ this.ckan.module('popover-context', function($, _) {
 
 				// has this been rendered before?
 				if (typeof window.popover_context.render[type][id] == 'undefined') {
-					client.getTemplate('popover_context_' + type + '.html', json.result, this._onRenderPopover);
+					var params = this.sanitiseParams(json.result);
+					client.getTemplate('popover_context_' + type + '.html', params, this._onRenderPopover);
 				} else {
 				 	this._onRenderPopover(window.popover_context.render[type][id]);
 				}
 			}
+		},
+
+		/* Used to break down a raw object into something a little more
+		 * passable into a GET request
+		 *
+		 * Returns object.
+		 */
+		sanitiseParams: function(raw) {
+			var type = this.options.type;
+			var params = {};
+			if (type == 'user') {
+				params.id = raw.id;
+				params.name = raw.name;
+				params.about = raw.about;
+				params.display_name = raw.display_name;
+				params.num_followers = raw.num_followers;
+				params.number_administered_packages = raw.number_administered_packages;
+				params.number_of_edits = raw.number_of_edits;
+				params.is_me = ( raw.id == this.options.authed );
+			} else if (type == 'dataset') {
+				params.id = raw.id;
+				params.title = raw.title;
+				params.name = raw.name;
+				params.notes = raw.notes;
+				params.num_resources = raw.num_resources;
+				params.num_tags = raw.num_tags;
+			} else if (type == 'group') {
+				params.id = raw.id;
+				params.title = raw.title;
+				params.name = raw.name;
+				params.description = raw.description;
+				params.num_datasets = raw.num_datasets;
+				params.num_followers = raw.num_followers;
+			}
+			return params;
 		},
 
 		/* Renders the contents of the popover
