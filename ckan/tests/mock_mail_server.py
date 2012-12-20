@@ -63,7 +63,7 @@ class SmtpServerHarness(object):
 
     @classmethod
     def setup_class(cls):
-        smtp_server  = config.get('test_smtp_server') or config['smtp_server']
+        smtp_server  = config.get('smtp.test_server') or config['smtp_server']
         if ':' in smtp_server:
             host, port = smtp_server.split(':')
         else:
