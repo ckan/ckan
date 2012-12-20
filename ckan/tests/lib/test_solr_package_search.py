@@ -29,6 +29,10 @@ class TestQuery:
         assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:"tolstoy"'})
         assert_equal(convert({'tags': 'more than one tolstoy'}), {'q': 'tags:"more than one tolstoy"'})
         assert_equal(convert({'tags': u'with greek omega \u03a9'}), {'q': u'tags:"with greek omega \u03a9"'})
+        assert_equal(convert({'title': 'Seymour: An Introduction'}), {'q': 'title:"Seymour\: An Introduction"'})
+        assert_equal(convert({'title': 'Pop!'}), {'q': 'title:Pop\!'})
+
+
         assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):

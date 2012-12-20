@@ -39,6 +39,7 @@ import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
+import ckan.lib.datapreview as datapreview
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1142,13 +1143,13 @@ def urls_for_resource(resource):
     ''' Returns a list of urls for the resource specified.  If the resource
     is a group or has dependencies then there can be multiple urls.
 
-    NOTE: This is for special situations only and is not the way to generaly
+    NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
     f = core.get_needed()
-    lib = resources[0].library
+    lib = r.library
     root_path = f.library_url(lib)
 
     resources = core.sort_resources(resources)
@@ -1353,39 +1354,43 @@ def format_resource_items(items):
 
 def resource_preview(resource, pkg_id):
     '''
-    Returns a rendered snippet for a embeded resource preview.
+    Returns a rendered snippet for a embedded resource preview.
 
     Depending on the type, different previews are loaded.
     This could be an img tag where the image is loaded directly or an iframe that
-    embeds a webpage, recline or a pdf preview.
+    embeds a web page, recline or a pdf preview.
     '''
-
-    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
-    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
-                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
-                'txt', 'json']
-    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
 
     format_lower = resource['format'].lower()
     directly = False
     url = ''
 
-    if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
+    data_dict = {'resource': resource, 'package': c.package}
+
+    if not resource['url']:
+        log.info('No url for resource {0} defined.'.format(resource['id']))
+        return snippet(
+            "dataviewer/snippets/no_preview.html",
+            resource_type=format_lower,
+            reason='No valid resource url has been defined.'
+            )
+    direct_embed = config.get('ckan.preview.direct', '').split()
+    if not direct_embed:
+        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
+    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
+    if not loadable_in_iframe:
+        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
+
+    if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='recline', id=pkg_id, qualified=True)
-    elif format_lower in PDF:
-        url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='pdf', id=pkg_id, qualified=True)
-    elif format_lower == 'jsonp':
-        url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='json', id=pkg_id, qualified=True)
-    elif format_lower in LOADABLE:
-        url = resource['url']
-    elif format_lower in DIRECT_EMBEDS:
+            resource_id=resource['id'], id=pkg_id, qualified=True)
+    elif format_lower in direct_embed:
         directly = True
         url = resource['url']
+    elif format_lower in loadable_in_iframe:
+        url = resource['url']
     else:
-        log.info('No preview handler for resource type {0}'.format(resource['format']))
+        log.info('No preview handler for resource type {0}'.format(format_lower))
         return snippet(
             "dataviewer/snippets/no_preview.html",
             resource_type=format_lower

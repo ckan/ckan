@@ -1,7 +1,7 @@
 import datetime
 from pylons import config
 from sqlalchemy.sql import select
-import ckan.authz
+import ckan.model
 import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -416,7 +416,7 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    requester = context['user']
+    requester = context.get('user')
 
     if not (ckan.new_authz.is_sysadmin(requester) or
             requester == user.name or

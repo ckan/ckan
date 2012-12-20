@@ -25,14 +25,16 @@ from ckan.logic import (tuplize_dict,
                         parse_params,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
-import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
+import ckan.lib.helpers as h
+import ckan.lib.datapreview as datapreview
 import ckan.plugins as plugins
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -1332,20 +1334,46 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_datapreview(self, id, resource_id, preview_type):
+    def resource_datapreview(self, id, resource_id):
         '''
         Embeded page for a resource data-preview.
+
+        Depending on the type, different previews are loaded.
+        This could be an img tag where the image is loaded directly or an iframe that
+        embeds a webpage, recline or a pdf preview.
         '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author
+        }
 
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
+
+            data_dict = {'resource': c.resource, 'package': c.package}
+            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
+            data_dict['resource']['on_same_domain'] = on_same_domain
+
+            plugins = p.PluginImplementations(p.IResourcePreview)
+            plugins_that_can_preview = [plugin for plugin in plugins
+                                    if plugin.can_preview(data_dict)]
+            if len(plugins_that_can_preview) == 0:
+                abort(409, _('No preview has been defined.'))
+            if len(plugins_that_can_preview) > 1:
+                log.warn('Multiple previews are possible. {0}'.format(
+                                            plugins_that_can_preview))
+
+            plugin = plugins_that_can_preview[0]
+            plugin.setup_template_variables(context, data_dict)
+
             c.resource_json = json.dumps(c.resource)
+
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/{type}.html'.format(type=preview_type))
+        else:
+            return render(plugin.preview_template(context, data_dict))

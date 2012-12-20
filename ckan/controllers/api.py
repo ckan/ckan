@@ -545,7 +545,8 @@ class ApiController(base.BaseController):
     def _get_search_params(cls, request_params):
         if 'qjson' in request_params:
             try:
-                params = h.json.loads(request_params['qjson'], encoding='utf8')
+                qjson_param = request_params['qjson'].replace('\\\\u','\\u')
+                params = h.json.loads(qjson_param, encoding='utf8')
             except ValueError, e:
                 raise ValueError(gettext('Malformed qjson value') + ': %r'
                                  % e)
