@@ -1,11 +1,14 @@
 import datetime
+
 from pylons import config
 from sqlalchemy.sql import select
+
 import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
+import ckan.new_authz as new_authz
 
 ## package save
 
@@ -417,7 +420,7 @@ def user_dictize(user, context):
 
     requester = context.get('user')
 
-    if not (ckan.new_authz.is_sysadmin(requester) or
+    if not (new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
