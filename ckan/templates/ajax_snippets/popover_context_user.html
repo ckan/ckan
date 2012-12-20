@@ -1,5 +1,6 @@
 <div class="popover-context profile-info">
 	{% if about != 'null' %}
+		{% set about = about|striptags %}
 		<p class="about">
 			{{ h.truncate(about, length=160, whole_word=True) }}
 		</p>
