@@ -6856,7 +6856,7 @@ header.masthead .navigation ul.unstyled li a {
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-header.masthead .navigation ul.unstyled li a.active {
+header.masthead .navigation ul.unstyled li.active a {
   background-color: #0d6581;
   box-shadow: 0 -1px 0 #084152, 0 1px 0 #26758e;
 }
