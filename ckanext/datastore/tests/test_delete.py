@@ -134,8 +134,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert results[0].book == 'annakarenina'
         self.Session.remove()
 
-        # delete the 'annakarenina' row
-        data = {'resource_id': resource_id,
+        # delete the 'annakarenina' row and also only use id
+        data = {'id': resource_id,
                 'filters': {'book': 'annakarenina', 'author': 'tolstoy'}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}

@@ -80,6 +80,18 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records, result['records']
 
+        # search with parameter id should yield the same results
+        data = {'id': self.data['resource_id']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == len(self.data['records'])
+        assert result['records'] == self.expected_records, result['records']
+
     def test_search_alias(self):
         data = {'resource_id': self.data['aliases']}
         postparams = '%s=1' % json.dumps(data)
