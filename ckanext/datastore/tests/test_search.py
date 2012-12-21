@@ -203,6 +203,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+        data = {'resource_id': self.data['resource_id'],
+                'limit': -1}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_search_offset(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 1,
@@ -220,6 +229,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def test_search_invalid_offset(self):
         data = {'resource_id': self.data['resource_id'],
                 'offset': 'bad'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        data = {'resource_id': self.data['resource_id'],
+                'offset': -1}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
