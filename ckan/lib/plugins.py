@@ -353,6 +353,14 @@ class DefaultGroupForm(object):
         """
         return 'group/admins.html'
 
+    def about_template(self):
+        '''Return the path to the template for the group's 'about' page.
+
+        :rtype: string
+
+        '''
+        return 'group/about.html'
+
     def group_form(self):
         return 'group/new_group_form.html'
 
