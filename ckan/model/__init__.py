@@ -39,6 +39,10 @@ from tag import (
     package_tag_table,
     package_tag_revision_table,
 )
+from subscription import (
+    Subscription,
+    SubscriptionItem,
+)
 from user import (
     User,
     user_table,
