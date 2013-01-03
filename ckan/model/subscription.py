@@ -32,8 +32,8 @@ class Subscription(domain_object.DomainObject):
         self.owner_id = owner_id
         self.last_evaluated = datetime.datetime.now()
         self.last_modified = datetime.datetime.now()
-        
-        
+
+
     def get_item_list(self):
         query = meta.Session.query(SubscriptionItem)
         query = query.filter(SubscriptionItem.subscription_id == self.id)
@@ -42,37 +42,35 @@ class Subscription(domain_object.DomainObject):
 
     def subscribed_objects(self):
         type_ = self.definition['type']
-        
+
         objects = []
         if type_ == 'search':
             for item in self.get_item_list():
-                objects.append(Package.get(item.key))
+                objects.append(Package.get(item.reference))
         else:
             for plugin in p.PluginImplementations(p.ISubscription):
                 if plugin.is_responsible(self.definition):
                     for item in self.get_item_list():
                         objects.extend(plugin.get_objects_from_item(item))
                     break
-        
         return objects
-            
-        
+
+
     def get_updates_count(self):
         count = 0
         item_list = self.get_item_list()
         for item in item_list:
             if item.status in ['changed', 'added']:
                 count += 1
-        
         return count
-        
-        
+
+
     def update_item_list_when_necessary(self, context, timespan_after_last_update):
         if self.last_evaluated > datetime.datetime.now() - datetime.timedelta(minutes=timespan_after_last_update):
             return
-            
+
         type_ = self.definition['type']
-        
+
         if type_ == 'search':
             import ckan.lib.base as base
             import ckan.logic.action.get as get
@@ -112,14 +110,14 @@ class Subscription(domain_object.DomainObject):
         self._determine_remaining_items()
 
         self._save_items()
-        
-        
+
+
     def mark_item_list_changes_as_seen(self):
         self._item_list = self.get_item_list()
         self._delete_removed_items()
         self._set_status_to_seen()
         self._save_items()
-        
+
 
     def _prepare_items(self):
         self._item_list = self.get_item_list()
@@ -130,30 +128,28 @@ class Subscription(domain_object.DomainObject):
     def _prepare_data_by_definition(self, data_by_definition, key_name):
         if isinstance(data_by_definition, dict):
             self._item_data_dict_by_definition = data_by_definition
-            
         elif isinstance(data_by_definition, list):
             self._item_data_dict_by_definition = {}
-            
             for item_data in data_by_definition:
                self._item_data_dict_by_definition[self._get_key(item_data, key_name)] = item_data
 
         self._item_ids_by_definition = set(self._item_data_dict_by_definition.keys())
-        
-        
+
+
     def _get_key(self, item_data, key_name):
         if key_name:
             return item_data[key_name]
-        
         return unicode(_hash(item_data))
 
-  
+
     def _determine_added_items(self):
         self._added_item_ids = self._item_ids_by_definition - self._item_ids
         for item_id in self._added_item_ids:
             self._item_list.append(
                 SubscriptionItem(subscription_id=self.id,
-                                 data=self._item_data_dict_by_definition[item_id],
+                                 reference=
                                  key=item_id,
+                                 data=self._item_data_dict_by_definition[item_id],
                                  status='added'))
 
 
@@ -165,7 +161,7 @@ class Subscription(domain_object.DomainObject):
 
     def _determine_changed_items(self):
         self._remaining_item_ids = self._item_ids & self._item_ids_by_definition
-        
+
         for item_id in self._remaining_item_ids:
             item_data = self._item_dict[item_id].data
             item_data_by_definition = self._item_data_dict_by_definition[item_id]
@@ -177,18 +173,16 @@ class Subscription(domain_object.DomainObject):
     def _item_data_equal_item_data(self, item_data, equal_item_data):
         if set(item_data) ^ set(equal_item_data):
             return False
-            
         for key, value in item_data.iteritems():
             if value != equal_item_data[key]:
                 return False
-            
         return True
-    
-    
+
+
     def _determine_remaining_items(self):
         self._remaining_item_ids = self._item_ids & self._item_ids_by_definition
-        
-        
+
+
     def _delete_removed_items(self):
         self._item_list = [item for item in self._item_list if item.status != 'removed']
         query = meta.Session.query(SubscriptionItem)
@@ -200,8 +194,8 @@ class Subscription(domain_object.DomainObject):
     def _set_status_to_seen(self):
         for item in self._item_list:
             item.status = 'seen'
-        
-        
+
+
     def _save_items(self):
         meta.Session.add_all(self._item_list)
 
@@ -259,10 +253,8 @@ meta.mapper(SubscriptionItem, subscription_item_table)
 def _hash(object_):
     if isinstance(object_, list) or isinstance(object_, set):
         return hash(tuple( [_hash(element) for element in object_] ))
-
     elif isinstance(object_, dict):
         return hash(tuple( [(hash(key), _hash(value)) for (key, value) in object_.items()] ))
-
     return hash(object_)
 
 
@@ -276,27 +268,25 @@ def get_subscription(user_id, data_dict):
     import ckan.model as model
 
     if 'subscription_id' in data_dict:
-        subscription_id = logic.get_or_bust(data_dict, 'subscription_id')
+        id_ = data_dict['subscription_id']
         query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.id==subscription_id)
+        query = query.filter(model.Subscription.id==id_)
         subscription = query.first()
         if subscription.owner_id != user_id:
             return None
-
     elif 'subscription_name' in data_dict:
-        subscription_name = logic.get_or_bust(data_dict, 'subscription_name')
+        name = data_dict['subscription_name']
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.owner_id==user_id)
-        query = query.filter(model.Subscription.name==subscription_name)
+        query = query.filter(model.Subscription.name==name)
         subscription = query.first() 
-
     elif 'subscription_definition' in data_dict:
-        subscription_definition = logic.get_or_bust(data_dict, 'subscription_definition')
+        definition = data_dict['subscription_definition']
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.owner_id==user_id)
         subscription = None
         for row in query.all():
-            if is_subscription_equal_definition(row, subscription_definition):
+            if is_subscription_equal_definition(row, definition):
                 subscription = row
                 break
     else:
@@ -304,7 +294,6 @@ def get_subscription(user_id, data_dict):
 
     if not subscription:
         return None
-
     return subscription
 
 
