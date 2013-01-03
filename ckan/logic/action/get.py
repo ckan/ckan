@@ -2571,3 +2571,128 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 def member_roles_list(context, data_dict):
     return new_authz.roles_list()
+
+
+def subscription_list(context, data_dict):
+    '''
+        Return the list of all subscriptions of the user that is logged in.
+
+        :rtype: list of dictionaries
+    '''
+    if not context.has_key('user'):
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+
+    query = query.order_by(model.Subscription.name)
+    subscriptions = query.all()
+    
+    for subscription in subscriptions:
+        subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    return model_dictize.subscription_list_dictize(subscriptions, context)
+
+
+def subscription_show(context, data_dict):
+    '''
+        Return a subscription of a user.
+
+        :param subscription_name: the name of the subscription
+        :type subscription_name: string
+        or
+        :param subscription_id: the id of the subscription
+        :type subscription_id: string
+        or
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: json object
+
+        :rtype: dictionary
+    '''
+    try:
+        subscription = action._get_subscription(context, data_dict)
+    except NotFound:
+        return None
+
+    return model_dictize.subscription_dictize(subscription, context)
+
+def subscription_check_name(context, data_dict):
+    '''
+        Create a subscription.
+
+        After subscribing to a search you will get activities of
+        the datasets that match the search criteria.
+        You must provide your API key in the Authorization header.
+
+        :param subscription_name: the name of the subscription to be checked
+        :type subscription_name: string
+
+    '''
+    if 'user' not in context:
+        raise ckan.logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise ckan.logic.NotAuthorized
+
+    query = model.Session.query(model.Subscription)
+    query = query.filter(model.Subscription.owner_id==user.id)
+    query = query.filter(model.Subscription.name==data_dict['subscription_name'])
+    subscription = query.first()
+            
+    if subscription:
+        raise ckan.logic.ParameterError('subscription name is already taken by this user')
+
+
+def subscription_item_list(context, data_dict):
+    '''
+        Return the list of items of a subscription.
+
+        :param subscription_name: the name of the subscription
+        :type subscription_name: string
+        or
+        :param subscription_id: the id of the subscription
+        :type subscription_id: string
+        or
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: json object
+
+        :param last_update: update is deferred until x minutes after last update [optional]
+        :type last_update: integer
+        
+        :rtype: dictionary
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    return model_dictize.subscription_item_list_dictize(subscription.get_item_list(), context)
+
+
+def subscription_dataset_list(context, data_dict):
+    '''
+        Return the list of datasets of a dataset subscription.
+
+        :param subscription_name: the name of the subscription
+        :type subscription_name: string
+        or
+        :param subscription_id: the id of the subscription
+        :type subscription_id: string
+        or
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: json object
+
+        :param last_update: update is deferred until x minutes after last update [optional]
+        :type last_update: integer
+
+        :rtype: dictionary
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+    datasets = subscription.subscribed_objects()
+
+    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]

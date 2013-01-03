@@ -1070,3 +1070,43 @@ def package_owner_org_update(context, data_dict):
         model.Session.add(member_obj)
 
     model.Session.commit()
+
+
+def subscription_item_list_update(context, data_dict):
+    '''
+        Update the list of subscription items and changes their status
+
+        :param subscription_name: the name of the subscription
+        :type subscription_name: string
+        or
+        :param subscription_id: the id of the subscription
+        :type subscription_id: string
+        or
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: json object
+        
+        :param last_update: update is deferred until x minutes after last update [optional]
+        :type last_update: integer
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
+
+
+def subscription_mark_changes_as_seen(context, data_dict):
+    '''
+        Accept the changes to the subscription and changes the states of the items.
+
+        :param subscription_name: the name of the subscription
+        :type subscription_name: string
+        or
+        :param subscription_id: the id of the subscription
+        :type subscription_id: string
+        or
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: json object
+    '''
+    subscription = action._get_subscription(context, data_dict)
+    subscription.mark_item_list_changes_as_seen()
+
+    if not context.get('defer_commit'):
+        context['model'].repo.commit()
