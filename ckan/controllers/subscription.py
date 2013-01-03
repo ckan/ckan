@@ -1,7 +1,5 @@
 import json
 import logging
-from pylons import session
-from pylons.controllers.util import redirect
 
 import genshi
 import ckan.misc
@@ -108,8 +106,8 @@ class SubscriptionController(BaseController):
                     url += '&%s=%s' % (filter_name, urllib.quote_plus(filter_value))
         else:
             for plugin in PluginImplementations(ISubscription):
-                if plugin.definition_type() == type_ and plugin.data_type() == data_type:
-                    url = plugin.show_url(c.subscription)
+                if plugin.is_responsible(c.subscription['definition']):
+                    url = plugin.get_show_url(c.subscription)
                     break
 
         if not url:
