@@ -1,6 +1,7 @@
 import json
 import logging
 import genshi
+import ckan.lib.helpers as h
 import ckan.misc
 import ckan.model as model
 import ckan.lib.i18n

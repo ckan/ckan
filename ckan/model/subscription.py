@@ -45,8 +45,9 @@ class Subscription(domain_object.DomainObject):
 
         objects = []
         if type_ == 'search':
+            import ckan.model as model
             for item in self.get_item_list():
-                objects.append(Package.get(item.key))
+                objects.append(model.Package.get(item.key))
         else:
             for plugin in p.PluginImplementations(p.ISubscription):
                 if plugin.is_responsible(self.definition):
