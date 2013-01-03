@@ -341,8 +341,6 @@ def make_map():
     map.redirect('/subscriptions/', '/subscription')
     with SubMapper(map, controller='subscription') as m:
         m.connect('/subscription/{subscription_name}', action='show', conditions=GET)
-        m.connect('/subscription/{subscription_name}/edit', action='edit', conditions=POST)
-        m.connect('/subscription/{subscription_name}/mark_as_seen', action='mark_as_seen', conditions=POST)
         m.connect('/subscription/{subscription_name}/delete', action='delete', conditions=POST)
         m.connect('/subscription', action='create', conditions=POST)
         m.connect('/subscription', action='index', conditions=GET)
