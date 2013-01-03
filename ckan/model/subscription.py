@@ -209,27 +209,27 @@ class Subscription(domain_object.DomainObject):
 
 class SubscriptionItem(domain_object.DomainObject):
     '''
-    Every subscription results in a dynamic list of entities that
-    match the definition in the corresponding subscription.
-    In order to keep track of each of them and not to re-evaluate the
-    subscription's definition to often, a list of these entities is saved.
-    A subscription item is a dict. Often, this dict contains a reference (or more)
-    to the original entity + several field that reflect certain attributes of the
-    entity.
-    In case of a dataset-search-subscription it is {id, modified} where id is
-    the id of the dataset and modified the timestamp of the last modification.
-    Each item should have a key-attribute (in case of dataset-search: id) that
-    identified the item within the list of all items for one subscription.
-    Ohterwise a hash value is used.
+        Every subscription results in a dynamic list of objects that
+        match the definition of the corresponding subscription. In order
+        to keep track of each of them and to limit the re-evaluations of
+        the subscription definition, a list of these objects is saved.
+
+        id - unique identifier of the item
+        subscripton_id - foreign key to the corresponding subscription
+        reference - (optional) foreign key to the corresponding object
+        key - for identified a item with the list of all items of a subscription
+        data - additional fields that represented several attributes of the object
+        status - one of ['seen', 'changed', 'added', 'removed']
     '''
-    def __init__(self, subscription_id, data, key, status):
+    def __init__(self, subscription_id, data, reference, key, status):
         self.id = _types.make_uuid()
         self.subscription_id = subscription_id
+        self.reference = reference
+        self.key = key
         if data is None:
             self.data = {}
         else:
             self.data = data
-        self.key = key
         self.status = status
 
 
@@ -247,6 +247,7 @@ subscription_item_table = sa.Table(
     'subscription_item', meta.metadata,
     sa.Column('id', sa.types.UnicodeText, primary_key=True, default=_types.make_uuid),
     sa.Column('subscription_id', sa.types.UnicodeText, sa.ForeignKey('subscription.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
+    sa.Column('reference', sa.types.UnicodeText, nullable=False),
     sa.Column('key', sa.types.UnicodeText, nullable=False),
     sa.Column('data', _types.JsonDictType),
     sa.Column('status', sa.types.Boolean, nullable=False),
