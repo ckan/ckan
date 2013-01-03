@@ -274,27 +274,26 @@ def get_subscription(user_id, data_dict):
             (user, subscription_definition)
     '''
     import ckan.model as model
-    user = model.User.get(context['user'])
 
     if 'subscription_id' in data_dict:
         subscription_id = logic.get_or_bust(data_dict, 'subscription_id')
         query = model.Session.query(model.Subscription)
         query = query.filter(model.Subscription.id==subscription_id)
         subscription = query.first()
-        if subscription.owner_id != user.id:
+        if subscription.owner_id != user_id:
             return None
 
     elif 'subscription_name' in data_dict:
         subscription_name = logic.get_or_bust(data_dict, 'subscription_name')
         query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.owner_id==user_id)
         query = query.filter(model.Subscription.name==subscription_name)
         subscription = query.first() 
 
     elif 'subscription_definition' in data_dict:
         subscription_definition = logic.get_or_bust(data_dict, 'subscription_definition')
         query = model.Session.query(model.Subscription)
-        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.owner_id==user_id)
         subscription = None
         for row in query.all():
             if is_subscription_equal_definition(row, subscription_definition):

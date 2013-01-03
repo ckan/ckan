@@ -1246,22 +1246,18 @@ def subscription_create(context, data_dict):
     :rtype: dictionary
 
     '''
-    if 'user' not in context:
-        raise ckan.logic.NotAuthorized
+    _check_access('subscription', context, data_dict)
     model = context['model']
     user = model.User.get(context['user'])
-    if not user:
-        raise ckan.logic.NotAuthorized
-        
+    
     name = _get_or_bust(data_dict, 'subscription_name')
     definition = _get_or_bust(data_dict, 'subscription_definition')
 
     _get_action('subscription_check_name')(context, {'subscription_name': name})
         
-    subscription_dict = {
-                            'name': name,
-                            'owner_id': user.id,
-                            'definition': definition
+    subscription_dict = {'name': name,
+                         'owner_id': user.id,
+                         'definition': definition
                         }
 
     subscription = model_save.subscription_dict_save(subscription_dict, context)

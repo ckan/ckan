@@ -452,6 +452,8 @@ def subscription_delete(context, data_dict):
     '''
     _check_access('subscription', context, data_dict)
     model = context['model']
-    subscription = model.subscription.get_subscription(context['user'], data_dict)
+    user = model.User.get(context['user'])
+
+    subscription = model.subscription.get_subscription(user.id, data_dict)
     subscription.delete()
     model.repo.commit()
