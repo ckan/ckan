@@ -729,3 +729,47 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+
+class ISubscription(Interface):
+    '''
+        Allow adding new subscription types.
+    '''
+
+    def get_type(self):
+        '''
+            Return the subscription type that the plugin is responsible for.
+        '''
+
+    def is_responsible(self, subscription_definition):
+        '''
+            Return whether the plugin is responsible for that subscription.
+        '''
+
+    def prepare_creation(self, subscription_definition, parameters):
+        '''
+            Update the preliminary definition.
+        '''
+
+    def get_current_items(self, subscription_definition):
+        '''
+            Return a list of the current items + their names by
+            evaluating the given definition.
+        '''
+
+    def get_objects_from_item(self, item):
+        '''
+            Convert a subscription item to a list of model objects.
+        '''
+
+    def get_show_url(self, subscription):
+        '''
+            Return a URL for diplaying the subscriptions items/subscribed objects.
+        '''
+
+    def is_subscription_equal_definition(self, subscription, definition):
+        '''
+            Return whether the given subscription fits the given definition.
+            When True equivalence between the subscription and the definition
+            can be assumed.
+        '''
