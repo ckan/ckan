@@ -621,3 +621,7 @@ def follower_dict_save(data_dict, context, FollowerClass):
             object_id=data_dict['id'])
     session.add(follower_obj)
     return follower_obj
+
+def subscription_dict_save(subscription_dict, context):
+    subscription_object = d.table_dict_save(subscription_dict, context['model'].Subscription, context)
+    return subscription_object

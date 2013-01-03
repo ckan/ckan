@@ -597,3 +597,26 @@ def user_following_dataset_dictize(follower, context):
 
 def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)
+
+
+def subscription_dictize(subscription, context):
+    dict_ = d.table_dictize(subscription, context)
+    dict_['updates_count'] = subscription.get_updates_count()
+    return dict_
+
+def subscription_list_dictize(subscription_list, context):
+    result_list = []
+    for subscription in subscription_list:
+        subscription_dict = subscription_dictize(subscription, context)
+        result_list.append(subscription_dict)
+    return result_list
+
+def subscription_item_dictize(subscription_item, context):
+    return d.table_dictize(subscription_item, context)
+
+def subscription_item_list_dictize(subscription_item_list, context):
+    result_list = []
+    for subscription_item in subscription_item_list:
+        subscription_item_dict = subscription_item_dictize(subscription_item, context)
+        result_list.append(subscription_item_dict)
+    return result_list
