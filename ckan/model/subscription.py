@@ -46,7 +46,7 @@ class Subscription(domain_object.DomainObject):
         objects = []
         if type_ == 'search':
             for item in self.get_item_list():
-                objects.append(Package.get(item.reference))
+                objects.append(Package.get(item.key))
         else:
             for plugin in p.PluginImplementations(p.ISubscription):
                 if plugin.is_responsible(self.definition):
@@ -147,7 +147,6 @@ class Subscription(domain_object.DomainObject):
         for item_id in self._added_item_ids:
             self._item_list.append(
                 SubscriptionItem(subscription_id=self.id,
-                                 reference=
                                  key=item_id,
                                  data=self._item_data_dict_by_definition[item_id],
                                  status='added'))
@@ -209,15 +208,14 @@ class SubscriptionItem(domain_object.DomainObject):
 
         id - unique identifier of the item
         subscripton_id - foreign key to the corresponding subscription
-        reference - (optional) foreign key to the corresponding object
         key - for identified a item with the list of all items of a subscription
+              [optional] the foreign key to a domain object (like packages)
         data - additional fields that represented several attributes of the object
         status - one of ['seen', 'changed', 'added', 'removed']
     '''
-    def __init__(self, subscription_id, data, reference, key, status):
+    def __init__(self, subscription_id, key, data, status):
         self.id = _types.make_uuid()
         self.subscription_id = subscription_id
-        self.reference = reference
         self.key = key
         if data is None:
             self.data = {}
@@ -240,7 +238,6 @@ subscription_item_table = sa.Table(
     'subscription_item', meta.metadata,
     sa.Column('id', sa.types.UnicodeText, primary_key=True, default=_types.make_uuid),
     sa.Column('subscription_id', sa.types.UnicodeText, sa.ForeignKey('subscription.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
-    sa.Column('reference', sa.types.UnicodeText, nullable=False),
     sa.Column('key', sa.types.UnicodeText, nullable=False),
     sa.Column('data', _types.JsonDictType),
     sa.Column('status', sa.types.Boolean, nullable=False),
