@@ -1088,7 +1088,8 @@ def subscription_item_list_update(context, data_dict):
         :param last_update: update is deferred until x minutes after last update [optional]
         :type last_update: integer
     '''
-    subscription = action._get_subscription(context, data_dict)
+    model = context['model']
+    subscription = model.subscription.get_subscription(context, data_dict)
     subscription.update_item_list_when_necessary(context, data_dict.get('last_update', 1))
 
 
@@ -1105,7 +1106,8 @@ def subscription_mark_changes_as_seen(context, data_dict):
         :param subscription_definition: the definition of the subscription
         :type subscription_definition: json object
     '''
-    subscription = action._get_subscription(context, data_dict)
+    model = context['model']
+    subscription = model.subscription.get_subscription(context, data_dict)
     subscription.mark_item_list_changes_as_seen()
 
     if not context.get('defer_commit'):

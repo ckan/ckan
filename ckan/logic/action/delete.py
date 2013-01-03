@@ -450,6 +450,7 @@ def subscription_delete(context, data_dict):
     :type subscription_definition: json object
 
     '''
-    subscription = action._get_subscription(context, data_dict)
+    model = context['model']
+    subscription = model.subscription.get_subscription(context, data_dict)
     subscription.delete()
-    model.repo.commit()
+    .repo.commit()

@@ -1,4 +1,5 @@
 import ckan.plugins as p
+import ckan.logic as logic
 import datetime
 import domain_object
 import meta
@@ -266,3 +267,69 @@ def _hash(object_):
 
     return hash(object_)
 
+
+def get_subscription(context, data_dict):
+    '''
+        Return a subscription object by
+        subscription_id or
+        (user, subscription_name) or
+        subscription_definition
+    '''
+    if 'user' not in context:
+        raise logic.NotAuthorized
+    model = context['model']
+    user = model.User.get(context['user'])
+    if not user:
+        raise logic.NotAuthorized
+
+    if 'subscription_id' in data_dict:
+        subscription_id = logic.get_or_bust(data_dict, 'subscription_id')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.id==subscription_id)
+        subscription = query.first()
+        if subscription.owner_id != user.id:
+            raise logic.NotFound
+
+    elif 'subscription_name' in data_dict:
+        subscription_name = logic.get_or_bust(data_dict, 'subscription_name')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        query = query.filter(model.Subscription.name==subscription_name)
+        subscription = query.first() 
+
+    elif 'subscription_definition' in data_dict:
+        subscription_definition = logic.get_or_bust(data_dict, 'subscription_definition')
+        query = model.Session.query(model.Subscription)
+        query = query.filter(model.Subscription.owner_id==user.id)
+        subscription = None
+        for row in query.all():
+            if is_subscription_equal_definition(row, subscription_definition):
+                subscription = row
+                break
+    else:
+        raise logic.NotFound
+
+    if not subscription:
+        raise logic.NotFound 
+
+    return subscription
+
+
+def is_subscription_equal_definition(subscription, definition):
+    if subscription.definition['type'] != definition['type']:
+        return False
+
+    if definition['type'] == 'search':
+        if subscription.definition['query'] != definition['query']:
+            return False
+        if set(subscription.definition['filters']) ^ set(definition['filters']):
+            return False
+        for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
+            if set(filter_value_list) ^ set(definition['filters'][filter_name]):
+                return False
+        return True
+    else:
+        for plugin in p.PluginImplementations(p.ISubscription):
+            if plugin.plugin.is_responsible(definition):
+                return plugin.is_subscription_equal_definition(subscription, definition)
+    return False
