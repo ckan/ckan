@@ -18,6 +18,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'ISubscription',
 ]
 
 from inspect import isclass
