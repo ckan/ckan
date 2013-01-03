@@ -72,9 +72,8 @@ class Subscription(domain_object.DomainObject):
             return
             
         type_ = self.definition['type']
-        data_type = self.definition['data_type']
         
-        if type_ == 'search' and data_type == 'dataset':
+        if type_ == 'search':
             import ckan.lib.base as base
             import ckan.logic.action.get as get
             search_dict = {
