@@ -225,11 +225,25 @@ def _activities_from_groups_followed_by_user_query(user_id):
     return q
 
 
+def _activities_from_subscriptions_of_user_query(user_id):
+    '''Return a query for the all activities from subscribed datasets.'''
+    import ckan.model as model
+    subscription_query = model.Session.query(model.Subscription).filter(model.Subscription.owner_id==user_id)
+
+    activity_query = model.Session.query(model.Activity)
+    q = activity_query.filter("0=1")
+    for subscription in subscription_query.all():
+        for subscribed_object in subscription.subscribed_objects():
+            q = q.union(activity_query.filter(model.Activity.object_id==subscribed_object.id))
+    return q
+
+
 def _activities_from_everything_followed_by_user_query(user_id):
     '''Return a query for all activities from everything user_id follows.'''
     q = _activites_from_users_followed_by_user_query(user_id)
     q = q.union(_activities_from_datasets_followed_by_user_query(user_id))
     q = q.union(_activities_from_groups_followed_by_user_query(user_id))
+    q = q.union(_activities_from_subscriptions_of_user_query(user_id))
     return q
 
 
