@@ -1,5 +1,4 @@
 import ckan.plugins as p
-import ckan.logic as logic
 import datetime
 import domain_object
 import meta
@@ -268,19 +267,15 @@ def _hash(object_):
     return hash(object_)
 
 
-def get_subscription(context, data_dict):
+def get_subscription(user_id, data_dict):
     '''
         Return a subscription object by
-        subscription_id or
-        (user, subscription_name) or
-        subscription_definition
+            (user, subscription_id) or
+            (user, subscription_name) or
+            (user, subscription_definition)
     '''
-    if 'user' not in context:
-        raise logic.NotAuthorized
-    model = context['model']
+    import ckan.model as model
     user = model.User.get(context['user'])
-    if not user:
-        raise logic.NotAuthorized
 
     if 'subscription_id' in data_dict:
         subscription_id = logic.get_or_bust(data_dict, 'subscription_id')
@@ -288,7 +283,7 @@ def get_subscription(context, data_dict):
         query = query.filter(model.Subscription.id==subscription_id)
         subscription = query.first()
         if subscription.owner_id != user.id:
-            raise logic.NotFound
+            return None
 
     elif 'subscription_name' in data_dict:
         subscription_name = logic.get_or_bust(data_dict, 'subscription_name')
@@ -307,10 +302,10 @@ def get_subscription(context, data_dict):
                 subscription = row
                 break
     else:
-        raise logic.NotFound
+        return None
 
     if not subscription:
-        raise logic.NotFound 
+        return None
 
     return subscription
 

@@ -217,3 +217,11 @@ def dashboard_new_activities_count(context, data_dict):
     # This is so a better not authourized message can be sent.
     return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
+
+
+def subscription(context, data_dict):
+    if context.get('user'):
+        return {'success': True}
+    else:
+        return {'success': False,
+                'msg': _('You must be logged in to access your subscriptions.')}
