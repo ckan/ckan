@@ -1,6 +1,7 @@
 import json
 import logging
 import genshi
+import ckan.new_authz
 import ckan.lib.helpers as h
 import ckan.misc
 import ckan.model as model
@@ -26,7 +27,7 @@ class SubscriptionController(base.BaseController):
 
 
     def _setup_template_variables(self, context, data_dict):
-        base.c.is_sysadmin = Authorizer().is_sysadmin(base.c.user)
+        base.c.is_sysadmin = ckan.new_authz.is_sysadmin(base.c.user)
         try:
             user_dict = logic.get_action('user_show')(context, data_dict)
         except logic.NotFound:
@@ -111,16 +112,6 @@ class SubscriptionController(base.BaseController):
         return h.redirect_to(str(url))
 
 
-    def mark_changes_as_seen(self, subscription_name=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': base.c.user or base.c.author, 'for_view': True}
-        data_dict = {'subscription_name': subscription_name}
-
-        logic.get_action('subscription_mark_changes_as_seen')(context, data_dict)
-
-        return h.redirect_to(controller='subscription', action='show', subscription_name=subscription_name)
-        
-        
     def delete(self, subscription_name):
         context = {'model': model, 'session': model.Session,
                    'user': base.c.user or base.c.author, 'for_view': True}
