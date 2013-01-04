@@ -26,6 +26,8 @@ class ReclinePreview(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclinepreview')
 
     def can_preview(self, data_dict):
+        if data_dict['resource'].get('datastore_active'):
+            return True
         format_lower = data_dict['resource']['format'].lower()
         return format_lower in ['csv', 'xls', 'tsv']
 
