@@ -9,6 +9,7 @@ import ckan.lib.i18n
 import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.plugins as p
+import urllib
 
 
 log = logging.getLogger(__name__)
