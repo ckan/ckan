@@ -1,8 +1,12 @@
 import ConfigParser
 import os
+import logging
+
 from pylons import config as pylons_config
-from pkg_resources import iter_entry_points
+from pkg_resources import iter_entry_points, VersionConflict
 #from celery.loaders.base import BaseLoader
+
+log = logging.getLogger(__name__)
 
 LIST_PARAMS = """CELERY_IMPORTS ADMINS ROUTES""".split()
 
@@ -36,10 +40,14 @@ default_config = dict(
 )
 
 for entry_point in iter_entry_points(group='ckan.celery_task'):
-    default_config['CELERY_IMPORTS'].extend(
-        entry_point.load()()
-    )
-
+    try:
+        default_config['CELERY_IMPORTS'].extend(
+            entry_point.load()()
+        )
+    except VersionConflict, e:
+        error = 'ERROR in entry point load: %s %s' % (entry_point, e)
+        log.critical(error)
+        pass
 
 celery.conf.update(default_config)
 celery.loader.conf.update(default_config)
