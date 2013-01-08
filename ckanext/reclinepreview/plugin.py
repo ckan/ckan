@@ -26,6 +26,7 @@ class ReclinePreview(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclinepreview')
 
     def can_preview(self, data_dict):
+        # if the resource is in the datastore then we can preview it with recline
         if data_dict['resource'].get('datastore_active'):
             return True
         format_lower = data_dict['resource']['format'].lower()
