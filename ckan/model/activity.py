@@ -246,10 +246,12 @@ def activities_from_everything_followed_by_user(user_id, limit, offset):
 
 def _dashboard_activity_query(user_id):
     '''Return an SQLAlchemy query for user_id's dashboard activity stream.'''
-    q = _user_activity_query(user_id)
-    q = q.union(_activities_from_everything_followed_by_user_query(user_id))
+    q = _activities_from_user_query(user_id)
+    q = q.union(_activities_about_user_query(user_id),
+                _activites_from_users_followed_by_user_query(user_id),
+                _activities_from_datasets_followed_by_user_query(user_id),
+                _activities_from_groups_followed_by_user_query(user_id))
     return q
-
 
 def dashboard_activity_list(user_id, limit, offset):
     '''Return the given user's dashboard activity stream.
