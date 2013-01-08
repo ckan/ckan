@@ -1114,6 +1114,9 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
 
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
@@ -1136,6 +1139,9 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
