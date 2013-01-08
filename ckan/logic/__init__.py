@@ -3,7 +3,9 @@ import logging
 import types
 import re
 
-from ckan.lib.base import _, c
+from pylons.i18n import _
+
+from ckan.lib.base import c
 import ckan.model as model
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
