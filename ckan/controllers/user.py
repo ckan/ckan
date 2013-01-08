@@ -242,6 +242,8 @@ class UserController(BaseController):
                                        data_dict)
 
         c.is_myself = True
+        c.show_email_notifications = asbool(
+                config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -252,6 +254,11 @@ class UserController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # MOAN: Do I really have to do this here?
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
@@ -498,7 +505,7 @@ class UserController(BaseController):
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+        get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html')
 

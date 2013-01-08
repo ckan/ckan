@@ -24,7 +24,6 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-import ckan.authz as authz
 from ckan.lib import i18n
 import lib.render
 import ckan.lib.helpers as h

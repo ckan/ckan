@@ -126,8 +126,6 @@ The following functions, classes and exceptions are provided by the toolkit.
   Changed in WebHelpers 1.2: the implementation is now now a subclass of
   ``markupsafe.Markup``.  This brings some new methods: ``.escape`` (class
   method), ``.unescape``, and ``.striptags``.
-  
-  
 
 
 **render** (*template_name, data=None*)

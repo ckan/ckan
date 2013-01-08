@@ -217,11 +217,3 @@ def dashboard_new_activities_count(context, data_dict):
     # This is so a better not authourized message can be sent.
     return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
-
-
-def dashboard_mark_all_new_activities_as_old(context, data_dict):
-    # FIXME: This should go through check_access() not call is_authorized()
-    # directly, but wait until 2939-orgs is merged before fixing this.
-    # This is so a better not authourized message can be sent.
-    return new_authz.is_authorized('dashboard_activity_list',
-            context, data_dict)

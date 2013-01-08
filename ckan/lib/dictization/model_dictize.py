@@ -1,14 +1,14 @@
 import datetime
+
 from pylons import config
 from sqlalchemy.sql import select
-import datetime
-import ckan.authz
-import ckan.model
-import ckan.misc
+
+import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
+import ckan.new_authz as new_authz
 
 ## package save
 
@@ -268,7 +268,7 @@ def package_dictize(pkg, context):
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, ckan.model.PackageRevision):
+    if isinstance(pkg, model.PackageRevision):
         pkg = model.Package.get(pkg.id)
 
     # isopen
@@ -418,9 +418,9 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    requester = context['user']
+    requester = context.get('user')
 
-    if not (ckan.new_authz.is_sysadmin(requester) or
+    if not (new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
@@ -486,7 +486,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+    dictized['notes_rendered'] = misc.MarkdownFormat().to_html(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)
     if site_url:

@@ -172,10 +172,6 @@ class _Globals(object):
                 self._mutex.release()
 
     def _init(self):
-        self.favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
-        facets = config.get('search.facets', 'groups tags res_format license capacity')
-        self.facets = facets.split()
-
         # process the config_details to set globals
         for name, options in config_details.items():
             if 'name' in options:

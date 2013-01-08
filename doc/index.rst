@@ -49,6 +49,7 @@ Customizing and Extending
    harvesting
    geospatial
    multilingual
+   email-notifications
 
 Publishing Datasets
 ===================

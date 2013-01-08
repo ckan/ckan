@@ -1,12 +1,12 @@
 import logging
 import datetime
 
+import pylons
 from pylons.i18n import _
 from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
-import ckan.authz as authz
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema
@@ -16,6 +16,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
+import ckan.lib.email_notifications
 
 log = logging.getLogger(__name__)
 
@@ -107,7 +108,6 @@ def make_latest_pending_package_active(context, data_dict):
 
     if not context.get('defer_commit'):
         session.commit()
-    session.remove()
 
 
 def related_update(context, data_dict):
@@ -129,7 +129,6 @@ def related_update(context, data_dict):
     id = _get_or_bust(data_dict, "id")
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
-    model.Session.remove()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -170,7 +169,6 @@ def resource_update(context, data_dict):
     user = context['user']
     id = _get_or_bust(data_dict, "id")
     schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
-    model.Session.remove()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -224,8 +222,6 @@ def package_update(context, data_dict):
     model = context['model']
     user = context['user']
     name_or_id = data_dict.get("id") or data_dict['name']
-    model.Session.remove()
-    model.Session()._context = context
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
@@ -296,8 +292,6 @@ def package_update_validate(context, data_dict):
     user = context['user']
 
     id = _get_or_bust(data_dict, "id")
-    model.Session.remove()
-    model.Session()._context = context
 
     pkg = model.Package.get(id)
     context["package"] = pkg
@@ -447,7 +441,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # when editing an org we do not want to update the packages if using the
     # new templates.
     if ((not is_org)
-            and not asbool(config.get('ckan.legacy_templates', False))
+            and not paste.deploy.converters.asbool(
+                config.get('ckan.legacy_templates', False))
             and 'api_version' not in context):
         context['prevent_packages_update'] = True
     group = model_save.group_dict_save(data, context)
@@ -982,6 +977,44 @@ def user_role_bulk_update(context, data_dict):
                          'domain_object': data_dict['domain_object']}
         user_role_update(context, uro_data_dict)
     return _get_action('roles_show')(context, data_dict)
+
+
+def dashboard_mark_activities_old(context, data_dict):
+    '''Mark all the authorized user's new dashboard activities as old.
+
+    This will reset dashboard_new_activities_count to 0.
+
+    '''
+    _check_access('dashboard_mark_activities_old', context,
+            data_dict)
+    model = context['model']
+    user_id = model.User.get(context['user']).id
+    model.Dashboard.get(user_id).activity_stream_last_viewed = (
+            datetime.datetime.now())
+    if not context.get('defer_commit'):
+        model.repo.commit()
+
+
+def send_email_notifications(context, data_dict):
+    '''Send any pending activity stream notification emails to users.
+
+    You must provide a sysadmin's API key in the Authorization header of the
+    request, or call this action from the command-line via a `paster post ...`
+    command.
+
+    '''
+    # If paste.command_request is True then this function has been called
+    # by a `paster post ...` command not a real HTTP request, so skip the
+    # authorization.
+    if not pylons.request.environ.get('paste.command_request'):
+        _check_access('send_email_notifications', context, data_dict)
+
+    if not paste.deploy.converters.asbool(
+            pylons.config.get('ckan.activity_streams_email_notifications')):
+        raise logic.ParameterError('ckan.activity_streams_email_notifications'
+                ' is not enabled in config')
+
+    ckan.lib.email_notifications.get_and_send_notifications_for_all_users()
 
 
 def package_owner_org_update(context, data_dict):

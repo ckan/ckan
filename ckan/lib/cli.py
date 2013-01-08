@@ -3,7 +3,6 @@ import csv
 import os
 import datetime
 import sys
-import logging
 from pprint import pprint
 import re
 import ckan.include.rjsmin as rjsmin

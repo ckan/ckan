@@ -13,7 +13,6 @@ from paste.fixture import TestRequest
 
 from ckan.tests import *
 import ckan.model as model
-import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json, url_escape
 from ckan.tests import TestController as ControllerTestCase
