@@ -39,6 +39,7 @@ import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.datapreview as datapreview
+import ckan.logic as logic
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -1422,6 +1423,14 @@ def resource_preview(resource, pkg_id):
         resource_url=url
         )
 
+def new_activities_count():
+    if c.userobj:
+        new_activities_count = logic.get_action(
+            'dashboard_new_activities_count')
+        context = {'model': model, 'session': model.Session,
+                    'user': c.user or c.author}
+        return new_activities_count(context, {})
+    return 0
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1500,6 +1509,7 @@ __allowed_functions__ = [
            'render_markdown',
            'format_resource_items',
            'resource_preview',
+           'new_activities_count',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
