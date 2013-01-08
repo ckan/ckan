@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+install:
+  - "pip install -r pip-requirements.txt --use-mirrors"
+  - "pip install -r pip-requirements-test.txt --use-mirrors"
+before_script:
+  - python setup.py develop
+  - paster make-config ckan development.ini
+script: "nosetests --ckan --with-pylons=test-travis.ini ckan -vs"
