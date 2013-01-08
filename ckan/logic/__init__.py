@@ -5,7 +5,7 @@ import re
 
 from pylons.i18n import _
 
-from ckan.lib.base import c
+import ckan.lib.base as base
 import ckan.model as model
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
@@ -303,7 +303,7 @@ def get_action(action):
                 context.setdefault('model', model)
                 context.setdefault('session', model.Session)
                 try:
-                    context.setdefault('user', c.user or c.author)
+                    context.setdefault('user', base.c.user or base.c.author)
                 except TypeError:
                     # c not registered
                     pass
