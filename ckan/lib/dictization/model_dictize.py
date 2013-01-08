@@ -276,7 +276,7 @@ def package_dictize(pkg, context):
 
     # type
     # if null assign the default value to make searching easier
-    result_dict['type']= pkg.type if pkg.type else u'dataset'
+    result_dict['type']= pkg.type or u'dataset'
 
     # licence
     if pkg.license and pkg.license.url:

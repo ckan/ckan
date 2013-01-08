@@ -224,7 +224,7 @@ class PackageController(BaseController):
             else:
                 # Unless changed via config options, don't show non standard
                 # dataset types on the default search page
-                if not asbool(config.get('ckan.search.show_all_types','False')):
+                if not asbool(config.get('ckan.search.show_all_types', 'False')):
                     fq += ' +dataset_type:dataset'
 
             data_dict = {
