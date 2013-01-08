@@ -3,7 +3,7 @@ import logging
 import types
 import re
 
-from ckan.lib.base import _
+from pylons.i18n import _
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
