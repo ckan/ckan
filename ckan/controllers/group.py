@@ -4,10 +4,10 @@ import genshi
 import datetime
 from urllib import urlencode
 
-from ckan.lib.base import BaseController, c, model, request, render, h, g
+from ckan.lib.base import BaseController, c, model, request, render, g
 from ckan.lib.base import ValidationException, abort, gettext
 from pylons.i18n import get_lang, _
-from ckan.lib.helpers import Page
+import ckan.lib.helpers as h
 import ckan.lib.maintain as maintain
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
@@ -134,7 +134,7 @@ class GroupController(BaseController):
 
         results = self._action('group_list')(context, data_dict)
 
-        c.page = Page(
+        c.page = h.Page(
             collection=results,
             page=request.params.get('page', 1),
             url=h.pager_url,
