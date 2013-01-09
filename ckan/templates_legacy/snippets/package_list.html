@@ -1,0 +1,55 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+  <ul class="datasets">
+    <li py:for="package in packages"
+        class="${'fullyopen' if (package.isopen and package.get('resources')) else None}">
+        <div class="header">
+      <span class="title">
+        ${h.link_to(package.get('title') or package.get('name'), h.url_for(controller='package', action='read', id=package.get('name')))}
+      </span>
+
+      <div class="search_meta">
+        <py:if test="package.resources">
+          <ul class="dataset_formats">
+            <py:for each="resource in package.resources">
+              <py:if test="resource.get('format')">
+                <li><a href="${resource.get('url')}" class="resource-url-analytics"
+                  title="${resource.get('description')}">${resource.get('format')}</a></li>
+              </py:if>
+            </py:for>
+          </ul>
+        </py:if>
+        <ul class="openness">
+          <py:if test="package.isopen">
+            <li>
+              <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+                  <img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
+              </a>
+            </li>
+          </py:if>
+          <py:if test="not package.isopen">
+            <li>
+              <span class="closed">
+                ${h.icon('lock')} Not Openly Licensed
+              </span>
+            </li>
+          </py:if>
+        </ul>
+      </div>
+		</div>
+		<div class="extract">
+			${h.markdown_extract(package.notes)}
+		</div>
+        <!--ul py:if="package.tags" class="tags">
+          <li py:for="tag in package.tags">${tag.name}</li>
+        </ul-->
+    </li>
+  </ul>
+
+</html>

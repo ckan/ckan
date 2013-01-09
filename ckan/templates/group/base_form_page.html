@@ -1,0 +1,17 @@
+{% extends "group/index.html" %}
+
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(_('Groups'), controller='group', action='index') }}</li>
+  <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Group'), controller='group', action='new') }}{% endblock %}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
+      {% block form %}
+        {{ c.form | safe }}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

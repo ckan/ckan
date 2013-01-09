@@ -1,0 +1,21 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+  <py:match path="minornavigation">
+    <ul class="nav nav-pills">
+      <li class="${'active' if c.action=='index' else ''}">
+        <a href="${h.url_for('ckanadmin', action='index')}">Home</a>
+      </li>
+      <li class="${'active' if c.action=='trash' else ''}">
+        <a href="${h.url_for('ckanadmin', action='trash')}">Trash</a>
+      </li>
+    </ul>
+  </py:match>
+  
+  <xi:include href="../layout.html" />
+</html>
+
+

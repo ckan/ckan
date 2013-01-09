@@ -1,0 +1,67 @@
+<form 
+  id="user-edit" 
+  action="" 
+  method="post"
+  class="form-horizontal ${'has-errors' if errors else ''}"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<div class="alert alert-error error-explanation" py:if="error_summary">
+  <h2>Errors in form</h2>
+  <p>The form contains invalid entries:</p>
+  <ul>
+    <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+  </ul>
+</div>
+
+<div class="control-group">
+  <label for="name" class="control-label">Login</label>
+  <div class="controls">
+    <input type="text" name="name" value="${data.get('name','')}" />
+    <p>3+ chars, using only 'a-z0-9' and '-_'</p>
+    <p class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</p>
+  </div>
+</div>
+<div class="control-group">
+  <label for="fullname" class="control-label">Full name (optional)</label>
+  <div class="controls">
+    <input type="text" name="fullname" value="${data.get('fullname','')}" />
+    <p class="field_error" py:if="errors.get('fullname', '')">${errors.get('fullname', '')}</p>
+  </div>
+</div>
+<div class="control-group">
+  <label for="email" class="control-label">E-Mail</label>
+  <div class="controls">
+    <input type="text" name="email" value="${data.get('email','')}" />
+  </div>
+</div>
+<div class="control-group">
+  <label for="password1" class="control-label">Password</label>
+  <div class="controls">
+    <input type="password" name="password1" value="" />
+    <p class="field_error" py:if="errors.get('password1', '')">${errors.get('password1', '')}</p>
+  </div>
+</div>
+<div class="control-group">
+  <label for="password2" class="control-label">Password (repeat)</label>
+  <div class="controls">
+    <input type="password" name="password2" value="" />
+  </div>
+</div>
+<div class="control-group" py:if="g.recaptcha_publickey">
+  <div class="controls">
+    <script type="text/javascript" src="http://www.google.com/recaptcha/api/challenge?k=${g.recaptcha_publickey}"></script>
+    <noscript>
+      <iframe src="http://www.google.com/recaptcha/api/noscript?k=${g.recaptcha_publickey}"
+        height="300" width="500" frameborder="0"></iframe><br/>
+      <textarea name="recaptcha_challenge_field" rows="3" cols="40"> </textarea>
+      <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />
+    </noscript>
+  </div>
+</div>
+
+<div class="form-actions">
+    <input id="save" name="save" type="submit" class="btn btn-primary" value="${_('Register now')} &raquo;" />
+</div>
+</form>

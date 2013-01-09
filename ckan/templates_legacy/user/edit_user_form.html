@@ -1,0 +1,75 @@
+<form
+  id="user-edit"
+  action=""
+  method="post"
+  class="form-horizontal ${'has-errors' if errors else ''}"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="../_util.html" />
+
+<div class="alert alert-error error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key, error)}</li>
+</ul>
+</div>
+  <fieldset>
+    <div class="control-group">
+      <label for="fullname" class="control-label">Full name</label>
+      <div class="controls">
+        <input type="text" name="fullname" value="${data.get('fullname','')}" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label for="email" class="control-label">E-mail</label>
+      <div class="controls">
+        <input type="text" name="email" value="${data.get('email','')}" />
+      </div>
+    </div>
+    <div class="control-group" py:if="g.openid_enabled">
+      <label for="openid" class="control-label">OpenId</label>
+      <div class="controls">
+        <input type="text" name="openid" value="${data.get('openid','')}" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label for="about" class="control-label">About</label>
+      <div class="controls">
+        ${markdown_editor('about',data.get('about',''),'about',_('A little about you...'))}
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Change your password</legend>
+    <div class="control-group">
+      <label for="password1" class="control-label">Password</label>
+      <div class="controls">
+        <input type="password" name="password1" value="" />
+      </div>
+    </div>
+    <div class="control-group">
+      <label for="password2" class="control-label">Password (repeat)</label>
+      <div class="controls">
+        <input type="password" name="password2" value="" />
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Change your username</legend>
+    <div class="control-group">
+      <label for="name" class="control-label">Username</label>
+      <div class="controls">
+        <input type="text" name="name" value="${data.get('name','')}" />
+        <p>Changing your username will log you out, and require you to log back in with the new username</p>
+      </div>
+    </div>
+  </fieldset>
+  <div class="form-actions">
+    <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
+    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='user', action='me')}" />
+  </div>
+</form>
+

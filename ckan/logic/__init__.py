@@ -4,7 +4,6 @@ import types
 import re
 
 from ckan.lib.base import _
-import ckan.authz
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
@@ -216,30 +215,6 @@ def check_access(action, context, data_dict=None):
     log.debug('Access OK.')
     return True
 
-
-def check_access_old(entity, action, context):
-    model = context['model']
-    user = context.get('user')
-    if context.get('ignore_auth'):
-        return True
-    log.debug('check access - user %r, action %s' % (user, action))
-    if action and entity and not isinstance(entity, model.PackageRelationship):
-        if action != model.Action.READ and user == '':
-            log.debug('Valid API key needed to make changes')
-            return False
-            #raise NotAuthorized
-        am_authz = ckan.authz.Authorizer().is_authorized(user, action, entity)
-        if not am_authz:
-            log.debug('User is not authorized to %s %s' % (action, entity))
-            return False
-            #raise NotAuthorized
-    elif not user:
-        log.debug('No valid API key provided.')
-        return False
-        #raise NotAuthorized
-
-    log.debug('Access OK.')
-    return True
 
 _actions = {}
 

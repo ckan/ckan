@@ -1,0 +1,95 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+
+  <py:def function="page_title">${c.user_dict['display_name']} - User</py:def>
+  <py:def function="page_heading">
+    ${h.linked_gravatar(c.user_dict['email_hash'],48)}
+    <span class="username">
+    ${c.user_dict['name']}
+    </span>
+    <py:if test="c.user_dict['fullname']">
+    <span class="fullname">
+      (${c.user_dict['fullname']})
+    </span>
+    </py:if>
+  </py:def>
+
+  <div py:match="content" py:strip="">
+    <div class="summary">
+      <div class="row">
+        <div class="span6">
+          <dl class="vcard">
+            <dt>Name</dt>
+            <dd>${c.user_dict['fullname'] or 'No name provided'}</dd>
+            <dt>Member since</dt>
+            <dd>${h.render_datetime(c.user_dict['created'])}</dd>
+            <py:if test="unicode(c.about_formatted)">
+            <dt>About</dt>
+            <dd>${c.about_formatted}</dd>
+            </py:if>
+          <py:if test="c.is_myself">
+            <dt>Email</dt>
+            <dd>
+              <py:if test="c.user_dict['email']">
+              ${h.mail_to(c.user_dict['email'], encode='javascript')}
+              </py:if>
+              <py:if test="not c.user_dict['email']">
+              No email
+              </py:if>
+            </dd>
+            <!--checkpoint:is-myself-->
+            <dt>API Key</dt>
+            <dd>
+            ${c.user_dict['apikey']}
+            <br />
+            <em>&ndash; Note: your API key is visible only to you!</em>
+            </dd>
+          </py:if>
+          </dl>
+        </div>
+        <div class="span6">
+          <ul class="stats">
+            <li>
+              <strong>${c.user_dict['number_administered_packages']}</strong>
+              <span>Datasets</span>
+            </li>
+            <li>
+              <strong>${c.user_dict['number_of_edits']}</strong>
+              <span>Edits</span>
+            </li>
+            <li>
+              <a href="${h.url_for(controller='user', action='followers',
+                  id=c.user_dict.name)}">
+                <strong>${c.num_followers}</strong>
+                <span>Followers</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div><!-- /row -->
+    </div><!-- /summary -->
+    <div class="rule"></div>
+
+    <div class="listing">
+      <div class="row">
+        <div class="span6">
+          <div class="datasets">
+            <h2>Datasets</h2>
+            ${package_list_from_dict(c.user_dict['datasets'])}
+          </div>
+        </div>
+        <div class="span6">
+          <div class="changes">
+            <h2>Public Activity</h2>
+            <div class="activity-stream">
+              ${c.user_activity_stream}
+            </div>
+          </div>
+        </div>
+      </div><!-- /row -->
+    </div><!-- /listing -->
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

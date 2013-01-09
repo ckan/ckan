@@ -1,0 +1,87 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
+  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
+    <li>{% link_for _('Add Dataset to Group'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
+    <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}</li>
+  {% endif %}
+  <li>{{ h.follow_button('group', c.group_dict.id) }}</li>
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    {% block package_header %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          <li{% if c.action == 'read' %} class="active"{% endif %}>
+            {% link_for _('Datasets'), controller='group', action='read', id=c.group_dict.name, icon='sitemap' %}
+          </li>
+          <li{% if c.action == 'activity' %} class="active"{% endif %}>
+            {% link_for _('Activity Stream'), controller='group', action='activity', id=c.group_dict.name, icon='time' %}
+          </li>
+          <li{% if c.action == 'followers' %} class="active"{% endif %}>
+            {% link_for _('Followers'), controller='group', action='followers', id=c.group_dict.name, icon='group' %}
+          </li>
+          <li{% if c.action == 'admins' %} class="active"{% endif %}>
+            {% link_for _('Administrators'), controller='group', action='admins', id=c.group_dict.name, icon='cog' %}
+          </li>
+          <li{% if c.action == 'about' %} class="active"{% endif %}>
+            {% link_for _('About'), controller='group', action='about', id=c.group_dict.name, icon='info-sign' %}
+          </li>
+        </ul>
+      </header>
+    {% endblock %}
+    {% block primary_content_inner %}
+      <div class="module-content">
+        {% include "package/snippets/search_form.html" %}
+      </div>
+      {{ c.page.pager(q=c.q) }}
+    {% endblock %}
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module profile-info">
+    <section class="module-content">
+      <div class="avatar">
+        <a href="{{ c.group_dict.url }}">
+          <img src="{{ c.group_dict.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="200" height="125" alt="{{ c.group_dict.name }}" />
+        </a>
+      </div>
+      <h1 class="heading">{{ c.group_dict.display_name }}</h1>
+      {% if c.group_dict.description %}
+        <p>
+          {{ h.markdown_extract(c.group_dict.description, 180) }}
+          {% link_for _('read more'), controller='group', action='about', id=c.group_dict.name %}
+        </p>
+      {% else %}
+        <p class="empty">{{ _('There is no description for this group') }}</p>
+      {% endif %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Followers') }}</dt>
+          <dd>{{ c.group_dict.num_followers }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('Datasets') }}</dt>
+          <dd>{{ c.group_dict.packages|length }}</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
+
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
+{% endblock %}
+
+{% block links %}
+  {{ super() }}
+  {% include "group/snippets/feeds.html" %}
+{% endblock %}

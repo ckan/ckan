@@ -1,0 +1,150 @@
+[role=main], .main {
+  position: relative;
+  padding-top: 27px;
+  padding-bottom: 27px;
+  background-color: @layoutBackgroundColor;
+}
+
+[role=main] {
+  min-height: 350px;
+}
+
+.main:after,
+.main:before,
+[role=main]:after,
+[role=main]:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: @layoutTrimBackgroundColor;
+  border-color: @layoutTrimBorderColor;
+  border-style: solid;
+  border-width: 0;
+}
+
+.main:before,
+[role=main]:before {
+  top: 0;
+  border-bottom-width: 1px;
+}
+
+.main:after,
+[role=main]:after {
+  bottom: 0;
+  border-top-width: 1px;
+}
+
+[role=main] .primary {
+  .makeColumn(9);
+  float: right;
+}
+
+[role=main] .secondary {
+  .makeColumn(3);
+  margin-left: 0; // Remove grid margin.
+  float: left;
+}
+
+.primary > :last-child,
+.secondary > :last-child {
+  margin-bottom: 0;
+}
+
+.hero {
+  background: url("@{imagePath}/background-tile.png");
+}
+
+.hero:after {
+  // Need to manually declare this here. If you pass rgba() through to
+  // #gradient it breaks the filter property in IE7.
+  .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+  background-color: transparent;
+  top: 7px;
+  bottom: auto;
+  height: 5px;
+}
+
+.hero {
+  padding-bottom: 0;
+  min-height: 0;
+}
+
+.hero > .container {
+  position: relative;
+  padding-bottom: 0;
+}
+
+.hero-primary,
+.hero-secondary {
+  .makeColumn(6);
+}
+
+.hero-primary {
+  margin-left: 0; // Remove grid margin.
+}
+
+.hero-primary {
+  margin-left: 0; // Remove grid margin.
+  margin-bottom: 0;
+}
+
+.hero-secondary {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.hero-secondary-inner {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.hero .module-popup {
+  .border-radius(3px 3px 0 0);
+  margin-top: 50px;
+}
+
+.hero .module-popup .module-content {
+  padding-bottom: 2px;
+}
+
+.hero .page-heading {
+  font-size: 18px;
+  margin-bottom: 0;
+}
+
+.hero .module-dark {
+  padding: 5px;
+  margin-bottom: 10px;
+  color: @mastheadTextColor;
+  background: @layoutTrimBackgroundColor;
+}
+
+.hero .module-dark .module-content {
+  .border-radius(3px);
+  background-color: @mastheadBackgroundColorStart;
+}
+
+.hero .module-dark .module-content .heading {
+  margin-bottom: 7px;
+}
+
+.hero .tags {
+  margin-bottom: 9px;
+}
+
+.hero .tags .tag,
+.hero .tags .tag-list {
+  display: inline-block;
+}
+
+.hero .tags .tag-list {
+  padding: 0;
+}
+
+.hero .tags .tag {
+  margin-right: 15px;
+}

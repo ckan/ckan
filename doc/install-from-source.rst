@@ -66,6 +66,13 @@ c. Install the Python modules that CKAN requires into your virtualenv::
 
        pip install -r ~/pyenv/src/ckan/pip-requirements.txt
 
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   virtualenv's copies of commands like ``paster`` rather than any system-wide
+   installed copies::
+
+    deactivate
+    . ~/pyenv/bin/activate
+
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,7 +101,7 @@ prompted::
 
 Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
 
-    sudo -u postgres createdb -O ckanuser ckantest
+    sudo -u postgres createdb -O ckanuser ckantest -E utf-8
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,12 +180,13 @@ contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
 
     mkdir data sstore
 
-The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
-is specified by the ``cache_dir`` setting in your CKAN config file.
 
 The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
 OpenID session directory, is specified by the ``store_file_path`` setting in
 the ``who.ini`` file.
+
+The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
+is specified by the ``cache_dir`` setting in your CKAN config file.
 
 8. Link to who.ini
 ~~~~~~~~~~~~~~~~~~
@@ -209,6 +217,7 @@ front page.
 .. tip:: If you installed CKAN on a remote machine then you'll need to run
  the web browser on that same machine. For example run the textual web browser
  `w3m` in a separate ssh session to the one running `paster serve`.
+
 
 10. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~

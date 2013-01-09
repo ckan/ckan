@@ -31,6 +31,9 @@ fl_notes.txt
 # local symlinks
 ckan/public/scripts/ckanjs.js
 
+# custom style
+ckan/public/base/less/custom.less
+
 # nosetest coverage output
 .coverage
 htmlcov/*
@@ -39,3 +42,6 @@ htmlcov/*
 ckan.log
 ckan_deb/DEBIAN/control
 ckan_deb/DEBIAN/prerm
+
+# node.js
+node_modules/

@@ -42,7 +42,9 @@ package_table = Table('package', meta.metadata,
         Column('maintainer_email', types.UnicodeText),
         Column('notes', types.UnicodeText),
         Column('license_id', types.UnicodeText),
-        Column('type', types.UnicodeText),
+        Column('type', types.UnicodeText, default=u'dataset'),
+        Column('owner_org', types.UnicodeText),
+        Column('private', types.Boolean, default=False),
 )
 
 
@@ -215,6 +217,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
         _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
+        _dict['type'] = self.type or u'dataset'
         #tracking
         import ckan.model as model
         tracking = model.TrackingSummary.get_for_package(self.id)

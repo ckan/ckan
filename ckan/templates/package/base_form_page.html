@@ -1,0 +1,35 @@
+{% extends "page.html" %}
+
+{% block breadcrumb_content %}
+  {{ h.snippet('package/snippets/new_package_breadcrumb.html') }}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      {% block form %}{{ c.form | safe }}{% endblock %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {% block info_module %}
+    <section class="module module-narrow">
+      <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
+      <div class="module-content">
+        <p>
+          {% trans %}
+          Datasets are simply used to group related pieces of data. These
+          can then be found under a single url with a description and
+          licensing information.
+          {% endtrans %}
+        </p>
+      </div>
+    </section>
+  {% endblock %}
+
+  {% block resources_module %}
+    {# TODO: Pass in a list of previously created resources and the current package dict #}
+    {% snippet "package/snippets/resources.html", pkg={}, action='new_resource' %}
+  {% endblock %}
+{% endblock %}

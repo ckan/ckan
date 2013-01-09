@@ -9,6 +9,7 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
+from pylons.i18n import _, ungettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
@@ -20,6 +21,8 @@ import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
 
+import lib.jinja_extensions
+
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
@@ -29,7 +32,7 @@ class _Helpers(object):
     missing functions from causing template exceptions. Useful if
     templates have helper functions provided by extensions that have
     not been enabled. '''
-    def __init__(self, helpers, restrict=True):
+    def __init__(self, helpers):
         functions = {}
         allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
@@ -38,8 +41,7 @@ class _Helpers(object):
         for helper in dir(helpers):
             if helper not in allowed:
                 self.deprecated.append(helper)
-                if restrict:
-                    continue
+                continue
             functions[helper] = getattr(helpers, helper)
             if helper in allowed:
                 allowed.remove(helper)
@@ -77,10 +79,8 @@ class _Helpers(object):
             return self.functions[name]
         else:
             if name in self.deprecated:
-                msg = 'Template helper function `%s` is not available ' \
-                      'as it has been deprecated.\nYou can enable it ' \
-                      'by setting ckan.restrict_template_vars = true ' \
-                      'in your .ini file.' % name
+                msg = ('Template helper function `{0}` is not available '
+                       'because it has been deprecated.'.format(name))
                 self.log.critical(msg)
             else:
                 msg = 'Helper function `%s` could not be found\n ' \
@@ -123,7 +123,7 @@ def load_environment(global_conf, app_conf):
     paths = dict(root=root,
                  controllers=os.path.join(root, 'controllers'),
                  static_files=os.path.join(root, 'public'),
-                 templates=[os.path.join(root, 'templates')])
+                 templates=[])
 
     # Initialize config with the basic options
 
@@ -158,6 +158,10 @@ def load_environment(global_conf, app_conf):
                           'ckan.site_id for SOLR search-index rebuild to work.'
         config['ckan.site_id'] = ckan_host
 
+    # ensure that a favicon has been set
+    favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
+    config['ckan.favicon'] = favicon
+
     # Init SOLR settings and check if the schema is compatible
     #from ckan.lib.search import SolrSettings, check_solr_schema_version
 
@@ -169,21 +173,31 @@ def load_environment(global_conf, app_conf):
     search.check_solr_schema_version()
 
     config['routes.map'] = routing.make_map()
-    config['pylons.app_globals'] = app_globals.Globals()
+    config['routes.named_routes'] = routing.named_routes
+    config['pylons.app_globals'] = app_globals.app_globals
+    # initialise the globals
+    config['pylons.app_globals']._init()
 
     # add helper functions
-    restrict_helpers = asbool(
-        config.get('ckan.restrict_template_vars', 'true'))
-    helpers = _Helpers(h, restrict_helpers)
+    helpers = _Helpers(h)
     config['pylons.h'] = helpers
 
-    # Redo template setup to use genshi.search_path
-    # (so remove std template setup)
-    template_paths = [paths['templates'][0]]
+    ## redo template setup to use genshi.search_path
+    ## (so remove std template setup)
+    legacy_templates_path = os.path.join(root, 'templates_legacy')
+    jinja2_templates_path = os.path.join(root, 'templates')
+    if asbool(config.get('ckan.legacy_templates', 'no')):
+        # We want the new template path for extra snippets like the
+        # dataviewer and also for some testing stuff
+        template_paths = [legacy_templates_path, jinja2_templates_path]
+    else:
+        template_paths = [jinja2_templates_path, legacy_templates_path]
+
     extra_template_paths = config.get('extra_template_paths', '')
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
+    config['pylons.app_globals'].template_paths = template_paths
 
     # Translator (i18n)
     translator = Translator(pylons.translator)
@@ -281,6 +295,26 @@ def load_environment(global_conf, app_conf):
     #                                                               #
     #################################################################
 
+
+    # Create Jinja2 environment
+    env = lib.jinja_extensions.Environment(
+        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
+        autoescape=True,
+        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
+                    lib.jinja_extensions.SnippetExtension,
+                    lib.jinja_extensions.CkanExtend,
+                    lib.jinja_extensions.CkanInternationalizationExtension,
+                    lib.jinja_extensions.LinkForExtension,
+                    lib.jinja_extensions.ResourceExtension,
+                    lib.jinja_extensions.UrlForStaticExtension,
+                    lib.jinja_extensions.UrlForExtension]
+    )
+    env.install_gettext_callables(_, ungettext, newstyle=True)
+    # custom filters
+    env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
+    env.filters['truncate'] = lib.jinja_extensions.truncate
+    config['pylons.app_globals'].jinja_env = env
+
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
@@ -309,6 +343,7 @@ def load_environment(global_conf, app_conf):
 
     if not model.meta.engine:
         model.init_model(engine)
+
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)

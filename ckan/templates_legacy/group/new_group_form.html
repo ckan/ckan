@@ -1,0 +1,131 @@
+<form
+  class="form-horizontal ${'has-errors' if errors else ''}"
+  id="group-edit"
+  action=""
+  method="post"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="../_util.html" />
+
+<div class="error-explanation" py:if="error_summary">
+<h2>Errors in form</h2>
+<p>The form contains invalid entries:</p>
+<ul>
+  <li py:for="key, error in error_summary.items()">${"%s: %s" % (key if not key=='Name' else 'URL', error)}</li>
+</ul>
+</div>
+
+<fieldset id="basic-information">
+  <div class="control-group">
+    <label for="name" class="control-label">Title</label>
+    <div class="controls">
+      <input class="js-title" id="title" name="title" type="text" value="${data.get('title', '')}"/>
+    </div>
+  </div>
+  <div class="control-group">
+    <label for="title" class="control-label">Url</label>
+    <div class="controls">
+      <div class="input-prepend">
+        <span class="add-on">${h.url(controller='group', action='index')+'/'}</span>
+        <input maxlength="100" name="name" type="text" class="js-url-input" value="${data.get('name', '')}" />
+      </div>
+      <p class="js-url-is-valid">&nbsp;</p>
+      <p class="url-is-long">Warning: URL is very long. Consider changing it to something shorter.</p>
+      <p>2+ characters, lowercase, using only 'a-z0-9' and '-_'</p>
+      <p class="field_error" py:if="errors.get('name', '')">${errors.get('name', '')}</p>
+    </div>
+  </div>
+  <div class="control-group">
+    <label for="" class="control-label">Description</label>
+    <div class="controls">
+      ${markdown_editor('description', data.get('description'), 'notes', _('Start with a summary sentence ...'))}
+    </div>
+  </div>
+  <div class="control-group">
+    <label for="name" class="control-label">Image URL:</label>
+    <div class="controls">
+      <input id="image_url" name="image_url" type="text" value="${data.get('image_url', '')}"/>
+      <p>The URL for the image that is associated with this group.</p>
+    </div>
+  </div>
+  <div class="state-field control-group" py:if="c.is_sysadmin or c.auth_for_change_state">
+    <label for="" class="control-label">State</label>
+    <div class="controls">
+      <select id="state" name="state" >
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'active' else None}" value="active">active</option>
+        <option py:attrs="{'selected': 'selected' if data.get('state') == 'deleted' else None}" value="deleted">deleted</option>
+      </select>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset id="extras">
+  <h3>Extras</h3>
+  <dl>
+    <py:with vars="extras = data.get('extras', [])">
+    <py:for each="num, extra in enumerate(data.get('extras', []))">
+    <div class="control-group">
+      <label class="control-label" for="extras__${num}__value">${extra.get('key')}</label>
+      <div class="controls">
+        <input id="extras__${num}__key" name="extras__${num}__key" type="hidden" value="${extra.get('key')}" />
+        <input id="extras__${num}__value" name="extras__${num}__value" type="text" value="${extra.get('value')}" />
+        <label class="checkbox" style="display: inline-block;">
+          <input type="checkbox" name="extras__${num}__deleted" checked="${extra.get('deleted')}" />Delete
+        </label>
+      </div>
+    </div>
+    </py:for>
+    <hr py:if="len(extras)" class="extras-divider" />
+    <py:for each="num in range(len(extras), len(extras) + 4)">
+      <div class="control-group">
+        <label class="control-label" for="extras__${num}__key">Add...</label>
+        <div class="controls">
+          <label>
+            <span class="extras-label">Key =</span>
+            <input class="medium-width" id="extras__${num}__key" name="extras__${num}__key" type="text" />
+          </label>
+          <label>
+            <span class="extras-label">Value =</span>
+            <input class="medium-width" id="extras__${num}__value" name="extras__${num}__value" type="text" />
+          </label>
+        </div>
+      </div>
+    </py:for>
+    </py:with>
+  </dl>
+</fieldset>
+
+<fieldset id="datasets">
+  <h3>Datasets</h3>
+  <div py:if="data.get('packages')">
+    <py:for each="num, package in enumerate(data.get('packages'))">
+      <div class="control-group">
+        <div class="controls">
+          <div class="checkbox">
+            <input value="${package['name']}" checked="checked" id="datasets__${num}__name" name="packages__${num}__name" type="checkbox" />
+            <label for="packages__${num}__name">${package['name']}</label>
+          </div>
+        </div>
+      </div>
+    </py:for>
+  </div>
+  <p py:if="not data.get('packages')">There are no datasets currently in this group.</p>
+
+  <h3>Add datasets</h3>
+  <div class="control-group">
+    <label class="control-label" for="packages__${len(data.get('packages', []))}__name">Dataset</label>
+    <div class="controls">
+      <input class="autocomplete-dataset" id="datasets__${len(data.get('packages', []))}__name" name="packages__${len(data.get('packages', []))}__name" type="text" />
+    </div>
+  </div>
+</fieldset>
+
+<div class="form-actions">
+  <input id="save" class="btn btn-primary" name="save" type="submit" value="${_('Save Changes')}" />
+  <py:if test="c.group">
+    <input id="cancel" class="btn href-action" name="cancel" type="reset" value="${_('Cancel')}" action="${h.url_for(controller='group', action='read', id=c.group.name)}" />
+  </py:if>
+</div>
+</form>

@@ -1,0 +1,17 @@
+{#
+Display a grid of group items.
+
+groups - A list of groups.
+
+Example:
+
+    {% snippet "group/snippets/group_list.html" %}
+
+#}
+<ul class="media-grid">
+  {% for group in groups %}
+    {% set first = loop.index0 % 3 == 0 %}
+    {% set last  = loop.index0 % 3 == 2 %}
+    {% snippet "group/snippets/group_item.html", group=group, first=first, last=last %}
+  {% endfor %}
+</ul>

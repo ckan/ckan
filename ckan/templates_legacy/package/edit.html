@@ -1,0 +1,32 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.pkg.title or c.pkg.name} - Edit - Datasets</py:def>
+  <py:def function="page_heading">Edit: ${c.pkg.title or c.pkg.name}</py:def>
+  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
+
+  <py:def function="optional_head">
+    <script>
+      var resources_json = ${h.literal(c.resources_json)};
+      var form_errors = ${c.errors_json};
+    </script>
+  </py:def>
+
+  <div py:match="content" class="dataset-edit-form">
+    <div class="tabbable tabs-left dataset-edit-tabs">
+      <ul class="nav nav-tabs">
+        <!-- One button for each fieldset -->
+        <li class="active"><a data-toggle="tab" href="#basic-information">Basic Information</a></li>
+        <li><a data-toggle="tab" href="#further-information">Further Information</a></li>
+        <li><a data-toggle="tab" href="#extras">Extras</a></li>
+        <li py:if="(c.is_sysadmin or c.auth_for_change_state)"><a data-toggle="tab" href="#delete">Delete</a></li>
+      </ul>
+      ${c.form}
+    </div><!-- /tabbable -->
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

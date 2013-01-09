@@ -7,6 +7,7 @@ import json
 import re
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -145,15 +146,19 @@ class PackageSearchIndex(SearchIndex):
         # add groups
         groups = pkg_dict.pop('groups', [])
 
-        # Capacity is different to the default only if using organizations
-        # where the dataset is only in one group. We will add the capacity
-        # from the single group that it is a part of if we have a group
-        if len(groups):
-            pkg_dict['capacity'] = groups[0].get('capacity', 'public')
+        # we use the capacity to make things private in the search index
+        if pkg_dict['private']:
+            pkg_dict['capacity'] = 'private'
         else:
             pkg_dict['capacity'] = 'public'
 
         pkg_dict['groups'] = [group['name'] for group in groups]
+
+        # if there is an owner_org we want to add this to groups for index
+        # purposes
+        if pkg_dict['owner_org']:
+            pkg_dict['groups'].append(pkg_dict['organization']['name'])
+
 
         # tracking
         tracking_summary = pkg_dict.pop('tracking_summary', None)
@@ -183,6 +188,9 @@ class PackageSearchIndex(SearchIndex):
                 pkg_dict[key] = value
 
         pkg_dict[TYPE_FIELD] = PACKAGE_TYPE
+
+        # Save dataset type
+        pkg_dict['dataset_type'] = pkg_dict['type']
 
         pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
 
@@ -223,6 +231,8 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
+            if not asbool(config.get('ckan.search.solr_commit', 'true')):
+                commit = False
             conn.add_many([pkg_dict], _commit=commit)
         except Exception, e:
             log.exception(e)
@@ -236,7 +246,7 @@ class PackageSearchIndex(SearchIndex):
     def commit(self):
         try:
             conn = make_connection()
-            conn.commit(wait_flush=False, wait_searcher=False)
+            conn.commit(wait_searcher=False)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
@@ -251,7 +261,8 @@ class PackageSearchIndex(SearchIndex):
                                                        config.get('ckan.site_id'))
         try:
             conn.delete_query(query)
-            conn.commit()
+            if asbool(config.get('ckan.search.solr_commit', 'true')):
+                conn.commit()
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)

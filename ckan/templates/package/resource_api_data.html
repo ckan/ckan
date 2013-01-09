@@ -1,0 +1,18 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('API Info') }}{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('API Info') }}</h1>
+      {% block about %}
+        {% snippet 'ajax_snippets/api_info.html', datastore_root_url=datastore_root_url, embedded=true %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

@@ -1,3 +1,4 @@
+import os.path
 import logging
 import cgi
 import datetime
@@ -17,7 +18,6 @@ import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
-import ckan.forms.common as common
 
 
 log = logging.getLogger(__name__)
@@ -145,6 +145,12 @@ class ApiController(base.BaseController):
         response_data = {}
         response_data['version'] = ver
         return self._finish_ok(response_data)
+
+    def snippet(self, snippet_path, ver=None):
+        ''' Renders and returns a snippet used by ajax calls '''
+        # we only allow snippets in templates/ajax_snippets and it's subdirs
+        snippet_path = u'ajax_snippets/' + snippet_path
+        return base.render(snippet_path, extra_vars=dict(request.params))
 
     def action(self, logic_function, ver=None):
         try:
@@ -539,7 +545,8 @@ class ApiController(base.BaseController):
     def _get_search_params(cls, request_params):
         if 'qjson' in request_params:
             try:
-                params = h.json.loads(request_params['qjson'], encoding='utf8')
+                qjson_param = request_params['qjson'].replace('\\\\u','\\u')
+                params = h.json.loads(qjson_param, encoding='utf8')
             except ValueError, e:
                 raise ValueError(gettext('Malformed qjson value') + ': %r'
                                  % e)
@@ -632,16 +639,29 @@ class ApiController(base.BaseController):
         return out
 
     def is_slug_valid(self):
+
+        def package_exists(val):
+            if model.Session.query(model.Package) \
+                .autoflush(False).filter_by(name=val).count():
+                return True
+            return False
+
+        def group_exists(val):
+            if model.Session.query(model.Group) \
+                    .autoflush(False).filter_by(name=val).count():
+                return True
+            return False
+
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''
         # TODO: We need plugins to be able to register new disallowed names
         disallowed = ['new', 'edit', 'search']
         if slugtype == u'package':
-            response_data = dict(valid=not bool(common.package_exists(slug)
+            response_data = dict(valid=not (package_exists(slug)
                                  or slug in disallowed))
             return self._finish_ok(response_data)
         if slugtype == u'group':
-            response_data = dict(valid=not bool(common.group_exists(slug) or
+            response_data = dict(valid=not (group_exists(slug) or
                                  slug in disallowed))
             return self._finish_ok(response_data)
         return self._finish_bad_request('Bad slug type: %s' % slugtype)
@@ -727,3 +747,14 @@ class ApiController(base.BaseController):
         data_dict = {}
         status = get_action('status_show')(context, data_dict)
         return self._finish_ok(status)
+
+    def i18n_js_translations(self, lang):
+        ''' translation strings for front end '''
+        ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        source = os.path.abspath(os.path.join(ckan_path, 'public',
+                                    'base', 'i18n', '%s.js' % lang))
+        response.headers['Content-Type'] = CONTENT_TYPES['json']
+        if not os.path.exists(source):
+            return '{}'
+        f = open(source, 'r')
+        return(f)

@@ -69,6 +69,7 @@ from group import (
     Member,
     Group,
     member_revision_table,
+    group_revision_table,
     group_table,
     GroupRevision,
     MemberRevision,
@@ -135,11 +136,23 @@ from term_translation import (
 from follower import (
     UserFollowingUser,
     UserFollowingDataset,
+    UserFollowingGroup,
+)
+from system_info import (
+    system_info_table,
+    SystemInfo,
+    get_system_info,
+    set_system_info,
+    delete_system_info,
 )
 from domain_object import (
     DomainObjectOperation,
     DomainObject,
 )
+from dashboard import (
+    Dashboard,
+)
+
 import ckan.migration
 
 log = logging.getLogger(__name__)

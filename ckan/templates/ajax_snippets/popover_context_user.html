@@ -1,0 +1,31 @@
+<div class="popover-context profile-info">
+	{% if about != 'null' %}
+		{% set about = about|striptags %}
+		<p class="about">
+			{{ h.truncate(about, length=160, whole_word=True) }}
+		</p>
+	{% endif %}
+	<div class="btn-group">
+		{% if is_me == 'false' %}
+			{{ h.follow_button('user', id) }}
+		{% endif %}
+		<a href="{{ h.url_for(controller='user', action='read', id=name) }}" class="btn">
+			<i class="icon-eye-open"></i>
+			View Profile
+		</a>
+	</div>
+	<div class="nums">
+		<dl>
+			<dt>{{ _('Followers') }}</dt>
+			<dd>{{ num_followers }}</dd>
+		</dl>
+		<dl>
+			<dt>{{ _('Datasets') }}</dt>
+			<dd>{{ number_administered_packages }}</dd>
+		</dl>
+		<dl>
+			<dt>{{ _('Edits') }}</dt>
+			<dd>{{ number_of_edits }}</dd>
+		</dl>
+	</div>
+</div>

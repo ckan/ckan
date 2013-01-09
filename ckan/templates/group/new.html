@@ -1,14 +1,7 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip="">
-  
-  <py:def function="page_title">Add A Group</py:def>
-  <py:def function="page_heading">Add A Group</py:def>
+{% extends "group/base_form_page.html" %}
 
-  <div py:match="content" class="group-create-form">
-    ${Markup(c.form)}
-  </div>
+{% block subtitle %}{{ _('Create a Group') }}{% endblock %}
 
-  <xi:include href="layout.html" />
-</html>
+{% block breadcrumb_link %}{{ h.nav_link(_('Create Group'), controller='group', action='edit', id=c.group.name) }}{% endblock %}
 
+{% block page_heading %}{{ _('Create a Group') }}{% endblock %}

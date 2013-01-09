@@ -1,0 +1,37 @@
+{% extends "group/read.html" %}
+
+{% block subtitle %}{{ _('About') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
+
+{% block primary_content_inner %}
+<section class="module-content">
+	<h1 class="hide-heading">{{ _('About') }}</h1>
+	<table class="table">
+		<col width="10">
+		<col width="60">
+		<tbody>
+			<tr>
+				<td>Name:</td>
+				<td>{{ c.group_dict.title or c.group_dict.name }}</td>
+			</tr>
+			<tr>
+				<td>Description:</td>
+				<td>
+				{% if c.group_dict.description %}
+					<p>{{ c.group_dict.description }}</p>
+				{% else %}
+					<p class="empty">{{ _('There is no description for this group') }}</p>
+				{% endif %}
+				</td>
+			</tr>
+			<tr>
+				<td>URL:</td>
+				<td>
+					<a href="{{ h.url_for(controller='group', action='read', id=c.group_dict.name) }}">
+						{{ h.url_for(controller='group', action='read', id=c.group_dict.name, qualified=true) }}
+					</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</section>
+{% endblock %}

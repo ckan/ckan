@@ -1,0 +1,36 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    py:strip="">
+
+    <py:def function="page_title">${c.user} - Dashboard - User</py:def>
+    <py:def function="page_heading">
+        ${h.linked_gravatar(c.user_dict['email_hash'],48)}
+        <span class="username">${c.user_dict['name']}</span>
+        <py:if test="c.user_dict['fullname']">
+        <span class="fullname">(${c.user_dict['fullname']})</span>
+        </py:if>
+    </py:def>
+
+
+    <div py:match="content">
+        <h2>What's going on?</h2>
+        <div class="activity-stream">
+            <!--checkpoint:my-dashboard-->
+            ${h.dashboard_activity_stream(c.user_dict['id'])}
+        </div>
+    </div>
+
+    <div py:match="primarysidebar">
+        <h3>Nothing new on CKAN?</h3>
+        <h4>So, why don't you ...</h4>
+        <ul>
+            <li><a href="${h.url(controller='package', action='new')}">Add a new dataset</a></li>
+            <li><a href="${h.url(controller='user', action='index')}">Follow another user</a></li>
+            <li><a href="${h.url(controller='group', action='index')}">Create a group or a tag</a></li>
+            <li><a href="${h.url(controller='package', action='search')}">Or simply browse the repository</a></li>
+        </ul>
+    </div>
+
+    <xi:include href="layout.html" />
+</html>

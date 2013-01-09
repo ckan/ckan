@@ -3,10 +3,10 @@ import logging
 from pylons import c
 from ckan.lib import base
 from ckan.lib.navl import dictization_functions
-from ckan import authz
 from ckan import logic
 import logic.schema
 from ckan import plugins
+import ckan.new_authz
 
 log = logging.getLogger(__name__)
 
@@ -72,14 +72,21 @@ def register_package_plugins(map):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
-            map.connect('/%s/new' % package_type,
+
+            map.connect('%s_search' % package_type, '/%s' % package_type,
+                        controller='package', action='search')
+
+            map.connect('%s_new' % package_type, '/%s/new' % package_type,
                         controller='package', action='new')
             map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
                         controller='package', action='read')
-            map.connect('%s_action' % package_type,
-                        '/%s/{action}/{id}' % package_type, controller='package',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
-            )
+
+            for action in ['edit', 'authz', 'history']:
+                map.connect('%s_%s' % (package_type, action),
+                        '/%s/%s/{id}' % (package_type, action),
+                        controller='package',
+                        action=action
+                )
 
             if package_type in _package_plugins:
                 raise ValueError, "An existing IDatasetForm is "\
@@ -90,8 +97,6 @@ def register_package_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_package_plugin is None:
         _default_package_plugin = DefaultDatasetForm()
-
-
 
 
 def register_group_plugins(map):
@@ -138,7 +143,7 @@ def register_group_plugins(map):
                         controller='group', action='read')
             map.connect('%s_action' % group_type,
                         '/%s/{action}/{id}' % group_type, controller='group',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history' ]))
+                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
             )
 
             if group_type in _group_plugins:
@@ -175,6 +180,13 @@ class DefaultDatasetForm(object):
         """
         return 'package/new.html'
 
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'package/edit.html'
+
     def comments_template(self):
         """
         Returns a string representing the location of the template to be
@@ -203,7 +215,6 @@ class DefaultDatasetForm(object):
         """
         return 'package/history.html'
 
-
     def package_form(self):
         return 'package/new_package_form.html'
 
@@ -215,7 +226,7 @@ class DefaultDatasetForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
 
@@ -248,7 +259,7 @@ class DefaultDatasetForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
         return self.db_to_form_schema()
@@ -260,7 +271,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type']
+                               'resources', 'type', 'owner_org']
 
         if not schema:
             schema = self.form_to_db_schema()
@@ -273,16 +284,14 @@ class DefaultDatasetForm(object):
             raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
-        from pylons import config
-
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
-        data_dict.update({'available_only':True})
+        data_dict.update({'available_only': True})
 
         c.groups_available = authz_fn(context, data_dict)
 
         c.licences = [('', '')] + base.model.Package.get_license_options()
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:
             c.related_count = c.pkg.related_count
@@ -298,7 +307,6 @@ class DefaultDatasetForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
-
 
 
 class DefaultGroupForm(object):
@@ -338,6 +346,13 @@ class DefaultGroupForm(object):
         """
         return 'group/read.html'
 
+    def about_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the about page
+        """
+        return 'group/about.html'
+
     def history_template(self):
         """
         Returns a string representing the location of the template to be
@@ -352,6 +367,20 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
+    def admins_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the admins page
+        """
+        return 'group/admins.html'
+
+    def about_template(self):
+        '''Return the path to the template for the group's 'about' page.
+
+        :rtype: string
+
+        '''
+        return 'group/about.html'
 
     def group_form(self):
         return 'group/new_group_form.html'
@@ -364,7 +393,7 @@ class DefaultGroupForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
 
@@ -396,7 +425,7 @@ class DefaultGroupForm(object):
         If a context is provided, and it contains a schema, it will be
         returned.
         '''
-        schema = options.get('context',{}).get('schema',None)
+        schema = options.get('context', {}).get('schema', None)
         if schema:
             return schema
         return self.db_to_form_schema()
@@ -424,7 +453,7 @@ class DefaultGroupForm(object):
         pass
 
     def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)

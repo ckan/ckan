@@ -1,0 +1,19 @@
+{% extends "group/base_form_page.html" %}
+
+{% block subtitle %}{{ _('Create an organization') }}{% endblock %}
+
+{% block breadcrumb_link %}{{ h.nav_link(_('Create Organization'), controller='group', action='edit', id=c.group.name) }}{% endblock %}
+
+{% block page_heading %}{{ _('Create an organization') }}{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are Organizations?') }}</h2>
+    <div class="module-content">
+      {% trans %}
+        <p>An organization can be set-up to specify which users have permission to add or
+        remove datasets from it.</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}

@@ -4,10 +4,37 @@
 # The %(here)s variable will be replaced with the parent directory of this file
 #
 [DEFAULT]
-debug = true
+
+# Change debug to true when doing CKAN development, it enables Pylons'
+# interactive debugging tool, makes Fanstatic serve unminified JS and CSS
+# files, and enables CKAN templates' debugging features.
+#   
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+# Debug mode will enable the interactive debugging tool, allowing ANYONE to
+# execute malicious code after an exception is raised.
+debug = false
+
 email_to = you@yourdomain.com
-smtp_server = localhost
 error_email_from = paste@localhost
+
+# The SMTP server to connect to when sending emails to users, with optional
+# port (default: 25). For example: lavabit.com, or smtp.gmail.com:587. To
+# connect to a local sendmail process enter 'localhost'.
+smtp.server = localhost
+
+# Whether or not to use STARTTLS when connecting to the SMTP server.
+smtp.starttls = False
+
+# The username and password to use to authenticate with the SMTP server.
+# Optional, if these are left commented-out then CKAN will try to send email
+# to the SMTP server without logging in first.
+#smtp.user = your_username@gmail.com
+#smtp.password = your_password
+
+# The email address that emails sent by CKAN to users should appear to come
+# from. Optional (default: None, note that the SMTP server may insert its own
+# from address).
+#smtp.mail_from =
 
 [server:main]
 use = egg:Paste#http
@@ -24,7 +51,9 @@ app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
-ckan.plugins = stats
+# Note: Add ``pdf_preview`` to enable the resource preview for PDFs
+#		Add the resource_proxy plugin to enable resorce proxying and get around the same origin policy
+ckan.plugins = stats json_preview recline_preview
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings
@@ -32,17 +61,17 @@ ckan.plugins = stats
 #beaker.cache.data_dir = %(here)s/data/cache
 #beaker.session.data_dir = %(here)s/data/sessions
 
-# WARNING: *THE LINE BELOW MUST BE UNCOMMENTED ON A PRODUCTION ENVIRONMENT*
-# Debug mode will enable the interactive debugging tool, allowing ANYONE to
-# execute malicious code after an exception is raised.
-set debug = false
-
 # Specify the database for SQLAlchemy to use:
 # * Postgres is currently required for a production CKAN deployment
 # * Sqlite (memory or file) can be used as a quick alternative for testing
 sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
+
+## Datastore
+## Uncommment to set the datastore urls
+#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/ckantest
+#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/ckantest
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -92,10 +121,10 @@ package_form = standard
 ckan.site_title = CKAN
 
 ## Logo image to use on the home page
-ckan.site_logo = /img/logo_64px_wide.png
+ckan.site_logo = /base/images/ckan-logo.png
 
 ## Site tagline / description (used on front page)
-ckan.site_description = 
+ckan.site_description = DataSuite
 
 ## Used in creating some absolute urls (such as rss feeds, css files) and 
 ## dump filenames
@@ -226,9 +255,39 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
-## Webstore
-## Uncommment to enable datastore
-# ckan.datastore.enabled = 1
+
+## Previews
+#
+# Set the file types that should be previewed inline (e.g. images) or directly in an iframe.
+
+ckan.preview.direct = png jpg gif
+ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
+
+
+# Activity Streams
+#
+# Default maximum number of activities to show in an activity stream.
+# ckan.activity_list_limit = 31
+
+
+# Activity Streams Email Notifications
+#
+# Uncomment this line to enable activity streams email notifications.
+# You also need to setup a cron job to send the emails, see the documentation.
+#ckan.activity_streams_email_notifications = True
+
+# Email notifications for events older than this time delta will not be sent.
+# Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds),
+# '7 days, 3:23:34', etc.
+# ckan.email_notifications_since = 2 days
+
+
+# DEBUGGING
+
+# ckan.debug_supress_header This option can be set to suppress the debug
+# information showing the controller and action recieving the request being
+# shown in the header.  Note: This info only shows if debug is set to true.
+ckan.debug_supress_header = false
 
 ## ===================================
 ## Extensions

@@ -1,9 +1,13 @@
+import collections
+import csv
 import os
 import datetime
 import sys
-import logging
 from pprint import pprint
 import re
+import ckan.include.rjsmin as rjsmin
+import ckan.include.rcssmin as rcssmin
+import ckan.lib.fanstatic_resources as fanstatic_resources
 
 import paste.script
 from paste.registry import Registry
@@ -12,6 +16,35 @@ from paste.script.util.logging_config import fileConfig
 #NB No CKAN imports are allowed until after the config file is loaded.
 #   i.e. do the imports in methods, after _load_config is called.
 #   Otherwise loggers get disabled.
+
+
+def parse_db_config(config_key='sqlalchemy.url'):
+    ''' Takes a config key for a database connection url and parses it into
+    a dictionary. Expects a url like:
+
+    'postgres://tester:pass@localhost/ckantest3'
+    '''
+    from pylons import config
+    url = config[config_key]
+    regex = [
+        '^\s*(?P<db_type>\w*)',
+        '://',
+        '(?P<db_user>[^:]*)',
+        ':?',
+        '(?P<db_pass>[^@]*)',
+        '@',
+        '(?P<db_host>[^/:]*)',
+        ':?',
+        '(?P<db_port>[^/]*)',
+        '/',
+        '(?P<db_name>[\w.-]*)'
+    ]
+    db_details_match = re.match(''.join(regex), url)
+    if not db_details_match:
+        raise Exception('Could not extract db details from url: %r' % url)
+    db_details = db_details_match.groupdict()
+    return db_details
+
 
 class MockTranslator(object):
     def gettext(self, value):
@@ -98,6 +131,15 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print 'Initialising DB: SUCCESS'
         elif cmd == 'clean' or cmd == 'drop':
+
+            # remove any *.pyc version files to prevent conflicts
+            v_path = os.path.join(os.path.dirname(__file__),
+                               '..', 'migration', 'versions', '*.pyc')
+            import glob
+            filelist = glob.glob(v_path)
+            for f in filelist:
+                os.remove(f)
+
             model.repo.clean_db()
             search.clear()
             if self.verbose:
@@ -134,14 +176,7 @@ class ManageDb(CkanCommand):
             sys.exit(1)
 
     def _get_db_config(self):
-        from pylons import config
-        url = config['sqlalchemy.url']
-        # e.g. 'postgres://tester:pass@localhost/ckantest3'
-        db_details_match = re.match('^\s*(?P<db_type>\w*)://(?P<db_user>[^:]*):?(?P<db_pass>[^@]*)@(?P<db_host>[^/:]*):?(?P<db_port>[^/]*)/(?P<db_name>[\w.-]*)', url)
-        if not db_details_match:
-            raise Exception('Could not extract db details from url: %r' % url)
-        db_details = db_details_match.groupdict()
-        return db_details
+        return parse_db_config()
 
     def _get_postgres_cmd(self, command):
         self.db_details = self._get_db_config()
@@ -489,13 +524,12 @@ class Sysadmin(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Sysadmins:'
-        sysadmins = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
+        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True)
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
-            assert sysadmin.user, 'Could not extract entity with this priviledge from: %r' % sysadmin
-            print '%s name=%s id=%s' % (sysadmin.user.__class__.__name__,
-                                        sysadmin.user.name,
-                                        sysadmin.user.id)
+            print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
+                                        sysadmin.name,
+                                        sysadmin.id)
 
     def add(self):
         import ckan.model as model
@@ -517,7 +551,9 @@ class Sysadmin(CkanCommand):
             else:
                 print 'Exiting ...'
                 return
-        model.add_user_to_role(user, model.Role.ADMIN, model.System())
+
+        user.sysadmin = True
+        model.Session.add(user)
         model.repo.commit_and_remove()
         print 'Added %s as sysadmin' % username
 
@@ -533,7 +569,7 @@ class Sysadmin(CkanCommand):
         if not user:
             print 'Error: user "%s" not found!' % username
             return
-        model.remove_user_from_role(user, model.Role.ADMIN, model.System())
+        user.sysadmin = False
         model.repo.commit_and_remove()
 
 
@@ -544,9 +580,12 @@ class UserCmd(CkanCommand):
       user                            - lists users
       user list                       - lists users
       user <user-name>                - shows user properties
-      user add <user-name> [apikey=<apikey>] [password=<password>]
-                                      - add a user (prompts for password if
-                                        not supplied)
+      user add <user-name> [<field>=<value>]
+                                      - add a user (prompts for password
+                                        if not supplied).
+                                        Field can be: apikey
+                                                      password
+                                                      email
       user setpass <user-name>        - set user password (prompts)
       user remove <user-name>         - removes user from users
       user search <query>             - searches for a user name
@@ -643,53 +682,37 @@ class UserCmd(CkanCommand):
 
         if len(self.args) < 2:
             print 'Need name of the user.'
-            return
-        username = self.args[1]
-        user = model.User.by_name(unicode(username))
-        if user:
-            print 'User "%s" already found' % username
             sys.exit(1)
+        username = self.args[1]
 
-        # parse args
-        apikey = None
-        password = None
-        args = self.args[2:]
-        if len(args) == 1 and not (args[0].startswith('password') or \
-                                   args[0].startswith('apikey')):
-            # continue to support the old syntax of just supplying
-            # the apikey
-            apikey = args[0]
-        else:
-            # new syntax: password=foo apikey=bar
-            for arg in args:
-                split = arg.find('=')
-                if split == -1:
-                    split = arg.find(' ')
-                    if split == -1:
-                        raise ValueError('Could not parse arg: %r (expected "--<option>=<value>)")' % arg)
-                key, value = arg[:split], arg[split+1:]
-                if key == 'password':
-                    password = value
-                elif key == 'apikey':
-                    apikey = value
-                else:
-                    raise ValueError('Could not parse arg: %r (expected password/apikey argument)' % arg)
+        # parse args into data_dict
+        data_dict = {'name': username}
+        for arg in self.args[2:]:
+            try:
+                field, value = arg.split('=', 1)
+                data_dict[field] = value
+            except ValueError:
+                raise ValueError('Could not parse arg: %r (expected "<option>=<value>)"' % arg)
 
-        if not password:
-            password = self.password_prompt()
+        if 'password' not in data_dict:
+            data_dict['password'] = self.password_prompt()
 
         print('Creating user: %r' % username)
 
-
-        user_params = {'name': unicode(username),
-                       'password': password}
-        if apikey:
-            user_params['apikey'] = unicode(apikey)
-        user = model.User(**user_params)
-        model.Session.add(user)
-        model.repo.commit_and_remove()
-        user = model.User.by_name(unicode(username))
-        print user
+        try:
+            import ckan.logic as logic
+            site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+            context = {
+                    'model': model,
+                    'session': model.Session,
+                    'ignore_auth': True,
+                    'user': site_user['name'],
+                    }
+            user_dict = logic.get_action('user_create')(context, data_dict)
+            pprint(user_dict)
+        except logic.ValidationError, e:
+            print e
+            sys.exit(1)
 
     def remove(self):
         import ckan.model as model
@@ -908,30 +931,52 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+
+## Used by the Tracking class
+_ViewCount = collections.namedtuple("ViewCount", "id name count")
+
+
 class Tracking(CkanCommand):
     '''Update tracking statistics
 
     Usage:
-      tracking   - update tracking stats
+      tracking update [start-date]        - update tracking stats
+      tracking export <file> [start-date] - export tracking stats to a csv file
     '''
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 1
-    min_args = 0
+    max_args = 3
+    min_args = 1
 
     def command(self):
         self._load_config()
         import ckan.model as model
         engine = model.meta.engine
 
-        if len(self.args) == 1:
-            # Get summeries from specified date
-            start_date = datetime.datetime.strptime(self.args[0], '%Y-%m-%d')
+        cmd = self.args[0]
+        if cmd == 'update':
+            start_date = self.args[1] if len(self.args) > 1 else None
+            self.update_all(engine, start_date)
+        elif cmd == 'export':
+            if len(self.args) <= 1:
+                print self.__class__.__doc__
+                sys.exit(1)
+            output_file = self.args[1]
+            start_date = self.args[2] if len(self.args) > 2 else None
+            self.update_all(engine, start_date)
+            self.export_tracking(engine, output_file)
+        else:
+            print self.__class__.__doc__
+            sys.exit(1)
+
+    def update_all(self, engine, start_date=None):
+        if start_date:
+            start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         else:
             # No date given. See when we last have data for and get data
             # from 2 days before then in case new data is available.
-            # If no date here then use 2010-01-01 as the start date
+            # If no date here then use 2011-01-01 as the start date
             sql = '''SELECT tracking_date from tracking_summary
                      ORDER BY tracking_date DESC LIMIT 1;'''
             result = engine.execute(sql).fetchall()
@@ -950,6 +995,56 @@ class Tracking(CkanCommand):
             self.update_tracking(engine, start_date)
             print 'tracking updated for %s' % start_date
             start_date = stop_date
+
+    def _total_views(self, engine):
+        sql = '''
+            SELECT p.id,
+                   p.name,
+                   COALESCE(SUM(s.count), 0) AS total_views
+               FROM package AS p
+               LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
+               GROUP BY p.id, p.name
+               ORDER BY total_views DESC
+        '''
+        return [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
+
+    def _recent_views(self, engine, measure_from):
+        sql = '''
+            SELECT p.id,
+                   p.name,
+                   COALESCE(SUM(s.count), 0) AS total_views
+               FROM package AS p
+               LEFT OUTER JOIN tracking_summary AS s ON s.package_id = p.id
+               WHERE s.tracking_date >= %(measure_from)s
+               GROUP BY p.id, p.name
+               ORDER BY total_views DESC
+        '''
+        return [_ViewCount(*t) for t in engine.execute(
+                    sql, measure_from=str(measure_from)
+                ).fetchall()]
+
+    def export_tracking(self, engine, output_filename):
+        '''Write tracking summary to a csv file.'''
+        HEADINGS = [
+            "dataset id",
+            "dataset name",
+            "total views",
+            "recent views (last 2 weeks)",
+        ]
+
+        measure_from = datetime.date.today() - datetime.timedelta(days=14)
+        recent_views = self._recent_views(engine, measure_from)
+        total_views = self._total_views(engine)
+
+        with open(output_filename, 'w') as fh:
+            f_out = csv.writer(fh)
+            f_out.writerow(HEADINGS)
+            recent_views_for_id = dict((r.id, r.count) for r in recent_views)
+            f_out.writerows([(r.id,
+                              r.name,
+                              r.count,
+                              recent_views_for_id.get(r.id, 0))
+                              for r in total_views])
 
     def update_tracking(self, engine, summary_date):
         PACKAGE_URL = '/dataset/'
@@ -1230,3 +1325,479 @@ class Profile(CkanCommand):
         profile_command = "profile_url('%s')" % url
         cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)
         print 'Written profile to: %s' % output_filename
+
+
+class CreateColorSchemeCommand(CkanCommand):
+    ''' Create or remove a color scheme.
+
+    less will need to generate the css files after this has been run
+
+    color              - creates a random color scheme
+    color clear        - clears any color scheme
+    color '<hex>'      - uses as base color eg '#ff00ff' must be quoted.
+    color <value>      - a float between 0.0 and 1.0 used as base hue
+    color <color name> - html color name used for base color eg lightblue
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 0
+
+    rules = [
+        '@layoutLinkColor',
+        '@mastheadBackgroundColorStart',
+        '@mastheadBackgroundColorEnd',
+        '@btnPrimaryBackground',
+        '@btnPrimaryBackgroundHighlight',
+    ]
+
+    # list of predefined colors
+    color_list = {
+        'aliceblue': '#f0fff8',
+        'antiquewhite': '#faebd7',
+        'aqua': '#00ffff',
+        'aquamarine': '#7fffd4',
+        'azure': '#f0ffff',
+        'beige': '#f5f5dc',
+        'bisque': '#ffe4c4',
+        'black': '#000000',
+        'blanchedalmond': '#ffebcd',
+        'blue': '#0000ff',
+        'blueviolet': '#8a2be2',
+        'brown': '#a52a2a',
+        'burlywood': '#deb887',
+        'cadetblue': '#5f9ea0',
+        'chartreuse': '#7fff00',
+        'chocolate': '#d2691e',
+        'coral': '#ff7f50',
+        'cornflowerblue': '#6495ed',
+        'cornsilk': '#fff8dc',
+        'crimson': '#dc143c',
+        'cyan': '#00ffff',
+        'darkblue': '#00008b',
+        'darkcyan': '#008b8b',
+        'darkgoldenrod': '#b8860b',
+        'darkgray': '#a9a9a9',
+        'darkgrey': '#a9a9a9',
+        'darkgreen': '#006400',
+        'darkkhaki': '#bdb76b',
+        'darkmagenta': '#8b008b',
+        'darkolivegreen': '#556b2f',
+        'darkorange': '#ff8c00',
+        'darkorchid': '#9932cc',
+        'darkred': '#8b0000',
+        'darksalmon': '#e9967a',
+        'darkseagreen': '#8fbc8f',
+        'darkslateblue': '#483d8b',
+        'darkslategray': '#2f4f4f',
+        'darkslategrey': '#2f4f4f',
+        'darkturquoise': '#00ced1',
+        'darkviolet': '#9400d3',
+        'deeppink': '#ff1493',
+        'deepskyblue': '#00bfff',
+        'dimgray': '#696969',
+        'dimgrey': '#696969',
+        'dodgerblue': '#1e90ff',
+        'firebrick': '#b22222',
+        'floralwhite': '#fffaf0',
+        'forestgreen': '#228b22',
+        'fuchsia': '#ff00ff',
+        'gainsboro': '#dcdcdc',
+        'ghostwhite': '#f8f8ff',
+        'gold': '#ffd700',
+        'goldenrod': '#daa520',
+        'gray': '#808080',
+        'grey': '#808080',
+        'green': '#008000',
+        'greenyellow': '#adff2f',
+        'honeydew': '#f0fff0',
+        'hotpink': '#ff69b4',
+        'indianred ': '#cd5c5c',
+        'indigo ': '#4b0082',
+        'ivory': '#fffff0',
+        'khaki': '#f0e68c',
+        'lavender': '#e6e6fa',
+        'lavenderblush': '#fff0f5',
+        'lawngreen': '#7cfc00',
+        'lemonchiffon': '#fffacd',
+        'lightblue': '#add8e6',
+        'lightcoral': '#f08080',
+        'lightcyan': '#e0ffff',
+        'lightgoldenrodyellow': '#fafad2',
+        'lightgray': '#d3d3d3',
+        'lightgrey': '#d3d3d3',
+        'lightgreen': '#90ee90',
+        'lightpink': '#ffb6c1',
+        'lightsalmon': '#ffa07a',
+        'lightseagreen': '#20b2aa',
+        'lightskyblue': '#87cefa',
+        'lightslategray': '#778899',
+        'lightslategrey': '#778899',
+        'lightsteelblue': '#b0c4de',
+        'lightyellow': '#ffffe0',
+        'lime': '#00ff00',
+        'limegreen': '#32cd32',
+        'linen': '#faf0e6',
+        'magenta': '#ff00ff',
+        'maroon': '#800000',
+        'mediumaquamarine': '#66cdaa',
+        'mediumblue': '#0000cd',
+        'mediumorchid': '#ba55d3',
+        'mediumpurple': '#9370d8',
+        'mediumseagreen': '#3cb371',
+        'mediumslateblue': '#7b68ee',
+        'mediumspringgreen': '#00fa9a',
+        'mediumturquoise': '#48d1cc',
+        'mediumvioletred': '#c71585',
+        'midnightblue': '#191970',
+        'mintcream': '#f5fffa',
+        'mistyrose': '#ffe4e1',
+        'moccasin': '#ffe4b5',
+        'navajowhite': '#ffdead',
+        'navy': '#000080',
+        'oldlace': '#fdf5e6',
+        'olive': '#808000',
+        'olivedrab': '#6b8e23',
+        'orange': '#ffa500',
+        'orangered': '#ff4500',
+        'orchid': '#da70d6',
+        'palegoldenrod': '#eee8aa',
+        'palegreen': '#98fb98',
+        'paleturquoise': '#afeeee',
+        'palevioletred': '#d87093',
+        'papayawhip': '#ffefd5',
+        'peachpuff': '#ffdab9',
+        'peru': '#cd853f',
+        'pink': '#ffc0cb',
+        'plum': '#dda0dd',
+        'powderblue': '#b0e0e6',
+        'purple': '#800080',
+        'red': '#ff0000',
+        'rosybrown': '#bc8f8f',
+        'royalblue': '#4169e1',
+        'saddlebrown': '#8b4513',
+        'salmon': '#fa8072',
+        'sandybrown': '#f4a460',
+        'seagreen': '#2e8b57',
+        'seashell': '#fff5ee',
+        'sienna': '#a0522d',
+        'silver': '#c0c0c0',
+        'skyblue': '#87ceeb',
+        'slateblue': '#6a5acd',
+        'slategray': '#708090',
+        'slategrey': '#708090',
+        'snow': '#fffafa',
+        'springgreen': '#00ff7f',
+        'steelblue': '#4682b4',
+        'tan': '#d2b48c',
+        'teal': '#008080',
+        'thistle': '#d8bfd8',
+        'tomato': '#ff6347',
+        'turquoise': '#40e0d0',
+        'violet': '#ee82ee',
+        'wheat': '#f5deb3',
+        'white': '#ffffff',
+        'whitesmoke': '#f5f5f5',
+        'yellow': '#ffff00',
+        'yellowgreen': '#9acd32',
+    }
+
+    def create_colors(self, hue, num_colors=5, saturation=None, lightness=None):
+        if saturation is None:
+            saturation = 0.9
+        if lightness is None:
+            lightness = 40
+        else:
+            lightness *= 100
+
+        import math
+        saturation -= math.trunc(saturation)
+
+        print hue, saturation
+        import colorsys
+        ''' Create n related colours '''
+        colors=[]
+        for i in xrange(num_colors):
+            ix = i * (1.0/num_colors)
+            _lightness = (lightness + (ix * 40))/100.
+            if _lightness > 1.0:
+                _lightness = 1.0
+            color = colorsys.hls_to_rgb(hue, _lightness, saturation)
+            hex_color = '#'
+            for part in color:
+                hex_color += '%02x' % int(part * 255)
+            # check and remove any bad values
+            if not re.match('^\#[0-9a-f]{6}$', hex_color):
+                hex_color='#FFFFFF'
+            colors.append(hex_color)
+        return colors
+
+    def command(self):
+
+        hue = None
+        saturation = None
+        lightness = None
+
+        path = os.path.dirname(__file__)
+        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+
+        if self.args:
+            arg = self.args[0]
+            rgb = None
+            if arg == 'clear':
+                os.remove(path)
+                print 'custom colors removed.'
+            elif arg.startswith('#'):
+                color = arg[1:]
+                if len(color) == 3:
+                    rgb = [int(x, 16) * 16 for x in color]
+                elif len(color) == 6:
+                    rgb = [int(x, 16) for x in re.findall('..', color)]
+                else:
+                    print 'ERROR: invalid color'
+            elif arg.lower() in self.color_list:
+                color = self.color_list[arg.lower()][1:]
+                rgb = [int(x, 16) for x in re.findall('..', color)]
+            else:
+                try:
+                    hue = float(self.args[0])
+                except ValueError:
+                    print 'ERROR argument `%s` not recognised' % arg
+            if rgb:
+                import colorsys
+                hue, lightness, saturation = colorsys.rgb_to_hls(*rgb)
+                lightness = lightness / 340
+                # deal with greys
+                if not (hue == 0.0 and saturation == 0.0):
+                    saturation = None
+        else:
+            import random
+            hue = random.random()
+        if hue is not None:
+            f = open(path, 'w')
+            colors = self.create_colors(hue, saturation=saturation, lightness=lightness)
+            for i in xrange(len(self.rules)):
+                f.write('%s: %s;\n' % (self.rules[i], colors[i]))
+                print '%s: %s;\n' % (self.rules[i], colors[i])
+            f.close
+            print 'Color scheme has been created.'
+        print 'Make sure less is run for changes to take effect.'
+
+
+class TranslationsCommand(CkanCommand):
+    '''Translation helper functions
+
+    trans js - generate the javascript translations
+    trans mangle - mangle the zh_TW translations for testing
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 1
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        from pylons import config
+        self.ckan_path = os.path.join(os.path.dirname(__file__), '..')
+        i18n_path = os.path.join(self.ckan_path, 'i18n')
+        self.i18n_path = config.get('ckan.i18n_directory', i18n_path)
+        command = self.args[0]
+        if command == 'mangle':
+            self.mangle_po()
+        elif command == 'js':
+            self.build_js_translations()
+        else:
+            print 'command not recognised'
+
+
+    def po2dict(self, po, lang):
+        '''Convert po object to dictionary data structure (ready for JSON).
+
+        This function is from pojson
+        https://bitbucket.org/obviel/pojson
+
+Copyright (c) 2010, Fanstatic Developers
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the <organization> nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL FANSTATIC DEVELOPERS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'''
+        result = {}
+
+        result[''] = {}
+        result['']['plural-forms'] = po.metadata['Plural-Forms']
+        result['']['lang'] = lang
+        result['']['domain'] = 'ckan'
+
+        for entry in po:
+            if entry.obsolete:
+                continue
+            # check if used in js file we only include these
+            occurrences = entry.occurrences
+            js_use = False
+            for occurrence in occurrences:
+                if occurrence[0].endswith('.js'):
+                    js_use = True
+                    continue
+            if not js_use:
+                continue
+            if entry.msgstr:
+                result[entry.msgid] = [None, entry.msgstr]
+            elif entry.msgstr_plural:
+                plural = [entry.msgid_plural]
+                result[entry.msgid] = plural
+                ordered_plural = sorted(entry.msgstr_plural.items())
+                for order, msgstr in ordered_plural:
+                    plural.append(msgstr)
+        return result
+
+    def build_js_translations(self):
+        import polib
+        import simplejson as json
+
+        def create_js(source, lang):
+            print 'Generating', lang
+            po = polib.pofile(source)
+            data = self.po2dict(po, lang)
+            data = json.dumps(data, sort_keys=True,
+                              ensure_ascii=False, indent=2 * ' ')
+            out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
+                                                   'base', 'i18n'))
+            out_file = open(os.path.join(out_dir, '%s.js' % lang), 'w')
+            out_file.write(data.encode('utf-8'))
+            out_file.close()
+
+        for l in os.listdir(self.i18n_path):
+            if os.path.isdir(os.path.join(self.i18n_path, l)):
+                f = os.path.join(self.i18n_path, l, 'LC_MESSAGES', 'ckan.po')
+                create_js(f, l)
+        print 'Completed generating JavaScript translations'
+
+    def mangle_po(self):
+        ''' This will mangle the zh_TW translations for translation coverage
+        testing.
+
+        NOTE: This will destroy the current translations fot zh_TW
+        '''
+        import polib
+        pot_path = os.path.join(self.i18n_path, 'ckan.pot')
+        po = polib.pofile(pot_path)
+        # we don't want to mangle the following items in strings
+        # %(...)s  %s %0.3f %1$s %2$0.3f [1:...] {...} etc
+
+        # sprintf bit after %
+        spf_reg_ex = "\+?(0|'.)?-?\d*(.\d*)?[\%bcdeufosxX]"
+
+        extract_reg_ex = '(\%\([^\)]*\)' + spf_reg_ex + \
+                         '|\[\d*\:[^\]]*\]' + \
+                         '|\{[^\}]*\}' + \
+                         '|<[^>}]*>' + \
+                         '|\%((\d)*\$)?' + spf_reg_ex + ')'
+
+        for entry in po:
+            msg = entry.msgid.encode('utf-8')
+            matches = re.finditer(extract_reg_ex, msg)
+            length = len(msg)
+            position = 0
+            translation = u''
+            for match in matches:
+                translation += '-' * (match.start() - position)
+                position = match.end()
+                translation += match.group(0)
+            translation += '-' * (length - position)
+            entry.msgstr = translation
+        out_dir = os.path.join(self.i18n_path, 'zh_TW', 'LC_MESSAGES')
+        try:
+            os.makedirs(out_dir)
+        except OSError:
+            pass
+        po.metadata['Plural-Forms'] = "nplurals=1; plural=0\n"
+        out_po = os.path.join(out_dir, 'ckan.po')
+        out_mo = os.path.join(out_dir, 'ckan.mo')
+        po.save(out_po)
+        po.save_as_mofile(out_mo)
+        print 'zh_TW has been mangled'
+
+
+class MinifyCommand(CkanCommand):
+    '''Create minified versions of the given Javascript and CSS files.
+
+    Usage:
+
+        paster minify [FILE|DIRECTORY] ...
+
+    for example:
+
+        paster minify ckan/public/base
+        paster minify ckan/public/base/css/*.css
+        paster minify ckan/public/base/css/red.css
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        for base_path in self.args:
+            if os.path.isfile(base_path):
+                self.minify_file(base_path)
+            elif os.path.isdir(base_path):
+                for root, dirs, files in os.walk(base_path):
+                    for filename in files:
+                        path = os.path.join(root, filename)
+                        self.minify_file(path)
+            else:
+                # Path is neither a file or a dir?
+                continue
+
+    def minify_file(self, path):
+        '''Create the minified version of the given file.
+
+        If the file is not a .js or .css file (e.g. it's a .min.js or .min.css
+        file, or it's some other type of file entirely) it will not be
+        minifed.
+
+        :param path: The path to the .js or .css file to minify
+
+        '''
+        path_only, extension = os.path.splitext(path)
+
+        if path_only.endswith('.min'):
+            # This is already a minified file.
+            return
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        path_min = fanstatic_resources.min_path(path)
+
+        source = open(path, 'r').read()
+        f = open(path_min, 'w')
+        if path.endswith('.css'):
+            f.write(rcssmin.cssmin(source))
+        elif path.endswith('.js'):
+            f.write(rjsmin.jsmin(source))
+        f.close()
+        print "Minified file '{0}'".format(path)

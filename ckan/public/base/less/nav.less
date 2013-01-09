@@ -1,0 +1,90 @@
+.nav-simple {
+  .simple-list; // Adds border and padding.
+  padding-bottom: 0;
+}
+
+.nav-item > a {
+  color: @navLinkColor;
+  margin: -7px -@gutterX;
+  padding: 7px @gutterX;
+}
+
+.nav-item.active {
+  background-color: @navActiveBackgroundColor;
+}
+
+.nav-item.active > a span {
+  white-space: nowrap;
+  overflow:hidden;
+  display:block;
+}
+
+.nav-item.active > a {
+  .tag;
+  .box-sizing(border-box);
+  font-size: 12px;
+  font-weight: bold;
+  position: relative;
+  left: 4px;
+  margin-left: -25px;
+  margin-right: -20px;
+  padding-left: 10px;
+  padding-right: 0px;
+  padding: 1px (@gutterX - 3);
+}
+
+.nav-item [class^=icon] {
+  font-size: 1.2em;
+  margin: -1px 0 -1px -1px;
+}
+
+.module-narrow .nav-item > a {
+  padding-left:  @gutterSmallX;
+  padding-right: @gutterSmallX;
+  position: relative;
+}
+
+.module-narrow .nav-item.active > a {
+  padding-left:  @gutterSmallX - 3;
+  padding-right: @gutterSmallX - 3;
+}
+
+.module-narrow .nav-item.image {
+  position: relative;
+}
+
+.module-narrow .nav-item.image > a {
+  padding-left:  @gutterSmallX + 27;
+  padding-right: @gutterSmallX + 27;
+}
+
+.module-narrow .nav-item.image > img {
+  position: absolute;
+  top: 50%;
+  left: @gutterSmallX;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  z-index: 2;
+}
+
+// FACET NAVIGATION
+
+.nav-facet .nav-item > a:hover:after,
+.nav-facet .nav-item.active > a:after {
+  .ckan-icon;
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  margin-top: -8px;
+}
+
+.nav-facet .nav-item > a:hover:after {
+  .ckan-icon-circle-add;
+}
+
+.nav-facet .nav-item.active > a:after {
+  .ckan-icon-circle-cross;
+  right: 3px;
+}

@@ -1,14 +1,16 @@
-<html
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:py="http://genshi.edgewall.org/"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip=""
-  >
-<py:for each="activity in activities" >
+{% set has_more_length = g.activity_list_limit|int %}
+{% set has_more = activities|length > has_more_length %}
 
-<div class="activity">
-  ${    h.literal(activity.msg.format(**activity.data))  }
-    <span class="date">${ h.render_datetime(activity.timestamp) }</span>
-</div>
-</py:for>
-</html>
+<ul class="activity" data-module="activity-stream" data-module-more="{{ has_more }}" data-module-context="{{ controller }}" data-module-id="{{ id }}" data-module-offset="{{ offset }}">
+	{% if offset > 0 %}
+	<li class="load-less"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=offset-30) }}" class="btn btn-rounded">{{ _('Load less') }}</a></li>
+	{% endif %}
+{% for activity in activities %}
+	{% if loop.index <= has_more_length %}
+		{% snippet 'snippets/activity_item.html', activity=activity %}
+	{% endif %}
+{% endfor %}
+	{% if has_more %}
+	<li class="load-more"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=offset+30) }}" class="btn btn-rounded">{{ _('Load more') }}</a></li>
+	{% endif %}
+</ul>

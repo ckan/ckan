@@ -60,6 +60,7 @@ class TestActivity(HtmlCheckMethods):
         # should not be calling package_create like this we should be
         # going via the api or package controllers
         context['api_version'] = 3
+        context['ignore_auth'] = True
         package = package_create(context, package)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
@@ -137,7 +138,7 @@ class TestActivity(HtmlCheckMethods):
         group = group_create(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s created the group %s' % (user['fullname'], group['name']) \
+        assert '%s created the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Update the group.
@@ -145,7 +146,7 @@ class TestActivity(HtmlCheckMethods):
         group = group_update(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s updated the group %s' % (user['fullname'], group['name']) \
+        assert '%s updated the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Delete the group.
@@ -153,7 +154,7 @@ class TestActivity(HtmlCheckMethods):
         group_update(context, group)
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
-        assert '%s deleted the group %s' % (user['fullname'], group['name']) \
+        assert '%s deleted the group %s' % (user['fullname'], group['title']) \
                 in stripped, stripped
 
         # Add a new tag to the package.
@@ -204,7 +205,10 @@ class TestActivity(HtmlCheckMethods):
                 in stripped, stripped
 
         # Delete the package.
+        # we need to get round the delete permission
+        context['ignore_auth'] = True
         package_delete(context, package)
+        del context['ignore_auth']
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s deleted the dataset %s' % \
@@ -225,9 +229,11 @@ class TestActivity(HtmlCheckMethods):
         assert result.body.count('<div class="activity">') \
                 == 15
 
-        # The latest 15 should also appear on the dashboard
+        # The user's dashboard page should load successfully and have the
+        # latest 15 activities on it.
         offset = url_for(controller='user', action='dashboard')
-        params = {'id': user['id']}
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-        response = self.app.post(offset, params=params, extra_environ=extra_environ, status=200)
+        extra_environ = {'Authorization':
+                str(ckan.model.User.get('billybeane').apikey)}
+        result = self.app.post(offset, extra_environ=extra_environ,
+                status=200)
         assert result.body.count('<div class="activity">') == 15

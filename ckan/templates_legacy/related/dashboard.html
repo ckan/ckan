@@ -1,0 +1,74 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  typeof="dcat:Dataset"
+  about=""
+  py:strip="">
+
+  <py:def function="body_class">no-sidebar</py:def>
+  <xi:include href="add-related.html" />
+
+  <py:def function="page_title">Apps &amp; Ideas</py:def>
+
+  <py:def function="page_heading" property="dc:title">
+    Apps &amp; Ideas
+  </py:def>
+
+  <div py:match="content">
+    <h4 py:if="c.page.item_count">Showing items <strong>${c.page.first_item} - ${c.page.last_item}</strong> of <strong>${c.page.item_count}</strong> related items found</h4>
+    <h4 py:if="not c.page.item_count"><strong>${c.page.item_count}</strong> related items found</h4>
+
+    <div class="well">
+        <form action="" method="get" class="form-inline">
+            <input type='hidden' name='page' value='1'/>
+
+            <label for="type">Filter by type</label>
+            <select name="type">
+                <option value="">All</option>
+                <option value="api" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'api' else None}">API</option>
+                <option value="application" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'application' else None}">Application</option>
+                <option value="idea"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'idea' else None}">Idea</option>
+                <option value="news-article" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'news-article' else None}">News Article</option>
+                <option value="paper" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'paper' else None}">Paper</option>
+                <option value="post" py:attrs="{'selected': 'selected' if c.filters.get('type') == 'post' else None}">Post</option>
+                <option value="visualization"  py:attrs="{'selected': 'selected' if c.filters.get('type') == 'visualization' else None}">Visualization</option>
+            </select>
+
+            <label for="sort">Sort by</label>
+            <select name="sort">
+                <option value="">Default</option>
+                <option value="view_count_desc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'view_count_desc' else None}">Most viewed</option>
+                <option value="view_count_asc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'view_count_asc' else None}">Least viewed</option>
+
+                <option value="created_desc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'created_desc' else None}">Newest</option>
+                <option value="created_asc" py:attrs="{'selected': 'selected' if c.filters.get('sort') == 'created_asc' else None}">Oldest</option>
+
+            </select>
+
+
+            <label for="featured">Featured items only?</label>
+            <input type="checkbox" name="featured" py:attrs="{'checked': 'checked' if c.filters.get('featured') == 'on' else None}"></input>
+            <button class="btn btn-primary pull-right">Apply</button>
+        </form>
+    </div>
+
+      <ul class="related-items thumbnails">
+        <py:for each="related in c.page.items">
+          ${related_summary(related,False)}
+        </py:for>
+      </ul>
+
+    ${c.page.pager()}
+
+    <span class="insert-comment-thread"></span>
+  </div>
+
+  <xi:include href="../layout.html" />
+</html>
+

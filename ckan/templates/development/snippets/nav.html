@@ -1,0 +1,14 @@
+<section class="module module-narrow" style="width: 280px">
+  {% with items=(("First", false), ("Second", true), ("Third", true), ("Fourth", false), ("Last", false)) %}
+    <h1 class="module-heading">{{ heading }}</h1>
+    <nav>
+      <ul class="unstyled nav nav-simple">
+        {% for value, active in items %}
+          <li class="nav-item{{ ' active' if show_active and active }}">
+            <a href="#">{% if show_icons %}<i class="icon-large icon-cog"></i> {% endif %}{{ value }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endwith %}
+</section>

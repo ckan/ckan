@@ -8,7 +8,7 @@ import ckan.misc
 import ckan.lib.i18n
 from ckan.lib.base import *
 from ckan.lib import mailer
-from ckan.authz import Authorizer
+import ckan.new_authz
 from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import check_access, get_action
@@ -49,7 +49,7 @@ class UserController(BaseController):
         into a format suitable for the form (optional)'''
 
     def _setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
@@ -58,6 +58,7 @@ class UserController(BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
+        c.about_formatted = self._format_about(user_dict['about'])
 
     ## end hooks
 
@@ -110,18 +111,21 @@ class UserController(BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        c.about_formatted = self._format_about(c.user_dict['about'])
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
+        # The legacy templates have the user's activity stream on the user
+        # profile page, new templates do not.
+        if asbool(config.get('ckan.legacy_templates', False)):
+            c.user_activity_stream = get_action('user_activity_list_html')(
+                    context, {'id': c.user_dict['id']})
+
         return render('user/read.html')
 
     def me(self, locale=None):
         if not c.user:
-            h.redirect_to(locale=locale, controller='user',
-                          action='login', id=None)
+            h.redirect_to(locale=locale, controller='user', action='login',
+                    id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(locale=locale, controller='user', action='dashboard',
-                      id=user_ref)
+                id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -152,7 +156,7 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -228,7 +232,7 @@ class UserController(BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user))
+        if not (ckan.new_authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
@@ -242,6 +246,8 @@ class UserController(BaseController):
                                        data_dict)
 
         c.is_myself = True
+        c.show_email_notifications = asbool(
+                config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -252,6 +258,11 @@ class UserController(BaseController):
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # MOAN: Do I really have to do this here?
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
@@ -266,7 +277,7 @@ class UserController(BaseController):
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
 
-    def login(self):
+    def login(self, error=None):
         lang = session.pop('lang', None)
         if lang:
             session.save()
@@ -281,9 +292,15 @@ class UserController(BaseController):
             g.openid_enabled = False
 
         if not c.user:
+            came_from = request.params.get('came_from', '')
             c.login_handler = h.url_for(
-                self._get_repoze_handler('login_handler_path'))
-            return render('user/login.html')
+                self._get_repoze_handler('login_handler_path'),
+                came_from=came_from)
+            if error:
+                vars = {'error_summary': {'':error}}
+            else:
+                vars = {}
+            return render('user/login.html', extra_vars=vars)
         else:
             return render('user/logout_first.html')
 
@@ -291,6 +308,7 @@ class UserController(BaseController):
         # we need to set the language via a redirect
         lang = session.pop('lang', None)
         session.save()
+        came_from = request.params.get('came_from', '')
 
         # we need to set the language explicitly here or the flash
         # messages will not be translated.
@@ -306,14 +324,20 @@ class UserController(BaseController):
 
             h.flash_success(_("%s is now logged in") %
                             user_dict['display_name'])
-            return self.me(locale=lang)
+            if came_from:
+                return h.redirect_to(str(came_from))
+            return self.me()
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
                 err += _(' (Or if using OpenID, it hasn\'t been associated '
                          'with a user account.)')
-            h.flash_error(err)
-            h.redirect_to(locale=lang, controller='user', action='login')
+            if asbool(config.get('ckan.legacy_templates', 'false')):
+                h.flash_error(err)
+                h.redirect_to(locale=lang, controller='user',
+                              action='login', came_from=came_from)
+            else:
+                return self.login(error=err)
 
     def logout(self):
         # save our language in the session so we don't lose it
@@ -460,9 +484,69 @@ class UserController(BaseController):
         c.followers = f(context, {'id': c.user_dict['id']})
         return render('user/followers.html')
 
-    def dashboard(self, id=None):
+    def activity(self, id, offset=0):
+        '''Render this user's public activity stream page.'''
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
+        try:
+            check_access('user_show', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to see this page'))
+
         self._setup_template_variables(context, data_dict)
+
+        c.user_activity_stream = get_action('user_activity_list_html')(
+            context, {'id': c.user_dict['id'], 'offset': offset})
+
+        return render('user/activity_stream.html')
+
+    def dashboard(self, id=None, offset=0):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+        data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
+        self._setup_template_variables(context, data_dict)
+
+        c.dashboard_activity_stream = h.dashboard_activity_stream(id, offset)
+
+        # Mark the user's new activities as old whenever they view their
+        # dashboard page.
+        get_action('dashboard_mark_activities_old')(context, {})
+
         return render('user/dashboard.html')
+
+    def follow(self, id):
+        '''Start following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('follow_user')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(id))
+        except ValidationError as e:
+            error_message = (e.extra_msg or e.message or e.error_summary
+                    or e.error_dict)
+            h.flash_error(error_message)
+        except NotAuthorized as e:
+            h.flash_error(e.extra_msg)
+        h.redirect_to(controller='user', action='read', id=id)
+
+    def unfollow(self, id):
+        '''Stop following this user.'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author}
+        data_dict = {'id': id}
+        try:
+            get_action('unfollow_user')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(id))
+        except (NotFound, NotAuthorized) as e:
+            error_message = e.extra_msg or e.message
+            h.flash_error(error_message)
+        except ValidationError as e:
+            error_message = (e.error_summary or e.message or e.extra_msg
+                    or e.error_dict)
+            h.flash_error(error_message)
+        h.redirect_to(controller='user', action='read', id=id)

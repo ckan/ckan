@@ -44,6 +44,27 @@ def package_delete(context, data_dict):
     entity.delete()
     model.repo.commit()
 
+def resource_delete(context, data_dict):
+    '''Delete a resource from a dataset.
+
+    You must be a sysadmin or the owner of the resource to delete it.
+
+    :param id: the id of the resource
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    entity = model.Resource.get(id)
+
+    if entity is None:
+        raise NotFound
+
+    _check_access('resource_delete',context, data_dict)
+
+    entity.delete()
+    model.repo.commit()
 
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.
@@ -163,10 +184,13 @@ def member_delete(context, data_dict=None):
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state    == "active").first()
     if member:
+        rev = model.repo.new_revision()
+        rev.author = context.get('user')
+        rev.message = _(u'REST API: Delete Member: %s') % obj_id
         member.delete()
         model.repo.commit()
 
-def group_delete(context, data_dict):
+def _group_or_org_delete(context, data_dict, is_org=False):
     '''Delete a group.
 
     You must be authorized to delete the group.
@@ -186,17 +210,52 @@ def group_delete(context, data_dict):
 
     revisioned_details = 'Group: %s' % group.name
 
-    _check_access('group_delete', context, data_dict)
+    if is_org:
+        _check_access('organization_delete', context, data_dict)
+    else:
+        _check_access('group_delete', context, data_dict)
+
+    # organization delete will delete all datasets for that org
+    if is_org:
+        for pkg in group.active_packages().all():
+            _get_action('package_delete')(context, {id: pkg.id})
 
     rev = model.repo.new_revision()
     rev.author = user
     rev.message = _(u'REST API: Delete %s') % revisioned_details
     group.delete()
 
-    for item in plugins.PluginImplementations(plugins.IGroupController):
+    if is_org:
+        plugin_type = plugins.IOrganizationController
+    else:
+        plugin_type = plugins.IGroupController
+
+    for item in plugins.PluginImplementations(plugin_type):
         item.delete(group)
 
     model.repo.commit()
+
+def group_delete(context, data_dict):
+    '''Delete a group.
+
+    You must be authorized to delete the group.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict)
+
+def organization_delete(context, data_dict):
+    '''Delete a organization.
+
+    You must be authorized to delete the organization.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    '''
+    return _group_or_org_delete(context, data_dict, is_org=True)
 
 def task_status_delete(context, data_dict):
     '''Delete a task status.
@@ -209,8 +268,6 @@ def task_status_delete(context, data_dict):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-    model.Session.remove()
-    model.Session()._context = context
 
     entity = model.TaskStatus.get(id)
 
@@ -290,23 +347,27 @@ def package_relationship_delete_rest(context, data_dict):
 
     package_relationship_delete(context, data_dict)
 
-def _unfollow(context, data_dict, FollowerClass):
+def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']
 
     if not context.has_key('user'):
-        raise ckan.logic.NotAuthorized
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
     if not userobj:
-        raise ckan.logic.NotAuthorized
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
     follower_id = userobj.id
 
-    object_id = data_dict.get('id')
+    validated_data_dict, errors = validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+    object_id = validated_data_dict.get('id')
 
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
         raise NotFound(
-                _('Could not find follower {follower} -> {object}').format(
-                    follower=follower_id, object=object_id))
+                _('You are not following {0}.').format(data_dict.get('id')))
 
     follower_obj.delete()
     model.repo.commit()
@@ -320,11 +381,7 @@ def unfollow_user(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
-    _unfollow(context, data_dict, context['model'].UserFollowingUser)
+    _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context, data_dict):
     '''Stop following a dataset.
@@ -335,8 +392,46 @@ def unfollow_dataset(context, data_dict):
     '''
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_dataset_schema())
-    data_dict, errors = validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    _unfollow(context, data_dict, schema,
+            context['model'].UserFollowingDataset)
 
-    _unfollow(context, data_dict, context['model'].UserFollowingDataset)
+
+def _group_or_org_member_delete(context, data_dict=None):
+    model = context['model']
+    user = context['user']
+    session = context['session']
+
+    group_id = data_dict.get('id')
+    group = model.Group.get(group_id)
+    user_id = data_dict.get('user_id')
+    member_dict = {
+        'id': group.id,
+        'object': user_id,
+        'object_type': 'user',
+    }
+    member_context = {
+        'model': model,
+        'user': user,
+        'session': session
+    }
+    _get_action('member_delete')(member_context, member_dict)
+
+
+def group_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict)
+
+def organization_member_delete(context, data_dict=None):
+    return _group_or_org_member_delete(context, data_dict)
+
+
+def unfollow_group(context, data_dict):
+    '''Stop following a group.
+
+    :param id: the id or name of the group to stop following
+    :type id: string
+
+    '''
+    schema = context.get('schema',
+            ckan.logic.schema.default_follow_group_schema())
+    _unfollow(context, data_dict, schema,
+            context['model'].UserFollowingGroup)

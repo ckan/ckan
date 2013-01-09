@@ -1,0 +1,24 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Groups of Datasets</py:def>
+  <py:def function="page_heading">Groups of Datasets</py:def>
+
+  <py:match path="primarysidebar">
+    <li class="widget-container boxed widget_text">
+      <h3>What Are Groups?</h3>
+      <span i18n:msg="">Whilst tags are great at collecting datasets together, there are occasions when you want to restrict users from editing a collection. A <strong>group</strong> can be set-up to specify which users have permission to add or remove datasets from it.</span>
+    </li>
+  </py:match>
+
+  
+  <div py:match="content">
+    ${c.page.pager()}
+    ${group_list_from_dict(c.page.items)}
+    ${c.page.pager()}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

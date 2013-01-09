@@ -1,14 +1,14 @@
 import datetime
+
 from pylons import config
 from sqlalchemy.sql import select
-import datetime
-import ckan.authz
-import ckan.model
-import ckan.misc
+
+import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
+import ckan.new_authz as new_authz
 
 ## package save
 
@@ -32,11 +32,14 @@ def group_list_dictize(obj_list, context,
         group_dict['display_name'] = obj.display_name
 
         group_dict['packages'] = \
-                len(obj.active_packages(with_private=with_private).all())
+                len(obj.packages(with_private=with_private, context=context))
 
         if context.get('for_view'):
-            for item in plugins.PluginImplementations(
-                    plugins.IGroupController):
+            if group_dict['is_organization']:
+                plugin = plugins.IOrganizationController
+            else:
+                plugin = plugins.IGroupController
+            for item in plugins.PluginImplementations(plugin):
                 group_dict = item.before_view(group_dict)
 
         result_list.append(group_dict)
@@ -93,6 +96,31 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
+def _unified_resource_format(format_):
+    ''' Convert resource formats into a more uniform set.
+    eg .json, json, JSON, text/json all converted to JSON.'''
+
+    format_clean = format_.lower().split('/')[-1].replace('.', '')
+    formats = {
+        'csv' : 'CSV',
+        'zip' : 'ZIP',
+        'pdf' : 'PDF',
+        'xls' : 'XLS',
+        'json' : 'JSON',
+        'kml' : 'KML',
+        'xml' : 'XML',
+        'shape' : 'SHAPE',
+        'rdf' : 'RDF',
+        'txt' : 'TXT',
+        'text' : 'TEXT',
+        'html' : 'HTML',
+    }
+    if format_clean in formats:
+        format_new = formats[format_clean]
+    else:
+        format_new = format_.lower()
+    return format_new
+
 def resource_dictize(res, context):
     resource = d.table_dictize(res, context)
     extras = resource.pop("extras", None)
@@ -103,6 +131,7 @@ def resource_dictize(res, context):
         model = context['model']
         tracking = model.TrackingSummary.get_for_resource(res.url)
         resource['tracking_summary'] = tracking
+    resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     if not (url.startswith('http://') or url.startswith('https://')):
@@ -213,9 +242,21 @@ def package_dictize(pkg, context):
     q = select([group, member_rev.c.capacity],
                from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
                ).where(member_rev.c.table_id == pkg.id)\
-                .where(member_rev.c.state == 'active')
+                .where(member_rev.c.state == 'active') \
+                .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
     result_dict["groups"] = d.obj_list_dictize(result, context)
+    #owning organization
+    group_rev = model.group_revision_table
+    q = select([group_rev]
+               ).where(group_rev.c.id == pkg.owner_org) \
+                .where(group_rev.c.state == 'active')
+    result = _execute_with_revision(q, group_rev, context)
+    organizations = d.obj_list_dictize(result, context)
+    if organizations:
+        result_dict["organization"] = organizations[0]
+    else:
+        result_dict["organization"] = None
     #relations
     rel_rev = model.package_relationship_revision_table
     q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
@@ -227,14 +268,15 @@ def package_dictize(pkg, context):
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
-    if isinstance(pkg, ckan.model.PackageRevision):
+    if isinstance(pkg, model.PackageRevision):
         pkg = model.Package.get(pkg.id)
 
     # isopen
     result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
 
     # type
-    result_dict['type']= pkg.type
+    # if null assign the default value to make searching easier
+    result_dict['type']= pkg.type or u'dataset'
 
     # licence
     if pkg.license and pkg.license.url:
@@ -296,7 +338,11 @@ def group_dictize(group, context):
     context['with_capacity'] = False
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(plugins.IGroupController):
+        if result_dict['is_organization']:
+            plugin = plugins.IOrganizationController
+        else:
+            plugin = plugins.IGroupController
+        for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
     return result_dict
@@ -373,9 +419,9 @@ def user_dictize(user, context):
     result_dict['number_of_edits'] = user.number_of_edits()
     result_dict['number_administered_packages'] = user.number_administered_packages()
 
-    requester = context['user']
+    requester = context.get('user')
 
-    if not (ckan.authz.Authorizer().is_sysadmin(unicode(requester)) or
+    if not (new_authz.is_sysadmin(requester) or
             requester == user.name or
             context.get('keep_sensitive_data', False)):
         # If not sysadmin or the same user, strip sensible info
@@ -441,7 +487,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(pkg.notes)
+    dictized['notes_rendered'] = misc.MarkdownFormat().to_html(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)
     if site_url:
@@ -548,4 +594,7 @@ def user_following_user_dictize(follower, context):
     return d.table_dictize(follower, context)
 
 def user_following_dataset_dictize(follower, context):
+    return d.table_dictize(follower, context)
+
+def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)

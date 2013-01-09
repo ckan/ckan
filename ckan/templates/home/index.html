@@ -1,83 +1,91 @@
-<html xmlns:py="http://genshi.edgewall.org/"
-  xmlns:i18n="http://genshi.edgewall.org/i18n"
-  xmlns:xi="http://www.w3.org/2001/XInclude"
-  py:strip=""
-  >
+{% extends "page.html" %}
 
-  <py:def function="body_class">${h.literal('no-sidebar')}</py:def>
- 
-  <py:def function="page_title">Welcome</py:def>
+{% block subtitle %}{{ _("Welcome") }}{% endblock %}
 
-  <div py:match="//div[@id='content']" class="front-page">
-    <div>
-      <h1 class="page_heading">Welcome to ${g.site_title}!</h1>
-    </div>
-    <div class="row">
-      <div class="span4">
-        <div class="action-box">
-          <div class="action-box-inner find clearfix">
-            <h1>Find data</h1>
+{% block maintag %}{% endblock %}
 
-            <form action="${h.url_for(controller='package', action='search')}" method="GET"> 
-              <input name="q" value="" class="search-field" placeholder="${_('Find datasets')}" /> 
-            </form> 
-            <p>${g.site_title} contains <a href="${h.url_for(controller='package', action='search')}">${c.package_count} datasets</a> that you can 
-            browse, learn about and download.</p>
-          </div>
-        </div>
-      </div>
-      <div class="span4">
-        <div class="action-box">
-          <div class="action-box-inner share clearfix">
-          <h1>Share data</h1>
-
-          <p>Add your own datasets to share them with others and
-          to find other people interested in your data.</p>
-          
-          <py:choose test="h.check_access('package_create')">
-            <a py:when="" href="${h.url_for(controller='package', action='new')}" class="create-button">Create a dataset &raquo;</a>
-            <py:otherwise>
-              <a href="${h.url_for(controller='user', action='login')}" class="create-button">Sign up &raquo;</a>
-            </py:otherwise>
-          </py:choose>
-          </div>
-        </div>
-      </div>
-      <div class="span4">
-        <div class="action-box">
-          <div class="action-box-inner collaborate clearfix">
-          <h1>Collaborate</h1>
-
-          <p>Find out more about working with open data by exploring 
-          these resources:</p>
-          <ul>
-            <li><a href="http://getthedata.org">GetTheData.org</a></li>
-            <li><a href="http://datapatterns.org">DataPatterns.org</a></li>
-            <li><a href="http://opendatahandbook.org">Open Data Handbook</a></li>
-          </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div py:if="c.groups" class="row whoelse">
-      <div class="span12">
-        <h2>Who else is here?</h2>
-      </div>
-    </div>
-    <div class="row">
-      <py:for each="i, group_dict in enumerate(c.groups[:6])">
-        <div class="span4">
-          <div class="group">
-            <h3><a href="${h.url_for(controller='group', action='read', id=group_dict['name'])}">${group_dict['title']}</a></h3>
-            <p>
-              ${h.markdown_extract(group_dict['description'])}
-            </p>
-            <strong>${group_dict['title']} has ${group_dict['packages']} datasets.</strong>
-          </div>
-        </div>
-      </py:for>
+{% block content %}
+  <div role="main" class="hero">
+    <div id="content" class="container">
+      {{ self.flash() }}
+      {{ self.primary_content() }}
     </div>
   </div>
-  <xi:include href="layout.html" />
-</html>
+  <div class="main">
+    <div class="container">
+      {{ self.secondary_content() }}
+    </div>
+  </div>
+{% endblock %}
 
+{% block primary_content %}
+  <div class="hero-primary module module-popup">
+    <div class="module-content">
+      {% block home_primary %}
+        <header>
+          {% if g.site_intro_text %}
+          {{ h.render_markdown(g.site_intro_text) }}
+          {% else %}
+            {% block home_primary_content %}
+              <h1 class="page-heading">{% block home_primary_heading %}{{ _("Welcome to CKAN") }}{% endblock %}</h1>
+              <p>
+              {% block home_primary_text %}
+                {% trans %}This is a nice introductory paragraph about CKAN or the site
+                in general. We don't have any copy to go here yet but soon we will
+                {% endtrans %}
+              {% endblock %}
+              </p>
+            {% endblock %}
+          {% endif %}
+        </header>
+      {% endblock %}
+
+      {% block home_image %}
+        <section class="featured media-overlay">
+          <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
+          {% block home_image_content %}
+            <a class="media-image" href="#">
+              <img src="http://placehold.it/420x220" alt="Placeholder" width="420" height="220" />
+            </a>
+          {% endblock %}
+        </section>
+      {% endblock %}
+    </div>
+  </div>
+  <div class="hero-secondary">
+    <div class="hero-secondary-inner">
+      {% block home_secondary_content %}
+        {% block home_search %}
+          <div class="module module-shallow module-narrow module-dark info">
+            <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
+              <h3 class="heading">{{ _("Search Your Data") }}</h3>
+              <span class="control-group search-giant">
+                <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
+                <button type="submit" value="{{ _('Search') }}">Submit</button>
+              </span>
+            </form>
+          </div>
+        {% endblock %}
+
+        {% block home_tags %}
+          <div class="tags">
+            <h3 class="tag">Popular {{ c.facet_titles.name }}</h3>
+            {% set tags = h.get_facet_items_dict('tags', limit=3) %}
+            {% snippet 'snippets/tag_list.html', tags=tags %}
+          </div>
+        {% endblock %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="group-listing">
+    {% for group in c.group_package_stuff %}
+      {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{# Remove the toolbar. #}
+{% block toolbar %}{% endblock %}

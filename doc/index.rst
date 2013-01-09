@@ -9,7 +9,7 @@ Welcome to CKAN's Administration Guide
 This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ software.
 
 * The first two sections cover your two options for installing CKAN: package or source install.
-* The rest of the first half of the Guide, up to :doc:`authorization`, cover setup and basic admin.
+* The rest of the first half of the Guide, up to :doc:`authorization`, covers setup and basic admin.
 * The second half of the Guide, from :doc:`extensions` onwards, covers advanced tasks, including extensions and forms.
 
 For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
@@ -25,6 +25,7 @@ Installation
    post-installation
    deployment
    solr-setup
+   datastore-setup
 
 Customizing and Extending
 =========================
@@ -48,6 +49,7 @@ Customizing and Extending
    harvesting
    geospatial
    multilingual
+   email-notifications
 
 Publishing Datasets
 ===================
@@ -69,7 +71,7 @@ The CKAN API
 
    api
    api-tutorial
-   using-data-api
+   datastore-api
 
 General Administration
 ======================
@@ -87,16 +89,18 @@ For CKAN Developers
 ===================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   coding-standards
-   domain-model
-   domain-model-dataset
-   domain-model-resource
-   domain-model-task-status
+   contributing
+   contributing-docs
+   architecture
+   python-coding-standards
+   javascript-coding-standards
+   html-coding-standards
+   css-coding-standards
    i18n
    test
-   buildbot
+   release-cycle
 
 Other material
 ==============

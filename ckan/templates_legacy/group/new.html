@@ -1,0 +1,14 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">Add A Group</py:def>
+  <py:def function="page_heading">Add A Group</py:def>
+
+  <div py:match="content" class="group-create-form">
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>
+

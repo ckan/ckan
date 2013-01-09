@@ -1,0 +1,10 @@
+<div class="module-content">
+  {% if embed %}
+    {# images can be embedded directly #}
+    <img class="ckanext-datapreview-direct-embed" src="{{ resource_url }}"></img>
+  {% else %}
+    <iframe src="{{ resource_url }}" class="ckanext-datapreview-iframe" frameborder="0" scrolling="auto" width="100%">
+      <p>Your browser does not support iframes.</p>
+    </iframe>
+  {% endif %}
+</div>

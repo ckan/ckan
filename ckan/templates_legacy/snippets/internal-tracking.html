@@ -1,0 +1,31 @@
+<html
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="True"
+      >
+  <script type="text/javascript">
+    $(function (){
+      // Tracking
+      var url = location.pathname;
+      // remove any site root from url
+      url = url.substring(CKAN.SITE_URL.length, url.length);
+      // trim any trailing /
+      url = url.replace(/\/*$/, '');
+      $.ajax({url : CKAN.SITE_URL_NO_LOCALE + '/_tracking',
+              type : 'POST',
+              data : {url:url, type:'page'},
+              timeout : 300 });
+      $('a.resource-url-analytics').click(function (e){
+        var url = $(e.target).closest('a').attr('href');
+        $.ajax({url : CKAN.SITE_URL_NO_LOCALE + '/_tracking',
+                data : {url:url, type:'resource'},
+                type : 'POST',
+                complete : function () {location.href = url;},
+                timeout : 30});
+        e.preventDefault();
+      });
+    });
+  </script>
+</html>

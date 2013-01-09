@@ -1,0 +1,97 @@
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:py="http://genshi.edgewall.org/"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip=""
+  >
+
+<!--!
+Construct a facet <div> populated with links to filtered results.
+
+name
+  The field name identifying the facet field, eg. "tags"
+
+title
+  The title of the facet, eg. "Tags", or "Tag Cloud"
+
+label_function
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a `facet_item`.
+  eg. lambda facet_item: facet_item.display_name.upper()
+  By default it displays the facet item's display name, which should
+  usually be good enough
+
+if_empty
+  A string, which if defined, and the list of possible facet items is empty,
+  is displayed in lieu of an empty list.
+
+count_label
+  A callable which accepts an integer, and returns a string.  This controls
+  how a facet-item's count is displayed.
+  
+-->
+<py:def function="facet_div(name, title, limit=10, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
+    <div py:if="if_empty is not None or h.unselected_facet_items(name, limit)" class="facet-box">
+        <h2>${h.get_facet_title(title)}</h2>
+        <ul class="facet-options">
+            ${facet_li(name, limit=limit, label_function=label_function, if_empty=None, count_label=count_label)}
+        </ul>
+        <p py:if="not h.unselected_facet_items(name, limit)">${if_empty}</p>
+    </div>
+</py:def>
+
+<!--!
+Generate <li>s for facet items.  The generated tags are not wrapped by any
+other tag, ie - it's up to the caller to wrap them in something suitable.
+
+name
+  The field name identifying the facet field, eg. "tags"
+
+label_function
+  Renders the human-readable label for each facet value.
+  If defined, this should be a callable that accepts a `facet_item`.
+  eg. lambda facet_item: facet_item.display_name.upper()
+  By default it displays the facet item's display name, which should
+  usually be good enough
+
+if_empty
+  A string, which if defined, and the list of possible facet items is empty,
+  is displayed in a <li> tag in lieu of an empty list.
+
+count_label
+  A callable which accepts an integer, and returns a string.  This controls
+  how a facet-item's count is displayed.
+  
+-->
+<py:def function="facet_li(name, limit=5, label_function=lambda item: item.display_name, if_empty=None, count_label=lambda c: ' (%d)'%c)">
+
+    <li py:if="if_empty and not h.unselected_facet_items(name, limit)">${if_empty}</li>
+
+    <li py:for="facet_item in h.unselected_facet_items(name, limit)">
+        <a href="${c.drill_down_url(**{name: facet_item.name})}">
+            ${label_function(facet_item)}
+        </a>
+        ${count_label(facet_item['count'])}
+    </li>
+</py:def>
+
+<py:def function="field_list()">
+    <div class="filter-list" py:if="c.fields">
+        <div class="filter-entry" py:for="(field, value) in c.fields">
+            <span class="name">${h.get_facet_title(field)}</span>
+            <span class="value" py:choose="">
+                <py:when test="c.translated_fields and c.translated_fields.has_key((field,value))">
+                    ${c.translated_fields[(field,value)]}
+                </py:when>
+                <py:otherwise>
+                    ${value}
+                </py:otherwise>
+            </span>
+            <a href="${c.remove_field(field, value)}">
+                ${h.icon('unfilter')}
+            </a>
+        </div>  
+    </div>
+</py:def>
+
+</html>

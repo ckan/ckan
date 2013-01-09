@@ -1,0 +1,16 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+  xmlns:i18n="http://genshi.edgewall.org/i18n"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  py:strip="">
+  
+  <py:def function="page_title">${c.user} - Edit - User</py:def>
+  <py:def function="page_heading">
+      Edit User: ${c.user_name}
+  </py:def>
+
+  <div py:match="content">
+    ${Markup(c.form)}
+  </div>
+
+  <xi:include href="layout.html" />
+</html>

@@ -14,11 +14,11 @@ from ckan.lib.mailer import get_reset_link, create_reset_key
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
     def setup_class(cls):
-        smtp_server = config.get('test_smtp_server')
+        smtp_server = config.get('smtp.test_server')
         if smtp_server:
             host, port = smtp_server.split(':')
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
-            config['test_smtp_server'] = '%s:%s' % (host, port)
+            config['smtp.test_server'] = '%s:%s' % (host, port)
 
         PylonsTestCase.setup_class()
         SmtpServerHarness.setup_class()
@@ -187,8 +187,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # then get redirected to user's dashboard
         res = res.follow()
         assert_equal(res.status, 302)
-        assert res.header('Location').startswith('http://localhost/user/dashboard') or \
-               res.header('Location').startswith('/user/dashboard')
+        assert res.header('Location').startswith('http://localhost/dashboard') or \
+               res.header('Location').startswith('/dashboard')
         res = res.follow()
         assert_equal(res.status, 200)
         assert 'testlogin is now logged in' in res.body

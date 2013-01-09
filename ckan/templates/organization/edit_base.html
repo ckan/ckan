@@ -1,0 +1,55 @@
+{% extends "organization/index.html" %}
+
+{% set organization = c.group_dict %}
+
+{% block bodytag %}{{ super() }} class="editing"{% endblock %}
+
+{% block subtitle %}{{ organization.display_name }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
+  {% block breadcrumb_content_inner %}
+    <li>{% link_for organization.display_name|truncate(35), controller='organization', action='read', id=organization.name %}</li>
+    <li class="active">{% link_for _('Edit Organization'), controller='organization', action='edit', id=organization.name %}</li>
+  {% endblock %}
+{% endblock %}
+
+{% block actions_content %}
+  {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
+    <li><a href="{% url_for controller='organization', action='read', id=organization.name %}" class="btn">{{ _('View organization') }} <i class="icon-arrow-right"></i></a></li>
+  {% endif %}
+  {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
+{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    {% block primary_content_header %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          <li{% if c.action == 'edit' %} class="active"{% endif %}>
+            {% link_for _('Info'), controller='organization', action='edit', id=organization.name, icon='info-sign' %}
+          </li>
+          {% if h.check_access('organization_member_create', {'id': organization.id}) %}
+          <li{% if c.action == 'members' or c.action =='member_new' %} class="active"{% endif %}>
+            {% link_for _('Members'), controller='organization', action='members', id=organization.name, icon='group' %}
+          </li>
+          {% endif %}
+        </ul>
+      </header>
+    {% endblock %}
+    {% block primary_content_inner %}
+    {% endblock %}
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  {% if organization %}
+    {% snippet 'snippets/organization.html', organization=organization %}
+  {% endif %}
+{% endblock %}
+
+{% block links %}
+  {{ super() }}
+  {% include "organization/snippets/feeds.html" %}
+{% endblock %}

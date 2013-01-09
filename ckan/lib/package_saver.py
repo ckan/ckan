@@ -32,16 +32,14 @@ class PackageSaver(object):
         url = pkg.get('url', '')
         c.pkg_url_link = h.link_to(url, url, rel='foaf:homepage', target='_blank') \
                 if url else _("No web page given")
-        if pkg.get('author_email', False):
-            c.pkg_author_link = cls._person_email_link(pkg.get('author', ''), pkg.get('author_email', ''), "Author")
-        else:
-            c.pkg_author_link = _("Author not given")
-        maintainer = pkg.get('maintainer', '')
-        maintainer_email = pkg.get('maintainer_email', '')
-        if maintainer_email:
-            c.pkg_maintainer_link = cls._person_email_link(maintainer, maintainer_email, "Maintainer")
-        else:
-            c.pkg_maintainer_link = _("Maintainer not given")
+
+        c.pkg_author_link = cls._person_email_link(
+                name=pkg.get('author'), email=pkg.get('author_email'),
+                fallback=_("Author not given"))
+        c.pkg_maintainer_link = cls._person_email_link(
+                name=pkg.get('maintainer'), email=pkg.get('maintainer_email'),
+                fallback=_("Maintainer not given"))
+
         c.package_relationships = context['package'].get_relationships_printable()
         c.pkg_extras = []
         for extra in sorted(pkg.get('extras',[]), key=lambda x:x['key']):
@@ -102,9 +100,12 @@ class PackageSaver(object):
         return errors
 
     @classmethod
-    def _person_email_link(cls, name, email, reference):
-        assert email
-        return h.mail_to(email_address=email, name=name or email, encode='hex')
+    def _person_email_link(cls, name, email, fallback):
+        if email:
+            return h.mail_to(email_address=email, name=name or email,
+                    encode='hex')
+        else:
+            return name or fallback
 
 class WritePackageFromBoundFieldset(object):
 
