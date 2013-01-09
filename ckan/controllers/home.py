@@ -7,7 +7,7 @@ import ckan.logic
 import ckan.lib.maintain as maintain
 from ckan.lib.search import SearchError
 from ckan.lib.base import *
-from ckan.lib.helpers import url_for
+import ckan.lib.helpers as h
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
@@ -81,7 +81,7 @@ class HomeController(BaseController):
 
         if c.userobj is not None:
             msg = None
-            url = url_for(controller='user', action='edit')
+            url = h.url_for(controller='user', action='edit')
             is_google_id = \
                 c.userobj.name.startswith(
                     'https://www.google.com/accounts/o8/id')
