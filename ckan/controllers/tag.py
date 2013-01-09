@@ -4,7 +4,7 @@ from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for
-from ckan.lib.helpers import AlphaPage, Page
+import ckan.lib.helpers as h
 
 from ckan.logic import NotFound, NotAuthorized
 from ckan.logic import check_access, get_action
@@ -48,7 +48,7 @@ class TagController(BaseController):
             )
             c.page.items = results
         else:
-            c.page = AlphaPage(
+            c.page = h.AlphaPage(
                 collection=results,
                 page=request.params.get('page', 'A'),
                 alpha_attribute='name',
