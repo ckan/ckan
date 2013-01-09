@@ -5,6 +5,11 @@
 @menuActiveHi: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 85%);
 @menuActiveLo: darken(@menuActiveBg, 10%);
 
+// allow the dropdown to work with no javascript
+.dropdown:hover .dropdown-menu {display:block}
+.js .dropdown .dropdown-menu {display:none}
+.js .dropdown.open .dropdown-menu {display:block}
+
 .masthead() {
 	.clearfix();
 	color: @mastheadTextColor;
