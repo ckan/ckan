@@ -6,7 +6,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', '.*compile_mappers.*')
     import formalchemy
-from ckan.lib.helpers import OrderedDict
+import ckan.lib.helpers as h
 
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -19,7 +19,7 @@ class DateType(object):
     * User inputs in form DD/MM/YYYY and it is stored in db as YYYY-MM-DD.
     '''
     format_types = ('form', 'db')
-    datetime_fields = OrderedDict([('year', (1000, 2100, 4, 'YYYY')),
+    datetime_fields = h.OrderedDict([('year', (1000, 2100, 4, 'YYYY')),
                                    ('month', (1, 12, 2, 'MM')),
                                    ('day', (1, 31, 2, 'DD')),
                                    ('hour', (0, 23, 2, 'HH')),
