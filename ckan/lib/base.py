@@ -29,8 +29,10 @@ import lib.render
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
-from ckan.lib.helpers import json
 import ckan.model as model
+
+# horrible hack to keep lib.base broken
+json = h.json
 
 log = logging.getLogger(__name__)
 
