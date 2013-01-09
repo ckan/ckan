@@ -2,12 +2,12 @@ import decorator
 
 from pylons import request, response
 
-from ckan.lib.helpers import json
+import ckan.lib.helpers as h
 
 
 def to_jsonp(data):
     content_type = 'application/json;charset=utf-8'
-    result = json.dumps(data, sort_keys=True)
+    result = h.json.dumps(data, sort_keys=True)
     if 'callback' in request.params:
         response.headers['Content-Type'] = content_type
         cbname = request.params['callback']
