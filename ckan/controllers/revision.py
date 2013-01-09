@@ -6,7 +6,7 @@ from pylons.i18n import get_lang
 from ckan.logic import NotAuthorized, check_access
 
 from ckan.lib.base import *
-from ckan.lib.helpers import Page
+import ckan.lib.helpers as h
 
 
 class RevisionController(BaseController):
@@ -125,7 +125,7 @@ class RevisionController(BaseController):
             return feed.writeString('utf-8')
         else:
             query = model.Session.query(model.Revision)
-            c.page = Page(
+            c.page = h.Page(
                 collection=query,
                 page=request.params.get('page', 1),
                 url=h.pager_url,
