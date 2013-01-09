@@ -5,7 +5,7 @@ import vdm.sqlalchemy
 import uuid
 from sqlalchemy import types
 
-from ckan.lib.helpers import json
+import ckan.lib.helpers as h
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
     '''
@@ -16,13 +16,13 @@ class JsonType(types.TypeDecorator):
             return None
         else:
             # ensure_ascii=False => allow unicode but still need to convert
-            return unicode(json.dumps(value, ensure_ascii=False))
+            return unicode(h.json.dumps(value, ensure_ascii=False))
 
     def process_result_value(self, value, engine):
         if value is None:
             return None
         else:
-            return json.loads(value)
+            return h.json.loads(value)
 
     def copy(self):
         return JsonType(self.impl.length)
