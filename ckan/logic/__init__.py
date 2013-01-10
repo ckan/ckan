@@ -220,34 +220,47 @@ def check_access(action, context, data_dict=None):
 
 _actions = {}
 
+
 def get_action(action):
-    ''' This function is used to get the logic action functions in ckan.
-    This function should always be used to get actions as they could be
-    overriden by extensions and so linking directly to the function would
-    prevent this from working correctly.
+    '''Return the ckan.logic.action function named by the given string.
 
-    The function that is returned should be called with the context and
-    data_dict parameters.
+    For example:
 
-    As the context is commonly
+        get_action('package_create')
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+    will normally return the ckan.logic.action.create.py:package_create()
+    function.
 
-    The returned function will actually add these parameters to the context
-    if they are not defined.  This is especially useful for extensions as
-    they should not really be importing parts of ckan eg ckan.model and as
-    such do not have access to model or model.Session.  If a context of None
-    is given then the context dict will be created.
+    Rather than importing a ckan.logic.action function and calling it directly,
+    you should always fetch the function via get_action():
 
-    a typical usage of this function would be
+        # Call the package_create action function:
+        get_action('package_create')(context, data_dict)
 
-    result = get_action(<action name>)(context, data_dict)
+    This is because CKAN plugins can override action functions using the
+    IActions plugin interface, causing get_action() to return a plugin-provided
+    function instead of the default one.
 
-    :param action: Name of the action requested
+    As the context parameter passed to an action function is commonly:
+
+        context = {'model': ckan.model, 'session': ckan.model.Session,
+                   'user': pylons.c.user or pylons.c.author}
+
+    an action function returned by get_action() will automatically add these
+    parameters to the context if they are not defined.  This is especially
+    useful for extensions as they should not really be importing parts of ckan
+    eg ckan.model and as such do not have access to model or model.Session.
+
+    If a context of None is passed to the action function then the context dict
+    will be created.
+
+    :param action: name of the action function to return
     :type action: string
-    '''
 
+    :returns: the named action function
+    :rtype: callable
+
+    '''
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
