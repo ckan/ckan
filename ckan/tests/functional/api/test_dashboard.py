@@ -23,7 +23,7 @@ class TestDashboard(object):
             'password': 'iammrnew',
             })
         response = cls.app.post('/api/action/user_create', params=params,
-                extra_environ={'Authorization': str(cls.joeadmin['apikey'])})
+                extra_environ={'Authorization': str(cls.testsysadmin['apikey'])})
         assert response.json['success'] is True
         new_user = response.json['result']
         return new_user
@@ -86,8 +86,8 @@ class TestDashboard(object):
         activity_list = self.dashboard_activity_list(user)
         return [activity for activity in activity_list if activity['is_new']]
 
-    def dashboard_mark_all_new_activities_as_old(self, user):
-        self.post('dashboard_mark_all_new_activities_as_old',
+    def dashboard_mark_activities_old(self, user):
+        self.post('dashboard_mark_activities_old',
                 apikey=user['apikey'])
 
     def test_00_dashboard_activity_list_not_logged_in(self):
@@ -97,7 +97,7 @@ class TestDashboard(object):
         self.post('dashboard_new_activities_count', status=403)
 
     def test_00_dashboard_mark_new_activities_not_logged_in(self):
-        self.post('dashboard_mark_all_new_activities_as_old', status=403)
+        self.post('dashboard_mark_activities_old', status=403)
 
     def test_01_dashboard_activity_list_for_new_user(self):
         '''Test the contents of a new user's dashboard activity stream.'''
@@ -131,7 +131,7 @@ class TestDashboard(object):
         # We would have to do this if, when you follow something, you only get
         # the activities from that object since you started following it, and
         # not all its past activities as well.
-        self.dashboard_mark_all_new_activities_as_old(self.new_user)
+        self.dashboard_mark_activities_old(self.new_user)
 
         # Create a new dataset.
         params = json.dumps({
@@ -246,10 +246,10 @@ class TestDashboard(object):
 
         # Make someone that the user is not following update a group that the
         # user is following.
-        params = json.dumps({'id': 'roger', 'description': 'updated'})
-        response = self.app.post('/api/action/group_update', params=params,
-            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
-        assert response.json['success'] is True
+        group = self.post('group_show', {'id': 'roger'},
+        apikey=self.testsysadmin['apikey'])
+        group['description'] = 'updated'
+        self.post('group_update', group, apikey=self.testsysadmin['apikey'])
 
         # Check the new activity in new_user's dashboard.
         activities = self.dashboard_activity_list(self.new_user)
@@ -273,7 +273,7 @@ class TestDashboard(object):
         # user is following.
         params = json.dumps({'name': 'annakarenina', 'notes': 'updated'})
         response = self.app.post('/api/action/package_update', params=params,
-            extra_environ={'Authorization': str(self.testsysadmin['apikey'])})
+            extra_environ={'Authorization': str(self.joeadmin['apikey'])})
         assert response.json['success'] is True
 
         # Check the new activity in new_user's dashboard.
@@ -283,7 +283,7 @@ class TestDashboard(object):
         assert len(new_activities) == 1
         activity = new_activities[0]
         assert activity['activity_type'] == 'changed package'
-        assert activity['user_id'] == self.testsysadmin['id']
+        assert activity['user_id'] == self.joeadmin['id']
         assert activity['data']['package']['name'] == 'annakarenina'
 
     def test_05_new_activities_count(self):
@@ -301,7 +301,7 @@ class TestDashboard(object):
         her dashboard activity stream.'''
         assert self.dashboard_new_activities_count(self.new_user) > 0
         assert len(self.dashboard_new_activities(self.new_user)) > 0
-        self.dashboard_mark_all_new_activities_as_old(self.new_user)
+        self.dashboard_mark_activities_old(self.new_user)
         assert self.dashboard_new_activities_count(self.new_user) == 0
         assert len(self.dashboard_new_activities(self.new_user)) == 0
 

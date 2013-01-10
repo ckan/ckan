@@ -11,7 +11,6 @@ Requires polib <http://pypi.python.org/pypi/polib>:
 
 '''
 import re
-import polib
 import paste.script.command
 
 def simple_conv_specs(s):
@@ -98,6 +97,8 @@ class CheckPoFiles(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
 
     def command(self):
+        import polib
+
         test_simple_conv_specs()
         test_mapping_keys()
         test_replacement_fields()

@@ -18,7 +18,6 @@ import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
-import ckan.forms.common as common
 
 
 log = logging.getLogger(__name__)
@@ -546,7 +545,8 @@ class ApiController(base.BaseController):
     def _get_search_params(cls, request_params):
         if 'qjson' in request_params:
             try:
-                params = h.json.loads(request_params['qjson'], encoding='utf8')
+                qjson_param = request_params['qjson'].replace('\\\\u','\\u')
+                params = h.json.loads(qjson_param, encoding='utf8')
             except ValueError, e:
                 raise ValueError(gettext('Malformed qjson value') + ': %r'
                                  % e)
@@ -639,16 +639,29 @@ class ApiController(base.BaseController):
         return out
 
     def is_slug_valid(self):
+
+        def package_exists(val):
+            if model.Session.query(model.Package) \
+                .autoflush(False).filter_by(name=val).count():
+                return True
+            return False
+
+        def group_exists(val):
+            if model.Session.query(model.Group) \
+                    .autoflush(False).filter_by(name=val).count():
+                return True
+            return False
+
         slug = request.params.get('slug') or ''
         slugtype = request.params.get('type') or ''
         # TODO: We need plugins to be able to register new disallowed names
         disallowed = ['new', 'edit', 'search']
         if slugtype == u'package':
-            response_data = dict(valid=not bool(common.package_exists(slug)
+            response_data = dict(valid=not (package_exists(slug)
                                  or slug in disallowed))
             return self._finish_ok(response_data)
         if slugtype == u'group':
-            response_data = dict(valid=not bool(common.group_exists(slug) or
+            response_data = dict(valid=not (group_exists(slug) or
                                  slug in disallowed))
             return self._finish_ok(response_data)
         return self._finish_bad_request('Bad slug type: %s' % slugtype)

@@ -13,7 +13,6 @@ from paste.fixture import TestRequest
 
 from ckan.tests import *
 import ckan.model as model
-import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.helpers import json, url_escape
 from ckan.tests import TestController as ControllerTestCase
@@ -44,6 +43,8 @@ class ApiTestCase(object):
 
     def post(self, offset, data, status=[200,201], *args, **kwds):
         params = '%s=1' % url_escape(self.dumps(data))
+        if 'extra_environ' in kwds:
+            self.extra_environ = kwds['extra_environ']
         response = self.app.post(offset, params=params, status=status,
             extra_environ=self.get_extra_environ())
         return response
@@ -377,6 +378,8 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         # user logged in.
         cls.user = model.User.by_name(user_name)
         cls.extra_environ={'Authorization' : str(cls.user.apikey)}
+        cls.adminuser = model.User.by_name('testsysadmin')
+        cls.admin_extra_environ={'Authorization' : str(cls.adminuser.apikey)}
 
     def post_json(self, offset, data, status=None, extra_environ=None):
         ''' Posts data in the body in application/json format, used by
@@ -424,3 +427,8 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         self.app._set_headers({}, environ)
         req = TestRequest(offset, environ, expect_errors=False)
         return self.app.do_request(req, status=status)
+
+    def set_env(self, extra_environ):
+        ''' used to reset env when admin has been forced etc '''
+        environ = self.app._make_environ()
+        environ.update(extra_environ)

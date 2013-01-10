@@ -3,10 +3,10 @@ import logging
 from pylons import c
 from ckan.lib import base
 from ckan.lib.navl import dictization_functions
-from ckan import authz
 from ckan import logic
 import logic.schema
 from ckan import plugins
+import ckan.new_authz
 
 log = logging.getLogger(__name__)
 
@@ -257,7 +257,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type']
+                               'resources', 'type', 'owner_org']
 
         if not schema:
             schema = self.form_to_db_schema()
@@ -277,7 +277,7 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licences = [('', '')] + base.model.Package.get_license_options()
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:
             c.related_count = c.pkg.related_count
@@ -345,6 +345,21 @@ class DefaultGroupForm(object):
         rendered for the edit page
         """
         return 'group/edit.html'
+
+    def admins_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the admins page
+        """
+        return 'group/admins.html'
+
+    def about_template(self):
+        '''Return the path to the template for the group's 'about' page.
+
+        :rtype: string
+
+        '''
+        return 'group/about.html'
 
     def group_form(self):
         return 'group/new_group_form.html'
@@ -417,7 +432,7 @@ class DefaultGroupForm(object):
         pass
 
     def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)

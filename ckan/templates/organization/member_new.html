@@ -1,0 +1,38 @@
+{% extends "organization/edit_base.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block subtitle %}{{ _('Members') }} - {{ c.group_dict.display_name }}{% endblock %}
+
+{% block primary_content_inner %}
+  <div class="module-content">
+    {% if c.user_name %}
+      <h1 class="page-heading">{{ _('Edit Member:') }} {{ c.user_name }}</h1>
+    {% else %}
+      <h1 class="page-heading">{{ _('Add Member') }}</h1>
+    {% endif %}
+    <form class="dataset-form form-horizontal" method='post'>
+      {% if c.user_name %}
+          <input type="hidden" name="username" value="{{ c.user_name }}" />
+      {% else %}
+        {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/user/autocomplete?q=?'} %}
+        {{ form.input('username', id='field-username', label=_('User'), placeholder=_('Username'), value='', error='', classes=['control-medium'], attrs=format_attrs) }}
+      {% endif %}
+      {% set format_attrs = {'data-module': 'autocomplete'} %}
+      {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
+      <div class="form-actions">
+        {% if c.user_name %}
+          <a href="{% url_for controller='organization', action='members', id=c.group_dict.id %}" class="btn">
+            {{ _('Cancel') }}
+          </a>
+          <button class="btn btn-primary" type="submit" name="submit" >
+            {{ _('Save') }}
+          </button>
+        {% else %}
+          <button class="btn btn-primary" type="submit" name="submit" >
+            {{ _('Add') }}
+          </button>
+        {% endif %}        
+      </div>
+    </form>
+  </div>
+{% endblock %}

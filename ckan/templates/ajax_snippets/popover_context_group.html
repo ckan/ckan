@@ -1,0 +1,25 @@
+<div class="popover-context profile-info">
+	{% if description != 'null' %}
+		{% set description = description|striptags %}
+		<p class="about">
+			{{ h.truncate(description, length=160, whole_word=True) }}
+		</p>
+	{% endif %}
+	<div class="btn-group">
+		{{ h.follow_button('group', id) }}
+		<a href="{{ h.url_for(controller='group', action='read', id=name) }}" class="btn">
+			<i class="icon-eye-open"></i>
+			View Group
+		</a>
+	</div>
+	<div class="nums">
+		<dl>
+			<dt>{{ _('Followers') }}</dt>
+			<dd>{{ num_followers }}</dd>
+		</dl>
+		<dl>
+			<dt>{{ _('Datasets') }}</dt>
+			<dd>{{ num_datasets }}</dd>
+		</dl>
+	</div>
+</div>

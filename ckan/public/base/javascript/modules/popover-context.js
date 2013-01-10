@@ -155,7 +155,7 @@ this.ckan.module('popover-context', function($, _) {
 				// has this been rendered before?
 				if (typeof window.popover_context.render[type][id] == 'undefined') {
 					var params = this.sanitiseParams(json.result);
-					client.getTemplate('popover-context-' + type + '.html', params, this._onRenderPopover);
+					client.getTemplate('popover_context_' + type + '.html', params, this._onRenderPopover);
 				} else {
 				 	this._onRenderPopover(window.popover_context.render[type][id]);
 				}

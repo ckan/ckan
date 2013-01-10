@@ -1,4 +1,5 @@
 {% extends "page.html" %}
+{% import 'macros/form.html' as form %}
 
 {% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
@@ -19,9 +20,7 @@
 
         {% if c.fields -%}
           <span>
-            {%- for k, v in c.fields -%}
-              <input type="hidden" name="{{ k }}" value="{{ v }}" />
-            {% endfor -%}
+            {{ form.hidden_from_list(fields=c.fields) }}
           </span>
         {%- endif %}
 
@@ -75,8 +74,8 @@
       You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
       <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->
       (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html') }})
-      {% if config.get('ckan.dumps_url') -%}
-        or download a <a href="{{ config.get('ckan.dumps_url') }}">full {{ config.get('ckan.dumps_format', '') }} dump</a>
+      {% if g.dumps_url -%}
+        or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
       {%- endif %}.
     </small>
   </section>
