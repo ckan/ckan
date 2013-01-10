@@ -88,6 +88,22 @@ class TestJsonPreview(tests.WsgiAppCase):
         }
         assert not self.p.can_preview(data_dict)
 
+        data_dict = {
+            'resource': {
+                'format': 'foo',
+                'datastore_active': True
+            }
+        }
+        assert self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
+                'format': 'foo',
+                'datastore_active': False
+            }
+        }
+        assert not self.p.can_preview(data_dict)
+
 
     def test_js_included(self):
         res_id = self.resource['id']

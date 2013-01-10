@@ -25,19 +25,24 @@ count_label
 extras
   Extra info passed into the add/remove params to make the url
 
+alternative_url
+  URL to use when building the necessary URLs, instead of the default
+  ones returned by url_for. Useful eg for dataset types.
+
+
 #}
 {% with items = items or h.get_facet_items_dict(name) %}
   <section class="module module-narrow module-shallow">
     <h2 class="module-heading">
       <i class="icon-medium icon-filter"></i>
       {{ title or h.get_facet_title(name) }}
-      <a href="{{ h.remove_url_param(name, extras=extras) }}" class="action">{{ _('Clear All') }}</a>
+      <a href="{{ h.remove_url_param(name, extras=extras, alternative_url=alternative_url) }}" class="action">{{ _('Clear All') }}</a>
     </h2>
     {% if items %}
       <nav>
         <ul class="unstyled nav nav-simple nav-facet">
           {% for item in items %}
-            {% set href = h.remove_url_param(name, item.name, extras=extras) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras) %}
+            {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
             {% set label = label_function(item) if label_function else h.truncate(item.display_name, 22) %}
             {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
               <li class="nav-item{% if item.active %} active{% endif %}">
@@ -50,9 +55,9 @@ extras
       </nav>
       <p class="module-footer">
         {% if h.get_param_int('_%s_limit' % name) %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras) }}" class="read-more">{{ _('Show More {facet}').format(facet=h.get_facet_title(name)) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet}').format(facet=h.get_facet_title(name)) }}</a>
         {% else %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=h.get_facet_title(name)) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=h.get_facet_title(name)) }}</a>
         {% endif %}
       </p>
     {% else %}
