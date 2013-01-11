@@ -282,6 +282,47 @@ class GroupController(BaseController):
 
         return render(self._read_template(c.group_dict['type']))
 
+
+    def bulk_process(self, id):
+        ''' Allow bulk processing of datasets for an organization.  Make
+        private/public or delete. For organization admins.'''
+
+
+        # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q', '')
+
+        group_type = self._get_group_type(id.split('@')[0])
+
+        if group_type  != 'organization':
+            # FIXME: better error
+            raise Exception('Must be an organization')
+
+        # check we are org admin
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+        data_dict = {'id': id}
+
+        try:
+            c.group_dict = self._action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
+
+        # Search within group
+        q += ' groups: "%s"' % c.group_dict.get('name')
+
+        print q, group_type
+
+        if request.method == 'GET':
+            c.bulk_processing = True
+            return self.read(id=id, limit=1000)
+
+
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
         if data:
