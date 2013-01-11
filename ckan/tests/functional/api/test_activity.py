@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 import pylons.test
 import paste.fixture
-from ckan.lib.helpers import json
+from ckan.common import json
 
 
 ##<<<<<<< HEAD

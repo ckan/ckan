@@ -8,7 +8,7 @@ from pylons import config
 
 from ckan.tests import TestController, CreateTestData
 import ckan.model as model
-from ckan.lib.helpers import url_for
+import ckan.lib.helpers as h
 
 
 ELASTIC_SEARCH_HOST = config.get('elastic_search_host', '0.0.0.0:9200')
@@ -153,10 +153,10 @@ class TestDatastoreController(TestController):
 
         assert not dataset.resources[0].webstore_url
 
-        offset_wrong_read = url_for('datastore_read', id='wrong_resource_id')
-        offset_wrong_write = url_for('datastore_write', id='wrong_resource_id')
-        offset_read = url_for('datastore_read', id=resource_id)
-        offset_write = url_for('datastore_write', id=resource_id)
+        offset_wrong_read = h.url_for('datastore_read', id='wrong_resource_id')
+        offset_wrong_write = h.url_for('datastore_write', id='wrong_resource_id')
+        offset_read = h.url_for('datastore_read', id=resource_id)
+        offset_write = h.url_for('datastore_write', id=resource_id)
 
         # Resource not found
         res = mock_server.get(offset_wrong_read, ckan_status=404)

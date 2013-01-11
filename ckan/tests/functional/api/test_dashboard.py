@@ -6,7 +6,7 @@ activities.
 
 '''
 import ckan
-from ckan.lib.helpers import json
+from ckan.common import json
 import paste
 import pylons.test
 
