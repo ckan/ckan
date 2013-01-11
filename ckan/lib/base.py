@@ -30,9 +30,7 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 import ckan.model as model
-
-# horrible hack to keep lib.base broken
-json = h.json
+from ckan.common import json
 
 log = logging.getLogger(__name__)
 

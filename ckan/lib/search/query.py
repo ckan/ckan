@@ -1,13 +1,17 @@
 import re
+import logging
+
 from pylons import config
 from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
+
 from ckan import model
 from ckan.logic import get_action
-import ckan.lib.helpers as h
+from ckan.common import json
 from common import make_connection, SearchError, SearchQueryError
-import logging
+
+
 log = logging.getLogger(__name__)
 
 _open_licenses = None
@@ -273,7 +277,7 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e.reason))
         try:
-            data = h.json.loads(solr_response)
+            data = json.loads(solr_response)
 
             if data['response']['numFound'] == 0:
              raise SearchError('Dataset not found in the search index: %s' % reference)
@@ -359,7 +363,7 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e.reason))
         try:
-            data = h.json.loads(solr_response)
+            data = json.loads(solr_response)
             response = data['response']
             self.count = response.get('numFound', 0)
             self.results = response.get('docs', [])
