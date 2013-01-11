@@ -10,7 +10,7 @@ Setting up the DataStore
 1. Enable the extension
 =======================
 
-Since the DataStore is an optional extension, it has to be enabled separately. To do so, ensure that the ``datastore`` extension is enabled in your ``config`` file::
+Since the DataStore is an optional extension, it has to be enabled separately. To do so, ensure that the ``datastore`` extension is enabled in your CKAN config file::
 
  ckan.plugins = datastore
 
@@ -38,8 +38,7 @@ Create users and databases
 
  However, this might not be possible if the CKAN database and the DataStore
  database are on different servers. In this case, you should create a new
- database user on the server with the DataStore database to act as the
- DataStore readwrite user::
+ database user on the server with the DataStore database::
 
    sudo -u postgres createuser -S -D -R -P -l writeuser
 
@@ -68,7 +67,7 @@ Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` 
 Set Permissions
 ---------------
 
-.. tip:: See :ref:`legacy_mode` if these steps continue to fail or seem to complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
+.. tip:: See :ref:`legacy_mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. Since there are different set-ups, there are different ways of setting the permissions. Only **one** of the options should be used.
 
