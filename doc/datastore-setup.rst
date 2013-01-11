@@ -17,7 +17,7 @@ Since the DataStore is an optional extension, it has to be enabled separately. T
 2. Set-up the database
 ======================
 
-.. note:: Make sure that you follow the steps below to set up the permissions correctly. Wrong settings could lead to serious security issues.
+.. warning:: Make sure that you follow the steps in `Set Permissions`_ below correctly. Wrong settings could lead to serious security issues.
 
 The DataStore requires a separate PostgreSQL database to save the resources to.
 
