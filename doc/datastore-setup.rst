@@ -31,7 +31,7 @@ List existing databases::
 
  sudo -u postgres psql -l
 
-Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the CKAN install.
+Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the datastore setup.
 
 Next you will need to create a two database users for the DataStore. One user will be the *write* user that can create, edit and delete resources. The second user will be a *read-only* user who can only read resources.
 
