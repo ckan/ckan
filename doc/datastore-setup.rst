@@ -71,7 +71,7 @@ Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` 
  ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
  ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
 
-Set permissions
+Set Permissions
 ---------------
 
 .. tip:: See :ref:`legacy_mode` if these steps continue to fail or seem to complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
