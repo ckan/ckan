@@ -328,6 +328,10 @@ class GroupController(BaseController):
             if param.startswith('dataset_'):
                 datasets.append(param[8:])
 
+        # OK we are now ready to process the action
+
+        # TODO @JohnMartin we need to do some styling of the bulk process form including the div that makes the form bigger and the corresponding FIXME in package/snippets/search-form.html
+
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
