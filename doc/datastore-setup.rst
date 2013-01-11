@@ -71,8 +71,6 @@ Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` 
  ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
  ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
 
-These URLs define how the DataStore connects to the PostgreSQL database. Having a read-only connections makes it possible to use the powerful PostgreSQL database directly.
-
 Set permissions
 ---------------
 
