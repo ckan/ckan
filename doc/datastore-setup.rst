@@ -85,8 +85,12 @@ This option is preferred if CKAN and PostgreSQL are on the same server.
 
 To set the permissions, use this paster command after you've set the database URLs (make sure to have your virtualenv activated)::
 
- paster datastore set-permissions SQL_SUPER_USER
+ paster datastore set-permissions postgres
 
+The ``postgres`` at the end of this command should be the name of a postgres
+user with permission to create new tables and users, grant permissions, etc.
+Typically this user is called "postgres". See ``paster datastore
+set-permissions -h``.
 
 Option 2: Command line tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
