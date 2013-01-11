@@ -18,6 +18,7 @@ Example:
 {% if packages %}
   {% if bulk_processing %}
      <p>PLACEHOLDER:  select/deselect all and actions</p>
+    <button name="action" type="submit" value="private">{{ _('Action') }}</button>
   {% endif %}
   <ul class="{{ list_class or 'dataset-list unstyled' }}">
     {% for package in packages %}

@@ -316,11 +316,17 @@ class GroupController(BaseController):
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
 
-        print q, group_type
-
-        if request.method == 'GET':
+        action = request.params.get('action')
+        # If no action then just show the datasets
+        if not action:
             c.bulk_processing = True
             return self.read(id=id, limit=1000)
+
+        # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
+        datasets = []
+        for param in request.params:
+            if param.startswith('dataset_'):
+                datasets.append(param[8:])
 
 
     def new(self, data=None, errors=None, error_summary=None):
