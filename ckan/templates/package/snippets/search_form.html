@@ -1,4 +1,6 @@
 <form id="dataset-search" class="dataset-search clearfix" method="GET" data-module="select-switch">
+  {# FIXME hack to show order dropdown in correct place NEED PROPPER FIX #}
+  <div style="position:relative;">
   <span class="control-group search-giant">
     <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
     <button type="submit" value="{{ _('Search') }}">Submit</button>
@@ -12,7 +14,7 @@
     </span>
   {% endif %}
   <div id="dataset-search-ext"></div>
-</form>
+  </div>
 <div class="results">
   <strong>
     {% if request.params and c.page.item_count %}
@@ -49,3 +51,4 @@
 {% endif %}
 
 {{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
+</form>

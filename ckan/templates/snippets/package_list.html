@@ -17,14 +17,11 @@ Example:
 #}
 {% if packages %}
   {% if bulk_processing %}
-    <form>
+     <p>PLACEHOLDER:  select/deselect all and actions</p>
   {% endif %}
   <ul class="{{ list_class or 'dataset-list unstyled' }}">
     {% for package in packages %}
       {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources, banner=banner, truncate=truncate, truncate_title=truncate_title, bulk_processing=bulk_processing %}
     {% endfor %}
   </ul>
-  {% if bulk_processing %}
-    </form>
-  {% endif %}
 {% endif %}
