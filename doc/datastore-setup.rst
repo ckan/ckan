@@ -7,12 +7,6 @@ Setting up the DataStore
 
 .. warning:: The DataStore does not support hiding resources in a private dataset.
 
-
-The :doc:`DataStore<datastore>` in previous lives required a custom set-up of ElasticSearch and Nginx,
-but that is no more, as it now uses the relational database management system PostgreSQL.
-However, you should set up a separate database for the DataStore
-and create a read-only user to make your CKAN and DataStore installation safe.
-
 1. Enable the extension
 =======================
 
