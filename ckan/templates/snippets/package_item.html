@@ -28,6 +28,9 @@ Example:
         {% elif package.get('state', '').startswith('deleted') %}
           <span class="label label-important">{{ _('Deleted') }}</span>
         {% endif %}
+      {% if package.private %}
+        <span class="label label-important">{{ _('Private') }}</span>
+      {% endif %}
         {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
       </h3>
       {% if banner %}
