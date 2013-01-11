@@ -143,7 +143,6 @@ class GroupController(BaseController):
         return render(self._index_template(group_type))
 
     def read(self, id):
-        from ckan.lib.search import SearchError
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
@@ -276,7 +275,7 @@ class GroupController(BaseController):
 
             c.sort_by_selected = sort_by
 
-        except SearchError, se:
+        except search.SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
             c.facets = {}
