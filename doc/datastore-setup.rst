@@ -33,13 +33,6 @@ List existing databases::
 
 Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the datastore setup.
 
-Next you will need to create a two database users for the DataStore. One user will be the *write* user that can create, edit and delete resources. The second user will be a *read-only* user who can only read resources.
-
-A few things have to be kept in mind:
-
-* The DataStore cannot be on the CKAN database (except for testing)
-* The write user (i.e. ``writeuser``) and read-only user (i.e. ``readonlyuser``) cannot be the same
-
 Create users and databases
 --------------------------
 
