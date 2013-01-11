@@ -142,7 +142,7 @@ class GroupController(BaseController):
         )
         return render(self._index_template(group_type))
 
-    def read(self, id):
+    def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
@@ -178,7 +178,6 @@ class GroupController(BaseController):
         # if we drop support for those then we can delete this line.
         c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
-        limit = 20
         try:
             page = int(request.params.get('page', 1))
         except ValueError, e:
