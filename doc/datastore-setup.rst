@@ -43,26 +43,37 @@ A few things have to be kept in mind:
 Create users and databases
 --------------------------
 
-.. tip:: The write user does not have to be created since you can also use the CKAN user. However, this might not be possible if the CKAN database and the DataStore database are on different servers. We recommend that you use the same user for CKAN and the write DataStore user if possible.
+.. tip::
 
-Create a write user called ``writeuser``, and enter pass for the password when prompted::
+ As is done in the example commands below, we recommend reusing your existing
+ CKAN database user (``ckanuser`` in :doc:`install-from-source`) as the
+ readwrite user for your datastore database.
 
- sudo -u postgres createuser -S -D -R -P -l writeuser
+ However, this might not be possible if the CKAN database and the DataStore
+ database are on different servers. In this case, you should create a new
+ database user on the server with the DataStore database to act as the
+ DataStore readwrite user::
 
-Create a read-only user called ``readonlyuser``, and enter pass for the password when prompted::
+   sudo -u postgres createuser -S -D -R -P -l writeuser
+
+ Then in the commands below, replace ``ckanuser`` with ``writeuser``.
+
+Create a database user called ``readonlyuser``. This user will be given
+read-only access to your DataStore database in the `Set Permissions`_ step
+below::
 
  sudo -u postgres createuser -S -D -R -P -l readonlyuser
 
-Create the database (owned by ``writeuser``), which we’ll call ``datastore``::
+Create the database (owned by ``ckanuser``), which we'll call ``datastore``::
 
- sudo -u postgres createdb -O writeuser datastore -E utf-8
+ sudo -u postgres createdb -O ckanuser datastore -E utf-8
 
 Set URLs
 --------
 
 Now, ensure that the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` variables are set::
 
- ckan.datastore.write_url = postgresql://writeuser:pass@localhost/datastore
+ ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
  ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
 
 These URLs define how the DataStore connects to the PostgreSQL database. Having a read-only connections makes it possible to use the powerful PostgreSQL database directly.
@@ -95,7 +106,7 @@ Copy the content from the ``datastore/bin/`` directory to the database server. T
 
 Once you are confident that you know the right names, set the permissions (assuming that the CKAN database is called ``ckan`` and the CKAN PostgreSQL user is called ``ckanuser``)::
 
- python datastore_setup.py ckan datastore ckanuser writeuser readonlyuser -p postgres
+ python datastore_setup.py ckan datastore ckanuser ckanuser readonlyuser -p postgres
 
 
 Option 3: SQL script
