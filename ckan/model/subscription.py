@@ -61,7 +61,7 @@ class Subscription(domain_object.DomainObject):
         count = 0
         item_list = self.get_item_list()
         for item in item_list:
-            if item.status in ['changed', 'added']:
+            if item.flag in ['changed', 'added']:
                 count += 1
         return count
 
@@ -116,7 +116,7 @@ class Subscription(domain_object.DomainObject):
     def mark_item_list_changes_as_seen(self):
         self._item_list = self.get_item_list()
         self._delete_removed_items()
-        self._set_status_to_seen()
+        self._set_flag_to_seen()
         self._save_items()
 
 
@@ -150,13 +150,13 @@ class Subscription(domain_object.DomainObject):
                 SubscriptionItem(subscription_id=self.id,
                                  key=item_id,
                                  data=self._item_data_dict_by_definition[item_id],
-                                 status='added'))
+                                 flag='added'))
 
 
     def _determine_removed_items(self):
         self._removed_item_ids = self._item_ids - self._item_ids_by_definition
         for item_id in self._removed_item_ids:
-            self._item_dict[item_id].status='removed'
+            self._item_dict[item_id].flag='removed'
 
 
     def _determine_changed_items(self):
@@ -167,7 +167,7 @@ class Subscription(domain_object.DomainObject):
             item_data_by_definition = self._item_data_dict_by_definition[item_id]
             if not self._item_data_equal_item_data(item_data, item_data_by_definition):
                 self._item_dict[item_id].data = item_data_by_definition
-                self._item_dict[item_id].status='changed'
+                self._item_dict[item_id].flag='changed'
 
 
     def _item_data_equal_item_data(self, item_data, equal_item_data):
@@ -184,16 +184,16 @@ class Subscription(domain_object.DomainObject):
 
 
     def _delete_removed_items(self):
-        self._item_list = [item for item in self._item_list if item.status != 'removed']
+        self._item_list = [item for item in self._item_list if item.flag != 'removed']
         query = meta.Session.query(SubscriptionItem)
         query = query.filter(SubscriptionItem.subscription_id == self.id)
-        query = query.filter(SubscriptionItem.status == 'removed')
+        query = query.filter(SubscriptionItem.flag == 'removed')
         query.delete()
 
 
-    def _set_status_to_seen(self):
+    def _set_flag_to_seen(self):
         for item in self._item_list:
-            item.status = 'seen'
+            item.flag = 'seen'
 
 
     def _save_items(self):
@@ -212,9 +212,9 @@ class SubscriptionItem(domain_object.DomainObject):
         key - for identified a item with the list of all items of a subscription
               [optional] the foreign key to a domain object (like packages)
         data - additional fields that represented several attributes of the object
-        status - one of ['seen', 'changed', 'added', 'removed']
+        flag - one of ['seen', 'changed', 'added', 'removed']
     '''
-    def __init__(self, subscription_id, key, data, status):
+    def __init__(self, subscription_id, key, data, flag):
         self.id = _types.make_uuid()
         self.subscription_id = subscription_id
         self.key = key
@@ -222,7 +222,7 @@ class SubscriptionItem(domain_object.DomainObject):
             self.data = {}
         else:
             self.data = data
-        self.status = status
+        self.flag = flag
 
 
 subscription_table = sa.Table(
@@ -241,7 +241,7 @@ subscription_item_table = sa.Table(
     sa.Column('subscription_id', sa.types.UnicodeText, sa.ForeignKey('subscription.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
     sa.Column('key', sa.types.UnicodeText, nullable=False),
     sa.Column('data', _types.JsonDictType),
-    sa.Column('status', sa.types.Boolean, nullable=False),
+    sa.Column('flag', sa.types.Boolean, nullable=False),
     )
 
 meta.mapper(Subscription, subscription_table)
