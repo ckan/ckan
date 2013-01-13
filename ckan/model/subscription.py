@@ -289,9 +289,6 @@ def get_subscription(user_id, data_dict):
                 break
     else:
         return None
-
-    if not subscription:
-        return None
     return subscription
 
 

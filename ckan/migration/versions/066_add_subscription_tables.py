@@ -20,6 +20,6 @@ CREATE TABLE subscription_item
     key TEXT NOT NULL,
     data TEXT NOT NULL,
     flag TEXT NOT NULL
-);      
+);
     '''
     )
