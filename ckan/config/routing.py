@@ -336,14 +336,10 @@ def make_map():
 
     # subscriptions
     map.redirect('/user/{user}/subscription/{url:.*}', '/subscription/{url:.*}')
-    map.redirect('/subscription/', '/subscription')
-    map.redirect('/subscriptions', '/subscription')
-    map.redirect('/subscriptions/', '/subscription')
     with SubMapper(map, controller='subscription') as m:
         m.connect('/subscription/{subscription_name}', action='show', conditions=GET)
         m.connect('/subscription/{subscription_name}/delete', action='delete', conditions=POST)
         m.connect('/subscription', action='create', conditions=POST)
-        m.connect('/subscription', action='index', conditions=GET)
 
     # users
     map.redirect('/users/{url:.*}', '/user/{url}')
