@@ -90,7 +90,7 @@ class SubscriptionController(base.BaseController):
         self._setup_template_variables(context, data_dict)
         
         if not base.c.subscription:
-            return render('subscription/index.html')
+            return h.redirect_to(controller='home', action='index')
 
         type_ = base.c.subscription['definition']['type']
 
@@ -109,7 +109,7 @@ class SubscriptionController(base.BaseController):
                     break
 
         if not url:
-            return h.redirect_to(controller='subscription', action='index')
+            return h.redirect_to(controller='home', action='index')
 
         return h.redirect_to(str(url))
 
@@ -121,4 +121,4 @@ class SubscriptionController(base.BaseController):
 
         logic.get_action('subscription_delete')(context, data_dict)
 
-        return redirect(base.request.params['return_url'])
+        return h.redirect_to(str(base.request.params['return_url']))
