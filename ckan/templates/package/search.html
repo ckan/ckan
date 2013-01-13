@@ -86,10 +86,10 @@
     <h2 class="module-heading"><i class="icon-medium icon-caret-left"></i> {{ _('Subscriptions') }}</h2>
     <div class="module-content">
       {% if c.subscription %}
-        <form name="delete_subscription_form" method="post" onsubmit="return set_return_url();" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
+        <form name="delete_subscription_form" method="post" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
           <p><b>Name</b>: {{ c.subscription.name }}</p>
-          <input type="hidden" name="return_url" value="{{ request.url }}" class="return_url" />
-          <input type="submit" class="btn btn-danger" value="Unfollow" />
+          <input type="hidden" name="return_url" value="{{ request.url }}" />
+          <input type="submit" class="btn btn-danger" value="Unfollow search" />
         </form>
       {% else %}
         <form name="create_subscription_form" method="post" onsubmit="return validate_subscription_name();" action="{{ h.url_for(controller='subscription', action='create') }}">
