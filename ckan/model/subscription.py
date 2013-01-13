@@ -299,11 +299,8 @@ def is_subscription_equal_definition(subscription, definition):
     if definition['type'] == 'search':
         if subscription.definition['query'] != definition['query']:
             return False
-        if set(subscription.definition['filters']) ^ set(definition['filters']):
+        if _hash(subscription.definition['filters']) != _hash(definition['filters']):
             return False
-        for filter_name, filter_value_list in subscription.definition['filters'].iteritems():
-            if set(filter_value_list) ^ set(definition['filters'][filter_name]):
-                return False
         return True
     else:
         for plugin in p.PluginImplementations(p.ISubscription):
