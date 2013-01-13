@@ -210,6 +210,19 @@ class PackageController(BaseController):
                        'user': c.user or c.author, 'for_view': True}
 
             data_dict = {
+                'subscription_definition':{
+                    'query': q,
+                    'type': 'search',
+                    'filters': c.fields_grouped,
+                    'extras': search_extras,
+                },
+            }
+            try:
+                c.subscription = get_action('subscription_show')(context, data_dict)
+            except NotFound:
+                pass
+
+            data_dict = {
                 'q': q,
                 'filters': c.fields_grouped,
                 'facet.field': g.facets,

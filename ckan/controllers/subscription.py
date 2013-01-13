@@ -67,6 +67,7 @@ class SubscriptionController(base.BaseController):
         if type_ == 'search':
             definition['query'] = parameters.get('query', [''])[0]
             definition['filters'] = dict([(parameter_name, parameter_list) for (parameter_name, parameter_list) in parameters.iteritems() if parameter_name in base.g.facets])
+            definition['extras'] = dict([(parameter_name, parameter_list) for (parameter_name, parameter_list) in parameters.iteritems() if parameter_name.startswith('ext_')])
         else:
             for plugin in p.PluginImplementations(p.ISubscription):
                 if plugin.is_responsible(definition):
