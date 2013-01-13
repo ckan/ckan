@@ -1233,28 +1233,27 @@ def follow_group(context, data_dict):
 
 
 def subscription_create(context, data_dict):
-    '''Create a subscription.
+    '''
+        Create a subscription.
+        You must provide your API key in the Authorization header.
 
-    You must provide your API key in the Authorization header.
+        :param subscription_name: the name of the subscription, e.g. ``'health care'``
+        :type subscription_name: string
+        :param subscription_definition: the definition of the subscription
+        :type subscription_definition: string
 
-    :param subscription_name: the name of the subscription, e.g. ``'health care'``
-    :type subscription_name: string
-    :param subscription_definition: the definition of the subscription
-    :type subscription_definition: string
-
-    :returns: a representation of the 'subscription' object
-    :rtype: dictionary
-
+        :returns: a representation of the 'subscription' object
+        :rtype: dictionary
     '''
     _check_access('subscription', context, data_dict)
     model = context['model']
     user = model.User.get(context['user'])
-    
+
     name = _get_or_bust(data_dict, 'subscription_name')
     definition = _get_or_bust(data_dict, 'subscription_definition')
 
     _get_action('subscription_check_name')(context, {'subscription_name': name})
-        
+
     subscription_dict = {'name': name,
                          'owner_id': user.id,
                          'definition': definition
