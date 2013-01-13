@@ -194,13 +194,11 @@ class PackageController(BaseController):
             # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
                         if param not in c.fields_grouped:
                             c.fields_grouped[param] = [value]
                         else:
@@ -213,7 +211,7 @@ class PackageController(BaseController):
 
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
