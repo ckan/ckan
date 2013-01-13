@@ -89,7 +89,7 @@
         <form name="delete_subscription_form" method="post" onsubmit="return set_return_url();" action="{{ h.url_for(controller='subscription', action='delete', subscription_name=c.subscription.name) }}">
           <p><b>Name</b>: {{ c.subscription.name }}</p>
           <input type="hidden" name="return_url" value="" class="return_url" />
-          <input type="submit" class="btn" value="Unsubscribe" />
+          <input type="submit" class="btn btn-danger" value="Unfollow" />
         </form>
       {% else %}
         <form name="create_subscription_form" method="post" onsubmit="return validate_subscription_name();" action="{{ h.url_for(controller='subscription', action='create') }}">
