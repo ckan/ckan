@@ -17,9 +17,9 @@ CREATE TABLE subscription_item
 (
     id TEXT PRIMARY KEY,
     subscription_id TEXT NOT NULL REFERENCES "subscription" (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    key TEXT NOT NULL,
+    reference TEXT NOT NULL,
     data TEXT NOT NULL,
-    status TEXT NOT NULL
-);        
+    flag TEXT NOT NULL
+);      
     '''
     )
