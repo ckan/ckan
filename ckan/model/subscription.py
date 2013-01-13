@@ -306,6 +306,6 @@ def is_subscription_equal_definition(subscription, definition):
         return True
     else:
         for plugin in p.PluginImplementations(p.ISubscription):
-            if plugin.plugin.is_responsible(definition):
+            if plugin.is_responsible(definition):
                 return plugin.is_subscription_equal_definition(subscription, definition)
     return False
