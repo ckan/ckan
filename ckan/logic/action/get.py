@@ -463,6 +463,7 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.state == 'active')
 
     if sysadmin:
+        # Sysadmins can see all organizations
         return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
