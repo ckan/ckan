@@ -60,76 +60,76 @@ def get_snippet_related_type(activity, detail):
 # {user}, {dataset} etc. to be replaced with snippets from the get_snippet_*()
 # functions above.
 
-def activity_stream_string_added_tag():
+def activity_stream_string_added_tag(context, activity):
     return _("{actor} added the tag {tag} to the dataset {dataset}")
 
-def activity_stream_string_changed_group():
+def activity_stream_string_changed_group(context, activity):
     return _("{actor} updated the group {group}")
 
-def activity_stream_string_changed_organization():
+def activity_stream_string_changed_organization(context, activity):
     return _("{actor} updated the organization {organization}")
 
-def activity_stream_string_changed_package():
+def activity_stream_string_changed_package(context, activity):
     return _("{actor} updated the dataset {dataset}")
 
-def activity_stream_string_changed_package_extra():
+def activity_stream_string_changed_package_extra(context, activity):
     return _("{actor} changed the extra {extra} of the dataset {dataset}")
 
-def activity_stream_string_changed_resource():
+def activity_stream_string_changed_resource(context, activity):
     return _("{actor} updated the resource {resource} in the dataset {dataset}")
 
-def activity_stream_string_changed_user():
+def activity_stream_string_changed_user(context, activity):
     return _("{actor} updated their profile")
 
-def activity_stream_string_deleted_group():
+def activity_stream_string_deleted_group(context, activity):
     return _("{actor} deleted the group {group}")
 
-def activity_stream_string_deleted_organization():
+def activity_stream_string_deleted_organization(context, activity):
     return _("{actor} deleted the organization {organization}")
 
-def activity_stream_string_deleted_package():
+def activity_stream_string_deleted_package(context, activity):
     return _("{actor} deleted the dataset {dataset}")
 
-def activity_stream_string_deleted_package_extra():
+def activity_stream_string_deleted_package_extra(context, activity):
     return _("{actor} deleted the extra {extra} from the dataset {dataset}")
 
-def activity_stream_string_deleted_resource():
+def activity_stream_string_deleted_resource(context, activity):
     return _("{actor} deleted the resource {resource} from the dataset {dataset}")
 
-def activity_stream_string_new_group():
+def activity_stream_string_new_group(context, activity):
     return _("{actor} created the group {group}")
 
-def activity_stream_string_new_organization():
+def activity_stream_string_new_organization(context, activity):
     return _("{actor} created the organization {organization}")
 
-def activity_stream_string_new_package():
+def activity_stream_string_new_package(context, activity):
     return _("{actor} created the dataset {dataset}")
 
-def activity_stream_string_new_package_extra():
+def activity_stream_string_new_package_extra(context, activity):
     return _("{actor} added the extra {extra} to the dataset {dataset}")
 
-def activity_stream_string_new_resource():
+def activity_stream_string_new_resource(context, activity):
     return _("{actor} added the resource {resource} to the dataset {dataset}")
 
-def activity_stream_string_new_user():
+def activity_stream_string_new_user(context, activity):
     return _("{actor} signed up")
 
-def activity_stream_string_removed_tag():
+def activity_stream_string_removed_tag(context, activity):
     return _("{actor} removed the tag {tag} from the dataset {dataset}")
 
-def activity_stream_string_deleted_related_item():
+def activity_stream_string_deleted_related_item(context, activity):
     return _("{actor} deleted the related item {related_item}")
 
-def activity_stream_string_follow_dataset():
+def activity_stream_string_follow_dataset(context, activity):
     return _("{actor} started following {dataset}")
 
-def activity_stream_string_follow_user():
+def activity_stream_string_follow_user(context, activity):
     return _("{actor} started following {user}")
 
-def activity_stream_string_follow_group():
+def activity_stream_string_follow_group(context, activity):
     return _("{actor} started following {group}")
 
-def activity_stream_string_new_related_item():
+def activity_stream_string_new_related_item(context, activity):
     return _("{actor} created the link to related {related_type} {related_item}")
 
 # A dictionary mapping activity snippets to functions that expand the snippets.
@@ -250,7 +250,7 @@ def activity_list_to_html(context, activity_stream, extra_vars):
         else:
             activity_icon = activity_stream_string_icons['undefined']
 
-        activity_msg = activity_stream_string_functions[activity_type]()
+        activity_msg = activity_stream_string_functions[activity_type](context, activity)
 
         # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)
