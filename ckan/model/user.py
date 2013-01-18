@@ -23,6 +23,8 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
+        Column('activity_streams_email_notifications', types.Boolean,
+            default=False),
         Column('sysadmin', types.Boolean, default=False),
         )
 
@@ -48,6 +50,16 @@ class User(domain_object.DomainObject):
                                  cls.openid == corrected_openid_user_ref,
                                  cls.id == user_reference))
         return query.first()
+
+    @classmethod
+    def all(cls):
+        '''Return all users in this CKAN instance.
+
+        :rtype: list of ckan.model.user.User objects
+
+        '''
+        q = meta.Session.query(cls)
+        return q.all()
 
     @property
     def display_name(self):

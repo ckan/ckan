@@ -456,6 +456,15 @@ def organization_list_for_user(context, data_dict):
     user = context['user']
 
     _check_access('organization_list_for_user',context, data_dict)
+    sysadmin = new_authz.is_sysadmin(user)
+
+    orgs_q = model.Session.query(model.Group) \
+        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.state == 'active')
+
+    if sysadmin:
+        # Sysadmins can see all organizations
+        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -471,6 +480,7 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.capacity.in_(roles)) \
         .filter(model.Member.table_id == user_id)
+
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
@@ -478,10 +488,8 @@ def organization_list_for_user(context, data_dict):
     if not group_ids:
         return []
 
-    q = model.Session.query(model.Group) \
-        .filter(model.Group.id.in_(group_ids)) \
-        .filter(model.Group.is_organization == True) \
-        .filter(model.Group.state == 'active')
+    q = orgs_q.filter(model.Group.id.in_(group_ids))
+
     return [{'id':org.id,'name':org.name} for org in q.all()]
 
 def group_revision_list(context, data_dict):
@@ -582,7 +590,6 @@ def user_list(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
 
     _check_access('user_list',context, data_dict)
 
@@ -2483,7 +2490,7 @@ def dashboard_activity_list(context, data_dict):
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = '%Y-%m-%dT%H:%M:%S.%f'
-    last_viewed = model.Dashboard.get_activity_stream_last_viewed(user_id)
+    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
     for activity in activity_dicts:
         if activity['user_id'] == user_id:
             # Never mark the user's own activities as new.
@@ -2541,19 +2548,6 @@ def dashboard_new_activities_count(context, data_dict):
     activities = logic.get_action('dashboard_activity_list')(
             context, data_dict)
     return len([activity for activity in activities if activity['is_new']])
-
-
-def dashboard_mark_all_new_activities_as_old(context, data_dict):
-    '''Mark all the authorized user's new dashboard activities as old.
-
-    This will reset dashboard_new_activities_count to 0.
-
-    '''
-    _check_access('dashboard_mark_all_new_activities_as_old', context,
-            data_dict)
-    model = context['model']
-    user_id = model.User.get(context['user']).id
-    model.Dashboard.update_activity_stream_last_viewed(user_id)
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):

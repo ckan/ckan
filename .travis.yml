@@ -1,0 +1,21 @@
+language: python
+python:
+  - "2.7"
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq solr-jetty
+install:
+  - "pip install -r pip-requirements.txt --use-mirrors"
+  - "pip install -r pip-requirements-test.txt --use-mirrors"
+before_script:
+  - psql -c 'create database ckantest;' -U postgres
+  - python setup.py develop
+  - paster make-config ckan development.ini --no-interactive
+  - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
+  - sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' development.ini
+  - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantest/' development.ini
+  - echo -e "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
+  - sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+  - sudo service jetty restart
+  - paster --plugin=ckan db init
+script: "nosetests --ckan ckan"

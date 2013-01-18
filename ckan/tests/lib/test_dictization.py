@@ -68,7 +68,7 @@ class TestBasicDictize:
             'organization': None,
             'maintainer': None,
             'maintainer_email': None,
-            'type': None,
+            'type': u'dataset',
             'name': u'annakarenina',
             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'relationships_as_object': [],
@@ -175,7 +175,7 @@ class TestBasicDictize:
             'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
             'state': u'active',
             'title': u'A Novel By Tolstoy',
-            'type': None,
+            'type': u'dataset',
             'url': u'http://www.annakarenina.com',
             'owner_org': None,
             'private': False,
@@ -922,7 +922,9 @@ class TestBasicDictize:
                               'fullname': None,
                               'name': u'annafan',
                               'number_administered_packages': 1L,
-                              'number_of_edits': 0L}],
+                              'number_of_edits': 0L,
+                              'activity_streams_email_notifications': False,
+                              }],
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
@@ -932,7 +934,7 @@ class TestBasicDictize:
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
-                                  'type': None,
+                                  'type': u'dataset',
                                   'name': u'annakarenina3',
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
@@ -949,7 +951,7 @@ class TestBasicDictize:
                                   'license_id': u'other-open',
                                   'maintainer': None,
                                   'maintainer_email': None,
-                                  'type': None,
+                                  'type': u'dataset',
                                   'name': u'annakarenina2',
                                   'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                   'state': u'active',
@@ -962,7 +964,6 @@ class TestBasicDictize:
                     'approval_status': u'approved',
                     'title': u'help',
                     'type': u'group'}
-
         expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
         result = self.remove_changable_columns(group_dictized)
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])

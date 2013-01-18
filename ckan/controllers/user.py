@@ -87,9 +87,7 @@ class UserController(base.BaseController):
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'model': model,
-                   'user': c.user or c.author,
-                   'return_query': True}
+        context = {'return_query': True}
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
@@ -210,9 +208,7 @@ class UserController(base.BaseController):
             return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'save': 'save' in request.params,
+        context = {'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
                    }
         if id is None:
@@ -258,6 +254,8 @@ class UserController(base.BaseController):
                                        data_dict)
 
         c.is_myself = True
+        c.show_email_notifications = asbool(
+                config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -268,6 +266,11 @@ class UserController(base.BaseController):
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # MOAN: Do I really have to do this here?
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
@@ -320,9 +323,7 @@ class UserController(base.BaseController):
         i18n.set_lang(lang)
 
         if c.user:
-            context = {'model': model,
-                       'user': c.user}
-
+            context = None
             data_dict = {'id': c.user}
 
             user_dict = get_action('user_show')(context, data_dict)
@@ -471,8 +472,7 @@ class UserController(base.BaseController):
             return password1
 
     def followers(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
@@ -507,7 +507,7 @@ class UserController(base.BaseController):
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+        get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html')
 
