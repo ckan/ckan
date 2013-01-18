@@ -26,3 +26,9 @@ before_script:
   - sed -i -e 's/ -W//g' ckanext/datastore/bin/datastore_setup.py
   - paster datastore set-permissions postgres
 script: "nosetests --ckan ckan && nosetests --ckan --with-pylons=test-core.ini --nologcapture --cover-package=ckanext.datastore ckanext/datastore/tests -x"
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#ckan"
+    template:
+      - "%{repository} (%{branch} - %{commit}) [%{build_url}] %{author}: %{message}"
