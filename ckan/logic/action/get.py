@@ -2416,7 +2416,13 @@ def followee_list(context, data_dict):
         returned by user_show, package_show or group_show)
 
     '''
-    # TODO: Validation, authorization.
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    # TODO: Authorization.
 
     def display_name(followee):
         '''Return a display name for the given user, group or dataset dict.'''
@@ -2433,7 +2439,8 @@ def followee_list(context, data_dict):
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
             (group_followee_list, 'group')):
-        dicts = followee_list_function(context, data_dict)
+        dicts = followee_list_function(context, data_dict,
+                skip_validation=True)
         for d in dicts:
             followee_dicts.append(
                     {'type': followee_type,
@@ -2454,7 +2461,7 @@ def followee_list(context, data_dict):
     return followee_dicts
 
 
-def user_followee_list(context, data_dict):
+def user_followee_list(context, data_dict, skip_validation=False):
     '''Return the list of users that are followed by the given user.
 
     :param id: the id of the user
@@ -2463,11 +2470,12 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not skip_validation:
+        schema = context.get('schema') or (
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']
@@ -2481,7 +2489,7 @@ def user_followee_list(context, data_dict):
     # Dictize the list of User objects.
     return model_dictize.user_list_dictize(users, context)
 
-def dataset_followee_list(context, data_dict):
+def dataset_followee_list(context, data_dict, skip_validation=False):
     '''Return the list of datasets that are followed by the given user.
 
     :param id: the id or name of the user
@@ -2490,11 +2498,12 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not skip_validation:
+        schema = context.get('schema') or (
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']
@@ -2509,7 +2518,7 @@ def dataset_followee_list(context, data_dict):
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
 
-def group_followee_list(context, data_dict):
+def group_followee_list(context, data_dict, skip_validation=False):
     '''Return the list of groups that are followed by the given user.
 
     :param id: the id or name of the user
@@ -2518,11 +2527,12 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not skip_validation:
+        schema = context.get('schema',
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of UserFollowingGroup objects.
     model = context['model']
