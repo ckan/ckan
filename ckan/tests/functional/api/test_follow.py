@@ -779,6 +779,10 @@ class TestFollowerDelete(object):
         # Record the user's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'user_follower_count', id=object_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=follower_id)
+        user_followee_count_before = ckan.tests.call_action_api(self.app,
+                'user_followee_count', id=follower_id)
 
         # Check that the user is following the object.
         am_following = ckan.tests.call_action_api(self.app,
@@ -804,6 +808,25 @@ class TestFollowerDelete(object):
         count_after = ckan.tests.call_action_api(self.app,
                 'user_follower_count', id=object_id)
         assert count_after == count_before - 1
+
+        # Check that the user doesn't appear in the subject's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=follower_id)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == object_id]) == 0
+        followees = ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=follower_id)
+        assert len([followee for followee in followees
+            if followee['id'] == object_id]) == 0
+
+        # Check the the subject's followee cont has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=follower_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'user_followee_count', id=follower_id)
+        assert count_after == user_followee_count_before - 1
 
     def _unfollow_dataset(self, user_id, apikey, dataset_id, dataset_arg):
         '''Test a user unfollowing a dataset via the API.
