@@ -1063,6 +1063,13 @@ class TestFollowerCascade(object):
                 status=409, id='joeadmin')
         assert 'id' in error
 
+        # It should no longer be possible to get joeadmin's followee lists.
+        for action in ('followee_list', 'user_followee_list',
+                'dataset_followee_list', 'group_followee_list'):
+            error = ckan.tests.call_action_api(self.app, action, status=409,
+                    id='joeadmin')
+            assert 'id' in error
+
         # It should no longer be possible to get warandpeace's follower list.
         error = ckan.tests.call_action_api(self.app, 'dataset_follower_list',
                 status=409, id='warandpeace')
@@ -1077,6 +1084,13 @@ class TestFollowerCascade(object):
         error = ckan.tests.call_action_api(self.app, 'user_follower_count',
                 status=409, id='joeadmin')
         assert 'id' in error
+
+        # It should no longer be possible to get joeadmin's followee counts.
+        for action in ('followee_count', 'user_followee_count',
+                'dataset_followee_count', 'group_followee_count'):
+            error = ckan.tests.call_action_api(self.app, action, status=409,
+                    id='joeadmin')
+            assert 'id' in error
 
         # It should no longer be possible to get warandpeace's follower count.
         error = ckan.tests.call_action_api(self.app, 'dataset_follower_count',
