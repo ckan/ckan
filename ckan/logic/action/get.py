@@ -2327,12 +2327,13 @@ def am_following_group(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
-def _followee_count(context, data_dict, FollowerClass):
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+def _followee_count(context, data_dict, FollowerClass, skip_validation=False):
+    if not skip_validation:
+        schema = context.get('schema',
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
     return FollowerClass.followee_count(data_dict['id'])
 
 
@@ -2351,8 +2352,10 @@ def followee_count(context, data_dict):
     model = context['model']
     return sum((
         _followee_count(context, data_dict, model.UserFollowingUser),
-        _followee_count(context, data_dict, model.UserFollowingDataset),
-        _followee_count(context, data_dict, model.UserFollowingGroup),
+        _followee_count(context, data_dict, model.UserFollowingDataset,
+            skip_validation=True),
+        _followee_count(context, data_dict, model.UserFollowingGroup,
+            skip_validation=True),
         ))
 
 
