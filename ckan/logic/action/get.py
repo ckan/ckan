@@ -2422,8 +2422,6 @@ def followee_list(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-    # TODO: Authorization.
-
     def display_name(followee):
         '''Return a display name for the given user, group or dataset dict.'''
         display_name = followee.get('display_name')
