@@ -436,6 +436,57 @@ class TestFollow(object):
                 'group_follower_count', id=self.davids_group['id'])
         assert follower_count == 0
 
+    def _followee_count_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = ckan.tests.call_action_api(self.app, action,
+                    status=409, id=object_id)
+            assert 'id' in error
+
+    def test_04_followee_count_bad_id(self):
+        self._followee_count_bad_id('followee_count')
+
+    def test_04_user_followee_count_bad_id(self):
+        self._followee_count_bad_id('user_followee_count')
+
+    def test_04_dataset_followee_count_bad_id(self):
+        self._followee_count_bad_id('dataset_followee_count')
+
+    def test_04_group_followee_count_bad_id(self):
+        self._followee_count_bad_id('group_followee_count')
+
+    def _followee_count_missing_id(self, action):
+        error = ckan.tests.call_action_api(self.app, action, status=409)
+        assert error['id'] == ['Missing value']
+
+    def test_04_followee_count_missing_id(self):
+        self._followee_count_missing_id('followee_count')
+
+    def test_04_user_followee_count_missing_id(self):
+        self._followee_count_missing_id('user_followee_count')
+
+    def test_04_dataset_followee_count_missing_id(self):
+        self._followee_count_missing_id('dataset_followee_count')
+
+    def test_04_group_followee_count_missing_id(self):
+        self._followee_count_missing_id('group_followee_count')
+
+    def _followee_count_not_following_anything(self, action):
+        followee_count = ckan.tests.call_action_api(self.app, action,
+                id=self.russianfan['id'])
+        assert followee_count == 0
+
+    def test_04_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('followee_count')
+
+    def test_04_user_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('user_followee_count')
+
+    def test_04_dataset_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('dataset_followee_count')
+
+    def test_04_group_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('group_followee_count')
+
     def test_04_follower_list_bad_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
@@ -464,6 +515,57 @@ class TestFollow(object):
         followers = ckan.tests.call_action_api(self.app, 'group_follower_list',
                 id=self.davids_group['id'])
         assert followers == []
+
+    def _followee_list_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = ckan.tests.call_action_api(self.app, action,
+                    status=409, id=object_id)
+            assert error['id']
+
+    def test_04_followee_list_bad_id(self):
+        self._followee_list_bad_id('followee_list')
+
+    def test_04_user_followee_list_bad_id(self):
+        self._followee_list_bad_id('user_followee_list')
+
+    def test_04_dataset_followee_list_bad_id(self):
+        self._followee_list_bad_id('dataset_followee_list')
+
+    def test_04_group_followee_list_bad_id(self):
+        self._followee_list_bad_id('group_followee_list')
+
+    def _followee_list_missing_id(self, action):
+        error = ckan.tests.call_action_api(self.app, action, status=409)
+        assert error['id'] == ['Missing value']
+
+    def test_04_followee_list_missing_id(self):
+        self._followee_list_missing_id('followee_list')
+
+    def test_04_user_followee_list_missing_id(self):
+        self._followee_list_missing_id('user_followee_list')
+
+    def test_04_dataset_followee_missing_bad_id(self):
+        self._followee_list_missing_id('dataset_followee_list')
+
+    def test_04_group_followee_missing_bad_id(self):
+        self._followee_list_missing_id('group_followee_list')
+
+    def _followee_list_not_following_anything(self, action):
+        followees = ckan.tests.call_action_api(self.app, action,
+                id=self.russianfan['id'])
+        assert followees == []
+
+    def test_04_followee_list_not_following_anything(self):
+        self._followee_list_not_following_anything('followee_list')
+
+    def test_04_user_followee_list_not_following_anything(self):
+        self._followee_list_not_following_anything('user_followee_list')
+
+    def test_04_dataset_followee_not_following_anything(self):
+        self._followee_list_not_following_anything('dataset_followee_list')
+
+    def test_04_group_followee_not_following_anything(self):
+        self._followee_list_not_following_anything('group_followee_list')
 
     def test_04_am_following_bad_id(self):
         for action in ('am_following_dataset', 'am_following_user',
