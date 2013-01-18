@@ -557,6 +557,19 @@ Default value:  ``true``
 
 Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
 
+ckan.search.show_all_types
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.show_all_types = true
+
+Default value:  ``false``
+
+Controls whether the default search page (``/dataset``) should show only
+standard datasets or also custom dataset types. Default is to show only
+standard datasets.
+
 simple_search
 ^^^^^^^^^^^^^
 

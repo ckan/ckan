@@ -6,6 +6,7 @@ from pylons import config
 from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
+from paste.deploy.converters import asbool
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -49,8 +50,11 @@ def url_with_params(url, params):
     return url + u'?' + urlencode(params)
 
 
-def search_url(params):
-    url = h.url_for(controller='package', action='search')
+def search_url(params, package_type=None):
+    if not package_type or package_type == 'dataset':
+        url = h.url_for(controller='package', action='search')
+    else:
+        url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -78,6 +82,9 @@ class PackageController(BaseController):
 
     def _new_template(self, package_type):
         return lookup_package_plugin(package_type).new_template()
+
+    def _edit_template(self, package_type):
+        return lookup_package_plugin(package_type).edit_template()
 
     def _comments_template(self, package_type):
         return lookup_package_plugin(package_type).comments_template()
@@ -171,7 +178,7 @@ class PackageController(BaseController):
             if fields:
                 sort_string = ', '.join('%s %s' % f for f in fields)
                 params.append(('sort', sort_string))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.sort_by = _sort_by
         if sort_by is None:
@@ -184,7 +191,7 @@ class PackageController(BaseController):
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
@@ -211,9 +218,18 @@ class PackageController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
+            if package_type and package_type != 'dataset':
+                # Only show datasets of this particular type
+                fq += ' +dataset_type:{type}'.format(type=package_type)
+            else:
+                # Unless changed via config options, don't show non standard
+                # dataset types on the default search page
+                if not asbool(config.get('ckan.search.show_all_types', 'False')):
+                    fq += ' +dataset_type:dataset'
+
             data_dict = {
                 'q': q,
-                'fq': fq,
+                'fq': fq.strip(),
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
@@ -256,6 +272,10 @@ class PackageController(BaseController):
         maintain.deprecate_context_item(
           'facets',
           'Use `c.search_facets` instead.')
+
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):
@@ -325,6 +345,9 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -451,7 +474,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to create a package'))
 
         if context['save'] and not data:
-            return self._save_new(context)
+            return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
@@ -481,7 +504,8 @@ class PackageController(BaseController):
                 'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
-        self._setup_template_variables(context, {'id': id})
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -709,7 +733,7 @@ class PackageController(BaseController):
                    'pending': True}
 
         if context['save'] and not data:
-            return self._save_edit(id, context)
+            return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             context['for_edit'] = True
@@ -763,7 +787,8 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        return render('package/edit.html')
+        return render(self._edit_template(package_type),
+                      extra_vars={'stage': vars['stage']})
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
@@ -900,7 +925,7 @@ class PackageController(BaseController):
                                 id=pkg_dict['name'])
                 redirect(url)
 
-            self._form_save_redirect(pkg_dict['name'], 'new')
+            self._form_save_redirect(pkg_dict['name'], 'new', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -926,7 +951,7 @@ class PackageController(BaseController):
             data_dict['state'] = 'none'
             return self.new(data_dict, errors, error_summary)
 
-    def _save_edit(self, name_or_id, context):
+    def _save_edit(self, name_or_id, context, package_type=None):
         from ckan.lib.search import SearchIndexError
         log.debug('Package save request name: %s POST: %r',
                   name_or_id, request.POST)
@@ -952,7 +977,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_dict = pkg
 
-            self._form_save_redirect(pkg['name'], 'edit')
+            self._form_save_redirect(pkg['name'], 'edit', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
@@ -970,7 +995,7 @@ class PackageController(BaseController):
             error_summary = e.error_summary
             return self.edit(name_or_id, data_dict, errors, error_summary)
 
-    def _form_save_redirect(self, pkgname, action):
+    def _form_save_redirect(self, pkgname, action, package_type=None):
         '''This redirects the user to the CKAN package/read page,
         unless there is request parameter giving an alternate location,
         perhaps an external website.
@@ -983,7 +1008,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            url = h.url_for(controller='package', action='read', id=pkgname)
+            if package_type:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
+            else:
+                url = h.url_for(controller='package', action='read', id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
