@@ -841,6 +841,10 @@ class TestFollowerDelete(object):
         # Record the dataset's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'dataset_follower_count', id=dataset_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=user_id)
+        dataset_followee_count_before = ckan.tests.call_action_api(self.app,
+                'dataset_followee_count', id=user_id)
 
         # Check that the user is following the dataset.
         am_following = ckan.tests.call_action_api(self.app,
@@ -868,6 +872,25 @@ class TestFollowerDelete(object):
                 'dataset_follower_count', id=dataset_id)
         assert count_after == count_before - 1
 
+        # Check that the dataset doesn't appear in the user's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=user_id)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == dataset_id]) == 0
+        followees = ckan.tests.call_action_api(self.app,
+                'dataset_followee_list', id=user_id)
+        assert len([followee for followee in followees
+            if followee['id'] == dataset_id]) == 0
+
+        # Check the the user's followee count has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=user_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'dataset_followee_count', id=user_id)
+        assert count_after == dataset_followee_count_before - 1
+
     def _unfollow_group(self, user_id, apikey, group_id, group_arg):
         '''Test a user unfollowing a group via the API.
 
@@ -881,6 +904,10 @@ class TestFollowerDelete(object):
         # Record the group's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'group_follower_count', id=group_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=user_id)
+        group_followee_count_before = ckan.tests.call_action_api(self.app,
+                'group_followee_count', id=user_id)
 
         # Check that the user is following the group.
         am_following = ckan.tests.call_action_api(self.app,
@@ -907,6 +934,25 @@ class TestFollowerDelete(object):
         count_after = ckan.tests.call_action_api(self.app,
                 'group_follower_count', id=group_id)
         assert count_after == count_before - 1
+
+        # Check that the group doesn't appear in the user's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=user_id)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == group_id]) == 0
+        followees = ckan.tests.call_action_api(self.app,
+                'group_followee_list', id=user_id)
+        assert len([followee for followee in followees
+            if followee['id'] == group_id]) == 0
+
+        # Check the the user's followee count has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=user_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'group_followee_count', id=user_id)
+        assert count_after == group_followee_count_before - 1
 
     def test_02_follower_delete_by_id(self):
         self._unfollow_user(self.annafan['id'], self.annafan['apikey'],
