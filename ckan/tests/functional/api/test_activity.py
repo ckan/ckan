@@ -2084,3 +2084,35 @@ class TestActivity:
             after['time'], str(activity['timestamp'])
 
         assert len(self.activity_details(activity)) == 0
+
+    def test_user_activity_list_by_name(self):
+        '''user_activity_list should accept a user name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app, 'user_activity_list',
+                id='annafan')
+        assert len(activities) > 0
+
+    def test_package_activity_list_by_name(self):
+        '''package_activity_list should accept a package name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app,
+                'package_activity_list', id='warandpeace',
+                apikey=self.sysadmin_user['apikey'])
+        assert len(activities) > 0
+
+    def test_group_activity_list_by_name(self):
+        '''group_activity_list should accept a group name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app,
+                'group_activity_list', id='roger')
+        assert len(activities) > 0
+
+    def test_organization_activity_list_by_name(self):
+        '''organization_activity_list should accept a org name as param.'''
+        import ckan.tests
+        organization = ckan.tests.call_action_api(self.app,
+                'organization_create', name='test_org',
+                apikey=self.sysadmin_user['apikey'])
+        activities = ckan.tests.call_action_api(self.app,
+                'organization_activity_list', id=organization['name'])
+        assert len(activities) > 0
