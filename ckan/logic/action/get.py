@@ -1959,19 +1959,22 @@ def organization_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    # FIXME This is a duplicate of group_activity_list and
-    # package_activity_list but they claim to get the group/package by name
-    # or id but I think that they only get by id.  Either they need fixing
-    # and remain seperate or they should share code - probably should share
-    # code anyway.
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('organization_show', context, data_dict)
 
     model = context['model']
-    group_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=group_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    org_id = _get_or_bust(data_dict, 'id')
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    # Convert org_id (could be id or name) into id.
+    org_show = logic.get_action('organization_show')
+    org_id = org_show(context, {'id': org_id})['id']
+
+    activity_objects = model.activity.group_activity_list(org_id,
+            limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
@@ -2119,7 +2122,6 @@ def organization_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    # FIXME does this work with a name? same issue with package/group
     activity_stream = organization_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
