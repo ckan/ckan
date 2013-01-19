@@ -1,4 +1,4 @@
-__version__ = '2.0a'
+__version__ = '2.1a'
 
 __description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
 __long_description__ = \
@@ -17,5 +17,5 @@ analogous service for open data and knowledge.
 '''
 __license__ = 'AGPL'
 
-# The packaging system replies on this import, please do not remove it
+# The packaging system relies on this import, please do not remove it
 import sys; sys.path.insert(0, __path__[0])
