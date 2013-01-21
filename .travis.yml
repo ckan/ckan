@@ -28,6 +28,7 @@ before_script:
 script:
   - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan -v"
   - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckanext/datastore -v"
+  - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckanext/stats -v"
   - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckanext/resourceproxy -v"
   - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckanext/reclinepreview -v"
   - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckanext/jsonpreview -v"
