@@ -7,7 +7,7 @@ Contributing to CKAN
 .. _docs.ckan.org: http://docs.ckan.org
 .. _Contributing to CKAN's Documentation: https://github.com/okfn/ckan/blob/master/CONTRIBUTING.rst#contributing-to-ckans-documentation
 
-(This section is about contributing code , if you want to contribute
+(This section is about contributing code, if you want to contribute
 documentation see `Contributing to CKAN's Documentation`_.)
 
 CKAN is a free software project and code contributions are welcome. To
