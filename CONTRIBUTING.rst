@@ -1,6 +1,13 @@
-==============================
-How to Contribute Code to CKAN
-==============================
+====================
+Contributing to CKAN
+====================
+
+.. _CKAN repo on GitHub: https://github.com/okfn/ckan
+.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
+.. _docs.ckan.org: http://docs.ckan.org
+
+(This section is about contributing code , if you want to contribute
+documentation see `Contributing to CKAN's Documentation`_.)
 
 CKAN is a free software project and code contributions are welcome. To
 contribute code to CKAN you should fork CKAN to your own GitHub account, push
@@ -11,8 +18,6 @@ branch on the central CKAN repo. We'll go through each step in detail below...
 Fork CKAN on GitHub
 -------------------
 
-.. _CKAN repo on GitHub: https://github.com/okfn/ckan
-.. _CKAN issue tracker: http://trac.ckan.org
 
 If you don't have access to the central `CKAN repo on GitHub`_ you should sign
 up for a free account on `GitHub.com <https://github.com/>`_ and
@@ -69,6 +74,7 @@ Here is an example CKAN commit message::
 
  Following feedback from markw (see #2406).
 
+
 Keeping Up with master
 ----------------------
 
@@ -101,22 +107,21 @@ reviewer may ask you to make some changes to your code. Once the pull request
 has passed the code review, the reviewer will merge your code into the master
 branch and it will become part of CKAN!
 
-.. note::
+When submitting a pull request:
 
- When submitting a pull request:
- 
- - Your branch should contain code for one feature or bug fix only,
-   see `Feature Branches`_.
- - Your branch should contain new or changed tests for any new or changed
-   code, see :ref:`Testing`.
- - Your branch should contain updates to the
-   `CHANGELOG file <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
-   briefly summarising your code changes.
- - Your branch should contain new or updated documentation for any new or
-   updated code, see :doc:`contributing-docs`.
- - Your branch should be up to date with the master branch of the central
-   CKAN repo, see `Keeping Up with master`_.
- - All the CKAN tests should pass on your branch, see :doc:`test`.
+- Your branch should contain code for one feature or bug fix only,
+  see `Feature Branches`_.
+- Your branch should contain new or changed tests for any new or changed
+  code.
+- Your branch should contain updates to the
+  `CHANGELOG file <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
+  briefly summarising your code changes.
+- Your branch should contain new or updated documentation for any new or
+  updated code, see `Contributing to CKAN's Documentation`_.
+- Your branch should be up to date with the master branch of the central
+  CKAN repo, see `Keeping Up with master`_.
+- All the CKAN tests should pass on your branch, see
+  `Testing for Developers <http://docs.ckan.org/en/latest/test.html>`_.
 
 
 Merging
@@ -124,6 +129,65 @@ Merging
 
 When merging a feature or bug branch into master:
 
-- Make sure the tests pass, see :doc:`test`.
 - Use the ``--no-ff`` option in the ``git merge`` command,
-- Add an entry to the ``CHANGELOG`` file.
+
+
+Coding Standards
+----------------
+
+When writing code for CKAN, try to follow our
+`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
+
+
+====================================
+Contributing to CKAN's Documentation
+====================================
+
+Note: getting started with contributing to `docs.ckan.org`_ is a little
+complicated.  An easier way to contribute documentation to CKAN is to
+contribute to the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_. Docs
+started on the wiki can make it onto `docs.ckan.org`_ later.
+
+`docs.ckan.org`_ is created using `Sphinx <http://sphinx-doc.org/>`_. The
+source files are in
+`the doc directory of the CKAN git repo <https://github.com/okfn/ckan/tree/master/doc>`_.
+To edit these docs:
+
+1. If you haven't already, create a
+   `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
+   (virtualenv), activate it and clone the CKAN git repo into it. In this
+   example we'll create a virtualenv in a folder called ``pyenv``::
+
+    virtualenv --no-site-packages pyenv
+    . pyenv/bin/activate
+    pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
+
+2. Install the Python dependencies necessary for building the CKAN docs into
+   your virtualenv::
+
+    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+
+3. Fetch the git submodule that contains CKAN's custom Sphinx theme::
+
+    cd pyenv/src/ckan
+    git submodule init
+    git submodule update
+
+   Note: you may occassionally have to run ``git submodule update`` again,
+   when someone updates the submodule.
+
+4. Make changes to the documentation by using your text editor to edit the
+   ``pyenv/src/ckan/doc/*.rst`` files.
+
+5. Build the documentation locally, to preview your changes::
+
+    python setup.py build_sphinx
+
+   Now you can open the built HTML files in
+   ``pyenv/src/ckan/build/sphinx/html`` to see your changes, e.g.:
+   ``firefox pyenv/src/ckan/build/sphinx/html/index.html``.
+
+6. Finally, when you're ready to submit your contributions to the CKAN
+   project, follow the same process as for contributing code, see
+   `Contributing to CKAN`_.
+
