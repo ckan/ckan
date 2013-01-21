@@ -13,7 +13,7 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
 
-class TestJsonPreview(tests.WsgiAppCase):
+class TestPdfPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
