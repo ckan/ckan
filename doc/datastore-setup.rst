@@ -112,7 +112,13 @@ Copy the ``set_permissions.sql`` file to the server that the database runs on. M
 3. Test the set-up
 ==================
 
-The datastore is now set-up. To test the set-up you can create a new DataStore. To do so you can run the following command::
+The DataStore is now set-up. To test the set-up you can list all resources that are in the DataStore::
+
+ curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
+
+This should return a JSON page without errors.
+
+To test the whether the set-up allows writing you can create a new resource in the DataStore. To do so, run the following command::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 

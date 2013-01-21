@@ -52,7 +52,8 @@ app_instance_uuid = ${app_instance_uuid}
 # List the names of CKAN extensions to activate.
 # Note: This line is required to be here for packaging, even if it is empty.
 # Note: Add ``pdf_preview`` to enable the resource preview for PDFs
-#		Add the resource_proxy plugin to enable resorce proxying and get around the same origin policy
+#		Add the ``resource_proxy`` plugin to enable resorce proxying and get around the same origin policy
+#       Add ``datastore`` to enable the CKAN DataStore extension
 ckan.plugins = stats json_preview recline_preview
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
@@ -68,8 +69,8 @@ sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
-# Datastore
-# Uncommment to set the datastore urls
+# Un-comment and specify the URLs for the DataStore database.
+# * Postgres is required
 #ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
 #ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
 
