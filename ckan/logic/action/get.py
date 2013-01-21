@@ -2337,8 +2337,8 @@ def am_following_group(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
-def _followee_count(context, data_dict, FollowerClass, skip_validation=False):
-    if not skip_validation:
+def _followee_count(context, data_dict, FollowerClass):
+    if not context.get('skip_validation'):
         schema = context.get('schema',
                 ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
@@ -2360,13 +2360,19 @@ def followee_count(context, data_dict):
 
     '''
     model = context['model']
-    return sum((
-        _followee_count(context, data_dict, model.UserFollowingUser),
-        _followee_count(context, data_dict, model.UserFollowingDataset,
-            skip_validation=True),
-        _followee_count(context, data_dict, model.UserFollowingGroup,
-            skip_validation=True),
-        ))
+    followee_users = _followee_count(context, data_dict,
+            model.UserFollowingUser)
+
+    # followee_users has validated data_dict so the following functions don't
+    # need to validate it again.
+    context['skip_validation'] = True
+
+    followee_datasets = _followee_count(context, data_dict,
+            model.UserFollowingDataset)
+    followee_groups = _followee_count(context, data_dict,
+            model.UserFollowingGroup)
+
+    return sum(followee_users, followee_datasets, followee_groups)
 
 
 def user_followee_count(context, data_dict):
@@ -2446,12 +2452,12 @@ def followee_list(context, data_dict):
     # Get the followed objects.
     # TODO: Catch exceptions raised by these *_followee_list() functions?
     followee_dicts = []
+    context['skip_validation'] = True
     for followee_list_function, followee_type in (
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
             (group_followee_list, 'group')):
-        dicts = followee_list_function(context, data_dict,
-                skip_validation=True)
+        dicts = followee_list_function(context, data_dict)
         for d in dicts:
             followee_dicts.append(
                     {'type': followee_type,
@@ -2472,7 +2478,7 @@ def followee_list(context, data_dict):
     return followee_dicts
 
 
-def user_followee_list(context, data_dict, skip_validation=False):
+def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
 
     :param id: the id of the user
@@ -2481,7 +2487,7 @@ def user_followee_list(context, data_dict, skip_validation=False):
     :rtype: list of dictionaries
 
     '''
-    if not skip_validation:
+    if not context.get('skip_validation'):
         schema = context.get('schema') or (
                 ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
@@ -2500,7 +2506,7 @@ def user_followee_list(context, data_dict, skip_validation=False):
     # Dictize the list of User objects.
     return model_dictize.user_list_dictize(users, context)
 
-def dataset_followee_list(context, data_dict, skip_validation=False):
+def dataset_followee_list(context, data_dict):
     '''Return the list of datasets that are followed by the given user.
 
     :param id: the id or name of the user
@@ -2509,7 +2515,7 @@ def dataset_followee_list(context, data_dict, skip_validation=False):
     :rtype: list of dictionaries
 
     '''
-    if not skip_validation:
+    if not context.get('skip_validation'):
         schema = context.get('schema') or (
                 ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
@@ -2529,7 +2535,7 @@ def dataset_followee_list(context, data_dict, skip_validation=False):
     return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
 
 
-def group_followee_list(context, data_dict, skip_validation=False):
+def group_followee_list(context, data_dict):
     '''Return the list of groups that are followed by the given user.
 
     :param id: the id or name of the user
@@ -2538,7 +2544,7 @@ def group_followee_list(context, data_dict, skip_validation=False):
     :rtype: list of dictionaries
 
     '''
-    if not skip_validation:
+    if not context.get('skip_validation'):
         schema = context.get('schema',
                 ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
