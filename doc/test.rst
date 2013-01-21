@@ -71,7 +71,7 @@ file instead, for example::
      nosetests --ckan --with-pylons=test-core.ini ckanext
      nosetests --ckan --with-pylons=test-core.ini ckan ckanext
 
-The speed of the PostgreSQL tesrs can be improved by running PostgreSQL in
+The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
