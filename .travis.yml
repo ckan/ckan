@@ -26,7 +26,7 @@ before_script:
   - sed -i -e 's/ -W//g' ckanext/datastore/bin/datastore_setup.py
   - paster datastore set-permissions postgres
 script:
-  - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext -v"
+  - "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext"
 notifications:
   irc:
     channels:
