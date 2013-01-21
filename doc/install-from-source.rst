@@ -176,7 +176,9 @@ You should see ``Initialising DB: SUCCESS``.
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. note ::
-  You are not required to set up the DataStore. Learn more in the :doc:`DataStore section of the documentation<datastore>`.
+  Setting up the DataStore is optional. However, if you do skip this step,
+  the :doc:`DataStore features<datastore>` will not be available and the
+  DataStore tests will fail.
 
 Follow the instructions in :doc:`datastore-setup` to create the required
 databases and users, set the right permissions and set the appropriate values
