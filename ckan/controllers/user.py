@@ -254,7 +254,7 @@ class UserController(base.BaseController):
                                        data_dict)
 
         c.is_myself = True
-        c.show_email_notifications = asbool(
+        c.show_email_notifications = h.asbool(
                 config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
