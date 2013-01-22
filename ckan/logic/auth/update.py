@@ -14,13 +14,17 @@ def package_update(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
 
-    if not new_authz.auth_is_registered_user():
-        check1 = new_authz.check_config_permission('anon_create_dataset')
-    if check1:
-        if package.owner_org:
-            check1 = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'update_dataset')
+    if package.owner_org:
+        # if there is an owner org then we must have update_dataset
+        # premission for that organization
+        check1 = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'update_dataset')
+    else:
+        # If dataset is not owned then we can edit if config permissions allow
+        if new_authz.auth_is_registered_user():
+            check1 = new_authz.check_config_permission(
+                'create_dataset_if_not_in_organization')
         else:
-            check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization')
+             check1 = new_authz.check_config_permission('anon_create_dataset')))
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
