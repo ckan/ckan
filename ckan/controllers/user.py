@@ -33,6 +33,7 @@ ValidationError = logic.ValidationError
 DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
 
+
 class UserController(base.BaseController):
 
     def __before__(self, action, **env):
@@ -72,7 +73,7 @@ class UserController(base.BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.about_formatted =  self._format_about(user_dict['about'])
+        c.about_formatted = self._format_about(user_dict['about'])
 
     ## end hooks
 
@@ -127,17 +128,17 @@ class UserController(base.BaseController):
         # profile page, new templates do not.
         if h.asbool(config.get('ckan.legacy_templates', False)):
             c.user_activity_stream = get_action('user_activity_list_html')(
-                    context, {'id': c.user_dict['id']})
+                context, {'id': c.user_dict['id']})
 
         return render('user/read.html')
 
     def me(self, locale=None):
         if not c.user:
             h.redirect_to(locale=locale, controller='user', action='login',
-                    id=None)
+                          id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(locale=locale, controller='user', action='dashboard',
-                id=user_ref)
+                      id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -257,7 +258,7 @@ class UserController(base.BaseController):
 
         c.is_myself = True
         c.show_email_notifications = h.asbool(
-                config.get('ckan.activity_streams_email_notifications'))
+            config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -307,7 +308,7 @@ class UserController(base.BaseController):
                 self._get_repoze_handler('login_handler_path'),
                 came_from=came_from)
             if error:
-                vars = {'error_summary': {'':error}}
+                vars = {'error_summary': {'': error}}
             else:
                 vars = {}
             return render('user/login.html', extra_vars=vars)
@@ -524,7 +525,7 @@ class UserController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(id))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.extra_msg)
@@ -544,7 +545,7 @@ class UserController(base.BaseController):
             h.flash_error(error_message)
         except ValidationError as e:
             error_message = (e.error_summary or e.message or e.extra_msg
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
 
