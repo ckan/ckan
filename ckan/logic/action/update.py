@@ -1,5 +1,6 @@
 import logging
 import datetime
+import json
 
 import pylons
 from pylons.i18n import _
@@ -17,6 +18,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications
+import ckan.lib.search as search
 
 log = logging.getLogger(__name__)
 
@@ -1072,3 +1074,53 @@ def package_owner_org_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.Session.commit()
+
+
+def _bulk_update_dataset(context, data_dict, update_dict):
+    ''' Bulk update shared code '''
+
+    datasets = data_dict.get('datasets', [])
+    model = context['model']
+
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .update(update_dict, synchronize_session=False)
+
+    # revisions
+    model.Session.query(model.package_revision_table) \
+        .filter(model.PackageRevision.id.in_(datasets)) \
+        .filter(model.PackageRevision.current == True) \
+        .update(update_dict, synchronize_session=False)
+
+    model.Session.commit()
+
+    # solr update here
+    # FIXME can this be made more efficient?
+    psi = search.PackageSearchIndex()
+    for id in datasets:
+        query = search.PackageSearchQuery()
+        q = {
+            'rows': 1,
+            'q': 'id:%s' % (id),
+            'fl': 'data_dict',
+            'wt': 'json',
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
+
+        data_dict = json.loads(query.run(q)['results'][0]['data_dict'])
+        data_dict.update(update_dict)
+        psi.index_package(data_dict)
+
+def bulk_update_private(context, data_dict):
+    ''' make a list of datasets private '''
+
+    _bulk_update_dataset(context, data_dict, {'private': True})
+
+def bulk_update_public(context, data_dict):
+    ''' make a list of datasets public '''
+
+    _bulk_update_dataset(context, data_dict, {'private': False})
+
+def bulk_update_delete(context, data_dict):
+    ''' make a list of datasets deleted '''
+
+    _bulk_update_dataset(context, data_dict, {'state': 'deleted'})
