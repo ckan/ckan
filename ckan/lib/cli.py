@@ -401,7 +401,7 @@ class RDFExport(CkanCommand):
             # default to run
             print RDFExport.__doc__
         else:
-            self.export_datasets( self.args[0] )
+            self.export_datasets(self.args[0])
 
     def export_datasets(self, out_folder):
         '''
@@ -415,31 +415,34 @@ class RDFExport(CkanCommand):
         import ckan.lib.helpers as h
 
         # Create output folder if not exists
-        if not os.path.isdir( out_folder ):
-            os.makedirs( out_folder )
+        if not os.path.isdir(out_folder):
+            os.makedirs(out_folder)
 
         fetch_url = config['ckan.site_url']
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
+        user = logic.get_action('get_site_user')(
+            {'model': model, 'ignore_auth': True}, {}
+        )
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': user['name']}
         dataset_names = logic.get_action('package_list')(context, {})
         for dataset_name in dataset_names:
-            dd = logic.get_action('package_show')(context, {'id':dataset_name })
+            dd = logic.get_action('package_show')(
+                context, {'id': dataset_name}
+            )
             if not dd['state'] == 'active':
                 continue
 
-            url = h.url_for( controller='package',action='read',
-                                                  id=dd['name'])
-
+            url = h.url_for(controller='package', action='read', id=dd['name'])
             url = urlparse.urljoin(fetch_url, url) + '.rdf'
+
             try:
-                fname = os.path.join( out_folder, dd['name'] ) + ".rdf"
+                fname = os.path.join(out_folder, dd['name']) + ".rdf"
                 r = urllib2.urlopen(url).read()
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
-                sys.stderr.write(url + ":\t" + str(ioe) + "\n" )
-
-
+                sys.stderr.write(url + ":\t" + str(ioe) + "\n")
 
 
 class Sysadmin(CkanCommand):
@@ -870,15 +873,17 @@ class Ratings(CkanCommand):
             rating.purge()
         model.repo.commit_and_remove()
 
+
 ## Used by the Tracking class
 _ViewCount = collections.namedtuple("ViewCount", "id name count")
+
 
 class Tracking(CkanCommand):
     '''Update tracking statistics
 
     Usage:
-      tracking update [start-date]          - update tracking stats
-      tracking export <file> [start-date]   - export tracking stats to a csv file
+      tracking update [start-date]        - update tracking stats
+      tracking export <file> [start-date] - export tracking stats to a csv file
     '''
 
     summary = __doc__.split('\n')[0]
@@ -943,11 +948,9 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
-
-        return [ _ViewCount(*t) for t in engine.execute(sql).fetchall() ]
+        return [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
 
     def _recent_views(self, engine, measure_from):
-
         sql = '''
             SELECT p.id,
                    p.name,
@@ -958,35 +961,52 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
+        return [_ViewCount(*t)
+                for t in engine.execute(
+                    sql, measure_from=str(measure_from)
+                ).fetchall()]
 
-        return [ _ViewCount(*t) for t in engine.execute(
-                        sql,
-                        measure_from=str(measure_from)
-                    ).fetchall() ]
+    def _publisher_names(self, dataset_ids):
+        import ckan.model as model
+        import ckan.logic as logic
+
+        user = logic.get_action('get_site_user')(
+            {'model': model, 'ignore_auth': True}, {}
+        )
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': user['name']}
+
+        dataset = logic.get_action('package_show')
+        return dict((id, dataset(context, {'id': id}).get('published_by', ''))
+                    for id in dataset_ids)
 
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
 
         HEADINGS = [
-                "dataset id",
-                "dataset name",
-                "total views",
-                "recent views (last 2 weeks)",
+            "dataset id",
+            "dataset name",
+            "publisher name",
+            "total views",
+            "recent views (last 2 weeks)",
         ]
 
         measure_from = datetime.date.today() - datetime.timedelta(days=14)
         recent_views = self._recent_views(engine, measure_from)
         total_views = self._total_views(engine)
+        publisher_names = self._publisher_names([r.id for r in recent_views])
 
         with open(output_filename, 'w') as fh:
             f_out = csv.writer(fh)
             f_out.writerow(HEADINGS)
-            recent_views_for_id = dict( (r.id, r.count) for r in recent_views )
-            f_out.writerows([ (r.id,
-                               r.name,
-                               r.count,
-                               recent_views_for_id.get(r.id, 0))
-                                    for r in total_views ])
+            recent_views_for_id = dict((r.id, r.count) for r in recent_views)
+            f_out.writerows([(r.id,
+                              r.name,
+                              publisher_names.get(r.id, ''),
+                              r.count,
+                              recent_views_for_id.get(r.id, 0))
+                             for r in total_views])
 
     def update_tracking(self, engine, summary_date):
         PACKAGE_URL = '/dataset/'
@@ -1056,6 +1076,7 @@ class Tracking(CkanCommand):
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
         engine.execute(sql)
+
 
 class PluginInfo(CkanCommand):
     ''' Provide info on installed plugins.
