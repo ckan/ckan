@@ -189,3 +189,18 @@ def group_update_rest(context, data_dict):
 def package_owner_org_update(context, data_dict):
     # sysadmins only
     return {'success': False}
+
+
+def bulk_update_private(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
+def bulk_update_public(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
+def bulk_update_delete(context, data_dict):
+    # sysadmins only
+    return {'success': False}
