@@ -1118,14 +1118,17 @@ def _bulk_update_dataset(context, data_dict, update_dict):
 def bulk_update_private(context, data_dict):
     ''' make a list of datasets private '''
 
+    _check_access('bulk_update_private', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': True})
 
 def bulk_update_public(context, data_dict):
     ''' make a list of datasets public '''
 
+    _check_access('bulk_update_public', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': False})
 
 def bulk_update_delete(context, data_dict):
     ''' make a list of datasets deleted '''
 
+    _check_access('bulk_update_delete', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'state': 'deleted'})

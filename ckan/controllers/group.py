@@ -6,6 +6,7 @@ from urllib import urlencode
 
 from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
+import ckan.lib.base as base
 from pylons.i18n import get_lang, _
 from ckan.lib.helpers import Page
 import ckan.lib.maintain as maintain
@@ -329,9 +330,13 @@ class GroupController(BaseController):
 
         data_dict = {'datasets': datasets, 'group_id': group_dict['id']}
 
-        get_action(action_functions[action])(context, data_dict)
+        try:
+            get_action(action_functions[action])(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to perform bulk update'))
         # TODO @JohnMartin we need to do some styling of the bulk process form including the div that makes the form bigger and the corresponding FIXME in package/snippets/search-form.html
-
+        base.redirect(h.url_for(controller='organization', action='bulk_process',
+                           id=id))
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
