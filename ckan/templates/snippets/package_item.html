@@ -22,6 +22,9 @@ Example:
 <li class="{{ item_class or "dataset-item" }}">
   {% block package_item_content %}
     <div class="dataset-content">
+      {% if bulk_processing %}
+        <input type="checkbox" name="dataset_{{ package.id }}" />
+      {% endif %}
       <h3 class="dataset-heading">
         {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
         {% if package.get('state', '').startswith('draft') %}
