@@ -316,7 +316,7 @@ class GroupController(BaseController):
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
 
-        action = request.params.get('action')
+        action = request.params.get('bulk_action')
         # If no action then just show the datasets
         if not action:
             c.bulk_processing = True
@@ -327,6 +327,17 @@ class GroupController(BaseController):
         for param in request.params:
             if param.startswith('dataset_'):
                 datasets.append(param[8:])
+
+        action_functions = {
+            'private': 'bulk_update_private',
+            'public': 'bulk_update_public',
+            'delete': 'bulk_update_delete',
+        }
+
+        print action
+        data_dict = {'datasets': datasets}
+
+        get_action(action_functions[action])(context, data_dict)
 
         # OK we are now ready to process the action
 
