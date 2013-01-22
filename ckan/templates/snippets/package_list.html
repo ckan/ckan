@@ -8,7 +8,6 @@ hide_resources - If true hides the resources (default: false).
 banner         - If true displays a popular banner (default: false).
 truncate       - The length to trucate the description to (default: 180)
 truncate_title - The length to truncate the title to (default: 80).
-bulk_processing - If this dataset listing is for bulk processing
 
 Example:
 
@@ -16,25 +15,9 @@ Example:
 
 #}
 {% if packages %}
-  {% if bulk_processing %}
-     <p>PLACEHOLDER:  select/deselect all and actions</p>
-     <label>
-       <input type="radio" name="bulk_action" value="delete" />
-       {{ _('Delete') }}
-    </label>
-     <label>
-       <input type="radio" name="bulk_action" value="public" />
-       {{ _('Make public') }}
-    </label>
-     <label>
-       <input type="radio" name="bulk_action" value="private" />
-       {{ _('Make private') }}
-    </label>
-    <button name="action" type="submit" value="private">{{ _('Action') }}</button>
-  {% endif %}
   <ul class="{{ list_class or 'dataset-list unstyled' }}">
     {% for package in packages %}
-      {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources, banner=banner, truncate=truncate, truncate_title=truncate_title, bulk_processing=bulk_processing %}
+      {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources, banner=banner, truncate=truncate, truncate_title=truncate_title %}
     {% endfor %}
   </ul>
 {% endif %}
