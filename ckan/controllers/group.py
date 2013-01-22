@@ -65,6 +65,10 @@ class GroupController(BaseController):
     def _admins_template(self, group_type):
         return lookup_group_plugin(group_type).admins_template()
 
+    def _bulk_process_template(self, group_type):
+        return lookup_group_plugin(group_type).bulk_process_template()
+
+
     ## end hooks
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
@@ -303,7 +307,7 @@ class GroupController(BaseController):
         data_dict = {'id': id}
 
         try:
-            group_dict = self._action('group_show')(context, data_dict)
+            c.group_dict = self._action('group_show')(context, data_dict)
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
@@ -313,8 +317,58 @@ class GroupController(BaseController):
         action = request.params.get('bulk_action')
         # If no action then just show the datasets
         if not action:
-            c.bulk_processing = True
-            return self.read(id=id, limit=1000)
+            # unicode format (decoded from utf8)
+            q = 'groups: "%s"' % c.group_dict.get('name')
+
+            limit = 30
+            # context['return_query'] = True
+
+            try:
+                page = int(request.params.get('page', 1))
+            except ValueError, e:
+                abort(400, ('"page" parameter must be an integer'))
+
+            sort_by = request.params.get('sort', None)
+
+            def pager_url(q=None, page=None):
+                url = self._url_for(controller='group', action='bulk_process',
+                                id=c.group_dict.get('name'))
+                return url + u'?page=' + str(page)
+
+            try:
+                search_extras = {}
+                fq = ''
+
+                data_dict = {
+                    'q': q,
+                    'fq': fq,
+                    'facet.field': g.facets,
+                    'rows': limit,
+                    'sort': sort_by,
+                    'start': (page - 1) * limit,
+                    'extras': search_extras,
+                }
+
+                query = get_action('package_search')(context, data_dict)
+
+                c.page = h.Page(
+                    collection=query['results'],
+                    page=page,
+                    url=pager_url,
+                    item_count=query['count'],
+                    items_per_page=limit
+                )
+
+                c.packages = query['results']
+
+
+            except search.SearchError, se:
+                log.error('Group search error: %r', se.args)
+                c.query_error = True
+                c.facets = {}
+                c.page = h.Page(collection=[])
+
+            return render(self._bulk_process_template(group_type))
 
         # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
         datasets = []
@@ -328,13 +382,12 @@ class GroupController(BaseController):
             'delete': 'bulk_update_delete',
         }
 
-        data_dict = {'datasets': datasets, 'group_id': group_dict['id']}
+        data_dict = {'datasets': datasets, 'group_id': c.group_dict['id']}
 
         try:
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             abort(401, _('Not authorized to perform bulk update'))
-        # TODO @JohnMartin we need to do some styling of the bulk process form including the div that makes the form bigger and the corresponding FIXME in package/snippets/search-form.html
         base.redirect(h.url_for(controller='organization', action='bulk_process',
                            id=id))
 

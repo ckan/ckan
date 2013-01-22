@@ -374,6 +374,13 @@ class DefaultGroupForm(object):
         """
         return 'group/admins.html'
 
+    def bulk_process_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the bulk_process page
+        """
+        return 'group/bulk_process.html'
+
     def about_template(self):
         '''Return the path to the template for the group's 'about' page.
 
