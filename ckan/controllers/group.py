@@ -287,10 +287,6 @@ class GroupController(BaseController):
         ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
 
-
-        # unicode format (decoded from utf8)
-        q = c.q = request.params.get('q', '')
-
         group_type = self._get_group_type(id.split('@')[0])
 
         if group_type  != 'organization':
@@ -306,16 +302,13 @@ class GroupController(BaseController):
         data_dict = {'id': id}
 
         try:
-            c.group_dict = self._action('group_show')(context, data_dict)
-            c.group = context['group']
+            group_dict = self._action('group_show')(context, data_dict)
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
         # Search within group
-        q += ' groups: "%s"' % c.group_dict.get('name')
-
         action = request.params.get('bulk_action')
         # If no action then just show the datasets
         if not action:
@@ -334,13 +327,9 @@ class GroupController(BaseController):
             'delete': 'bulk_update_delete',
         }
 
-        print action
-        data_dict = {'datasets': datasets}
+        data_dict = {'datasets': datasets, 'group_id': group_dict['id']}
 
         get_action(action_functions[action])(context, data_dict)
-
-        # OK we are now ready to process the action
-
         # TODO @JohnMartin we need to do some styling of the bulk process form including the div that makes the form bigger and the corresponding FIXME in package/snippets/search-form.html
 
 
