@@ -2372,7 +2372,7 @@ def followee_count(context, data_dict):
     followee_groups = _followee_count(context, data_dict,
             model.UserFollowingGroup)
 
-    return sum(followee_users, followee_datasets, followee_groups)
+    return sum((followee_users, followee_datasets, followee_groups))
 
 
 def user_followee_count(context, data_dict):
