@@ -1072,15 +1072,9 @@ def follow_count(obj_type, obj_id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
-
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
     ''' internal function for building urls with parameters. '''
-
-    def url_with_params(url, params):
-        params = [(k, v.encode('utf-8') if isinstance(v, basestring) else \
-                 str(v)) for k, v in params]
-        return url + u'?' + urllib.urlencode(params)
 
     if not controller:
         controller = c.controller
@@ -1090,7 +1084,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
         extras = {}
 
     url = url_for(controller=controller, action=action, **extras)
-    return url_with_params(url, params)
+    return _url_with_params(url, params)
 
 def add_url_param(alternative_url=None, controller=None, action=None,
                    extras=None, new_params=None):
@@ -1100,19 +1094,23 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = set(params_nopage)
     if new_params:
         params |= set(new_params.items())
     if alternative_url:
-        return url_with_params(alternative_url, params)
+        return _url_with_params(alternative_url, params)
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
 
 def remove_url_param(key, value=None, replace=None, controller=None,
-                     action=None, extras=None):
+                     action=None, extras=None, alternative_url=None):
     ''' Remove a key from the current parameters. A specific key/value
     pair can be removed by passing a second value argument otherwise all
     pairs matching the key will be removed. If replace is given then a
@@ -1121,6 +1119,9 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
@@ -1130,6 +1131,10 @@ def remove_url_param(key, value=None, replace=None, controller=None,
         [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
         params.append((key, replace))
+
+    if alternative_url:
+        return _url_with_params(alternative_url, params)
+
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 

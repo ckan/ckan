@@ -453,6 +453,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
+        #######  insert with paramter id rather than resource_id which is a shortcut
+        data8 = {
+            'id': resource.id,
+            'records': [{'boo%k': 'warandpeace'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data8)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
+
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
 

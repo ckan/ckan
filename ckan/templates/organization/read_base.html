@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block actions_content %}
-  {% if h.check_access('organization_update', {'id': c.group.id}) %}
+  {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
     <li>{% link_for _('Add Dataset to Organization'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
     <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
