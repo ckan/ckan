@@ -1077,18 +1077,22 @@ def package_owner_org_update(context, data_dict):
 
 
 def _bulk_update_dataset(context, data_dict, update_dict):
-    ''' Bulk update shared code '''
+    ''' Bulk update shared code for organizations'''
 
     datasets = data_dict.get('datasets', [])
+    group_id = data_dict.get('group_id')
+
     model = context['model']
 
     model.Session.query(model.package_table) \
         .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == group_id) \
         .update(update_dict, synchronize_session=False)
 
     # revisions
     model.Session.query(model.package_revision_table) \
         .filter(model.PackageRevision.id.in_(datasets)) \
+        .filter(model.PackageRevision.owner_org == group_id) \
         .filter(model.PackageRevision.current == True) \
         .update(update_dict, synchronize_session=False)
 
@@ -1107,8 +1111,9 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
         data_dict = json.loads(query.run(q)['results'][0]['data_dict'])
-        data_dict.update(update_dict)
-        psi.index_package(data_dict)
+        if data_dict['owner_org'] == group_id:
+            data_dict.update(update_dict)
+            psi.index_package(data_dict)
 
 def bulk_update_private(context, data_dict):
     ''' make a list of datasets private '''
