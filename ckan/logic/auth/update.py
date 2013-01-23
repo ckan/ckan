@@ -24,7 +24,7 @@ def package_update(context, data_dict):
             check1 = new_authz.check_config_permission(
                 'create_dataset_if_not_in_organization')
         else:
-             check1 = new_authz.check_config_permission('anon_create_dataset')))
+            check1 = new_authz.check_config_permission('anon_create_dataset')
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
     else:
