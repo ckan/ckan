@@ -363,6 +363,88 @@ class BaseController(WSGIController):
         return user
 
 
+    @classmethod
+    def _get_request_data(cls, try_url_params=False):
+        '''Returns a dictionary, extracted from a request.
+
+        If there is no data, None or "" is returned.
+        ValueError will be raised if the data is not a JSON-formatted dict.
+
+        The data is retrieved as a JSON-encoded dictionary from the request
+        body.  Or, if the `try_url_params` argument is True and the request is
+        a GET request, then an attempt is made to read the data from the url
+        parameters of the request.
+
+        try_url_params
+            If try_url_params is False, then the data_dict is read from the
+            request body.
+
+            If try_url_params is True and the request is a GET request then the
+            data is read from the url parameters.  The resulting dict will only
+            be 1 level deep, with the url-param fields being the keys.  If a
+            single key has more than one value specified, then the value will
+            be a list of strings, otherwise just a string.
+
+        This function is only used by the API, so no strings need to be
+        translated.
+
+        TODO: If this is only used by the API, then perhaps it should be
+              moved to the api controller class?
+        '''
+        cls.log.debug('Retrieving request params: %r' % request.params)
+        cls.log.debug('Retrieving request POST: %r' % request.POST)
+        cls.log.debug('Retrieving request GET: %r' % request.GET)
+        request_data = None
+        if request.POST:
+            try:
+                keys = request.POST.keys()
+                # Parsing breaks if there is a = in the value, so for now
+                # we will check if the data is actually all in a single key
+                if keys and request.POST[keys[0]] in [u'1', u'']:
+                    request_data = keys[0]
+                else:
+                    request_data = urllib.unquote_plus(request.body)
+            except Exception, inst:
+                msg = "Could not find the POST data: %r : %s" % \
+                      (request.POST, inst)
+                raise ValueError(msg)
+
+        elif try_url_params and request.GET:
+            return request.GET.mixed()
+
+        else:
+            try:
+                if request.method in ['POST', 'PUT']:
+                    request_data = request.body
+                else:
+                    request_data = None
+            except Exception, inst:
+                msg = "Could not extract request body data: %s" % \
+                      (inst)
+                raise ValueError(msg)
+            cls.log.debug('Retrieved request body: %r' % request.body)
+            if not request_data:
+                msg = "No request body data"
+                raise ValueError(msg)
+        if request_data:
+            try:
+                request_data = json.loads(request_data, encoding='utf8')
+            except ValueError, e:
+                raise ValueError('Error decoding JSON data. '
+                                 'Error: %r '
+                                 'JSON data extracted from the request: %r' %
+                                 (e, request_data))
+            if not isinstance(request_data, dict):
+                raise ValueError('Request data JSON decoded to %r but '
+                                 'it needs to be a dictionary.' % request_data)
+            # ensure unicode values
+            for key, val in request_data.items():
+                # if val is str then assume it is ascii, since json converts
+                # utf8 encoded JSON to unicode
+                request_data[key] = cls._make_unicode(val)
+        cls.log.debug('Request data extracted: %r' % request_data)
+        return request_data
+
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')
            or __name == '_']
