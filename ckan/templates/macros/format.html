@@ -1,4 +1,0 @@
-{% macro num(num) %}
-	{% set num = num|int %}
-	<span class="{% if num > 99999 %}smallest{% elif num > 9999 %}smaller{% elif num > 999 %}small{% endif %}">{{num}}</span>
-{% endmacro %}
