@@ -154,6 +154,7 @@ class GroupController(BaseController):
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
+
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
 
@@ -165,6 +166,18 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
+        self._read(id, limit)
+        return render(self._read_template(c.group_dict['type']))
+
+    def _read(self, id, limit):
+        ''' This is common code used by both read and bulk_process'''
+        group_type = self._get_group_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+
+        q = c.q = request.params.get('q', '')
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
 
@@ -285,7 +298,6 @@ class GroupController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render(self._read_template(c.group_dict['type']))
 
 
     def bulk_process(self, id):
@@ -308,6 +320,7 @@ class GroupController(BaseController):
 
         try:
             c.group_dict = self._action('group_show')(context, data_dict)
+            c.group = context['group']
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
@@ -318,56 +331,9 @@ class GroupController(BaseController):
         # If no action then just show the datasets
         if not action:
             # unicode format (decoded from utf8)
-            q = 'groups: "%s"' % c.group_dict.get('name')
-
-            limit = 30
-            # context['return_query'] = True
-
-            try:
-                page = int(request.params.get('page', 1))
-            except ValueError, e:
-                abort(400, ('"page" parameter must be an integer'))
-
-            sort_by = request.params.get('sort', None)
-
-            def pager_url(q=None, page=None):
-                url = self._url_for(controller='group', action='bulk_process',
-                                id=c.group_dict.get('name'))
-                return url + u'?page=' + str(page)
-
-            try:
-                search_extras = {}
-                fq = ''
-
-                data_dict = {
-                    'q': q,
-                    'fq': fq,
-                    'facet.field': g.facets,
-                    'rows': limit,
-                    'sort': sort_by,
-                    'start': (page - 1) * limit,
-                    'extras': search_extras,
-                }
-
-                query = get_action('package_search')(context, data_dict)
-
-                c.page = h.Page(
-                    collection=query['results'],
-                    page=page,
-                    url=pager_url,
-                    item_count=query['count'],
-                    items_per_page=limit
-                )
-
-                c.packages = query['results']
-
-
-            except search.SearchError, se:
-                log.error('Group search error: %r', se.args)
-                c.query_error = True
-                c.facets = {}
-                c.page = h.Page(collection=[])
-
+            limit = 1000
+            self._read(id, limit)
+            c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
 
         # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
