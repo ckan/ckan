@@ -11,8 +11,6 @@ Example:
 
 #}
 
-{% import "macros/format.html" as format %}
-
 {% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
   <div class="module profile-info">
     <section class="module-content">
@@ -33,11 +31,11 @@ Example:
       <div class="nums">
         <dl>
           <dt>{{ _('Members') }}</dt>
-          <dd>{{ format.num(organization.members|length) }}</dd>
+          <dd>{{ h.follower_number(organization.members|length) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ format.num(organization.packages|length) }}</dd>
+          <dd>{{ h.follower_number(organization.packages|length) }}</dd>
         </dl>
       </div>
     </section>

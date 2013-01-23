@@ -1,5 +1,3 @@
-{% import "macros/format.html" as format %}
-
 <div class="popover-context profile-info">
 	{% if notes != 'null' %}
 		{% set notes = notes|striptags %}
@@ -17,11 +15,11 @@
 	<div class="nums">
 		<dl>
 			<dt>{{ _('Resources') }}</dt>
-			<dd>{{ format.num(num_resources) }}</dd>
+			<dd>{{ h.follower_number(num_resources) }}</dd>
 		</dl>
 		<dl>
 			<dt>{{ _('Tags') }}</dt>
-			<dd>{{ format.num(num_tags) }}</dd>
+			<dd>{{ h.follower_number(num_tags) }}</dd>
 		</dl>
 	</div>
 </div>
