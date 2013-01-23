@@ -189,6 +189,9 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict[TYPE_FIELD] = PACKAGE_TYPE
 
+        # Save dataset type
+        pkg_dict['dataset_type'] = pkg_dict['type']
+
         pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
 
         for k in ('title', 'notes', 'title_string'):
