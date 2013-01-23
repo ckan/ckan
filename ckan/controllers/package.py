@@ -722,6 +722,11 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         vars['pkg_name'] = id
+
+        package_type = self._get_package_type(id)
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
