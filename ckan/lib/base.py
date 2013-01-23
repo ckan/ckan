@@ -45,7 +45,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
                   comment=comment)
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None, 
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate):
+           cache_expire=None, method='html', loader_class=MarkupTemplate):
     
     def render_template():
         globs = extra_vars or {}
