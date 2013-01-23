@@ -588,7 +588,7 @@ def check_access(action, data_dict=None):
     context = {'model': model,
                 'user': c.user or c.author}
     try:
-        logic.check_access_logic(action, context, data_dict)
+        logic.check_access(action, context, data_dict)
         authorized = True
     except logic.NotAuthorized:
         authorized = False
