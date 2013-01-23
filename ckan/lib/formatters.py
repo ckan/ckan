@@ -111,7 +111,7 @@ def localised_filesize(number):
         return localised_number(float(number * 10 / divisor) / 10)
 
     if number < 1024:
-        return _('{bytes} bytes').format(bytes=number)
+        return _('{bytes} bytes').format(bytes=localised_number(number))
     elif number < 1024 ** 2:
         return _('{kibibytes} KiB').format(kibibytes=rnd(number, 1024))
     elif number < 1024 ** 3:
