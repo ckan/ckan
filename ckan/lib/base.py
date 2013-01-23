@@ -445,6 +445,24 @@ class BaseController(WSGIController):
         cls.log.debug('Request data extracted: %r' % request_data)
         return request_data
 
+    @classmethod
+    def _make_unicode(cls, entity):
+        """Cast bare strings and strings in lists or dicts to Unicode
+        """
+        if isinstance(entity, str):
+            return unicode(entity)
+        elif isinstance(entity, list):
+            new_items = []
+            for item in entity:
+                new_items.append(cls._make_unicode(item))
+            return new_items
+        elif isinstance(entity, dict):
+            new_dict = {}
+            for key, val in entity.items():
+                new_dict[key] = cls._make_unicode(val)
+            return new_dict
+        else:
+            return entity
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')
            or __name == '_']
