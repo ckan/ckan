@@ -1070,6 +1070,7 @@ class TestEdit(TestPackageForm):
         finally:
             self._reset_data()
 
+
 class TestDelete(TestPackageForm):
 
     pkg_names = []
@@ -1080,9 +1081,9 @@ class TestDelete(TestPackageForm):
         CreateTestData.create()
         CreateTestData.create_test_user()
 
-#        self.admin = model.User.by_name(u'russianfan')
+        self.admin = model.User.by_name(u'testsysadmin')
 
-#        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
         self.extra_environ_tester = {'REMOTE_USER': 'tester'}
 
     @classmethod
@@ -1096,7 +1097,10 @@ class TestDelete(TestPackageForm):
 
         offset = url_for(controller='package', action='delete',
                 id='warandpeace')
-        self.app.post(offset, extra_environ=self.extra_environ_tester)
+
+        self.app.post(offset, extra_environ=self.extra_environ_tester, status=401)
+
+        self.app.post(offset, extra_environ=self.extra_environ_admin)
 
         assert model.Package.get('warandpeace').state == u'deleted'
 
@@ -1104,6 +1108,7 @@ class TestDelete(TestPackageForm):
         assert plugin.calls['after_delete'] == 1
 
         plugins.unload(plugin)
+
 
 class TestNew(TestPackageForm):
     pkg_names = []
