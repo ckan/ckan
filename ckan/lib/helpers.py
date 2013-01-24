@@ -1428,7 +1428,7 @@ def resource_preview(resource, pkg_id):
         )
 
 
-def follower_number(number):
+def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
     number = int(number)
     if number < 1000:
@@ -1515,7 +1515,7 @@ __allowed_functions__ = [
            'render_markdown',
            'format_resource_items',
            'resource_preview',
-           'follower_number',
+           'SI_number_span',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
