@@ -53,6 +53,7 @@ def get_snippet_related_item(activity, detail):
 
 def get_snippet_related_type(activity, detail):
     # FIXME this needs to be translated
+    print activity
     return activity['data']['related']['type']
 
 # activity_stream_string_*() functions return translatable string
@@ -80,6 +81,9 @@ def activity_stream_string_changed_resource(context, activity):
 
 def activity_stream_string_changed_user(context, activity):
     return _("{actor} updated their profile")
+
+def activity_stream_string_changed_related_item(context, activity):
+    return _("{actor} updated the {related_type} {related_item}")
 
 def activity_stream_string_deleted_group(context, activity):
     return _("{actor} deleted the group {group}")
@@ -156,6 +160,7 @@ activity_stream_string_functions = {
   'changed package_extra': activity_stream_string_changed_package_extra,
   'changed resource': activity_stream_string_changed_resource,
   'changed user': activity_stream_string_changed_user,
+  'changed related item': activity_stream_string_changed_related_item,
   'deleted group': activity_stream_string_deleted_group,
   'deleted organization': activity_stream_string_deleted_organization,
   'deleted package': activity_stream_string_deleted_package,
