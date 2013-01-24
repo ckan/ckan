@@ -15,11 +15,11 @@
 	<div class="nums">
 		<dl>
 			<dt>{{ _('Followers') }}</dt>
-			<dd>{{ num_followers }}</dd>
+			<dd>{{ h.SI_number_span(num_followers) }}</dd>
 		</dl>
 		<dl>
 			<dt>{{ _('Datasets') }}</dt>
-			<dd>{{ num_datasets }}</dd>
+			<dd>{{ h.SI_number_span(num_datasets) }}</dd>
 		</dl>
 	</div>
 </div>
