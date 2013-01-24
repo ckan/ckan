@@ -127,6 +127,8 @@ def related_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+    userobj = model.User.get(user)
+    session = context['session']
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
 
@@ -144,6 +146,25 @@ def related_update(context, data_dict):
         raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+        'user_id': userobj.id,
+        'object_id': related.id,
+        'activity_type': 'changed related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict
+    }
+    activity_create_context = {
+        'model': model,
+        'user': user,
+        'defer_commit':True,
+        'session': session
+    }
+
+    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.related_dictize(related, context)
