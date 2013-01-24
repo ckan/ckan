@@ -61,6 +61,7 @@ this.ckan.module('popover-context', function($, _) {
 				}
 				this.el.popover({
 					animation: false,
+					html: true,
 					content: this.options.throbber.replace('{SITE_ROOT}', ckan.SITE_ROOT) + this.i18n('loading'),
 					placement: 'bottom'
 				});
