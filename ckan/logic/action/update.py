@@ -1080,19 +1080,19 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     ''' Bulk update shared code for organizations'''
 
     datasets = data_dict.get('datasets', [])
-    group_id = data_dict.get('group_id')
+    org_id = data_dict.get('org_id')
 
     model = context['model']
 
     model.Session.query(model.package_table) \
         .filter(model.Package.id.in_(datasets)) \
-        .filter(model.Package.owner_org == group_id) \
+        .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     # revisions
     model.Session.query(model.package_revision_table) \
         .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == group_id) \
+        .filter(model.PackageRevision.owner_org == org_id) \
         .filter(model.PackageRevision.current == True) \
         .update(update_dict, synchronize_session=False)
 
@@ -1114,7 +1114,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         for result in query.run(q)['results']:
             print result
             data_dict = json.loads(result['data_dict'])
-            if data_dict['owner_org'] == group_id:
+            if data_dict['owner_org'] == org_id:
                 data_dict.update(update_dict)
                 psi.index_package(data_dict, defer_commit=True)
     count = 0

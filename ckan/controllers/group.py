@@ -348,7 +348,7 @@ class GroupController(BaseController):
             'delete': 'bulk_update_delete',
         }
 
-        data_dict = {'datasets': datasets, 'group_id': c.group_dict['id']}
+        data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
 
         try:
             get_action(action_functions[action])(context, data_dict)
