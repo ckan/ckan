@@ -519,11 +519,11 @@ class UserController(base.BaseController):
             followee = None
 
             action_functions = {
-                    'dataset': get_action('package_show'),
-                    'user': get_action('user_show'),
-                    'group': get_action('group_show'),
-                    }
-            action_function = action_functions.get(filter_type)
+                'dataset': 'package_show',
+                'user': 'user_show',
+                'group': 'group_show'
+                }
+            action_function = logic.get_action(action_functions.get(filter_type))
             # Is this a valid type?
             if action_function is None:
                 raise abort(404, _('Follow item not found'))

@@ -1275,17 +1275,17 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
-    action_functions = {
-            'dataset': logic.get_action('package_activity_list_html'),
-            'user': logic.get_action('user_activity_list_html'),
-            'group': logic.get_action('group_activity_list_html'),
+    if filter_type:
+        action_functions = {
+            'dataset': 'package_activity_list_html',
+            'user': 'user_activity_list_html',
+            'group': 'group_activity_list_html'
             }
-    action_function = action_functions.get(filter_type)
-    if action_function is None:
+        action_function = logic.get_action(action_functions.get(filter_type))
+        return action_function(context, {'id': filter_id, 'offset': offset})
+    else:
         return logic.get_action('dashboard_activity_list_html')(
             context, {'id': user_id, 'offset': offset})
-    else:
-        return action_function(context, {'id': filter_id, 'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
