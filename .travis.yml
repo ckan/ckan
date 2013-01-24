@@ -25,7 +25,7 @@ before_script:
   - paster --plugin=ckan db init
   - sed -i -e 's/ -W//g' ckanext/datastore/bin/datastore_setup.py
   - paster datastore set-permissions postgres
-script: "nosetests --ckan ckan && nosetests --ckan --with-pylons=test-core.ini --nologcapture --cover-package=ckanext.datastore ckanext/datastore/tests -x"
+script: "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext"
 notifications:
   irc:
     channels:
