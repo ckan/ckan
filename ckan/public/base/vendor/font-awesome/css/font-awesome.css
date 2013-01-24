@@ -20,26 +20,15 @@
  *  Twitter: http://twitter.com/fortaweso_me
  *  Work: Lead Product Designer @ http://kyruus.com
  */
-
-@FontAwesomePath:   "../font";
-@borderColor:       #eee;
-@iconMuted:         #eee;
-.border-radius(@radius) { -webkit-border-radius: @radius; -moz-border-radius: @radius; border-radius: @radius; }
-
 @font-face {
   font-family: 'FontAwesome';
-  src: url('@{FontAwesomePath}/fontawesome-webfont.eot?v=3.0.1');
-  src: url('@{FontAwesomePath}/fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'),
-    url('@{FontAwesomePath}/fontawesome-webfont.woff?v=3.0.1') format('woff'),
-    url('@{FontAwesomePath}/fontawesome-webfont.ttf?v=3.0.1') format('truetype');
-//    url('@{FontAwesomePath}/fontawesome-webfont.svg#fontawesomeregular?v=3.0.1') format('svg');
-
-//  src: url('@{FontAwesomePath}/FontAwesome.otf') format('opentype');
-
+  src: url('../font/fontawesome-webfont.eot?v=3.0.1');
+  src: url('../font/fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'),
+    url('../font/fontawesome-webfont.woff?v=3.0.1') format('woff'),
+    url('../font/fontawesome-webfont.ttf?v=3.0.1') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
-
 /*  Font Awesome styles
     ------------------------------------------------------- */
 [class^="icon-"],
@@ -50,7 +39,7 @@
   text-decoration: inherit;
   -webkit-font-smoothing: antialiased;
 
-/* sprites.less reset */
+  /* sprites.less reset */
   display: inline;
   width: auto;
   height: auto;
@@ -61,175 +50,184 @@
   background-repeat: repeat;
   margin-top: 0;
 }
-
 /* more sprites.less reset */
-// .icon-white,
-// .nav-pills > .active > a > [class^="icon-"],
-// .nav-pills > .active > a > [class*=" icon-"],
-// .nav-list > .active > a > [class^="icon-"],
-// .nav-list > .active > a > [class*=" icon-"],
-// .navbar-inverse .nav > .active > a > [class^="icon-"],
-// .navbar-inverse .nav > .active > a > [class*=" icon-"],
-// .dropdown-menu > li > a:hover > [class^="icon-"],
-// .dropdown-menu > li > a:hover > [class*=" icon-"],
-// .dropdown-menu > .active > a > [class^="icon-"],
-// .dropdown-menu > .active > a > [class*=" icon-"],
-// .dropdown-submenu:hover > a > [class^="icon-"],
-// .dropdown-submenu:hover > a > [class*=" icon-"] {
-//   background-image: none;
-// }
-
-// [class^="icon-"]:before,
-// [class*=" icon-"]:before {
-//   text-decoration: inherit;
-//   display: inline-block;
-//   speak: none;
-// }
-
+.icon-white,
+.nav-pills > .active > a > [class^="icon-"],
+.nav-pills > .active > a > [class*=" icon-"],
+.nav-list > .active > a > [class^="icon-"],
+.nav-list > .active > a > [class*=" icon-"],
+.navbar-inverse .nav > .active > a > [class^="icon-"],
+.navbar-inverse .nav > .active > a > [class*=" icon-"],
+.dropdown-menu > li > a:hover > [class^="icon-"],
+.dropdown-menu > li > a:hover > [class*=" icon-"],
+.dropdown-menu > .active > a > [class^="icon-"],
+.dropdown-menu > .active > a > [class*=" icon-"],
+.dropdown-submenu:hover > a > [class^="icon-"],
+.dropdown-submenu:hover > a > [class*=" icon-"] {
+  background-image: none;
+}
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
+}
 /* makes sure icons active on rollover in links */
-// a {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     display: inline-block;
-//   }
-// }
-
+a [class^="icon-"],
+a [class*=" icon-"] {
+  display: inline-block;
+}
 /* makes the font 33% larger relative to the icon container */
-// .icon-large:before {
-//   vertical-align: -10%;
-//   font-size: 4/3em;
-// }
+.icon-large:before {
+  vertical-align: -10%;
+  font-size: 1.3333333333333333em;
+}
+.btn [class^="icon-"],
+.nav [class^="icon-"],
+.btn [class*=" icon-"],
+.nav [class*=" icon-"] {
+  display: inline;
+  /* keeps button heights with and without icons the same */
 
-// .btn, .nav {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     display: inline;
-//     /* keeps button heights with and without icons the same */
-//     &.icon-large { line-height: .9em; }
-//     &.icon-spin { display: inline-block; }
-//   }
-// }
+}
+.btn [class^="icon-"].icon-large,
+.nav [class^="icon-"].icon-large,
+.btn [class*=" icon-"].icon-large,
+.nav [class*=" icon-"].icon-large {
+  line-height: .9em;
+}
+.btn [class^="icon-"].icon-spin,
+.nav [class^="icon-"].icon-spin,
+.btn [class*=" icon-"].icon-spin,
+.nav [class*=" icon-"].icon-spin {
+  display: inline-block;
+}
+.nav-tabs [class^="icon-"],
+.nav-pills [class^="icon-"],
+.nav-tabs [class*=" icon-"],
+.nav-pills [class*=" icon-"] {
+  /* keeps button heights with and without icons the same */
 
-// .nav-tabs, .nav-pills {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//   /* keeps button heights with and without icons the same */
-//     &, &.icon-large { line-height: .9em; }
-//   }
-// }
+}
+.nav-tabs [class^="icon-"],
+.nav-pills [class^="icon-"],
+.nav-tabs [class*=" icon-"],
+.nav-pills [class*=" icon-"],
+.nav-tabs [class^="icon-"].icon-large,
+.nav-pills [class^="icon-"].icon-large,
+.nav-tabs [class*=" icon-"].icon-large,
+.nav-pills [class*=" icon-"].icon-large {
+  line-height: .9em;
+}
+li [class^="icon-"],
+.nav li [class^="icon-"],
+li [class*=" icon-"],
+.nav li [class*=" icon-"] {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+li [class^="icon-"].icon-large,
+.nav li [class^="icon-"].icon-large,
+li [class*=" icon-"].icon-large,
+.nav li [class*=" icon-"].icon-large {
+  /* increased font size for icon-large */
 
-// li, .nav li {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     display: inline-block;
-//     width: 1.25em;
-//     text-align: center;
-//     &.icon-large {
-//       /* increased font size for icon-large */
-//       width: 1.25*1.25em;
-//     }
-//   }
-// }
-
-// ul.icons {
-//   list-style-type: none;
-//   text-indent: -.75em;
-
-//   li {
-//     [class^="icon-"],
-//     [class*=" icon-"] {
-//       width: .75em;
-//     }
-//   }
-// }
-
-// .icon-muted {
-//   color: @iconMuted;
-// }
-
-// Icon Borders
-// -------------------------
-
-// .icon-border {
-//   border: solid 1px @borderColor;
-//   padding: .2em .25em .15em;
-//   .border-radius(3px);
-// }
-
-// Icon Sizes
-// -------------------------
-
-// .icon-2x {
-//   font-size: 2em;
-//   &.icon-border {
-//     border-width: 2px;
-//     .border-radius(4px);
-//   }
-// }
-// .icon-3x {
-//   font-size: 3em;
-//   &.icon-border {
-//     border-width: 3px;
-//     .border-radius(5px);
-//   }
-// }
-// .icon-4x {
-//   font-size: 4em;
-//   &.icon-border {
-//     border-width: 4px;
-//     .border-radius(6px);
-//   }
-// }
-
-// // Floats
-// // -------------------------
-
-// // Quick floats
-// .pull-right { float: right; }
-// .pull-left { float: left; }
-
-// [class^="icon-"],
-// [class*=" icon-"] {
-//   &.pull-left {
-//     margin-right: .3em;
-//   }
-//   &.pull-right {
-//     margin-left: .3em;
-//   }
-// }
-
-// .btn {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     &.pull-left, &.pull-right {
-//       &.icon-2x { margin-top: .18em; }
-//     }
-//     &.icon-spin.icon-large { line-height: .8em; }
-//   }
-// }
-
-// .btn.btn-small {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     &.pull-left, &.pull-right {
-//       &.icon-2x { margin-top: .25em; }
-//     }
-//   }
-// }
-
-// .btn.btn-large {
-//   [class^="icon-"],
-//   [class*=" icon-"] {
-//     margin-top: 0; // overrides bootstrap default
-//     &.pull-left, &.pull-right {
-//       &.icon-2x { margin-top: .05em; }
-//     }
-//     &.pull-left.icon-2x { margin-right: .2em; }
-//     &.pull-right.icon-2x { margin-left: .2em; }
-//   }
-// }
-
-
+  width: 1.5625em;
+}
+ul.icons {
+  list-style-type: none;
+  text-indent: -0.75em;
+}
+ul.icons li [class^="icon-"],
+ul.icons li [class*=" icon-"] {
+  width: .75em;
+}
+.icon-muted {
+  color: #eeeeee;
+}
+.icon-border {
+  border: solid 1px #eeeeee;
+  padding: .2em .25em .15em;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.icon-2x {
+  font-size: 2em;
+}
+.icon-2x.icon-border {
+  border-width: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.icon-3x {
+  font-size: 3em;
+}
+.icon-3x.icon-border {
+  border-width: 3px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.icon-4x {
+  font-size: 4em;
+}
+.icon-4x.icon-border {
+  border-width: 4px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+}
+.pull-right {
+  float: right;
+}
+.pull-left {
+  float: left;
+}
+[class^="icon-"].pull-left,
+[class*=" icon-"].pull-left {
+  margin-right: .3em;
+}
+[class^="icon-"].pull-right,
+[class*=" icon-"].pull-right {
+  margin-left: .3em;
+}
+.btn [class^="icon-"].pull-left.icon-2x,
+.btn [class*=" icon-"].pull-left.icon-2x,
+.btn [class^="icon-"].pull-right.icon-2x,
+.btn [class*=" icon-"].pull-right.icon-2x {
+  margin-top: .18em;
+}
+.btn [class^="icon-"].icon-spin.icon-large,
+.btn [class*=" icon-"].icon-spin.icon-large {
+  line-height: .8em;
+}
+.btn.btn-small [class^="icon-"].pull-left.icon-2x,
+.btn.btn-small [class*=" icon-"].pull-left.icon-2x,
+.btn.btn-small [class^="icon-"].pull-right.icon-2x,
+.btn.btn-small [class*=" icon-"].pull-right.icon-2x {
+  margin-top: .25em;
+}
+.btn.btn-large [class^="icon-"],
+.btn.btn-large [class*=" icon-"] {
+  margin-top: 0;
+}
+.btn.btn-large [class^="icon-"].pull-left.icon-2x,
+.btn.btn-large [class*=" icon-"].pull-left.icon-2x,
+.btn.btn-large [class^="icon-"].pull-right.icon-2x,
+.btn.btn-large [class*=" icon-"].pull-right.icon-2x {
+  margin-top: .05em;
+}
+.btn.btn-large [class^="icon-"].pull-left.icon-2x,
+.btn.btn-large [class*=" icon-"].pull-left.icon-2x {
+  margin-right: .2em;
+}
+.btn.btn-large [class^="icon-"].pull-right.icon-2x,
+.btn.btn-large [class*=" icon-"].pull-right.icon-2x {
+  margin-left: .2em;
+}
 .icon-spin {
   display: inline-block;
   -moz-animation: spin 2s infinite linear;
@@ -237,7 +235,6 @@
   -webkit-animation: spin 2s infinite linear;
   animation: spin 2s infinite linear;
 }
-
 @-moz-keyframes spin {
   0% { -moz-transform: rotate(0deg); }
   100% { -moz-transform: rotate(359deg); }
@@ -258,14 +255,20 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(359deg); }
 }
-
 @-moz-document url-prefix() {
-  .icon-spin { height: .9em; }
-  .btn .icon-spin { height: auto; }
-  .icon-spin.icon-large { height: 1.25em; }
-  .btn .icon-spin.icon-large { height: .75em; }
+  .icon-spin {
+    height: .9em;
+  }
+  .btn .icon-spin {
+    height: auto;
+  }
+  .icon-spin.icon-large {
+    height: 1.25em;
+  }
+  .btn .icon-spin.icon-large {
+    height: .75em;
+  }
 }
-
 /*  Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
     readers do not read off random characters that represent icons */
 .icon-glass:before                { content: "\f000"; }
