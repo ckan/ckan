@@ -286,6 +286,14 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             cmp(rev_tuple2[0].timestamp, rev_tuple1[0].timestamp)
         return sorted(result_list, cmp=ourcmp)
 
+    def purge(self):
+        """ We need to remove all membership objects pointing to this
+            group because otherwise the activity before_commit hook will
+            ask to print out membership information, which may not be valid """
+        self.Session.query(MemberRevision).filter(MemberRevision.group_id==self.id).delete()
+        self.Session.query(Member).filter(Member.group_id==self.id).delete()
+        super(Group, self).purge()
+
     def __repr__(self):
         return '<Group %s>' % self.name
 
