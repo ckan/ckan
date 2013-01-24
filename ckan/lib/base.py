@@ -385,12 +385,24 @@ class BaseController(WSGIController):
             single key has more than one value specified, then the value will
             be a list of strings, otherwise just a string.
 
-        This function is only used by the API, so no strings need to be
-        translated.
-
-        TODO: If this is only used by the API, then perhaps it should be
-              moved to the api controller class?
         '''
+        def make_unicode(entity):
+            '''Cast bare strings and strings in lists or dicts to Unicode. '''
+            if isinstance(entity, str):
+                return unicode(entity)
+            elif isinstance(entity, list):
+                new_items = []
+                for item in entity:
+                    new_items.append(make_unicode(item))
+                return new_items
+            elif isinstance(entity, dict):
+                new_dict = {}
+                for key, val in entity.items():
+                    new_dict[key] = make_unicode(val)
+                return new_dict
+            else:
+                return entity
+
         cls.log.debug('Retrieving request params: %r' % request.params)
         cls.log.debug('Retrieving request POST: %r' % request.POST)
         cls.log.debug('Retrieving request GET: %r' % request.GET)
@@ -441,28 +453,11 @@ class BaseController(WSGIController):
             for key, val in request_data.items():
                 # if val is str then assume it is ascii, since json converts
                 # utf8 encoded JSON to unicode
-                request_data[key] = cls._make_unicode(val)
+                request_data[key] = make_unicode(val)
         cls.log.debug('Request data extracted: %r' % request_data)
         return request_data
 
-    @classmethod
-    def _make_unicode(cls, entity):
-        """Cast bare strings and strings in lists or dicts to Unicode
-        """
-        if isinstance(entity, str):
-            return unicode(entity)
-        elif isinstance(entity, list):
-            new_items = []
-            for item in entity:
-                new_items.append(cls._make_unicode(item))
-            return new_items
-        elif isinstance(entity, dict):
-            new_dict = {}
-            for key, val in entity.items():
-                new_dict[key] = cls._make_unicode(val)
-            return new_dict
-        else:
-            return entity
+
 # Include the '_' function in the public names
 __all__ = [__name for __name in locals().keys() if not __name.startswith('_')
            or __name == '_']
