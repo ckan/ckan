@@ -177,7 +177,7 @@ def get_user_id_for_username(user_name, allow_none=False):
 def _get_auth_function(action, profile=None):
     from pylons import config
 
-    if AuthFunctions._functions:
+    if action in AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
 
     # Otherwise look in all the plugins to resolve all possible
