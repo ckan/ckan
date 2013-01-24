@@ -4,7 +4,6 @@ import cgi
 import datetime
 import glob
 import urllib
-import simplejson as json
 
 from pylons import c, request, response
 from pylons.i18n import _, gettext
@@ -838,7 +837,7 @@ class ApiController(base.BaseController):
                 raise ValueError(msg)
         if request_data:
             try:
-                request_data = json.loads(request_data, encoding='utf8')
+                request_data = h.json.loads(request_data, encoding='utf8')
             except ValueError, e:
                 raise ValueError('Error decoding JSON data. '
                                  'Error: %r '
