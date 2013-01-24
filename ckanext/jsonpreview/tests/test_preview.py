@@ -41,7 +41,7 @@ class TestJsonPreview(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         plugins.reset()
-        model.repo.rebuild_db()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
