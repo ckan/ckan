@@ -1408,6 +1408,16 @@ def resource_preview(resource, pkg_id):
         )
 
 
+def SI_number_span(number):
+    ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
+    number = int(number)
+    if number < 1000:
+        output = literal('<span>')
+    else:
+        output = literal('<span title="' + formatters.localised_number(number) + '">')
+    return output + formatters.localised_SI_number(number) + literal('<span>')
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1485,6 +1495,7 @@ __allowed_functions__ = [
            'render_markdown',
            'format_resource_items',
            'resource_preview',
+           'SI_number_span',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
