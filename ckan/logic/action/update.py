@@ -1099,21 +1099,37 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     model.Session.commit()
 
     # solr update here
-    # FIXME can this be made more efficient?
     psi = search.PackageSearchIndex()
-    for id in datasets:
+
+    def process_solr(q):
+        print q
         query = search.PackageSearchQuery()
         q = {
-            'rows': 1,
-            'q': 'id:%s' % (id),
+            'q': q,
             'fl': 'data_dict',
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
+        print q
+        print query.run(q)
+        for result in query.run(q)['results']:
+            print result
+            data_dict = json.loads(result['data_dict'])
+            if data_dict['owner_org'] == group_id:
+                data_dict.update(update_dict)
+                psi.index_package(data_dict, defer_commit=True)
+    count = 0
+    q = []
+    for id in datasets:
+        q.append('id:%s' % (id))
+        count += 1
+        if count == 50:
+            process_solr(' OR '.join(q))
+            count = 0
+            q = []
+    if len(q):
+        process_solr(' OR '.join(q))
+    psi.commit()
 
-        data_dict = json.loads(query.run(q)['results'][0]['data_dict'])
-        if data_dict['owner_org'] == group_id:
-            data_dict.update(update_dict)
-            psi.index_package(data_dict)
 
 def bulk_update_private(context, data_dict):
     ''' make a list of datasets private '''
