@@ -115,7 +115,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_recline.js' in result.body, result.body
+        assert 'preview_recline.min.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="reclinepreview"' in result.body, result.body
 

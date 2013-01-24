@@ -86,7 +86,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_pdf.js' in result.body, result.body
+        assert 'preview_pdf.min.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="pdfpreview"' in result.body, result.body
 
