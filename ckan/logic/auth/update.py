@@ -192,30 +192,30 @@ def package_owner_org_update(context, data_dict):
 
 
 def bulk_update_private(context, data_dict):
-    group_id = data_dict.get('group_id')
+    org_id = data_dict.get('org_id')
     user = context['user']
     authorized = new_authz.has_user_permission_for_group_or_org(
-        group_id, user, 'update')
+        org_id, user, 'update')
     if not authorized:
         return {'success': False}
     return {'success': True}
 
 
 def bulk_update_public(context, data_dict):
-    group_id = data_dict.get('group_id')
+    org_id = data_dict.get('org_id')
     user = context['user']
     authorized = new_authz.has_user_permission_for_group_or_org(
-        group_id, user, 'update')
+        org_id, user, 'update')
     if not authorized:
         return {'success': False}
     return {'success': True}
 
 
 def bulk_update_delete(context, data_dict):
-    group_id = data_dict.get('group_id')
+    org_id = data_dict.get('org_id')
     user = context['user']
     authorized = new_authz.has_user_permission_for_group_or_org(
-        group_id, user, 'update')
+        org_id, user, 'update')
     if not authorized:
         return {'success': False}
     return {'success': True}
