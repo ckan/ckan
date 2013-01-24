@@ -4,7 +4,7 @@ Tests for plugin loading via PCA
 import os
 from nose.tools import raises
 from unittest import TestCase
-from paste.deploy import appconfig, loadapp
+from paste.deploy import loadapp
 from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
@@ -173,9 +173,8 @@ class TestPlugins(TestCase):
         assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):
-        local_config = appconfig('config:%s' % config['__file__'], relative_to=conf_dir)
-        local_config.local_conf['ckan.plugins'] = 'routes_plugin'
-        app = make_app(local_config.global_conf, **local_config.local_conf)
+        config['ckan.plugins'] = 'routes_plugin'
+        app = make_app(config['global_conf'], **config)
         routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made

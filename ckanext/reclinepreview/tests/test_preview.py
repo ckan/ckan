@@ -1,7 +1,7 @@
 import pylons
 
 import paste.fixture
-from paste.deploy import appconfig
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -17,9 +17,9 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=tests.conf_dir)
-        config.local_conf['ckan.plugins'] = 'recline_preview'
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        cls._original_config = config.copy()
+        config['ckan.plugins'] = 'recline_preview'
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.ReclinePreview()
@@ -41,6 +41,8 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         plugins.reset()
 
     def test_can_preview(self):

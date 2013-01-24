@@ -1,32 +1,34 @@
 import os
-from paste.deploy import appconfig
 import paste.fixture
 from ckan.config.middleware import make_app
 import ckan.model as model
 from ckan.tests import conf_dir, url_for, CreateTestData
 from ckan.controllers.admin import get_sysadmins
 from ckan.controllers.storage import create_pairtree_marker
+from pylons import config
 
 
 class TestStorageAPIController:
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        for key in config.local_conf.keys():
+        cls._original_config = config.copy()
+        for key in config.keys():
             if key.startswith('ofs'):
-                del config.local_conf[key]
-        config.local_conf['ofs.impl'] = 'pairtree'
-        config.local_conf['ckan.storage.bucket'] = 'ckantest'
-        config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+                del config[key]
+        config['ofs.impl'] = 'pairtree'
+        config['ckan.storage.bucket'] = 'ckantest'
+        config['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
 
-        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        create_pairtree_marker( config['ofs.storage_dir'] )
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         CreateTestData.create_test_user()
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         CreateTestData.delete()
 
     def test_index(self):
@@ -40,11 +42,11 @@ class TestStorageAPIController:
 
         # Non logged in users can not upload
         res = self.app.get(url, status=[302,401])
-        
+
         # Logged in users can upload
         res = self.app.get(url, status=[200], extra_environ={'REMOTE_USER':'tester'})
-       
-        
+
+
         # TODO: ? test for non-authz case
         # url = url_for('storage_api_auth_form', label='abc')
         # res = self.app.get(url, status=[302,401])
@@ -53,15 +55,15 @@ class TestStorageAPIController:
 class TestStorageAPIControllerLocal:
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        for key in config.local_conf.keys():
+        cls._original_config = config.copy()
+        for key in config.keys():
             if key.startswith('ofs'):
-                del config.local_conf[key]
-        config.local_conf['ckan.storage.bucket'] = 'ckantest'
-        config.local_conf['ofs.impl'] = 'pairtree'
-        config.local_conf['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
-        create_pairtree_marker( config.local_conf['ofs.storage_dir'] )
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+                del config[key]
+        config['ckan.storage.bucket'] = 'ckantest'
+        config['ofs.impl'] = 'pairtree'
+        config['ofs.storage_dir'] = '/tmp/ckan-test-ckanext-storage'
+        create_pairtree_marker( config['ofs.storage_dir'] )
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         CreateTestData.create()
         model.Session.remove()
@@ -70,6 +72,8 @@ class TestStorageAPIControllerLocal:
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         CreateTestData.delete()
 
     def test_auth_form(self):
@@ -103,19 +107,19 @@ class TestStorageAPIControllerLocal:
 class _TestStorageAPIControllerGoogle:
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=conf_dir)
-        config.local_conf['ckan.storage.bucket'] = 'ckantest'
-        config.local_conf['ofs.impl'] = 'google'
-        if 'ofs.gs_secret_access_key' not in config.local_conf:
+        cls._original_config = config.copy()
+        config['ckan.storage.bucket'] = 'ckantest'
+        config['ofs.impl'] = 'google'
+        if 'ofs.gs_secret_access_key' not in config:
             raise Exception('You will need to configure access to google storage to run this test')
         # You will need these configured in your
-        # config.local_conf['ofs.gs_access_key_id'] = 'GOOGCABCDASDASD'
-        # config.local_conf['ofs.gs_secret_access_key'] = '134zsdfjkw4234addad'
+        # config['ofs.gs_access_key_id'] = 'GOOGCABCDASDASD'
+        # config['ofs.gs_secret_access_key'] = '134zsdfjkw4234addad'
         # need to ensure not configured for local as breaks google setup
         # (and cannot delete all ofs keys as need the gs access codes)
-        if 'ofs.storage_dir' in config.local_conf:
-            del config.local_conf['ofs.storage_dir']
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        if 'ofs.storage_dir' in config:
+            del config['ofs.storage_dir']
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         # setup test data including testsysadmin user
         CreateTestData.create()
@@ -125,6 +129,8 @@ class _TestStorageAPIControllerGoogle:
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         CreateTestData.delete()
 
     def test_auth_form(self):
