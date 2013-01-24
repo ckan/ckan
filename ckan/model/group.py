@@ -221,13 +221,17 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             return query.all()
 
     @classmethod
-    def search_by_name_or_title(cls, text_query, group_type=None):
+    def search_by_name_or_title(cls, text_query, group_type=None, is_org=False):
         text_query = text_query.strip().lower()
         q = meta.Session.query(cls) \
             .filter(or_(cls.name.contains(text_query),
                         cls.title.ilike('%' + text_query + '%')))
-        if group_type:
-            q = q.filter(cls.type == group_type)
+        if is_org:
+            q = q.filter(cls.type == 'organization')
+        else:
+            q = q.filter(cls.type != 'organization')
+            if group_type:
+                q = q.filter(cls.type == group_type)
         return q.order_by(cls.title)
 
     def add_package_by_name(self, package_name):
