@@ -44,6 +44,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         config.clear()
         config.update(cls._original_config)
         plugins.reset()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
