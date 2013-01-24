@@ -211,11 +211,6 @@ class RelatedController(base.BaseController):
                    'user': c.user or c.author}
 
         try:
-            logic.check_access('related_delete', context, {'id': id})
-        except logic.NotAuthorized:
-            base.abort(401, _('Unauthorized to delete package %s') % '')
-
-        try:
             if base.request.method == 'POST':
                 logic.get_action('related_delete')(context, {'id': related_id})
                 h.flash_notice(_('Related item has been deleted.'))
