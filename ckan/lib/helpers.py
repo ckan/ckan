@@ -38,6 +38,7 @@ from pylons.i18n import _, ungettext
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
+import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 
 get_available_locales = i18n.get_available_locales
@@ -294,32 +295,6 @@ def are_there_flash_messages():
     return flash.are_there_messages()
 
 
-def nav_link(text, controller, **kwargs):
-    '''
-    params
-    class_: pass extra class(s) to add to the <a> tag
-    icon: name of ckan icon to use within the link
-    condition: if False then no link is returned
-    '''
-    kwargs['controller'] = controller
-    if kwargs.get('inner_span'):
-        text = literal('<span>') + text + literal('</span>')
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    no_active = kwargs.pop('suppress_active_class', False)
-    class_ = _link_class(kwargs, no_active)
-    if kwargs.pop('condition', True):
-        link = link_to(
-            text,
-            url_for(**kwargs),
-            class_=class_
-        )
-    else:
-        link = ''
-    return link
-
-
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.get('highlight_actions',
@@ -328,50 +303,70 @@ def _link_active(kwargs):
                 and c.action in highlight_actions)
 
 
-def _link_class(kwargs, suppress_active_class=False):
-    ''' creates classes for the link_to calls '''
-    if not suppress_active_class and _link_active(kwargs):
-        active = ' active'
+def _link_to(text, *args, **kwargs):
+    '''Common link making code for several helper functions'''
+    assert len(args)<2, 'Too many unnamed arguments'
+
+    def _link_class(kwargs):
+        ''' creates classes for the link_to calls '''
+        suppress_active_class = kwargs.pop('suppress_active_class', False)
+        if not suppress_active_class and _link_active(kwargs):
+            active = ' active'
+        else:
+            active = ''
+        kwargs.pop('highlight_actions', '')
+        return kwargs.pop('class_', '') + active or None
+
+    def _create_link_text(text, **kwargs):
+        ''' Update link text to add a icon or span if specified in the
+        kwargs '''
+        if kwargs.pop('inner_span', None):
+            text = literal('<span>') + text + literal('</span>')
+        icon = kwargs.pop('icon', None)
+        if icon:
+            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+        return text
+
+    class_ = _link_class(kwargs)
+    return link_to(
+        _create_link_text(text, **kwargs),
+        url_for(*args, **kwargs),
+        class_=class_
+    )
+
+
+def nav_link(text, controller, **kwargs):
+    '''
+    params
+    class_: pass extra class(s) to add to the <a> tag
+    icon: name of ckan icon to use within the link
+    condition: if False then no link is returned
+    '''
+    if kwargs.pop('condition', True):
+        kwargs['controller'] = controller
+        link = _link_to(text, **kwargs)
     else:
-        active = ''
-    kwargs.pop('highlight_actions', '')
-    return kwargs.pop('class_', '') + active or None
+        link = ''
+    return link
 
 
 def nav_named_link(text, name, **kwargs):
-    class_ = _link_class(kwargs)
-
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-
-    return link_to(
-        text,
-        url_for(name, **kwargs),
-        class_=class_
-    )
+    '''Create a link for a named route.'''
+    return _link_to(text, name, **kwargs)
 
 
 def subnav_link(text, action, **kwargs):
+    '''Create a link for a named route.'''
     kwargs['action'] = action
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(**kwargs),
-        class_=class_
-    )
+    return _link_to(text, **kwargs)
 
 
+@maintain.deprecated('h.subnav_named_route is deprecated please '
+                     'use h.nav_named_link')
 def subnav_named_route(text, routename, **kwargs):
-    """ Generate a subnav element based on a named route """
-    # FIXME this is the same as _nav_named_link
-    # they should be combined
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(str(routename), **kwargs),
-        class_=class_
-    )
+    '''Generate a subnav element based on a named route
+    Deprecated in ckan 2.0 '''
+    return nav_named_link(text, routename, **kwargs)
 
 
 def build_nav_main(*args):
@@ -459,21 +454,6 @@ def _make_menu_item(menu_item, title, **kw):
 
 def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
-
-
-_menu_items = {
-    'add dataset': dict(controller='package', action='new'),
-    'search': dict(controller='package',
-                    action='search',
-                    highlight_actions='index search'),
-    'default_group': dict(name='%s_index' % default_group_type(),
-                          controller='group',
-                          highlight_actions='index search'),
-    'about': dict(controller='home', action='about'),
-    'login': dict(controller='user', action='login'),
-    'register': dict(controller='user', action='register'),
-    'organizations': dict(action='index', controller='organization'),
-}
 
 
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
@@ -1428,6 +1408,16 @@ def resource_preview(resource, pkg_id):
         )
 
 
+def SI_number_span(number):
+    ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
+    number = int(number)
+    if number < 1000:
+        output = literal('<span>')
+    else:
+        output = literal('<span title="' + formatters.localised_number(number) + '">')
+    return output + formatters.localised_SI_number(number) + literal('<span>')
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1505,6 +1495,7 @@ __allowed_functions__ = [
            'render_markdown',
            'format_resource_items',
            'resource_preview',
+           'SI_number_span',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

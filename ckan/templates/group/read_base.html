@@ -67,11 +67,11 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ c.group_dict.num_followers }}</dd>
+          <dd>{{ h.SI_number_span(c.group_dict.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ c.group_dict.packages|length }}</dd>
+          <dd>{{ h.SI_number_span(c.group_dict.packages|length) }}</dd>
         </dl>
       </div>
     </section>

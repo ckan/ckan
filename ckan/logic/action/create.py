@@ -148,6 +148,7 @@ def package_create(context, data_dict):
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
     model.Session.flush()
+    data['id'] = pkg.id
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -158,6 +159,8 @@ def package_create(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
+
+        item.after_create(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
