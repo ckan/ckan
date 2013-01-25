@@ -568,6 +568,8 @@ def check_access(action, data_dict=None):
 
     context = {'model': model,
                 'user': c.user or c.author}
+    if not data_dict:
+        data_dict = {}
 
     try:
         check_access_logic(action, context, data_dict)
