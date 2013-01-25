@@ -10,7 +10,7 @@ install:
 before_script:
   - psql -c 'CREATE DATABASE ckantest;' -U postgres
   - psql -c 'CREATE DATABASE datastore;' -U postgres
-  - psql -c 'CREATE USER readonlyuser;' -U postgres
+  - psql -c 'CREATE USER readonlyuser with NOSUPERUSER NOCREATEDB NOCREATEROLE NOCREATEUSER;' -U postgres
   - python setup.py develop
   - paster make-config ckan development.ini --no-interactive
   - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
