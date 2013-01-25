@@ -79,6 +79,11 @@ class DatasetActivitySessionExtension(SessionExtension):
             # object is a package.
             logger.debug("Looks like this object is a package")
             logger.debug("activity: %s" % activity)
+            ## Ignore private datasets for 2.0,
+            ## fix later to have privicy against streams
+            if obj.private:
+                continue
+
             activities[obj.id] = activity
 
             activity_detail = activity_stream_detail(obj, activity.id, "new")
@@ -113,6 +118,10 @@ class DatasetActivitySessionExtension(SessionExtension):
 
                 for package in related_packages:
                     if package is None: continue
+                    ## Ignore private datasets for 2.0,
+                    ## fix later to have privicy against streams
+                    if package.private:
+                        continue
 
                     if package.id in activities:
                         activity = activities[package.id]
