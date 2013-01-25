@@ -2084,3 +2084,32 @@ class TestActivity:
             after['time'], str(activity['timestamp'])
 
         assert len(self.activity_details(activity)) == 0
+
+    def test_related_item(self):
+        user = self.normal_user
+        apikey = self.record_details(user['id'], apikey=user['apikey'])
+        data = {'title': 'random', 'type': 'Application', 'url':
+                'http://example.com/application'}
+        extra_environ = {'Authorization': str(user['apikey'])}
+        response = self.app.post('/api/action/related_create',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        data = {'id': response_dict['result']['id'], 'title': 'random2', 'owner_id': user['id'], 'type': 'Application'}
+        response = self.app.post('/api/action/related_update',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        data = {'id': response_dict['result']['id']}
+        response = self.app.post('/api/action/related_delete',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        response = self.app.get("/api/2/rest/user/%s/activity" % user['id'])
+        response_dict = json.loads(response.body)
+        assert response_dict[0]['activity_type'] == 'deleted related item'
+        assert response_dict[1]['activity_type'] == 'changed related item'
+        assert response_dict[2]['activity_type'] == 'new related item'
