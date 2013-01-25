@@ -299,9 +299,11 @@ def _group_or_org_list(context, data_dict, is_org=False):
     ref_group_by = 'id' if api == 2 else 'name';
 
     sort = data_dict.get('sort', 'name')
+    q = data_dict.get('q')
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
-    order_by = data_dict.get('order_by')
+    order_by = data_dict.get('order_by', '')
     if order_by:
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
@@ -323,6 +325,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.current==True)
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
+    if q:
+        q = u'%{0}%'.format(q)
+        query = query.filter(_or_(
+            model.GroupRevision.name.like(q),
+            model.GroupRevision.title.like(q),
+            model.GroupRevision.description.like(q),
+        ))
+
 
     query = query.filter(model.GroupRevision.is_organization==is_org)
 

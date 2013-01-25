@@ -119,8 +119,12 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'for_view': True,
                    'with_private': False}
 
-        data_dict = {'all_fields': True}
-
+        q = c.q = request.params.get('q', '')
+        data_dict = {'all_fields': True,
+                     'q': q,}
+        sort_by = c.sort_by_selected = request.params.get('sort')
+        if sort_by:
+            data_dict['sort'] = sort_by
         try:
             self._check_access('site_read', context)
         except NotAuthorized:
