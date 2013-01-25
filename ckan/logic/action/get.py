@@ -456,6 +456,15 @@ def organization_list_for_user(context, data_dict):
     user = context['user']
 
     _check_access('organization_list_for_user',context, data_dict)
+    sysadmin = new_authz.is_sysadmin(user)
+
+    orgs_q = model.Session.query(model.Group) \
+        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.state == 'active')
+
+    if sysadmin:
+        # Sysadmins can see all organizations
+        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -471,6 +480,7 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.capacity.in_(roles)) \
         .filter(model.Member.table_id == user_id)
+
     group_ids = []
     for row in q.all():
         group_ids.append(row.group_id)
@@ -478,10 +488,8 @@ def organization_list_for_user(context, data_dict):
     if not group_ids:
         return []
 
-    q = model.Session.query(model.Group) \
-        .filter(model.Group.id.in_(group_ids)) \
-        .filter(model.Group.is_organization == True) \
-        .filter(model.Group.state == 'active')
+    q = orgs_q.filter(model.Group.id.in_(group_ids))
+
     return [{'id':org.id,'name':org.name} for org in q.all()]
 
 def group_revision_list(context, data_dict):
@@ -724,6 +732,9 @@ def package_show(context, data_dict):
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
+
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.after_show(context, package_dict)
 
     return package_dict
 
