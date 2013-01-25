@@ -929,16 +929,7 @@ def tag_show(context, data_dict):
 
     _check_access('tag_show',context, data_dict)
 
-    tag_dict = model_dictize.tag_dictize(tag,context)
-
-    extended_packages = []
-    for package in tag_dict['packages']:
-        pkg = model.Package.get(package['id'])
-        extended_packages.append(model_dictize.package_dictize(pkg,context))
-
-    tag_dict['packages'] = extended_packages
-
-    return tag_dict
+    return model_dictize.tag_dictize(tag,context)
 
 def user_show(context, data_dict):
     '''Return a user account.

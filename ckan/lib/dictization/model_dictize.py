@@ -9,6 +9,7 @@ import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
+import ckan.lib.search as search
 
 ## package save
 
@@ -302,11 +303,15 @@ def _get_members(context, group, member_type):
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    return model.Session.query(Entity, model.Member.capacity).\
+    q = model.Session.query(Entity, model.Member.capacity).\
                join(model.Member, model.Member.table_id == Entity.id).\
                filter(model.Member.group_id == group.id).\
                filter(model.Member.state == 'active').\
-               filter(model.Member.table_name == member_type[:-1]).all()
+               filter(model.Member.table_name == member_type[:-1])
+    if member_type == 'packages':
+        q = q.filter(Entity.private==False)
+    return q.all()
+
 
 def group_dictize(group, context):
     model = context['model']
@@ -376,8 +381,14 @@ def tag_list_dictize(tag_list, context):
 def tag_dictize(tag, context):
 
     result_dict = d.table_dictize(tag, context)
-    result_dict["packages"] = d.obj_list_dictize(tag.packages, context)
+    query = search.PackageSearchQuery()
 
+    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
+         'wt': 'json', 'rows': 1000}
+
+    result_dict["packages"] = [
+        h.json.loads(result['data_dict']) for result in query.run(q)['results']
+   ]
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
