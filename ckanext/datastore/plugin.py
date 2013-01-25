@@ -108,7 +108,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 {'connection_url': url}).connect()
             trans = connection.begin()
             try:
-                sql = u"CREATE TABLE test_readonly(id INTEGER);"
+                sql = u"DROP TABLE IF EXISTS _test_readonly;"
+                sql += u"CREATE TABLE _test_readonly(id INTEGER);"
                 connection.execute(sql)
             except ProgrammingError, e:
                 if 'permission denied' in str(e) or 'read-only transaction' in str(e):
