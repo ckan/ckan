@@ -163,7 +163,7 @@ def related_update(context, data_dict):
         'session': session
     }
 
-    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()

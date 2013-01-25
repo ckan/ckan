@@ -53,7 +53,6 @@ def get_snippet_related_item(activity, detail):
 
 def get_snippet_related_type(activity, detail):
     # FIXME this needs to be translated
-    print activity
     return activity['data']['related']['type']
 
 # activity_stream_string_*() functions return translatable string
