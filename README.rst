@@ -23,7 +23,7 @@ Community
 
 * Developer mailing list: `ckan-dev@lists.okfn.org <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_
 * Developer IRC channel: `#ckan on irc.freenode.net <http://webchat.freenode.net/?channels=ckan>`_
-* Issue tracker: `trac.ckan.org <http://trac.ckan.org/>`_
+* `Issue tracker <https://github.com/okfn/ckan/issues>`_
 * `CKAN tag on StackOverflow <http://stackoverflow.com/questions/tagged/ckan>`_
 
 
