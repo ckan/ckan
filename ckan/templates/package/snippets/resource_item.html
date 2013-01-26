@@ -13,8 +13,29 @@
       <span class="empty">{{ _('No description for this resource') }}</span>
     {% endif %}
   </p>
-  <p class="btn-group">
-    <a class="btn btn-primary" href="{{ url }}">{{ _('Explore Data') }}</a>
-    <a class="btn resource-url-analytics" href="{{ res.url }}" target="_blank">{{ _('Raw Data') }}</a>
-  </p>
+  {% block resource_item_explore %}
+  <div class="dropdown btn-group">
+    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      <i class="icon-share-alt"></i>
+      {{ _('Explore') }}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% block resource_item_explore_links %}
+      <li>
+        <a href="{{ url }}">
+          <i class="icon-bar-chart"></i>
+          {{ _('Preview') }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
+          <i class="icon-download"></i>
+          {{ _('Download') }}
+        </a>
+      </li>
+      {% endblock %}
+    </ul>
+  </div>
+  {% endblock %}
 </li>
