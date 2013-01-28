@@ -8,6 +8,7 @@ from ckan import plugins
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import check_access, NotAuthorized, get_action
+import ckan.lib.search as search
 
 from pylons import config
 
@@ -51,6 +52,7 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
+        search.clear()
         model.Session.remove()
         CreateTestData.create()
 
