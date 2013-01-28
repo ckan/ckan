@@ -18,6 +18,15 @@ def group_list_dictize(obj_list, context,
 
     active = context.get('active', True)
     with_private = context.get('include_private_packages', False)
+
+    query = search.PackageSearchQuery()
+
+    q = {'q': '+capacity:public' if not with_private else '*:*',
+         'fl': 'groups', 'facet.field': ['groups'],
+         'facet.limit': -1, 'rows': 1}
+
+    query.run(q)
+
     result_list = []
 
     for obj in obj_list:
@@ -32,8 +41,7 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = \
-                len(obj.packages(with_private=with_private, context=context))
+        group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
