@@ -318,6 +318,8 @@ def _get_members(context, group, member_type):
                filter(model.Member.table_name == member_type[:-1])
     if member_type == 'packages':
         q = q.filter(Entity.private==False)
+    if 'limits' in context and member_type in context['limits']:
+        return q[:context['limits'][member_type]]
     return q.all()
 
 
@@ -335,6 +337,10 @@ def group_dictize(group, context):
     result_dict['packages'] = d.obj_list_dictize(
         _get_members(context, group, 'packages'),
         context)
+
+    query = search.PackageSearchQuery()
+    q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
