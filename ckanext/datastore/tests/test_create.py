@@ -3,7 +3,6 @@ import json
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
-import ckan.logic as logic
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
@@ -32,9 +31,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        p.unload('datastore')
-        # empty the cache of action functions, this will get filled up next get_action call.
-        logic._actions.clear()
         rebuild_all_dbs(cls.Session)
 
     def test_create_requires_auth(self):

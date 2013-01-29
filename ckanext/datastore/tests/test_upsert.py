@@ -4,7 +4,6 @@ import datetime
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
-import ckan.logic as logic
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
@@ -55,9 +54,6 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        p.unload('datastore')
-        # empty the cache of action functions, this will get filled up next get_action call.
-        logic._actions.clear()
         rebuild_all_dbs(cls.Session)
 
     def test_upsert_requires_auth(self):
@@ -282,9 +278,6 @@ class TestDatastoreInsert(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        p.unload('datastore')
-        # empty the cache of action functions, this will get filled up next get_action call.
-        logic._actions.clear()
         rebuild_all_dbs(cls.Session)
 
     def test_insert_non_existing_field(self):
@@ -391,9 +384,6 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        p.unload('datastore')
-        # empty the cache of action functions, this will get filled up next get_action call.
-        logic._actions.clear()
         rebuild_all_dbs(cls.Session)
 
     def test_update_basic(self):
