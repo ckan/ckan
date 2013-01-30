@@ -217,3 +217,15 @@ def dashboard_new_activities_count(context, data_dict):
     # This is so a better not authourized message can be sent.
     return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
+
+
+def user_follower_list(context, data_dict):
+    return sysadmin(context, data_dict)
+
+
+def dataset_follower_list(context, data_dict):
+    return sysadmin(context, data_dict)
+
+
+def group_follower_list(context, data_dict):
+    return sysadmin(context, data_dict)
