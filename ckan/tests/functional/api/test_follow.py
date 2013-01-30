@@ -258,6 +258,45 @@ class TestFollow(object):
     def teardown_class(self):
         ckan.model.repo.rebuild_db()
 
+    def test_00_visitor_cannot_get_user_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=self.russianfan['id'], status=403)
+
+    def test_00_user_cannot_get_user_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=self.russianfan['id'], status=403,
+                apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_user_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'user_follower_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.testsysadmin['apikey'])
+
+    def test_00_visitor_cannot_get_dataset_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'dataset_follower_list',
+                id='warandpeace', status=403)
+
+    def test_00_user_cannot_get_dataset_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'dataset_follower_list',
+                id='warandpeace', status=403, apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_dataset_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'dataset_follower_list',
+                id='warandpeace', status=200,
+                apikey=self.testsysadmin['apikey'])
+
+    def test_00_visitor_cannot_get_group_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'group_follower_list',
+                id='roger', status=403)
+
+    def test_00_user_cannot_get_group_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'group_follower_list',
+                id='roger', status=403, apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_group_follower_list(self):
+        ckan.tests.call_action_api(self.app, 'group_follower_list',
+                id='roger', status=200, apikey=self.testsysadmin['apikey'])
+
     def test_01_user_follow_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = ckan.tests.call_action_api(self.app, 'follow_user',
