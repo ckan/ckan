@@ -172,23 +172,23 @@ class TestDashboard(object):
         '''Test that a user's own activities appear in her dashboard.'''
         activities = self.dashboard_activity_list(self.new_user)
 
-        # FIXME: There should actually be 6 activities here, but when you
+        # FIXME: There should actually be 3 activities here, but when you
         # follow something it's old activities (from before you followed it)
         # appear in your activity stream. So here we get more activities than
         # expected.
-        assert len(activities) == 8
+        assert len(activities) == 5, len(activities)
 
         assert activities[0]['activity_type'] == 'changed package'
-        assert activities[1]['activity_type'] == 'follow group'
-        assert activities[2]['activity_type'] == 'follow user'
-        assert activities[3]['activity_type'] == 'follow dataset'
-        assert activities[4]['activity_type'] == 'new package'
-        assert activities[5]['activity_type'] == 'new user'
+        #assert activities[1]['activity_type'] == 'follow group'
+        #assert activities[2]['activity_type'] == 'follow user'
+        #assert activities[3]['activity_type'] == 'follow dataset'
+        assert activities[1]['activity_type'] == 'new package'
+        assert activities[2]['activity_type'] == 'new user'
 
-        # FIXME: Shouldn't need the [:6] here, it's because when you follow
+        # FIXME: Shouldn't need the [:3] here, it's because when you follow
         # something its old activities (from before you started following it)
         # appear in your dashboard.
-        for activity in activities[:6]:
+        for activity in activities[:3]:
             assert activity['user_id'] == self.new_user['id']
 
     def test_03_own_activities_not_marked_as_new(self):
