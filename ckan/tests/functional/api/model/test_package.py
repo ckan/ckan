@@ -10,7 +10,6 @@ from ckan.lib.search.common import SolrSettings
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
@@ -826,4 +825,3 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         assert pkg.resources[0].url == pkg_vals['download_url']
 
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
-class TestPackagesUnversioned(UnversionedTestCase, PackagesTestCase): pass
