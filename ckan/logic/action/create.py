@@ -1028,24 +1028,6 @@ def follow_user(context, data_dict):
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingUser)
 
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow user',
-            }
-    activity_dict['data'] = {
-            'user': ckan.lib.dictization.table_dictize(
-                model.User.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit': True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
-
     if not context.get('defer_commit'):
         model.repo.commit()
 
