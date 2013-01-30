@@ -127,7 +127,7 @@ class TestActivity(HtmlCheckMethods):
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s started following %s' % (user['fullname'],
-                'joeadmin') in stripped, stripped
+                'joeadmin') not in stripped, stripped
 
         # Create a new group.
         group = {
