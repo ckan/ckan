@@ -2063,24 +2063,28 @@ class TestActivity:
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
-        assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" %
+        assert len(user_new_activities) == 0, ("There should be 0 new "
+            " activities in the user's activity stream, but found %i" %
             len(user_new_activities))
-        activity = user_new_activities[0]
+
+        # The rest of this test is commented out because follow_user activities
+        # are disabled, uncomment it if they're enabled again.
+
+        #activity = user_new_activities[0]
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == self.sysadmin_user['id'], \
-            str(activity['object_id'])
-        assert activity['user_id'] == user['id'], str(activity['user_id'])
-        assert activity['activity_type'] == 'follow user', \
-            str(activity['activity_type'])
-        if 'id' not in activity:
-            assert False, "activity object should have an id value"
+        #assert activity['object_id'] == self.sysadmin_user['id'], \
+        #    str(activity['object_id'])
+        #assert activity['user_id'] == user['id'], str(activity['user_id'])
+        #assert activity['activity_type'] == 'follow user', \
+        #    str(activity['activity_type'])
+        #if 'id' not in activity:
+        #    assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if 'revision_id' not in activity:
-            assert False, "activity object should have a revision_id value"
-        timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= \
-            after['time'], str(activity['timestamp'])
-
-        assert len(self.activity_details(activity)) == 0
+        #if 'revision_id' not in activity:
+        #    assert False, "activity object should have a revision_id value"
+        #timestamp = datetime_from_string(activity['timestamp'])
+        #assert timestamp >= before['time'] and timestamp <= \
+        #    after['time'], str(activity['timestamp'])
+        #
+        #assert len(self.activity_details(activity)) == 0
