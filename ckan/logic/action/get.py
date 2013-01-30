@@ -2383,6 +2383,7 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('user_followee_list', context, data_dict)
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2410,6 +2411,7 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('dataset_followee_list', context, data_dict)
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2438,6 +2440,7 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_followee_list', context, data_dict)
     schema = context.get('schema',
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)

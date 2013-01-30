@@ -72,7 +72,7 @@ def follow_user(app, follower_id, apikey, object_id, object_arg,
 
     # Check that the object appears in the follower's list of followees.
     followees = ckan.tests.call_action_api(app, 'user_followee_list',
-            id=follower_id)
+            apikey=sysadmin_apikey, id=follower_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees if followee['id'] == object_id]) == 1
 
@@ -133,7 +133,7 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg,
 
     # Check that the dataset appears in the follower's list of followees.
     followees = ckan.tests.call_action_api(app, 'dataset_followee_list',
-            id=follower_id)
+            apikey=sysadmin_apikey, id=follower_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees if followee['id'] == dataset_id]) == 1
 
@@ -194,7 +194,7 @@ def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
 
     # Check that the group appears in the user's list of followees.
     followees = ckan.tests.call_action_api(app, 'group_followee_list',
-            id=user_id)
+            apikey=sysadmin_apikey, id=user_id)
     assert len(followees) == followee_count_before + 1
     assert len([followee for followee in followees
         if followee['id'] == group_id]) == 1
@@ -296,6 +296,73 @@ class TestFollow(object):
     def test_00_sysadmin_can_get_group_follower_list(self):
         ckan.tests.call_action_api(self.app, 'group_follower_list',
                 id='roger', status=200, apikey=self.testsysadmin['apikey'])
+
+    def test_00_visitor_cannot_get_user_followee_list(self):
+        '''A visitor cannot see what users a user is following.'''
+        ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=self.russianfan['id'], status=403)
+
+    def test_00_user_cannot_get_user_followee_list(self):
+        '''A user cannot see what users another user is following.'''
+        ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=self.russianfan['id'], status=403,
+                apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_user_followee_list(self):
+        '''A sysadmin can see what users another user is following.'''
+        ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.testsysadmin['apikey'])
+
+    def test_00_user_can_get_own_user_followee_list(self):
+        '''A user can see what users she herself is following.'''
+        ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.russianfan['apikey'])
+
+    def test_00_visitor_cannot_get_dataset_followee_list(self):
+        '''A visitor cannot see what datasets a user is following.'''
+        ckan.tests.call_action_api(self.app, 'dataset_followee_list',
+                id=self.russianfan['id'], status=403)
+
+    def test_00_user_cannot_get_dataset_followee_list(self):
+        '''A user cannot see what datasets another user is following.'''
+        ckan.tests.call_action_api(self.app, 'dataset_followee_list',
+                id='russianfan', status=403, apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_dataset_followee_list(self):
+        '''A sysadmin can see what datasets another user is following.'''
+        ckan.tests.call_action_api(self.app, 'dataset_followee_list',
+                id='russianfan', status=200,
+                apikey=self.testsysadmin['apikey'])
+
+    def test_00_user_can_get_own_dataset_followee_list(self):
+        '''A user can see what datasets she herself is following.'''
+        ckan.tests.call_action_api(self.app, 'dataset_followee_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.russianfan['apikey'])
+
+    def test_00_visitor_cannot_get_group_followee_list(self):
+        '''A visitor cannot see what groups a user is following.'''
+        ckan.tests.call_action_api(self.app, 'group_followee_list',
+                id='roger', status=403)
+
+    def test_00_user_cannot_get_group_followee_list(self):
+        '''A user cannot see what groups another user is following.'''
+        ckan.tests.call_action_api(self.app, 'group_followee_list',
+                id='roger', status=403, apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_group_followee_list(self):
+        '''A sysadmin can see what groups another user is following.'''
+        ckan.tests.call_action_api(self.app, 'group_followee_list',
+                id=self.annafan['id'], status=200,
+                apikey=self.testsysadmin['apikey'])
+
+    def test_00_user_can_get_own_group_followee_list(self):
+        '''A user can see what groups she herself is following.'''
+        ckan.tests.call_action_api(self.app, 'group_followee_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.russianfan['apikey'])
 
     def test_01_user_follow_user_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
