@@ -1081,24 +1081,6 @@ def follow_dataset(context, data_dict):
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingDataset)
 
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow dataset',
-            }
-    activity_dict['data'] = {
-            'dataset': ckan.lib.dictization.table_dictize(
-                model.Package.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit':True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
-
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1190,24 +1172,6 @@ def follow_group(context, data_dict):
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingGroup)
-
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow group',
-            }
-    activity_dict['data'] = {
-            'group': ckan.lib.dictization.table_dictize(
-                model.Group.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit': True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
