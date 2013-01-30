@@ -310,9 +310,14 @@ class PackageController(BaseController):
         template = template[:template.index('.')+1] + format
 
         if extension == 'rdf':
-            return render( template, method="xml", loader_class=loader)
+            import urlparse
+            c.dataset_url = urlparse.urljoin(
+                config['ckan.site_url'],
+                'dataset/%s' % c.pkg_dict.get('name', c.pkg_dict['id'])
+            )
+            return render(template, method="xml", loader_class=loader)
 
-        return render( template, loader_class=loader)
+        return render(template, loader_class=loader)
 
 
     def comments(self, id):

@@ -412,13 +412,12 @@ class RDFExport(CkanCommand):
         import pylons.config as config
         import ckan.model as model
         import ckan.logic as logic
-        import ckan.lib.helpers as h
 
         # Create output folder if not exists
         if not os.path.isdir(out_folder):
             os.makedirs(out_folder)
 
-        fetch_url = config['ckan.site_url']
+        site_url = config['ckan.site_url']
         user = logic.get_action('get_site_user')(
             {'model': model, 'ignore_auth': True}, {}
         )
@@ -433,8 +432,9 @@ class RDFExport(CkanCommand):
             if not dd['state'] == 'active':
                 continue
 
-            url = h.url_for(controller='package', action='read', id=dd['name'])
-            url = urlparse.urljoin(fetch_url, url) + '.rdf'
+            url = urlparse.urljoin(site_url,
+                                   'dataset/%s' % dd.get('name', dd['id']))
+            url = url + '.rdf'
 
             try:
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
