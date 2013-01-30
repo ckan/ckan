@@ -120,7 +120,7 @@ class TestActivity(HtmlCheckMethods):
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s started following %s' % (user['fullname'],
-                package['title']) in stripped, stripped
+                package['title']) not in stripped, stripped
 
         # Follow another user.
         follow_user(context, {'id': 'joeadmin'})
