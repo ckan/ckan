@@ -29,9 +29,6 @@
           <li{% if c.action == 'followers' %} class="active"{% endif %}>
             {% link_for _('Followers'), controller='group', action='followers', id=c.group_dict.name, icon='group' %}
           </li>
-          <li{% if c.action == 'admins' %} class="active"{% endif %}>
-            {% link_for _('Administrators'), controller='group', action='admins', id=c.group_dict.name, icon='cog' %}
-          </li>
           <li{% if c.action == 'about' %} class="active"{% endif %}>
             {% link_for _('About'), controller='group', action='about', id=c.group_dict.name, icon='info-sign' %}
           </li>
