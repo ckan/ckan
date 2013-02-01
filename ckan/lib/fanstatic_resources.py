@@ -3,6 +3,7 @@ import sys
 import logging
 import ConfigParser
 
+
 from fanstatic import Library, Resource, Group, get_library_registry
 import fanstatic.core as core
 
@@ -25,14 +26,13 @@ def min_path(path):
 def create_library(name, path, depend_base=True):
     ''' Creates a fanstatic library `name` with the contents of a
     directory `path` using resource.config if found.'''
-
     def get_resource(lib_name, resource_name):
         ''' Attempt to get the resource from the current lib or if not try
         assume it is a fully qualified resource name. '''
         try:
-            res = getattr(module, '%s/%s' % (lib_name, resource_name))
+            res = getattr(module, os.path.normpath('%s/%s' % (lib_name, resource_name)))
         except AttributeError:
-            res = getattr(module, '%s' % resource_name)
+            res = getattr(module, os.path.normpath('%s' % resource_name))
         return res
 
     def create_resource(path, lib_name, count, inline=False):
@@ -63,7 +63,7 @@ def create_library(name, path, depend_base=True):
             for dependency in depends[path]:
                 dependencies.append(get_resource(name, dependency))
         if depend_base:
-            dependencies.append(getattr(module, 'base/main'))
+            dependencies.append(getattr(module, os.path.normpath('base/main')))
         if dependencies:
             kw['depends'] = dependencies
         if path in dont_bundle:
@@ -96,7 +96,7 @@ def create_library(name, path, depend_base=True):
                 setattr(min_res, attribute, getattr(resource, attribute))
 
         # add the resource to this module
-        fanstatic_name = '%s/%s' % (lib_name, path)
+        fanstatic_name = os.path.normpath('%s/%s' % (lib_name, path))
         log.debug('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
@@ -210,10 +210,10 @@ def create_library(name, path, depend_base=True):
     for group_name in groups:
         members = []
         for member in groups[group_name]:
-            fanstatic_name = '%s/%s' % (name, member)
+            fanstatic_name = os.path.normpath('%s/%s' % (name, member))
             members.append(getattr(module, fanstatic_name))
         group = Group(members)
-        fanstatic_name = '%s/%s' % (name, group_name)
+        fanstatic_name = os.path.normpath('%s/%s' % (name, group_name))
         setattr(module, fanstatic_name, group)
 
     # finally add the library to this module
