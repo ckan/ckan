@@ -2096,7 +2096,8 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        data = {'id': response_dict['result']['id'], 'title': 'random2', 'owner_id': user['id'], 'type': 'Application'}
+        data = {'id': response_dict['result']['id'], 'title': 'random2',
+                'owner_id': user['id'], 'type': 'Application'}
         response = self.app.post('/api/action/related_update',
             json.dumps(data), extra_environ=extra_environ)
         response_dict = json.loads(response.body)
@@ -2104,11 +2105,12 @@ class TestActivity:
 
         data = {'id': response_dict['result']['id']}
         response = self.app.post('/api/action/related_delete',
-            json.dumps(data), extra_environ=extra_environ)
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        response = self.app.get("/api/2/rest/user/%s/activity" % user['id'])
+        response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
         response_dict = json.loads(response.body)
         assert response_dict[0]['activity_type'] == 'deleted related item'
         assert response_dict[1]['activity_type'] == 'changed related item'

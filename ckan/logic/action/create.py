@@ -9,6 +9,7 @@ import ckan.plugins as plugins
 import ckan.lib.dictization
 import ckan.logic.action
 import ckan.logic.schema
+from ckan.lib.dictization import table_dictize
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
@@ -301,6 +302,7 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    dataset = None
     if 'dataset_id' in data_dict:
         dataset = model.Package.get(data_dict['dataset_id'])
         dataset.related.append( related )
@@ -315,7 +317,8 @@ def related_create(context, data_dict):
             'activity_type': 'new related item',
             }
     activity_dict['data'] = {
-            'related': related_dict
+            'related': related_dict,
+            'dataset': table_dictize(dataset, context),
     }
     activity_create_context = {
         'model': model,
