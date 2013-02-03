@@ -1,11 +1,13 @@
 import logging
 import pylons
 from sqlalchemy.exc import ProgrammingError
+
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
 import ckan.logic as logic
+import ckan.model as model
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -52,21 +54,25 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if not self._is_read_only_database():
-            # Make sure that the right permissions are set
-            # so that no harmful queries can be made
-            if not ('debug' in config and config['debug']):
-                self._check_separate_db()
-            if self.legacy_mode:
-                log.warn('Legacy mode active. The sql search will not be available.')
-            else:
-                self._check_read_permissions()
+        if model.engine_is_pg():
+            if not self._is_read_only_database():
+                # Make sure that the right permissions are set
+                # so that no harmful queries can be made
+                if not ('debug' in config and config['debug']):
+                    self._check_separate_db()
+                if self.legacy_mode:
+                    log.warn('Legacy mode active. The sql search will not be available.')
+                else:
+                    self._check_read_permissions()
 
-            self._create_alias_table()
+                self._create_alias_table()
+            else:
+                log.warn("We detected that CKAN is running on a read only database. "
+                    "Permission checks and _table_metadata creation are skipped."
+                    "Make sure that replication is properly set-up.")
         else:
-            log.warn("We detected that CKAN is running on a read only database. "
-                "Permission checks and _table_metadata creation are skipped."
-                "Make sure that replication is properly set-up.")
+            log.warn("We detected that you do not use a PostgreSQL database. "
+                    "The DataStore will NOT work and datastore tests will be skipped.")
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents other plugins
