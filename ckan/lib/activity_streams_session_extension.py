@@ -79,8 +79,8 @@ class DatasetActivitySessionExtension(SessionExtension):
             # object is a package.
             logger.debug("Looks like this object is a package")
             logger.debug("activity: %s" % activity)
-            ## Ignore private datasets for 2.0,
-            ## fix later to have privicy against streams
+
+            # Don't create activities for private datasets.
             if obj.private:
                 continue
 
@@ -118,8 +118,8 @@ class DatasetActivitySessionExtension(SessionExtension):
 
                 for package in related_packages:
                     if package is None: continue
-                    ## Ignore private datasets for 2.0,
-                    ## fix later to have privicy against streams
+
+                    # Don't create activities for private datasets.
                     if package.private:
                         continue
 
