@@ -927,14 +927,11 @@ def tag_show(context, data_dict):
     if tag is None:
         raise NotFound
 
-    _check_access('tag_show',context, data_dict)
+    _check_access('tag_show', context, data_dict)
 
-    tag_dict = model_dictize.tag_dictize(tag,context)
+    tag_dict = model_dictize.tag_dictize(tag, context)
 
-    extended_packages = []
-    for package in tag_dict['packages']:
-        pkg = model.Package.get(package['id'])
-        extended_packages.append(model_dictize.package_dictize(pkg,context))
+    extended_packages = [model_dictize.package_dictize(pkg, context) for pkg in tag.packages]
 
     tag_dict['packages'] = extended_packages
 
