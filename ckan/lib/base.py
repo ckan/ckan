@@ -86,7 +86,7 @@ def render_jinja2(template_name, extra_vars):
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force = None, renderer=None):
+           cache_force=None, renderer=None):
     ''' Main template rendering function. '''
 
     def render_template():
@@ -101,12 +101,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         try:
             template_path, template_type = lib.render.template_info(template_name)
         except lib.render.TemplateNotFound:
-            template_type  = 'genshi'
+            template_type = 'genshi'
             template_path = ''
 
         # snippets should not pass the context
         # but allow for legacy genshi templates
-        if renderer == 'snippet' and template_type  != 'genshi':
+        if renderer == 'snippet' and template_type != 'genshi':
             del globs['c']
             del globs['tmpl_context']
 
@@ -115,12 +115,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             context_vars = globs.get('c')
             if context_vars:
                 context_vars = dir(context_vars)
-            debug_info = {'template_name' : template_name,
-                          'template_path' : template_path,
-                          'template_type' : template_type,
-                          'vars' : globs,
+            debug_info = {'template_name': template_name,
+                          'template_path': template_path,
+                          'template_type': template_type,
+                          'vars': globs,
                           'c_vars': context_vars,
-                          'renderer' : renderer,}
+                          'renderer': renderer}
             if 'CKAN_DEBUG_INFO' not in request.environ:
                 request.environ['CKAN_DEBUG_INFO'] = []
             request.environ['CKAN_DEBUG_INFO'].append(debug_info)
@@ -221,9 +221,9 @@ class BaseController(WSGIController):
         if c.userobj:
             from ckan.logic import get_action
             new_activities_count = get_action(
-                    'dashboard_new_activities_count')
+                'dashboard_new_activities_count')
             context = {'model': model, 'session': model.Session,
-                        'user': c.user or c.author}
+                       'user': c.user or c.author}
             c.new_activities = new_activities_count(context, {})
 
     def _identify_user(self):

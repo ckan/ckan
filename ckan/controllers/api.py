@@ -546,7 +546,7 @@ class ApiController(base.BaseController):
     def _get_search_params(cls, request_params):
         if 'qjson' in request_params:
             try:
-                qjson_param = request_params['qjson'].replace('\\\\u','\\u')
+                qjson_param = request_params['qjson'].replace('\\\\u', '\\u')
                 params = h.json.loads(qjson_param, encoding='utf8')
             except ValueError, e:
                 raise ValueError(gettext('Malformed qjson value') + ': %r'
@@ -669,9 +669,8 @@ class ApiController(base.BaseController):
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')
-        q_lower = q.lower()
         limit = request.params.get('limit', 10)
-        tag_names = []
+        package_dicts = []
         if q:
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
@@ -753,7 +752,7 @@ class ApiController(base.BaseController):
         ''' translation strings for front end '''
         ckan_path = os.path.join(os.path.dirname(__file__), '..')
         source = os.path.abspath(os.path.join(ckan_path, 'public',
-                                    'base', 'i18n', '%s.js' % lang))
+                                 'base', 'i18n', '%s.js' % lang))
         response.headers['Content-Type'] = CONTENT_TYPES['json']
         if not os.path.exists(source):
             return '{}'
