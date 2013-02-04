@@ -68,24 +68,12 @@ class TestFollow(HtmlCheckMethods):
         assert 'id="dataset_follow_button"' not in result
     
     def test_dataset_followers_not_logged_in(self): 
+        '''Not-logged-in users cannot see /dataset/followers/ pages.'''
         offset = url_for(controller='package', action='followers',
                 id='warandpeace')
         result = self.app.get(offset)
-        assert 'href="/dataset/followers/warandpeace"' in result
-        assert 'Followers (0)' in result
-        assert 'id="dataset_follow_button"' not in result
-        assert '<li class="user">' not in result
-
-        offset = url_for(controller='package', action='followers',
-                id='annakarenina')
-        result = self.app.get(offset)
-        assert 'href="/dataset/followers/annakarenina"' in result
-        assert 'Followers (3)' in result
-        assert 'id="dataset_follow_button"' not in result
-        assert str(result).count('<li class="user">') == 3
-        assert self.joeadmin.display_name in result
-        assert self.annafan.display_name in result
-        assert self.russianfan.display_name in result
+        assert result.status == 302
+        assert '/user/login' in result.header_dict['location']
 
     def test_user_read_not_logged_in(self):
         offset = url_for(controller='user', action='read',
@@ -106,20 +94,8 @@ class TestFollow(HtmlCheckMethods):
         offset = url_for(controller='user', action='followers',
                 id='joeadmin')
         result = self.app.get(offset)
-        assert 'href="/user/followers/joeadmin"' in result
-        assert 'Followers (0)' in result
-        assert '<li class="user">' not in result
-        assert 'id="user_follow_button"' not in result
-
-        offset = url_for(controller='user', action='followers',
-                id='annafan')
-        result = self.app.get(offset)
-        assert 'href="/user/followers/annafan"' in result
-        assert 'Followers (2)' in result
-        assert 'id="user_follow_button"' not in result
-        assert str(result).count('<li class="user">') == 2
-        assert self.tester.display_name in result
-        assert self.russianfan.display_name in result
+        assert result.status == 302
+        assert '/user/login' in result.header_dict['location']
 
     def test_own_user_read_logged_in(self):
         offset = url_for(controller='user', action='read',
@@ -141,28 +117,17 @@ class TestFollow(HtmlCheckMethods):
     def test_own_user_followers_logged_in(self):
         offset = url_for(controller='user', action='followers',
                 id='joeadmin')
-        extra_environ = {'Authorization': str(self.joeadmin.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'href="/user/followers/joeadmin"' in result
-        assert 'My Followers (0)' in result
-        assert 'id="user_follow_button"' not in result
+        assert 'Followers (0)' in result
+        assert 'id="user_follow_button"' in result
         assert '<li class="user">' not in result
-
-        offset = url_for(controller='user', action='followers',
-                id='annafan')
-        extra_environ = {'Authorization': str(self.annafan.apikey)}
-        result = self.app.get(offset, extra_environ=extra_environ)
-        assert 'href="/user/followers/annafan"' in result
-        assert 'My Followers (2)' in result
-        assert 'id="user_follow_button"' not in result
-        assert str(result).count('<li class="user">') == 2
-        assert self.tester.display_name in result
-        assert self.russianfan.display_name in result
 
     def test_dataset_read_logged_in(self):
         offset = url_for(controller='package', action='read',
                 id='warandpeace')
-        extra_environ = {'Authorization': str(self.tester.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'href="/dataset/followers/warandpeace"' in result
         assert 'Followers (0)' in result
@@ -179,16 +144,16 @@ class TestFollow(HtmlCheckMethods):
     def test_dataset_follow_logged_in(self):
         offset = url_for(controller='package', action='followers',
                 id='warandpeace')
-        extra_environ = {'Authorization': str(self.tester.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
-        assert 'href="/dataset/followers/warandpeace"' in result
+        assert 'id="dataset_follow_button"' in result
         assert 'Followers (0)' in result
         assert 'id="dataset_follow_button"' in result
         assert '<li class="user">' not in result
 
         offset = url_for(controller='package', action='followers',
                 id='annakarenina')
-        extra_environ = {'Authorization': str(self.tester.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'href="/dataset/followers/annakarenina"' in result
         assert 'Followers (3)' in result
@@ -202,7 +167,7 @@ class TestFollow(HtmlCheckMethods):
         # button.
         offset = url_for(controller='package', action='followers',
                 id='annakarenina')
-        extra_environ = {'Authorization': str(self.joeadmin.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'Unfollow' in result
         
@@ -226,28 +191,9 @@ class TestFollow(HtmlCheckMethods):
     def test_user_follow_logged_in(self):
         offset = url_for(controller='user', action='followers',
                 id='joeadmin')
-        extra_environ = {'Authorization': str(self.tester.apikey)}
+        extra_environ = {'Authorization': str(self.testsysadmin.apikey)}
         result = self.app.get(offset, extra_environ=extra_environ)
         assert 'href="/user/followers/joeadmin"' in result
         assert 'Followers (0)' in result
         assert '<li class="user">' not in result
         assert 'id="user_follow_button"' in result
-
-        offset = url_for(controller='user', action='followers',
-                id='annafan')
-        extra_environ = {'Authorization': str(self.tester.apikey)}
-        result = self.app.get(offset, extra_environ=extra_environ)
-        assert 'href="/user/followers/annafan"' in result
-        assert 'Followers (2)' in result
-        assert 'id="user_follow_button"' in result
-        assert str(result).count('<li class="user">') == 2
-        assert self.tester.display_name in result
-        assert self.russianfan.display_name in result
-
-        # russianfan is following annafan so he should see an Unfollow
-        # button.
-        offset = url_for(controller='user', action='followers',
-                id='annafan')
-        extra_environ = {'Authorization': str(self.russianfan.apikey)}
-        result = self.app.get(offset, extra_environ=extra_environ)
-        assert 'Unfollow' in result
