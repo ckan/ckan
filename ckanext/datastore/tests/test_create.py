@@ -15,7 +15,6 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
@@ -35,6 +34,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -578,3 +578,4 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+
