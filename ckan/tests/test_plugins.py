@@ -15,6 +15,7 @@ from ckan.tests.mock_plugin import MockSingletonPlugin
 from ckan.plugins.core import find_system_plugins
 from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
+from ckan.logic import get_action
 
 
 def install_ckantestplugin():
@@ -178,4 +179,12 @@ class TestPlugins(TestCase):
         routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made
+
+    def test_action_plugin_override(self):
+        plugins.load_all(config)
+        status_show_original = get_action('status_show')(None, {})
+        plugins.load('action_plugin')
+        assert get_action('status_show')(None, {}) != status_show_original
+        plugins.unload('action_plugin')
+        assert get_action('status_show')(None, {}) == status_show_original
 

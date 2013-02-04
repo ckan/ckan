@@ -1,5 +1,5 @@
 from ckan.plugins import SingletonPlugin, implements
-from ckan.plugins import IMapper, IRoutes, IPluginObserver
+from ckan.plugins import IMapper, IRoutes, IPluginObserver, IActions
 from ckan.tests.mock_plugin import MockSingletonPlugin
 
 
@@ -36,3 +36,10 @@ class RoutesPlugin(SingletonPlugin):
 
 class PluginObserverPlugin(MockSingletonPlugin):
     implements(IPluginObserver)
+
+class ActionPlugin(SingletonPlugin):
+    implements(IActions)
+
+    def get_actions(self):
+        return {'status_show': lambda context, data_dict: {}}
+
