@@ -1,4 +1,5 @@
 import json
+import nose
 import pprint
 
 import sqlalchemy.orm as orm
@@ -18,6 +19,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -331,6 +334,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -397,6 +402,8 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')

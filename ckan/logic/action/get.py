@@ -2220,6 +2220,7 @@ def user_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('user_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
@@ -2234,6 +2235,7 @@ def dataset_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('dataset_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_dataset_schema(),
             context['model'].UserFollowingDataset)
@@ -2248,6 +2250,7 @@ def group_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_group_schema(),
             context['model'].UserFollowingGroup)
@@ -2372,6 +2375,7 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('user_followee_list', context, data_dict)
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2399,6 +2403,7 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('dataset_followee_list', context, data_dict)
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2427,6 +2432,7 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_followee_list', context, data_dict)
     schema = context.get('schema',
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
