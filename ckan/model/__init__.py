@@ -13,6 +13,7 @@ import meta
 from meta import (
     Session,
     engine_is_sqlite,
+    engine_is_pg,
 )
 from core import (
     System,
