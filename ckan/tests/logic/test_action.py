@@ -16,6 +16,7 @@ from ckan.tests import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
 from ckan.tests import TestRoles
+import ckan.lib.search as search
 
 from ckan import plugins
 from ckan.plugins import SingletonPlugin, implements, IPackageController
@@ -28,6 +29,7 @@ class TestAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        search.clear()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')

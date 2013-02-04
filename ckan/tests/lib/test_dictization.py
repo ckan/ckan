@@ -1,6 +1,7 @@
 from ckan.tests import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
+import ckan.lib.search as search
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
@@ -32,6 +33,7 @@ class TestBasicDictize:
     def setup_class(cls):
         # clean the db so we can run these tests on their own
         model.repo.rebuild_db()
+        search.clear()
         CreateTestData.create()
 
         cls.package_expected = {
@@ -928,6 +930,7 @@ class TestBasicDictize:
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
+                    'package_count': 2,
                     'is_organization': False,
                     'packages': [{'author': None,
                                   'author_email': None,
@@ -969,10 +972,12 @@ class TestBasicDictize:
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        
         for key in result:
-            if key == 'is_organization':
+            if key in ('is_organization', 'package_count'):
                 continue
             assert_equal(sorted(result[key]), sorted(expected[key]))
+        assert_equal(result['package_count'], expected['package_count'])
 
     def test_17_group_apis_to_dict(self):
 

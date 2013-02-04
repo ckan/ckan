@@ -824,6 +824,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
+    
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -929,16 +930,7 @@ def tag_show(context, data_dict):
 
     _check_access('tag_show',context, data_dict)
 
-    tag_dict = model_dictize.tag_dictize(tag,context)
-
-    extended_packages = []
-    for package in tag_dict['packages']:
-        pkg = model.Package.get(package['id'])
-        extended_packages.append(model_dictize.package_dictize(pkg,context))
-
-    tag_dict['packages'] = extended_packages
-
-    return tag_dict
+    return model_dictize.tag_dictize(tag,context)
 
 def user_show(context, data_dict):
     '''Return a user account.
