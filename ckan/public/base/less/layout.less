@@ -1,27 +1,27 @@
+.wrapper {
+  .clearfix();
+  .border-radius(3px);
+  .box-shadow(0 0 0 3px rgba(0, 0, 0, 0.03));
+  background: #FFF url("@{imagePath}/nav.png") 0 0 repeat-y;
+  margin-bottom: 20px;
+  margin-left: -1px;
+  margin-right: -1px;
+  border: 1px solid #D0D0D0;
+}
+
+.wrapper.no-nav {
+  background-image: none;
+}
+
 [role=main], .main {
   position: relative;
-  padding-top: 27px;
-  padding-bottom: 27px;
+  padding-top: 10px;
+  padding-bottom: 20px;
   background-color: @layoutBackgroundColor;
 }
 
 [role=main] {
   min-height: 350px;
-}
-
-.main:after,
-.main:before,
-[role=main]:after,
-[role=main]:before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 7px;
-  background: @layoutTrimBackgroundColor;
-  border-color: @layoutTrimBorderColor;
-  border-style: solid;
-  border-width: 0;
 }
 
 .main:before,
@@ -37,7 +37,8 @@
 }
 
 [role=main] .primary {
-  .makeColumn(9);
+  width: 719px;
+  margin-left: 1px;
   float: right;
 }
 
