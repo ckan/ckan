@@ -45,7 +45,7 @@ Action Functions are Exposed in the API
 ```````````````````````````````````````
 
 The functions in ``ckan.logic.action`` are exposed to the world as the
-:doc:`apiv3`.  The API URL for an action function is automatically generated
+:doc:`api`.  The API URL for an action function is automatically generated
 from the function name, for example
 ``ckan.logic.action.create.package_create()`` is exposed at
 ``/api/action/package_create``. See `Steve Yegge's Google platforms rant
