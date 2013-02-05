@@ -1715,7 +1715,8 @@ def term_translation_show(context, data_dict):
     terms = _get_or_bust(data_dict, 'terms')
     if isinstance(terms, basestring):
         terms = [terms]
-    q = q.where(trans_table.c.term.in_(terms))
+    if terms:
+        q = q.where(trans_table.c.term.in_(terms))
 
     # This action accepts `lang_codes` as either a list of strings, or a single
     # string.
