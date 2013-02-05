@@ -393,28 +393,33 @@ def tag_list_dictize(tag_list, context):
     return result_list
 
 def tag_dictize(tag, context):
-
-    result_dict = d.table_dictize(tag, context)
+    tag_dict = d.table_dictize(tag, context)
     query = search.PackageSearchQuery()
 
     q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
          'wt': 'json', 'rows': 1000}
 
-    result_dict["packages"] = [
-        h.json.loads(result['data_dict']) for result in query.run(q)['results']
-   ]
+    package_dicts = [h.json.loads(result['data_dict']) for result in query.run(q)['results']]
+
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
-    assert not result_dict.has_key('display_name')
-    result_dict['display_name'] = result_dict['name']
+    assert not tag_dict.has_key('display_name')
+    tag_dict['display_name'] = tag_dict['name']
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(
-                plugins.ITagController):
-            result_dict = item.before_view(result_dict)
+        for item in plugins.PluginImplementations(plugins.ITagController):
+            tag_dict = item.before_view(tag_dict)
 
-    return result_dict
+        tag_dict['packages'] = []
+        for package_dict in package_dicts:
+            for item in plugins.PluginImplementations(plugins.IPackageController):
+                package_dict = item.before_view(package_dict)
+            tag_dict['packages'].append(package_dict)
+    else:
+        tag_dict['packages'] = package_dicts
+
+    return tag_dict
 
 def user_list_dictize(obj_list, context,
                       sort_key=lambda x:x['name'], reverse=False):
