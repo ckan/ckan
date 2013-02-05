@@ -1,12 +1,12 @@
 .wrapper {
   .clearfix();
-  .border-radius(3px);
-  .box-shadow(0 0 0 3px rgba(0, 0, 0, 0.03));
   background: #FFF url("@{imagePath}/nav.png") 0 0 repeat-y;
   margin-bottom: 20px;
   margin-left: -1px;
   margin-right: -1px;
-  border: 1px solid #D0D0D0;
+  border: 1px solid @layoutTrimBorderColor;
+  .border-radius(4px);
+  .box-shadow(0 0 0 4px rgba(0, 0, 0, 0.05));
 }
 
 .wrapper.no-nav {
