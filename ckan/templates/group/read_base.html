@@ -36,10 +36,6 @@
       </header>
     {% endblock %}
     {% block primary_content_inner %}
-      <div class="module-content">
-        {% include "package/snippets/search_form.html" %}
-      </div>
-      {{ c.page.pager(q=c.q) }}
     {% endblock %}
   </section>
 {% endblock %}
@@ -73,9 +69,6 @@
       </div>
     </section>
   </div>
-
-  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
-  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}
 
 {% block links %}

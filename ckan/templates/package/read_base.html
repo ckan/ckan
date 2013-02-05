@@ -41,9 +41,10 @@
 
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
-          h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
+          h.build_nav_icon('dataset_read', _('Resources'), id=pkg.name),
           h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
+          h.build_nav_icon('dataset_about', _('About'), id=pkg.name),
         ] %}
     {% endblock %}
 
@@ -55,18 +56,57 @@
 
   {% block secondary_help_content %}{% endblock %}
 
+  <div class="module context-info">
+    <section class="module-content">
+      <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
+      {% if pkg.notes %}
+        <p>
+          {{ h.markdown_extract(pkg.notes, 180) }}
+          {% link_for _('read more'), controller='package', action='about', id=pkg.name %}
+        </p>
+      {% else %}
+        <p class="empty">{{ _('There is no description for this dataset') }}</p>
+      {% endif %}
+      <div class="nums">
+        <dl>
+          <dt>{{ _('Resources') }}</dt>
+          <dd>{{ h.SI_number_span(pkg.resources|length) }}</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
+
   {% block package_groups %}
-    {% for group in pkg.groups %}
-      {% snippet "snippets/group.html", group=group, truncate=70 %}
-    {% endfor %}
+    {% if pkg.groups %}
+      <div class="module module-narrow">
+        <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
+        <ul class="nav nav-group">
+          {% for group in pkg.groups %}
+            <li>
+              <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
+                <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="38" height="22" alt="{{ group.name }}">
+                <span>{{ group.title or group.name }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endblock %}
+
+  {% block package_tags %}
+    <div class="module module-narrow">
+      <h2 class="module-heading"><i class="icon-tags"></i> {{ _('Tags') }}</h2>
+      <div class="module-content module-content-shallow">
+        {% for tag in pkg.tags %}
+          <a class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
+        {% endfor %}
+      </div>
+    </div>
   {% endblock %}
 
   {% block package_social %}
     {% snippet "snippets/social.html" %}
-  {% endblock %}
-
-  {% block package_related %}
-    {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
   {% endblock %}
 
   {% block package_license %}

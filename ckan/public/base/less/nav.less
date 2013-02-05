@@ -13,24 +13,29 @@
   background-color: @navActiveBackgroundColor;
 }
 
+.nav-item.active > a {
+  position: relative;
+  color: @navItemActiveTextColor;
+  background-color: @navItemActiveBackgroundColor;
+  &:hover {
+    color: @navItemActiveTextColor;
+    background-color: @navItemActiveBackgroundColor;
+  }
+  &:before {
+    content: ' ';
+    position: absolute;
+    top: 0;
+    right: -6px;
+    width: 6px;
+    height: 28px;
+    background-image: url("@{imagePath}/nav-active.png");
+  }
+}
+
 .nav-item.active > a span {
   white-space: nowrap;
   overflow:hidden;
   display:block;
-}
-
-.nav-item.active > a {
-  .tag;
-  .box-sizing(border-box);
-  font-size: 12px;
-  font-weight: bold;
-  position: relative;
-  left: 4px;
-  margin-left: -25px;
-  margin-right: -20px;
-  padding-left: 10px;
-  padding-right: 0px;
-  padding: 1px (@gutterX - 3);
 }
 
 .nav-item [class^=icon] {
@@ -42,11 +47,6 @@
   padding-left:  @gutterSmallX;
   padding-right: @gutterSmallX;
   position: relative;
-}
-
-.module-narrow .nav-item.active > a {
-  padding-left:  @gutterSmallX - 3;
-  padding-right: @gutterSmallX - 3;
 }
 
 .module-narrow .nav-item.image {
@@ -87,4 +87,28 @@
 .nav-facet .nav-item.active > a:after {
   .ckan-icon-circle-cross;
   right: 3px;
+}
+
+.nav-group {
+  margin-bottom: 0;
+  li {
+    margin: 5px;
+    a {
+      overflow: hidden;
+      height: 25px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      .border-radius(4px);
+      img {
+        margin-right: 3px;
+        .border-radius(4px);
+      }
+      &:hover {
+        background-color: transparent;
+        span {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
 }

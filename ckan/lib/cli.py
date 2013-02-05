@@ -1346,8 +1346,7 @@ class CreateColorSchemeCommand(CkanCommand):
 
     rules = [
         '@layoutLinkColor',
-        '@mastheadBackgroundColorStart',
-        '@mastheadBackgroundColorEnd',
+        '@mastheadBackgroundColor',
         '@btnPrimaryBackground',
         '@btnPrimaryBackgroundHighlight',
     ]

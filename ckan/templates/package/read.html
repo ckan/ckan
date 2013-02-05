@@ -6,33 +6,8 @@
 
 {% block primary_content_inner %}
 
-  {% block package_description %}
-    <section class="module-content">
-      <h1>{{ pkg.title or pkg.name }}
-        {% if pkg.state.startswith('draft') %}
-          [{{ _('Draft') }}]
-        {% endif %}
-      </h1>
-      {% if c.pkg_notes_formatted %}
-        <div class="notes embedded-content">
-          {{ c.pkg_notes_formatted }}
-        </div>
-      {% endif %}
-      {# FIXME why is this here? seems wrong #}
-      <span class="insert-comment-thread"></span>
-    </section>
-  {% endblock %}
-
   {% block package_resources %}
     {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
-  {% endblock %}
-
-  {% block package_tags %}
-    {% snippet "package/snippets/tags.html", tags=pkg.tags %}
-  {% endblock %}
-
-  {% block package_additional_info %}
-    {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
   {% endblock %}
 
 {% endblock %}

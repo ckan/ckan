@@ -356,6 +356,31 @@ class PackageController(BaseController):
 
         return render(template, loader_class=loader)
 
+    def about(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'extras_as_string': True,
+                   'for_view': True}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        # used by disqus plugin
+        c.current_package_id = c.pkg.id
+        c.related_count = c.pkg.related_count
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        PackageSaver().render_package(c.pkg_dict, context)
+
+        return render('package/about.html')
+
     def comments(self, id):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,

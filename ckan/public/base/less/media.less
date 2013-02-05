@@ -3,9 +3,6 @@
   overflow: hidden;
 }
 
-.media-content {
-}
-
 .media-content:before,
 .media-content:after {
 }
@@ -28,20 +25,8 @@
   overflow: hidden;
 }
 
-.media-image:after {
-  .box-shadow(inset 0 0 2px rgba(0, 0, 0, 0.3));
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-}
-
 .media-image img {
-  display: block;
-  margin: 0 auto;
+  .border-radius(4px);
 }
 
 .media-vertical .media-image,

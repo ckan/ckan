@@ -1,0 +1,30 @@
+{% extends "package/read_base.html" %}
+
+{% set pkg = c.pkg_dict %}
+
+{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% block package_description %}
+    <section class="module-content">
+      <h1>{{ pkg.title or pkg.name }}
+        {% if pkg.state.startswith('draft') %}
+          [{{ _('Draft') }}]
+        {% endif %}
+      </h1>
+      {% if c.pkg_notes_formatted %}
+        <div class="notes embedded-content">
+          {{ c.pkg_notes_formatted }}
+        </div>
+      {% endif %}
+      
+      <span class="insert-comment-thread"></span>
+    </section>
+  {% endblock %}
+
+  {% block package_additional_info %}
+    {% snippet "package/snippets/additional_info.html", pkg_dict=pkg %}
+  {% endblock %}
+
+{% endblock %}
