@@ -13,6 +13,7 @@ import meta
 from meta import (
     Session,
     engine_is_sqlite,
+    engine_is_pg,
 )
 from core import (
     System,
@@ -460,7 +461,8 @@ def revision_as_dict(revision, include_packages=True, include_groups=True,
         ))
     if include_packages:
         revision_dict['packages'] = [getattr(pkg, ref_package_by) \
-                                     for pkg in revision.packages if pkg]
+                                     for pkg in revision.packages
+                                     if (pkg and not pkg.private)]
     if include_groups:
         revision_dict['groups'] = [getattr(grp, ref_package_by) \
                                      for grp in revision.groups if grp]
