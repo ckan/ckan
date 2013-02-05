@@ -58,6 +58,10 @@ header.masthead {
 		float: left;
 	}
 
+	input[type="text"] {
+		border-color: darken(@mastheadBackgroundColorEnd, 5);
+	}
+
 	.navigation {
 		margin-right: 20px;
 		ul.unstyled {
@@ -132,7 +136,9 @@ header.masthead {
 			font-size: 10px;
 			.border-radius(4px);
 			i {
-				vertical-align: -1px;
+				vertical-align: -3px;
+				width: 9px;
+				margin-right: 1px;
 			}
 			img {
 				opacity: 0.7;
@@ -143,6 +149,7 @@ header.masthead {
 		.notifications {
 			padding: 4px 8px 3px 8px;
 			margin: 2px 5px 2px 0;
+			line-height: 18px;
 			&.notifications-important {
 				color: @mastheadLinkColor;
 				background-color: @notificationsBg;
