@@ -1,6 +1,6 @@
-========
-Util API
-========
+============
+The Util API
+============
 
 The Util API provides various utility APIs -- e.g. auto-completion APIs used by
 front-end javascript.
