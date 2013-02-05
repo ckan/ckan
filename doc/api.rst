@@ -1,168 +1,237 @@
-.. index:: API
-.. _api:
+.. _action-api:
 
-========
-CKAN API
-========
+The CKAN API v3
+===============
 
-.. toctree::
-   :hidden:
-   :maxdepth: 1
+All of a CKAN website's core functionality (everything you can do with the web
+interface and more) can be used by code via CKAN's API (Application Programming
+Interface). For example, using the CKAN API your program can:
 
-The CKAN platform is not only available in a web browser, but also via its
-Application Programming Interface (API). The API provides programmatic access
-to the CKAN system. The API is very powerful and allows you do everything (and more) you can do via the web interface.
+* Get a list of all a site's datasets, resources or other CKAN objects
+* Get the details of a particular dataset, resource or other object
+* Search for packages or resources matching a query
+* Create, update and delete datasets, resources and other objects
+* Get an activity stream of recently changed datasets on a site
 
-Using the API you can do things like:
+The API calls the same internal functions that are used by the web interface,
+so it exposes the full set of read and write operations and all their
+parameters.
 
-* Access any bit of information in CKAN (if you are authorized!)
-* Edit any piece of information in CKAN
-* Create a whole new web front-end for CKAN (if you want!)
 
-The CKAN API follows the RESTful (Representational State Transfer) style and
-uses JSON by default.
+Making an API Request
+---------------------
 
-.. _tools-for-api:
+To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
+CKAN's API URLs. The parameters for the API function should be given in the
+JSON dictionary. CKAN will also return its response in a JSON dictionary.
 
-Tools for Accessing the API
-===========================
+One way to post a JSON dictionary to a URL is using the command-line HTTP
+client `HTTPie <http://httpie.org/>`_.  For example, to get a list of the names
+of all the datasets in the ``data-explorer`` group on demo.ckan.org, install
+HTTPie and then call the ``group_list`` API function by running this command
+in a terminal::
 
-In using the API you will be performing HTTP requests to urls like: ``/api/rest/dataset`` with this returning data in JSON format.
+    http http://demo.ckan.org/api/action/group_list id=data-explorer
 
-There are several ways you can access this URL directly:
+The response from CKAN will look like this::
 
-* Put this URL into your web browser and view or save the resulting response -- there are plugins for browsers like Firefox and Chrome that allow you to see JSON nicely formatted in your browser (e.g. `JSONView for Chrome <https://chrome.google.com/webstore/detail/chklaanhfefbnpoihckbnefhakgolnmc>`_)
-* Use a command-line program such as `curl <http://curl.haxx.se/>`_
-* Write a program in your favourite language that uses an http library to access the URL
+    {
+        "help": "...",
+        "result": [
+            "data-explorer",
+            "department-of-ricky",
+            "geo-examples",
+            "geothermal-data",
+            "reykjavik",
+            "skeenawild-conservation-trust"
+        ],
+        "success": true
+    }
 
-Clients
--------
+The response is a JSON dictionary with three keys:
 
-Alternatively, you can access the API using one the dedicated tools or libraries written specifically for CKAN. The following clients are available:
+1. ``"sucess"``: ``true`` or ``false``.
 
-* `dpm (data package manager) <http://github.com/okfn/dpm/>`_: command-line client and Python library (maintained by core CKAN team)
-* `ckanclient - CKAN Python Client <http://pypi.python.org/pypi/ckanclient>`_: Python client maintained by the core CKAN team
-* `CKAN Ruby <https://github.com/apohllo/ckan>`_: Ruby Client
-* `Ckan_client-PHP <http://github.com/jeffreybarke/Ckan_client-PHP>`_: PHP client
-* `Ckan_client-J <https://github.com/okfn/ckanclient-j>`_: Java client
-* `net-ckan <http://github.com/lukec/net-ckan>`_: PERL client
-* `ckanjs <http://github.com/okfn/ckanjs>`_: sophisticated Javascript client built on Backbone.
-* `Google Refine CKAN Extension <http://ckan.org/2011/07/05/google-refine-extension-for-ckan/>`_: Google Refine client which allows you to get and push data to and from a CKAN instance using Google Refine.
+   The API aims to always return ``200 OK`` as the status code of its HTTP
+   response, whether there were errors with the request or not, so it's
+   important to always check the value of the ``"success"`` key in the response
+   dictionary and (if success is ``False``) check the value of the ``"error"``
+   key.
 
-Quickstart Tutorial
-===================
+.. note::
 
-.. toctree::
-   :maxdepth: 2
+    If there are major formatting problems with a request to the API, CKAN
+    may still return an HTTP response with a ``409``, ``400`` or ``500``
+    status code (in increasing order of severity). In future CKAN versions
+    we intend to remove these responses, and instead send a ``200 OK``
+    response and use the ``"success"`` and ``"error"`` items.
 
-   api-tutorial.rst
+2. ``"result"``: the returned result from the function you called. The type
+   and value of the result depend on which function you called. In the case of
+   the ``group_list`` function it's a list of strings, the names of all the
+   datasets that belong to the group.
 
-.. _api-keys:
+   If there was an error responding to your request, the dictionary will
+   contain an ``"error"`` key with details of the error instead of the
+   ``"result"`` key. A response dictionary containing an error will look like
+   this::
+
+       {
+           "help": "Creates a package",
+           "success": false,
+           "error": {
+               "message": "Access denied",
+               "__type": "Authorization Error"
+               }
+        }
+
+3. ``"help"``: the documentation string for the function you called.
+
+The same HTTP request can be made using Python's standard ``urllib2`` module,
+with this Python code::
+
+    #!/usr/bin/env python
+    import urllib2
+    import urllib
+    import json
+    import pprint
+
+    # Use the json module to dump a dictionary to a string for posting.
+    data_string = urllib.quote(json.dumps({'id': 'data-explorer'}))
+
+    # Make the HTTP request.
+    response = urllib2.urlopen('http://demo.ckan.org/api/action/group_list',
+            data_string)
+
+    # Use the json module to load CKAN's response into a dictionary.
+    response_dict = json.loads(response.read())
+
+    # Check the contents of the response.
+    assert response_dict['success'] is True
+    result = response_dict['result']
+    pprint.pprint(result)
+
+
+Making an API Request with No Parameters
+----------------------------------------
+
+If the API function you're calling doesn't require any parameters, you still
+need to post an empty dictionary. For example, with HTTPie::
+
+    http http://demo.ckan.org/api/action/package_list body=''
+
+Or, in Python::
+
+    response = urllib2.urlopen(
+        'http://demo.ckan.org/api/action/group_list', '{}')
+
 
 Authentication and API Keys
-===========================
+---------------------------
 
-CKAN can be configured to only allow authorized users to carry out certain
-actions (see :doc:`authorization` for more details). The authorization
-configuration is the same for actions done over the API as for those carried
-out in the CKAN web interfac, so a user has the same permissions, whichever way
-he/she accesses CKAN data.
+Some API functions require authorization. The API uses the same authorization
+functions and configuration as the web interface, so if a user is authorized to
+do something in the web interface they'll be authorized to do it via the API as
+well.
 
-Thus, all actions **not** permitted to anonymous users, will require a user to
-identify themselves via some authentication method.
+When calling an API function that requires authorization, you must authenticate
+yourself by providing your API key with your HTTP request. To find your API
+key, login to the CKAN site using its web interface and visit your user profile
+page.
 
-.. note:: Depending on the authorization settings of the CKAN instance, a user
-          may need to authenticate themselves for all operations including
-          read. However, by default, CKAN allows anonymous read access and this
-          setup is assumed for the API usage examples.
+To provide your API key in an HTTP request, include it in either an
+``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
+can be configured with the ``apikey_header_name`` option in your CKAN
+configuration file.)
 
-The standard authentication method utilized by CKAN is API keys and a user
-authenticates his/her user identity by supplying a header in the request
-containing the API key. The header field is either ``Authorization``,
-``X-CKAN-API-Key`` or configured with the `apikey_header_name` option. (Details
-of how to obtain an API key are below).
+For example, to ask whether or not you're currently following the user
+``markw`` on demo.ckan.org using HTTPie, run this command::
 
-For example::
+    http http://demo.ckan.org/api/action/am_following_user id=markw Authorization:XXX
 
-  curl http://thedatahub.org/api/rest/package -d '{"name": "test"}' -H 'Authorization: fde34a3c-b716-4c39-8dc4-881ba115c6d4'
+(Replacing ``XXX`` with your API key.)
 
-If requests that are required to be authorized are not sent with a 
-valid Authorization header, for example the user associated with the 
-key is not authorized for the operation, or the header is somehow malformed,
-then the requested operation will not be carried out and the CKAN API will
-respond with status code 403.
+Or, to get the list of activities from your user dashboard on demo.ckan.org,
+run this Python code::
 
-.. _get-api-key:
+    request = urllib2.Request('http://demo.ckan.org/api/action/dashboard_activity_list')
+    request.add_header('Authorization', 'XXX')
+    response_dict = json.loads(urllib2.urlopen(request, '{}').read())
 
-Obtaining an API key
---------------------
 
-1. Log-in to the particular CKAN website: ``/user/login``
+GET-able API Functions
+----------------------
 
-2. Your user page will show the API Key in your details section at the top of the screen
+Functions defined in `ckan.logic.action.get`_ can also be called with an HTTP
+GET request.  For example, to search for datasets (packages) matching the
+search query ``spending``, on demo.ckan.org, open this URL in your browser::
+
+http://demo.ckan.org/api/action/package_search?q=spending
+
+.. tip::
+
+ Browser plugins like `JSONView for Firefox <https://addons.mozilla.org/en-us/firefox/addon/jsonview/>`_
+ or `Chrome <https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc>`_
+ will format and color CKAN's JSON response nicely in your browser.
+
+The search query is given as a URL parameter ``?q=spending``. Multiple
+URL parameters can be appended, separated by ``&`` characters, for example
+to get only the first 10 matching datasets open this URL::
+
+http://demo.ckan.org/api/action/package_search?q=spending&rows=10
+
+When an action requires a list of strings as the value of a parameter, the
+value can be sent by giving the parameter multiple times in the URL::
+
+http://demo.ckan.org/api/action/term_translation_show?terms=russian&terms=romantic%20novel
+
+If the action you're calling doesn't require any parameters, you still need
+to add a fake parameter to the URL. For example to get a list of all
+datasets on demo.ckan.org::
+
+http://demo.ckan.org/api/action/package_list?foo
+
 
 JSONP Support
-=============
+-------------
 
-To cater for scripts from other sites that wish to access the API, the data can be returned in JSONP format, where the JSON data is 'padded' with a function call. The function is named in the 'callback' parameter.
+To cater for scripts from other sites that wish to access the API, the data can
+be returned in JSONP format, where the JSON data is 'padded' with a function
+call. The function is named in the 'callback' parameter. For example::
 
-Example normal request::
+http://demo.ckan.org/api/action/package_show?id=adur_district_spending&callback=myfunction
 
- GET /api/rest/dataset/pollution_stats
- returns: {"name": "pollution_stats", ... }
-
-but now with the callback parameter::
-
- GET /api/rest/dataset/pollution_stats?callback=name-of-callback-function
- returns: jsoncallback({"name": "pollution_stats", ... });
-
-This parameter can apply to all POST requests to the Action API and GET requests to the Search API and v1/v2/v3 APIs.
+.. todo :: This doesn't work with all functions.
 
 .. _api-reference: 
 
-API: Reference
-==============
+API v3 Reference
+----------------
 
-Model, Search and Actions APIs
-------------------------------
 
-These sections describe the resource locations, data formats, and status codes
-which comprise the CKAN API.
+ckan.logic.action.get
+`````````````````````
 
-The CKAN API is versioned, so that backwards incompatible changes can be
-introduced without removing existing support. A particular version of the API
-can be used by including its version number after the API location and before
-the resource location.
+.. automodule:: ckan.logic.action.get
+   :members:
 
-If the API version is not specified in the request, then the API will default
-to version 1.
 
-Version 1 and 2 
-~~~~~~~~~~~~~~~
+ckan.logic.action.create
+````````````````````````
 
-.. toctree::
-   :maxdepth: 2
+.. automodule:: ckan.logic.action.create
+   :members:
 
-   api-v2.rst
 
-Version 3
-~~~~~~~~~
+ckan.logic.action.update
+````````````````````````
 
-This version is in beta.
+.. automodule:: ckan.logic.action.update
+   :members:
 
-.. toctree::
-   :maxdepth: 2
 
-   apiv3.rst
+ckan.logic.action.delete
+````````````````````````
 
-Util API
---------
-
-The Util API provides various utility APIs -- e.g. auto-completion APIs used by
-front-end javascript.
-
-.. toctree::
-   :maxdepth: 2
-
-   api-util.rst
-
+.. automodule:: ckan.logic.action.delete
+   :members:

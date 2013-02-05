@@ -1,15 +1,11 @@
-============================
-API Details - Versions 1 & 2
-============================
+================================
+The CKAN Legacy API (API v1 & 2)
+================================
 
-The CKAN API version 1 & 2 is separated into three parts.
+The CKAN API version 1 & 2 follow the RESTful (Representational State Transfer)
+style and use JSON by default.
 
-* `Model API`_
-* `Search API`_
-
-The resources, methods, and data formats of each are described below.
-
-Versions 1 & 2
+Version 1 & 2
 ~~~~~~~~~~~~~~
 
 These are very similar, but when the API returns a reference to an object, Version 1 API will return the Name of the object (e.g. "river-pollution") and Version 2 API will return the ID of the object (e.g. "a3dd8f64-9078-4f04-845c-e3f047125028").
