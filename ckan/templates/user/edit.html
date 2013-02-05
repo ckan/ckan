@@ -3,7 +3,7 @@
 {% set user = c.userobj %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('User'), controller='user', action='index' %}</li>
+  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
   <li>{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
   <li class="active">{% link_for _('Edit'), controller='user', action='edit', id=user.name %}</li>
 {% endblock %}
