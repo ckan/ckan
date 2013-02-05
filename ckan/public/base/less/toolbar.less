@@ -1,6 +1,5 @@
 .toolbar {
   .clearfix;
-  margin-top: -10px;
   margin-bottom: 10px;
   padding: 5px 0;
 }
@@ -106,9 +105,9 @@
 .page-header {
   position: relative;
   border-bottom: 1px solid @moduleHeadingBorderColor;
+  background-color: @moduleHeadingBackgroundColor;
   height: 30px;
-  .border-radius(3px 3px 0 0);
-  #gradient > .vertical(@moduleHeadingBackgroundColorStart, @moduleHeadingBackgroundColorEnd);
+  .border-radius(0 3px 0 0);
   .nav-tabs {
     position: absolute;
     left: 20px;
