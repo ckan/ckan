@@ -54,8 +54,16 @@ class TestGroup(object):
         assert grp in anna.get_groups()
 
     def test_3_search(self):
-        def search_results(query):
-            results = model.Group.search_by_name_or_title(query)
+        model.repo.new_revision()
+        model.Session.add(model.Group(name=u'test_org',
+                                       title=u'Test org',
+                                       type=u'organization'
+                         ))
+        model.repo.commit_and_remove()
+
+
+        def search_results(query, is_org=False):
+            results = model.Group.search_by_name_or_title(query,is_org=is_org)
             return set([group.name for group in results])
         assert_equal(search_results('random'), set([]))
         assert_equal(search_results('david'), set(['david']))
@@ -66,7 +74,8 @@ class TestGroup(object):
         assert_equal(search_results('Dave\'s'), set(['david']))
         assert_equal(search_results('Dave\'s books'), set(['david']))
         assert_equal(search_results('Books'), set(['david', 'roger']))
-
+        assert_equal(search_results('Books', is_org=True), set([]))
+        assert_equal(search_results('Test', is_org=True), set(['test_org']))
 
 class TestGroupRevisions:
     @classmethod

@@ -746,7 +746,11 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
-        c.followers = get_action('group_follower_list')(context, {'id': id})
+        try:
+            c.followers = get_action('group_follower_list')(context,
+                    {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html')
 
     def admins(self, id):
