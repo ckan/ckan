@@ -13,9 +13,15 @@
 {% endblock %}
 
 {% block actions_content %}
-  {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
+  <li>{% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn', icon='eye-open' %}</li>
 {% endblock %}
 
 {% block secondary_content %}
-  
+  {% snippet 'package/snippets/info.html', pkg=pkg, action='package_edit' %}
 {% endblock %}
+
+{% block primary_content %}
+  <header class="module-content page-header"></header>
+  {{ super() }}
+{% endblock %}
+

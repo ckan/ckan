@@ -7,9 +7,9 @@
   {% if pkg.organization %}
     {% set organization = pkg.organization.title or pkg.organization.name %}
     <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
-    <li>{% link_for organization|truncate(20), controller='organization', action='read', id=pkg.organization.name %}
+    <li>{% link_for organization|truncate(30), controller='organization', action='read', id=pkg.organization.name %}
   {% else %}
     <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
   {% endif %}
-  <li>{% link_for dataset|truncate(20), controller='package', action='read', id=pkg.name %}</li>
+  <li>{% link_for dataset|truncate(30), controller='package', action='read', id=pkg.name %}</li>
 {% endblock %}
