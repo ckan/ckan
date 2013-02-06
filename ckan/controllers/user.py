@@ -479,7 +479,10 @@ class UserController(base.BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
-        c.followers = f(context, {'id': c.user_dict['id']})
+        try:
+            c.followers = f(context, {'id': c.user_dict['id']})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to view followers %s') % '')
         return render('user/followers.html')
 
     def activity(self, id, offset=0):
