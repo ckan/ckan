@@ -33,7 +33,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet 'snippets/organization.html', organization=c.group_dict %}
+  {% snippet 'snippets/organization.html', organization=c.group_dict, show_nums=true %}
 
   {% if h.user_in_org_or_group(c.group_dict.id) %}
     {{ h.snippet('snippets/facet_list.html', title='Visibility', name='capacity', extras={'id':c.group_dict.id}) }}
