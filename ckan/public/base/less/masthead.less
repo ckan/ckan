@@ -4,7 +4,7 @@
 	.clearfix();
 	min-height: 30px;
 	color: @mastheadTextColor;
-	background-color: darken(@mastheadBackgroundColor, 10%);
+	background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
 	.account {
 		float: right;
 		.dropdown {
@@ -78,7 +78,7 @@
 	.clearfix();
 	min-height: 55px;
 	color: @mastheadTextColor;
-	background-color: @mastheadBackgroundColor;
+	background: @mastheadBackgroundColor url("@{bgPath}");
 
 	.container {
 		position: relative;

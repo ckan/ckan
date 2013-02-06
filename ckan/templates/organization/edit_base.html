@@ -2,8 +2,6 @@
 
 {% set organization = c.group_dict %}
 
-{% block bodytag %}{{ super() }} class="editing"{% endblock %}
-
 {% block subtitle %}{{ organization.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}

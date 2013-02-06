@@ -89,7 +89,7 @@
   {% block package_tags %}
     <div class="module module-narrow">
       <h2 class="module-heading"><i class="icon-tags"></i> {{ _('Tags') }}</h2>
-      <div class="module-content module-content-shallow">
+      <div class="module-content module-content-shallow module-tags">
         {% for tag in pkg.tags %}
           <a class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
         {% endfor %}

@@ -18,17 +18,11 @@
   position: relative;
   padding-top: 10px;
   padding-bottom: 20px;
-  background-color: @layoutBackgroundColor;
+  background: @layoutBackgroundColor url("@{bgPath}");
 }
 
 [role=main] {
   min-height: 350px;
-}
-
-.main:before,
-[role=main]:before {
-  top: 0;
-  border-bottom-width: 1px;
 }
 
 .main:after,

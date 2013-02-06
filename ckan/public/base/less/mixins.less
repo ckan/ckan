@@ -46,13 +46,14 @@
   border: 1px solid darken(@tagBackgroundColor, 10%);
   .border-radius(100px);
   .box-shadow(inset 0 1px 0 lighten(@tagBackgroundColor, 10%));
-  &:hover {
-    text-decoration: none;
-    color: #fff;
-    background-color: @btnPrimaryBackground;
-    border: 1px solid darken(@btnPrimaryBackground, 10%);
-    .box-shadow(inset 0 1px 0 lighten(@btnPrimaryBackground, 10%));
-  }
+}
+
+a.tag:hover {
+  text-decoration: none;
+  color: #fff;
+  background-color: @btnPrimaryBackground;
+  border: 1px solid darken(@btnPrimaryBackground, 10%);
+  .box-shadow(inset 0 1px 0 lighten(@btnPrimaryBackground, 10%));
 }
 
 .pill {
