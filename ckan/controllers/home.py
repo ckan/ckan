@@ -125,6 +125,7 @@ class HomeController(BaseController):
                        'ignore_auth': True,
                        'user': c.user or c.author,
                        'schema': db_to_form_schema(group_type=group_type),
+                       'limits': {'packages': 2},
                        'for_view': True}
             data_dict = {'id': id}
 
