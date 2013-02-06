@@ -279,7 +279,6 @@ class PackagesTestCase(BaseModelApiTestCase):
             self.post_json(offset, data, status=500, extra_environ=self.admin_extra_environ)
             model.Session.remove()
         finally:
-            plugins.unload('synchronous_search')
             SolrSettings.init(original_settings)
 
     def test_register_post_tag_too_long(self):

@@ -1,4 +1,5 @@
 import json
+import nose
 
 import sqlalchemy.orm as orm
 
@@ -18,6 +19,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
