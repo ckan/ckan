@@ -1,8 +1,8 @@
-{% extends "package/read.html" %}
+{% extends "package/read_base.html" %}
 
 {% set pkg = c.pkg %}
 
-{% block package_content %}
+{% block primary_content_inner %}
   <section class="module-content">
     <h2 class="hide-heading">{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}</h2>
     {% if c.pkg.related %}

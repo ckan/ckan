@@ -3,8 +3,10 @@ import logging
 import types
 import re
 
-from ckan.lib.base import _
-import ckan.authz
+from pylons.i18n import _
+
+import ckan.lib.base as base
+import ckan.model as model
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
@@ -193,7 +195,6 @@ def flatten_to_string_key(dict):
 
 
 def check_access(action, context, data_dict=None):
-    model = context['model']
     user = context.get('user')
 
     log.debug('check access - user %r, action %s' % (user, action))
@@ -217,34 +218,49 @@ def check_access(action, context, data_dict=None):
     return True
 
 
-def check_access_old(entity, action, context):
-    model = context['model']
-    user = context.get('user')
-    if context.get('ignore_auth'):
-        return True
-    log.debug('check access - user %r, action %s' % (user, action))
-    if action and entity and not isinstance(entity, model.PackageRelationship):
-        if action != model.Action.READ and user == '':
-            log.debug('Valid API key needed to make changes')
-            return False
-            #raise NotAuthorized
-        am_authz = ckan.authz.Authorizer().is_authorized(user, action, entity)
-        if not am_authz:
-            log.debug('User is not authorized to %s %s' % (action, entity))
-            return False
-            #raise NotAuthorized
-    elif not user:
-        log.debug('No valid API key provided.')
-        return False
-        #raise NotAuthorized
-
-    log.debug('Access OK.')
-    return True
-
 _actions = {}
 
 
 def get_action(action):
+    '''Return the ckan.logic.action function named by the given string.
+
+    For example:
+
+        get_action('package_create')
+
+    will normally return the ckan.logic.action.create.py:package_create()
+    function.
+
+    Rather than importing a ckan.logic.action function and calling it directly,
+    you should always fetch the function via get_action():
+
+        # Call the package_create action function:
+        get_action('package_create')(context, data_dict)
+
+    This is because CKAN plugins can override action functions using the
+    IActions plugin interface, causing get_action() to return a plugin-provided
+    function instead of the default one.
+
+    As the context parameter passed to an action function is commonly:
+
+        context = {'model': ckan.model, 'session': ckan.model.Session,
+                   'user': pylons.c.user or pylons.c.author}
+
+    an action function returned by get_action() will automatically add these
+    parameters to the context if they are not defined.  This is especially
+    useful for extensions as they should not really be importing parts of ckan
+    eg ckan.model and as such do not have access to model or model.Session.
+
+    If a context of None is passed to the action function then the context dict
+    will be created.
+
+    :param action: name of the action function to return
+    :type action: string
+
+    :returns: the named action function
+    :rtype: callable
+
+    '''
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
@@ -287,6 +303,34 @@ def get_action(action):
             fetched_actions[name] = auth_function
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
+
+    # wrap the functions
+    for action_name, _action in _actions.items():
+        def make_wrapped(_action, action_name):
+            def wrapped(context=None, data_dict=None, **kw):
+                if kw:
+                    log.critical('%s was pass extra keywords %r'
+                                 % (_action.__name__, kw))
+                if context is None:
+                    context = {}
+                context.setdefault('model', model)
+                context.setdefault('session', model.Session)
+                try:
+                    context.setdefault('user', base.c.user or base.c.author)
+                except TypeError:
+                    # c not registered
+                    pass
+                return _action(context, data_dict, **kw)
+            return wrapped
+
+        fn = make_wrapped(_action, action_name)
+        # we need to mirror the docstring
+        fn.__doc__ = _action.__doc__
+        # we need to retain the side effect free behaviour
+        if getattr(_action, 'side_effect_free', False):
+            fn.side_effect_free = True
+        _actions[action_name] = fn
+
     return _actions.get(action)
 
 

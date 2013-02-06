@@ -1,4 +1,5 @@
 import json
+import nose
 import pprint
 
 import sqlalchemy.orm as orm
@@ -18,6 +19,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -70,6 +73,18 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == len(self.data['records'])
+        assert result['records'] == self.expected_records, result['records']
+
+        # search with parameter id should yield the same results
+        data = {'id': self.data['resource_id']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -203,6 +218,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+        data = {'resource_id': self.data['resource_id'],
+                'limit': -1}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_search_offset(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 1,
@@ -220,6 +244,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def test_search_invalid_offset(self):
         data = {'resource_id': self.data['resource_id'],
                 'offset': 'bad'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        data = {'resource_id': self.data['resource_id'],
+                'offset': -1}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -301,6 +334,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -367,6 +402,8 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')

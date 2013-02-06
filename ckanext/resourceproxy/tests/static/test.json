@@ -1,0 +1,5 @@
+{
+	"a": "foo",
+	"bar": "yes, I'm proxied",
+	"b": 42
+}

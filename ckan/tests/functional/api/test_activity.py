@@ -17,6 +17,23 @@ import paste.fixture
 from ckan.lib.helpers import json
 
 
+##<<<<<<< HEAD
+##def package_update(context, data_dict):
+##    # These tests call package_update directly which is really bad
+##    # setting api_version in context make things seem like the api key
+##    # is ok etc
+##    context['api_version'] = 3
+##    context['ignore_auth'] = True
+##    return _package_update(context, data_dict)
+##
+##def package_create(context, data_dict):
+##    # These tests call package_update directly which is really bad
+##    # setting api_version in context make things seem like the api key
+##    # is ok etc
+##    context['api_version'] = 3
+##    context['ignore_auth'] = True
+##    return _package_create(context, data_dict)
+##=======
 def package_show(app, data_dict, apikey=None):
     if apikey:
         extra_environ = {'Authorization': str(apikey)}
@@ -203,6 +220,7 @@ class TestActivity:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
+        print '@@@@@@@@', extra_environ
         response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
                 extra_environ=extra_environ)
         return json.loads(response.body)
@@ -1983,7 +2001,7 @@ class TestActivity:
             self._delete_extra(package_dict, user=self.normal_user)
 
     def test_follow_dataset(self):
-        user = self.normal_user
+        user = self.sysadmin_user
         before = self.record_details(user['id'], self.warandpeace['id'],
                 apikey=user['apikey'])
         data = {'id': self.warandpeace['id']}
@@ -1999,32 +2017,36 @@ class TestActivity:
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
-        assert len(user_new_activities) == 1, ("There should be 1 new "
+        assert len(user_new_activities) == 0, ("There should be 0 new "
             " activity in the user's activity stream, but found %i" %
             len(user_new_activities))
-        activity = user_new_activities[0]
+
+        # The rest of this test is commented out because 'follow dataset'
+        # activities are disabled, even they are reenabled then uncomment it.
+
+        #activity = user_new_activities[0]
 
         # The same new activity should appear in the package's activity stream.
-        pkg_new_activities = after['package activity stream']
-        for activity in user_new_activities:
-            assert activity in pkg_new_activities
+        #pkg_new_activities = after['package activity stream']
+        #for activity in user_new_activities:
+        #    assert activity in pkg_new_activities
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == self.warandpeace['id'], \
-            str(activity['object_id'])
-        assert activity['user_id'] == user['id'], str(activity['user_id'])
-        assert activity['activity_type'] == 'follow dataset', \
-            str(activity['activity_type'])
-        if 'id' not in activity:
-            assert False, "activity object should have an id value"
+        #assert activity['object_id'] == self.warandpeace['id'], \
+        #    str(activity['object_id'])
+        #assert activity['user_id'] == user['id'], str(activity['user_id'])
+        #assert activity['activity_type'] == 'follow dataset', \
+        #    str(activity['activity_type'])
+        #if 'id' not in activity:
+        #    assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if 'revision_id' not in activity:
-            assert False, "activity object should have a revision_id value"
-        timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= \
-            after['time'], str(activity['timestamp'])
+        #if 'revision_id' not in activity:
+        #    assert False, "activity object should have a revision_id value"
+        #timestamp = datetime_from_string(activity['timestamp'])
+        #assert timestamp >= before['time'] and timestamp <= \
+        #    after['time'], str(activity['timestamp'])
 
-        assert len(self.activity_details(activity)) == 0
+        #assert len(self.activity_details(activity)) == 0
 
     def test_follow_user(self):
         user = self.normal_user
@@ -2045,24 +2067,28 @@ class TestActivity:
         # Find the new activity in the user's activity stream.
         user_new_activities = (find_new_activities(
             before['user activity stream'], after['user activity stream']))
-        assert len(user_new_activities) == 1, ("There should be 1 new "
-            " activity in the user's activity stream, but found %i" %
+        assert len(user_new_activities) == 0, ("There should be 0 new "
+            " activities in the user's activity stream, but found %i" %
             len(user_new_activities))
-        activity = user_new_activities[0]
+
+        # The rest of this test is commented out because follow_user activities
+        # are disabled, uncomment it if they're enabled again.
+
+        #activity = user_new_activities[0]
 
         # Check that the new activity has the right attributes.
-        assert activity['object_id'] == self.sysadmin_user['id'], \
-            str(activity['object_id'])
-        assert activity['user_id'] == user['id'], str(activity['user_id'])
-        assert activity['activity_type'] == 'follow user', \
-            str(activity['activity_type'])
-        if 'id' not in activity:
-            assert False, "activity object should have an id value"
+        #assert activity['object_id'] == self.sysadmin_user['id'], \
+        #    str(activity['object_id'])
+        #assert activity['user_id'] == user['id'], str(activity['user_id'])
+        #assert activity['activity_type'] == 'follow user', \
+        #    str(activity['activity_type'])
+        #if 'id' not in activity:
+        #    assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
-        if 'revision_id' not in activity:
-            assert False, "activity object should have a revision_id value"
-        timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= \
-            after['time'], str(activity['timestamp'])
-
-        assert len(self.activity_details(activity)) == 0
+        #if 'revision_id' not in activity:
+        #    assert False, "activity object should have a revision_id value"
+        #timestamp = datetime_from_string(activity['timestamp'])
+        #assert timestamp >= before['time'] and timestamp <= \
+        #    after['time'], str(activity['timestamp'])
+        #
+        #assert len(self.activity_details(activity)) == 0

@@ -6,7 +6,7 @@ from nose.tools import assert_equal, assert_raises
 from pylons import config
 
 from ckan.tests import *
-from ckan.lib import helpers as h
+import ckan.lib.helpers as h
 
 
 WITH_HTML = u'''Data exposed: &mdash;
@@ -15,6 +15,7 @@ Notes: this is the classic RDF source but historically has had some problems wit
 '''
 
 WITH_UNICODE = u'''[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving.'''
+
 
 class TestHelpers(TestController):
 
@@ -79,20 +80,20 @@ class TestHelpers(TestController):
 
     def test_gravatar(self):
         email = 'zephod@gmail.com'
-        expected =['<a href="https://gravatar.com/"',
+        expected = ['<a href="https://gravatar.com/"',
                 '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"', '</a>']
         # Hash the email address
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default='mm')
         for e in expected:
-            assert e in res, (e,res)
+            assert e in res, (e, res)
 
     def test_gravatar_config_set_default(self):
         """Test when default gravatar is None, it is pulled from the config file"""
         email = 'zephod@gmail.com'
         default = config.get('ckan.gravatar_default', 'identicon')
-        expected =['<a href="https://gravatar.com/"',
+        expected = ['<a href="https://gravatar.com/"',
                    '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default,
                    '</a>']
         # Hash the email address
@@ -100,13 +101,13 @@ class TestHelpers(TestController):
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200)
         for e in expected:
-            assert e in res, (e,res)
+            assert e in res, (e, res)
 
     def test_gravatar_encodes_url_correctly(self):
         """Test when the default gravatar is a url, it gets urlencoded"""
         email = 'zephod@gmail.com'
         default = 'http://example.com/images/avatar.jpg'
-        expected =['<a href="https://gravatar.com/"',
+        expected = ['<a href="https://gravatar.com/"',
                    '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
                    '</a>']
         # Hash the email address
@@ -114,7 +115,7 @@ class TestHelpers(TestController):
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default=default)
         for e in expected:
-            assert e in res, (e,res)
+            assert e in res, (e, res)
 
     def test_parse_rfc_2822_no_timezone_specified(self):
         """
@@ -161,7 +162,6 @@ class TestHelpers(TestController):
 
         assert_equal(output_str, expected_str)
 
-
     def test_get_pkg_dict_extra(self):
 
         from ckan.lib.create_test_data import CreateTestData
@@ -170,10 +170,10 @@ class TestHelpers(TestController):
 
         CreateTestData.create()
 
-        pkg_dict = get_action('package_show')({'model':model,'user':u'tester'},{'id': 'annakarenina'})
+        pkg_dict = get_action('package_show')({'model': model, 'user': u'tester'}, {'id': 'annakarenina'})
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'genre'), '"romantic novel"')
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
-        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found','default_value'), 'default_value')
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')

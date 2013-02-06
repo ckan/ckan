@@ -1,0 +1,52 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Organizations of Datasets') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Organizations'), controller='organization', action='index' %}</li>
+{% endblock %}
+
+{% block actions_content %}
+  {% if h.check_access('organization_create') %}
+    <li>{% link_for _('Add Organization'), controller='organization', action='new', class_='btn', icon='plus' %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block primary_content %}
+  <div class="module">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Organizations') }}</h1>
+      {% if c.page.items %}
+        {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
+      {% else %}
+        <p class="empty">
+          {{ _('There are currently no organizations for this site') }}.
+          {% if h.check_access('organization_create') %}
+            {% link_for _('How about creating one?'), controller='organization', action='new' %}</a>.
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    {{ c.page.pager() }}
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-large icon-info-sign"></i>
+      {{ _('What are Organizations?') }}
+    </h2>
+    <div class="module-content">
+      {% trans %}
+        <p>Organizations act like publishing departments for datasets (for
+          example, the Department of Health). This means that datasets can be
+          published by and belong to a department instead of an individual
+          user.</p>
+        <p>Within organizations, admins can assign roles and authorisation its
+          members, giving individual users the right to publish datasets from
+          that particular organisation (e.g. Office of National Statistics).</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
