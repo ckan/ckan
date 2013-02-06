@@ -1,14 +1,6 @@
-{% extends "page.html" %}
-
-{% set pkg = c.pkg_dict %}
+{% extends "package/base.html" %}
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
-
-{% block breadcrumb_content %}
-  {% set dataset = pkg.title or pkg.name %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
-{% endblock %}
 
 {% block actions_content %}
   {# NOTE: Not implemented in stage 1 #}
@@ -25,7 +17,7 @@
       <div class="module info">
         <p class="module-content">
           {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-          {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
+          {% set url = h.url(controller='package', action='read', id=pkg.name) %}
 
           {% if c.pkg_revision_not_latest %}
             {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}

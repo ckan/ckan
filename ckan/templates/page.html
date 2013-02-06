@@ -37,15 +37,24 @@
                   </ol>
                 {% endif %}
               {% endblock %}
-              {% block actions %}
-                <ul class="actions pull-right">
-                  {% block actions_content %}{% endblock %}
-                </ul>
-              {% endblock %}
             </div>
           {% endblock %}
 
           <div class="wrapper{% block wrapper_class %}{% endblock %}">
+
+            {% block actions %}
+              <div class="btn-group actions">
+                {% block actions_content %}{% endblock %}
+              </div>
+            {% endblock %}
+
+            {#
+            The pre_primary block can be used to add content to before the
+            rendering of the main content columns of the page.
+            #}
+            {% block pre_primary %}
+            {% endblock %}
+
             {% block primary %}
               <div class="primary">
                 {#
