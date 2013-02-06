@@ -228,7 +228,7 @@ def validate(data, schema, context=None):
     converted_data, errors = _validate(flattened, schema, context)
 
     # check config for partial update fix option
-    if config.get('ckan.fix_partial_updates', False):
+    if config.get('ckan.fix_partial_updates', True):
         # repopulate the empty lists
         for key in empty_lists:
             if key not in converted_data:
