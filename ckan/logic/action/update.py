@@ -1104,6 +1104,9 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     # solr update here
     psi = search.PackageSearchIndex()
 
+    # update the solr index in batches
+    BATCH_SIZE = 50
+
     def process_solr(q):
         # update the solr index for the query
         query = search.PackageSearchQuery()
@@ -1111,15 +1114,16 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
-        for result in query.run(q)['results']:
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'rows': BATCH_SIZE
+        }
+
+        for result in enumerate(query.run(q)['results']):
             data_dict = json.loads(result['data_dict'])
             if data_dict['owner_org'] == org_id:
                 data_dict.update(update_dict)
                 psi.index_package(data_dict, defer_commit=True)
 
-    # update the solr index in batches
-    BATCH_SIZE = 50
     count = 0
     q = []
     for id in datasets:
