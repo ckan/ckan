@@ -219,7 +219,8 @@ def check_access(action, context, data_dict=None):
 
 
 _actions = {}
-
+def clear_cache():
+    _actions.clear()
 
 def get_action(action):
     '''Return the ckan.logic.action function named by the given string.

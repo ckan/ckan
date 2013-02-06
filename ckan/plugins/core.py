@@ -113,7 +113,9 @@ def reset():
 
 def _clear_logic_and_auth_caches():
     import ckan.logic
-    ckan.logic._actions.clear()
+    import ckan.new_authz
+    ckan.logic.clear_cache()
+    ckan.new_authz.clear_cache()
 
 def load(plugin):
     """

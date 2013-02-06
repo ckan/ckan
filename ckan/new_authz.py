@@ -15,6 +15,9 @@ log = getLogger(__name__)
 class AuthFunctions:
     _functions = {}
 
+def clear_cache():
+    AuthFunctions._functions.clear()
+
 def is_sysadmin(username):
     ''' returns True is username is a sysadmin '''
     if not username:

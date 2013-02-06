@@ -29,6 +29,7 @@ setup(name='ckantestplugin',
             'authorizer_plugin=ckantestplugin:AuthorizerPlugin',
             'test_observer_plugin=ckantestplugin:PluginObserverPlugin',
             'action_plugin=ckantestplugin:ActionPlugin',
+            'auth_plugin=ckantestplugin:AuthPlugin',
         ]
     }
 )
