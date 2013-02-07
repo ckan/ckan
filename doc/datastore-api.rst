@@ -1,10 +1,10 @@
-======================
-The DataStore Data API
-======================
+=================
+The DataStore API
+=================
 
-The following provides an introduction to using the CKAN :doc:`DataStore<datastore>` Data API.
+The following provides an introduction to using the CKAN :doc:`DataStore<datastore>` API.
 
-The DataStore's Data API, which derives from the underlying data table, is JSON-based with extensive query capabilities.
+The DataStore API, which derives from the underlying data table, is JSON-based with extensive query capabilities.
 
 Each resource in a CKAN instance can have an associated DataStore 'table'. The basic API for accessing the DataStore is outlined below.
 
