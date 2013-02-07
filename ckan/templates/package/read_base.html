@@ -55,6 +55,12 @@
 
   {% block secondary_help_content %}{% endblock %}
 
+  {% block package_organization %}
+    {% if pkg.organization %}
+      {% snippet "snippets/organization.html", organization=pkg.organization, truncate=70, show_nums=false %}
+    {% endif %}
+  {% endblock %}
+
   {% block package_groups %}
     {% for group in pkg.groups %}
       {% snippet "snippets/group.html", group=group, truncate=70 %}
