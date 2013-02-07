@@ -1,7 +1,7 @@
 .. _action-api:
 
-The CKAN API v3
-===============
+The Action API
+==============
 
 All of a CKAN website's core functionality (everything you can do with the web
 interface and more) can be used by code via CKAN's API (Application Programming
@@ -205,8 +205,8 @@ http://demo.ckan.org/api/action/package_show?id=adur_district_spending&callback=
 
 .. _api-reference: 
 
-API v3 Reference
-----------------
+Action API Reference
+--------------------
 
 
 ckan.logic.action.get
