@@ -1,36 +1,44 @@
-================================
-The CKAN Legacy API (API v1 & 2)
-================================
+===========
+Legacy APIs
+===========
 
-The CKAN API version 1 & 2 follow the RESTful (Representational State Transfer)
-style and use JSON by default.
+The legacy APIs documented in this section are provided for
+backwards-compatibility, but support for new CKAN features will not be added to
+these APIs.
 
-Version 1 & 2
-~~~~~~~~~~~~~~
 
-These are very similar, but when the API returns a reference to an object, Version 1 API will return the Name of the object (e.g. "river-pollution") and Version 2 API will return the ID of the object (e.g. "a3dd8f64-9078-4f04-845c-e3f047125028").
+API Versions
+~~~~~~~~~~~~
 
-The reason for this is that Names can change, so to reliably refer to the same dataset every time, you will want to use the ID and therefore use API v2. Alternatively, many people prefer to deal with Names, so API v1 suits them.
+There are two versions of the legacy APIs. When the API returns a reference to
+an object, version 1 of the API will return the name of the object (e.g.
+``"river-pollution"``), whereas version 2 will return the ID of the object
+(e.g.  ``"a3dd8f64-9078-4f04-845c-e3f047125028"``). Tag objects are an
+exception, tag names are immutable so tags are always referred to with their
+name.
 
-When making requests, you can call objects by either their Name or ID, interchangeably.
+You can specify which version of the API to use in the URL. For example,
+opening this URL in your web browser will list demo.ckan.org's datasets using
+API version 1:
 
-The only exception for this is for Tag objects. Since Tag names are immutable, they are always referred to with their Name.
+http://demo.ckan.org/api/1/rest/dataset
 
-Locators
-~~~~~~~~
+Opening this URL calls the same function using API version 2:
 
-The locator for a given resource can be formed by appending
-the relative path for that resource to the API locator.
+http://demo.ckan.org/api/2/rest/dataset
 
-  ``Resource Locator = API Locator + Resource Path``
+If no version number is given in the URL then the API defaults to version 1, so
+this URL will list the site's datasets using API version 1:
 
-The API locators for the CKAN APIs (by version) are:
+http://demo.ckan.org/api/rest/dataset
 
- * ``/api`` (version 1)
- * ``/api/1`` (version 1)
- * ``/api/2`` (version 2)
+Dataset names can change, so to reliably refer to the same dataset over time,
+you will want to use the dataset's ID and therefore use API v2. Alternatively,
+many people prefer to deal with Names, so API v1 suits them.
 
-The relative paths for each resource are listed in the sections below.
+When posting parameters with your API requests, you can refer to objects by
+either their name or ID, interchangeably.
+
 
 Model API
 ~~~~~~~~~
@@ -409,8 +417,8 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
 
 
-The Util API
-~~~~~~~~~~~~
+Util API
+~~~~~~~~
 
 The Util API provides various utility APIs -- e.g. auto-completion APIs used by
 front-end javascript.
