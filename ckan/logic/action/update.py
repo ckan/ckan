@@ -1118,7 +1118,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'rows': BATCH_SIZE
         }
 
-        for result in enumerate(query.run(q)['results']):
+        for result in query.run(q)['results']:
             data_dict = json.loads(result['data_dict'])
             if data_dict['owner_org'] == org_id:
                 data_dict.update(update_dict)
