@@ -3,19 +3,39 @@
 The Action API
 ==============
 
-All of a CKAN website's core functionality (everything you can do with the web
-interface and more) can be used by code via CKAN's API (Application Programming
-Interface). For example, using the CKAN API your program can:
+CKAN's Action API is a powerful, RPC-style API that exposes all of CKAN's core
+features to API clients. All of a CKAN website's core functionality (everything
+you can do with the web interface and more) can be used by external code that
+calls the CKAN API.  For example, using the CKAN API your app can:
 
-* Get a list of all a site's datasets, resources or other CKAN objects
-* Get the details of a particular dataset, resource or other object
-* Search for packages or resources matching a query
+* Get JSON-formatted lists of a site's datasets, groups or other CKAN objects:
+
+  http://demo.ckan.org/api/action/package_list?foo
+
+  http://demo.ckan.org/api/action/group_list?foo
+
+  http://demo.ckan.org/api/action/tag_list?foo
+
+* Get a full JSON representation of a dataset, resource or other object:
+
+  http://demo.ckan.org/api/action/package_show?id=adur_district_spending
+
+  http://demo.ckan.org/api/action/tag_show?id=gold
+
+  http://demo.ckan.org/api/action/group_show?id=data-explorer
+
+* Search for packages or resources matching a query:
+
+  http://demo.ckan.org/api/action/package_search?q=spending
+
+  http://demo.ckan.org/api/action/resource_search?query=name:District%20Names
+
 * Create, update and delete datasets, resources and other objects
-* Get an activity stream of recently changed datasets on a site
 
-The API calls the same internal functions that are used by the web interface,
-so it exposes the full set of read and write operations and all their
-parameters.
+* Get an activity stream of recently changed datasets on a site:
+
+  http://demo.ckan.org/api/action/recently_changed_packages_activity_list?foo
+
 
 
 Making an API Request
