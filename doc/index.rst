@@ -75,7 +75,6 @@ The CKAN API
 .. toctree::
    :maxdepth: 1
 
-   api-search.rst
    api-util.rst
    legacy-api
 
