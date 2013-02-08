@@ -17,17 +17,17 @@ Quickstart
 There are several endpoints into the DataStore API, they are:
 
 :meth:`~ckanext.datastore.logic.action.datastore_create`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_create``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_create``
 :meth:`~ckanext.datastore.logic.action.datastore_delete`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_delete``
 :meth:`~ckanext.datastore.logic.action.datastore_upsert`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_upsert``
 :meth:`~ckanext.datastore.logic.action.datastore_search`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_search``
 :meth:`~ckanext.datastore.logic.action.datastore_search_sql`, not available in :ref:`legacy mode<legacy_mode>`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_search_sql``
 ``datastore_search_htsql()``, see :ref:`datastore_search_htsql`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
+  at ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_search_htsql``
 
 To understand the differences between the three last API endpoints, see :ref:`comparison_querying`.
 
