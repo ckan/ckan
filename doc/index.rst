@@ -71,6 +71,7 @@ The CKAN API
 
    api
    datastore-api
+   filestore-api
 
 .. toctree::
    :maxdepth: 1
