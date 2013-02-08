@@ -228,30 +228,12 @@ http://demo.ckan.org/api/action/package_show?id=adur_district_spending&callback=
 Action API Reference
 --------------------
 
+Functions for getting data from CKAN: :doc:`ckan.logic.action.get`.
 
-ckan.logic.action.get
-`````````````````````
+Functions for adding data to CKAN: :doc:`ckan.logic.action.create`.
 
-.. automodule:: ckan.logic.action.get
-   :members:
+Functions for updating existing data in CKAN: :doc:`ckan.logic.action.update`.
 
+Functions for deleting data from CKAN: :doc:`ckan.logic.action.delete`.
 
-ckan.logic.action.create
-````````````````````````
-
-.. automodule:: ckan.logic.action.create
-   :members:
-
-
-ckan.logic.action.update
-````````````````````````
-
-.. automodule:: ckan.logic.action.update
-   :members:
-
-
-ckan.logic.action.delete
-````````````````````````
-
-.. automodule:: ckan.logic.action.delete
-   :members:
+All API functions on one page: :doc:`ckan.logic.action`.
