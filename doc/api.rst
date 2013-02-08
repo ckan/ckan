@@ -122,6 +122,7 @@ with this Python code::
     # Make the HTTP request.
     response = urllib2.urlopen('http://demo.ckan.org/api/action/group_list',
             data_string)
+    assert response.code == 200
 
     # Use the json module to load CKAN's response into a dictionary.
     response_dict = json.loads(response.read())
