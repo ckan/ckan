@@ -25,7 +25,8 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-http://wiki.ckan.org/Install for help):
+our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+wiki page for help):
 
 =====================  ===============================================
 Package                Description
