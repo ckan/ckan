@@ -2,17 +2,14 @@
 The DataStore API
 =================
 
-The following provides an introduction to using the CKAN :doc:`DataStore<datastore>` API.
+The DataStore API allows tabular data to be stored inside CKAN quickly and
+easily. Making a DataStore API request is the same as making an Action API
+request: you post a JSON dictionary in an HTTP POST request to an API URL, and
+the API also returns its response in a JSON dictionary. See the
+:ref:`action-api` for details.
 
-The DataStore API, which derives from the underlying data table, is JSON-based with extensive query capabilities.
-
-Each resource in a CKAN instance can have an associated DataStore 'table'. The basic API for accessing the DataStore is outlined below.
-
-Introduction
-============
-
-The DataStore API allows tabular data to be stored inside CKAN quickly and easily. It is accessible through an interface accessible over HTTP and can be interacted with using JSON (the JavaScript Object Notation).
-
+Each resource in a CKAN instance can have an associated DataStore 'table'. The
+basic API for accessing the DataStore is outlined below.
 
 Quickstart
 ==========
