@@ -14,9 +14,9 @@
       {% endfor %}
     </colgroup>
     <tr>
-      <th>{{ _('User') }}</th>
+      <th scope="col">{{ _('User') }}</th>
       {% for role in roles %}
-      <th> {{ role }} </th>
+      <th scope="col"> {{ role }} </th>
       {% endfor %}
     </tr>
     {% for user in users %}
@@ -49,9 +49,9 @@
       {% endfor %}
     </colgroup>
     <tr>
-      <th>{{ _('User') }}</th>
+      <th scope="col">{{ _('User') }}</th>
       {% for role in roles %}
-        <th> {{ role }} </th>
+        <th scope="col"> {{ role }} </th>
       {% endfor %}
     </tr>
     <tr>
@@ -77,9 +77,9 @@
       {% endfor %}
     </colgroup>
     <tr>
-      <th>{{ _('User Group') }}</th>
+      <th scope="col">{{ _('User Group') }}</th>
       {% for role in roles %}
-      <th> {{ role }} </th>
+      <th scope="col"> {{ role }} </th>
       {% endfor %}
     </tr>
     {% for user in users %}
@@ -112,9 +112,9 @@
       {% endfor %}
     </colgroup>
     <tr>
-      <th>User Group</th>
+      <th scope="col">User Group</th>
       {% for role in roles %}
-      <th> {{ role }} </th>
+      <th scope="col"> {{ role }} </th>
       {% endfor %}
     </tr>
     <tr>

@@ -4506,13 +4506,13 @@ ul.icons li .icon-large:before {
 .simple-list:after {
   clear: both;
 }
-.simple-list  > li {
+.simple-list > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.simple-list  > li:last-of-type {
+.simple-list > li:last-of-type {
   border-bottom: 0;
 }
 .simple-list .ckan-icon {
@@ -4671,8 +4671,6 @@ ul.icons li .icon-large:before {
 .module-grid {
   margin: 0;
   list-style: none;
-  margin: 0;
-  list-style: none;
   *zoom: 1;
   margin-left: -20px;
   padding: 0;
@@ -4693,7 +4691,6 @@ ul.icons li .icon-large:before {
   width: 33.33%;
   padding-left: 20px;
   padding-bottom: 25px;
-  float: left;
   float: left;
   margin-left: 20px;
   width: 460px;
@@ -4720,10 +4717,10 @@ ul.icons li .icon-large:before {
 .ckanext-datapreview {
   position: relative;
 }
-.ckanext-datapreview  > iframe {
+.ckanext-datapreview > iframe {
   min-height: 400px;
 }
-.ckanext-datapreview  > img {
+.ckanext-datapreview > img {
   max-height: 500px;
   max-width: 100%;
   overflow: hidden;
@@ -4887,13 +4884,13 @@ ol.media-grid:after {
 .nav-simple:after {
   clear: both;
 }
-.nav-simple  > li {
+.nav-simple > li {
   font-size: 12px;
   line-height: 1.1666666666666667em;
   padding: 7px 25px;
   border-bottom: 1px dotted #cccccc;
 }
-.nav-simple  > li:last-of-type {
+.nav-simple > li:last-of-type {
   border-bottom: 0;
 }
 .nav-simple .ckan-icon {
@@ -4915,12 +4912,10 @@ ol.media-grid:after {
 }
 .nav-item.active > a {
   background: url("../../../base/images/background-tag.png") no-repeat -13px center;
-  position: relative;
   display: block;
   font-size: 11px;
   line-height: 27px;
   color: #187794;
-  padding-left: 10px;
   padding-right: 5px;
   margin-right: 11px;
   -webkit-box-sizing: border-box;
@@ -5226,8 +5221,6 @@ textarea {
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
-  width: 17px;
-  height: 17px;
   background-position: -51px -16px;
   position: absolute;
   display: block;
@@ -5654,6 +5647,13 @@ textarea {
 .control-full .select2-container {
   width: 520px !important;
 }
+.control-group.error .select2-container input:focus,
+.control-group.error .select2-container select:focus,
+.control-group.error .select2-container textarea:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
 .dataset-item {
   border-bottom: 1px dotted #cccccc;
   padding-bottom: 20px;
@@ -5821,8 +5821,6 @@ textarea {
   vertical-align: text-bottom;
   position: relative;
   top: 2px;
-  width: 16px;
-  height: 16px;
   background-image: url("../../../base/images/sprite-ckan-icons.png");
   background-repeat: no-repeat;
   background-position: 16px 16px;
@@ -6682,7 +6680,6 @@ li .icon-large:before {
   float: right;
 }
 [role=main] .secondary {
-  float: left;
   margin-left: 20px;
   width: 220px;
   margin-left: 0;
@@ -7239,8 +7236,17 @@ header.masthead .debug {
   display: block;
   font-size: 30px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 36px;
   margin-left: 0;
+}
+.profile-info .nums dl dd .smallest {
+  font-size: 13px;
+}
+.profile-info .nums dl dd .smaller {
+  font-size: 16px;
+}
+.profile-info .nums dl dd .small {
+  font-size: 21px;
 }
 .profile-info.editing .module-content {
   margin-top: 0;
