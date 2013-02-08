@@ -183,7 +183,7 @@ run this Python code::
 GET-able API Functions
 ----------------------
 
-Functions defined in `ckan.logic.action.get`_ can also be called with an HTTP
+Functions defined in :doc:`ckan.logic.action.get` can also be called with an HTTP
 GET request.  For example, to search for datasets (packages) matching the
 search query ``spending``, on demo.ckan.org, open this URL in your browser::
 
