@@ -185,7 +185,7 @@ GET-able API Functions
 
 Functions defined in :doc:`ckan.logic.action.get` can also be called with an HTTP
 GET request.  For example, to search for datasets (packages) matching the
-search query ``spending``, on demo.ckan.org, open this URL in your browser::
+search query ``spending``, on demo.ckan.org, open this URL in your browser:
 
 http://demo.ckan.org/api/action/package_search?q=spending
 
@@ -197,18 +197,18 @@ http://demo.ckan.org/api/action/package_search?q=spending
 
 The search query is given as a URL parameter ``?q=spending``. Multiple
 URL parameters can be appended, separated by ``&`` characters, for example
-to get only the first 10 matching datasets open this URL::
+to get only the first 10 matching datasets open this URL:
 
 http://demo.ckan.org/api/action/package_search?q=spending&rows=10
 
 When an action requires a list of strings as the value of a parameter, the
-value can be sent by giving the parameter multiple times in the URL::
+value can be sent by giving the parameter multiple times in the URL:
 
 http://demo.ckan.org/api/action/term_translation_show?terms=russian&terms=romantic%20novel
 
 If the action you're calling doesn't require any parameters, you still need
 to add a fake parameter to the URL. For example to get a list of all
-datasets on demo.ckan.org::
+datasets on demo.ckan.org:
 
 http://demo.ckan.org/api/action/package_list?foo
 
@@ -218,7 +218,7 @@ JSONP Support
 
 To cater for scripts from other sites that wish to access the API, the data can
 be returned in JSONP format, where the JSON data is 'padded' with a function
-call. The function is named in the 'callback' parameter. For example::
+call. The function is named in the 'callback' parameter. For example:
 
 http://demo.ckan.org/api/action/package_show?id=adur_district_spending&callback=myfunction
 
@@ -229,6 +229,19 @@ http://demo.ckan.org/api/action/package_show?id=adur_district_spending&callback=
 Action API Reference
 --------------------
 
+.. This hidden toctree is just to shut up sphinx warnings about the following
+   files not being included in any toctree. We want to include them manually
+   because we're using a different style to what the toctree would use.
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   ckan.logic.action.get
+   ckan.logic.action.create
+   ckan.logic.action.update
+   ckan.logic.action.delete
+
 Functions for getting data from CKAN: :doc:`ckan.logic.action.get`.
 
 Functions for adding data to CKAN: :doc:`ckan.logic.action.create`.
@@ -236,5 +249,3 @@ Functions for adding data to CKAN: :doc:`ckan.logic.action.create`.
 Functions for updating existing data in CKAN: :doc:`ckan.logic.action.update`.
 
 Functions for deleting data from CKAN: :doc:`ckan.logic.action.delete`.
-
-All API functions on one page: :doc:`ckan.logic.action`.

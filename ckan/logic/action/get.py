@@ -2455,19 +2455,19 @@ def group_followee_list(context, data_dict):
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
-    Unlike the activity dictionaries returned by other *_activity_list actions,
-    these activity dictionaries have an extra boolean value with key 'is_new'
-    that tells you whether the activity happened since the user last viewed her
-    dashboard ('is_new': True) or not ('is_new': False).
+    Unlike the activity dictionaries returned by other ``*_activity_list``
+    actions, these activity dictionaries have an extra boolean value with key
+    ``is_new`` that tells you whether the activity happened since the user last
+    viewed her dashboard (``'is_new': True``) or not (``'is_new': False``).
 
-    The user's own activities are always marked 'is_new': False.
+    The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        ``ckan.activity_list_limit`` setting)
 
     :rtype: list of activity dictionaries
 

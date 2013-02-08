@@ -211,7 +211,7 @@ symbolic link to ``who.ini``. e.g.::
     ln -s ~/pyenv/src/ckan/who.ini
 
 10. Run CKAN in the development web server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can use the Paste development server to serve CKAN from the command-line.
 This is a simple and lightweight way to serve CKAN that is useful for

@@ -59,7 +59,7 @@ modules, **as well as any helper functions** defined within those modules.  To
 prevent inadvertent exposure of non-action functions through the action api,
 care should be taken to:
 
-1. Import modules correctly (see `Imports`_).  For example: ::
+1. Import modules correctly (see :ref:`imports`).  For example::
 
      import ckan.lib.search as search
 
@@ -78,7 +78,7 @@ care should be taken to:
 
 
 Use ``get_action()``
-````````````````
+````````````````````
 
 Don't call ``logic.action`` functions directly, instead use ``get_action()``.
 This allows plugins to override action functions using the ``IActions`` plugin
@@ -92,7 +92,7 @@ Instead of ::
 
 
 Auth Functions and ``check_access()``
-``````````````
+`````````````````````````````````````
 
 Each action function defined in ``ckan.logic.action`` should use its own
 corresponding auth function defined in ``ckan.logic.auth``. Instead of calling
@@ -111,7 +111,7 @@ from the API).
 
 
 ``logic.get_or_bust()``
-`````````````
+```````````````````````
 
 The ``data_dict`` parameter of logic action functions may be user provided, so
 required files may be invalid or absent. Naive Code like::

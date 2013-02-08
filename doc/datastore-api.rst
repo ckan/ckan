@@ -249,7 +249,7 @@ The Data API supports CORs so you can also write to it (this requires the json2_
         }
       });
 
-    .. _json2: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+.. _json2: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
 
 Python
 ~~~~~~
