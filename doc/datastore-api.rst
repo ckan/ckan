@@ -189,7 +189,7 @@ Using the data API, we need to send JSON with this structure::
 
 To the following endpoint:
 
-* Dataset Model Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/rest/dataset``
+* Dataset Create Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/action/package_create``
 
 More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`.
 
