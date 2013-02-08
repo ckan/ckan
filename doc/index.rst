@@ -67,15 +67,11 @@ The CKAN API
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    api
    datastore-api
    filestore-api
-
-.. toctree::
-   :maxdepth: 1
-
    legacy-api
 
 
