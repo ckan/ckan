@@ -1,0 +1,9 @@
+{% ckan_extends %}
+{% block package_description %}
+  {{ super() }}
+  {% if pkg.get('country_code') %}
+    <section id="dataset-country_code" class="resources module-content">
+    <p><strong>Country Code</strong>: {{ pkg.country_code[0] }}</p>
+    </section>
+  {% endif %}
+{% endblock %}
