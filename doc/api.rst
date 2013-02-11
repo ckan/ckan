@@ -249,3 +249,5 @@ Functions for adding data to CKAN: :doc:`ckan.logic.action.create`.
 Functions for updating existing data in CKAN: :doc:`ckan.logic.action.update`.
 
 Functions for deleting data from CKAN: :doc:`ckan.logic.action.delete`.
+
+Functions for working with the CKAN DataStore: :doc:`datastore-api`.
