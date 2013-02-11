@@ -3,19 +3,20 @@ The DataStore API
 =================
 
 The DataStore API allows tabular data to be stored inside CKAN quickly and
-easily. Making a DataStore API request is the same as making an Action API
-request: you post a JSON dictionary in an HTTP POST request to an API URL, and
-the API also returns its response in a JSON dictionary. See the
-:ref:`action-api` for details.
+easily. Each resource in a CKAN instance can have an associated DataStore
+table. The API for using the DataStore is outlined below.
 
-Each resource in a CKAN instance can have an associated DataStore 'table'. The
-basic API for accessing the DataStore is outlined below.
+Making a DataStore API Request
+==============================
+
+Making a DataStore API request is the same as making an Action API request: you
+post a JSON dictionary in an HTTP POST request to an API URL, and the API also
+returns its response in a JSON dictionary. See the :ref:`action-api` for
+details.
+
 
 API Reference
 =============
-
-The datastore related API actions are accessed via CKAN's :ref:`action-api`. When POSTing
-requests, parameters should be provided as JSON objects.
 
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all vaid boolean values.
 
