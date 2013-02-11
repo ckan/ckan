@@ -125,18 +125,26 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         }
       ];
 
+      var sidebarViews = [
+        {
+          id: 'filterEditor',
+          label: 'Filters',
+          view: new recline.View.FilterEditor({
+            model: dataset
+          })
+        }
+      ];
+
       var dataExplorer = new recline.View.MultiView({
         el: this.el,
         model: dataset,
         views: views,
+        sidebarViews: sidebarViews,
         config: {
           readOnly: true
         }
       });
 
-      // Hide the fields control by default
-      // (This should be done in recline!)
-      // jQuery('.menu-right a[data-action="fields"]', self.el).click();
     },
     normalizeFormat: function (format) {
       var out = format.toLowerCase();
