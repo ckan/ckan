@@ -214,6 +214,9 @@ def db_to_form_package_schema():
 
     schema.update({
         'state': [ckan.lib.navl.validators.ignore_missing],
+        'isopen': [ignore_missing],
+        'license_url': [ignore_missing],
+        'license_title': [ignore_missing],
         })
     return schema
 
