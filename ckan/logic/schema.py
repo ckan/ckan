@@ -218,6 +218,11 @@ def db_to_form_package_schema():
         'license_url': [ignore_missing],
         'license_title': [ignore_missing],
         })
+
+    schema['groups'].update({
+        'description': [ignore_missing],
+        })
+
     return schema
 
 def default_group_schema():
