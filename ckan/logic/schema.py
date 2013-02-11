@@ -211,6 +211,10 @@ def db_to_form_package_schema():
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
     })
+
+    schema.update({
+        'state': [ckan.lib.navl.validators.ignore_missing],
+        })
     return schema
 
 def default_group_schema():
