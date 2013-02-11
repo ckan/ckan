@@ -226,6 +226,7 @@ def validate(data, schema, context=None):
 
     flattened = flatten_dict(data)
     converted_data, errors = _validate(flattened, schema, context)
+    converted_data = unflatten(converted_data)
 
     # check config for partial update fix option
     if config.get('ckan.fix_partial_updates', True):
@@ -233,8 +234,6 @@ def validate(data, schema, context=None):
         for key in empty_lists:
             if key not in converted_data:
                 converted_data[(key,)] = []
-
-    converted_data = unflatten(converted_data)
 
     errors_unflattened = unflatten(errors)
 
