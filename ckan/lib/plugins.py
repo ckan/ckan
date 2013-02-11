@@ -273,6 +273,13 @@ class DefaultDatasetForm(object):
                                'extras_validation', 'save', 'return_to',
                                'resources', 'type', 'owner_org']
 
+        # Tracking summary might not exist if tracking not enabled.
+        surplus_keys_schema.extend(['tracking_summary_total',
+            'tracking_summary_recent'])
+
+        # isopen might not exist.
+        surplus_keys_schema.extend(['isopen'])
+
         if not schema:
             schema = self.form_to_db_schema()
         schema_keys = schema.keys()
