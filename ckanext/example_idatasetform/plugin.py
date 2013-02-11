@@ -18,8 +18,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     plugins.implements(plugins.IConfigurer, inherit=False)
     plugins.implements(plugins.IDatasetForm, inherit=False)
 
-    # These record how many times methods that this plugin otherwise wouldn't
-    # use are called, for testing purposes.
+    # These record how many times methods that this plugin's methods are
+    # called, for testing purposes.
     num_times_check_data_dict_called = 0
     num_times_new_template_called = 0
     num_times_comments_template_called = 0
