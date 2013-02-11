@@ -322,11 +322,11 @@ def _link_to(text, *args, **kwargs):
         kwargs '''
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
-        icon = kwargs.pop('icon', None)
         if icon:
             text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
         return text
 
+    icon = kwargs.pop('icon', None)
     class_ = _link_class(kwargs)
     return link_to(
         _create_link_text(text, **kwargs),
@@ -568,6 +568,8 @@ def check_access(action, data_dict=None):
 
     context = {'model': model,
                 'user': c.user or c.author}
+    if not data_dict:
+        data_dict = {}
 
     try:
         check_access_logic(action, context, data_dict)
@@ -1408,6 +1410,16 @@ def resource_preview(resource, pkg_id):
         )
 
 
+def SI_number_span(number):
+    ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
+    number = int(number)
+    if number < 1000:
+        output = literal('<span>')
+    else:
+        output = literal('<span title="' + formatters.localised_number(number) + '">')
+    return output + formatters.localised_SI_number(number) + literal('<span>')
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1485,6 +1497,7 @@ __allowed_functions__ = [
            'render_markdown',
            'format_resource_items',
            'resource_preview',
+           'SI_number_span',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

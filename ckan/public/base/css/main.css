@@ -5647,6 +5647,13 @@ textarea {
 .control-full .select2-container {
   width: 520px !important;
 }
+.control-group.error .select2-container input:focus,
+.control-group.error .select2-container select:focus,
+.control-group.error .select2-container textarea:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
 .dataset-item {
   border-bottom: 1px dotted #cccccc;
   padding-bottom: 20px;
@@ -5762,11 +5769,11 @@ textarea {
 }
 .resource-item {
   position: relative;
-  padding: 10px 110px 10px 60px;
+  padding: 10px 10px 10px 60px;
   margin-bottom: 0px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
 }
 .resource-item:hover {
   background-color: #efefef;
@@ -5787,7 +5794,7 @@ textarea {
 }
 .resource-item .btn-group {
   position: absolute;
-  top: 13px;
+  top: 14px;
   right: 10px;
 }
 .dataset-resource-form .dataset-form-resource-types {
@@ -7229,8 +7236,17 @@ header.masthead .debug {
   display: block;
   font-size: 30px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 36px;
   margin-left: 0;
+}
+.profile-info .nums dl dd .smallest {
+  font-size: 13px;
+}
+.profile-info .nums dl dd .smaller {
+  font-size: 16px;
+}
+.profile-info .nums dl dd .small {
+  font-size: 21px;
 }
 .profile-info.editing .module-content {
   margin-top: 0;
@@ -7422,6 +7438,16 @@ header.masthead .debug {
 }
 .module-my-datasets .empty {
   padding: 10px;
+}
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+.js .dropdown .dropdown-menu,
+.js .dropdown:hover .dropdown-menu {
+  display: none;
+}
+.js .dropdown.open .dropdown-menu {
+  display: block;
 }
 body {
   background-color: #00536b;

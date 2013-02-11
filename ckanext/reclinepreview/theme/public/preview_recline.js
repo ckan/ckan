@@ -39,6 +39,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
           .html(msg);
       }
 
+      recline.Backend.DataProxy.timeout = 10000;
+
       // 2 situations
       // a) something was posted to the datastore - need to check for this
       // b) csv or xls (but not datastore)

@@ -1,6 +1,7 @@
 import json
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
+import ckan.lib.search as search
 
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
@@ -10,6 +11,7 @@ from ckan.tests import StatusCodes
 class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        search.clear()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')

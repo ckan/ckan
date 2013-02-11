@@ -111,7 +111,7 @@ def localised_filesize(number):
         return localised_number(float(number * 10 / divisor) / 10)
 
     if number < 1024:
-        return _('{bytes} bytes').format(bytes=number)
+        return _('{bytes} bytes').format(bytes=localised_number(number))
     elif number < 1024 ** 2:
         return _('{kibibytes} KiB').format(kibibytes=rnd(number, 1024))
     elif number < 1024 ** 3:
@@ -120,3 +120,31 @@ def localised_filesize(number):
         return _('{gibibytes} GiB').format(gibibytes=rnd(number, 1024 ** 3))
     else:
         return _('{tebibytes} TiB').format(tebibytes=rnd(number, 1024 ** 4))
+
+
+def localised_SI_number(number):
+    ''' Returns a localised unicode representation of a number in SI format
+    eg 14700 becomes 14.7k '''
+
+    def rnd(number, divisor):
+        # round to 1 decimal place
+        return localised_number(float(number * 10 / divisor) / 10)
+
+    if number < 1000:
+        return _('{n}').format(n=localised_number(number))
+    elif number < 1000 ** 2:
+        return _('{k}k').format(k=rnd(number, 1000))
+    elif number < 1000 ** 3:
+        return _('{m}M').format(m=rnd(number, 1000 ** 2))
+    elif number < 1000 ** 4:
+        return _('{g}G').format(g=rnd(number, 1000 ** 3))
+    elif number < 1000 ** 5:
+        return _('{t}T').format(t=rnd(number, 1000 ** 4))
+    elif number < 1000 ** 6:
+        return _('{p}P').format(p=rnd(number, 1000 ** 5))
+    elif number < 1000 ** 7:
+        return _('{e}E').format(e=rnd(number, 1000 ** 6))
+    elif number < 1000 ** 8:
+        return _('{z}Z').format(z=rnd(number, 1000 ** 7))
+    else:
+        return _('{y}Y').format(y=rnd(number, 1000 ** 8))
