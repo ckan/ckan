@@ -827,6 +827,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
+    
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -934,16 +935,7 @@ def tag_show(context, data_dict):
 
     _check_access('tag_show',context, data_dict)
 
-    tag_dict = model_dictize.tag_dictize(tag,context)
-
-    extended_packages = []
-    for package in tag_dict['packages']:
-        pkg = model.Package.get(package['id'])
-        extended_packages.append(model_dictize.package_dictize(pkg,context))
-
-    tag_dict['packages'] = extended_packages
-
-    return tag_dict
+    return model_dictize.tag_dictize(tag,context)
 
 def user_show(context, data_dict):
     '''Return a user account.
@@ -2245,6 +2237,7 @@ def user_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('user_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
@@ -2259,6 +2252,7 @@ def dataset_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('dataset_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_dataset_schema(),
             context['model'].UserFollowingDataset)
@@ -2273,6 +2267,7 @@ def group_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_group_schema(),
             context['model'].UserFollowingGroup)
@@ -2438,6 +2433,7 @@ def followee_list(context, data_dict):
         returned by user_show, package_show or group_show)
 
     '''
+    _check_access('followee_list', context, data_dict)
     schema = context.get('schema') or (
             ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2456,6 +2452,7 @@ def followee_list(context, data_dict):
     # TODO: Catch exceptions raised by these *_followee_list() functions?
     followee_dicts = []
     context['skip_validation'] = True
+    context['skip_authorization'] = True
     for followee_list_function, followee_type in (
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
@@ -2490,6 +2487,9 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    if not context.get('skip_authorization'):
+        _check_access('user_followee_list', context, data_dict)
+
     if not context.get('skip_validation'):
         schema = context.get('schema') or (
                 ckan.logic.schema.default_follow_user_schema())
@@ -2518,6 +2518,9 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    if not context.get('skip_authorization'):
+        _check_access('dataset_followee_list', context, data_dict)
+
     if not context.get('skip_validation'):
         schema = context.get('schema') or (
                 ckan.logic.schema.default_follow_user_schema())
@@ -2547,6 +2550,9 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    if not context.get('skip_authorization'):
+        _check_access('group_followee_list', context, data_dict)
+
     if not context.get('skip_validation'):
         schema = context.get('schema',
                 ckan.logic.schema.default_follow_user_schema())

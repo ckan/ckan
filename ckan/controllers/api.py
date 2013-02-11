@@ -3,6 +3,7 @@ import logging
 import cgi
 import datetime
 import glob
+import urllib
 
 from pylons import c, request, response
 from pylons.i18n import _, gettext
@@ -545,7 +546,7 @@ class ApiController(base.BaseController):
     def _get_search_params(cls, request_params):
         if 'qjson' in request_params:
             try:
-                qjson_param = request_params['qjson'].replace('\\\\u','\\u')
+                qjson_param = request_params['qjson'].replace('\\\\u', '\\u')
                 params = h.json.loads(qjson_param, encoding='utf8')
             except ValueError, e:
                 raise ValueError(gettext('Malformed qjson value') + ': %r'
@@ -668,9 +669,8 @@ class ApiController(base.BaseController):
 
     def dataset_autocomplete(self):
         q = request.params.get('incomplete', '')
-        q_lower = q.lower()
         limit = request.params.get('limit', 10)
-        tag_names = []
+        package_dicts = []
         if q:
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
@@ -752,9 +752,103 @@ class ApiController(base.BaseController):
         ''' translation strings for front end '''
         ckan_path = os.path.join(os.path.dirname(__file__), '..')
         source = os.path.abspath(os.path.join(ckan_path, 'public',
-                                    'base', 'i18n', '%s.js' % lang))
+                                 'base', 'i18n', '%s.js' % lang))
         response.headers['Content-Type'] = CONTENT_TYPES['json']
         if not os.path.exists(source):
             return '{}'
         f = open(source, 'r')
         return(f)
+
+    @classmethod
+    def _get_request_data(cls, try_url_params=False):
+        '''Returns a dictionary, extracted from a request.
+
+        If there is no data, None or "" is returned.
+        ValueError will be raised if the data is not a JSON-formatted dict.
+
+        The data is retrieved as a JSON-encoded dictionary from the request
+        body.  Or, if the `try_url_params` argument is True and the request is
+        a GET request, then an attempt is made to read the data from the url
+        parameters of the request.
+
+        try_url_params
+            If try_url_params is False, then the data_dict is read from the
+            request body.
+
+            If try_url_params is True and the request is a GET request then the
+            data is read from the url parameters.  The resulting dict will only
+            be 1 level deep, with the url-param fields being the keys.  If a
+            single key has more than one value specified, then the value will
+            be a list of strings, otherwise just a string.
+
+        '''
+        def make_unicode(entity):
+            '''Cast bare strings and strings in lists or dicts to Unicode. '''
+            if isinstance(entity, str):
+                return unicode(entity)
+            elif isinstance(entity, list):
+                new_items = []
+                for item in entity:
+                    new_items.append(make_unicode(item))
+                return new_items
+            elif isinstance(entity, dict):
+                new_dict = {}
+                for key, val in entity.items():
+                    new_dict[key] = make_unicode(val)
+                return new_dict
+            else:
+                return entity
+
+        cls.log.debug('Retrieving request params: %r' % request.params)
+        cls.log.debug('Retrieving request POST: %r' % request.POST)
+        cls.log.debug('Retrieving request GET: %r' % request.GET)
+        request_data = None
+        if request.POST:
+            try:
+                keys = request.POST.keys()
+                # Parsing breaks if there is a = in the value, so for now
+                # we will check if the data is actually all in a single key
+                if keys and request.POST[keys[0]] in [u'1', u'']:
+                    request_data = keys[0]
+                else:
+                    request_data = urllib.unquote_plus(request.body)
+            except Exception, inst:
+                msg = "Could not find the POST data: %r : %s" % \
+                      (request.POST, inst)
+                raise ValueError(msg)
+
+        elif try_url_params and request.GET:
+            return request.GET.mixed()
+
+        else:
+            try:
+                if request.method in ['POST', 'PUT']:
+                    request_data = request.body
+                else:
+                    request_data = None
+            except Exception, inst:
+                msg = "Could not extract request body data: %s" % \
+                      (inst)
+                raise ValueError(msg)
+            cls.log.debug('Retrieved request body: %r' % request.body)
+            if not request_data:
+                msg = "No request body data"
+                raise ValueError(msg)
+        if request_data:
+            try:
+                request_data = h.json.loads(request_data, encoding='utf8')
+            except ValueError, e:
+                raise ValueError('Error decoding JSON data. '
+                                 'Error: %r '
+                                 'JSON data extracted from the request: %r' %
+                                 (e, request_data))
+            if not isinstance(request_data, dict):
+                raise ValueError('Request data JSON decoded to %r but '
+                                 'it needs to be a dictionary.' % request_data)
+            # ensure unicode values
+            for key, val in request_data.items():
+                # if val is str then assume it is ascii, since json converts
+                # utf8 encoded JSON to unicode
+                request_data[key] = make_unicode(val)
+        cls.log.debug('Request data extracted: %r' % request_data)
+        return request_data

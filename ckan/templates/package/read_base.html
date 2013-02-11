@@ -43,7 +43,6 @@
       {% snippet 'snippets/page_header.html', items=[
           h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
           h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
-          h.build_nav_icon('dataset_followers', _('Followers'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
         ] %}
     {% endblock %}
@@ -55,6 +54,12 @@
 {% block secondary_content %}
 
   {% block secondary_help_content %}{% endblock %}
+
+  {% block package_organization %}
+    {% if pkg.organization %}
+      {% snippet "snippets/organization.html", organization=pkg.organization, truncate=70, show_nums=false %}
+    {% endif %}
+  {% endblock %}
 
   {% block package_groups %}
     {% for group in pkg.groups %}
