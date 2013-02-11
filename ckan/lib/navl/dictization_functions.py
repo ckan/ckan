@@ -233,7 +233,7 @@ def validate(data, schema, context=None):
         # repopulate the empty lists
         for key in empty_lists:
             if key not in converted_data:
-                converted_data[(key,)] = []
+                converted_data[key] = []
 
     errors_unflattened = unflatten(errors)
 
