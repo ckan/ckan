@@ -1260,7 +1260,8 @@ def package_search(context, data_dict):
             for filter_name, filter_value_list in filters.iteritems():
                 for filter_value in filter_value_list:
                     if filter_name in data_dict['facet.field']:
-                        fq += ' %s:"%s"' % (filter_name, urllib.unquote(filter_value))
+                        fq += ' %s:"%s"' % (filter_name,
+                                            urllib.unquote(filter_value))
             data_dict['fq'] = fq
 
         # If this query hasn't come from a controller that has set this flag
