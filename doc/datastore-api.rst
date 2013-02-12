@@ -137,12 +137,10 @@ The DataStore supports querying with multiple API endpoints. They are similar bu
 ==============================  ========================================================  ============================================================  =============================
 ..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
 ==============================  ========================================================  ============================================================  =============================
-**Status**                      Stable                                                    Stable                                                        Available as extension
 **Ease of use**                 Easy                                                      Complex                                                       Medium
 **Flexibility**                 Low                                                       High                                                          Medium
 **Query language**              Custom (JSON)                                             SQL                                                           HTSQL
-**Join resources**              No                                                        Yes                                                           Not yet
-**Use aliases**                 Yes                                                       Yes                                                           Yes
+**Join resources**              No                                                        Yes                                                           No
 ==============================  ========================================================  ============================================================  =============================
 
 
