@@ -256,7 +256,7 @@ def make_map():
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_read', '/dataset/{id}', action='read',
-                  ckan_icon='reorder')
+                  ckan_icon='sitemap')
         m.connect('dataset_about', '/dataset/about/{id}', action='about',
                   ckan_icon='info-sign')
         m.connect('/dataset/{id}/resource/{resource_id}',

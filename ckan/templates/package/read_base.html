@@ -33,10 +33,9 @@
 
     {% block page_header %}
       {% snippet 'snippets/page_header.html', items=[
-          h.build_nav_icon('dataset_read', _('Resources'), id=pkg.name),
+          h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
           h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
-          h.build_nav_icon('dataset_about', _('About'), id=pkg.name),
         ] %}
     {% endblock %}
 
@@ -54,7 +53,7 @@
       {% if pkg.notes %}
         <p>
           {{ h.markdown_extract(pkg.notes, 180) }}
-          {% link_for _('read more'), controller='package', action='about', id=pkg.name %}
+          {% link_for _('read more'), controller='package', action='read', id=pkg.name %}
         </p>
       {% else %}
         <p class="empty">{{ _('There is no description for this dataset') }}</p>
@@ -82,19 +81,6 @@
             </li>
           {% endfor %}
         </ul>
-      </div>
-    {% endif %}
-  {% endblock %}
-
-  {% block package_tags %}
-    {% if pkg.tags %}
-      <div class="module module-narrow">
-        <h2 class="module-heading"><i class="icon-tags"></i> {{ _('Tags') }}</h2>
-        <div class="module-content module-content-shallow module-tags">
-          {% for tag in pkg.tags %}
-            <a class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
-          {% endfor %}
-        </div>
       </div>
     {% endif %}
   {% endblock %}
