@@ -36,10 +36,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
 
       function showError(msg){
         msg = msg || _('error loading preview');
-        return self.el
-          .append('<div></div>')
-          .addClass('alert alert-error fade in')
-          .html(msg);
+        window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
       recline.Backend.DataProxy.timeout = 10000;
@@ -87,14 +84,12 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorMsg = this.options.i18n.errorLoadingPreview + ': ' +this.options.i18n.errorDataProxy;
         dataset.fetch()
           .done(function(dataset){
-
             dataset.bind('query:fail', function (error) {
               jQuery('.data-view-container', self.el).hide();
               jQuery('.header', self.el).hide();
             });
 
             self.initializeDataExplorer(dataset);
-            jQuery('.recline-query-editor .text-query').hide();
           })
           .fail(function(error){
             if (error.message) errorMsg += ' (' + error.message + ')';
