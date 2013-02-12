@@ -28,12 +28,6 @@
   {% resource 'vendor/fileupload' %}
 {% endblock %}
 
-{% block breadcrumb_content %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
-  <li class="active"><a href="">Add resource</a></li>
-{% endblock %}
-
 {% block primary_content %}
   {% if pkg_dict and pkg_dict.state != 'draft' %}
     <header class="module-content page-header"></header>

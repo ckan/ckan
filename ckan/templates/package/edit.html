@@ -2,10 +2,11 @@
 
 {% set pkg = c.pkg_dict %}
 
+{% block breadcrumb_content_selected %}{% endblock %}
+
 {% block breadcrumb_content %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for pkg.title|truncate(30), controller='package', action='read', id=pkg.name %}</li>
-  <li class="active">{% link_for _('Edit Dataset'), controller='package', action='edit', id=pkg.name %}</li>
+  {{ super() }}
+  <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
 {% endblock %}
 
 {% block resources_module %}
