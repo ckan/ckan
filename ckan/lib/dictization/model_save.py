@@ -114,7 +114,7 @@ def package_extras_save(extra_dicts, obj, context):
         elif extras_as_string:
             new_extras[extra_dict["key"]] = extra_dict["value"]
         else:
-            new_extras[extra_dict["key"]] = h.json.loads(extra_dict["value"])
+            new_extras[extra_dict["key"]] = extra_dict["value"]
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
         state = 'pending' if context.get('pending') else 'active'
