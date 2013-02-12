@@ -36,12 +36,13 @@ class TestVocabulary(object):
         if not self.sysadmin_user:
             normal_user = ckan.model.User(name=u'normal', password=u'annafan')
             sysadmin_user = ckan.model.User(name=u'admin', password=u'testsysadmin')
+            sysadmin_user.sysadmin = True
             ckan.model.Session.add(normal_user)
             ckan.model.Session.add(sysadmin_user)
-            ckan.model.add_user_to_role(sysadmin_user, ckan.model.Role.ADMIN, ckan.model.System())
             ckan.model.Session.commit()
             self.sysadmin_user = ckan.model.User.get('admin')
             self.normal_user = ckan.model.User.get('normal')
+        self.sysadmin_apikey = self.sysadmin_user.apikey
 
     def clean_vocab(self):
         ckan.model.Session.execute('delete from package_tag_revision')
@@ -237,7 +238,7 @@ class TestVocabulary(object):
         response = self._post('/api/action/vocabulary_create',
                 params=params,
                 extra_environ = {'Authorization':
-                    str(self.sysadmin_user.apikey)})
+                    str(self.sysadmin_apikey)})
         assert response['success'] == True
         assert response['result']
         created_vocab = response['result']
@@ -284,7 +285,7 @@ class TestVocabulary(object):
             response = self.app.post('/api/action/vocabulary_create',
                     params=json.dumps(params),
                     extra_environ = {'Authorization':
-                        str(self.sysadmin_user.apikey)},
+                        str(self.sysadmin_apikey)},
                     status=409)
             assert response.json['success'] == False
             assert response.json['error'].has_key('tags')
@@ -367,7 +368,7 @@ class TestVocabulary(object):
             response = self.app.post('/api/action/vocabulary_create',
                     params=param_string,
                     extra_environ = {'Authorization':
-                        str(self.sysadmin_user.apikey)},
+                        str(self.sysadmin_apikey)},
                     status=409)
             assert response.json['success'] == False
             assert response.json['error']['name']
@@ -750,7 +751,7 @@ class TestVocabulary(object):
             response = self.app.post('/api/action/tag_create',
                     params=tag_string,
                     extra_environ = {'Authorization':
-                        str(self.sysadmin_user.apikey)},
+                        str(self.sysadmin_apikey)},
                     status=409)
             assert response.json['success'] == False
             assert response.json['error']['name']

@@ -41,7 +41,7 @@
     <title>
       {%- block title -%}
         {%- block subtitle %}{% endblock -%}
-        {%- if self.subtitle()|trim %} {{ config.template_title_delimiter or '-' }} {% endif -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_deliminater }} {% endif -%}
         {{ g.site_title }}
       {%- endblock -%}
     </title>
@@ -51,9 +51,7 @@
     such as rss feeds and favicons in the same way as the meta block.
     #}
     {% block links -%}
-    {%- with favicon = config.get('ckan.favicon') or h.url_for_static('/base/images/ckan.ico') -%}
-      <link rel="shortcut icon" href="{{ favicon }}" />
-    {% endwith -%}
+      <link rel="shortcut icon" href="{{ g.favicon }}" />
     {% endblock -%}
 
     {#
@@ -72,9 +70,9 @@
       {% resource g.main_css[6:] %}
     {% endblock %}
 
-    {# defined in the config.ini under "ckan.template_head_end" #}
     {% block head_extras %}
-      {{ config.get('ckan.template_head_end', '') | safe }}
+      {# defined in the config.ini under "ckan.template_head_end" #}
+      {{ g.template_head_end | safe }}
     {% endblock %}
 
     {%- block custom_styles %}
@@ -87,7 +85,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ config.get('ckan.api_url', '') }}"{% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ g.api_url }}"{% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
@@ -119,9 +117,9 @@
     {%- block scripts %}
     {% endblock -%}
 
-    {# defined in the config.ini under "ckan.template_footer_end" #}
     {% block body_extras -%}
-      {{ config.get('ckan.template_footer_end', '') | safe }}
+      {# defined in the config.ini under "ckan.template_footer_end" #}
+      {{ g.template_footer_end | safe }}
     {%- endblock %}
   </body>
 </html>

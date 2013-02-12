@@ -192,6 +192,27 @@ Default value:  ``20``
 
 This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
 
+ckan.preview.direct
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.preview.direct = png jpg gif
+
+Default value: ``png jpg gif``
+
+Defines the resource formats which should be embedded directly in an `img` tag
+when previewing them.
+
+ckan.preview.loadable
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
+
+Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
+
+Defines the resource formats which should be loaded directly in an `iframe`
+tag when previewing them.
 
 Authentication Settings
 -----------------------
@@ -535,6 +556,19 @@ Example::
 Default value:  ``true``
 
 Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
+
+ckan.search.show_all_types
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.show_all_types = true
+
+Default value:  ``false``
+
+Controls whether the default search page (``/dataset``) should show only
+standard datasets or also custom dataset types. Default is to show only
+standard datasets.
 
 simple_search
 ^^^^^^^^^^^^^

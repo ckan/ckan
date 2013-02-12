@@ -60,6 +60,9 @@ class TestSolrSearchIndex(TestController):
             'id': u'penguin-id',
             'title': u'penguin',
             'state': u'active',
+            'type': u'dataset',
+            'private': False,
+            'owner_org': None,
             'metadata_created': datetime_now.isoformat(),
             'metadata_modified': datetime_now.isoformat(),
         }
@@ -87,6 +90,9 @@ class TestSolrSearchIndex(TestController):
             'id': u'penguin-id',
             'title': u'penguin',
             'state': u'active',
+            'type': u'dataset',
+            'private': False,
+            'owner_org': None,
             'metadata_created': datetime.now().isoformat(),
             'metadata_modified': datetime.now().isoformat(),
         }
@@ -108,6 +114,9 @@ class TestSolrSearchIndex(TestController):
             'title': u'\u00c3a\u0001ltimo n\u00famero penguin',
             'notes': u'\u00c3a\u0001ltimo n\u00famero penguin',
             'state': u'active',
+            'type': u'dataset',
+            'private': False,
+            'owner_org': None,
             'metadata_created': datetime.now().isoformat(),
             'metadata_modified': datetime.now().isoformat(),
         }

@@ -1,0 +1,14 @@
+// Allow the dropdown to work without JavaScript
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+// Default to normal dropdown behaviour when JavaScript is enabled
+.js .dropdown {
+  .dropdown-menu,
+  &:hover .dropdown-menu {
+    display: none;
+  }
+  &.open .dropdown-menu {
+    display: block;
+  }
+}

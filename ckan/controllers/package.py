@@ -6,6 +6,7 @@ from pylons import config
 from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
+from paste.deploy.converters import asbool
 
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import date_str_to_datetime
@@ -25,15 +26,16 @@ from ckan.logic import (tuplize_dict,
                         parse_params,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
-import ckan.forms
-import ckan.authz
 import ckan.rating
 import ckan.misc
 import ckan.lib.accept as accept
+import ckan.lib.helpers as h
+import ckan.lib.datapreview as datapreview
 import ckan.plugins as plugins
 from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -48,8 +50,11 @@ def url_with_params(url, params):
     return url + u'?' + urlencode(params)
 
 
-def search_url(params):
-    url = h.url_for(controller='package', action='search')
+def search_url(params, package_type=None):
+    if not package_type or package_type == 'dataset':
+        url = h.url_for(controller='package', action='search')
+    else:
+        url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
 
 
@@ -77,6 +82,9 @@ class PackageController(BaseController):
 
     def _new_template(self, package_type):
         return lookup_package_plugin(package_type).new_template()
+
+    def _edit_template(self, package_type):
+        return lookup_package_plugin(package_type).edit_template()
 
     def _comments_template(self, package_type):
         return lookup_package_plugin(package_type).comments_template()
@@ -114,7 +122,6 @@ class PackageController(BaseController):
 
         return pt
 
-    authorizer = ckan.authz.Authorizer()
 
     def search(self):
         from ckan.lib.search import SearchError
@@ -171,7 +178,7 @@ class PackageController(BaseController):
             if fields:
                 sort_string = ', '.join('%s %s' % f for f in fields)
                 params.append(('sort', sort_string))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.sort_by = _sort_by
         if sort_by is None:
@@ -184,7 +191,7 @@ class PackageController(BaseController):
         def pager_url(q=None, page=None):
             params = list(params_nopage)
             params.append(('page', page))
-            return search_url(params)
+            return search_url(params, package_type)
 
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
@@ -209,6 +216,15 @@ class PackageController(BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True}
 
+            if package_type and package_type != 'dataset':
+                # Only show datasets of this particular type
+                c.fields_grouped['dataset_type'] = package_type
+            else:
+                # Unless changed via config options, don't show non standard
+                # dataset types on the default search page
+                if not asbool(config.get('ckan.search.show_all_types', 'False')):
+                    c.fields_grouped['dataset_type'] = 'dataset'
+
             data_dict = {
                 'q': q,
                 'filters': c.fields_grouped,
@@ -218,6 +234,7 @@ class PackageController(BaseController):
                 'sort': sort_by,
                 'extras': search_extras
             }
+            c.fields_grouped.pop('dataset_type', None)
 
             query = get_action('package_search')(context, data_dict)
 
@@ -235,6 +252,7 @@ class PackageController(BaseController):
             log.error('Dataset search error: %r', se.args)
             c.query_error = True
             c.facets = {}
+            c.search_facets = {}
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
@@ -253,6 +271,10 @@ class PackageController(BaseController):
         maintain.deprecate_context_item(
           'facets',
           'Use `c.search_facets` instead.')
+
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render(self._search_template(package_type))
 
     def _content_type_from_extension(self, ext):
@@ -322,6 +344,9 @@ class PackageController(BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
 
         PackageSaver().render_package(c.pkg_dict, context)
 
@@ -448,7 +473,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to create a package'))
 
         if context['save'] and not data:
-            return self._save_new(context)
+            return self._save_new(context, package_type=package_type)
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
@@ -478,7 +503,8 @@ class PackageController(BaseController):
                 'action': 'new', 'stage': stage}
         c.errors_json = json.dumps(errors)
 
-        self._setup_template_variables(context, {'id': id})
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -695,6 +721,11 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         vars['pkg_name'] = id
+
+        package_type = self._get_package_type(id)
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -706,7 +737,7 @@ class PackageController(BaseController):
                    'pending': True}
 
         if context['save'] and not data:
-            return self._save_edit(id, context)
+            return self._save_edit(id, context, package_type=package_type)
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             context['for_edit'] = True
@@ -760,7 +791,8 @@ class PackageController(BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
 
-        return render('package/edit.html')
+        return render(self._edit_template(package_type),
+                      extra_vars={'stage': vars['stage']})
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
@@ -897,7 +929,7 @@ class PackageController(BaseController):
                                 id=pkg_dict['name'])
                 redirect(url)
 
-            self._form_save_redirect(pkg_dict['name'], 'new')
+            self._form_save_redirect(pkg_dict['name'], 'new', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -923,7 +955,7 @@ class PackageController(BaseController):
             data_dict['state'] = 'none'
             return self.new(data_dict, errors, error_summary)
 
-    def _save_edit(self, name_or_id, context):
+    def _save_edit(self, name_or_id, context, package_type=None):
         from ckan.lib.search import SearchIndexError
         log.debug('Package save request name: %s POST: %r',
                   name_or_id, request.POST)
@@ -949,7 +981,7 @@ class PackageController(BaseController):
             c.pkg = context['package']
             c.pkg_dict = pkg
 
-            self._form_save_redirect(pkg['name'], 'edit')
+            self._form_save_redirect(pkg['name'], 'edit', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
@@ -967,7 +999,7 @@ class PackageController(BaseController):
             error_summary = e.error_summary
             return self.edit(name_or_id, data_dict, errors, error_summary)
 
-    def _form_save_redirect(self, pkgname, action):
+    def _form_save_redirect(self, pkgname, action, package_type=None):
         '''This redirects the user to the CKAN package/read page,
         unless there is request parameter giving an alternate location,
         perhaps an external website.
@@ -980,7 +1012,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            url = h.url_for(controller='package', action='read', id=pkgname)
+            if package_type:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
+            else:
+                url = h.url_for(controller='package', action='read', id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
@@ -1332,20 +1367,46 @@ class PackageController(BaseController):
                 recline_state.pop(k)
         return recline_state
 
-    def resource_datapreview(self, id, resource_id, preview_type):
+    def resource_datapreview(self, id, resource_id):
         '''
         Embeded page for a resource data-preview.
+
+        Depending on the type, different previews are loaded.
+        This could be an img tag where the image is loaded directly or an iframe that
+        embeds a webpage, recline or a pdf preview.
         '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author
+        }
 
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
+
+            data_dict = {'resource': c.resource, 'package': c.package}
+            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
+            data_dict['resource']['on_same_domain'] = on_same_domain
+
+            plugins = p.PluginImplementations(p.IResourcePreview)
+            plugins_that_can_preview = [plugin for plugin in plugins
+                                    if plugin.can_preview(data_dict)]
+            if len(plugins_that_can_preview) == 0:
+                abort(409, _('No preview has been defined.'))
+            if len(plugins_that_can_preview) > 1:
+                log.warn('Multiple previews are possible. {0}'.format(
+                                            plugins_that_can_preview))
+
+            plugin = plugins_that_can_preview[0]
+            plugin.setup_template_variables(context, data_dict)
+
             c.resource_json = json.dumps(c.resource)
+
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
-        return render('dataviewer/{type}.html'.format(type=preview_type))
+        else:
+            return render(plugin.preview_template(context, data_dict))

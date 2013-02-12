@@ -1,8 +1,8 @@
-{% extends "package/read.html" %}
+{% extends "package/read_base.html" %}
 
 {% block subtitle %}{{ _('Followers') }} - {{ c.pkg_dict.title or c.pkg_dict.name }}{% endblock %}
 
-{% block package_content %}
+{% block primary_content_inner %}
   <section class="module-content">
     <h1 class="hide-heading">{{ _('Followers') }}</h1>
     {% snippet "user/snippets/followers.html", followers=c.followers %}

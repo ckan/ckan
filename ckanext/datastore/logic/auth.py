@@ -2,7 +2,8 @@ import ckan.plugins as p
 
 
 def _datastore_auth(context, data_dict):
-    data_dict['id'] = data_dict.get('resource_id')
+    if not 'id' in data_dict:
+        data_dict['id'] = data_dict.get('resource_id')
     user = context.get('user')
 
     authorized = p.toolkit.check_access('resource_update', context, data_dict)

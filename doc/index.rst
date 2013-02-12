@@ -49,6 +49,7 @@ Customizing and Extending
    harvesting
    geospatial
    multilingual
+   email-notifications
 
 Publishing Datasets
 ===================
@@ -90,8 +91,6 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 1
 
-   contributing
-   contributing-docs
    architecture
    python-coding-standards
    javascript-coding-standards

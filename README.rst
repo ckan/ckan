@@ -1,6 +1,10 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
 
+.. image:: https://secure.travis-ci.org/okfn/ckan.png?branch=master
+    :target: http://travis-ci.org/okfn/ckan
+    :alt: Build Status
+
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
@@ -18,20 +22,17 @@ Community
 ---------
 
 * Developer mailing list: `ckan-dev@lists.okfn.org <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_
-* Developer IRC channel: #ckan on `irc.freenode.net <http://freenode.net/>`_
-* Issue tracker: `trac.ckan.org <http://trac.ckan.org/>`_
+* Developer IRC channel: `#ckan on irc.freenode.net <http://webchat.freenode.net/?channels=ckan>`_
+* `Issue tracker <https://github.com/okfn/ckan/issues>`_
 * `CKAN tag on StackOverflow <http://stackoverflow.com/questions/tagged/ckan>`_
+* `Wiki <https://github.com/okfn/ckan/wiki>`_
 
 
 Contributing to CKAN
 --------------------
 
-CKAN is a free software project and code contributions are welcome.
-The `For CKAN Developers <http://docs.ckan.org/en/latest/index.html#for-ckan-developers>`_
-section of the documentation explains how to contribute to CKAN or its documentation,
-including our **coding standards**.
-
-The `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_ is also open fo contributions.
+For contributing to CKAN or its documentation, see
+`CONTRIBUTING <https://github.com/okfn/ckan/blob/master/CONTRIBUTING.rst>`_.
 
 
 Copying and License
