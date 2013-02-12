@@ -7,12 +7,15 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorDataProxy: "DataProxy returned an error",
         errorDataStore: "DataStore returned an error",
         previewNotAvailableForDataType: "Preview not available for data type: "
-      }
+      },
+      site_url: ""
     },
 
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
       this.el.ready(this._onReady);
+      // hack to make leaflet use a particular location to look for images
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/images'
     },
 
     _onReady: function() {
