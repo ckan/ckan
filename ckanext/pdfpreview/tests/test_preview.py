@@ -13,7 +13,7 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
 
-class TestJsonPreview(tests.WsgiAppCase):
+class TestPdfPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
@@ -42,6 +42,7 @@ class TestJsonPreview(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         plugins.reset()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
@@ -83,7 +84,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_pdf.js' in result.body, result.body
+        assert 'preview_pdf.js' in result.body or 'preview_pdf.min.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="pdfpreview"' in result.body, result.body
 

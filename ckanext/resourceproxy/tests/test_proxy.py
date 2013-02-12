@@ -37,8 +37,8 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
         plugins.reset()
+        model.repo.rebuild_db()
 
     def set_resource_url(self, url):
         testpackage = model.Package.get('annakarenina')

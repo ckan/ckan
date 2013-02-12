@@ -42,6 +42,7 @@ class TestJsonPreview(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         plugins.reset()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
@@ -104,7 +105,6 @@ class TestJsonPreview(tests.WsgiAppCase):
         }
         assert not self.p.can_preview(data_dict)
 
-
     def test_js_included(self):
         res_id = self.resource['id']
         pack_id = self.package.name
@@ -112,7 +112,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_recline.js' in result.body, result.body
+        assert 'preview_recline.js' in result.body or 'preview_recline.min.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="reclinepreview"' in result.body, result.body
 

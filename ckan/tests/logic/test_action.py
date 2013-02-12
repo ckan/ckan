@@ -753,6 +753,9 @@ class TestAction(WsgiAppCase):
         result = json.loads(res.body)['result']
         resource_dict = resource_dictize(resource, {'model': model})
         result.pop('revision_timestamp')
+        # The datastore_active has to be popped because it might have been added
+        # when calling resource_show in datastore/plugin.py
+        result.pop('datastore_active', None)
         assert result == resource_dict, (result, resource_dict)
 
     def test_27_get_site_user_not_authorized(self):
