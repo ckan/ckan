@@ -18,7 +18,7 @@ this.ckan.module('data-viewer', function (jQuery) {
     _onDataViewerError: function(message) {
       var parent = this.el.parent();
       $('.data-viewer-error .collapse', parent).html(message);
-      $('.data-viewer-error', parent).show();
+      $('.data-viewer-error', parent).removeClass('js-hide');
        this.el.hide();
     },
 
