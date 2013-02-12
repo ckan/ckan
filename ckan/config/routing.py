@@ -123,19 +123,22 @@ def make_map():
         m.connect('/action/{logic_function}', action='action',
                   conditions=GET_POST)
 
-    # /api ver 1, 2, 3 or none
+    # /api ver 1, 2, 3 or none with default 3
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/3') as m:
         m.connect('', action='get_api')
+
+    # /api ver 1, 2, 3 or none with default 1
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/1') as m:
         m.connect('/search/{register}', action='search')
 
     # /api ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/2') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
         m.connect('/tag_counts', action='tag_counts')
         m.connect('/rest', action='index')
         m.connect('/qos/throughput/', action='throughput', conditions=GET)
 
     # /api/rest ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/2',
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1',
                    requirements=dict(register=register_list_str)) as m:
 
         m.connect('/rest/{register}', action='list', conditions=GET)
@@ -158,7 +161,7 @@ def make_map():
             conditions=DELETE)
 
     # /api/util ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/2') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
         m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
                   conditions=GET)
