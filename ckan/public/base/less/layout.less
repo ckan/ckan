@@ -1,13 +1,9 @@
 .wrapper {
   .clearfix();
+  .box();
   position: relative;
   background: #FFF url("@{imagePath}/nav.png") 0 0 repeat-y;
   margin-bottom: 20px;
-  margin-left: -1px;
-  margin-right: -1px;
-  border: 1px solid @layoutTrimBorderColor;
-  .border-radius(4px);
-  .box-shadow(0 0 0 4px rgba(0, 0, 0, 0.05));
 }
 
 .wrapper.no-nav {
@@ -52,16 +48,6 @@
   background: url("@{imagePath}/background-tile.png");
 }
 
-.hero:after {
-  // Need to manually declare this here. If you pass rgba() through to
-  // #gradient it breaks the filter property in IE7.
-  .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
-  background-color: transparent;
-  top: 7px;
-  bottom: auto;
-  height: 5px;
-}
-
 .hero {
   padding-bottom: 0;
   min-height: 0;
@@ -79,11 +65,11 @@
 
 .hero-primary {
   margin-left: 0; // Remove grid margin.
-}
-
-.hero-primary {
-  margin-left: 0; // Remove grid margin.
   margin-bottom: 0;
+  .box {
+    border-bottom-width: 0;
+    .border-radius(4px 4px 0 0);
+  }
 }
 
 .hero-secondary {
@@ -103,11 +89,6 @@
   margin-top: 50px;
 }
 
-.hero .module {
-  padding-bottom: 2px;
-  border-bottom-width: 0;
-}
-
 .hero .search-giant input {
   border-color: darken(@mastheadBackgroundColorEnd, 5);
 }
@@ -125,7 +106,7 @@
 }
 
 .hero .module-dark .module-content {
-  .border-radius(3px);
+  .border-radius(3px 3px 0 0);
   background-color: @mastheadBackgroundColor;
 }
 
@@ -135,7 +116,14 @@
 }
 
 .hero .tags {
-  margin-bottom: 9px;
+  padding: 10px;
+  background-color: darken(@mastheadBackgroundColor, 10%);
+  .border-radius(0 0 3px 3px);
+  h3 {
+    font-size: 14px;
+    line-height: 21px;
+    margin: 0;
+  }
 }
 
 .hero .tags .tag,
@@ -145,10 +133,14 @@
 
 .hero .tags .tag-list {
   padding: 0;
+  li {
+    margin-right: 0;
+  }
 }
 
 .hero .tags .tag {
-  margin-right: 15px;
+  margin-right: 10px;
+  margin-bottom: 0;
 }
 
 .context-header {
@@ -243,4 +235,10 @@
       margin-top: 0;
     }
   }
+}
+
+.main.homepage {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid @layoutTrimBorderColor;
 }
