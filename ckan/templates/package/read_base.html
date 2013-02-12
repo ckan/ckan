@@ -2,6 +2,12 @@
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
+{% block breadcrumb_content %}
+  {% set dataset = pkg.title or pkg.name %}
+  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
+  <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
+{% endblock %}
+
 {% block actions_content %}
   {# NOTE: Not implemented in stage 1 #}
   {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
