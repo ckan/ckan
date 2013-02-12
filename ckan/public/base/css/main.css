@@ -5807,6 +5807,13 @@ textarea {
 .control-full .select2-container {
   width: 520px !important;
 }
+.control-group.error .select2-container input:focus,
+.control-group.error .select2-container select:focus,
+.control-group.error .select2-container textarea:focus {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
 .dataset-item {
   border-bottom: 1px dotted #cccccc;
   padding-bottom: 20px;
