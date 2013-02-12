@@ -148,7 +148,7 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
-                   'for_view': True, 'extras_as_string': True}
+                   'for_view': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
@@ -290,7 +290,7 @@ class GroupController(BaseController):
             data['type'] = group_type
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -315,7 +315,7 @@ class GroupController(BaseController):
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
@@ -550,8 +550,7 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(),
-                   'extras_as_string': True}
+                   'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
         try:
             c.group_dict = self._action('group_show')(context, data_dict)

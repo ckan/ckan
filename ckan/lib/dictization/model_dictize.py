@@ -468,7 +468,7 @@ def group_to_api(group, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     if api_version == 1:
         dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])

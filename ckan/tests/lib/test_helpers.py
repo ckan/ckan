@@ -172,7 +172,7 @@ class TestHelpers(TestController):
 
         pkg_dict = get_action('package_show')({'model': model, 'user': u'tester'}, {'id': 'annakarenina'})
 
-        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'genre'), '"romantic novel"')
+        assert_equal(h.get_pkg_dict_extra(pkg_dict, 'genre'), 'romantic novel')
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 

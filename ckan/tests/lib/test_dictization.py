@@ -42,8 +42,8 @@ class TestBasicDictize:
             'extras': [
                {'key': u'genre',
                 'state': u'active',
-                'value': '"romantic novel"'},
-               {'key': u'original media', 'state': u'active', 'value': u'"book"'}],
+                'value': 'romantic novel'},
+               {'key': u'original media', 'state': u'active', 'value': u'book'}],
             'groups': [{'description': u'These are books that David likes.',
                         'name': u'david',
                         'capacity': 'public',
@@ -428,7 +428,7 @@ class TestBasicDictize:
         anna_dictized['resources'][0]['url'] = u'http://new_url2'
         anna_dictized['tags'][0]['name'] = u'new_tag'
         anna_dictized['tags'][0].pop('id') #test if
-        anna_dictized['extras'][0]['value'] = u'"new_value"'
+        anna_dictized['extras'][0]['value'] = u'new_value'
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -524,7 +524,7 @@ class TestBasicDictize:
                             )
         anna_dictized['tags'].append({'name': u'newnew_tag'})
         anna_dictized['extras'].append({'key': 'david',
-                                        'value': u'"new_value"'})
+                                        'value': u'new_value'})
 
         model.repo.new_revision()
         package_dict_save(anna_dictized, context)
@@ -711,7 +711,7 @@ class TestBasicDictize:
         second_dictized['resources'][0]['url'] = u'http://new_url2'
         second_dictized['tags'][0]['name'] = u'new_tag'
         second_dictized['tags'][0]['display_name'] = u'new_tag'
-        second_dictized['extras'][0]['value'] = u'"new_value"'
+        second_dictized['extras'][0]['value'] = u'new_value'
         second_dictized['state'] = 'pending'
 
         print '\n'.join(unified_diff(pformat(second_dictized).split('\n'), pformat(third_dictized).split('\n')))
@@ -742,7 +742,7 @@ class TestBasicDictize:
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
         third_dictized['extras'].insert(0, {'key': 'david',
-                                         'value': u'"new_value"',
+                                         'value': u'new_value',
                                          'state': u'active'})
         third_dictized['state'] = 'active'
 
@@ -828,8 +828,8 @@ class TestBasicDictize:
 
         dictized = package_api_to_dict(api_data, context)
 
-        assert dictized == {'extras': [{'key': 'genre', 'value': u'"horror"'},
-                                       {'key': 'media', 'value': u'"dvd"'}],
+        assert dictized == {'extras': [{'key': 'genre', 'value': u'horror'},
+                                       {'key': 'media', 'value': u'dvd'}],
                             'license_id': u'gpl-3.0',
                             'name': u'testpkg',
                             'resources': [{u'alt_url': u'alt_url',
