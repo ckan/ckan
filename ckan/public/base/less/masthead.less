@@ -1,156 +1,156 @@
 @notificationsBg: #C9403A;
 
 .account-masthead {
-	.clearfix();
-	min-height: 30px;
-	color: @mastheadTextColor;
-	background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
-	.account {
-		float: right;
-		.dropdown {
-			float: left;
-		}
-		&.authed {
-			.button {
-				display: block;
-				.border-radius(3px);
-				color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
-				background-color: @mastheadBackgroundColor;
-				line-height: 22px;
-				margin: 4px 0 4px 4px;
-				font-size: 12px;
-				&:hover {
-					color: @mastheadBackgroundColor;
-					background-color: @mastheadLinkColor;
-					text-decoration: none;
-				}
-			}
-			.notifications {
-				font-weight: bold;
-				padding: 0 8px;
-				&.notifications-important {
-					color: @mastheadLinkColor;
-					background-color: @notificationsBg;
-				}
-			}
-			.image {
-				img {
-					display: block;
-					float: left;
-					.border-radius(3px 0 0 3px);
-					border-right: 1px solid darken(@mastheadBackgroundColor, 5%);
-				}
-				i {
-					vertical-align: -1px;
-					width: 12px;
-				}
-			}
-		}
-		&.not-authed {
-			ul {
-				.clearfix();
-				li {
-					display: block;
-					float: left;
-					a {
-						display: block;
-						color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
-						font-size: 13px;
-						font-weight: bold;
-						padding: 0 10px;
-						line-height: 30px;
-						&:hover {
-							color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
-							background-color: darken(@mastheadBackgroundColor, 20%);
-							text-decoration: none;
-						}
-						&.sub {
-							font-weight: 300;
-						}
-					}
-				}
-			}
-		}
-	}
+  .clearfix();
+  min-height: 30px;
+  color: @mastheadTextColor;
+  background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
+  .account {
+    float: right;
+    .dropdown {
+      float: left;
+    }
+    &.authed {
+      .button {
+        display: block;
+        .border-radius(3px);
+        color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+        background-color: @mastheadBackgroundColor;
+        line-height: 22px;
+        margin: 4px 0 4px 4px;
+        font-size: 12px;
+        &:hover {
+          color: @mastheadBackgroundColor;
+          background-color: @mastheadLinkColor;
+          text-decoration: none;
+        }
+      }
+      .notifications {
+        font-weight: bold;
+        padding: 0 8px;
+        &.notifications-important {
+          color: @mastheadLinkColor;
+          background-color: @notificationsBg;
+        }
+      }
+      .image {
+        img {
+          display: block;
+          float: left;
+          .border-radius(3px 0 0 3px);
+          border-right: 1px solid darken(@mastheadBackgroundColor, 5%);
+        }
+        i {
+          vertical-align: -1px;
+          width: 12px;
+        }
+      }
+    }
+    &.not-authed {
+      ul {
+        .clearfix();
+        li {
+          display: block;
+          float: left;
+          a {
+            display: block;
+            color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+            font-size: 13px;
+            font-weight: bold;
+            padding: 0 10px;
+            line-height: 30px;
+            &:hover {
+              color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
+              background-color: darken(@mastheadBackgroundColor, 20%);
+              text-decoration: none;
+            }
+            &.sub {
+              font-weight: 300;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 .masthead {
-	.clearfix();
-	min-height: 55px;
-	color: @mastheadTextColor;
-	background: @mastheadBackgroundColor url("@{bgPath}");
+  .clearfix();
+  min-height: 55px;
+  color: @mastheadTextColor;
+  background: @mastheadBackgroundColor url("@{bgPath}");
 
-	.container {
-		position: relative;
-	}
+  .container {
+    position: relative;
+  }
 
-	a {
-		color: @mastheadLinkColor;
-	}
+  a {
+    color: @mastheadLinkColor;
+  }
 
-	hgroup {
-		h1,
-		h2 {
-			float: left;
-			font-size: 34px;
-			line-height: 1.5;
-		}
-		h1 {
-			font-weight: 900;
-			letter-spacing: -1px;
-		}
-		h2 {
-			position: absolute;
-			bottom: -3px;
-			left: 0;
-			margin: 0;
-			font-size: 15px;
-			font-weight: normal;
-			line-height: 1.2;
-			white-space: nowrap;
-		}
-	}
+  hgroup {
+    h1,
+    h2 {
+      float: left;
+      font-size: 34px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+    h2 {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      margin: 0;
+      font-size: 15px;
+      font-weight: normal;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  }
 
-	.content {
-		position: absolute;
-		top: 10px;
-		right: 0;
-	}
+  .content {
+    position: absolute;
+    top: 10px;
+    right: 0;
+  }
 
-	.section {
-		float: left;
-	}
+  .section {
+    float: left;
+  }
 
-	input[type="text"] {
-		border-color: darken(@mastheadBackgroundColor, 5);
-	}
+  input[type="text"] {
+    border-color: darken(@mastheadBackgroundColor, 5);
+  }
 
-	.navigation {
-		margin-right: 20px;
-		.nav-pills {
-			margin-bottom: 0;
-			li {
-				a:hover,
-				&.active a {
-					background-color: darken(@mastheadBackgroundColor, 10%);
-				}
-			}
-		}
-	}
+  .navigation {
+    margin-right: 20px;
+    .nav-pills {
+      margin-bottom: 0;
+      li {
+        a:hover,
+        &.active a {
+          background-color: darken(@mastheadBackgroundColor, 10%);
+        }
+      }
+    }
+  }
 
-	.site-search {
-		margin: 2px 8px 2px 0;
-		input {
-			width: 150px;
-			padding: 4px 12px;
-			.border-radius(100px);
-		}
-	}
+  .site-search {
+    margin: 2px 8px 2px 0;
+    input {
+      width: 150px;
+      padding: 4px 12px;
+      .border-radius(100px);
+    }
+  }
 
-	.debug {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		color: rgba(255, 255, 255, 0.5);
-	}
+  .debug {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
