@@ -7,12 +7,15 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorDataProxy: "DataProxy returned an error",
         errorDataStore: "DataStore returned an error",
         previewNotAvailableForDataType: "Preview not available for data type: "
-      }
+      },
+      site_url: ""
     },
 
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
       this.el.ready(this._onReady);
+      // hack to make leaflet use a particular location to look for images
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/images'
     },
 
     _onReady: function() {
@@ -33,11 +36,10 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
 
       function showError(msg){
         msg = msg || _('error loading preview');
-        return self.el
-          .append('<div></div>')
-          .addClass('alert alert-error fade in')
-          .html(msg);
+        window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
+
+      recline.Backend.DataProxy.timeout = 10000;
 
       // 2 situations
       // a) something was posted to the datastore - need to check for this
@@ -82,14 +84,12 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorMsg = this.options.i18n.errorLoadingPreview + ': ' +this.options.i18n.errorDataProxy;
         dataset.fetch()
           .done(function(dataset){
-
             dataset.bind('query:fail', function (error) {
               jQuery('.data-view-container', self.el).hide();
               jQuery('.header', self.el).hide();
             });
 
             self.initializeDataExplorer(dataset);
-            jQuery('.recline-query-editor .text-query').hide();
           })
           .fail(function(error){
             if (error.message) errorMsg += ' (' + error.message + ')';
@@ -123,18 +123,26 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         }
       ];
 
+      var sidebarViews = [
+        {
+          id: 'filterEditor',
+          label: 'Filters',
+          view: new recline.View.FilterEditor({
+            model: dataset
+          })
+        }
+      ];
+
       var dataExplorer = new recline.View.MultiView({
         el: this.el,
         model: dataset,
         views: views,
+        sidebarViews: sidebarViews,
         config: {
           readOnly: true
         }
       });
 
-      // Hide the fields control by default
-      // (This should be done in recline!)
-      // jQuery('.menu-right a[data-action="fields"]', self.el).click();
     },
     normalizeFormat: function (format) {
       var out = format.toLowerCase();
