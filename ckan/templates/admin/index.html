@@ -1,23 +1,9 @@
-{% extends "page.html" %}
+{% extends "admin/base.html" %}
 
-{% block subtitle %}{{ _('Administration') }}{% endblock %}
-
-{% block breadcrumb_content %}
+{% block primary_content_inner %}
+  <ul class="user-list">
+    {% for user in c.sysadmins %}
+      <li>{{ h.linked_user(user) }}</li>
+    {% endfor %}
+  </ul>
 {% endblock %}
-
-{% block primary %}
-  <article class="module">
-    <div class="module-content">
-      {% snippet 'admin/snippets/header.html', action=c.action %}
-      <ul>
-        {% for user in c.sysadmins %}
-          <li py:for="user in c.sysadmins">
-            {{ h.linked_user(user) }}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </article>
-{% endblock %}
-
-{% block sidebar %}{% endblock %}

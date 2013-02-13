@@ -12,6 +12,7 @@
       li {
         display: block;
         float: left;
+        border-left: 1px solid darken(@mastheadBackgroundColor, 15%);
         a {
           display: block;
           color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
@@ -65,9 +66,6 @@
       }
     }
     &.authed {
-      li {
-        border-left: 1px solid darken(@mastheadBackgroundColor, 15%);
-      }
       .image {
         padding: 0 6px;
         img {

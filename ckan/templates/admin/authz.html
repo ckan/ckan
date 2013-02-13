@@ -1,9 +1,4 @@
-{% extends "page.html" %}
-
-{% block subtitle %}{{ _('Administration - Authorization') }}{% endblock %}
-
-{% block breadcrumb_content %}
-{% endblock %}
+{% extends "admin/base.html" %}
 
 {% macro authz_form_table(id, roles, users, user_role_dict) %}
   <table class="table table-bordered table-striped">
@@ -131,27 +126,17 @@
   </table>
 {% endmacro %}
 
-{% block primary %}
-  <article class="module">
-    <div class="module-content">
-      {% snippet 'admin/snippets/header.html', action=c.action %}
-
-      <h3 class="m-bottom">{{ _('Update Existing Roles') }}</h3>
-      <form id="theform" method="POST">
-        {{ authz_form_table('theform', c.roles, c.users, c.user_role_dict) }}
-        <button type="submit" name="save" class="btn btn-primary">{{ _('Save Changes') }}</button>
-        <div class="clear"></div>
-      </form>
-
-      <h3 class="m-bottom">{{ _('Add Roles for Any User') }}</h3>
-      <form id="addform" method="POST">
-        {{ authz_add_table(c.roles) }}
-        <button type="submit" name="add" class="btn btn-primary">{{ _('Add Role') }}</button>
-        <div class="clear"></div>
-      </form>
-
-    </div>
-  </article>
+{% block primary_content_inner %}
+  <h3 class="m-bottom">{{ _('Update Existing Roles') }}</h3>
+  <form id="theform" method="POST">
+    {{ authz_form_table('theform', c.roles, c.users, c.user_role_dict) }}
+    <button type="submit" name="save" class="btn btn-primary">{{ _('Save Changes') }}</button>
+    <div class="clear"></div>
+  </form>
+  <h3 class="m-bottom">{{ _('Add Roles for Any User') }}</h3>
+  <form id="addform" method="POST">
+    {{ authz_add_table(c.roles) }}
+    <button type="submit" name="add" class="btn btn-primary">{{ _('Add Role') }}</button>
+    <div class="clear"></div>
+  </form>
 {% endblock %}
-
-{% block sidebar %}{% endblock %}

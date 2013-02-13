@@ -381,6 +381,8 @@ def make_map():
         m.connect('/feeds/custom.atom', action='custom')
 
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
+    map.connect('ckanadmin_authz', '/ckan-admin/authz', controller='admin', action='authz')
+    map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin', action='config')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     # Storage routes

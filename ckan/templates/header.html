@@ -15,6 +15,13 @@
                 {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=22) }}
               </a>
             </li>
+            {% if c.userobj.sysadmin %}
+              <li>
+                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                  <i class="icon-legal"></i>
+                </a>
+              </li>
+            {% endif %}
             <li>
               <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit my profile') }}">
                 <i class="icon-cog"></i>
