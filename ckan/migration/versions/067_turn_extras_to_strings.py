@@ -1,14 +1,7 @@
 
 def upgrade(migrate_engine):
 
-
-
-
-    replace_string = r"""replace(replace(replace(replace(replace(replace(replace(replace(
-                         replace(replace(replace(replace(replace(replace(replace(replace(
-                         replace(replace(replace(replace(replace(replace(replace(replace(
-                         replace(replace(replace(replace(replace(replace(replace(replace(
-                         replace(replace(replace(replace(replace(replace(replace(value,
+    replace_string =    "replace("*39 + r"""value,
                         '\\', '\'),
                         '\/', '/'),
                         '\"', '"'),
@@ -17,37 +10,37 @@ def upgrade(migrate_engine):
                         '\n', E'\n'),
                         '\r', E'\r'),
                         '\b', E'\b'),
-                        '\u0001', E'\u0001'),
-                        '\u0002', E'\u0002'),
-                        '\u0003', E'\u0003'),
-                        '\u0004', E'\u0004'),
-                        '\u0005', E'\u0005'),
-                        '\u0006', E'\u0006'),
-                        '\u0007', E'\u0007'),
-                        '\u0008', E'\u0008'),
-                        '\u0009', E'\u0009'),
-                        '\u000a', E'\u000a'),
-                        '\u000b', E'\u000b'),
-                        '\u000c', E'\u000c'),
-                        '\u000d', E'\u000d'),
-                        '\u000e', E'\u000e'),
-                        '\u000f', E'\u000f'),
-                        '\u0010', E'\u0010'),
-                        '\u0011', E'\u0011'),
-                        '\u0012', E'\u0012'),
-                        '\u0013', E'\u0013'),
-                        '\u0014', E'\u0014'),
-                        '\u0015', E'\u0015'),
-                        '\u0016', E'\u0016'),
-                        '\u0017', E'\u0017'),
-                        '\u0018', E'\u0018'),
-                        '\u0019', E'\u0019'),
-                        '\u001a', E'\u001a'),
-                        '\u001b', E'\u001b'),
-                        '\u001c', E'\u001c'),
-                        '\u001d', E'\u001d'),
-                        '\u001e', E'\u001e'),
-                        '\u001f', E'\u001f')
+                        '\u0001', E'\x01'),
+                        '\u0002', E'\x02'),
+                        '\u0003', E'\x03'),
+                        '\u0004', E'\x04'),
+                        '\u0005', E'\x05'),
+                        '\u0006', E'\x06'),
+                        '\u0007', E'\x07'),
+                        '\u0008', E'\x08'),
+                        '\u0009', E'\x09'),
+                        '\u000a', E'\x0a'),
+                        '\u000b', E'\x0b'),
+                        '\u000c', E'\x0c'),
+                        '\u000d', E'\x0d'),
+                        '\u000e', E'\x0e'),
+                        '\u000f', E'\x0f'),
+                        '\u0010', E'\x10'),
+                        '\u0011', E'\x11'),
+                        '\u0012', E'\x12'),
+                        '\u0013', E'\x13'),
+                        '\u0014', E'\x14'),
+                        '\u0015', E'\x15'),
+                        '\u0016', E'\x16'),
+                        '\u0017', E'\x17'),
+                        '\u0018', E'\x18'),
+                        '\u0019', E'\x19'),
+                        '\u001a', E'\x1a'),
+                        '\u001b', E'\x1b'),
+                        '\u001c', E'\x1c'),
+                        '\u001d', E'\x1d'),
+                        '\u001e', E'\x1e'),
+                        '\u001f', E'\x1f')
                         """
 
     update_statement = r'''
@@ -69,4 +62,5 @@ def upgrade(migrate_engine):
     COMMIT;
 
     '''.format(replace_string=replace_string)
+
     migrate_engine.execute(update_statement)
