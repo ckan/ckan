@@ -5,14 +5,10 @@
         {% block footer_nav %}
           <ul class="unstyled row-fluid">
             {% block footer_links %}
-              <li><a href="#">{{ _('Terms and Conditions') }}</a></li>
-              <li><a href="#">{{ _('Accessibility') }}</a></li>
-              <li><a href="#">{{ _('Code of conduct') }}</a></li>
-              <li><a href="#">{{ _('Moderation policy') }}</a></li>
-              <li><a href="#">{{ _('FAQ') }}</a></li>
-              <li><a href="#">{{ _('Privacy') }}</a></li>
-              <li><a href="#">{{ _('Contact us') }}</a></li>
-              <li><a href="#">{{ _('Consultation') }}</a></li>
+              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About') }} {{ g.site_title }}</a></li>
+              <li><a href="http://docs.ckan.org/en/latest/api.html">CKAN API</a></li>
+              <li><a href="http://www.opendefinition.org/okd/"><img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
+              <li><a href="http://www.okfn.org/">{{ _('Open Knowledge Foundation') }}</a></li>
             {% endblock %}
           </ul>
         {% endblock %}
