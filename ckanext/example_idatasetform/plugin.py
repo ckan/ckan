@@ -67,9 +67,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # registers itself as the default (above).
         return []
 
-    def db_to_form_schema_options(self, options):
-        return self.db_to_form_schema()
-
     def form_to_db_schema(self):
         schema = logic.schema.form_to_db_package_schema()
 
