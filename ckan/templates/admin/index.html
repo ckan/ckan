@@ -7,3 +7,20 @@
     {% endfor %}
   </ul>
 {% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-info-sign"></i>
+      {{ _('What are sysadmins?') }}
+    </h2>
+    <div class="module-content">
+      {% trans %}
+        <p>A sysadmin is someone that has full control over a CKAN instance.
+          You can only add CKAN sysadmins via the <code>sysadmin</code> paster
+          command.</p>
+        <p><a href="http://docs.ckan.org/en/latest/paster.html#sysadmin-give-sysadmin-rights" target="_blank">Read the documentation</a></p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}

@@ -140,3 +140,32 @@
     <div class="clear"></div>
   </form>
 {% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-info-sign"></i>
+      {{ _('What are user roles?') }}
+    </h2>
+    <div class="module-content">
+      {% trans %}
+        <p>User roles allow you to define the level of access to different parts
+        of CKAN that a certain user can do.</p>
+        <h4>User roles</h4>
+        <p><strong>logged_in:</strong> This represents a user who has an account
+          and is logged in.</p>
+        <p><strong>visitor:</strong> This represents a user who does not have an
+          account and is not logged in.</p>
+        <h4>Access levels</h4>
+        <p><strong>anon_editor:</strong> This allows the user to do anonymous
+          editing of content</p>
+        <p><strong>admin:</strong> This allows a user full read/write and
+          settings access to content</p>
+        <p><strong>editor:</strong> This allows a user some read/write access
+          to content</p>
+        <p><strong>reader:</strong> This allows a user some read access to
+          content</p>
+      {% endtrans %}
+    </div>
+  </div>
+{% endblock %}
