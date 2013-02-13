@@ -65,10 +65,13 @@
               </span>
             </form>
             {% block home_tags %}
-              <div class="tags">
-                <h3 class="tag">Popular {{ c.facet_titles.name }}</h3>
-                {% set tags = h.get_facet_items_dict('tags', limit=3) %}
-                {% snippet 'snippets/tag_list.html', tags=tags %}
+        {% endblock %}
+
+        {% block home_tags %}
+          <div class="tags">
+              <h3 class="tag">{{ _('Popular Tags') }}</h3>
+            {% set tags = h.get_facet_items_dict('tags', limit=3) %}
+            {% snippet 'snippets/tag_list.html', tags=tags %}
               </div>
             {% endblock %}
           </div>
