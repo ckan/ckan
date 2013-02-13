@@ -306,13 +306,8 @@ class FeedController(BaseController):
                     navigation_urls = navigation_urls,
                 )
 
-    def output_feed(self, results,
-                          feed_title,
-                          feed_description,
-                          feed_link,
-                          feed_url,
-                          navigation_urls,
-                          feed_guid):
+    def output_feed(self, results, feed_title, feed_description, feed_link,
+                    feed_url, navigation_urls, feed_guid):
 
         author_name = config.get('ckan.feeds.author_name', '').strip() or \
                       config.get('ckan.site_id', '').strip()
@@ -333,25 +328,39 @@ class FeedController(BaseController):
             next_page=navigation_urls['next'],
             first_page=navigation_urls['first'],
             last_page=navigation_urls['last'],
-            )
+        )
 
         for pkg in results:
+            updated_date = pkg.get('metadata_modified')
+            if updated_date:
+                updated_date = date_str_to_datetime(updated_date)
+
+            published_date = pkg.get('metadata_created')
+            if published_date:
+                published_date = date_str_to_datetime(published_date)
+
             feed.add_item(
-                    title = pkg.get('title', ''),
-                    link = self.base_url + url_for(controller='package', action='read', id=pkg['id']),
-                    description = pkg.get('notes', ''),
-                    updated = date_str_to_datetime(pkg.get('metadata_modified')),
-                    published = date_str_to_datetime(pkg.get('metadata_created')),
-                    unique_id = _create_atom_id(u'/dataset/%s' % pkg['id']),
-                    author_name = pkg.get('author', ''),
-                    author_email = pkg.get('author_email', ''),
-                    categories = [t['name'] for t in pkg.get('tags', [])],
-                    enclosure=webhelpers.feedgenerator.Enclosure(
-                        self.base_url + url_for(controller='api', register='package', action='show', id=pkg['name'], ver='2'),
-                        unicode(len(json.dumps(pkg))), # TODO fix this
-                        u'application/json'
-                        )
-                    )
+                title=pkg.get('title', ''),
+                link=self.base_url + url_for(controller='package',
+                                             action='read',
+                                             id=pkg['id']),
+                description=pkg.get('notes', ''),
+                updated=updated_date,
+                published=published_date,
+                unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
+                author_name=pkg.get('author', ''),
+                author_email=pkg.get('author_email', ''),
+                categories=[t['name'] for t in pkg.get('tags', [])],
+                enclosure=webhelpers.feedgenerator.Enclosure(
+                    self.base_url + url_for(controller='api',
+                                            register='package',
+                                            action='show',
+                                            id=pkg['name'],
+                                            ver='2'),
+                    unicode(len(json.dumps(pkg))),  # TODO fix this
+                    u'application/json'
+                )
+            )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
 
