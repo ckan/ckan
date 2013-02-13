@@ -7,12 +7,15 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorDataProxy: "DataProxy returned an error",
         errorDataStore: "DataStore returned an error",
         previewNotAvailableForDataType: "Preview not available for data type: "
-      }
+      },
+      site_url: ""
     },
 
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
       this.el.ready(this._onReady);
+      // hack to make leaflet use a particular location to look for images
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/images'
     },
 
     _onReady: function() {
@@ -33,10 +36,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
 
       function showError(msg){
         msg = msg || _('error loading preview');
-        return self.el
-          .append('<div></div>')
-          .addClass('alert alert-error fade in')
-          .html(msg);
+        window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
       recline.Backend.DataProxy.timeout = 10000;
@@ -84,14 +84,12 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorMsg = this.options.i18n.errorLoadingPreview + ': ' +this.options.i18n.errorDataProxy;
         dataset.fetch()
           .done(function(dataset){
-
             dataset.bind('query:fail', function (error) {
               jQuery('.data-view-container', self.el).hide();
               jQuery('.header', self.el).hide();
             });
 
             self.initializeDataExplorer(dataset);
-            jQuery('.recline-query-editor .text-query').hide();
           })
           .fail(function(error){
             if (error.message) errorMsg += ' (' + error.message + ')';
