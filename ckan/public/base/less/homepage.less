@@ -1,14 +1,10 @@
 .hero {
   background: url("@{imagePath}/background-tile.png");
-  padding-bottom: 0;
+  padding: 20px 0;
   min-height: 0;
   > .container {
     position: relative;
     padding-bottom: 0;
-  }
-  .module-popup {
-    .border-radius(3px 3px 0 0);
-    margin-top: 50px;
   }
   .search-giant input {
     border-color: darken(@mastheadBackgroundColorEnd, 5);
@@ -19,7 +15,7 @@
   }
   .module-dark {
     padding: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     color: @mastheadTextColor;
     background: @layoutTrimBackgroundColor;
     .module-content {
@@ -65,10 +61,6 @@
 .hero-primary {
   margin-left: 0; // Remove grid margin.
   margin-bottom: 0;
-  .box {
-    border-bottom-width: 0;
-    .border-radius(4px 4px 0 0);
-  }
 }
 
 .hero-secondary {
@@ -79,5 +71,19 @@
     bottom: 0;
     left: 0;
     right: 0;
+  }
+}
+
+.main.homepage {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid @layoutTrimBorderColor;
+  .module-heading .media-image {
+    margin-right: 15px;
+    max-height: 53px;
+    .box-shadow(0 0 0 2px rgba(255, 255, 255, 0.5));
+  }
+  .group-list {
+    margin-bottom: 0;
   }
 }
