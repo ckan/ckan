@@ -1757,6 +1757,8 @@ class MinifyCommand(CkanCommand):
     usage = __doc__
     min_args = 1
 
+    exclude_dirs = ['vendor']
+
     def command(self):
         self._load_config()
         for base_path in self.args:
@@ -1764,6 +1766,7 @@ class MinifyCommand(CkanCommand):
                 self.minify_file(base_path)
             elif os.path.isdir(base_path):
                 for root, dirs, files in os.walk(base_path):
+                    dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
                         self.minify_file(path)
