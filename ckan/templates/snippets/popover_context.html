@@ -6,5 +6,5 @@
   {% snippet 'ajax_snippets/popover_context_dataset.html', id=dict.id, name=dict.name, notes=dict.notes, num_resources=dict.num_resources, num_tags=dict.num_tags %}
 {%elif type == 'group' %}
   <h2>{{ dict.title }}</h2>
-  {% snippet 'ajax_snippets/popover_context_group.html', id=dict.id, name=dict.name, description=dict.description, num_followers=dict.num_followers, num_datasets=dict.num_datasets %}
+  {% snippet 'ajax_snippets/popover_context_group.html', id=dict.id, name=dict.name, description=dict.description, num_followers=dict.num_followers, package_count=dict.package_count %}
 {% endif %}

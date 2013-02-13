@@ -192,7 +192,7 @@ this.ckan.module('popover-context', function($, _) {
 				params.title = raw.title;
 				params.name = raw.name;
 				params.description = raw.description;
-				params.num_datasets = raw.num_datasets;
+				params.package_count = raw.package_count;
 				params.num_followers = raw.num_followers;
 			}
 			return params;

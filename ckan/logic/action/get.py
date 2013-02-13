@@ -849,8 +849,6 @@ def _group_or_org_show(context, data_dict, is_org=False):
             {'model': model, 'session': model.Session},
             {'id': group_dict['id']})
 
-    group_dict['num_datasets'] = len(group_dict.get('packages', []))
-
     if schema:
         group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
