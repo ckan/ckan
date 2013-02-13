@@ -2,7 +2,6 @@
 def upgrade(migrate_engine):
 
     replace_string =    "replace("*39 + r"""value,
-                        '\\', '\'),
                         '\/', '/'),
                         '\"', '"'),
                         '\f', E'\f'),
@@ -40,7 +39,8 @@ def upgrade(migrate_engine):
                         '\u001c', E'\x1c'),
                         '\u001d', E'\x1d'),
                         '\u001e', E'\x1e'),
-                        '\u001f', E'\x1f')
+                        '\u001f', E'\x1f'),
+                        '\\', '\')
                         """
 
     update_statement = r'''
