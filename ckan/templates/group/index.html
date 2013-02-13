@@ -15,9 +15,9 @@
 {% block primary_content %}
   <div class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Groups') }}</h1>
-      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected%}
-      <strong>
+      <h1 class="hide-heading">{{ _('Groups') }}</h1>
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search groups...') %}
+      <h2>
         {% if request.params and c.page.item_count %}
           {{ c.page.item_count }} groups{% if c.q %} found for &#147;{{ c.q }}&#148;{% endif %}
         {% elif request.params and c.page.item_count == 0 %}
@@ -25,17 +25,18 @@
         {% else %}
           All groups
         {% endif %}
-        {% if c.page.items or request.params %}
-          {% snippet "group/snippets/group_list.html", groups=c.page.items %}
-        {% else %}
-          <p class="empty">
-            {{ _('There are currently no groups for this site') }}.
-            {% if h.check_access('group_create') %}
-              {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
-            {% endif %}
-          </p>
-        {% endif %}
-      </strong>
+      </h2>
+      <hr>
+      {% if c.page.items or request.params %}
+        {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+      {% else %}
+        <p class="empty">
+          {{ _('There are currently no groups for this site') }}.
+          {% if h.check_access('group_create') %}
+            {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+          {% endif %}
+        </p>
+      {% endif %}
     </div>
     {{ c.page.pager() }}
   </div>
