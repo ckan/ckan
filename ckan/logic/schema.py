@@ -186,10 +186,10 @@ def form_to_db_package_schema():
 
     ##changes
     schema.pop("id")
-    schema.pop('tags')
     schema.pop('relationships_as_object')
     schema.pop('revision_id')
     schema.pop('relationships_as_subject')
+
     return schema
 
 def db_to_form_package_schema():
