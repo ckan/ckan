@@ -1380,8 +1380,8 @@ def resource_preview(resource, pkg_id):
     Returns a rendered snippet for a embedded resource preview.
 
     Depending on the type, different previews are loaded.
-    This could be an img tag where the image is loaded directly or an iframe that
-    embeds a web page, recline or a pdf preview.
+    This could be an img tag where the image is loaded directly or an iframe
+    that embeds a web page, recline or a pdf preview.
     '''
 
     format_lower = resource['format'].lower()
@@ -1392,11 +1392,9 @@ def resource_preview(resource, pkg_id):
 
     if not resource['url']:
         log.info('No url for resource {0} defined.'.format(resource['id']))
-        return snippet(
-            "dataviewer/snippets/no_preview.html",
-            resource_type=format_lower,
-            reason='No valid resource url has been defined.'
-            )
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower,
+                       reason='No valid resource url has been defined.')
     direct_embed = config.get('ckan.preview.direct', '').split()
     if not direct_embed:
         direct_embed = datapreview.DEFAULT_DIRECT_EMBED
@@ -1406,24 +1404,23 @@ def resource_preview(resource, pkg_id):
 
     if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], id=pkg_id, qualified=True)
+                      resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in direct_embed:
         directly = True
         url = resource['url']
     elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
-        log.info('No preview handler for resource type {0}'.format(format_lower))
-        return snippet(
-            "dataviewer/snippets/no_preview.html",
-            resource_type=format_lower
-            )
-
-    return snippet(
-        "dataviewer/snippets/data_preview.html",
-        embed=directly,
-        resource_url=url
+        log.info(
+            'No preview handler for resource type {0}'.format(format_lower)
         )
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower)
+
+    return snippet("dataviewer/snippets/data_preview.html",
+                   embed=directly,
+                   resource_url=url,
+                   raw_resource_url=resource.get('url'))
 
 
 def SI_number_span(number):
