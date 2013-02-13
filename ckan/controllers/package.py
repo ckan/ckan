@@ -1013,10 +1013,7 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            if package_type:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-            else:
-                url = h.url_for(controller='package', action='read', id=pkgname)
+            url = h.url_for(controller='package', action='read', id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
