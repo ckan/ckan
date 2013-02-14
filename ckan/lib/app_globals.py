@@ -49,7 +49,7 @@ config_details = {
                       'type': 'split',
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
-    'plugins': {'type': 'split'},
+    'ckan.plugins': {'type': 'split'},
 
     # bool
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
