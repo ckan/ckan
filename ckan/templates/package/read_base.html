@@ -67,12 +67,6 @@
     {% endfor %}
   {% endblock %}
 
-  {% block package_private %}
-    {% if pkg.private %}
-      {% snippet "snippets/private.html" %}
-    {% endif %}
-  {% endblock %}
-
   {% block package_social %}
     {% snippet "snippets/social.html" %}
   {% endblock %}
