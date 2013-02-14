@@ -153,7 +153,7 @@ The DataStore is a thin layer on top of a PostgreSQL database. Each DataStore re
 
 As explained in :ref:`resource_aliases`, a resource can have mnemonic aliases which are stored as views in the database.
 
-All aliases (views) and resources (tables respectively relations) of the DataStore can be found in a special view called ``_table_metadata``. To access the list, open ``http://{YOUR-CKAN-INSTALLATION}/api/action/datastore_search?resource_id=_table_metadata``.
+All aliases (views) and resources (tables respectively relations) of the DataStore can be found in a special view called ``_table_metadata``. To access the list, open ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search?resource_id=_table_metadata``.
 
 ``_table_metadata`` has the following fields:
 
