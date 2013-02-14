@@ -68,8 +68,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 self._create_alias_table()
             else:
                 log.warn("We detected that CKAN is running on a read only database. "
-                    "Permission checks and _table_metadata creation are skipped."
-                    "Make sure that replication is properly set-up.")
+                    "Permission checks and the creation of _table_metadata are skipped.")
         else:
             log.warn("We detected that you do not use a PostgreSQL database. "
                     "The DataStore will NOT work and datastore tests will be skipped.")

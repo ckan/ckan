@@ -248,6 +248,10 @@ def _followee_list(context, data_dict):
     return sysadmin(context, data_dict)
 
 
+def followee_list(context, data_dict):
+    return _followee_list(context, data_dict)
+
+
 def user_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
