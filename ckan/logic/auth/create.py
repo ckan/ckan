@@ -103,7 +103,7 @@ def user_create(context, data_dict=None):
     create_user = new_authz.check_config_permission('create_user')
     using_api = ('api_version' in context)
 
-    if using_api and create_user_via_api:
+    if using_api and create_user and create_user_via_api:
         return {'success': True}
     elif (not using_api) and create_user:
         return {'success': True}
