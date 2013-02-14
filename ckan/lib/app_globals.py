@@ -3,10 +3,12 @@
 import logging
 import time
 from threading import Lock
+import re
 
 from paste.deploy.converters import asbool
 from pylons import config
 
+import ckan
 import ckan.model as model
 
 log = logging.getLogger(__name__)
@@ -172,6 +174,10 @@ class _Globals(object):
                 self._mutex.release()
 
     def _init(self):
+
+        self.ckan_version = ckan.__version__
+        self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
+
         # process the config_details to set globals
         for name, options in config_details.items():
             if 'name' in options:
