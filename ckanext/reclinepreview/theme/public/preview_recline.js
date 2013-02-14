@@ -15,7 +15,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       jQuery.proxyAll(this, /_on/);
       this.el.ready(this._onReady);
       // hack to make leaflet use a particular location to look for images
-      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/images'
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.4.4/images'
     },
 
     _onReady: function() {
