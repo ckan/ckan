@@ -981,6 +981,7 @@ class PackageController(BaseController):
                     context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
+
             self._form_save_redirect(pkg['name'], 'edit', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
