@@ -5,7 +5,7 @@
         {% block footer_nav %}
           <ul class="unstyled row-fluid">
             {% block footer_links %}
-              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About') }} {{ g.site_title }}</a></li>
+              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}'.format( g.site_title)) }}</a></li>
               <li><a href="http://docs.ckan.org/en/latest/api.html">CKAN API</a></li>
               <li><a href="http://www.opendefinition.org/okd/"><img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
               <li><a href="http://www.okfn.org/">{{ _('Open Knowledge Foundation') }}</a></li>
