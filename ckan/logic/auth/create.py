@@ -103,13 +103,14 @@ def user_create(context, data_dict=None):
     create_user = new_authz.check_config_permission('create_user')
     using_api = ('api_version' in context)
 
-    if using_api and create_user and create_user_via_api:
-        return {'success': True}
-    elif (not using_api) and create_user:
-        return {'success': True}
-    else:
+    if not create_user:
         return {'success': False, 'msg': _('User {user} not authorized to '
             'create users').format(user=user)}
+    elif using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=user)}
+    else:
+        return {'success': True}
 
 def _check_group_auth(context, data_dict):
     if not data_dict:
