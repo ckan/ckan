@@ -346,12 +346,12 @@ def make_map():
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dashboard/{offset}', action='dashboard')
-        m.connect('/dashboard', action='dashboard')
+        m.connect('user_dashboard', '/dashboard', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',
                   action='followers', ckan_icon='group')
-        m.connect('/user/edit/{id:.*}', action='edit')
+        m.connect('user_edit', '/user/edit/{id:.*}', action='edit')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')

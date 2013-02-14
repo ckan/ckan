@@ -1,0 +1,23 @@
+{% extends "page.html" %}
+
+{% set user = c.userobj %}
+
+{% block subtitle %}{{ _('Dashboard') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    {% block page_header %}
+      {% snippet 'snippets/page_header.html', items=[
+          h.build_nav_icon('user_dashboard', _('News feed'), icon='list'),
+          h.build_nav_icon('user_edit', _('Settings'), id=user.name, icon='cog'),
+        ] %}
+    {% endblock %}
+    <div class="module-content">
+      {% block primary_content_inner %}{% endblock %}
+    </div>
+  </article>
+{% endblock %}

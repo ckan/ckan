@@ -8,11 +8,10 @@
 
   {% block package_description %}
     <section class="module-content">
-      <h1>{{ pkg.title or pkg.name }}
-        {% if pkg.state.startswith('draft') %}
-          [{{ _('Draft') }}]
-        {% endif %}
-      </h1>
+      {% if pkg.state.startswith('draft') %}
+        <span class="label label-info pull-right">{{ _('Draft') }}</span>
+      {% endif %}
+      <h1>{{ pkg.title or pkg.name }}</h1>
       {% if c.pkg_notes_formatted %}
         <div class="notes embedded-content">
           {{ c.pkg_notes_formatted }}

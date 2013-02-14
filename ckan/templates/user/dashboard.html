@@ -1,24 +1,20 @@
-{% extends "page.html" %}
+{% extends "user/edit_base.html" %}
 
-{% set user = c.user_dict %}
-
-{% block subtitle %}{{ _('Dashboard') }}{% endblock %}
-
-{% block breadcrumb_content %}
-  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
+{% block action_content %}
+  {% if h.check_access('package_update') %}
+    <li><a href="#">test</a></li>
+  {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <article class="module" data-module="dashboard">
-    <div class="module-content">
-      {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
-      <h2 class="page-heading">
-        {{ _('News feed') }}
-        <small>{{ _('Activity from items that you follow') }}</small>
-      </h2>
-      {{ c.dashboard_activity_stream }}
-    </div>
-  </article>
+{% block primary_content_inner %}
+  <div data-module="dashboard">
+    {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
+    <h2 class="page-heading">
+      {{ _('News feed') }}
+      <small>{{ _('Activity from items that you follow') }}</small>
+    </h2>
+    {{ c.dashboard_activity_stream }}
+  </div>
 {% endblock %}
 
 {% block secondary_content %}

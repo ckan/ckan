@@ -1,23 +1,11 @@
-{% extends 'page.html' %}
-
-{% set user = c.userobj %}
-
-{% block breadcrumb_content %}
-  <li>{% link_for _('Users'), controller='user', action='index' %}</li>
-  <li>{% link_for user.display_name|truncate(35), controller='user', action='read', id=user.name %}</li>
-  <li class="active">{% link_for _('Edit'), controller='user', action='edit', id=user.name %}</li>
-{% endblock %}
+{% extends 'user/edit_base.html' %}
 
 {% block actions_content %}
-  {% snippet 'user/snippets/back_to_user_action.html', user=user %}
+  
 {% endblock %}
 
-{% block primary_content %}
-  <section class="module">
-    <div class="module-content">
-      {{ c.form | safe }}
-    </div>
-  </section>
+{% block primary_content_inner %}
+    {{ c.form | safe }}
 {% endblock %}
 
 {% block secondary_content %}
