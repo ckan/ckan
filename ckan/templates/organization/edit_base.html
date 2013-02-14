@@ -2,8 +2,6 @@
 
 {% set organization = c.group_dict %}
 
-{% block bodytag %}{{ super() }} class="editing"{% endblock %}
-
 {% block subtitle %}{{ organization.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
@@ -16,7 +14,7 @@
 
 {% block actions_content %}
   {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
-    <li><a href="{% url_for controller='organization', action='read', id=organization.name %}" class="btn">{{ _('View organization') }} <i class="icon-arrow-right"></i></a></li>
+    <li>{% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}</li>
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
@@ -27,7 +25,7 @@
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
           <li{% if c.action == 'edit' %} class="active"{% endif %}>
-            {% link_for _('Info'), controller='organization', action='edit', id=organization.name, icon='info-sign' %}
+            {% link_for _('Edit'), controller='organization', action='edit', id=organization.name, icon='edit' %}
           </li>
           <li{% if c.action == 'bulk_process' %} class="active"{% endif %}>
             {% link_for _('Datasets'), controller='organization', action='bulk_process', id=organization.name, icon='sitemap' %}
@@ -48,6 +46,8 @@
 {% block secondary_content %}
   {% if organization %}
     {% snippet 'snippets/organization.html', organization=organization %}
+  {% else %}
+    {% snippet 'organization/snippets/help.html' %}
   {% endif %}
 {% endblock %}
 

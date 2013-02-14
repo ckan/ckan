@@ -2,7 +2,9 @@
 
 {% block subtitle %}{{ _('Edit a Organization') }}{% endblock %}
 
-{% block page_heading %}{{ _('Edit a Organization') }}{% endblock %}
+{% block page_heading %}
+  <h1 class="hide-heading">{{ _('Edit a Organization') }}</h1>
+{% endblock %}
 
 {% block secondary_content %}
   {% if organization %}

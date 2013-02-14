@@ -6,14 +6,13 @@
   <div class="module-content">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
     <form method="GET">
-      <table class="table table-bordered table-bulk-edit" data-module="table-selectable-rows">
+      <table class="table table-bordered table-header table-bulk-edit" data-module="table-selectable-rows">
         <col width="7">
         <col width="120">
-        <col width="10">
         <thead>
           <tr>
             <th></th>
-            <th class="actions" colspan="2">
+            <th class="actions">
               <div class="btn-group">
                 <button name="bulk_action" value="public" class="btn" type="submit">
                   <i class="icon-eye-open"></i>
@@ -44,6 +43,9 @@
               <input type="checkbox" name="dataset_{{ package.id }}">
             </td>
             <td class="context">
+              <a href="{% url_for controller='package', action='edit', id=package.name %}" class="btn pull-right">
+                <i class="icon-edit"></i>
+              </a>
               <h3 class="dataset-heading">
                 {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
                 {% if package.get('state', '').startswith('draft') %}
@@ -60,11 +62,6 @@
               {% else %}
                 <p class="empty">{{ _("This dataset has no description") }}</p>
               {% endif %}
-            </td>
-            <td>
-              <a class="btn btn-small" href="{% url_for controller='package', action='edit', id=package.name %}" title="{{ _('Edit') }}">
-                  <i class="icon-wrench"></i>
-                </a>
             </td>
           </tr>
         {% endfor %}
