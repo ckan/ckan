@@ -69,5 +69,11 @@
       </table>
     </form>
   </div>
-    {{ c.page.pager() }}
+  {{ c.page.pager() }}
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
+  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}
