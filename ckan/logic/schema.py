@@ -306,7 +306,7 @@ def default_related_schema():
 def default_extras_schema():
 
     schema = {
-        'id': [ignore_missing],
+        'id': [ignore],
         'key': [not_empty, unicode],
         'value': [not_missing],
         'state': [ignore],
