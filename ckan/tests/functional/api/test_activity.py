@@ -2092,7 +2092,8 @@ class TestActivity:
                 'http://example.com/application'}
         extra_environ = {'Authorization': str(user['apikey'])}
         response = self.app.post('/api/action/related_create',
-            json.dumps(data), extra_environ=extra_environ)
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 

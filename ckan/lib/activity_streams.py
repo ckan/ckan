@@ -97,7 +97,8 @@ def activity_stream_string_deleted_package_extra(context, activity):
     return _("{actor} deleted the extra {extra} from the dataset {dataset}")
 
 def activity_stream_string_deleted_resource(context, activity):
-    return _("{actor} deleted the resource {resource} from the dataset {dataset}")
+    return _("{actor} deleted the resource {resource} from the dataset "
+             "{dataset}")
 
 def activity_stream_string_new_group(context, activity):
     return _("{actor} created the group {group}")
@@ -136,7 +137,8 @@ def activity_stream_string_new_related_item(context, activity):
     if activity['data'].get('dataset') is None:
         return _("{actor} added the {related_type} {related_item}")
     else:
-        return _("{actor} added the {related_type} {related_item} to the dataset {dataset}")
+        return _("{actor} added the {related_type} {related_item} to the "
+                 "dataset {dataset}")
 
 # A dictionary mapping activity snippets to functions that expand the snippets.
 activity_snippet_functions = {
@@ -257,7 +259,8 @@ def activity_list_to_html(context, activity_stream, extra_vars):
         else:
             activity_icon = activity_stream_string_icons['undefined']
 
-        activity_msg = activity_stream_string_functions[activity_type](context, activity)
+        activity_msg = activity_stream_string_functions[activity_type](context,
+                activity)
 
         # Get the data needed to render the message.
         matches = re.findall('\{([^}]*)\}', activity_msg)

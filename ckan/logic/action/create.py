@@ -9,7 +9,6 @@ import ckan.plugins as plugins
 import ckan.lib.dictization
 import ckan.logic.action
 import ckan.logic.schema
-from ckan.lib.dictization import table_dictize
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
@@ -318,7 +317,7 @@ def related_create(context, data_dict):
             }
     activity_dict['data'] = {
             'related': related_dict,
-            'dataset': table_dictize(dataset, context),
+            'dataset': ckan.lib.dictization.table_dictize(dataset, context),
     }
     activity_create_context = {
         'model': model,
