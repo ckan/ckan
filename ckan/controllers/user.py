@@ -479,7 +479,10 @@ class UserController(base.BaseController):
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
-        c.followers = f(context, {'id': c.user_dict['id']})
+        try:
+            c.followers = f(context, {'id': c.user_dict['id']})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to view followers %s') % '')
         return render('user/followers.html')
 
     def activity(self, id, offset=0):
@@ -500,13 +503,74 @@ class UserController(base.BaseController):
 
         return render('user/activity_stream.html')
 
+    def _get_dashboard_context(self, filter_type=None, filter_id=None,
+            q=None):
+        '''Return a dict needed by the dashboard view to determine context.'''
+
+        def display_name(followee):
+            '''Return a display name for a user, group or dataset dict.'''
+            display_name = followee.get('display_name')
+            fullname = followee.get('fullname')
+            title = followee.get('title')
+            name = followee.get('name')
+            return display_name or fullname or title or name
+
+        if (filter_type and filter_id):
+            context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+            data_dict = {'id': filter_id}
+            followee = None
+
+            action_functions = {
+                'dataset': 'package_show',
+                'user': 'user_show',
+                'group': 'group_show'
+                }
+            action_function = logic.get_action(action_functions.get(filter_type))
+            # Is this a valid type?
+            if action_function is None:
+                raise abort(404, _('Follow item not found'))
+            try:
+                followee = action_function(context, data_dict)
+            except NotFound:
+                abort(404, _('{0} not found').format(filter_type))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to read {0} {1}').format(
+                    filter_type, id))
+
+            if followee is not None:
+                return {
+                    'filter_type': filter_type,
+                    'q': q,
+                    'context': display_name(followee),
+                    'selected_id': followee.get('id'),
+                    'dict': followee,
+                }
+
+        return {
+            'filter_type': filter_type,
+            'q': q,
+            'context': _('Everything'),
+            'selected_id': False,
+            'dict': None,
+        }
+
     def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
 
-        c.dashboard_activity_stream = h.dashboard_activity_stream(id, offset)
+        q = request.params.get('q', u'')
+        filter_type = request.params.get('type', u'')
+        filter_id = request.params.get('name', u'')
+
+        c.followee_list = get_action('followee_list')(
+            context, {'id': c.userobj.id, 'q': q})
+        c.dashboard_activity_stream_context = self._get_dashboard_context(
+            filter_type, filter_id, q)
+        c.dashboard_activity_stream = h.dashboard_activity_stream(
+            id, filter_type, filter_id, offset)
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.

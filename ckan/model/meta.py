@@ -153,14 +153,14 @@ mapper = orm.mapper
 # names, you'll need a metadata for each database
 metadata = MetaData()
 
+
 def engine_is_sqlite():
-    """
-    Returns true iff the engine is connected to a sqlite database.
-    """
+    # Returns true iff the engine is connected to a sqlite database.
     return engine.url.drivername == 'sqlite'
 
+
 def engine_is_pg():
-    """
-    Returns true iff the engine is connected to a postgresql database.
-    """
-    return engine.url.drivername == 'psycopg2'
+    # Returns true iff the engine is connected to a postgresql database.
+    # According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+    # all Postgres driver names start with `postgresql`
+    return engine.url.drivername.startswith('postgresql')
