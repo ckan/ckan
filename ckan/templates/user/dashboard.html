@@ -5,40 +5,49 @@
 {% block subtitle %}{{ _('Dashboard') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active"><a href="">{{ _('Dashboard') }}</a></li>
+  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
   {% if h.check_access('package_create') %}
-    <li>{% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus" %}</li>
+    <li>{% link_for _('Add a dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus" %}</li>
   {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <article class="module">
-    <div class="module-content" data-module="dashboard">
-      <h2 class="page-heading">{{ _('News feed') }} <small>{{ _('Activity from users and datasets that you follow') }}</small></h2>
-      {{ c.dashboard_activity_stream }}
+{% block primary %}
+  <article class="dashboard module">
+    <div class="module-content">
+      <section class="dashboard-main" data-module="dashboard">
+        {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
+        <h2 class="page-heading">
+          {{ _('News feed') }}
+          <small>{{ _('Activity from items that you follow') }}</small>
+        </h2>
+        {{ c.dashboard_activity_stream }}
+      </section>
+      <aside class="dashboard-aside">
+        {% if not c.dashboard_activity_stream_context.dict == None %}
+          <div class="dashboard-aside-context">
+            <span class="arrow"></span>
+            {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
+          </div>
+        {% endif %}
+        <h2>{{ _('My Datasets') }}</h2>
+        {% if c.user_dict['datasets'] %}
+          <ul class="nav nav-list">
+            {% for package in c.user_dict['datasets'] %}
+              {% set title = package.title or package.name %}
+              <li>
+                {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.name)) }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="empty">{{ _('You do not have any datasets') }}</p>
+        {% endif %}
+      </aside>
     </div>
   </article>
 {% endblock %}
 
-{% block secondary_content %}
-  <section class="module module-shallow module-narrow module-my-datasets">
-    <h2 class="module-heading"><i class="icon-"></i> {{ _('My Datasets') }}</h2>
-    {% if c.user_dict['datasets'] %}
-      <nav>
-        <ul class="unstyled nav nav-simple">
-          {% for package in c.user_dict['datasets'] %}
-            {% set title = package.title or package.name %}
-            <li class="nav-item">
-              {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.name)) }}
-            </li>
-          {% endfor %}
-        </ul>
-      </nav>
-    {% else %}
-      <p class="empty">{{ _('You currently have not added any datasets yet') }}</p>
-    {% endif %}
-  </section>
-{% endblock %}
+{% block sidebar %}{% endblock %}

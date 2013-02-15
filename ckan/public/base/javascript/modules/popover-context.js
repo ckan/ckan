@@ -1,7 +1,7 @@
 /* Popover context
  * These appear when someone hovers over a context item in a activity stream to
- * give the user more context into that particular item. It also allows for people to
- * follow and unfollow quickly from within the popover
+ * give the user more context into that particular item. It also allows for
+ * people to follow and unfollow quickly from within the popover
  *
  * id - The user_id of user
  * context - The type of this popover: currently supports user & package
@@ -101,7 +101,8 @@ this.ckan.module('popover-context', function($, _) {
 			}
 		},
 
-		/* Handles the showing of the popover on hover (also hides other active popovers)
+		/* Handles the showing of the popover on hover (also hides other active
+		 * popovers)
 		 *
 		 * Returns nothing.
 		 */
@@ -163,7 +164,8 @@ this.ckan.module('popover-context', function($, _) {
 			}
 		},
 
-		/* Used to break down a raw object into something a little more passable into a GET request
+		/* Used to break down a raw object into something a little more
+		 * passable into a GET request
 		 *
 		 * Returns object.
 		 */
@@ -184,14 +186,14 @@ this.ckan.module('popover-context', function($, _) {
 				params.title = raw.title;
 				params.name = raw.name;
 				params.notes = raw.notes;
-				params.num_resources = raw.resources.length;
-				params.num_tags = raw.tags.length;
+				params.num_resources = raw.num_resources;
+				params.num_tags = raw.num_tags;
 			} else if (type == 'group') {
 				params.id = raw.id;
 				params.title = raw.title;
 				params.name = raw.name;
 				params.description = raw.description;
-				params.num_datasets = raw.packages.length;
+				params.package_count = raw.package_count;
 				params.num_followers = raw.num_followers;
 			}
 			return params;
@@ -245,8 +247,8 @@ this.ckan.module('popover-context', function($, _) {
 			return false;
 		},
 
-		/* Callback from when you follow/unfollow a specified item... this is used to ensure
-		 * all popovers associated to that user get re-populated
+		/* Callback from when you follow/unfollow a specified item... this is
+		 * used to ensure all popovers associated to that user get re-populated
 		 *
 		 * Returns nothing.
 		 */
