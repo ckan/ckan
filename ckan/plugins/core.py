@@ -11,7 +11,7 @@ from pyutilib.component.core import ExtensionPoint as PluginImplementations
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 
-from ckan.plugins.interfaces import IPluginObserver
+from ckan.plugins.interfaces import IPluginObserver, IGenshiStreamFilter
 
 __all__ = [
     'PluginImplementations', 'implements',
@@ -123,6 +123,10 @@ def load(plugin):
     service.activate()
     for observer_plugin in observers:
         observer_plugin.after_load(service)
+
+    if IGenshiStreamFilter in service.__interfaces__:
+       log.warn("Plugin '%s' is using deprecated interface IGenshiStreamFilter" % plugin)
+
     return service
 
 
