@@ -2126,7 +2126,6 @@ class TestActivity:
 
     def test_related_item(self):
         user = self.normal_user
-        apikey = self.record_details(user['id'], apikey=user['apikey'])
         data = {'title': 'random', 'type': 'Application', 'url':
                 'http://example.com/application'}
         extra_environ = {'Authorization': str(user['apikey'])}
