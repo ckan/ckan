@@ -1807,15 +1807,12 @@ class MinifyCommand(CkanCommand):
 
 
 class LessCommand(CkanCommand):
-    '''Create minified versions of the given Javascript and CSS files.
+    '''Compile all root less documents into their CSS counterparts
 
     Usage:
 
-        paster minify [FILE|DIRECTORY] ...
-
-    for example:
-
         paster less
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
