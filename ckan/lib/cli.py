@@ -1760,7 +1760,6 @@ class MinifyCommand(CkanCommand):
     exclude_dirs = ['vendor']
 
     def command(self):
-        self.less()
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
@@ -1806,6 +1805,25 @@ class MinifyCommand(CkanCommand):
         f.close()
         print "Minified file '{0}'".format(path)
 
+
+class LessCommand(CkanCommand):
+    '''Create minified versions of the given Javascript and CSS files.
+
+    Usage:
+
+        paster minify [FILE|DIRECTORY] ...
+
+    for example:
+
+        paster less
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 0
+
+    def command(self):
+        self.less()
+
     custom_css = {
         'fuchsia': '''
             @layoutLinkColor: #b509b5;
@@ -1839,7 +1857,6 @@ class MinifyCommand(CkanCommand):
             @btnPrimaryBackgroundHighlight: #f21010;
             ''',
     }
-
     def less(self):
         ''' Compile less files '''
         import subprocess
@@ -1874,3 +1891,38 @@ class MinifyCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
+
+
+
+class FrontEndBuildCommand(CkanCommand):
+    ''' Creates and minifies css and JavaScript files
+
+    Usage:
+
+        paster front-end-build
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+
+        # Less css
+        cmd = LessCommand('less')
+        cmd.command()
+
+        # js translation strings
+        cmd = TranslationsCommand('trans')
+        cmd.options = self.options
+        cmd.args = ('js',)
+        cmd.command()
+
+        # minification
+        cmd = MinifyCommand('minify')
+        cmd.options = self.options
+        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        root = os.path.abspath(root)
+        cmd.args = (root,)
+        cmd.command()
