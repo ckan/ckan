@@ -494,8 +494,8 @@ class GroupController(BaseController):
             else:
                 user = request.params.get('user')
                 if user:
-                    user= model.Session.query(model.User).get(user)
-                    c.user_name = user.name
+                    c.user_dict = model.Session.query(model.User).get(user)
+                    c.user_role = 'admin' # TODO: Add in correct role here
                 c.group_dict = self._action('group_show')(context, {'id': id})
                 c.roles = self._action('member_roles_list')(context, {})
         except NotAuthorized:
