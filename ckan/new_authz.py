@@ -70,6 +70,7 @@ ROLE_PERMISSIONS = {
     'editor': ['read', 'delete_dataset', 'create_dataset', 'update_dataset'],
     'member': ['read'],
 }
+ROLE_PERMISSIONS_ORDER = [ 'admin', 'editor', 'member' ]
 
 def _trans_role_admin():
     return _('Admin')
@@ -87,10 +88,10 @@ def trans_role(role):
 
 def roles_list():
     ''' returns list of roles for forms '''
-    out = []
-    for role in ROLE_PERMISSIONS:
-        out.append(dict(text=trans_role(role), value=role))
-    return out
+    roles = []
+    for role in ROLE_PERMISSIONS_ORDER:
+        roles.append(dict(text=trans_role(role), value=role))
+    return roles
 
 
 def get_roles_with_permission(permission):
