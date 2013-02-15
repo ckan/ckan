@@ -155,7 +155,7 @@ ckan_ensure_db_exists () {
         COMMAND_OUTPUT=`sudo -u postgres psql -c "select datname from pg_database where datname='$INSTANCE'"`
         if ! [[ "$COMMAND_OUTPUT" =~ ${INSTANCE} ]] ; then
             echo "Creating the database ..."
-            sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE}
+            sudo -u postgres createdb -O ${INSTANCE} ${INSTANCE} -E utf-8
             paster --plugin=ckan db init --config=/etc/ckan/${INSTANCE}/${INSTANCE}.ini
         fi
     fi
@@ -178,7 +178,7 @@ ckan_create_wsgi_handler () {
             sudo -u ckan${INSTANCE} /var/lib/ckan/${INSTANCE}/pyenv/bin/easy_install --upgrade "pip>=1.0" "pip<=1.0.99"
             echo "done."
             echo "Attempting to install 'paster' pypi.python.org into pyenv ..."
-            sudo -u ckan${INSTANCE} /var/lib/ckan/${INSTANCE}/pyenv/bin/easy_install --ignore-installed "pastescript"
+            sudo -u ckan${INSTANCE} /var/lib/ckan/${INSTANCE}/pyenv/bin/pip install --ignore-installed "pastescript"
             echo "done."
             cat <<- EOF > /var/lib/ckan/${INSTANCE}/packaging_version.txt
 	1.5

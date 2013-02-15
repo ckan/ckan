@@ -1,28 +1,43 @@
 import logging
-from pylons import session
-
-import genshi
 from urllib import quote
 
-import ckan.misc
-import ckan.lib.i18n
-from ckan.lib.base import *
-from ckan.lib import mailer
-from ckan.authz import Authorizer
-from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import check_access, get_action
-from ckan.logic import tuplize_dict, clean_dict, parse_params
-from ckan.logic.schema import user_new_form_schema, user_edit_form_schema
-from ckan.lib.captcha import check_recaptcha, CaptchaError
+from pylons import session, c, g, request, config
+from pylons.i18n import _
+import genshi
+
+import ckan.lib.i18n as i18n
+import ckan.lib.base as base
+import ckan.misc as misc
+import ckan.model as model
+import ckan.lib.helpers as h
+import ckan.new_authz as new_authz
+import ckan.logic as logic
+import ckan.logic.schema as schema
+import ckan.lib.captcha as captcha
+import ckan.lib.mailer as mailer
+import ckan.lib.navl.dictization_functions as dictization_functions
 
 log = logging.getLogger(__name__)
 
 
-class UserController(BaseController):
+abort = base.abort
+render = base.render
+validate = base.validate
+
+check_access = logic.check_access
+get_action = logic.get_action
+NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
+ValidationError = logic.ValidationError
+
+DataError = dictization_functions.DataError
+unflatten = dictization_functions.unflatten
+
+
+class UserController(base.BaseController):
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
+        base.BaseController.__before__(self, action, **env)
         try:
             context = {'model': model, 'user': c.user or c.author}
             check_access('site_read', context)
@@ -35,21 +50,21 @@ class UserController(BaseController):
     edit_user_form = 'user/edit_user_form.html'
 
     def _new_form_to_db_schema(self):
-        return user_new_form_schema()
+        return schema.user_new_form_schema()
 
     def _db_to_new_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
     def _edit_form_to_db_schema(self):
-        return user_edit_form_schema()
+        return schema.user_edit_form_schema()
 
     def _db_to_edit_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
 
     def _setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = new_authz.is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
@@ -75,9 +90,7 @@ class UserController(BaseController):
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'model': model,
-                   'user': c.user or c.author,
-                   'return_query': True}
+        context = {'return_query': True}
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
@@ -113,19 +126,19 @@ class UserController(BaseController):
 
         # The legacy templates have the user's activity stream on the user
         # profile page, new templates do not.
-        if asbool(config.get('ckan.legacy_templates', False)):
+        if h.asbool(config.get('ckan.legacy_templates', False)):
             c.user_activity_stream = get_action('user_activity_list_html')(
-                    context, {'id': c.user_dict['id']})
+                context, {'id': c.user_dict['id']})
 
         return render('user/read.html')
 
     def me(self, locale=None):
         if not c.user:
             h.redirect_to(locale=locale, controller='user', action='login',
-                    id=None)
+                          id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
         h.redirect_to(locale=locale, controller='user', action='dashboard',
-                id=user_ref)
+                      id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
         return self.new(data, errors, error_summary)
@@ -156,16 +169,16 @@ class UserController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        c.is_sysadmin = Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = new_authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
     def _save_new(self, context):
         try:
-            data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+            data_dict = logic.clean_dict(unflatten(
+                logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
-            check_recaptcha(request)
+            captcha.check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to create user %s') % '')
@@ -173,7 +186,7 @@ class UserController(BaseController):
             abort(404, _('User not found'))
         except DataError:
             abort(400, _(u'Integrity Error'))
-        except CaptchaError:
+        except captcha.CaptchaError:
             error_msg = _(u'Bad Captcha. Please try again.')
             h.flash_error(error_msg)
             return self.new(data_dict)
@@ -198,9 +211,7 @@ class UserController(BaseController):
             return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'save': 'save' in request.params,
+        context = {'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
                    }
         if id is None:
@@ -232,7 +243,7 @@ class UserController(BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (ckan.authz.Authorizer().is_sysadmin(unicode(c.user))
+        if not (new_authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
@@ -246,16 +257,23 @@ class UserController(BaseController):
                                        data_dict)
 
         c.is_myself = True
+        c.show_email_notifications = h.asbool(
+            config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
 
     def _save_edit(self, id, context):
         try:
-            data_dict = clean_dict(unflatten(
-                tuplize_dict(parse_params(request.params))))
+            data_dict = logic.clean_dict(unflatten(
+                logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
+
+            # MOAN: Do I really have to do this here?
+            if 'activity_streams_email_notifications' not in data_dict:
+                data_dict['activity_streams_email_notifications'] = False
+
             user = get_action('user_update')(context, data_dict)
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
@@ -290,7 +308,7 @@ class UserController(BaseController):
                 self._get_repoze_handler('login_handler_path'),
                 came_from=came_from)
             if error:
-                vars = {'error_summary': {'':error}}
+                vars = {'error_summary': {'': error}}
             else:
                 vars = {}
             return render('user/login.html', extra_vars=vars)
@@ -305,12 +323,10 @@ class UserController(BaseController):
 
         # we need to set the language explicitly here or the flash
         # messages will not be translated.
-        ckan.lib.i18n.set_lang(lang)
+        i18n.set_lang(lang)
 
         if c.user:
-            context = {'model': model,
-                       'user': c.user}
-
+            context = None
             data_dict = {'id': c.user}
 
             user_dict = get_action('user_show')(context, data_dict)
@@ -325,7 +341,7 @@ class UserController(BaseController):
             if g.openid_enabled:
                 err += _(' (Or if using OpenID, it hasn\'t been associated '
                          'with a user account.)')
-            if asbool(config.get('ckan.legacy_templates', 'false')):
+            if h.asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
                 h.redirect_to(locale=lang, controller='user',
                               action='login', came_from=came_from)
@@ -446,16 +462,6 @@ class UserController(BaseController):
         c.user_dict = user_dict
         return render('user/perform_reset.html')
 
-    def _format_about(self, about):
-        about_formatted = ckan.misc.MarkdownFormat().to_html(about)
-        try:
-            html = genshi.HTML(about_formatted)
-        except genshi.ParseError, e:
-            log.error('Could not print "about" field Field: %r Error: %r',
-                      about, e)
-            html = _('Error: Could not parse About text')
-        return html
-
     def _get_form_password(self):
         password1 = request.params.getone('password1')
         password2 = request.params.getone('password2')
@@ -469,15 +475,17 @@ class UserController(BaseController):
             return password1
 
     def followers(self, id=None):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
-        c.followers = f(context, {'id': c.user_dict['id']})
+        try:
+            c.followers = f(context, {'id': c.user_dict['id']})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to view followers %s') % '')
         return render('user/followers.html')
 
-    def activity(self, id):
+    def activity(self, id, offset=0):
         '''Render this user's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
@@ -491,21 +499,82 @@ class UserController(BaseController):
         self._setup_template_variables(context, data_dict)
 
         c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id']})
+            context, {'id': c.user_dict['id'], 'offset': offset})
 
         return render('user/activity_stream.html')
 
-    def dashboard(self, id=None):
+    def _get_dashboard_context(self, filter_type=None, filter_id=None,
+            q=None):
+        '''Return a dict needed by the dashboard view to determine context.'''
+
+        def display_name(followee):
+            '''Return a display name for a user, group or dataset dict.'''
+            display_name = followee.get('display_name')
+            fullname = followee.get('fullname')
+            title = followee.get('title')
+            name = followee.get('name')
+            return display_name or fullname or title or name
+
+        if (filter_type and filter_id):
+            context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True}
+            data_dict = {'id': filter_id}
+            followee = None
+
+            action_functions = {
+                'dataset': 'package_show',
+                'user': 'user_show',
+                'group': 'group_show'
+                }
+            action_function = logic.get_action(action_functions.get(filter_type))
+            # Is this a valid type?
+            if action_function is None:
+                raise abort(404, _('Follow item not found'))
+            try:
+                followee = action_function(context, data_dict)
+            except NotFound:
+                abort(404, _('{0} not found').format(filter_type))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to read {0} {1}').format(
+                    filter_type, id))
+
+            if followee is not None:
+                return {
+                    'filter_type': filter_type,
+                    'q': q,
+                    'context': display_name(followee),
+                    'selected_id': followee.get('id'),
+                    'dict': followee,
+                }
+
+        return {
+            'filter_type': filter_type,
+            'q': q,
+            'context': _('Everything'),
+            'selected_id': False,
+            'dict': None,
+        }
+
+    def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
 
-        c.dashboard_activity_stream = h.dashboard_activity_stream(id)
+        q = request.params.get('q', u'')
+        filter_type = request.params.get('type', u'')
+        filter_id = request.params.get('name', u'')
+
+        c.followee_list = get_action('followee_list')(
+            context, {'id': c.userobj.id, 'q': q})
+        c.dashboard_activity_stream_context = self._get_dashboard_context(
+            filter_type, filter_id, q)
+        c.dashboard_activity_stream = h.dashboard_activity_stream(
+            id, filter_type, filter_id, offset)
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
-        get_action('dashboard_mark_all_new_activities_as_old')(context, {})
+        get_action('dashboard_mark_activities_old')(context, {})
 
         return render('user/dashboard.html')
 
@@ -520,7 +589,7 @@ class UserController(BaseController):
             h.flash_success(_("You are now following {0}").format(id))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.extra_msg)
@@ -540,6 +609,16 @@ class UserController(BaseController):
             h.flash_error(error_message)
         except ValidationError as e:
             error_message = (e.error_summary or e.message or e.extra_msg
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
+
+    def _format_about(self, about):
+        about_formatted = misc.MarkdownFormat().to_html(about)
+        try:
+            html = genshi.HTML(about_formatted)
+        except genshi.ParseError, e:
+            log.error('Could not print "about" field Field: %r Error: %r',
+                      about, e)
+            html = _('Error: Could not parse About text')
+        return html

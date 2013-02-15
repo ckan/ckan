@@ -49,6 +49,7 @@ Customizing and Extending
    harvesting
    geospatial
    multilingual
+   email-notifications
 
 Publishing Datasets
 ===================
@@ -88,16 +89,16 @@ For CKAN Developers
 ===================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   coding-standards
-   domain-model
-   domain-model-dataset
-   domain-model-resource
-   domain-model-task-status
+   architecture
+   python-coding-standards
+   javascript-coding-standards
+   html-coding-standards
+   css-coding-standards
    i18n
    test
-   buildbot
+   release-cycle
 
 Other material
 ==============

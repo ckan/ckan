@@ -81,18 +81,21 @@ class TestBasicDictize:
                                                }],
                                  'license_id': u'other-open',
                                  'name': u'anna2',
+                                 'type': u'dataset',
                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
                                  'resources': [{'alt_url': u'alt123',
                                                 'description': u'Full text. Needs escaping: " Umlaut: \xfc',
                                                 'format': u'plain text',
                                                 'hash': u'abc123',
                                                 'size_extra': u'123',
+                                                'tracking_summary': {'recent': 0, 'total': 0},
                                                 'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                                                {'alt_url': u'alt345',
                                                 'description': u'Index of the novel',
                                                 'format': u'JSON',
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
+                                                'tracking_summary': {'recent': 0, 'total': 0},
                                                 'url': u'http://www.annakarenina.com/index.json'}],
                                  'tags': [{'name': u'Flexible \u30a1'},
                                           {'name': u'russian'},
@@ -148,13 +151,14 @@ class TestBasicDictize:
         del data['extras']
 
         converted_data, errors = validate(data, default_group_schema(), self.context)
-        group_pack = sorted(group.active_packages().all(), key=lambda x:x.id)
+        group_pack = sorted(group.packages(), key=lambda x:x.id)
 
         converted_data["packages"] = sorted(converted_data["packages"], key=lambda x:x["id"])
 
         expected = {'description': u'These are books that David likes.',
                                  'id': group.id,
                                  'name': u'david',
+                                 'is_organization': False,
                                  'type': u'group',
                                  'image_url': u'',
                                  'packages': sorted([{'id': group_pack[0].id,

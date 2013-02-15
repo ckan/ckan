@@ -29,6 +29,10 @@ class TestQuery:
         assert_equal(convert({'tags': 'tolstoy'}), {'q': 'tags:"tolstoy"'})
         assert_equal(convert({'tags': 'more than one tolstoy'}), {'q': 'tags:"more than one tolstoy"'})
         assert_equal(convert({'tags': u'with greek omega \u03a9'}), {'q': u'tags:"with greek omega \u03a9"'})
+        assert_equal(convert({'title': 'Seymour: An Introduction'}), {'q': 'title:"Seymour\: An Introduction"'})
+        assert_equal(convert({'title': 'Pop!'}), {'q': 'title:Pop\!'})
+
+
         assert_raises(search.SearchError, convert, {'tags': {'tolstoy':1}})
 
 class TestSearch(TestController):
@@ -88,21 +92,20 @@ class TestSearch(TestController):
 
     def test_2_title(self):
         # exact title, one word
-        result = search.query_for(model.Package).run({'q': u'Opengov.se'})
+        result = search.query_for(model.Package).run({'q': u'Opengov'})
+
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
         # multiple words
         result = search.query_for(model.Package).run({'q': u'Government Expenditure'})
         # uk-government-expenditure is the best match but all other results should be retured
         assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
-        # se-opengov has only government in tags, all others hav it in title.
-        assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
         # multiple words wrong order
         result = search.query_for(model.Package).run({'q': u'Expenditure Government'})
         assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
-        assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
         # multiple words all should match government
+
         result = search.query_for(model.Package).run({'q': u'Expenditure Government China'})
-        assert len(result['results']) == 5, self._pkg_names(result)
+        assert len(result['results']) == 1, self._pkg_names(result)
 
     def test_3_licence(self):
         # this should result, but it is here to check that at least it does not error
@@ -136,7 +139,7 @@ class TestSearch(TestController):
     def dont_test_tags_field_with_basic_unicode(self):
         result = search.query_for(model.Package).run({'q': u'greek omega \u03a9'})
         assert self._check_entity_names(result, ['se-publications']), self._pkg_names(result)
-        
+
     def test_tags_token_simple(self):
         result = search.query_for(model.Package).run({'q': u'tags:country-sweden'})
         assert self._check_entity_names(result, ['se-publications', 'se-opengov']), self._pkg_names(result)
@@ -146,7 +149,7 @@ class TestSearch(TestController):
     def test_tags_token_with_multi_word_tag(self):
         result = search.query_for(model.Package).run({'q': u'tags:"todo split"'})
         assert self._check_entity_names(result, ['us-gov-images']), self._pkg_names(result)
-    
+
     def test_tags_token_simple_with_deleted_tag(self):
         # registry has been deleted
         result = search.query_for(model.Package).run({'q': u'tags:registry'})
@@ -287,7 +290,7 @@ class TestSearch(TestController):
         pkgs = result['results']
         count = result['count']
         assert len(pkgs) == 2, pkgs
-        
+
     def test_search_foreign_chars(self):
         result = search.query_for(model.Package).run({'q': 'umlaut'})
         assert result['results'] == ['gils'], result['results']
@@ -319,8 +322,8 @@ class TestSearchOverall(TestController):
         check_search_results('annakarenina', 1, ['annakarenina'])
         check_search_results('warandpeace', 1, ['warandpeace'])
         check_search_results('', 2)
-        
-        check_search_results('A Novel By Tolstoy', 1, ['annakarenina'])
+
+        check_search_results('Tolstoy', 1, ['annakarenina'])
         check_search_results('title:Novel', 1, ['annakarenina'])
         check_search_results('title:peace', 0)
         check_search_results('name:warandpeace', 1)
@@ -332,7 +335,7 @@ class TestSearchOverall(TestController):
         check_search_results(u'Flexible \u30a1', 2)
         check_search_results(u'Flexible', 2)
         check_search_results(u'flexible', 2)
-        
+
 
 class TestGeographicCoverage(TestController):
     @classmethod
@@ -356,7 +359,7 @@ class TestGeographicCoverage(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, q, expected_pkgs, count=None):
         query = {
             'q': q,
@@ -390,7 +393,7 @@ class TestGeographicCoverage(TestController):
         self._do_search(u'great britain', ['gb'], 1)
 
     def test_1_filtered(self):
-        # TODO: solr is not currently set up to allow partial matches 
+        # TODO: solr is not currently set up to allow partial matches
         #       and extras are not saved as multivalued so this
         #       test will fail. Make multivalued or remove?
         from ckan.tests import SkipTest
@@ -420,7 +423,7 @@ class TestExtraFields(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, department, expected_pkgs, count=None):
         result = search.query_for(model.Package).run({'q': 'department: %s' % department})
         pkgs = result['results']
@@ -465,7 +468,7 @@ class TestRank(TestController):
     def teardown_class(self):
         model.repo.rebuild_db()
         search.clear()
-    
+
     def _do_search(self, q, wanted_results):
         query = {
             'q': q,

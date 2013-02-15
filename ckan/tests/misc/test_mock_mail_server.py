@@ -11,11 +11,11 @@ from ckan.lib.mailer import mail_recipient
 class TestMockMailServer(SmtpServerHarness, PylonsTestCase):
     @classmethod
     def setup_class(cls):
-        smtp_server = config.get('test_smtp_server')
+        smtp_server = config.get('smtp.test_server')
         if smtp_server:
             host, port = smtp_server.split(':')
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
-            config['test_smtp_server'] = '%s:%s' % (host, port)
+            config['smtp.test_server'] = '%s:%s' % (host, port)
         SmtpServerHarness.setup_class()
         PylonsTestCase.setup_class()
 

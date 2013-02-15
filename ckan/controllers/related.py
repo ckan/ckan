@@ -61,7 +61,7 @@ class RelatedController(base.BaseController):
             page=page,
             url=pager_url,
             item_count=query.count(),
-            items_per_page=8
+            items_per_page=9
         )
 
         c.filters = dict(params_nopage)
@@ -122,7 +122,6 @@ class RelatedController(base.BaseController):
         except logic.NotAuthorized:
             base.abort(401, base._('Unauthorized to read package %s') % id)
 
-        c.action = 'related'
         return base.render("package/related_list.html")
 
     def _edit_or_new(self, id, related_id, is_edit):

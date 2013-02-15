@@ -7,13 +7,13 @@ This section describes how to install CKAN from source. Although
 CKAN from source works with Ubuntu 10.04, with other versions of Ubuntu (e.g.
 12.04) and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
-experiences on our wiki: http://wiki.ckan.org/Install
+experiences on our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+wiki page.
 
 From source is also the right installation method for developers who want to
 work on CKAN.
 
-If you run into problems, see :doc:`common-error-messages` or contact `the
-ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
+If you run into problems, see :doc:`common-error-messages`.
 
 1. Install the required packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +25,8 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-http://wiki.ckan.org/Install for help):
+our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+wiki page for help):
 
 =====================  ===============================================
 Package                Description
@@ -66,6 +67,13 @@ c. Install the Python modules that CKAN requires into your virtualenv::
 
        pip install -r ~/pyenv/src/ckan/pip-requirements.txt
 
+d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   virtualenv's copies of commands like ``paster`` rather than any system-wide
+   installed copies::
+
+    deactivate
+    . ~/pyenv/bin/activate
+
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,7 +102,7 @@ prompted::
 
 Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
 
-    sudo -u postgres createdb -O ckanuser ckantest
+    sudo -u postgres createdb -O ckanuser ckantest -E utf-8
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +173,19 @@ You should see ``Initialising DB: SUCCESS``.
 
         paster --plugin=ckan db init --config=test.ckan.net.ini
 
-7. Create the data and sstore directories
+7. Set up the DataStore
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note ::
+  Setting up the DataStore is optional. However, if you do skip this step,
+  the :doc:`DataStore features<datastore>` will not be available and the
+  DataStore tests will fail.
+
+Follow the instructions in :doc:`datastore-setup` to create the required
+databases and users, set the right permissions and set the appropriate values
+in your CKAN config file.
+
+8. Create the data and sstore directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create the ``data`` and ``sstore`` directories, in the same directory that
@@ -181,7 +201,7 @@ the ``who.ini`` file.
 The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
 is specified by the ``cache_dir`` setting in your CKAN config file.
 
-8. Link to who.ini
+9. Link to who.ini
 ~~~~~~~~~~~~~~~~~~
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
@@ -191,7 +211,7 @@ symbolic link to ``who.ini``. e.g.::
 
     ln -s ~/pyenv/src/ckan/who.ini
 
-9. Run CKAN in the development web server
+10. Run CKAN in the development web server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can use the Paste development server to serve CKAN from the command-line.
@@ -212,13 +232,13 @@ front page.
  `w3m` in a separate ssh session to the one running `paster serve`.
 
 
-10. Run the CKAN Tests
+11. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you've installed CKAN, you should run CKAN's tests to make sure that
 they all pass. See :doc:`test`.
 
-11. You're done!
+12. You're done!
 ~~~~~~~~~~~~~~~~
 
 You can now proceed to :doc:`post-installation` which covers creating a CKAN

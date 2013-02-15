@@ -1,4 +1,5 @@
 import json
+import nose
 
 import sqlalchemy
 import sqlalchemy.orm as orm
@@ -19,6 +20,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -134,8 +137,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert results[0].book == 'annakarenina'
         self.Session.remove()
 
-        # delete the 'annakarenina' row
-        data = {'resource_id': resource_id,
+        # delete the 'annakarenina' row and also only use id
+        data = {'id': resource_id,
                 'filters': {'book': 'annakarenina', 'author': 'tolstoy'}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}

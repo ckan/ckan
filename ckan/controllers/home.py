@@ -68,7 +68,7 @@ class HomeController(BaseController):
                           'res_format': _('Formats'),
                           'license': _('Licence'), }
 
-            data_dict = {'order_by': 'packages', 'all_fields': 1}
+            data_dict = {'sort': 'packages', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
             if 'groups' in c.search_facets:
@@ -104,11 +104,6 @@ class HomeController(BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        @property
-        def recently_changed_packages_activity_stream():
-            return ckan.logic.action.get.recently_changed_packages_activity_list_html(context, {})
-        c.recently_changed_packages_activity_stream = recently_changed_packages_activity_stream
-
         # START OF DIRTYNESS
         def get_group(id):
             def _get_group_type(id):
@@ -130,6 +125,7 @@ class HomeController(BaseController):
                        'ignore_auth': True,
                        'user': c.user or c.author,
                        'schema': db_to_form_schema(group_type=group_type),
+                       'limits': {'packages': 2},
                        'for_view': True}
             data_dict = {'id': id}
 

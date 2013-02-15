@@ -3,9 +3,10 @@ from pylons import config
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-import ckan.authz
 import ckan.lib.authztool
 import ckan.model as model
+import ckan.logic
+import ckan.new_authz
 
 from ckan.model.authz import Role
 roles = Role.get_all()
@@ -17,19 +18,18 @@ request = base.request
 _ = base._
 
 def get_sysadmins():
-    q = model.Session.query(model.SystemRole).filter_by(role=model.Role.ADMIN)
-    return [uor.user for uor in q.all() if uor.user]
+    q = model.Session.query(model.User).filter(model.User.sysadmin==True)
+    return q.all()
 
 
 class AdminController(base.BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
-        if not ckan.authz.Authorizer().is_sysadmin(unicode(c.user)):
+        context = {'model': model,
+                   'user': c.user}
+        if not ckan.new_authz.is_authorized('sysadmin', context, {})['success']:
             base.abort(401, _('Need to be system administrator to administer'))
-        c.revision_change_state_allowed = (
-            c.user and self.authorizer.is_authorized(c.user,
-                                                     model.Action.CHANGE_STATE,
-                                                     model.Revision))
+        c.revision_change_state_allowed = True
 
     def _get_config_form_items(self):
         # Styles for use in the form.select() macro.

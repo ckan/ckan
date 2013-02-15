@@ -24,6 +24,7 @@ from ckan import plugins
 from ckan.rating import set_rating
 from ckan.lib.search.common import SolrSettings
 
+
 class MockPackageControllerPlugin(SingletonPlugin):
     implements(IPackageController)
 
@@ -57,16 +58,38 @@ class MockPackageControllerPlugin(SingletonPlugin):
         self.calls['after_search'] += 1
         return search_results
 
-    def before_index(self, search_params):
+    def before_index(self, data_dict):
         self.calls['before_index'] += 1
-        return search_params
+        return data_dict
 
-    def before_view(self, search_params):
+    def before_view(self, data_dict):
         self.calls['before_view'] += 1
-        return search_params
+        return data_dict
+
+    def after_create(self, context, data_dict):
+        self.calls['after_create'] += 1
+        self.id_in_dict = 'id' in data_dict
+
+        return data_dict
+
+    def after_update(self, context, data_dict):
+        self.calls['after_update'] += 1
+        return data_dict
+
+    def after_delete(self, context, data_dict):
+        self.calls['after_delete'] += 1
+        return data_dict
+
+    def after_show(self, context, data_dict):
+        self.calls['after_show'] += 1
+        return data_dict
+
+    def update_facet_titles(self, facet_titles):
+        return facet_titles
 
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
+
 
 class TestPackageBase(FunctionalTestCase):
     key1 = u'key1 Less-than: < Umlaut: \xfc'
@@ -369,12 +392,8 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
 
-        # There are now two reads of the package.  The first to find out
-        # the package's type.  And the second is the actual read that
-        # existed before.  I don't know if this is a problem?  I expect it
-        # can be fixed by allowing the package to be passed in to the plugin,
-        # either via the function argument, or adding it to the c object.
         assert plugin.calls['read'] == 1, plugin.calls
+        assert plugin.calls['after_show'] == 1, plugin.calls
         plugins.unload(plugin)
 
     def test_resource_list(self):
@@ -601,7 +620,7 @@ class TestEdit(TestPackageForm):
         self.offset = url_for(controller='package', action='edit', id=self.editpkg_name)
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
-        self.admin = model.User.by_name(u'testadmin')
+        self.admin = model.User.by_name(u'testsysadmin')
 
         self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
         self.extra_environ_russianfan = {'REMOTE_USER': 'russianfan'}
@@ -787,7 +806,7 @@ class TestEdit(TestPackageForm):
 
             # Edit it
             offset = url_for(controller='package', action='edit', id=pkg.name)
-            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testadmin'})
+            res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
             assert 'Edit - Datasets' in res, res
 
             # Check form is correctly filled
@@ -837,7 +856,7 @@ class TestEdit(TestPackageForm):
                        extra_new,
                        ('key3', extras['key3'], True))
 
-            res = fv.submit('save', extra_environ={'REMOTE_USER':'testadmin'})
+            res = fv.submit('save', extra_environ={'REMOTE_USER':'testsysadmin'})
 
             # Check dataset page
             assert not 'Error' in res, res
@@ -867,7 +886,7 @@ class TestEdit(TestPackageForm):
 
             # for some reason environ['REMOTE_ADDR'] is undefined
             rev = model.Revision.youngest(model.Session)
-            assert rev.author == 'testadmin', rev.author
+            assert rev.author == 'testsysadmin', rev.author
             assert rev.message == log_message
             # TODO: reinstate once fixed in code
             exp_log_message = u'Creating dataset %s' % name
@@ -939,6 +958,26 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ=self.extra_environ_admin)
             # get redirected ...
             assert plugin.calls['edit'] == 1, plugin.calls
+            plugins.unload(plugin)
+        finally:
+            self._reset_data()
+
+    def test_after_update_plugin_hook(self):
+        # just the absolute basics
+        try:
+            plugin = MockPackageControllerPlugin()
+            plugins.load(plugin)
+            res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
+            new_name = u'new-name'
+            new_title = u'New Title'
+            fv = res.forms['dataset-edit']
+            prefix = ''
+            fv[prefix + 'name'] = new_name
+            fv[prefix + 'title'] = new_title
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
+            # get redirected ...
+            assert plugin.calls['after_update'] == 1, plugin.calls
+            assert plugin.calls['after_create'] == 0, plugin.calls
             plugins.unload(plugin)
         finally:
             self._reset_data()
@@ -1035,6 +1074,46 @@ class TestEdit(TestPackageForm):
 
         finally:
             self._reset_data()
+
+
+class TestDelete(TestPackageForm):
+
+    pkg_names = []
+
+    @classmethod
+    def setup_class(self):
+        model.repo.init_db()
+        CreateTestData.create()
+        CreateTestData.create_test_user()
+
+        self.admin = model.User.by_name(u'testsysadmin')
+
+        self.extra_environ_admin = {'REMOTE_USER': self.admin.name.encode('utf8')}
+        self.extra_environ_tester = {'REMOTE_USER': 'tester'}
+
+    @classmethod
+    def teardown_class(self):
+        self.purge_packages(self.pkg_names)
+        model.repo.rebuild_db()
+
+    def test_delete(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+
+        offset = url_for(controller='package', action='delete',
+                id='warandpeace')
+
+        self.app.post(offset, extra_environ=self.extra_environ_tester, status=401)
+
+        self.app.post(offset, extra_environ=self.extra_environ_admin)
+
+        assert model.Package.get('warandpeace').state == u'deleted'
+
+        assert plugin.calls['delete'] == 1
+        assert plugin.calls['after_delete'] == 1
+
+        plugins.unload(plugin)
+
 
 class TestNew(TestPackageForm):
     pkg_names = []
@@ -1274,6 +1353,23 @@ class TestNew(TestPackageForm):
         assert plugin.calls['create'] == 1, plugin.calls
         plugins.unload(plugin)
 
+    def test_after_create_plugin_hook(self):
+        plugin = MockPackageControllerPlugin()
+        plugins.load(plugin)
+        offset = url_for(controller='package', action='new')
+        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
+        new_name = u'plugged2'
+        fv = res.forms['dataset-edit']
+        prefix = ''
+        fv[prefix + 'name'] = new_name
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
+        # get redirected ...
+        assert plugin.calls['after_update'] == 0, plugin.calls
+        assert plugin.calls['after_create'] == 1, plugin.calls
+
+        assert plugin.id_in_dict
+
+        plugins.unload(plugin)
 
     def test_new_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
@@ -1377,7 +1473,7 @@ class TestNonActivePackages(TestPackageBase):
 
     def test_read_as_admin(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
-        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'joeadmin'})
+        res = self.app.get(offset, status=200, extra_environ={'REMOTE_USER':'testsysadmin'})
 
 
 class TestRevisions(TestPackageBase):
@@ -1533,4 +1629,3 @@ class TestAutocomplete(PylonsTestCase, TestPackageBase):
         expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
         received = sorted(res.body.split('\n'))
         assert expected == received
-

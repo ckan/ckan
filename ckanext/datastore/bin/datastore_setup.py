@@ -16,14 +16,14 @@ def _run_cmd(command_line, inputstring=''):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
     stdout_value, stderr_value = p.communicate(input=inputstring)
-    if stderr_value:
+    if stderr_value or p.returncode:
         print '\nAn error occured: {0}'.format(stderr_value)
         sys.exit(1)
 
 
 def _run_sql(sql, as_sql_user, database='postgres'):
     logging.debug("Executing: \n#####\n", sql, "\n####\nOn database:", database)
-    _run_cmd("sudo -u '{username}' psql --dbname='{database}' -W".format(
+    _run_cmd("sudo -u '{username}' psql --dbname='{database}' --set ON_ERROR_STOP=1".format(
         username=as_sql_user,
         database=database
     ), inputstring=sql)

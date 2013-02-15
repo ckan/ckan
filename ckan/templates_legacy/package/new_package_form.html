@@ -97,7 +97,7 @@
       <py:for each="num, group in enumerate(groups)">
         <div class="checkbox" py:if="'id' in group">
           <input type="hidden" name="groups__${num}__id" checked="checked" value="${group['id']}"/>
-          <label for="groups__${num}__checked"></label>
+          <label for="groups__${num}__checked">${group.get('name', '')}</label>
           <input type="hidden" name="groups__${num}__name" value="${group.get('name', '')}" />
         </div>
       </py:for>

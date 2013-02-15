@@ -3,10 +3,10 @@ import logging
 from pylons import c
 from ckan.lib import base
 from ckan.lib.navl import dictization_functions
-from ckan import authz
 from ckan import logic
 import logic.schema
 from ckan import plugins
+import ckan.new_authz
 
 log = logging.getLogger(__name__)
 
@@ -72,14 +72,21 @@ def register_package_plugins(map):
         for package_type in plugin.package_types():
             # Create a connection between the newly named type and the
             # package controller
-            map.connect('/%s/new' % package_type,
+
+            map.connect('%s_search' % package_type, '/%s' % package_type,
+                        controller='package', action='search')
+
+            map.connect('%s_new' % package_type, '/%s/new' % package_type,
                         controller='package', action='new')
             map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
                         controller='package', action='read')
-            map.connect('%s_action' % package_type,
-                        '/%s/{action}/{id}' % package_type, controller='package',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
-            )
+
+            for action in ['edit', 'authz', 'history']:
+                map.connect('%s_%s' % (package_type, action),
+                        '/%s/%s/{id}' % (package_type, action),
+                        controller='package',
+                        action=action
+                )
 
             if package_type in _package_plugins:
                 raise ValueError, "An existing IDatasetForm is "\
@@ -173,6 +180,13 @@ class DefaultDatasetForm(object):
         """
         return 'package/new.html'
 
+    def edit_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+        """
+        return 'package/edit.html'
+
     def comments_template(self):
         """
         Returns a string representing the location of the template to be
@@ -257,7 +271,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type']
+                               'resources', 'type', 'owner_org']
 
         if not schema:
             schema = self.form_to_db_schema()
@@ -277,7 +291,7 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licences = [('', '')] + base.model.Package.get_license_options()
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:
             c.related_count = c.pkg.related_count
@@ -332,6 +346,13 @@ class DefaultGroupForm(object):
         """
         return 'group/read.html'
 
+    def about_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the about page
+        """
+        return 'group/about.html'
+
     def history_template(self):
         """
         Returns a string representing the location of the template to be
@@ -345,6 +366,21 @@ class DefaultGroupForm(object):
         rendered for the edit page
         """
         return 'group/edit.html'
+
+    def admins_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the admins page
+        """
+        return 'group/admins.html'
+
+    def about_template(self):
+        '''Return the path to the template for the group's 'about' page.
+
+        :rtype: string
+
+        '''
+        return 'group/about.html'
 
     def group_form(self):
         return 'group/new_group_form.html'
@@ -417,7 +453,7 @@ class DefaultGroupForm(object):
         pass
 
     def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = authz.Authorizer().is_sysadmin(c.user)
+        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)

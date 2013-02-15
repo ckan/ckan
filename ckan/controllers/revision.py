@@ -7,7 +7,6 @@ from ckan.logic import NotAuthorized, check_access
 
 from ckan.lib.base import *
 from ckan.lib.helpers import Page
-import ckan.authz
 
 
 class RevisionController(BaseController):
@@ -69,6 +68,8 @@ class RevisionController(BaseController):
                         # package is None sometimes - I don't know why,
                         # but in the meantime while that is fixed,
                         # avoid an exception here
+                        continue
+                    if package.private:
                         continue
                     number = len(package.all_revisions)
                     package_revision = None
@@ -143,10 +144,11 @@ class RevisionController(BaseController):
 
         pkgs = model.Session.query(model.PackageRevision).\
             filter_by(revision=c.revision)
-        c.packages = [pkg.continuity for pkg in pkgs]
+        c.packages = [pkg.continuity for pkg in pkgs if not pkg.private]
         pkgtags = model.Session.query(model.PackageTagRevision).\
             filter_by(revision=c.revision)
-        c.pkgtags = [pkgtag.continuity for pkgtag in pkgtags]
+        c.pkgtags = [pkgtag.continuity for pkgtag in pkgtags
+                     if not pkgtag.package.private]
         grps = model.Session.query(model.GroupRevision).\
             filter_by(revision=c.revision)
         c.groups = [grp.continuity for grp in grps]

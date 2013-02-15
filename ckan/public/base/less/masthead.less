@@ -36,7 +36,7 @@ header.masthead {
 			font-weight: 900;
 			letter-spacing: -1px;
 		}
-		h2 { 
+		h2 {
 			position: absolute;
 			bottom: -3px;
 			left: 0;
@@ -72,10 +72,10 @@ header.masthead {
 					font-weight: bold;
 					padding: 4px 10px;
 					.border-radius(3px);
-					&.active {
-						background-color: @menuActiveBg;
-						box-shadow: 0 -1px 0 @menuActiveLo, 0 1px 0 @menuActiveHi;
-					}
+				}
+				&.active a {
+					background-color: @menuActiveBg;
+					box-shadow: 0 -1px 0 @menuActiveLo, 0 1px 0 @menuActiveHi;
 				}
 			}
 		}
@@ -184,6 +184,7 @@ header.masthead {
 	}
 
 	.user-dropdown-menu {
+		min-width: 120px;
 		a {
 			color: @mastheadBackgroundColorStart;
 			&:hover {
@@ -194,11 +195,8 @@ header.masthead {
 
 	.debug {
 		position: absolute;
-		bottom: 10px;
+		top: 10px;
 		left: 10px;
-		font-size: 11px;
 		color: rgba(255, 255, 255, 0.5);
-		line-height: 1.2;
 	}
-
 }

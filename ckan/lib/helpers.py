@@ -38,6 +38,8 @@ from pylons.i18n import _, ungettext
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
 import ckan.lib.formatters as formatters
+import ckan.lib.maintain as maintain
+import ckan.lib.datapreview as datapreview
 
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
@@ -293,6 +295,46 @@ def are_there_flash_messages():
     return flash.are_there_messages()
 
 
+def _link_active(kwargs):
+    ''' creates classes for the link_to calls '''
+    highlight_actions = kwargs.get('highlight_actions',
+                                   kwargs.get('action', '')).split(' ')
+    return (c.controller == kwargs.get('controller')
+                and c.action in highlight_actions)
+
+
+def _link_to(text, *args, **kwargs):
+    '''Common link making code for several helper functions'''
+    assert len(args)<2, 'Too many unnamed arguments'
+
+    def _link_class(kwargs):
+        ''' creates classes for the link_to calls '''
+        suppress_active_class = kwargs.pop('suppress_active_class', False)
+        if not suppress_active_class and _link_active(kwargs):
+            active = ' active'
+        else:
+            active = ''
+        kwargs.pop('highlight_actions', '')
+        return kwargs.pop('class_', '') + active or None
+
+    def _create_link_text(text, **kwargs):
+        ''' Update link text to add a icon or span if specified in the
+        kwargs '''
+        if kwargs.pop('inner_span', None):
+            text = literal('<span>') + text + literal('</span>')
+        if icon:
+            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+        return text
+
+    icon = kwargs.pop('icon', None)
+    class_ = _link_class(kwargs)
+    return link_to(
+        _create_link_text(text, **kwargs),
+        url_for(*args, **kwargs),
+        class_=class_
+    )
+
+
 def nav_link(text, controller, **kwargs):
     '''
     params
@@ -300,65 +342,31 @@ def nav_link(text, controller, **kwargs):
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
-    kwargs['controller'] = controller
-    if kwargs.get('inner_span'):
-        text = literal('<span>') + text + literal('</span>')
-    icon = kwargs.pop('icon', None)
-    if icon:
-        text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
-    class_ = _link_class(kwargs)
     if kwargs.pop('condition', True):
-        link = link_to(
-            text,
-            url_for(**kwargs),
-            class_=class_
-        )
+        kwargs['controller'] = controller
+        link = _link_to(text, **kwargs)
     else:
         link = ''
     return link
 
 
-def _link_class(kwargs):
-    ''' creates classes for the link_to calls '''
-    highlight_actions = kwargs.pop('highlight_actions',
-                                   kwargs.get('action', '')).split(' ')
-    if (c.controller == kwargs.get('controller')
-                and c.action in highlight_actions):
-        active = ' active'
-    else:
-        active = ''
-    return kwargs.pop('class_', '') + active
-
-
 def nav_named_link(text, name, **kwargs):
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(name, **kwargs),
-        class_=class_
-    )
+    '''Create a link for a named route.'''
+    return _link_to(text, name, **kwargs)
 
 
 def subnav_link(text, action, **kwargs):
+    '''Create a link for a named route.'''
     kwargs['action'] = action
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(**kwargs),
-        class_=class_
-    )
+    return _link_to(text, **kwargs)
 
 
+@maintain.deprecated('h.subnav_named_route is deprecated please '
+                     'use h.nav_named_link')
 def subnav_named_route(text, routename, **kwargs):
-    """ Generate a subnav element based on a named route """
-    # FIXME this is the same as _nav_named_link
-    # they should be combined
-    class_ = _link_class(kwargs)
-    return link_to(
-        text,
-        url_for(str(routename), **kwargs),
-        class_=class_
-    )
+    '''Generate a subnav element based on a named route
+    Deprecated in ckan 2.0 '''
+    return nav_named_link(text, routename, **kwargs)
 
 
 def build_nav_main(*args):
@@ -376,38 +384,76 @@ def build_nav_main(*args):
     return output
 
 
-def _make_menu_item(menu_item, title):
+def build_nav_icon(menu_item, title, **kw):
+    ''' build a navigation item used for example in user/read_base.html
+
+    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, **kw)
+
+
+def build_nav(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+    '''
+    return _make_menu_item(menu_item, title, icon=None, **kw)
+
+
+def _make_menu_item(menu_item, title, **kw):
+    ''' build a navigation item used for example breadcrumbs
+
+    outputs <li><a href="..."></i> title</a></li>
+
+    :param menu_item: the name of the defined menu item defined in
+    config/routing as the named route of the same name
+    :type menu_item: string
+    :param title: text used for the link
+    :type title: string
+    :param **kw: additional keywords needed for creating url eg id=...
+
+    :rtype: HTML literal
+
+    This function is called by wrapper functions.
+    '''
+    _menu_items = config['routes.named_routes']
     if menu_item not in _menu_items:
-        log.error('menu item `%s` cannot be found' % menu_item)
-        return literal('<li><a href="#">') + title + literal('</a></li>')
-    item = _menu_items[menu_item]
-    if 'name' in item:
-        link = nav_named_link(title, **item)
-    elif 'url' in item:
-        return literal('<li><a href="%s">' % item.url) + title + literal('</a></li>')
-    else:
-        item = copy.copy(_menu_items[menu_item])
-        controller = item.pop('controller')
-        link = nav_link(title, controller, **item)
+        raise Exception('menu item `%s` cannot be found' % menu_item)
+    item = copy.copy(_menu_items[menu_item])
+    item.update(kw)
+    active =  _link_active(item)
+    controller = item.pop('controller')
+    needed = item.pop('needed')
+    for need in needed:
+        if need not in kw:
+            raise Exception('menu item `%s` need parameter `%s`'
+                            % (menu_item, need))
+    link = nav_link(title, controller, suppress_active_class=True, **item)
+    if active:
+        return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
 
 
 def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
-
-
-_menu_items = {
-    'add dataset': dict(controller='package', action='new'),
-    'search': dict(controller='package',
-                    action='search',
-                    highlight_actions='index search'),
-    'default_group': dict(name='%s_index' % default_group_type(),
-                          controller='group',
-                          highlight_actions='index search'),
-    'about': dict(controller='home', action='about'),
-    'login': dict(controller='user', action='login'),
-    'register': dict(controller='user', action='register'),
-}
 
 
 def get_facet_items_dict(facet, limit=10, exclude_active=False):
@@ -522,6 +568,8 @@ def check_access(action, data_dict=None):
 
     context = {'model': model,
                 'user': c.user or c.author}
+    if not data_dict:
+        data_dict = {}
 
     try:
         check_access_logic(action, context, data_dict)
@@ -558,9 +606,14 @@ def group_name_to_title(name):
 
 
 def markdown_extract(text, extract_length=190):
+    ''' return the plain text representation of markdown encoded text.  That
+    is the texted without any html tags.  If extract_length is 0 then it
+    will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
+    if not extract_length or len(plain) < extract_length:
+        return plain
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
@@ -890,6 +943,11 @@ def group_link(group):
     return link_to(group['title'], url)
 
 
+def organization_link(organization):
+    url = url_for(controller='organization', action='read', id=organization['name'])
+    return link_to(organization['name'], url)
+
+
 def dump_json(obj, **kw):
     return json.dumps(obj, **kw)
 
@@ -1016,15 +1074,9 @@ def follow_count(obj_type, obj_id):
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
 
-
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
     ''' internal function for building urls with parameters. '''
-
-    def url_with_params(url, params):
-        params = [(k, v.encode('utf-8') if isinstance(v, basestring) else \
-                 str(v)) for k, v in params]
-        return url + u'?' + urllib.urlencode(params)
 
     if not controller:
         controller = c.controller
@@ -1034,7 +1086,7 @@ def _create_url_with_params(params=None, controller=None, action=None,
         extras = {}
 
     url = url_for(controller=controller, action=action, **extras)
-    return url_with_params(url, params)
+    return _url_with_params(url, params)
 
 def add_url_param(alternative_url=None, controller=None, action=None,
                    extras=None, new_params=None):
@@ -1044,19 +1096,23 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = set(params_nopage)
     if new_params:
         params |= set(new_params.items())
     if alternative_url:
-        return url_with_params(alternative_url, params)
+        return _url_with_params(alternative_url, params)
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
 
 def remove_url_param(key, value=None, replace=None, controller=None,
-                     action=None, extras=None):
+                     action=None, extras=None, alternative_url=None):
     ''' Remove a key from the current parameters. A specific key/value
     pair can be removed by passing a second value argument otherwise all
     pairs matching the key will be removed. If replace is given then a
@@ -1065,6 +1121,9 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
     controller & action default to the current ones
+
+    This can be overriden providing an alternative_url, which will be used
+    instead.
     '''
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
@@ -1074,6 +1133,10 @@ def remove_url_param(key, value=None, replace=None, controller=None,
         [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
         params.append((key, replace))
+
+    if alternative_url:
+        return _url_with_params(alternative_url, params)
+
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
@@ -1087,13 +1150,13 @@ def urls_for_resource(resource):
     ''' Returns a list of urls for the resource specified.  If the resource
     is a group or has dependencies then there can be multiple urls.
 
-    NOTE: This is for special situations only and is not the way to generaly
+    NOTE: This is for special situations only and is not the way to generally
     include resources.  It is advised not to use this function.'''
     r = getattr(fanstatic_resources, resource)
     resources = list(r.resources)
     core = fanstatic_resources.fanstatic_extensions.core
     f = core.get_needed()
-    lib = resources[0].library
+    lib = r.library
     root_path = f.library_url(lib)
 
     resources = core.sort_resources(resources)
@@ -1169,11 +1232,43 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-def dashboard_activity_stream(user_id):
+def organizations_available(permission='edit_group'):
+    ''' return a list of available organizations '''
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session,
+               'user': c.user}
+    data_dict = {'permission': permission}
+    return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+def user_in_org_or_group(group_id):
+    ''' Check if user is in a group or organization '''
+    # we need a user
+    if not c.userobj:
+        return False
+    # sysadmins can do anything
+    if c.userobj.sysadmin:
+        return True
+    query = model.Session.query(model.Member) \
+            .filter(model.Member.state == 'active') \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.group_id == group_id) \
+            .filter(model.Member.table_id == c.userobj.id)
+    return len(query.all()) != 0
+
+
+def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
+        offset=0):
     '''Return the dashboard activity stream of the given user.
 
     :param user_id: the id of the user
     :type user_id: string
+
+    :param filter_type: the type of thing to filter by
+    :type filter_type: string
+
+    :param filter_id: the id of item to filter by
+    :type filter_id: string
 
     :returns: an activity stream as an HTML snippet
     :rtype: string
@@ -1181,8 +1276,25 @@ def dashboard_activity_stream(user_id):
     '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('dashboard_activity_list_html')(context,
-                                                            {'id': user_id})
+
+    if filter_type:
+        action_functions = {
+            'dataset': 'package_activity_list_html',
+            'user': 'user_activity_list_html',
+            'group': 'group_activity_list_html'
+            }
+        action_function = logic.get_action(action_functions.get(filter_type))
+        return action_function(context, {'id': filter_id, 'offset': offset})
+    else:
+        return logic.get_action('dashboard_activity_list_html')(
+            context, {'id': user_id, 'offset': offset})
+
+
+def recently_changed_packages_activity_stream():
+    import ckan.logic as logic
+    context = {'model': model, 'session': model.Session, 'user': c.user}
+    return logic.get_action('recently_changed_packages_activity_list_html')(
+            context, {})
 
 
 def escape_js(str_to_escape):
@@ -1265,49 +1377,60 @@ def format_resource_items(items):
 
 def resource_preview(resource, pkg_id):
     '''
-    Returns a rendered snippet for a embeded resource preview.
+    Returns a rendered snippet for a embedded resource preview.
 
     Depending on the type, different previews are loaded.
-    This could be an img tag where the image is loaded directly or an iframe that
-    embeds a webpage, recline or a pdf preview.
+    This could be an img tag where the image is loaded directly or an iframe
+    that embeds a web page, recline or a pdf preview.
     '''
-
-    DIRECT_EMBEDS = ['png', 'jpg', 'gif']
-    LOADABLE = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml', 'n3',
-                'n-triples', 'turtle', 'plain', 'atom', 'tsv', 'rss',
-                'txt', 'json']
-    PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
 
     format_lower = resource['format'].lower()
     directly = False
     url = ''
 
-    if resource.get('datastore_active') or format_lower in ['csv', 'xls', 'tsv']:
+    data_dict = {'resource': resource, 'package': c.package}
+
+    if not resource['url']:
+        log.info('No url for resource {0} defined.'.format(resource['id']))
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower,
+                       reason='No valid resource url has been defined.')
+    direct_embed = config.get('ckan.preview.direct', '').split()
+    if not direct_embed:
+        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
+    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
+    if not loadable_in_iframe:
+        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
+
+    if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='recline', id=pkg_id, qualified=True)
-    elif format_lower in PDF:
-        url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='pdf', id=pkg_id, qualified=True)
-    elif format_lower == 'jsonp':
-        url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], preview_type='json', id=pkg_id, qualified=True)
-    elif format_lower in LOADABLE:
-        url = resource['url']
-    elif format_lower in DIRECT_EMBEDS:
+                      resource_id=resource['id'], id=pkg_id, qualified=True)
+    elif format_lower in direct_embed:
         directly = True
         url = resource['url']
+    elif format_lower in loadable_in_iframe:
+        url = resource['url']
     else:
-        log.info('No preview handler for resource type {0}'.format(resource['format']))
-        return snippet(
-            "dataviewer/snippets/no_preview.html",
-            resource_type=format_lower
-            )
-
-    return snippet(
-        "dataviewer/snippets/data_preview.html",
-        embed=directly,
-        resource_url=url
+        log.info(
+            'No preview handler for resource type {0}'.format(format_lower)
         )
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower)
+
+    return snippet("dataviewer/snippets/data_preview.html",
+                   embed=directly,
+                   resource_url=url,
+                   raw_resource_url=resource.get('url'))
+
+
+def SI_number_span(number):
+    ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
+    number = int(number)
+    if number < 1000:
+        output = literal('<span>')
+    else:
+        output = literal('<span title="' + formatters.localised_number(number) + '">')
+    return output + formatters.localised_SI_number(number) + literal('<span>')
 
 
 # these are the functions that will end up in `h` template helpers
@@ -1362,6 +1485,8 @@ __allowed_functions__ = [
            'include_resource',
            'urls_for_resource',
            'build_nav_main',
+           'build_nav_icon',
+           'build_nav',
            'debug_inspect',
            'dict_list_reduce',
            'full_current_url',
@@ -1375,13 +1500,17 @@ __allowed_functions__ = [
            'remove_url_param',
            'add_url_param',
            'groups_available',
+           'organizations_available',
+           'user_in_org_or_group',
            'dashboard_activity_stream',
+           'recently_changed_packages_activity_stream',
            'escape_js',
            'get_pkg_dict_extra',
            'get_request_param',
            'render_markdown',
            'format_resource_items',
            'resource_preview',
+           'SI_number_span',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
