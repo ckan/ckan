@@ -1021,8 +1021,9 @@ def follow_user(context, data_dict):
     # Don't let a user follow someone she is already following.
     if model.UserFollowingUser.is_following(userobj.id,
             validated_data_dict['id']):
+        name = data_dict['display_name']
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following user {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
@@ -1074,8 +1075,11 @@ def follow_dataset(context, data_dict):
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
+        # FIXME really package model should have this logic and provide
+        # 'dispaly_name' like users and groups
+        name = data_dict['title'] or data_dict['name'] or data_dict['id']
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following dataset {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
@@ -1166,8 +1170,9 @@ def follow_group(context, data_dict):
     # Don't let a user follow a group she is already following.
     if model.UserFollowingGroup.is_following(userobj.id,
             validated_data_dict['id']):
+        name = data_dict['dispaly_name']
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following group {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
