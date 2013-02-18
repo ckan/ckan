@@ -92,10 +92,14 @@ class TestExampleIDatasetFormPlugin:
                 '/dataset/idatasetform_test_dataset')
 
         # Test the contents of the updated dataset read page.
-        #assert '<p><strong>Country Code</strong>: fr</p>' in response
-        #assert '<a href="/tag/idatasetform">idatasetform</a>' in response
-        #assert '<a href="/tag/testing">testing</a>' in response
-        #assert '<a href="/tag/test_update_tag">test_update_tag</a>' in response
+        assert '<p><strong>Country Code</strong>: fr</p>' in response
+
+        # FIXME: Tags aren't shown on the dataset read page, so check them
+        # another way.
+        # TODO: Also edit some other fields and check their values.
+        assert '<a href="/tag/idatasetform">idatasetform</a>' in response
+        assert '<a href="/tag/testing">testing</a>' in response
+        assert '<a href="/tag/test_update_tag">test_update_tag</a>' in response
 
         # Fetch the dataset search page, just to test that the plugin's
         # search_template() method gets called.
