@@ -135,5 +135,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
         return lib_plugins.DefaultDatasetForm.package_form(self)
 
-    def check_data_dict(self, data_dict):
+    def check_data_dict(self, data_dict, schema=None):
         ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
+        return lib_plugins.DefaultDatasetForm.check_data_dict(self, data_dict,
+                schema)
