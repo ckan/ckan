@@ -199,8 +199,7 @@ def db_to_form_package_schema():
     # TODO: Fix this issue in convert_from_tags().
     schema.update({
         'tags': {
-            '__extras': [ckan.lib.navl.validators.keep_extras,
-                ckan.logic.converters.free_tags_only]
+            '__extras': [ckan.lib.navl.validators.keep_extras]
             },
         })
 
