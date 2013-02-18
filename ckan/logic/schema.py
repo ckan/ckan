@@ -194,6 +194,7 @@ def form_to_db_package_schema():
 
 def db_to_form_package_schema():
     schema = default_package_schema()
+
     # Workaround a bug in CKAN's convert_from_tags() function.
     # TODO: Fix this issue in convert_from_tags().
     schema.update({
@@ -202,6 +203,7 @@ def db_to_form_package_schema():
                 ckan.logic.converters.free_tags_only]
             },
         })
+
     # Workaround a bug in CKAN.
     # TODO: Fix this elsewhere so we don't need to workaround it here.
     schema['resources'].update({
@@ -216,12 +218,37 @@ def db_to_form_package_schema():
         'state': [ckan.lib.navl.validators.ignore_missing],
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
-        'license_title': [ignore_missing],
         })
 
     schema['groups'].update({
         'description': [ignore_missing],
         })
+
+    # Remove validators for several keys from the schema so validation doesn't
+    # strip the keys from the package dicts if the values are 'missing' (i.e.
+    # None).
+    schema['author'] = []
+    schema['author_email'] = []
+    schema['maintainer'] = []
+    schema['maintainer_email'] = []
+    schema['license_id'] = []
+    schema['notes'] = []
+    schema['url'] = []
+    schema['version'] = []
+
+    # Add several keys that are missing from default_package_schema(), so
+    # validation doesn't strip the keys from the package dicts.
+    #schema['license_title'] = []
+    schema['metadata_created'] = []
+    schema['metadata_modified'] = []
+    schema['num_resources'] = []
+    schema['num_tags'] = []
+    schema['organization'] = []
+    schema['owner_org'] = []
+    schema['private'] = []
+    schema['revision_id'] = []
+    schema['revision_timestamp'] = []
+    schema['tracking_summary'] = []
 
     return schema
 
