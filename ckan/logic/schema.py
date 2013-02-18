@@ -212,6 +212,19 @@ def db_to_form_package_schema():
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'revision_timestamp': [],
+        'resource_group_id': [],
+        'cache_last_updated': [],
+        'webstore_last_updated': [],
+        'size': [],
+        'state': [],
+        'last_modified': [],
+        'mimetype': [],
+        'cache_url': [],
+        'name': [],
+        'webstore_url': [],
+        'mimetype_inner': [],
+        'resource_type': [],
     })
 
     schema.update({
