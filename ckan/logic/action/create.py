@@ -1021,7 +1021,8 @@ def follow_user(context, data_dict):
     # Don't let a user follow someone she is already following.
     if model.UserFollowingUser.is_following(userobj.id,
             validated_data_dict['id']):
-        name = data_dict['display_name']
+        followeduserobj = model.User.get(validated_data_dict['id'])
+        name = followeduserobj.display_name
         message = _(
                 'You are already following user {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
