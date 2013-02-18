@@ -1171,7 +1171,7 @@ def follow_group(context, data_dict):
     # Don't let a user follow a group she is already following.
     if model.UserFollowingGroup.is_following(userobj.id,
             validated_data_dict['id']):
-        name = data_dict['dispaly_name']
+        name = data_dict['display_name']
         message = _(
                 'You are already following group {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
