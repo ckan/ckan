@@ -25,6 +25,43 @@ def datetime_from_string(s):
     '''
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
+def follow(func):
+    '''Return a wrapper function for a follow_* function.
+
+    The wrapper functions test the `followee_list` and `followee_count` API
+    calls, in addition to any tests carried out by the wrapped function.
+
+    '''
+    def wrapped_func(app, follower_id, apikey, object_id, object_arg,
+            sysadmin_apikey):
+        followee_count_before = ckan.tests.call_action_api(app,
+                'followee_count', id=follower_id)
+        followees_before = ckan.tests.call_action_api(app, 'followee_list',
+                id=follower_id, apikey=sysadmin_apikey)
+
+        func(app, follower_id, apikey, object_id, object_arg, sysadmin_apikey)
+
+        followee_count_after = ckan.tests.call_action_api(app,
+                'followee_count', id=follower_id)
+        followees_after = ckan.tests.call_action_api(app, 'followee_list',
+                id=follower_id, apikey=sysadmin_apikey)
+
+        assert followee_count_after == followee_count_before + 1, (
+                "After a user follows an object, the user's `followee_count` "
+                "should increase by 1")
+
+        assert len(followees_after) == len(followees_before) + 1, (
+                "After a user follows an object, the object should appear in "
+                "the user's `followee_list`")
+        assert len([followee for followee in followees_after
+            if followee['dict']['id'] == object_id]) == 1, (
+                "After a user follows an object, the object should appear in "
+                "the user's `followee_list`")
+
+    return wrapped_func
+
+
+@follow
 def follow_user(app, follower_id, apikey, object_id, object_arg,
         sysadmin_apikey):
     '''Test a user starting to follow another user via the API.
@@ -86,6 +123,8 @@ def follow_user(app, follower_id, apikey, object_id, object_arg,
             'user_followee_count', id=follower_id)
     assert followee_count_after == followee_count_before + 1
 
+
+@follow
 def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg,
         sysadmin_apikey):
     '''Test a user starting to follow a dataset via the API.
@@ -147,6 +186,8 @@ def follow_dataset(app, follower_id, apikey, dataset_id, dataset_arg,
             'dataset_followee_count', id=follower_id)
     assert followee_count_after == followee_count_before + 1
 
+
+@follow
 def follow_group(app, user_id, apikey, group_id, group_arg, sysadmin_apikey):
     '''Test a user starting to follow a group via the API.
 
@@ -296,6 +337,20 @@ class TestFollow(object):
     def test_00_sysadmin_can_get_group_follower_list(self):
         ckan.tests.call_action_api(self.app, 'group_follower_list',
                 id='roger', status=200, apikey=self.testsysadmin['apikey'])
+
+    def test_00_visitor_cannot_get_followee_list(self):
+        ckan.tests.call_action_api(self.app, 'followee_list',
+                id=self.russianfan['id'], status=403)
+
+    def test_00_user_cannot_get_followee_list(self):
+        ckan.tests.call_action_api(self.app, 'followee_list',
+                id=self.russianfan['id'], status=403,
+                apikey=self.annafan['apikey'])
+
+    def test_00_sysadmin_can_get_followee_list(self):
+        ckan.tests.call_action_api(self.app, 'followee_list',
+                id=self.russianfan['id'], status=200,
+                apikey=self.testsysadmin['apikey'])
 
     def test_00_visitor_cannot_get_user_followee_list(self):
         '''A visitor cannot see what users a user is following.'''
@@ -509,6 +564,57 @@ class TestFollow(object):
                 'group_follower_count', id=self.davids_group['id'])
         assert follower_count == 0
 
+    def _followee_count_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = ckan.tests.call_action_api(self.app, action,
+                    status=409, id=object_id)
+            assert 'id' in error
+
+    def test_04_followee_count_bad_id(self):
+        self._followee_count_bad_id('followee_count')
+
+    def test_04_user_followee_count_bad_id(self):
+        self._followee_count_bad_id('user_followee_count')
+
+    def test_04_dataset_followee_count_bad_id(self):
+        self._followee_count_bad_id('dataset_followee_count')
+
+    def test_04_group_followee_count_bad_id(self):
+        self._followee_count_bad_id('group_followee_count')
+
+    def _followee_count_missing_id(self, action):
+        error = ckan.tests.call_action_api(self.app, action, status=409)
+        assert error['id'] == ['Missing value']
+
+    def test_04_followee_count_missing_id(self):
+        self._followee_count_missing_id('followee_count')
+
+    def test_04_user_followee_count_missing_id(self):
+        self._followee_count_missing_id('user_followee_count')
+
+    def test_04_dataset_followee_count_missing_id(self):
+        self._followee_count_missing_id('dataset_followee_count')
+
+    def test_04_group_followee_count_missing_id(self):
+        self._followee_count_missing_id('group_followee_count')
+
+    def _followee_count_not_following_anything(self, action):
+        followee_count = ckan.tests.call_action_api(self.app, action,
+                id=self.russianfan['id'])
+        assert followee_count == 0
+
+    def test_04_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('followee_count')
+
+    def test_04_user_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('user_followee_count')
+
+    def test_04_dataset_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('dataset_followee_count')
+
+    def test_04_group_followee_count_not_following_anything(self):
+        self._followee_count_not_following_anything('group_followee_count')
+
     def test_04_follower_list_bad_id(self):
         for action in ('user_follower_list', 'dataset_follower_list',
                 'group_follower_list'):
@@ -540,6 +646,59 @@ class TestFollow(object):
         followers = ckan.tests.call_action_api(self.app, 'group_follower_list',
                 id=self.davids_group['id'], apikey=self.testsysadmin['apikey'])
         assert followers == []
+
+    def _followee_list_bad_id(self, action):
+        for object_id in ('bad id', '     ', 3, 35.7, 'xxx', ''):
+            error = ckan.tests.call_action_api(self.app, action,
+                    status=409, id=object_id,
+                    apikey=self.testsysadmin['apikey'])
+            assert error['id']
+
+    def test_04_followee_list_bad_id(self):
+        self._followee_list_bad_id('followee_list')
+
+    def test_04_user_followee_list_bad_id(self):
+        self._followee_list_bad_id('user_followee_list')
+
+    def test_04_dataset_followee_list_bad_id(self):
+        self._followee_list_bad_id('dataset_followee_list')
+
+    def test_04_group_followee_list_bad_id(self):
+        self._followee_list_bad_id('group_followee_list')
+
+    def _followee_list_missing_id(self, action):
+        error = ckan.tests.call_action_api(self.app, action, status=409,
+                apikey=self.testsysadmin['apikey'])
+        assert error['id'] == ['Missing value']
+
+    def test_04_followee_list_missing_id(self):
+        self._followee_list_missing_id('followee_list')
+
+    def test_04_user_followee_list_missing_id(self):
+        self._followee_list_missing_id('user_followee_list')
+
+    def test_04_dataset_followee_missing_bad_id(self):
+        self._followee_list_missing_id('dataset_followee_list')
+
+    def test_04_group_followee_missing_bad_id(self):
+        self._followee_list_missing_id('group_followee_list')
+
+    def _followee_list_not_following_anything(self, action):
+        followees = ckan.tests.call_action_api(self.app, action,
+                id=self.russianfan['id'], apikey=self.russianfan['apikey'])
+        assert followees == []
+
+    def test_04_followee_list_not_following_anything(self):
+        self._followee_list_not_following_anything('followee_list')
+
+    def test_04_user_followee_list_not_following_anything(self):
+        self._followee_list_not_following_anything('user_followee_list')
+
+    def test_04_dataset_followee_not_following_anything(self):
+        self._followee_list_not_following_anything('dataset_followee_list')
+
+    def test_04_group_followee_not_following_anything(self):
+        self._followee_list_not_following_anything('group_followee_list')
 
     def test_04_am_following_bad_id(self):
         for action in ('am_following_dataset', 'am_following_user',
@@ -761,6 +920,10 @@ class TestFollowerDelete(object):
         # Record the user's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'user_follower_count', id=object_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=follower_id)
+        user_followee_count_before = ckan.tests.call_action_api(self.app,
+                'user_followee_count', id=follower_id)
 
         # Check that the user is following the object.
         am_following = ckan.tests.call_action_api(self.app,
@@ -787,6 +950,25 @@ class TestFollowerDelete(object):
                 'user_follower_count', id=object_id)
         assert count_after == count_before - 1
 
+        # Check that the user doesn't appear in the subject's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=follower_id, apikey=apikey)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == object_id]) == 0
+        followees = ckan.tests.call_action_api(self.app, 'user_followee_list',
+                id=follower_id, apikey=apikey)
+        assert len([followee for followee in followees
+            if followee['id'] == object_id]) == 0
+
+        # Check the the subject's followee cont has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=follower_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'user_followee_count', id=follower_id)
+        assert count_after == user_followee_count_before - 1
+
     def _unfollow_dataset(self, user_id, apikey, dataset_id, dataset_arg):
         '''Test a user unfollowing a dataset via the API.
 
@@ -800,6 +982,10 @@ class TestFollowerDelete(object):
         # Record the dataset's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'dataset_follower_count', id=dataset_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=user_id)
+        dataset_followee_count_before = ckan.tests.call_action_api(self.app,
+                'dataset_followee_count', id=user_id)
 
         # Check that the user is following the dataset.
         am_following = ckan.tests.call_action_api(self.app,
@@ -828,6 +1014,25 @@ class TestFollowerDelete(object):
                 'dataset_follower_count', id=dataset_id)
         assert count_after == count_before - 1
 
+        # Check that the dataset doesn't appear in the user's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=user_id, apikey=apikey)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == dataset_id]) == 0
+        followees = ckan.tests.call_action_api(self.app,
+                'dataset_followee_list', id=user_id, apikey=apikey)
+        assert len([followee for followee in followees
+            if followee['id'] == dataset_id]) == 0
+
+        # Check the the user's followee count has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=user_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'dataset_followee_count', id=user_id)
+        assert count_after == dataset_followee_count_before - 1
+
     def _unfollow_group(self, user_id, apikey, group_id, group_arg):
         '''Test a user unfollowing a group via the API.
 
@@ -841,6 +1046,10 @@ class TestFollowerDelete(object):
         # Record the group's number of followers before.
         count_before = ckan.tests.call_action_api(self.app,
                 'group_follower_count', id=group_id)
+        followee_count_before = ckan.tests.call_action_api(self.app,
+                'followee_count', id=user_id)
+        group_followee_count_before = ckan.tests.call_action_api(self.app,
+                'group_followee_count', id=user_id)
 
         # Check that the user is following the group.
         am_following = ckan.tests.call_action_api(self.app,
@@ -867,6 +1076,26 @@ class TestFollowerDelete(object):
         count_after = ckan.tests.call_action_api(self.app,
                 'group_follower_count', id=group_id)
         assert count_after == count_before - 1
+
+        # Check that the group doesn't appear in the user's list of
+        # followees.
+        followees = ckan.tests.call_action_api(self.app, 'followee_list',
+                id=user_id, apikey=apikey)
+        assert len([followee for followee in followees
+            if followee['dict']['id'] == group_id]) == 0
+        followees = ckan.tests.call_action_api(self.app,
+                'group_followee_list', id=user_id,
+                apikey=self.testsysadmin['apikey'])
+        assert len([followee for followee in followees
+            if followee['id'] == group_id]) == 0
+
+        # Check the the user's followee count has decreased by 1.
+        count_after = ckan.tests.call_action_api(self.app, 'followee_count',
+                id=user_id)
+        assert count_after == followee_count_before - 1
+        count_after = ckan.tests.call_action_api(self.app,
+                'group_followee_count', id=user_id)
+        assert count_after == group_followee_count_before - 1
 
     def test_02_follower_delete_by_id(self):
         self._unfollow_user(self.annafan['id'], self.annafan['apikey'],
@@ -984,6 +1213,13 @@ class TestFollowerCascade(object):
                 status=409, id='joeadmin', apikey=self.testsysadmin['apikey'])
         assert 'id' in error
 
+        # It should no longer be possible to get joeadmin's followee lists.
+        for action in ('followee_list', 'user_followee_list',
+                'dataset_followee_list', 'group_followee_list'):
+            error = ckan.tests.call_action_api(self.app, action, status=409,
+                    id='joeadmin', apikey=self.testsysadmin['apikey'])
+            assert 'id' in error
+
         # It should no longer be possible to get warandpeace's follower list.
         error = ckan.tests.call_action_api(self.app, 'dataset_follower_list',
                 status=409, id='warandpeace', apikey=self.testsysadmin['apikey'])
@@ -998,6 +1234,13 @@ class TestFollowerCascade(object):
         error = ckan.tests.call_action_api(self.app, 'user_follower_count',
                 status=409, id='joeadmin')
         assert 'id' in error
+
+        # It should no longer be possible to get joeadmin's followee counts.
+        for action in ('followee_count', 'user_followee_count',
+                'dataset_followee_count', 'group_followee_count'):
+            error = ckan.tests.call_action_api(self.app, action, status=409,
+                    id='joeadmin')
+            assert 'id' in error
 
         # It should no longer be possible to get warandpeace's follower count.
         error = ckan.tests.call_action_api(self.app, 'dataset_follower_count',
