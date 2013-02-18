@@ -1078,7 +1078,8 @@ def follow_dataset(context, data_dict):
             validated_data_dict['id']):
         # FIXME really package model should have this logic and provide
         # 'dispaly_name' like users and groups
-        name = data_dict['title'] or data_dict['name'] or data_dict['id']
+        pkgobj = model.Package.get(validated_data_dict['id'])
+        name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
                 'You are already following dataset {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
