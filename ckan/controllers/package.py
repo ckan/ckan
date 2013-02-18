@@ -1217,10 +1217,6 @@ class PackageController(BaseController):
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
-    def api_data(self, id=None):
-        url = h.url_for('datastore_read', id=id, qualified=True)
-        return render('package/resource_api_data.html', {'datastore_root_url': url})
-
     def follow(self, id):
         '''Start following this dataset.'''
         context = {'model': model,

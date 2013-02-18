@@ -184,21 +184,6 @@ def make_map():
     ## /END API
     ###########
 
-
-    ## Webstore
-    if config.get('ckan.datastore.enabled', False):
-        with SubMapper(map, controller='datastore') as m:
-            m.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
-                      action='read', url='', conditions=GET)
-            m.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
-                      action='write', url='', conditions=PUT_POST_DELETE)
-            m.connect('datastore_read_shortcut',
-                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
-                      action='read', url='', conditions=GET)
-            m.connect('datastore_write_shortcut',
-                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
-                      action='write', url='', conditions=PUT_POST_DELETE)
-
     map.redirect('/packages', '/dataset')
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
