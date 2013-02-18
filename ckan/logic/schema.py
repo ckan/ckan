@@ -197,7 +197,8 @@ def db_to_form_package_schema():
 
     schema.update({
         'tags': {
-            '__extras': [ckan.lib.navl.validators.keep_extras]
+            '__extras': [ckan.lib.navl.validators.keep_extras,
+                ckan.logic.converters.free_tags_only]
             },
         })
 
