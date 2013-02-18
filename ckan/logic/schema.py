@@ -257,6 +257,7 @@ def db_to_form_package_schema():
     schema['revision_id'] = []
     schema['revision_timestamp'] = []
     schema['tracking_summary'] = []
+    schema['license_title'] = []
 
     return schema
 
