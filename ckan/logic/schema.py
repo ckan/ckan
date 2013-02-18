@@ -195,16 +195,12 @@ def form_to_db_package_schema():
 def db_to_form_package_schema():
     schema = default_package_schema()
 
-    # Workaround a bug in CKAN's convert_from_tags() function.
-    # TODO: Fix this issue in convert_from_tags().
     schema.update({
         'tags': {
             '__extras': [ckan.lib.navl.validators.keep_extras]
             },
         })
 
-    # Workaround a bug in CKAN.
-    # TODO: Fix this elsewhere so we don't need to workaround it here.
     schema['resources'].update({
         'created': [ckan.lib.navl.validators.ignore_missing],
         'position': [not_empty],
