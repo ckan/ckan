@@ -93,6 +93,13 @@ def roles_list():
         roles.append(dict(text=trans_role(role), value=role))
     return roles
 
+def roles_trans():
+    ''' return dict of roles with translation '''
+    roles = {}
+    for role in ROLE_PERMISSIONS:
+        roles[role] = trans_role(role)
+    return roles
+
 
 def get_roles_with_permission(permission):
     ''' returns the roles with the permission requested '''
