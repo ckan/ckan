@@ -17,10 +17,6 @@
   font-size: 20px;
 }
 
-.toolbar li [class^=icon]:before {
-  width: auto; // Fix Bootstrap icon widths
-}
-
 .toolbar .breadcrumb li:after {
   content: " / ";
 }
@@ -118,10 +114,7 @@
     left: 20px;
     bottom: -1px;
     margin-bottom: 0;
-    i {
-      margin-right: 10px;
-      font-size: 14px;
-    }
+    li.active a,
     a:hover {
       background-color: @moduleBackgroundColor;
     }

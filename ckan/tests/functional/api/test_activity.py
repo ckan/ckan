@@ -17,7 +17,6 @@ import paste.fixture
 from ckan.lib.helpers import json
 
 
-##<<<<<<< HEAD
 ##def package_update(context, data_dict):
 ##    # These tests call package_update directly which is really bad
 ##    # setting api_version in context make things seem like the api key
@@ -33,7 +32,6 @@ from ckan.lib.helpers import json
 ##    context['api_version'] = 3
 ##    context['ignore_auth'] = True
 ##    return _package_create(context, data_dict)
-##=======
 def package_show(app, data_dict, apikey=None):
     if apikey:
         extra_environ = {'Authorization': str(apikey)}
@@ -552,8 +550,6 @@ class TestActivity:
                 extras_after]
         assert len(deleted_extras) == 1, "%s != 1" % len(deleted_extras)
         deleted_extra = deleted_extras[0]
-        assert detail['object_id'] == deleted_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "deleted", (
@@ -648,8 +644,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
@@ -742,8 +736,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "new", (
@@ -2085,10 +2077,43 @@ class TestActivity:
         #if 'id' not in activity:
         #    assert False, "activity object should have an id value"
         # TODO: Test for the _correct_ revision_id value.
+
         #if 'revision_id' not in activity:
         #    assert False, "activity object should have a revision_id value"
         #timestamp = datetime_from_string(activity['timestamp'])
         #assert timestamp >= before['time'] and timestamp <= \
         #    after['time'], str(activity['timestamp'])
-        #
+
         #assert len(self.activity_details(activity)) == 0
+
+    def test_user_activity_list_by_name(self):
+        '''user_activity_list should accept a user name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app, 'user_activity_list',
+                id='annafan')
+        assert len(activities) > 0
+
+    def test_package_activity_list_by_name(self):
+        '''package_activity_list should accept a package name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app,
+                'package_activity_list', id='warandpeace',
+                apikey=self.sysadmin_user['apikey'])
+        assert len(activities) > 0
+
+    def test_group_activity_list_by_name(self):
+        '''group_activity_list should accept a group name as param.'''
+        import ckan.tests
+        activities = ckan.tests.call_action_api(self.app,
+                'group_activity_list', id='roger')
+        assert len(activities) > 0
+
+    def test_organization_activity_list_by_name(self):
+        '''organization_activity_list should accept a org name as param.'''
+        import ckan.tests
+        organization = ckan.tests.call_action_api(self.app,
+                'organization_create', name='test_org',
+                apikey=self.sysadmin_user['apikey'])
+        activities = ckan.tests.call_action_api(self.app,
+                'organization_activity_list', id=organization['name'])
+        assert len(activities) > 0
