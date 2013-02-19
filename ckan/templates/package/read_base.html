@@ -4,6 +4,11 @@
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
+{% block links -%}
+    {{ super() }}
+    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg['name'], format='rdf', qualified=True) }}"/>
+{% endblock -%}
+
 {% block breadcrumb_content %}
   {% set dataset = pkg.title or pkg.name %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
