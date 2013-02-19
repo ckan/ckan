@@ -12,6 +12,7 @@ import re
 import urllib
 import pprint
 import copy
+import os.path
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -1142,7 +1143,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 
 def include_resource(resource):
-    r = getattr(fanstatic_resources, resource)
+    r = getattr(fanstatic_resources, os.path.normpath(resource))
     r.need()
 
 
