@@ -322,11 +322,11 @@ def _link_to(text, *args, **kwargs):
         kwargs '''
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
-        icon = kwargs.pop('icon', None)
         if icon:
-            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+            text = literal('<i class="icon-%s"></i> ' % icon) + text
         return text
 
+    icon = kwargs.pop('icon', None)
     class_ = _link_class(kwargs)
     return link_to(
         _create_link_text(text, **kwargs),
@@ -568,6 +568,8 @@ def check_access(action, data_dict=None):
 
     context = {'model': model,
                 'user': c.user or c.author}
+    if not data_dict:
+        data_dict = {}
 
     try:
         check_access_logic(action, context, data_dict)
@@ -1255,11 +1257,18 @@ def user_in_org_or_group(group_id):
     return len(query.all()) != 0
 
 
-def dashboard_activity_stream(user_id, offset=0):
+def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
+        offset=0):
     '''Return the dashboard activity stream of the given user.
 
     :param user_id: the id of the user
     :type user_id: string
+
+    :param filter_type: the type of thing to filter by
+    :type filter_type: string
+
+    :param filter_id: the id of item to filter by
+    :type filter_id: string
 
     :returns: an activity stream as an HTML snippet
     :rtype: string
@@ -1267,9 +1276,18 @@ def dashboard_activity_stream(user_id, offset=0):
     '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('dashboard_activity_list_html')(context,
-                                                            {'id': user_id,
-                                                             'offset': offset})
+
+    if filter_type:
+        action_functions = {
+            'dataset': 'package_activity_list_html',
+            'user': 'user_activity_list_html',
+            'group': 'group_activity_list_html'
+            }
+        action_function = logic.get_action(action_functions.get(filter_type))
+        return action_function(context, {'id': filter_id, 'offset': offset})
+    else:
+        return logic.get_action('dashboard_activity_list_html')(
+            context, {'id': user_id, 'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
@@ -1362,8 +1380,8 @@ def resource_preview(resource, pkg_id):
     Returns a rendered snippet for a embedded resource preview.
 
     Depending on the type, different previews are loaded.
-    This could be an img tag where the image is loaded directly or an iframe that
-    embeds a web page, recline or a pdf preview.
+    This could be an img tag where the image is loaded directly or an iframe
+    that embeds a web page, recline or a pdf preview.
     '''
 
     format_lower = resource['format'].lower()
@@ -1374,11 +1392,9 @@ def resource_preview(resource, pkg_id):
 
     if not resource['url']:
         log.info('No url for resource {0} defined.'.format(resource['id']))
-        return snippet(
-            "dataviewer/snippets/no_preview.html",
-            resource_type=format_lower,
-            reason='No valid resource url has been defined.'
-            )
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower,
+                       reason='No valid resource url has been defined.')
     direct_embed = config.get('ckan.preview.direct', '').split()
     if not direct_embed:
         direct_embed = datapreview.DEFAULT_DIRECT_EMBED
@@ -1388,24 +1404,23 @@ def resource_preview(resource, pkg_id):
 
     if datapreview.can_be_previewed(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
-            resource_id=resource['id'], id=pkg_id, qualified=True)
+                      resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in direct_embed:
         directly = True
         url = resource['url']
     elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
-        log.info('No preview handler for resource type {0}'.format(format_lower))
-        return snippet(
-            "dataviewer/snippets/no_preview.html",
-            resource_type=format_lower
-            )
-
-    return snippet(
-        "dataviewer/snippets/data_preview.html",
-        embed=directly,
-        resource_url=url
+        log.info(
+            'No preview handler for resource type {0}'.format(format_lower)
         )
+        return snippet("dataviewer/snippets/no_preview.html",
+                       resource_type=format_lower)
+
+    return snippet("dataviewer/snippets/data_preview.html",
+                   embed=directly,
+                   resource_url=url,
+                   raw_resource_url=resource.get('url'))
 
 
 def SI_number_span(number):

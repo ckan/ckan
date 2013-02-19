@@ -4,6 +4,11 @@
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
+{% block links -%}
+    {{ super() }}
+    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+{% endblock -%}
+
 {% block breadcrumb_content %}
   {% set dataset = pkg.title or pkg.name %}
   <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
@@ -43,7 +48,6 @@
       {% snippet 'snippets/page_header.html', items=[
           h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
           h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
-          h.build_nav_icon('dataset_followers', _('Followers'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
         ] %}
     {% endblock %}
@@ -55,6 +59,12 @@
 {% block secondary_content %}
 
   {% block secondary_help_content %}{% endblock %}
+
+  {% block package_organization %}
+    {% if pkg.organization %}
+      {% snippet "snippets/organization.html", organization=pkg.organization, truncate=70, show_nums=false %}
+    {% endif %}
+  {% endblock %}
 
   {% block package_groups %}
     {% for group in pkg.groups %}

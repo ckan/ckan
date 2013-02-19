@@ -60,11 +60,6 @@ textarea {
   max-width: 100%;
 }
 
-.input-prepend .add-on {
-  padding: 8px 8px;
-  font-size: 14px;
-}
-
 .control-group .btn {
   position: relative;
   top: -2px;
@@ -342,9 +337,10 @@ textarea {
   position: relative;
   top: 0;
   left: 5px;
-  height: 3px;
-  width: 8px;
+  height: 1px;
+  width: 9px;
   padding: 3px 8px;
+  line-height: 18px;
 }
 
 .control-custom .checkbox.btn span {
@@ -576,11 +572,6 @@ textarea {
   margin-right: 3px;
 }
 
-.slug-preview .btn {
- padding-top: 3px;
- padding-bottom: 3px;
-}
-
 // Upload File
 
 .resource-upload-field {
@@ -685,4 +676,12 @@ textarea {
   // Important is bad but select2 incorrectly calculates the width and
   // sets it on the element.
   width: 520px !important;
+}
+
+.control-group.error .select2-container {
+  input:focus,
+  select:focus,
+  textarea:focus {
+    .box-shadow(none);
+  }
 }

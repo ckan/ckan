@@ -1,6 +1,7 @@
 from ckan.tests import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
+import ckan.lib.search as search
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
@@ -32,6 +33,7 @@ class TestBasicDictize:
     def setup_class(cls):
         # clean the db so we can run these tests on their own
         model.repo.rebuild_db()
+        search.clear()
         CreateTestData.create()
 
         cls.package_expected = {
@@ -122,7 +124,10 @@ class TestBasicDictize:
             'title': u'A Novel By Tolstoy',
             'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
-            'version': u'0.7a'}
+            'version': u'0.7a',
+            'num_tags': 3,
+            'num_resources': 2,
+            }
 
 
     @classmethod
@@ -254,6 +259,8 @@ class TestBasicDictize:
         asdict = pkg.as_dict()
         asdict['download_url'] = asdict['resources'][0]['url']
         asdict['license_title'] = u'Other (Open)'
+        asdict['num_tags'] = 3
+        asdict['num_resources'] = 2
 
         dictize = package_to_api1(pkg, context)
         # the is_dict method doesn't care about organizations
@@ -272,6 +279,8 @@ class TestBasicDictize:
 
         as_dict = pkg.as_dict()
         as_dict['license_title'] = None
+        as_dict['num_tags'] = 0
+        as_dict['num_resources'] = 0
         dictize = package_to_api1(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -312,6 +321,8 @@ class TestBasicDictize:
 
         as_dict = pkg.as_dict(ref_package_by='id', ref_group_by='id')
         as_dict['license_title'] = None
+        as_dict['num_tags'] = 0
+        as_dict['num_resources'] = 0
         dictize = package_to_api2(pkg, context)
 
         as_dict["relationships"].sort(key=lambda x:x.items())
@@ -737,11 +748,14 @@ class TestBasicDictize:
             u'url': u'http://newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
+        third_dictized['num_resources'] = third_dictized['num_resources'] + 1
 
         third_dictized['tags'].insert(1, {'name': u'newnew_tag', 'display_name': u'newnew_tag', 'state': 'active'})
+        third_dictized['num_tags'] = third_dictized['num_tags'] + 1
         third_dictized['extras'].insert(0, {'key': 'david',
                                          'value': u'"new_value"',
                                          'state': u'active'})
+        third_dictized['state'] = 'active'
         third_dictized['state'] = 'active'
 
         pprint(third_dictized)
@@ -928,6 +942,7 @@ class TestBasicDictize:
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
+                    'package_count': 2,
                     'is_organization': False,
                     'packages': [{'author': None,
                                   'author_email': None,
@@ -969,10 +984,12 @@ class TestBasicDictize:
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert_equal(sorted(result.keys()), sorted(expected.keys()))
+        
         for key in result:
-            if key == 'is_organization':
+            if key in ('is_organization', 'package_count'):
                 continue
             assert_equal(sorted(result[key]), sorted(expected[key]))
+        assert_equal(result['package_count'], expected['package_count'])
 
     def test_17_group_apis_to_dict(self):
 

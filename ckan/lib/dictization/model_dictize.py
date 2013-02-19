@@ -9,6 +9,7 @@ import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
+import ckan.lib.search as search
 
 ## package save
 
@@ -17,6 +18,15 @@ def group_list_dictize(obj_list, context,
 
     active = context.get('active', True)
     with_private = context.get('include_private_packages', False)
+
+    query = search.PackageSearchQuery()
+
+    q = {'q': '+capacity:public' if not with_private else '*:*',
+         'fl': 'groups', 'facet.field': ['groups'],
+         'facet.limit': -1, 'rows': 1}
+
+    query.run(q)
+
     result_list = []
 
     for obj in obj_list:
@@ -31,8 +41,7 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = \
-                len(obj.packages(with_private=with_private, context=context))
+        group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
@@ -211,6 +220,7 @@ def package_dictize(pkg, context):
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
     result_dict["resources"] = resource_list_dictize(result, context)
+    result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags
     tag_rev = model.package_tag_revision_table
@@ -220,6 +230,7 @@ def package_dictize(pkg, context):
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
     result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
+    result_dict['num_tags'] = len(result_dict.get('tags', []))
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
@@ -302,11 +313,17 @@ def _get_members(context, group, member_type):
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    return model.Session.query(Entity, model.Member.capacity).\
+    q = model.Session.query(Entity, model.Member.capacity).\
                join(model.Member, model.Member.table_id == Entity.id).\
                filter(model.Member.group_id == group.id).\
                filter(model.Member.state == 'active').\
-               filter(model.Member.table_name == member_type[:-1]).all()
+               filter(model.Member.table_name == member_type[:-1])
+    if member_type == 'packages':
+        q = q.filter(Entity.private==False)
+    if 'limits' in context and member_type in context['limits']:
+        return q[:context['limits'][member_type]]
+    return q.all()
+
 
 def group_dictize(group, context):
     model = context['model']
@@ -322,6 +339,10 @@ def group_dictize(group, context):
     result_dict['packages'] = d.obj_list_dictize(
         _get_members(context, group, 'packages'),
         context)
+
+    query = search.PackageSearchQuery()
+    q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
@@ -376,8 +397,14 @@ def tag_list_dictize(tag_list, context):
 def tag_dictize(tag, context):
 
     result_dict = d.table_dictize(tag, context)
-    result_dict["packages"] = d.obj_list_dictize(tag.packages, context)
+    query = search.PackageSearchQuery()
 
+    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
+         'wt': 'json', 'rows': 1000}
+
+    result_dict["packages"] = [
+        h.json.loads(result['data_dict']) for result in query.run(q)['results']
+   ]
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
