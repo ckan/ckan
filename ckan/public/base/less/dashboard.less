@@ -13,7 +13,7 @@
     strong {
       margin: 0 5px;
       white-space: nowrap;
-      max-width: 100px;
+      max-width: 90px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -22,20 +22,19 @@
 
 .dashboard-context {
   position: relative;
-  margin: -20px -25px 20px -20px;
+  margin-bottom: 20px;
   padding: 20px;
-  border-left: 1px solid #DCDCDC;
   border-bottom: 1px solid #DCDCDC;
   background-color: @moduleHeadingBackgroundColor;
-  .border-radius(0 5px 0 0);
+  .border-radius(3px 0 0 0);
   h2 {
     margin-bottom: 10px;
   }
   .arrow {
     position: absolute;
     content: ' ';
-    top: 24px;
-    left: -10px;
+    top: 70px;
+    right: -10px;
     width: 10px;
     height: 21px;
     background: transparent url("@{imagePath}/dashboard-followee-related.png");
@@ -59,6 +58,9 @@
     padding: 5px;
     border-bottom: 1px solid @inputBorder;
     .border-radius(3px 3px 0 0);
+    .input-prepend {
+      margin-bottom: 0;
+    }
     .add-on,
     input {
       float: left;
@@ -72,7 +74,7 @@
     input {
       padding: 4px 12px 4px 8px;
       font-size: 13px;
-      width: 231px;
+      width: 208px;
       .border-radius(0 100px 100px 0);
     }
   }

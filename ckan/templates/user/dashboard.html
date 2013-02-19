@@ -19,7 +19,7 @@
 
 {% block secondary_content %}
   {% if not c.dashboard_activity_stream_context.dict == None %}
-    <div class="dashboard-aside-context">
+    <div class="context-info dashboard-context">
       <span class="arrow"></span>
       {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
     </div>

@@ -1,4 +1,4 @@
-<div class="popover-context profile-info">
+<div class="context-info">
   {% if about != 'null' %}
     {% set about = about|striptags %}
     <p class="about">
@@ -9,10 +9,6 @@
     {% if is_me == 'false' %}
       {{ h.follow_button('user', id) }}
     {% endif %}
-    <a href="{{ h.url_for(controller='user', action='read', id=name) }}" class="btn">
-      <i class="icon-eye-open"></i>
-      View Profile
-    </a>
   </div>
   <div class="nums">
     <dl>
