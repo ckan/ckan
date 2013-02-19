@@ -3,12 +3,12 @@
     <input type="text" class="search" name="q" value="{{ q }}" autocomplete="off" placeholder="{{ placeholder }}" />
     <button type="submit">{{ _('Search') }}</button>
   </span>
-<span class="form-select control-group control-order-by">
-  <label for="field-order-by">{{ _('Order by') }}</label>
-  <select id="field-order-by" name="sort">
-    <option value="name asc"{% if sort=='name asc' %} selected="selected"{% endif %}>{{ _('Name Ascending') }}</option>
-    <option value="name desc"{% if sort=='name desc' %} selected="selected"{% endif %}>{{ _('Name Descending') }}</option>
-  </select>
-  <button class="btn js-hide" type="submit">{{ _('Go') }}</button>
-</span>
+  <span class="form-select control-group control-order-by">
+    <label for="field-order-by">{{ _('Order by') }}</label>
+    <select id="field-order-by" name="sort">
+      <option value="name asc"{% if sort=='name asc' %} selected="selected"{% endif %}>{{ _('Name Ascending') }}</option>
+      <option value="name desc"{% if sort=='name desc' %} selected="selected"{% endif %}>{{ _('Name Descending') }}</option>
+    </select>
+    <button class="btn js-hide" type="submit">{{ _('Go') }}</button>
+  </span>
 </form>
