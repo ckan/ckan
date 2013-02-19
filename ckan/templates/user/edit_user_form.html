@@ -25,9 +25,9 @@
   <fieldset>
     <legend>{{ _('Change your password') }}</legend>
 
-    {{ form.input('password1', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium']) }}
+    {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
 
-    {{ form.input('password2', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium']) }}
+    {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off'}) }}
   </fieldset>
 
   <div class="form-actions">
