@@ -17,12 +17,19 @@
           action='edit',
           id=c.revision.id) }}"
       >
-      {% if rev.state != 'deleted' %}
-      <button type="submit" name="action" value="delete" class="btn btn-danger icon-trash"> {{ _('Delete') }}</button>
-      {% endif %}
-      {% if rev.state == 'deleted' %}
-      <button type="submit" name="action" value="undelete" class="btn btn-danger icon-trash"> {{ _('Undelete') }}</button>
-      {% endif %}
+      <li>
+        {% if rev.state != 'deleted' %}
+        <button type="submit" name="action" value="delete" class="btn btn-danger">
+          <i class="icon-trash"></i> {{ _('Delete') }}
+        </button>
+        {% endif %}
+        {% if rev.state == 'deleted' %}
+        <button type="submit" name="action" value="undelete" class="btn btn-danger">
+          <i class="icon-trash"></i>
+          {{ _('Undelete') }}
+        </button>
+        {% endif %}
+      </li>
     </form>
   {% endif %}
 {% endblock %}
