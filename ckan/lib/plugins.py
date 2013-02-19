@@ -272,7 +272,8 @@ class DefaultDatasetForm(object):
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
                                'resources', 'type', 'owner_org',
-                               'log_message', 'tag_string', 'tags']
+                               'log_message', 'tag_string', 'tags',
+                               'url', 'version', 'extras']
 
         if not schema:
             schema = self.form_to_db_schema()
