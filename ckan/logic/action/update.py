@@ -235,6 +235,7 @@ def package_update(context, data_dict):
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
         schema = package_plugin.form_to_db_schema_options({'type':'update',
+                                               'api':'api_version' in context,
                                                'context': context})
     except AttributeError:
         schema = package_plugin.form_to_db_schema()
