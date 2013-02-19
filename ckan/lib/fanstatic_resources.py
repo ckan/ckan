@@ -35,10 +35,14 @@ def create_library(name, path, depend_base=True):
             res = getattr(module, '%s' % resource_name)
         return res
 
-    def create_resource(path, lib_name, count, inline=False):
+    def create_resource(unix_path, lib_name, count, inline=False):
         ''' create the fanstatic Resource '''
+        # unix_path is a unix style path that will become part of the name
+        # of the resource
         renderer = None
         kw = {}
+        # Ensure windows compataility
+        path = os.path.normpath(unix_path)
         if not inline:
             # resource_name is name of the file without the .js/.css
             rel_path, filename = os.path.split(path)
@@ -96,12 +100,14 @@ def create_library(name, path, depend_base=True):
                 setattr(min_res, attribute, getattr(resource, attribute))
 
         # add the resource to this module
-        fanstatic_name = '%s/%s' % (lib_name, path)
+        fanstatic_name = '%s/%s' % (lib_name, unix_path)
         log.debug('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
 
     resource_path = os.path.join(os.path.dirname(__file__), path)
+    # Ensure window compatability
+    resource_path = os.path.normpath(resource_path)
     library = Library(name, path)
     module = sys.modules[__name__]
 
@@ -117,6 +123,8 @@ def create_library(name, path, depend_base=True):
 
     # parse the resource.config file if it exists
     config_path = os.path.join(resource_path, 'resource.config')
+    # Ensure window compatability
+    config_path = os.path.normpath(config_path)
     if os.path.exists(config_path):
         config = ConfigParser.RawConfigParser()
         config.read(config_path)
@@ -169,8 +177,10 @@ def create_library(name, path, depend_base=True):
             filepath = os.path.join(rel_path, f)
             filename_only, extension = os.path.splitext(f)
             if extension in ('.css', '.js') and (
-                not filename_only.endswith('.min')):
-              resource_list.append(filepath)
+                    not filename_only.endswith('.min')):
+                # Ensure all paths become unix style ones on windows boxes
+                filepath = filepath.replace('\\', '/')
+                resource_list.append(filepath)
 
     # if groups are defined make sure the order supplied there is honored
     for group in groups:
