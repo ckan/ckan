@@ -249,7 +249,6 @@ def db_to_form_package_schema():
 
     # Add several keys that are missing from default_package_schema(), so
     # validation doesn't strip the keys from the package dicts.
-    #schema['license_title'] = []
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
     schema['num_resources'] = []
