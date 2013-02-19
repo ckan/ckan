@@ -2,11 +2,7 @@
 
 Provides the BaseController class for subclassing.
 """
-from datetime import datetime
-from hashlib import md5
 import logging
-import os
-import urllib
 import time
 
 from paste.deploy.converters import asbool
@@ -18,7 +14,6 @@ from pylons.decorators import jsonify, validate
 from pylons.i18n import _, ungettext, N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
-from genshi.template.base import TemplateSyntaxError
 from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 

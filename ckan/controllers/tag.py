@@ -4,9 +4,9 @@ from sqlalchemy.orm import eagerload_all
 
 from ckan.lib.base import *
 from ckan.lib.search import query_for
-from ckan.lib.helpers import AlphaPage, Page
+import ckan.lib.helpers as h
 
-from ckan.logic import NotFound, NotAuthorized
+import ckan.logic as logic
 from ckan.logic import check_access, get_action
 
 LIMIT = 25
@@ -19,7 +19,7 @@ class TagController(BaseController):
         try:
             context = {'model': model, 'user': c.user or c.author}
             check_access('site_read', context)
-        except NotAuthorized:
+        except logic.NotAuthorized:
             abort(401, _('Not authorized to see this page'))
 
     def index(self):
@@ -48,7 +48,7 @@ class TagController(BaseController):
             )
             c.page.items = results
         else:
-            c.page = AlphaPage(
+            c.page = h.AlphaPage(
                 collection=results,
                 page=request.params.get('page', 'A'),
                 alpha_attribute='name',
@@ -64,7 +64,7 @@ class TagController(BaseController):
         data_dict = {'id': id}
         try:
             c.tag = get_action('tag_show')(context, data_dict)
-        except NotFound:
+        except logic.NotFound:
             abort(404, _('Tag not found'))
 
         return render('tag/read.html')
