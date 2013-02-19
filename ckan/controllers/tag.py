@@ -1,26 +1,24 @@
 from pylons.i18n import _
-from pylons import config
-from sqlalchemy.orm import eagerload_all
-
-from ckan.lib.base import *
-from ckan.lib.search import query_for
-import ckan.lib.helpers as h
+from pylons import request, c
 
 import ckan.logic as logic
-from ckan.logic import check_access, get_action
+import ckan.model as model
+import ckan.lib.base as base
+import ckan.lib.helpers as h
+
 
 LIMIT = 25
 
 
-class TagController(BaseController):
+class TagController(base.BaseController):
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
+        base.BaseController.__before__(self, action, **env)
         try:
             context = {'model': model, 'user': c.user or c.author}
-            check_access('site_read', context)
+            logic.check_access('site_read', context)
         except logic.NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            base.abort(401, _('Not authorized to see this page'))
 
     def index(self):
         c.q = request.params.get('q', '')
@@ -37,7 +35,7 @@ class TagController(BaseController):
             data_dict['offset'] = (page - 1) * LIMIT
             data_dict['return_objects'] = True
 
-        results = get_action('tag_list')(context, data_dict)
+        results = logic.get_action('tag_list')(context, data_dict)
 
         if c.q:
             c.page = h.Page(
@@ -55,7 +53,7 @@ class TagController(BaseController):
                 other_text=_('Other'),
             )
 
-        return render('tag/index.html')
+        return base.render('tag/index.html')
 
     def read(self, id):
         context = {'model': model, 'session': model.Session,
@@ -63,8 +61,8 @@ class TagController(BaseController):
 
         data_dict = {'id': id}
         try:
-            c.tag = get_action('tag_show')(context, data_dict)
+            c.tag = logic.get_action('tag_show')(context, data_dict)
         except logic.NotFound:
-            abort(404, _('Tag not found'))
+            base.abort(404, _('Tag not found'))
 
-        return render('tag/read.html')
+        return base.render('tag/read.html')
