@@ -323,7 +323,7 @@ def _link_to(text, *args, **kwargs):
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
         if icon:
-            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+            text = literal('<i class="icon-%s"></i> ' % icon) + text
         return text
 
     icon = kwargs.pop('icon', None)

@@ -550,8 +550,6 @@ class TestActivity:
                 extras_after]
         assert len(deleted_extras) == 1, "%s != 1" % len(deleted_extras)
         deleted_extra = deleted_extras[0]
-        assert detail['object_id'] == deleted_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "deleted", (
@@ -646,8 +644,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
@@ -740,8 +736,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "new", (
