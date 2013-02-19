@@ -962,7 +962,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
-                context['api_version'] = 3
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
                 data_dict['tags'] = self._tag_string_to_list(
