@@ -1,5 +1,6 @@
 import sys
 from logging import getLogger
+import collections
 
 from pylons import config, c
 from pylons.i18n import _
@@ -65,12 +66,11 @@ def is_authorized(action, context, data_dict=None):
         raise ValueError(_('Authorization function not found: %s' % action))
 
 # these are the permissions that roles have
-ROLE_PERMISSIONS = {
-    'admin': ['admin'],
-    'editor': ['read', 'delete_dataset', 'create_dataset', 'update_dataset'],
-    'member': ['read'],
-}
-ROLE_PERMISSIONS_ORDER = [ 'admin', 'editor', 'member' ]
+ROLE_PERMISSIONS = collections.OrderedDict([
+    ('admin', ['admin']),
+    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
+    ('member', ['read']),
+])
 
 def _trans_role_admin():
     return _('Admin')
@@ -89,7 +89,7 @@ def trans_role(role):
 def roles_list():
     ''' returns list of roles for forms '''
     roles = []
-    for role in ROLE_PERMISSIONS_ORDER:
+    for role in ROLE_PERMISSIONS:
         roles.append(dict(text=trans_role(role), value=role))
     return roles
 
