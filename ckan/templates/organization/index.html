@@ -17,7 +17,7 @@
     <div class="module-content">
       <h1 class="hide-heading">{{ _('Organizations') }}</h1>
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
-      <h2>
+      <h2 class="is-search-title">
         {% if request.params and c.page.item_count %}
           {% if c.q %}
             {{ _('{0} organizations found for "{1}"').format(c.page.item_count, c.q) }}
@@ -34,7 +34,6 @@
           {{ _('All organizations') }}
         {% endif %}
       </h2>
-      <hr>
       {% if c.page.items or request.params %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
       {% else %}
