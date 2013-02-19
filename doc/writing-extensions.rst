@@ -141,6 +141,7 @@ Here's a list of some of the more commonly used plugin interfaces:
 
 :class:`~ckan.plugins.interfaces.IGenshiStreamFilter`
     Intercept template rendering to modify the output.
+.. warning :: This interface is currently deprecated, use ITemplateHelpers instead.
 
 :class:`~ckan.plugins.interfaces.IResourcePreview`
     Add custom previews. The preview extensions can make use of the resoucre proxy extension, if enabled.
