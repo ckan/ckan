@@ -202,6 +202,8 @@ def db_to_form_package_schema():
             },
         })
 
+    # Add several keys to the 'resources' subschema so they don't get stripped
+    # from the resource dicts by validation.
     schema['resources'].update({
         'created': [ckan.lib.navl.validators.ignore_missing],
         'position': [not_empty],
