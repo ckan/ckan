@@ -21,6 +21,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
+        cls._configure_iconfigurable_plugins()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -35,6 +36,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
+
+    @classmethod
+    def _configure_iconfigurable_plugins(cls):
+        import pylons.config as config
+        from ckan.plugins import PluginImplementations
+        from ckan.plugins.interfaces import IConfigurable
+        for plugin in PluginImplementations(IConfigurable):
+            plugin.configure(config)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
