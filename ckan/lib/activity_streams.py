@@ -134,11 +134,11 @@ def activity_stream_string_follow_group(context, activity):
     return _("{actor} started following {group}")
 
 def activity_stream_string_new_related_item(context, activity):
-    if activity['data'].get('dataset') is None:
-        return _("{actor} added the {related_type} {related_item}")
-    else:
+    if activity['data'].get('dataset'):
         return _("{actor} added the {related_type} {related_item} to the "
                  "dataset {dataset}")
+    else:
+        return _("{actor} added the {related_type} {related_item}")
 
 # A dictionary mapping activity snippets to functions that expand the snippets.
 activity_snippet_functions = {
