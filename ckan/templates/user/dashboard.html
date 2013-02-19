@@ -1,8 +1,8 @@
 {% extends "user/edit_base.html" %}
 
-{% block action_content %}
-  {% if h.check_access('package_update') %}
-    <li><a href="#">test</a></li>
+{% block actions_content %}
+  {% if h.check_access('package_create') %}
+    <li>{% link_for _('Add a dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus" %}</li>
   {% endif %}
 {% endblock %}
 
@@ -21,7 +21,7 @@
   {% if not c.dashboard_activity_stream_context.dict == None %}
     <div class="dashboard-aside-context">
       <span class="arrow"></span>
-      {% snippet 'snippets/popover_context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
+      {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
     </div>
   {% endif %}
   <div class="module module-narrow module-shallow">

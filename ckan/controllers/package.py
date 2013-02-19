@@ -619,7 +619,6 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author,
                        'extras_as_string': True}
 
@@ -705,7 +704,6 @@ class PackageController(BaseController):
             # we don't want to include save as it is part of the form
             del data['save']
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author,
                        'extras_as_string': True}
             data_dict = get_action('package_show')(context, {'id': id})
@@ -989,7 +987,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
-                context['api_version'] = 3
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
                 data_dict['tags'] = self._tag_string_to_list(

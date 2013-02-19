@@ -2,6 +2,11 @@
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
+{% block links -%}
+    {{ super() }}
+    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+{% endblock -%}
+
 {% block actions_content %}
   {# NOTE: Not implemented in stage 1 #}
   {# <li>{% link_for _('History'), controller='package', action='history', id=pkg.name, class_='btn', icon='undo' %}</li> #}
