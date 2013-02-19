@@ -18,7 +18,7 @@
           {{ h.radio('selected2', rev.id, checked=(loop.last)) }}
         </td>
         <td class="dataset-label">
-          <a href="{{ h.url_for(controller='revision', action='read', id=rev.id) }}">{{rev.id[:4]}}&#8230;</a>
+          {% link_for rev.id | truncate(6), controller='revision', action='read', id=rev.id %}
         </td>
         <td class="dataset-details">
           <a href="{{ h.url_for(controller='package', action='read',id='%s@%s' % (pkg_dict.name, rev.timestamp))}}" title="{{_('Read dataset as of %s') % rev.timestamp }}">{{ h.render_datetime(rev.timestamp, with_hours=True) }}</a>
