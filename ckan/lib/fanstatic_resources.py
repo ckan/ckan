@@ -84,7 +84,7 @@ def create_library(name, path, depend_base=True):
                                         script=inline,
                                         renderer=renderer,
                                         other_browsers=other_browsers)
-        resource = Resource(library, path, **kw)
+        resource = Resource(library, unix_path, **kw)
 
         # Add our customised ordering
         if path in custom_render_order:
