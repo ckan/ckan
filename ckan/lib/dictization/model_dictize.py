@@ -1,5 +1,5 @@
 import datetime
-import re
+import urlparse
 
 from pylons import config
 from sqlalchemy.sql import select
@@ -12,7 +12,6 @@ import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
 import ckan.lib.search as search
 
-RE_URL_SCHEME = re.compile('^[a-zA-Z][a-zA-Z0-9+.-]*:')
 ## package save
 
 def group_list_dictize(obj_list, context,
@@ -145,8 +144,8 @@ def resource_dictize(res, context):
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    if not RE_URL_SCHEME.match(url):
-        resource['url'] = u'http://' + url
+    if not urlparse.urlsplit(url).scheme:
+        resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
 def related_dictize(rel, context):
