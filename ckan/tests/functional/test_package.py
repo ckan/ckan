@@ -749,7 +749,7 @@ class TestEdit(TestPackageForm):
         # User edits and a field is left out in the commit parameters.
         # (Spammers can cause this)
         fv = self.res.forms['dataset-edit']
-        del fv.fields['log_message']
+        del fv.fields['notes']
         res = fv.submit('save', status=400, extra_environ=self.extra_environ_admin)
 
         fv = self.res.forms['dataset-edit']
@@ -1322,7 +1322,7 @@ class TestNew(TestPackageForm):
         prefix = ''
         fv = res.forms['dataset-edit']
         fv[prefix + 'name'] = 'anything'
-        del fv.fields['log_message']
+        del fv.fields['notes']
         self.pkg_names.append('anything')
         res = fv.submit('save', status=400, extra_environ=self.extra_environ_tester)
 
