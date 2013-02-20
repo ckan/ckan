@@ -32,6 +32,7 @@ from ckan.logic import get_action
 from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
+from ckan.common import json
 
 # evil hack as url_for is passed out
 url_for = h.url_for
@@ -57,7 +58,7 @@ SetupCommand('setup-app').run([config['__file__']])
 # webtest (successor library) already has this
 # http://pythonpaste.org/webtest/#parsing-the-body
 def _getjson(self):
-    return h.json.loads(self.body)
+    return json.loads(self.body)
 paste.fixture.TestResponse.json = property(_getjson)
 
 # Check config is correct for sqlite
@@ -455,7 +456,7 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :rtype: dictionary
 
     '''
-    params = h.json.dumps(kwargs)
+    params = json.dumps(kwargs)
     response = app.post('/api/action/{0}'.format(action), params=params,
             extra_environ={'Authorization': str(apikey)}, status=status)
     if status in (200,):
