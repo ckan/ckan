@@ -16,6 +16,7 @@ from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
+from ckan.common import json
 
 ACCESS_DENIED = [403]
 
