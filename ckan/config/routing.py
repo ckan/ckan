@@ -197,8 +197,8 @@ def make_map():
                   action='delete')
         m.connect('related_list', '/dataset/{id}/related', action='list',
                   ckan_icon='picture')
-        m.connect('related_read', '/apps/{id}', action='read')
-        m.connect('related_dashboard', '/apps', action='dashboard')
+        m.connect('related_read', '/related/{id}', action='read')
+        m.connect('related_dashboard', '/related', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
