@@ -1,6 +1,15 @@
 import sys
 from logging import getLogger
-import collections
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        raise Exception('Python versions < 2.7 do not support OrderedDict '
+                        'please run `pip install ordereddict==1.1` '
+                        'to download support')
 
 from pylons import config, c
 from pylons.i18n import _
@@ -66,7 +75,7 @@ def is_authorized(action, context, data_dict=None):
         raise ValueError(_('Authorization function not found: %s' % action))
 
 # these are the permissions that roles have
-ROLE_PERMISSIONS = collections.OrderedDict([
+ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
     ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
     ('member', ['read']),
