@@ -822,7 +822,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps('not a dict')
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
-        assert 'Request data JSON decoded to u\'not a dict\' but it needs to be a dictionary.' in res.body, res.body
+        assert "Bad request - JSON Error: Request data JSON decoded to 'not a dict' but it needs to be a dictionary." in res.body, res.body
 
     def test_31_bad_request_format_not_json(self):
         postparams = '=1'
