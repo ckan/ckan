@@ -267,14 +267,18 @@ def package_update(context, data_dict):
 
     pkg = model_save.package_dict_save(data, context)
 
-    context_no_auth = context.copy()
-    context_no_auth['ignore_auth'] = True
-    _get_action('package_owner_org_update')(context_no_auth,
+    context_org_update = context.copy()
+    context_org_update['ignore_auth'] = True
+    context_org_update['defer_commit'] = True
+    _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
+
+        item.after_update(context, data)
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1069,4 +1073,5 @@ def package_owner_org_update(context, data_dict):
                                   state='active')
         model.Session.add(member_obj)
 
-    model.Session.commit()
+    if not context.get('defer_commit'):
+        model.Session.commit()

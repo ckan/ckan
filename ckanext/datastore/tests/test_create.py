@@ -1,4 +1,5 @@
 import json
+import nose
 
 import sqlalchemy.orm as orm
 
@@ -18,6 +19,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -446,6 +449,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         }
 
         postparams = '%s=1' % json.dumps(data7)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, expect_errors=True)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True, res_dict
+
+        #######  insert with paramter id rather than resource_id which is a shortcut
+        data8 = {
+            'id': resource.id,
+            'records': [{'boo%k': 'warandpeace'}]
+        }
+
+        postparams = '%s=1' % json.dumps(data8)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth, expect_errors=True)

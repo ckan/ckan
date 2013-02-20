@@ -335,6 +335,38 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+    def after_create(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            has been created (Note that the create method will return a package
+            domain object, which may not include all fields). Also the newly
+            created package id will be added to the dict.
+        '''
+        pass
+
+    def after_update(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            has been updated (Note that the edit method will return a package
+            domain object, which may not include all fields).
+        '''
+        pass
+
+    def after_delete(self, context, pkg_dict):
+        '''
+            Extensions will receive the data dict (tipically containing
+            just the package id) after the package has been deleted.
+        '''
+        pass
+
+    def after_show(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            is ready for display (Note that the read method will return a
+            package domain object, which may not include all fields).
+        '''
+        pass
+
     def before_search(self, search_params):
         '''
             Extensions will receive a dictionary with the query parameters,

@@ -592,7 +592,6 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author,
                        'extras_as_string': True}
 
@@ -678,7 +677,6 @@ class PackageController(BaseController):
             # we don't want to include save as it is part of the form
             del data['save']
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author,
                        'extras_as_string': True}
             data_dict = get_action('package_show')(context, {'id': id})
@@ -720,6 +718,11 @@ class PackageController(BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         vars['pkg_name'] = id
+
+        package_type = self._get_package_type(id)
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
@@ -957,7 +960,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
-                context['api_version'] = 3
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
                 data_dict['tags'] = self._tag_string_to_list(

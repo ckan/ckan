@@ -88,7 +88,7 @@ so, create a symbolic link to the schema file in the config folder. Use the late
 supported by the CKAN version you are installing (it will generally be the highest one)::
 
  sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
- sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-1.4.xml /etc/solr/conf/schema.xml
+ sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
 
 Now restart jetty::
 
@@ -111,6 +111,7 @@ will have different paths in the Solr server URL::
  http://localhost:8983/solr/ckan-schema-1.2       # Used by CKAN up to 1.5
  http://localhost:8983/solr/ckan-schema-1.3       # Used by CKAN 1.5.1
  http://localhost:8983/solr/ckan-schema-1.4       # Used by CKAN 1.7
+ http://localhost:8983/solr/ckan-schema-2.0       # Used by CKAN 2.0
  http://localhost:8983/solr/some-other-site  # Used by another site
 
 To set up a multicore Solr instance, repeat the steps on the previous section
