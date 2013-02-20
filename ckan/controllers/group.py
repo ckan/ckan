@@ -494,8 +494,10 @@ class GroupController(BaseController):
             else:
                 user = request.params.get('user')
                 if user:
-                    user= model.Session.query(model.User).get(user)
-                    c.user_name = user.name
+                    c.user_dict = get_action('user_show')(context, {'id': user})
+                    c.user_role = ckan.new_authz.users_role_for_group_or_org(id, user) or 'member'
+                else:
+                    c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
                 c.roles = self._action('member_roles_list')(context, {})
         except NotAuthorized:

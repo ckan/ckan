@@ -288,8 +288,17 @@ def member_list(context, data_dict=None):
             return lookup[name]
         return None
 
-    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
-             for m in q.all() ]
+    trans = new_authz.roles_trans()
+    def translated_capacity(capacity):
+        try:
+            return trans[capacity]
+        except KeyError:
+            return capacity
+
+    return [(m.table_id,
+             type_lookup(m.table_name),
+             translated_capacity(m.capacity),)
+            for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
 
