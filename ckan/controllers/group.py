@@ -208,8 +208,18 @@ class GroupController(BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            url = self._url_for(controller='group', action='read',
-                            id=c.group_dict.get('name'))
+            if group_type == 'organization':
+                if c.action == 'bulk_process':
+                    url = self._url_for(controller='organization',
+                                        action='bulk_process',
+                                        id=id)
+                else:
+                    url = self._url_for(controller='organization',
+                                        action='read',
+                                        id=id)
+            else:
+                url = self._url_for(controller='group', action='read',
+                                id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
