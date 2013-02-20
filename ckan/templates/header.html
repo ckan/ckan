@@ -13,6 +13,7 @@
             <li>
               <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View my profile') }}">
                 {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''),size=22) }}
+                <span class="username">{{ c.userobj.display_name or c.userobj.name }}</span>
               </a>
             </li>
             {% if c.userobj.sysadmin %}
