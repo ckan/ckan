@@ -341,7 +341,7 @@ class GroupController(BaseController):
         # If no action then just show the datasets
         if not action:
             # unicode format (decoded from utf8)
-            limit = 1000
+            limit = 500
             self._read(id, limit)
             c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
