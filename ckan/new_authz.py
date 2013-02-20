@@ -2,14 +2,9 @@ import sys
 from logging import getLogger
 
 try:
-    from collections import OrderedDict
+    from collections import OrderedDict # 2.7
 except ImportError:
-    try:
-        from ordereddict import OrderedDict
-    except ImportError:
-        raise Exception('Python versions < 2.7 do not support OrderedDict '
-                        'please run `pip install ordereddict==1.1` '
-                        'to download support')
+    from sqlalchemy.util import OrderedDict
 
 from pylons import config, c
 from pylons.i18n import _
