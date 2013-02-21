@@ -8,6 +8,12 @@
 
   {% block package_description %}
     <section class="module-content">
+      {% if pkg.private %}
+        <span class="dataset-private label label-inverse pull-right">
+          <i class="icon-lock"></i>
+          {{ _('Private') }}
+        </span>
+      {% endif %}
       <h1>{{ pkg.title or pkg.name }}
         {% if pkg.state.startswith('draft') %}
           [{{ _('Draft') }}]

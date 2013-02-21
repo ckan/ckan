@@ -591,7 +591,6 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author}
 
             # see if we have any data that we are trying to save
@@ -676,8 +675,8 @@ class PackageController(BaseController):
             # we don't want to include save as it is part of the form
             del data['save']
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
                        'user': c.user or c.author}
+
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
@@ -957,7 +956,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
-                context['api_version'] = 3
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
                 data_dict['tags'] = self._tag_string_to_list(
@@ -1209,10 +1207,6 @@ class PackageController(BaseController):
         if not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
-
-    def api_data(self, id=None):
-        url = h.url_for('datastore_read', id=id, qualified=True)
-        return render('package/resource_api_data.html', {'datastore_root_url': url})
 
     def follow(self, id):
         '''Start following this dataset.'''

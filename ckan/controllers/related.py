@@ -60,7 +60,7 @@ class RelatedController(base.BaseController):
             page=page,
             url=pager_url,
             item_count=query.count(),
-            items_per_page=8
+            items_per_page=9
         )
 
         c.filters = dict(params_nopage)

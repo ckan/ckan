@@ -214,6 +214,7 @@ def package_dictize(pkg, context):
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
     result_dict["resources"] = resource_list_dictize(result, context)
+    result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags
     tag_rev = model.package_tag_revision_table
@@ -223,6 +224,7 @@ def package_dictize(pkg, context):
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
     result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
+    result_dict['num_tags'] = len(result_dict.get('tags', []))
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.

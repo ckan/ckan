@@ -323,7 +323,7 @@ def _link_to(text, *args, **kwargs):
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
         if icon:
-            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+            text = literal('<i class="icon-%s"></i> ' % icon) + text
         return text
 
     icon = kwargs.pop('icon', None)
@@ -1257,11 +1257,18 @@ def user_in_org_or_group(group_id):
     return len(query.all()) != 0
 
 
-def dashboard_activity_stream(user_id, offset=0):
+def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
+        offset=0):
     '''Return the dashboard activity stream of the given user.
 
     :param user_id: the id of the user
     :type user_id: string
+
+    :param filter_type: the type of thing to filter by
+    :type filter_type: string
+
+    :param filter_id: the id of item to filter by
+    :type filter_id: string
 
     :returns: an activity stream as an HTML snippet
     :rtype: string
@@ -1269,9 +1276,18 @@ def dashboard_activity_stream(user_id, offset=0):
     '''
     import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('dashboard_activity_list_html')(context,
-                                                            {'id': user_id,
-                                                             'offset': offset})
+
+    if filter_type:
+        action_functions = {
+            'dataset': 'package_activity_list_html',
+            'user': 'user_activity_list_html',
+            'group': 'group_activity_list_html'
+            }
+        action_function = logic.get_action(action_functions.get(filter_type))
+        return action_function(context, {'id': filter_id, 'offset': offset})
+    else:
+        return logic.get_action('dashboard_activity_list_html')(
+            context, {'id': user_id, 'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
