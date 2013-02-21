@@ -5994,6 +5994,9 @@ textarea {
   margin-right: 10px;
   text-transform: uppercase;
 }
+.dataset-private .icon-lock {
+  width: 9px;
+}
 .dataset-private.pull-right {
   margin-right: 0;
 }
@@ -7666,7 +7669,7 @@ textarea {
 }
 .context-info .nums dl {
   float: left;
-  width: 33%;
+  width: 50%;
   margin: 5px 0 0 0;
   color: #444444;
 }
@@ -7830,6 +7833,9 @@ textarea {
   padding: 0 10px;
   line-height: 30px;
 }
+.account-masthead .account ul li a span.username {
+  margin: 0 2px 0 4px;
+}
 .account-masthead .account ul li a:hover {
   color: #d9e7eb;
   background-color: #000f14;
@@ -7961,7 +7967,7 @@ textarea {
 }
 .masthead .debug {
   position: absolute;
-  top: 10px;
+  top: 37px;
   left: 10px;
   color: rgba(255, 255, 255, 0.5);
 }
@@ -8040,7 +8046,7 @@ textarea {
 }
 .site-footer .debug {
   position: absolute;
-  top: 10px;
+  top: 37px;
   left: 10px;
   color: rgba(255, 255, 255, 0.5);
 }
@@ -8063,7 +8069,7 @@ textarea {
 }
 .footer-links li {
   display: inline-block;
-  width: 40%;
+  width: 44%;
   margin-right: 5%;
   margin-bottom: 5px;
 }
@@ -8390,20 +8396,19 @@ textarea {
 #followee-filter .btn strong {
   margin: 0 5px;
   white-space: nowrap;
-  max-width: 100px;
+  max-width: 90px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .dashboard-context {
   position: relative;
-  margin: -20px -25px 20px -20px;
+  margin-bottom: 20px;
   padding: 20px;
-  border-left: 1px solid #DCDCDC;
   border-bottom: 1px solid #DCDCDC;
   background-color: #f6f6f6;
-  -webkit-border-radius: 0 5px 0 0;
-  -moz-border-radius: 0 5px 0 0;
-  border-radius: 0 5px 0 0;
+  -webkit-border-radius: 3px 0 0 0;
+  -moz-border-radius: 3px 0 0 0;
+  border-radius: 3px 0 0 0;
 }
 .dashboard-context h2 {
   margin-bottom: 10px;
@@ -8411,8 +8416,8 @@ textarea {
 .dashboard-context .arrow {
   position: absolute;
   content: ' ';
-  top: 24px;
-  left: -10px;
+  top: 70px;
+  right: -10px;
   width: 10px;
   height: 21px;
   background: transparent url("../../../base/images/dashboard-followee-related.png");
@@ -8447,6 +8452,9 @@ textarea {
 .popover-followee .popover-header:after {
   clear: both;
 }
+.popover-followee .popover-header .input-prepend {
+  margin-bottom: 0;
+}
 .popover-followee .popover-header .add-on,
 .popover-followee .popover-header input {
   float: left;
@@ -8462,7 +8470,7 @@ textarea {
 .popover-followee .popover-header input {
   padding: 4px 12px 4px 8px;
   font-size: 13px;
-  width: 231px;
+  width: 207px;
   -webkit-border-radius: 0 100px 100px 0;
   -moz-border-radius: 0 100px 100px 0;
   border-radius: 0 100px 100px 0;
