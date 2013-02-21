@@ -83,10 +83,6 @@ def extras_dict_dictize(extras_dict, context):
         if not extra.state == 'active':
             continue
         value = dictized["value"]
-        ## This is to make sure the frontend does not show a plain string
-        ## as json with brackets.
-        if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -99,8 +95,6 @@ def extras_list_dictize(extras_list, context):
         if active and extra.state not in ('active', 'pending'):
             continue
         value = dictized["value"]
-        if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -476,7 +470,7 @@ def group_to_api(group, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     if api_version == 1:
         dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])
@@ -509,7 +503,7 @@ def package_to_api(pkg, context):
 
     dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
                         if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()

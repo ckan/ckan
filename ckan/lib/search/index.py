@@ -114,7 +114,7 @@ class PackageSearchIndex(SearchIndex):
         # include the extras in the main namespace
         extras = pkg_dict.get('extras', [])
         for extra in extras:
-            key, value = extra['key'], json.loads(extra['value'])
+            key, value = extra['key'], extra['value']
             if isinstance(value, (tuple, list)):
                 value = " ".join(map(unicode, value))
             key = ''.join([c for c in key if c in KEY_CHARS])
