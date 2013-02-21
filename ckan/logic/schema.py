@@ -196,11 +196,7 @@ def db_to_form_package_schema():
     schema = default_package_schema()
 
     schema.update({
-        'tags': {
-            '__extras': [ckan.lib.navl.validators.keep_extras,
-                ckan.logic.converters.free_tags_only]
-            },
-        })
+        'tags': {'__extras': [ckan.lib.navl.validators.keep_extras]}})
 
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.

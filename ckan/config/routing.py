@@ -184,21 +184,6 @@ def make_map():
     ## /END API
     ###########
 
-
-    ## Webstore
-    if config.get('ckan.datastore.enabled', False):
-        with SubMapper(map, controller='datastore') as m:
-            m.connect('datastore_read', '/api/data/{id}{url:(/.*)?}',
-                      action='read', url='', conditions=GET)
-            m.connect('datastore_write', '/api/data/{id}{url:(/.*)?}',
-                      action='write', url='', conditions=PUT_POST_DELETE)
-            m.connect('datastore_read_shortcut',
-                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
-                      action='read', url='', conditions=GET)
-            m.connect('datastore_write_shortcut',
-                      '/dataset/{dataset}/resource/{id}/api{url:(/.*)?}',
-                      action='write', url='', conditions=PUT_POST_DELETE)
-
     map.redirect('/packages', '/dataset')
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
@@ -212,8 +197,8 @@ def make_map():
                   action='delete')
         m.connect('related_list', '/dataset/{id}/related', action='list',
                   ckan_icon='picture')
-        m.connect('related_read', '/apps/{id}', action='read')
-        m.connect('related_dashboard', '/apps', action='dashboard')
+        m.connect('related_read', '/related/{id}', action='read')
+        m.connect('related_dashboard', '/related', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
