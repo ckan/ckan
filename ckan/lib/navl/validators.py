@@ -92,3 +92,6 @@ def convert_int(value, context):
     except ValueError:
         raise Invalid(_('Please enter an integer value'))
 
+def read_only_validator(value, context):
+
+    return value
