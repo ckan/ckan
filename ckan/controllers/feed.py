@@ -436,7 +436,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:
-            abort(400, ('"page" parameter must be an integer'))
+            abort(400, ('"page" parameter must be a positive integer'))
+        if page < 0:
+            abort(400, ('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {
