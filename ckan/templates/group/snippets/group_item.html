@@ -25,7 +25,7 @@ Example:
       </a>
     </h3>
     {% if group.description %}
-      <p>{{ h.truncate(group.description, length=80, whole_word=True) }}</p>
+      <p>{{ h.markdown_extract(group.description, extract_length=80) }}</p>
     {% else %}
       <p class="empty">{{ _('This group has no description') }}</p>
     {% endif %}
