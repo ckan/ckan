@@ -11,7 +11,7 @@
       {{ self.primary_content() }}
     </div>
   </div>
-  <div class="main">
+  <div class="main homepage">
     <div class="container">
       {{ self.secondary_content() }}
     </div>
@@ -20,7 +20,7 @@
 
 {% block primary_content %}
   <div class="hero-primary module module-popup">
-    <div class="module-content">
+    <div class="module-content box">
       {% block home_primary %}
         <header>
           {% if g.site_intro_text %}
@@ -55,25 +55,24 @@
   <div class="hero-secondary">
     <div class="hero-secondary-inner">
       {% block home_secondary_content %}
-        {% block home_search %}
-          <div class="module module-shallow module-narrow module-dark info">
-            <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
-              <h3 class="heading">{{ _("Search Your Data") }}</h3>
-              <span class="control-group search-giant">
-                <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
-                <button type="submit" value="{{ _('Search') }}">Submit</button>
-              </span>
-            </form>
+          <div class="module module-shallow module-narrow module-dark info box">
+            {% block home_search %}
+              <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
+                <h3 class="heading">{{ _("Search Your Data") }}</h3>
+                <span class="control-group search-giant">
+                  <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
+                  <button type="submit" value="{{ _('Search') }}">Submit</button>
+                </span>
+              </form>
+            {% endblock %}
+            {% block home_tags %}
+              <div class="tags">
+                <h3 class="tag">{{ _('Popular Tags') }}</h3>
+                {% set tags = h.get_facet_items_dict('tags', limit=3) %}
+                {% snippet 'snippets/tag_list.html', tags=tags %}
+              </div>
+            {% endblock %}
           </div>
-        {% endblock %}
-
-        {% block home_tags %}
-          <div class="tags">
-              <h3 class="tag">{{ _('Popular Tags') }}</h3>
-            {% set tags = h.get_facet_items_dict('tags', limit=3) %}
-            {% snippet 'snippets/tag_list.html', tags=tags %}
-          </div>
-        {% endblock %}
       {% endblock %}
     </div>
   </div>
@@ -83,7 +82,9 @@
   <div class="row group-listing">
     {% for group in c.group_package_stuff %}
       <div class="span6">
-        {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+        <div class="box">
+          {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+        </div>
       </div>
     {% endfor %}
   </div>
