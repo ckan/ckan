@@ -242,7 +242,7 @@ def make_map():
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
-        m.connect('dataset_about', '/dataset/about/{id}', action='about',
+        m.connect('dataset_about', '/dataset/{id}/about', action='about',
                   ckan_icon='info-sign')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
@@ -331,12 +331,14 @@ def make_map():
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dashboard/{offset}', action='dashboard')
-        m.connect('user_dashboard', '/dashboard', action='dashboard')
+        m.connect('user_dashboard', '/dashboard', action='dashboard',
+                  ckan_icon='list')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',
                   action='followers', ckan_icon='group')
-        m.connect('user_edit', '/user/edit/{id:.*}', action='edit')
+        m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
+                  ckan_icon='cog')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')
@@ -365,8 +367,10 @@ def make_map():
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')
 
-    map.connect('ckanadmin_index', '/ckan-admin', controller='admin', action='index')
-    map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin', action='config')
+    map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
+                action='index', ckan_icon='legal')
+    map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
+                action='config', ckan_icon='check')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     # Storage routes

@@ -1,12 +1,12 @@
 {% extends "group/read.html" %}
 
-{% block subtitle %}{{ _('About') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
+{% block subtitle %}{{ _('About') }} - {{ c.group_dict.display_name }}{% endblock %}
 
 {% block primary_content_inner %}
 <section class="module-content">
-	<h1>{{ c.group_dict.title or c.group_dict.name }}</h1>
+	<h1>{{ c.group_dict.display_name }}</h1>
 	{% if c.group_dict.description %}
-		<p>{{ c.group_dict.description }}</p>
+		{{ h.render_markdown(c.group_dict.description) }}
 	{% else %}
 		<p class="empty">{{ _('There is no description for this group') }}</p>
 	{% endif %}
