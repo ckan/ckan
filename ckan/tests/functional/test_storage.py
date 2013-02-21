@@ -1,9 +1,9 @@
 import os
 
 import paste.fixture
+import pylons.config as config
 
 import ckan.model as model
-import pylons.config as config
 from ckan.config.middleware import make_app
 from ckan.tests import conf_dir, url_for, CreateTestData
 from ckan.controllers.admin import get_sysadmins
