@@ -398,7 +398,8 @@ def tag_dictize(tag, context):
 
     result_dict = d.table_dictize(tag, context)
 
-    all_packages = d.obj_list_dictize(tag.packages, context)
+    all_packages = [package_dictize(package, context)
+            for package in tag.packages]
     public_packages = [package for package in all_packages
             if not package.get('private', False)]
     result_dict['packages'] = public_packages
