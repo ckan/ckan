@@ -43,6 +43,8 @@
 {% block secondary_content %}
   {% if organization %}
     {% snippet 'snippets/organization.html', organization=organization %}
+  {% else %}
+    {{ super() }}
   {% endif %}
 {% endblock %}
 

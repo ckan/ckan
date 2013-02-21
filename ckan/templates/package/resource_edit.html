@@ -1,14 +1,15 @@
+{% extends "package/new_resource.html" %}
+
 {% set pkg_dict = c.pkg_dict %}
 {% set res = c.resource %}
 
-{% extends "package/new_resource.html" %}
-
 {% block subtitle %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
+{% block breadcrumb_content_selected %}{% endblock %}
+
 {% block breadcrumb_content %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.dataset_display_name(pkg_dict)|truncate(30), controller='package', action='read', id=pkg_dict.name %}</li>
-  <li class="active">{% link_for _('Edit Resource'), controller='package', action='edit_resource', id=pkg_dict.name, resource_id=res.id %}</li>
+  {{ super() }}
+  <li class="active"><a href="">Edit</a></li>
 {% endblock %}
 
 {% block actions_content %}
