@@ -2,12 +2,16 @@
 Tests for plugin loading via PCA
 """
 import os
+
 from nose.tools import raises
 from unittest import TestCase
 from paste.deploy import loadapp
 from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
+
+import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan import plugins
 from ckan.config.middleware import make_app
 from ckan.tests import conf_dir
@@ -15,8 +19,6 @@ from ckan.tests.mock_plugin import MockSingletonPlugin
 from ckan.plugins.core import find_system_plugins
 from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
-from ckan.logic import get_action
-from ckan.new_authz import is_authorized
 
 
 def install_ckantestplugin():
@@ -183,17 +185,17 @@ class TestPlugins(TestCase):
 
     def test_action_plugin_override(self):
         plugins.load_all(config)
-        status_show_original = get_action('status_show')(None, {})
+        status_show_original = logic.get_action('status_show')(None, {})
         plugins.load('action_plugin')
-        assert get_action('status_show')(None, {}) != status_show_original
+        assert logic.get_action('status_show')(None, {}) != status_show_original
         plugins.unload('action_plugin')
-        assert get_action('status_show')(None, {}) == status_show_original
+        assert logic.get_action('status_show')(None, {}) == status_show_original
 
     def test_auth_plugin_override(self):
         plugins.load_all(config)
-        package_list_original = is_authorized('package_list', {})
+        package_list_original = new_authz.is_authorized('package_list', {})
         plugins.load('auth_plugin')
-        assert is_authorized('package_list', {}) != package_list_original
+        assert new_authz.is_authorized('package_list', {}) != package_list_original
         plugins.unload('auth_plugin')
-        assert is_authorized('package_list', {}) == package_list_original
+        assert new_authz.is_authorized('package_list', {}) == package_list_original
 

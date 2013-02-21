@@ -1,11 +1,13 @@
 import os
+
 import paste.fixture
-from ckan.config.middleware import make_app
+
 import ckan.model as model
+import pylons.config as config
+from ckan.config.middleware import make_app
 from ckan.tests import conf_dir, url_for, CreateTestData
 from ckan.controllers.admin import get_sysadmins
 from ckan.controllers.storage import create_pairtree_marker
-from pylons import config
 
 
 class TestStorageAPIController:
