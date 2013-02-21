@@ -397,18 +397,16 @@ def tag_list_dictize(tag_list, context):
 def tag_dictize(tag, context):
 
     result_dict = d.table_dictize(tag, context)
-    query = search.PackageSearchQuery()
 
-    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
-         'wt': 'json', 'rows': 1000}
+    all_packages = d.obj_list_dictize(tag.packages, context)
+    public_packages = [package for package in all_packages
+            if not package.get('private', False)]
+    result_dict['packages'] = public_packages
 
-    result_dict["packages"] = [
-        h.json.loads(result['data_dict']) for result in query.run(q)['results']
-   ]
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
-    assert not result_dict.has_key('display_name')
+    assert 'display_name' not in result_dict
     result_dict['display_name'] = result_dict['name']
 
     if context.get('for_view'):
