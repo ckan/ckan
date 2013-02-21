@@ -69,15 +69,16 @@
     {{ c.page.pager(q=c.q) }}
   </section>
 
-  <section class="module module-narrow module-shallow">
-    <small class="module-content">
-      You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
-      <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->
-      (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html') }})
-      {% if g.dumps_url -%}
-        or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
-      {%- endif %}.
-    </small>
+  <section class="module">
+    <div class="module-content">
+      <small>
+        You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
+        (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/ckan-{0}/api.html'.format(g.ckan_base_version)) }})
+        {% if g.dumps_url -%}
+          or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
+        {%- endif %}.
+      </small>
+    </div>
   </section>
 {% endblock %}
 

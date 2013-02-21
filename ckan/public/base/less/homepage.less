@@ -1,0 +1,89 @@
+.hero {
+  background: url("@{imagePath}/background-tile.png");
+  padding: 20px 0;
+  min-height: 0;
+  > .container {
+    position: relative;
+    padding-bottom: 0;
+  }
+  .search-giant input {
+    border-color: darken(@mastheadBackgroundColorEnd, 5);
+  }
+  .page-heading {
+    font-size: 18px;
+    margin-bottom: 0;
+  }
+  .module-dark {
+    padding: 5px;
+    margin-bottom: 0;
+    color: @mastheadTextColor;
+    background: @layoutTrimBackgroundColor;
+    .module-content {
+      .border-radius(3px 3px 0 0);
+      background-color: @mastheadBackgroundColor;
+      .heading {
+        margin-top: 0;
+        margin-bottom: 7px;
+      }
+    }
+  }
+  .tags {
+    padding: 10px;
+    background-color: darken(@mastheadBackgroundColor, 10%);
+    .border-radius(0 0 3px 3px);
+    h3 {
+      font-size: 14px;
+      line-height: 21px;
+      margin: 0;
+    }
+    .tag,
+    .tag-list {
+      display: inline-block;
+    }
+    .tag-list {
+      padding: 0;
+      li {
+        margin-right: 0;
+      }
+    }
+    .tag {
+      margin-right: 10px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.hero-primary,
+.hero-secondary {
+  .makeColumn(6);
+}
+
+.hero-primary {
+  margin-left: 0; // Remove grid margin.
+  margin-bottom: 0;
+}
+
+.hero-secondary {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  .hero-secondary-inner {
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+.main.homepage {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid @layoutTrimBorderColor;
+  .module-heading .media-image {
+    margin-right: 15px;
+    max-height: 53px;
+    .box-shadow(0 0 0 2px rgba(255, 255, 255, 0.5));
+  }
+  .group-list {
+    margin-bottom: 0;
+  }
+}

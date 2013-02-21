@@ -12,9 +12,9 @@ Example:
 #}
 
 {% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
-  <div class="module profile-info">
+  <div class="module context-info">
     <section class="module-content">
-      <div class="avatar">
+      <div class="image">
         <a href="{{ url }}">
           <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
         </a>

@@ -81,7 +81,7 @@ class TestHelpers(TestController):
     def test_gravatar(self):
         email = 'zephod@gmail.com'
         expected = ['<a href="https://gravatar.com/"',
-                '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"', '</a>']
+                '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"', '</a>']
         # Hash the email address
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
@@ -94,7 +94,7 @@ class TestHelpers(TestController):
         email = 'zephod@gmail.com'
         default = config.get('ckan.gravatar_default', 'identicon')
         expected = ['<a href="https://gravatar.com/"',
-                   '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default,
+                   '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default,
                    '</a>']
         # Hash the email address
         import hashlib
@@ -108,7 +108,7 @@ class TestHelpers(TestController):
         email = 'zephod@gmail.com'
         default = 'http://example.com/images/avatar.jpg'
         expected = ['<a href="https://gravatar.com/"',
-                   '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
+                   '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
                    '</a>']
         # Hash the email address
         import hashlib
