@@ -1393,7 +1393,7 @@ def resource_preview(resource, pkg_id):
     if not resource['url']:
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
-                       reason=u'The resource url is not specified.')
+                       reason=_(u'The resource url is not specified.'))
     direct_embed = config.get('ckan.preview.direct', '').split()
     if not direct_embed:
         direct_embed = datapreview.DEFAULT_DIRECT_EMBED
@@ -1413,10 +1413,10 @@ def resource_preview(resource, pkg_id):
         reason = None
         if format_lower:
             log.info(
-                u'No preview handler for resource type {0}'.format(format_lower)
+                _(u'No preview handler for resource of type {0}'.format(format_lower))
             )
         else:
-            reason = u'The resource format is not specified.'
+            reason = _(u'The resource format is not specified.')
         return snippet("dataviewer/snippets/no_preview.html",
                        reason=reason,
                        resource_type=format_lower)
