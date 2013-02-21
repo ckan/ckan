@@ -219,7 +219,7 @@ def check_access(action, context, data_dict=None):
 
 
 _actions = {}
-def clear_cache():
+def clear_actions_cache():
     _actions.clear()
 
 def get_action(action):
