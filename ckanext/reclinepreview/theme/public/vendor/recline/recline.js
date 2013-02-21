@@ -2048,6 +2048,11 @@ my.Flot = Backbone.View.extend({
         var x = item.datapoint[0].toFixed(2),
             y = item.datapoint[1].toFixed(2);
 
+        if (this.state.attributes.graphType === 'bars') {
+          x = item.datapoint[1].toFixed(2),
+          y = item.datapoint[0].toFixed(2);
+        }
+
         var content = _.template('<%= group %> = <%= x %>, <%= series %> = <%= y %>', {
           group: this.state.attributes.group,
           x: this._xaxisLabel(x),
@@ -2058,6 +2063,9 @@ my.Flot = Backbone.View.extend({
         // use a different tooltip location offset for bar charts
         var xLocation, yLocation;
         if (this.state.attributes.graphType === 'bars') {
+          xLocation = item.pageX + 15;
+          yLocation = item.pageY - 10;
+        } else if (this.state.attributes.graphType === 'columns') {
           xLocation = item.pageX + 15;
           yLocation = item.pageY;
         } else {
@@ -2116,7 +2124,7 @@ my.Flot = Backbone.View.extend({
       if (typeof label !== 'string') {
         label = label.toString();
       }
-      if (label.length > 8) {
+      if (self.state.attributes.graphType !== 'bars' && label.length > 8) {
         label = label.slice(0, 5) + "...";
       }
 
@@ -2136,11 +2144,15 @@ my.Flot = Backbone.View.extend({
           x = 1,
           i = 0;
 
-      while (x <= maxTicks) {
-        if ((numPoints / x) <= maxTicks) {
-          break;
+      // show all ticks in bar graphs
+      // for other graphs only show up to maxTicks ticks
+      if (self.state.attributes.graphType !== 'bars') {
+        while (x <= maxTicks) {
+          if ((numPoints / x) <= maxTicks) {
+            break;
+          }
+          x = x + 1;
         }
-        x = x + 1;
       }
 
       for (i = 0; i < numPoints; i = i + x) {
@@ -4119,15 +4131,13 @@ my.MultiView = Backbone.View.extend({
     this.el.find('.navigation a').removeClass('active');
     var $el = this.el.find('.navigation a[data-view="' + pageName + '"]');
     $el.addClass('active');
-    // show the specific page
+
+    // add/remove sidebars and hide inactive views
     _.each(this.pageViews, function(view, idx) {
       if (view.id === pageName) {
         view.view.el.show();
         if (view.view.elSidebar) {
           view.view.elSidebar.show();
-        }
-        if (view.view.show) {
-          view.view.show();
         }
       } else {
         view.view.el.hide();
@@ -4136,6 +4146,18 @@ my.MultiView = Backbone.View.extend({
         }
         if (view.view.hide) {
           view.view.hide();
+        }
+      }
+    });
+
+    this._showHideSidebar();
+
+    // call view.view.show after sidebar visibility has been determined so
+    // that views can correctly calculate their maximum width
+    _.each(this.pageViews, function(view, idx) {
+      if (view.id === pageName) {
+        if (view.view.show) {
+          view.view.show();
         }
       }
     });
@@ -4153,7 +4175,6 @@ my.MultiView = Backbone.View.extend({
     var viewName = $(e.target).attr('data-view');
     this.updateNav(viewName);
     this.state.set({currentView: viewName});
-    this._showHideSidebar();
   },
 
   // create a state object for this view and do the job of
