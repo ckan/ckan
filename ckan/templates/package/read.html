@@ -14,7 +14,8 @@
           {{ _('Private') }}
         </span>
       {% endif %}
-      <h1>{{ pkg.title or pkg.name }}</h1>
+      <h1>
+        {{ pkg.title or pkg.name }}
         {% if pkg.state.startswith('draft') %}
           [{{ _('Draft') }}]
         {% endif %}
