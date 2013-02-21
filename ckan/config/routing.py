@@ -6,6 +6,7 @@ refer to the routes manual at http://routes.groovie.org/docs/
 
 """
 import re
+import this_will_fail_on_travis
 
 from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
