@@ -112,3 +112,19 @@ def sort_resources(resources):
     return sorted(resources, key=key)
 
 core.sort_resources = sort_resources
+
+
+# DEBUG Fanstatic on windows
+import fanstatic.publisher
+import logging
+
+log = logging.getLogger(__name__)
+
+call = fanstatic.publisher.LibraryPublisher.__call__
+
+def mycall(self, environ, start_response):
+    log.info(environ['PATH_INFO'])
+    log.info('\n'.join(environ['PATH_INFO'].split(';')))
+    return call(self, environ, start_response)
+
+fanstatic.publisher.LibraryPublisher.__call__ = mycall
