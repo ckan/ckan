@@ -72,8 +72,8 @@ class TestBasicDictize:
         converted_data, errors = validate(result, default_package_schema(), self.context)
 
 
-        assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
-                                            {'key': u'original media', 'value': u'"book"'}],
+        assert converted_data == {'extras': [{'key': u'genre', 'value': u'romantic novel'},
+                                            {'key': u'original media', 'value': u'book'}],
                                    'groups': [{u'name': u'david',
                                                u'title': u"Dave's books"},
                                               {u'name': u'roger',
