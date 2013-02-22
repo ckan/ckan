@@ -70,6 +70,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -373,6 +374,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        p.unload('datastore')
 
     def test_search_full_text(self):
         data = {'resource_id': self.data['resource_id'],
@@ -448,6 +450,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        p.unload('datastore')
 
     def test_is_single_statement(self):
         singles = ['SELECT * FROM footable',

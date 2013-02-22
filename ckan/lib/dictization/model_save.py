@@ -100,7 +100,6 @@ def package_extras_save(extra_dicts, obj, context):
     model = context["model"]
     session = context["session"]
 
-    extras_as_string = context.get("extras_as_string", False)
     extras_list = obj.extras_list
     old_extras = dict((extra.key, extra) for extra in extras_list)
 
@@ -111,10 +110,8 @@ def package_extras_save(extra_dicts, obj, context):
 
         if extra_dict['value'] is None:
             pass
-        elif extras_as_string:
-            new_extras[extra_dict["key"]] = extra_dict["value"]
         else:
-            new_extras[extra_dict["key"]] = h.json.loads(extra_dict["value"])
+            new_extras[extra_dict["key"]] = extra_dict["value"]
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
         state = 'pending' if context.get('pending') else 'active'
@@ -143,16 +140,12 @@ def group_extras_save(extras_dicts, context):
 
     model = context["model"]
     session = context["session"]
-    extras_as_string = context.get("extras_as_string", False)
 
     result_dict = {}
     for extra_dict in extras_dicts:
         if extra_dict.get("deleted"):
             continue
-        if extras_as_string:
-            result_dict[extra_dict["key"]] = extra_dict["value"]
-        else:
-            result_dict[extra_dict["key"]] = h.json.loads(extra_dict["value"])
+        result_dict[extra_dict["key"]] = extra_dict["value"]
 
     return result_dict
 
@@ -491,12 +484,9 @@ def package_api_to_dict(api1_dict, context):
             new_value = []
 
             for extras_key, extras_value in updated_extras.iteritems():
-                if extras_value is not None:
-                    new_value.append({"key": extras_key,
-                                      "value": h.json.dumps(extras_value)})
-                else:
-                    new_value.append({"key": extras_key,
-                                      "value": None})
+                new_value.append({"key": extras_key,
+                                  "value": extras_value})
+
         if key == 'groups' and len(value):
             if api_version == 1:
                 new_value = [{'name': item} for item in value]

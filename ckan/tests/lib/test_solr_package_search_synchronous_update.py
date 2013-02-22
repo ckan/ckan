@@ -3,6 +3,7 @@ import ckan.lib.search as search
 
 from ckan.tests import CreateTestData, setup_test_search_index
 from ckan.tests.lib import check_search_results
+import json
 
 class TestSearchOverallWithSynchronousIndexing:
     '''Repeat test from test_package_search with synchronous indexing
@@ -32,10 +33,11 @@ class TestSearchOverallWithSynchronousIndexing:
                 'bbox-south-lat': '54.039634',
                 'bbox-west-long': '-3.32485',
                 'constraint': 'conditions unknown; (e) intellectual property rights;',
-                'dataset-reference-date': [{'type': 'creation',
+                'dataset-reference-date': json.dumps(
+                                          [{'type': 'creation',
                                             'value': '2008-10-10'},
                                            {'type': 'revision',
-                                            'value': '2009-10-08'}],
+                                            'value': '2009-10-08'}]),
                 'guid': '00a743bf-cca4-4c19-a8e5-e64f7edbcadd',
                 'metadata-date': '2009-10-16',
                 'metadata-language': 'eng',

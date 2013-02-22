@@ -37,48 +37,59 @@
                   </ol>
                 {% endif %}
               {% endblock %}
-              {% block actions %}
-                <ul class="actions pull-right">
-                  {% block actions_content %}{% endblock %}
-                </ul>
-              {% endblock %}
             </div>
           {% endblock %}
 
-          {% block primary %}
-            <div class="primary">
-              {#
-              The primary_content block can be used to add content to the page.
-              This is the main block that is likely to be used within a template.
+          <div class="wrapper{% block wrapper_class %}{% endblock %}">
 
-              Example:
+            {% block actions %}
+              <div class="btn-group actions">
+                {% block actions_content %}{% endblock %}
+              </div>
+            {% endblock %}
 
-                {% block primary_content %}
-                  <h1>My page content</h1>
-                  <p>Some content for the page</p>
-                {% endblock %}
-              #}
-              {% block primary_content %}{% endblock %}
-            </div>
-          {% endblock %}
+            {#
+            The pre_primary block can be used to add content to before the
+            rendering of the main content columns of the page.
+            #}
+            {% block pre_primary %}
+            {% endblock %}
 
-          {% block secondary %}
-            <aside class="secondary">
-              {#
-              The secondary_content block can be used to add content to the
-              sidebar of the page. This is the main block that is likely to be
-              used within a template.
+            {% block primary %}
+              <div class="primary">
+                {#
+                The primary_content block can be used to add content to the page.
+                This is the main block that is likely to be used within a template.
 
-              Example:
+                Example:
 
-                {% block secondary_content %}
-                  <h2>A sidebar item</h2>
-                  <p>Some content for the item</p>
-                {% endblock %}
-              #}
-              {% block secondary_content %}{% endblock %}
-            </aside>
-          {% endblock %}
+                  {% block primary_content %}
+                    <h1>My page content</h1>
+                    <p>Some content for the page</p>
+                  {% endblock %}
+                #}
+                {% block primary_content %}{% endblock %}
+              </div>
+            {% endblock %}
+
+            {% block secondary %}
+              <aside class="secondary">
+                {#
+                The secondary_content block can be used to add content to the
+                sidebar of the page. This is the main block that is likely to be
+                used within a template.
+
+                Example:
+
+                  {% block secondary_content %}
+                    <h2>A sidebar item</h2>
+                    <p>Some content for the item</p>
+                  {% endblock %}
+                #}
+                {% block secondary_content %}{% endblock %}
+              </aside>
+            {% endblock %}
+          </div>
         {% endblock %}
       </div>
     </div>
