@@ -586,7 +586,9 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_user')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            user_dict = get_action('user_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                user_dict['display_name']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                              or e.error_dict)
@@ -603,7 +605,9 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_user')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            user_dict = get_action('user_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                user_dict['display_name']))
         except (NotFound, NotAuthorized) as e:
             error_message = e.extra_msg or e.message
             h.flash_error(error_message)
