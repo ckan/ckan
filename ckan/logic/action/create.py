@@ -1024,7 +1024,7 @@ def follow_user(context, data_dict):
         followeduserobj = model.User.get(validated_data_dict['id'])
         name = followeduserobj.display_name
         message = _(
-                'You are already following user {0}').format(name)
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
@@ -1081,7 +1081,7 @@ def follow_dataset(context, data_dict):
         pkgobj = model.Package.get(validated_data_dict['id'])
         name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
-                'You are already following dataset {0}').format(name)
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
@@ -1175,7 +1175,7 @@ def follow_group(context, data_dict):
         groupobj = model.Group.get(validated_data_dict['id'])
         name = groupobj.display_name
         message = _(
-                'You are already following group {0}').format(name)
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
