@@ -1216,7 +1216,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_dataset')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -1233,7 +1235,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_dataset')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
