@@ -521,10 +521,16 @@ class ITemplateHelpers(Interface):
 
     '''
     def get_helpers(self):
-        '''Return a dict mapping names to helper_functions.
+        '''Return a dict mapping names to helper functions.
 
-        The keys of the dict should be the names of the helper functions, and
-        the values should be the functions themselves.
+        The keys of the dict should be the names with which the helper
+        functions will be made available to templates, and the values should be
+        the functions themselves. For example, a dict like:
+        ``{'example_helper': example_helper}`` allows templates to access the
+        ``example_helper`` function via ``h.example_helper()``.
+
+        Function names should start with the name of the extension providing
+        the function, to prevent name clashes between extensions.
 
         '''
 
