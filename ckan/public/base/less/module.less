@@ -1,3 +1,7 @@
+.module {
+  margin: 20px 0;
+}
+
 .module-heading {
   margin: 0;
   padding: 7px @gutterX;
@@ -192,4 +196,11 @@
 
 .module .module-tags {
   padding-bottom: 8px;
+}
+
+.secondary,
+.primary {
+  .module:first-child {
+    margin-top: 0;
+  }
 }
