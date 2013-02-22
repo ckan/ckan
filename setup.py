@@ -89,7 +89,10 @@ setup(
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
     trans = ckan.lib.cli:TranslationsCommand
     minify = ckan.lib.cli:MinifyCommand
+    less = ckan.lib.cli:LessCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
+    front-end-build = ckan.lib.cli:FrontEndBuildCommand
+
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command

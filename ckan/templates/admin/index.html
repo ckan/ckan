@@ -1,23 +1,27 @@
-{% extends "page.html" %}
+{% extends "admin/base.html" %}
 
-{% block subtitle %}{{ _('Administration') }}{% endblock %}
-
-{% block breadcrumb_content %}
+{% block primary_content_inner %}
+  <ul class="user-list">
+    {% for user in c.sysadmins %}
+      <li>{{ h.linked_user(user) }}</li>
+    {% endfor %}
+  </ul>
 {% endblock %}
 
-{% block primary %}
-  <article class="module">
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-info-sign"></i>
+      {{ _('What are sysadmins?') }}
+    </h2>
     <div class="module-content">
-      {% snippet 'admin/snippets/header.html', action=c.action %}
-      <ul>
-        {% for user in c.sysadmins %}
-          <li py:for="user in c.sysadmins">
-            {{ h.linked_user(user) }}
-          </li>
-        {% endfor %}
-      </ul>
+      {% set docs_url = "http://docs.ckan.org/en/ckan-{0}/paster.html#sysadmin-give-sysadmin-rights".format(g.ckan_base_version) %}
+      {% trans %}
+        <p>A sysadmin is someone that has full control over a CKAN instance.
+          You can only add CKAN sysadmins via the <code>sysadmin</code> paster
+          command.</p>
+        <p><a href="{{ docs_url }}" target="_blank">Read the documentation</a></p>
+      {% endtrans %}
     </div>
-  </article>
+  </div>
 {% endblock %}
-
-{% block sidebar %}{% endblock %}

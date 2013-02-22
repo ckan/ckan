@@ -1,7 +1,7 @@
 import pylons
 
 import paste.fixture
-from paste.deploy import appconfig
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -13,13 +13,13 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
 
-class TestJsonPreview(tests.WsgiAppCase):
+class TestPdfPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=tests.conf_dir)
-        config.local_conf['ckan.plugins'] = 'pdf_preview'
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        cls._original_config = config.copy()
+        config['ckan.plugins'] = 'pdf_preview'
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.PdfPreview()
@@ -41,7 +41,10 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         plugins.reset()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
@@ -83,7 +86,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_pdf.js' in result.body, result.body
+        assert 'preview_pdf.min.js' in result.body, result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="pdfpreview"' in result.body, result.body
 

@@ -1,6 +1,5 @@
 .toolbar {
   .clearfix;
-  margin-top: -10px;
   margin-bottom: 10px;
   padding: 5px 0;
 }
@@ -14,11 +13,8 @@
   padding: 0;
   border: none;
   background: none;
-  font-size: 20px;
-}
-
-.toolbar li [class^=icon]:before {
-  width: auto; // Fix Bootstrap icon widths
+  font-size: 18px;
+  line-height: 1.3;
 }
 
 .toolbar .breadcrumb li:after {
@@ -44,63 +40,29 @@
 
 .toolbar .breadcrumb a {
   color: @breadcrumbTextColor;
-  line-height: 28px;
 }
 
-.toolbar .breadcrumb .active a {
+.toolbar .breadcrumb .active a,
+.toolbar .breadcrumb a.active {
   font-weight: bold;
 }
 
-.toolbar .actions {
+.actions {
   .unstyled;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
 }
 
-.toolbar .actions li {
+.actions li {
   display: inline-block;
   margin-right: 5px;
-}
-
-.toolbar .actions li {
   .ie7-inline-block;
 }
 
-.toolbar .actions li:last-of-type {
+.actions li:last-of-type {
   margin-right: 0;
-}
-
-.toolbar .btn {
-  padding: 0 10px 0 8px;
-  border-color: #b7b7b7;
-  line-height: 27px;
-}
-
-// Now redefine the other button backgrounds that we just overrode.
-.toolbar .btn-success {
-  .btn-success;
-}
-
-.toolbar .btn-primary {
-  .btn-primary;
-}
-
-.toolbar .btn-warning {
-  .btn-warning;
-}
-
-.toolbar .btn-danger {
-  .btn-danger;
-}
-
-.toolbar .btn-success {
-  .btn-success;
-}
-
-.toolbar .btn-info {
-  .btn-info;
-}
-
-.toolbar .btn-inverse {
-  .btn-inverse;
 }
 
 .hide-heading {
@@ -110,18 +72,15 @@
 .page-header {
   position: relative;
   border-bottom: 1px solid @moduleHeadingBorderColor;
+  background-color: @moduleHeadingBackgroundColor;
   height: 30px;
-  .border-radius(3px 3px 0 0);
-  #gradient > .vertical(@moduleHeadingBackgroundColorStart, @moduleHeadingBackgroundColorEnd);
+  .border-radius(0 3px 0 0);
   .nav-tabs {
     position: absolute;
     left: 20px;
     bottom: -1px;
     margin-bottom: 0;
-    i {
-      margin-right: 10px;
-      font-size: 14px;
-    }
+    li.active a,
     a:hover {
       background-color: @moduleBackgroundColor;
     }

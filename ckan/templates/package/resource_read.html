@@ -1,21 +1,20 @@
-{% extends "page.html" %}
+{% extends "package/base.html" %}
 
-{% set pkg = c.pkg_dict %}
 {% set res = c.resource %}
 
 {% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
+{% block breadcrumb_content_selected %}{% endblock %}
+
 {% block breadcrumb_content %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li>{% link_for h.dataset_display_name(c.package)|truncate(15), controller='package', action='read', id=c.package.get('name') %}</li>
+  {{ super() }}
   <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
 {% block actions_content %}
-  {% snippet 'package/snippets/back_to_package_action.html', pkg=pkg %}
 
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit Resource'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
   {% endif %}
 
   {% if res.url %}
@@ -37,12 +36,9 @@
   {% endif %}
 {% endblock %}
 
-{% block main_content %}
-  {{ self.flash() }}
-  {{ self.toolbar() }}
-
+{% block pre_primary %}
   {% block resource %}
-    <section class="module">
+    <section class="module module-resource">
       <div class="module-content">
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
@@ -65,9 +61,6 @@
       {% endblock %}
     </section>
   {% endblock %}
-
-  {{ self.primary() }}
-  {{ self.secondary() }}
 {% endblock %}
 
 {% block primary_content %}
