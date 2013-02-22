@@ -125,8 +125,10 @@ class MultilingualDataset(SingletonPlugin):
             if key in KEYS_TO_IGNORE or key.startswith('title'):
                 continue
             if isinstance(value, list):
-                all_terms.extend(value)
-            elif value in (None, True, False):
+                for item in value:
+                    if isinstance(item, basestring):
+                        all_terms.append(item)
+            elif not isinstance(value, basestring):
                 continue
             else:
                 all_terms.append(value)
