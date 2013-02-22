@@ -114,17 +114,16 @@ def sort_resources(resources):
 core.sort_resources = sort_resources
 
 
-# DEBUG Fanstatic on windows
 import fanstatic.publisher
-import logging
+import os
 
-log = logging.getLogger(__name__)
+if os.name == 'nt':
+    init = fanstatic.publisher.BundleApp.__init__
 
-call = fanstatic.publisher.LibraryPublisher.__call__
+    def myinit(self, rootpath, bundle, filenames, ignores):
+        cleaned_filenames = []
+        for filename in filenames:
+            cleaned_filenames.append(filename.replace('/', '\\'))
+        return init(self, rootpath, bundle, cleaned_filenames, ignores)
 
-def mycall(self, environ, start_response):
-    log.info(environ['PATH_INFO'])
-    log.info('\n'.join(environ['PATH_INFO'].split(';')))
-    return call(self, environ, start_response)
-
-fanstatic.publisher.LibraryPublisher.__call__ = mycall
+    fanstatic.publisher.BundleApp.__init__ = myinit
