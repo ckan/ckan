@@ -16,7 +16,7 @@ def group_list_dictize(obj_list, context,
                        sort_key=lambda x:x['display_name'], reverse=False):
 
     active = context.get('active', True)
-    with_private = context.get('include_private_packages', False)
+    with_private = context.get('with_private', False)
     result_list = []
 
     for obj in obj_list:
