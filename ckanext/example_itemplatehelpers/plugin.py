@@ -1,5 +1,11 @@
 import ckan.plugins as plugins
 
+# Our custom template helper function.
+def example_helper():
+    '''An example template helper function.'''
+
+    # Just return some example text.
+    return 'This is some example text.'
 
 class ExampleITemplateHelpersPlugin(plugins.SingletonPlugin):
     '''An example that shows how to use the ITemplateHelpers plugin interface.
@@ -15,14 +21,7 @@ class ExampleITemplateHelpersPlugin(plugins.SingletonPlugin):
         # ckanext/example_itemplatehelpers/templates.
         plugins.toolkit.add_template_directory(config, 'templates')
 
-    # Our custom template helper method.
-    def example_helper(self):
-        '''An example template helper method.'''
-
-        # Just return some example text.
-        return 'This is some example text.'
-
-    # Tell CKAN what custom template helper methods this plugin provides,
+    # Tell CKAN what custom template helper functions this plugin provides,
     # see the ITemplateHelpers plugin interface.
     def get_helpers(self):
-        return {'example_helper': self.example_helper}
+        return {'example_helper': example_helper}
