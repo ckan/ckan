@@ -2,7 +2,7 @@ import requests
 import unittest
 
 import paste.fixture
-from paste.deploy import appconfig
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -21,9 +21,9 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=tests.conf_dir)
-        config.local_conf['ckan.plugins'] = 'resource_proxy'
-        wsgiapp = middleware.make_app(config.global_conf, **config.local_conf)
+        cls._original_config = config.copy()
+        config['ckan.plugins'] = 'resource_proxy'
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         if not cls.serving:
@@ -37,6 +37,8 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         model.repo.rebuild_db()
         plugins.reset()
 

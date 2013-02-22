@@ -11,7 +11,7 @@ Example:
 
 #}
 {% if pkg and h.check_access('package_update', {'id':pkg.id }) %}
-  <section class="module module-narrow package-info">
+  <section class="module module-narrow">
     <h2 class="module-heading"><i class="icon-sitemap"></i> {{ _("Edit Dataset") }}</h2>
     <ul class="unstyled nav nav-simple">
       <li class="nav-item{% if action == 'package_edit' %} active{% endif %}">
@@ -19,7 +19,7 @@ Example:
       </li>
     </ul>
     {% set resources = pkg.resources or [] %}
-    <h2 class="module-heading module-heading-secondary"><i class="icon-copy"></i> {{ _("Edit Resources") }}</h2>
+    <h2 class="module-heading"><i class="icon-reorder"></i> {{ _("Edit Resources") }}</h2>
     <ul class="unstyled nav nav-simple">
       {% for resource in resources %}
         <li class="nav-item{{ ' active' if active == resource.id }}">

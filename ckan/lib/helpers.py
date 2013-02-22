@@ -323,7 +323,7 @@ def _link_to(text, *args, **kwargs):
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
         if icon:
-            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+            text = literal('<i class="icon-%s"></i> ' % icon) + text
         return text
 
     icon = kwargs.pop('icon', None)
@@ -687,7 +687,7 @@ def gravatar(email_hash, size=100, default=None):
         # treat the default as a url
         default = urllib.quote(default, safe='')
 
-    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+    return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" />'''
         % (email_hash, size, default, size, size)
         )

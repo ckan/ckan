@@ -150,14 +150,48 @@
   .ckan-icon-background-position(10, "formatMedium");
 }
 
-// Override Font Awesome and it's crazy list handling.
-li {
+@import url('font-awesome.less');
+
+[class^="icon-"],
+[class*=" icon-"] {
+  display: inline-block;
+  text-align: right;
+  font-size: 14px;
+  line-height: 1;
+  width: 14px;
+}
+
+.btn,
+.nav,
+.module-heading,
+.dropdown {
   [class^="icon-"],
   [class*=" icon-"] {
-    width: auto;
+    margin-right: 4px;
   }
-  .icon-large:before,
-  .icon-large:before {
-    width: auto;
+}
+
+.info-block {
+  [class^="icon-"],
+  [class*=" icon-"] {
+    float: left;
+    font-size: 28px;
+    width: 28px;
+    margin-right: 5px;
+    margin-top: 2px;
+  }
+}
+
+.breadcrumb .home .icon-home {
+  font-size: 20px;
+  width: 20px;
+}
+
+.info-block-small {
+  [class^="icon-"],
+  [class*=" icon-"] {
+    font-size: 14px;
+    width: 14px;
+    margin-top: 1px;
   }
 }
