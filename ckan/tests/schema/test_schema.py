@@ -58,6 +58,28 @@ class TestPackage:
             assert errors==expected_errors, \
                    '%r: %r != %r' % (package_version, errors, expected_errors)
 
+
+    def test_convert_from_extras(self):
+        from ckan import logic
+        context = {'model': ckan.model,
+                   'session': ckan.model.Session}
+        schema = ckan.logic.schema.default_package_schema()
+        schema.update({
+            'my_field': [logic.converters.convert_from_extras]
+        })
+        data_dict = {
+            'name': 'my-pkg',
+            'extras': [
+                {'key': 'my_field', 'value': 'hola'},
+                {'key': 'another_extra', 'value': 'caracola'}
+                ]
+            }
+        data, errors = validate(data_dict, schema, context)
+
+        assert 'my_field' in data
+        assert data['my_field'] == 'hola'
+        assert data['extras'][0]['key'] ==  'another_extra'
+
 class TestTag:
     def test_tag_name_validation(self):
         context = {'model': ckan.model}
