@@ -1,4 +1,5 @@
 import datetime
+import urlparse
 
 from pylons import config
 from sqlalchemy.sql import select
@@ -137,8 +138,8 @@ def resource_dictize(res, context):
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    if not (url.startswith('http://') or url.startswith('https://')):
-        resource['url'] = u'http://' + url
+    if not urlparse.urlsplit(url).scheme:
+        resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
 def related_dictize(rel, context):
