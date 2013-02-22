@@ -24,6 +24,7 @@ import urlparse
 
 import webhelpers.feedgenerator
 from pylons import config
+from pylons.i18n import _
 from urllib import urlencode
 
 from ckan import model
@@ -172,7 +173,7 @@ class FeedController(BaseController):
                        'user': c.user or c.author}
             group_dict = get_action('group_show')(context, {'id': id})
         except NotFound:
-            abort(404, 'Group not found')
+            abort(404, _('Group not found'))
 
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'groups:"%s"' % id
@@ -282,9 +283,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1))
         except ValueError:
-            abort(400, ('"page" parameter must be a positive integer'))
+            abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, ('"page" parameter must be a positive integer'))
+            abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -436,9 +437,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:
-            abort(400, ('"page" parameter must be a positive integer'))
+            abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, ('"page" parameter must be a positive integer'))
+            abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {
