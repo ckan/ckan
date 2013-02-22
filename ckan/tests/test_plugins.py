@@ -2,12 +2,16 @@
 Tests for plugin loading via PCA
 """
 import os
+
 from nose.tools import raises
 from unittest import TestCase
-from paste.deploy import appconfig, loadapp
+from paste.deploy import loadapp
 from pyutilib.component.core import PluginGlobals
 from pylons import config
 from pkg_resources import working_set, Distribution, PathMetadata
+
+import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan import plugins
 from ckan.config.middleware import make_app
 from ckan.tests import conf_dir
@@ -173,10 +177,25 @@ class TestPlugins(TestCase):
         assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):
-        local_config = appconfig('config:%s' % config['__file__'], relative_to=conf_dir)
-        local_config.local_conf['ckan.plugins'] = 'routes_plugin'
-        app = make_app(local_config.global_conf, **local_config.local_conf)
+        config['ckan.plugins'] = 'routes_plugin'
+        app = make_app(config['global_conf'], **config)
         routes_plugin = PluginGlobals.env_registry['pca'].plugin_registry['RoutesPlugin'].__instance__
         assert routes_plugin.calls_made == ['before_map', 'after_map'], \
                routes_plugin.calls_made
+
+    def test_action_plugin_override(self):
+        plugins.load_all(config)
+        status_show_original = logic.get_action('status_show')(None, {})
+        plugins.load('action_plugin')
+        assert logic.get_action('status_show')(None, {}) != status_show_original
+        plugins.unload('action_plugin')
+        assert logic.get_action('status_show')(None, {}) == status_show_original
+
+    def test_auth_plugin_override(self):
+        plugins.load_all(config)
+        package_list_original = new_authz.is_authorized('package_list', {})
+        plugins.load('auth_plugin')
+        assert new_authz.is_authorized('package_list', {}) != package_list_original
+        plugins.unload('auth_plugin')
+        assert new_authz.is_authorized('package_list', {}) == package_list_original
 

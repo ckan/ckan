@@ -16,7 +16,6 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs
 class TestDatastoreUpsert(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
@@ -58,6 +57,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def test_upsert_requires_auth(self):
         data = {
@@ -242,7 +242,6 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 class TestDatastoreInsert(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
@@ -345,7 +344,6 @@ class TestDatastoreInsert(tests.WsgiAppCase):
 class TestDatastoreUpdate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):

@@ -28,6 +28,8 @@ setup(name='ckantestplugin',
             'mapper_plugin2=ckantestplugin:MapperPlugin2',
             'authorizer_plugin=ckantestplugin:AuthorizerPlugin',
             'test_observer_plugin=ckantestplugin:PluginObserverPlugin',
+            'action_plugin=ckantestplugin:ActionPlugin',
+            'auth_plugin=ckantestplugin:AuthPlugin',
         ]
     }
 )

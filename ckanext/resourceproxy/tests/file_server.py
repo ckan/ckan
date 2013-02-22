@@ -19,6 +19,8 @@ class StaticHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         else:
             return SimpleHTTPServer.SimpleHTTPRequestHandler.send_head(self)
 
+    def log_message(self, *args):
+        pass
 
 def serve(port=PORT):
     '''Serves static test files over HTTP'''

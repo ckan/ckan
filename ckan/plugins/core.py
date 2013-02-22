@@ -111,11 +111,17 @@ def reset():
     from pylons import config
     load_all(config)
 
+def _clear_logic_and_auth_caches():
+    import ckan.logic
+    import ckan.new_authz
+    ckan.logic.clear_actions_cache()
+    ckan.new_authz.clear_auth_functions_cache()
 
 def load(plugin):
     """
     Load a single plugin, given a plugin name, class or instance
     """
+    _clear_logic_and_auth_caches()
     observers = PluginImplementations(IPluginObserver)
     for observer_plugin in observers:
         observer_plugin.before_load(plugin)
@@ -143,6 +149,7 @@ def unload(plugin):
     """
     Unload a single plugin, given a plugin name, class or instance
     """
+    _clear_logic_and_auth_caches()
     observers = PluginImplementations(IPluginObserver)
     service = _get_service(plugin)
     for observer_plugin in observers:
