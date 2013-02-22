@@ -1,6 +1,10 @@
 import sys
 from logging import getLogger
-import collections
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 from pylons import config, c
 from pylons.i18n import _
@@ -69,7 +73,7 @@ def is_authorized(action, context, data_dict=None):
         raise ValueError(_('Authorization function not found: %s' % action))
 
 # these are the permissions that roles have
-ROLE_PERMISSIONS = collections.OrderedDict([
+ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
     ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
     ('member', ['read']),
