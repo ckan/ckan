@@ -49,6 +49,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def _create(self):
         postparams = '%s=1' % json.dumps(self.data)
