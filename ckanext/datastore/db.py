@@ -78,8 +78,9 @@ def _is_valid_field_name(name):
     Check that field name is valid:
     * can't start with underscore
     * can't contain double quote (")
+    * can't be empty
     '''
-    if name.startswith('_') or '"' in name:
+    if not name or name.startswith('_') or '"' in name:
         return False
     return True
 
