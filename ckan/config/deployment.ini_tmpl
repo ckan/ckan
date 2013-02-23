@@ -54,7 +54,7 @@ app_instance_uuid = ${app_instance_uuid}
 # Note: Add ``pdf_preview`` to enable the resource preview for PDFs
 #		Add the ``resource_proxy`` plugin to enable resorce proxying and get around the same origin policy
 #       Add ``datastore`` to enable the CKAN DataStore extension
-ckan.plugins = stats json_preview recline_preview
+ckan.plugins = stats texthighlighter recline_preview
 
 # If you'd like to fine-tune the individual locations of the cache data dirs
 # for the Cache data, or the Session saves, un-comment the desired settings

@@ -123,7 +123,7 @@ setup(
     datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
-    json_preview=ckanext.jsonpreview.plugin:JsonPreview
+    texthighlighter=ckanext.texthighlighter.plugin:TextHighlighter
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin

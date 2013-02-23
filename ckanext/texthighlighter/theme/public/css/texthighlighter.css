@@ -15,19 +15,3 @@ pre {
 	top: 20px;
 }
 
-.string {
-	color: #009900;
-}
-.number {
-	color: #0066FF;
-}
-.boolean {
-	color: #E62E00;
-}
-.null {
-	color: #E62E00;
-}
-.key {
-	color: #222;
-	font-weight: bold;
-}

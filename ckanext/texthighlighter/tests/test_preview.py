@@ -8,21 +8,21 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.jsonpreview.plugin as previewplugin
+import ckanext.texthighlighter.plugin as previewplugin
 from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
 
-class TestJsonPreview(tests.WsgiAppCase):
+class TestTextHighlighter(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
-        config['ckan.plugins'] = 'json_preview'
+        config['ckan.plugins'] = 'texthighlighter'
         wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
-        cls.p = previewplugin.JsonPreview()
+        cls.p = previewplugin.TextHighlighter()
 
         # create test resource
         CreateTestData.create()
@@ -63,7 +63,24 @@ class TestJsonPreview(tests.WsgiAppCase):
 
         data_dict = {
             'resource': {
+                'format': 'xml',
+                'on_same_domain': True
+            }
+        }
+        assert self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
+                'format': 'txt',
+                'on_same_domain': True
+            }
+        }
+        assert self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
                 'format': 'foo',
+                'on_same_domain': True
             }
         }
         assert not self.p.can_preview(data_dict)
@@ -83,9 +100,9 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_json.min.js' in result.body, result.body
+        assert (('preview.js' in result.body) or ('preview.min.js' in result.body)), result.body
         assert 'preload_resource' in result.body, result.body
-        assert 'data-module="jsonpreview"' in result.body, result.body
+        assert 'data-module="texthighlighter"' in result.body, result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
