@@ -8,21 +8,21 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.texthighlighter.plugin as previewplugin
+import ckanext.textpreview.plugin as previewplugin
 from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
 
-class TestTextHighlighter(tests.WsgiAppCase):
+class TestTextPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
-        config['ckan.plugins'] = 'texthighlighter'
+        config['ckan.plugins'] = 'text_preview'
         wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
-        cls.p = previewplugin.TextHighlighter()
+        cls.p = previewplugin.TextPreview()
 
         # create test resource
         CreateTestData.create()
@@ -101,8 +101,19 @@ class TestTextHighlighter(tests.WsgiAppCase):
 
         assert result.status == 200, result.status
         assert (('preview.js' in result.body) or ('preview.min.js' in result.body)), result.body
+        assert (('highlight.pack.js' in result.body) or ('highlight.pack.js' in result.body)), result.body
         assert 'preload_resource' in result.body, result.body
-        assert 'data-module="texthighlighter"' in result.body, result.body
+        assert 'data-module="textpreview"' in result.body, result.body
+
+    def test_css_included(self):
+        res_id = self.resource['id']
+        pack_id = self.package.name
+        url = '/dataset/{0}/resource/{1}/preview'.format(pack_id, res_id)
+        result = self.app.get(url, status='*')
+
+        assert result.status == 200, result.status
+        assert 'text.css' in result.body, result.body
+        assert 'github.css' in result.body, result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
