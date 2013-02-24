@@ -1355,7 +1355,7 @@ def resource_search(context, data_dict):
     limit or query parameters having an effect.  The ``results`` field is a
     list of dictized Resource objects.
 
-    The 'q' parameter is a required field.  It is a string of the form
+    The 'query' parameter is a required field.  It is a string of the form
     ``{field}:{term}`` or a list of strings, each of the same form.  Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
