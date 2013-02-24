@@ -94,7 +94,7 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    if data_dict.has_key('limit'):
+    if 'limit' in data_dict:
         try:
             limit = int(data_dict['limit'])
             if limit < 0:
@@ -1548,7 +1548,7 @@ def _tag_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if data_dict.has_key('vocabulary_id'):
+    if 'vocabulary_id' in data_dict:
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
