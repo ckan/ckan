@@ -24,8 +24,13 @@ class TextPreview(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
 
-    FORMATS = ['json', 'xml', 'rdf', 'text/plain', 'txt']
+    # don't forget to change public/preview.js as well if you edit the formats here
+    TEXT_FORMATS = ['text/plain', 'txt', 'plain']
+    XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss']
+    JSON_FORMATS = ['json']
     JSONP_FORMATS = ['jsonp']
+    NO_JSONP_FORMATS = TEXT_FORMATS + XML_FORMATS + JSON_FORMATS
+
     proxy_is_enabled = False
 
     def update_config(self, config):
@@ -44,7 +49,7 @@ class TextPreview(p.SingletonPlugin):
         format_lower = resource['format'].lower()
         if format_lower in self.JSONP_FORMATS:
             return True
-        elif format_lower in self.FORMATS and (self.proxy_is_enabled or resource['on_same_domain']):
+        elif format_lower in self.NO_JSONP_FORMATS and (self.proxy_is_enabled or resource['on_same_domain']):
             return True
         return False
 
@@ -52,7 +57,7 @@ class TextPreview(p.SingletonPlugin):
         assert self.can_preview(data_dict)
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
-        if format_lower in self.FORMATS and self.proxy_is_enabled and not resource['on_same_domain']:
+        if format_lower in self.NO_JSONP_FORMATS and self.proxy_is_enabled and not resource['on_same_domain']:
             p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
 
     def preview_template(self, context, data_dict):

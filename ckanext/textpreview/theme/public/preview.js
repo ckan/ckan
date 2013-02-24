@@ -4,10 +4,8 @@ ckan.module('textpreview', function (jQuery, _) {
     options: {
       i18n: {
         error: _('An error occurred: %(text)s %(error)s')
-      }
-    },
-    initialize: function () {
-      var parameters = {
+      },
+      parameters: {
         json: {
           contentType: 'application/json',
           dataType: 'json',
@@ -25,17 +23,33 @@ ckan.module('textpreview', function (jQuery, _) {
           dataType: 'text',
           language: 'xml'
         },
-        txt: {
+        text: {
           contentType: 'text/plain',
           dataType: 'text',
           language: ''
         }
-      };
-      parameters['text/plain'] = parameters.txt;
-      parameters['rdf'] = parameters.xml;
-
+      }
+    },
+    initialize: function () {
       var self = this;
-      var p = parameters[preload_resource['format'].toLowerCase()];
+      var format = preload_resource['format'].toLowerCase();
+
+      var TEXT_FORMATS = ['text/plain', 'txt', 'plain'];
+      var XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss'];
+      var JSON_FORMATS = ['json'];
+      var JSONP_FORMATS = ['jsonp'];
+
+      var p;
+
+      if (JSON_FORMATS.indexOf(format) !== -1) {
+        p = this.options.parameters.json;
+      } else if (JSONP_FORMATS.indexOf(format) !== -1) {
+        p = this.options.parameters.jsonp;
+      } else if(XML_FORMATS.indexOf(format) !== -1) {
+        p = this.options.parameters.xml;
+      } else {
+        p = this.options.parameters.text;
+      }
 
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
