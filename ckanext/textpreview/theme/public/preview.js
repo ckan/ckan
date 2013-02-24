@@ -17,7 +17,8 @@ ckan.module('textpreview', function (jQuery, _) {
         jsonp: {
           contentType: 'application/javascript',
           dataType: 'jsonp',
-          language: 'javascript'
+          dataConverter: function (data) { return JSON.stringify(data, null, 2); },
+          language: 'json'
         },
         xml: {
           contentType: 'text/xml',
@@ -39,15 +40,16 @@ ckan.module('textpreview', function (jQuery, _) {
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
         async: false,
+        contentType: p.contentType,
         dataType: p.dataType,
         success: function(data, textStatus, jqXHR) {
-          var converted = p.dataConverter ? p.dataConverter(data) : data;
+          data = p.dataConverter ? p.dataConverter(data) : data;
           var highlighted;
 
           if (p.language) {
-            highlighted = hljs.highlight(p.language, converted, true).value;
+            highlighted = hljs.highlight(p.language, data, true).value;
           } else {
-            highlighted = '<pre>' + converted + '</pre>';
+            highlighted = '<pre>' + data + '</pre>';
           }
 
           self.el.html(highlighted);
