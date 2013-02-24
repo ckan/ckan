@@ -1,5 +1,5 @@
 // json preview module
-ckan.module('texthighlighter', function (jQuery, _) {
+ckan.module('textpreview', function (jQuery, _) {
   return {
     options: {
       i18n: {
@@ -9,9 +9,9 @@ ckan.module('texthighlighter', function (jQuery, _) {
     initialize: function () {
       var parameters = {
         json: {
-          contentType: 'application/json', 
-          dataType: 'json', 
-          dataConverter: function (data) { return JSON.stringify(data, null, 2); }, 
+          contentType: 'application/json',
+          dataType: 'json',
+          dataConverter: function (data) { return JSON.stringify(data, null, 2); },
           language: 'json'
         },
         jsonp: {
@@ -41,13 +41,13 @@ ckan.module('texthighlighter', function (jQuery, _) {
         async: false,
         dataType: p.dataType,
         success: function(data, textStatus, jqXHR) {
-          var data = p.dataConverter ? p.dataConverter(data) : data;
+          var converted = p.dataConverter ? p.dataConverter(data) : data;
           var highlighted;
 
           if (p.language) {
-            highlighted = hljs.highlight(p.language, data, true).value;
+            highlighted = hljs.highlight(p.language, converted, true).value;
           } else {
-            highlighted = '<pre>' + data + '</pre>';
+            highlighted = '<pre>' + converted + '</pre>';
           }
 
           self.el.html(highlighted);

@@ -11,7 +11,7 @@ except ImportError:
     pass
 
 
-class TextHighlighter(p.SingletonPlugin):
+class TextPreview(p.SingletonPlugin):
     """This extension previews JSON(P)
 
     This extension implements two interfaces
@@ -34,7 +34,7 @@ class TextHighlighter(p.SingletonPlugin):
         '''
         p.toolkit.add_public_directory(config, 'theme/public')
         p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-texthighlighter')
+        p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
 
     def configure(self, config):
         self.proxy_is_enabled = config.get('ckan.resource_proxy_enabled', False)
@@ -56,4 +56,4 @@ class TextHighlighter(p.SingletonPlugin):
             p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
 
     def preview_template(self, context, data_dict):
-        return 'texthighlighter.html'
+        return 'text.html'
