@@ -8,47 +8,49 @@ ckan.module('texthighlighter', function (jQuery, _) {
     },
     initialize: function () {
       var parameters = {
-		  json: {
-			  contentType: 'application/json', 
-			  language: 'json', 
-			  dataConverter: function (data) { return JSON.stringify(data, null, 2); }, 
-			  dataType: 'json'},
-		  jsonp: {
-			  contentType: 'application/javascript',
-			  language: 'javascript',
-			  dataType: 'jsonp'
-		  },
-		  xml: {
-			  contentType: 'text/xml',
-			  language: 'xml',
-			  dataType: 'text'},
-		  txt: {
-			  contentType: 'text/plain',
-			  language: '',
-			  dataType: 'text'}
-	      };
-	  parameters['text/plain'] = parameters.txt;
-	  parameters['rdf'] = parameters.xml;
+        json: {
+          contentType: 'application/json', 
+          dataType: 'json', 
+          dataConverter: function (data) { return JSON.stringify(data, null, 2); }, 
+          language: 'json'
+        },
+        jsonp: {
+          contentType: 'application/javascript',
+          dataType: 'jsonp',
+          language: 'javascript'
+        },
+        xml: {
+          contentType: 'text/xml',
+          dataType: 'text',
+          language: 'xml'
+        },
+        txt: {
+          contentType: 'text/plain',
+          dataType: 'text',
+          language: ''
+        }
+      };
+      parameters['text/plain'] = parameters.txt;
+      parameters['rdf'] = parameters.xml;
 
-	  var self = this;
-	  var p = parameters[preload_resource['format'].toLowerCase()];
+      var self = this;
+      var p = parameters[preload_resource['format'].toLowerCase()];
 
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
         async: false,
-		dataType: p.dataType,
+        dataType: p.dataType,
         success: function(data, textStatus, jqXHR) {
-	   	  var data = p.dataConverter ? p.dataConverter(data) : data;
-		  var highlighted;
+          var data = p.dataConverter ? p.dataConverter(data) : data;
+          var highlighted;
 
-		  if (p.language) {
-			highlighted = hljs.highlight(p.language, data, true).value;
-		  }
-		  else {
-			highlighted = '<pre>' + data + '</pre>';
-		  }
+          if (p.language) {
+            highlighted = hljs.highlight(p.language, data, true).value;
+          } else {
+            highlighted = '<pre>' + data + '</pre>';
+          }
 
-		  self.el.html(highlighted);
+          self.el.html(highlighted);
         },
         error: function(jqXHR, textStatus, errorThrown) {
           self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
