@@ -43,7 +43,6 @@ _text = sqlalchemy.text
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
-    model = context["model"]
     for package in package_revision_list:
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
@@ -205,7 +204,6 @@ def related_list(context, data_dict=None):
 
     '''
     model = context['model']
-    session = context['session']
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
@@ -261,7 +259,6 @@ def member_list(context, data_dict=None):
 
     '''
     model = context['model']
-    user = context['user']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
     obj_type = data_dict.get('object_type', None)
@@ -305,7 +302,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
-    ref_group_by = 'id' if api == 2 else 'name';
+    ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
     # order_by deprecated in ckan 1.8
@@ -669,13 +666,12 @@ def package_relationships_list(context, data_dict):
     '''
     ##TODO needs to work with dictization layer
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
 
     id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == 2 else 'name';
+    ref_package_by = 'id' if api == 2 else 'name'
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -1044,8 +1040,6 @@ def package_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
-    user = context['user']
     q = _get_or_bust(data_dict, 'q')
 
     like_q = u"%s%%" % q
@@ -1088,7 +1082,6 @@ def format_autocomplete(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    user = context['user']
 
     _check_access('format_autocomplete', context, data_dict)
 
@@ -1126,7 +1119,6 @@ def user_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
     user = context['user']
     q = data_dict.get('q',None)
     if not q:
