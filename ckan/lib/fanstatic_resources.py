@@ -45,10 +45,10 @@ def create_library(name, path, depend_base=True):
         path = os.path.normpath(unix_path)
         if not inline:
             # resource_name is name of the file without the .js/.css
-            rel_path, filename = os.path.split(path)
+            rel_path, filename = os.path.split(unix_path)
             filename = os.path.join(rel_path, filename)
             path_min = min_path(os.path.join(resource_path, filename))
-            if os.path.exists(path_min):
+            if os.path.exists(os.path.normpath(path_min)):
                 kw['minified'] = min_path(filename)
             if filename.endswith('.js'):
                 renderer = core.render_js
