@@ -81,6 +81,10 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def db_to_form_schema(self):
         schema = logic.schema.db_to_form_package_schema()
 
+        # Don't show vocab tags mixed in with normal 'free' tags
+        # (e.g. on dataset pages, or on the search page)
+        schema['tags']['__extras'].append(logic.converters.free_tags_only)
+
         # Add our custom country_code metadata field to the schema.
         schema.update({
             'country_code': [
