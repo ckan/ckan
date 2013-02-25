@@ -7,7 +7,9 @@
   padding: 7px @gutterX;
   font-size: 14px;
   line-height: 1.3;
-  border-bottom: 1px dotted @moduleHeadingBorderColor;
+  background-color: @moduleHeadingBackgroundColor;
+  border-top: 1px solid @moduleHeadingBorderColor;
+  border-bottom: 1px solid @moduleHeadingBorderColor;
 }
 
 .module-heading .action {
@@ -34,6 +36,11 @@
 
 .module-content > :last-child {
   margin-bottom: 0;
+}
+
+.module:first-child .module-heading {
+  .border-radius(3px 0 0 0);
+  border-top-width: 0;
 }
 
 .module:last-child {
