@@ -124,14 +124,11 @@ class MultilingualDataset(SingletonPlugin):
         for key, value in search_data.iteritems():
             if key in KEYS_TO_IGNORE or key.startswith('title'):
                 continue
-            if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, basestring):
-                        all_terms.append(item)
-            elif not isinstance(value, basestring):
-                continue
-            else:
-                all_terms.append(value)
+            if not isinstance(value, list):
+                value = [value]
+            for item in value:
+                if isinstance(item, basestring):
+                    all_terms.append(item)
 
         field_translations = action_get.term_translation_show(
                           {'model': ckan.model},
