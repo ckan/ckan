@@ -68,7 +68,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return []
 
     def form_to_db_schema(self):
-        schema = logic.schema.form_to_db_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).form_to_db_schema()
 
         # Add our custom country_code metadata field to the schema.
         schema.update({
@@ -79,7 +79,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return schema
 
     def db_to_form_schema(self):
-        schema = logic.schema.db_to_form_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).db_to_form_schema()
 
         # Don't show vocab tags mixed in with normal 'free' tags
         # (e.g. on dataset pages, or on the search page)
@@ -95,8 +95,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return schema
 
     def setup_template_variables(self, context, data_dict=None):
-        lib_plugins.DefaultDatasetForm.setup_template_variables(self, context,
-                data_dict)
+        super(ExampleIDatasetFormPlugin, self).setup_template_variables(
+                context, data_dict)
 
         # Create the country_codes vocab and tags, if they don't already exist.
         self.create_country_codes()
