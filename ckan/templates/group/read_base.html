@@ -9,8 +9,8 @@
 
 {% block actions_content %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    <li>{% link_for _('Add Dataset to Group'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
-    <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}</li>
+    <li>{% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus-sign-alt' %}</li>
+    <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
   <li>{{ h.follow_button('group', c.group_dict.id) }}</li>
 {% endblock %}
@@ -26,12 +26,6 @@
           <li{% if c.action == 'activity' %} class="active"{% endif %}>
             {% link_for _('Activity Stream'), controller='group', action='activity', id=c.group_dict.name, icon='time' %}
           </li>
-          <li{% if c.action == 'followers' %} class="active"{% endif %}>
-            {% link_for _('Followers'), controller='group', action='followers', id=c.group_dict.name, icon='group' %}
-          </li>
-          <li{% if c.action == 'admins' %} class="active"{% endif %}>
-            {% link_for _('Administrators'), controller='group', action='admins', id=c.group_dict.name, icon='cog' %}
-          </li>
           <li{% if c.action == 'about' %} class="active"{% endif %}>
             {% link_for _('About'), controller='group', action='about', id=c.group_dict.name, icon='info-sign' %}
           </li>
@@ -39,20 +33,16 @@
       </header>
     {% endblock %}
     {% block primary_content_inner %}
-      <div class="module-content">
-        {% include "package/snippets/search_form.html" %}
-      </div>
-      {{ c.page.pager(q=c.q) }}
     {% endblock %}
   </section>
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="module profile-info">
+  <div class="module context-info">
     <section class="module-content">
-      <div class="avatar">
+      <div class="image">
         <a href="{{ c.group_dict.url }}">
-          <img src="{{ c.group_dict.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="200" height="125" alt="{{ c.group_dict.name }}" />
+          <img src="{{ c.group_dict.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ c.group_dict.name }}" />
         </a>
       </div>
       <h1 class="heading">{{ c.group_dict.display_name }}</h1>
@@ -76,9 +66,6 @@
       </div>
     </section>
   </div>
-
-  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
-  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}
 
 {% block links %}

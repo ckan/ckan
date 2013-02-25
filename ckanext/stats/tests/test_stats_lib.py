@@ -51,6 +51,10 @@ class TestStatsPlugin(StatsFixture):
         rev.timestamp = datetime.datetime(2011, 1, 26)
         model.Package.by_name(u'test3').notes = 'Test 3 notes'
         model.repo.commit_and_remove()
+
+    @classmethod
+    def teardown_class(cls):
+        CreateTestData.delete()
         
     def test_top_rated_packages(self):
         pkgs = Stats.top_rated_packages()

@@ -43,7 +43,6 @@ _text = sqlalchemy.text
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
-    model = context["model"]
     for package in package_revision_list:
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
@@ -94,7 +93,7 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    if data_dict.has_key('limit'):
+    if 'limit' in data_dict:
         try:
             limit = int(data_dict['limit'])
             if limit < 0:
@@ -205,7 +204,6 @@ def related_list(context, data_dict=None):
 
     '''
     model = context['model']
-    session = context['session']
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
@@ -261,7 +259,6 @@ def member_list(context, data_dict=None):
 
     '''
     model = context['model']
-    user = context['user']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
     obj_type = data_dict.get('object_type', None)
@@ -288,15 +285,24 @@ def member_list(context, data_dict=None):
             return lookup[name]
         return None
 
-    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
-             for m in q.all() ]
+    trans = new_authz.roles_trans()
+    def translated_capacity(capacity):
+        try:
+            return trans[capacity]
+        except KeyError:
+            return capacity
+
+    return [(m.table_id,
+             type_lookup(m.table_name),
+             translated_capacity(m.capacity),)
+            for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
-    ref_group_by = 'id' if api == 2 else 'name';
+    ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
     q = data_dict.get('q')
@@ -670,13 +676,12 @@ def package_relationships_list(context, data_dict):
     '''
     ##TODO needs to work with dictization layer
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
 
     id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == 2 else 'name';
+    ref_package_by = 'id' if api == 2 else 'name'
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -834,6 +839,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
+    
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -939,16 +945,7 @@ def tag_show(context, data_dict):
 
     _check_access('tag_show',context, data_dict)
 
-    tag_dict = model_dictize.tag_dictize(tag,context)
-
-    extended_packages = []
-    for package in tag_dict['packages']:
-        pkg = model.Package.get(package['id'])
-        extended_packages.append(model_dictize.package_dictize(pkg,context))
-
-    tag_dict['packages'] = extended_packages
-
-    return tag_dict
+    return model_dictize.tag_dictize(tag,context)
 
 def user_show(context, data_dict):
     '''Return a user account.
@@ -1053,8 +1050,6 @@ def package_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
-    user = context['user']
     q = _get_or_bust(data_dict, 'q')
 
     like_q = u"%s%%" % q
@@ -1097,7 +1092,6 @@ def format_autocomplete(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    user = context['user']
 
     _check_access('format_autocomplete', context, data_dict)
 
@@ -1135,7 +1129,6 @@ def user_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
     user = context['user']
     q = data_dict.get('q',None)
     if not q:
@@ -1364,7 +1357,7 @@ def resource_search(context, data_dict):
     limit or query parameters having an effect.  The ``results`` field is a
     list of dictized Resource objects.
 
-    The 'q' parameter is a required field.  It is a string of the form
+    The 'query' parameter is a required field.  It is a string of the form
     ``{field}:{term}`` or a list of strings, each of the same form.  Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
@@ -1557,7 +1550,7 @@ def _tag_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if data_dict.has_key('vocabulary_id'):
+    if 'vocabulary_id' in data_dict:
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
@@ -1725,7 +1718,8 @@ def term_translation_show(context, data_dict):
     terms = _get_or_bust(data_dict, 'terms')
     if isinstance(terms, basestring):
         terms = [terms]
-    q = q.where(trans_table.c.term.in_(terms))
+    if terms:
+        q = q.where(trans_table.c.term.in_(terms))
 
     # This action accepts `lang_codes` as either a list of strings, or a single
     # string.
@@ -1879,12 +1873,17 @@ def user_activity_list(context, data_dict):
     _check_access('user_show', context, data_dict)
 
     model = context['model']
-    user_id = _get_or_bust(data_dict, 'id')
+
+    user_ref = _get_or_bust(data_dict, 'id')  # May be user name or id.
+    user = model.User.get(user_ref)
+    if user is None:
+        raise logic.NotFound
+
     offset = int(data_dict.get('offset', 0))
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.user_activity_list(user_id, limit=limit,
+    activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -1911,12 +1910,17 @@ def package_activity_list(context, data_dict):
     _check_access('package_show', context, data_dict)
 
     model = context['model']
-    package_id = _get_or_bust(data_dict, 'id')
+
+    package_ref = _get_or_bust(data_dict, 'id')  # May be name or ID.
+    package = model.Package.get(package_ref)
+    if package is None:
+        raise logic.NotFound
+
     offset = int(data_dict.get('offset', 0))
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.package_activity_list(package_id,
+    activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -1965,19 +1969,22 @@ def organization_activity_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    # FIXME This is a duplicate of group_activity_list and
-    # package_activity_list but they claim to get the group/package by name
-    # or id but I think that they only get by id.  Either they need fixing
-    # and remain seperate or they should share code - probably should share
-    # code anyway.
+    # FIXME: Filter out activities whose subject or object the user is not
+    # authorized to read.
+    _check_access('organization_show', context, data_dict)
 
     model = context['model']
-    group_id = _get_or_bust(data_dict, 'id')
-    query = model.Session.query(model.Activity)
-    query = query.filter_by(object_id=group_id)
-    query = query.order_by(_desc(model.Activity.timestamp))
-    query = query.limit(15)
-    activity_objects = query.all()
+    org_id = _get_or_bust(data_dict, 'id')
+    offset = int(data_dict.get('offset', 0))
+    limit = int(
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+
+    # Convert org_id (could be id or name) into id.
+    org_show = logic.get_action('organization_show')
+    org_id = org_show(context, {'id': org_id})['id']
+
+    activity_objects = model.activity.group_activity_list(org_id,
+            limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def recently_changed_packages_activity_list(context, data_dict):
@@ -2125,7 +2132,6 @@ def organization_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    # FIXME does this work with a name? same issue with package/group
     activity_stream = organization_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
 
@@ -2238,6 +2244,7 @@ def user_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('user_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_user_schema(),
             context['model'].UserFollowingUser)
@@ -2252,6 +2259,7 @@ def dataset_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('dataset_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_dataset_schema(),
             context['model'].UserFollowingDataset)
@@ -2266,6 +2274,7 @@ def group_follower_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_follower_list', context, data_dict)
     return _follower_list(context, data_dict,
             ckan.logic.schema.default_follow_group_schema(),
             context['model'].UserFollowingGroup)
@@ -2334,12 +2343,41 @@ def am_following_group(context, data_dict):
 
 
 def _followee_count(context, data_dict, FollowerClass):
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not context.get('skip_validation'):
+        schema = context.get('schema',
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
     return FollowerClass.followee_count(data_dict['id'])
+
+
+def followee_count(context, data_dict):
+    '''Return the number of objects that are followed by the given user.
+
+    Counts all objects, of any type, that the given user is following
+    (e.g. followed users, followed datasets, followed groups).
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    model = context['model']
+    followee_users = _followee_count(context, data_dict,
+            model.UserFollowingUser)
+
+    # followee_users has validated data_dict so the following functions don't
+    # need to validate it again.
+    context['skip_validation'] = True
+
+    followee_datasets = _followee_count(context, data_dict,
+            model.UserFollowingDataset)
+    followee_groups = _followee_count(context, data_dict,
+            model.UserFollowingGroup)
+
+    return sum((followee_users, followee_datasets, followee_groups))
 
 
 def user_followee_count(context, data_dict):
@@ -2381,6 +2419,72 @@ def group_followee_count(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
+def followee_list(context, data_dict):
+    '''Return the list of objects that are followed by the given user.
+
+    Returns all objects, of any type, that the given user is following
+    (e.g. followed users, followed datasets, followed groups.. ).
+
+    :param id: the id of the user
+    :type id: string
+
+    :param q: a query string to limit results by, only objects whose display
+        name begins with the given string (case-insensitive) wil be returned
+        (optional)
+    :type q: string
+
+    :rtype: list of dictionaries, each with keys 'type' (e.g. 'user',
+        'dataset' or 'group'), 'display_name' (e.g. a user's display name,
+        or a package's title) and 'dict' (e.g. a dict representing the
+        followed user, package or group, the same as the dict that would be
+        returned by user_show, package_show or group_show)
+
+    '''
+    _check_access('followee_list', context, data_dict)
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    def display_name(followee):
+        '''Return a display name for the given user, group or dataset dict.'''
+        display_name = followee.get('display_name')
+        fullname = followee.get('fullname')
+        title = followee.get('title')
+        name = followee.get('name')
+        return display_name or fullname or title or name
+
+    # Get the followed objects.
+    # TODO: Catch exceptions raised by these *_followee_list() functions?
+    followee_dicts = []
+    context['skip_validation'] = True
+    context['skip_authorization'] = True
+    for followee_list_function, followee_type in (
+            (user_followee_list, 'user'),
+            (dataset_followee_list, 'dataset'),
+            (group_followee_list, 'group')):
+        dicts = followee_list_function(context, data_dict)
+        for d in dicts:
+            followee_dicts.append(
+                    {'type': followee_type,
+                    'display_name': display_name(d),
+                    'dict': d})
+
+    followee_dicts.sort(key=lambda d: d['display_name'])
+
+    q = data_dict.get('q')
+    if q:
+        q = q.strip().lower()
+        matching_followee_dicts = []
+        for followee_dict in followee_dicts:
+            if followee_dict['display_name'].strip().lower().startswith(q):
+                matching_followee_dicts.append(followee_dict)
+        followee_dicts = matching_followee_dicts
+
+    return followee_dicts
+
+
 def user_followee_list(context, data_dict):
     '''Return the list of users that are followed by the given user.
 
@@ -2390,11 +2494,15 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not context.get('skip_authorization'):
+        _check_access('user_followee_list', context, data_dict)
+
+    if not context.get('skip_validation'):
+        schema = context.get('schema') or (
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']
@@ -2417,11 +2525,15 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not context.get('skip_authorization'):
+        _check_access('dataset_followee_list', context, data_dict)
+
+    if not context.get('skip_validation'):
+        schema = context.get('schema') or (
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of Follower objects.
     model = context['model']
@@ -2445,11 +2557,15 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
+    if not context.get('skip_authorization'):
+        _check_access('group_followee_list', context, data_dict)
+
+    if not context.get('skip_validation'):
+        schema = context.get('schema',
+                ckan.logic.schema.default_follow_user_schema())
+        data_dict, errors = _validate(data_dict, schema, context)
+        if errors:
+            raise ValidationError(errors)
 
     # Get the list of UserFollowingGroup objects.
     model = context['model']

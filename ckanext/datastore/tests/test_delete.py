@@ -1,4 +1,5 @@
 import json
+import nose
 
 import sqlalchemy
 import sqlalchemy.orm as orm
@@ -19,6 +20,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -46,6 +49,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def _create(self):
         postparams = '%s=1' % json.dumps(self.data)

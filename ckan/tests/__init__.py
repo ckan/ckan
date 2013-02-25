@@ -330,6 +330,10 @@ def is_migration_supported():
     is_supported_db = not model.engine_is_sqlite()
     return is_supported_db
 
+def is_datastore_supported():
+    is_supported_db = model.engine_is_pg()
+    return is_supported_db
+
 def search_related(test):
     def skip_test(*args):
         raise SkipTest("Search not supported")

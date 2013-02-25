@@ -251,6 +251,7 @@ class DefaultDatasetForm(object):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
+        return logic.schema.db_to_form_package_schema()
 
     def db_to_form_schema_options(self, options):
         '''This allows the selectino of different schemas for different
@@ -271,7 +272,9 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type', 'owner_org']
+                               'resources', 'type', 'owner_org',
+                               'log_message', 'tag_string', 'tags',
+                               'url', 'version', 'extras']
 
         if not schema:
             schema = self.form_to_db_schema()

@@ -10,20 +10,8 @@
     {% else %}
       <p class="empty">No related items</p>
     {% endif %}
-  </section>
-{% endblock %}
-
-{% block secondary_help_content %}
-  <div class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What is Related Media?') }}</h2>
-    <div class="module-content">
-      {% trans %}
-        <p>Related Media is any app, article, visualisation or idea related to
-        this dataset.</p>
-        <p>For example, it could be a custom visualisation,
-        pictograph or bar chart, an app using all or part of the data or
-        even a news story that references this dataset.</p>
-      {% endtrans %}
+    <div class="form-actions">
+      {% link_for _('Add Related Item'), controller='related', action='new', id=pkg.name, class_='btn btn-primary' %}
     </div>
-  </div>
+  </section>
 {% endblock %}

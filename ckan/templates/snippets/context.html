@@ -1,0 +1,10 @@
+{%if type == 'user' %}
+  <h4>{{ dict.name }}</h4>
+  {% snippet 'snippets/context/user.html', id=dict.id, name=dict.name, about=dict.about, is_me='false', num_followers=dict.num_followers, number_administered_packages=dict.number_administered_packages, number_of_edits=dict.number_of_edits %}
+{%elif type == 'dataset' %}
+  <h4>{{ dict.title }}</h4>
+  {% snippet 'snippets/context/dataset.html', id=dict.id, name=dict.name, notes=dict.notes, num_resources=dict.num_resources, num_tags=dict.num_tags %}
+{%elif type == 'group' %}
+  <h4>{{ dict.title }}</h4>
+  {% snippet 'snippets/context/group.html', id=dict.id, name=dict.name, description=dict.description, num_followers=dict.num_followers, package_count=dict.package_count %}
+{% endif %}

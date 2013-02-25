@@ -20,11 +20,11 @@ def scrape_search_results(response, object_type):
 def test_scrape_user():
     html = '''
           <li class="username">
-          <img src="http://gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_00">user_00</a>
+          <img src="//gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_00">user_00</a>
           </li>
           ...
           <li class="username">
-          <img src="http://gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_01">user_01</a>
+          <img src="//gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=16&amp;d=http://test.ckan.net/images/icons/user.png" /> <a href="/user/user_01">user_01</a>
           </li>
 
       '''
