@@ -6,7 +6,7 @@
         <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
           <ul class="unstyled">
             <li>
-              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View my profile') }}">
+              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
                 {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''), size=22) }}
                 <span class="username">{{ c.userobj.display_name }}</span>
               </a>
