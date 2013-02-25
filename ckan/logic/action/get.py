@@ -288,8 +288,17 @@ def member_list(context, data_dict=None):
             return lookup[name]
         return None
 
-    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
-             for m in q.all() ]
+    trans = new_authz.roles_trans()
+    def translated_capacity(capacity):
+        try:
+            return trans[capacity]
+        except KeyError:
+            return capacity
+
+    return [(m.table_id,
+             type_lookup(m.table_name),
+             translated_capacity(m.capacity),)
+            for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
 
@@ -1707,7 +1716,8 @@ def term_translation_show(context, data_dict):
     terms = _get_or_bust(data_dict, 'terms')
     if isinstance(terms, basestring):
         terms = [terms]
-    q = q.where(trans_table.c.term.in_(terms))
+    if terms:
+        q = q.where(trans_table.c.term.in_(terms))
 
     # This action accepts `lang_codes` as either a list of strings, or a single
     # string.

@@ -41,7 +41,6 @@ class TestActivity(HtmlCheckMethods):
             'session': ckan.model.Session,
             'user': self.sysadmin_user.name,
             'allow_partial_update': True,
-            'extras_as_string': True,
             }
         user = user_create(context, user_dict)
         offset = url_for(controller='user', action='read', id=user['id'])
