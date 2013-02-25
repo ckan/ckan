@@ -3,8 +3,14 @@
 
 {% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
+{% block add_action_content %}
+  {% if h.check_access('package_create') %}
+    {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+  {% endif %}
+{% endblock %}
+
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+  <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
 {% endblock %}
 
 {% block primary_content %}

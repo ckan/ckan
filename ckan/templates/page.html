@@ -29,6 +29,13 @@
 
           {% block toolbar %}
             <div class="toolbar">
+              {% block add_action %}
+                {% if self.add_action_content() | trim %}
+                  <div class="add_action">
+                    {% block add_action_content %}{% endblock %}
+                  </div>
+                {% endif %}
+              {% endblock %}
               {% block breadcrumb %}
                 {% if self.breadcrumb_content() | trim %}
                   <ol class="breadcrumb">

@@ -5,17 +5,6 @@
       {% if c.userobj %}
         <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
           <ul class="unstyled">
-            <li class="notifications{% if c.new_activities > 0 %} notifications-important{% endif %}">
-              <a href="{{ h.url_for(controller='user', action='dashboard') }}" title="{{ c.new_activities }} {{ _('new notifications') }}">
-                <span>{{ c.new_activities }}</span>
-              </a>
-            </li>
-            <li>
-              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View my profile') }}">
-                {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''), size=22) }}
-                <span class="username">{{ c.userobj.display_name }}</span>
-              </a>
-            </li>
             {% if c.userobj.sysadmin %}
               <li>
                 <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
@@ -24,12 +13,25 @@
               </li>
             {% endif %}
             <li>
-              <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit my settings') }}">
+              <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
+                {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''), size=22) }}
+                <span class="username">{{ c.userobj.display_name }}</span>
+              </a>
+            </li>
+            <li class="notifications {% if c.new_activities > 0 %}notifications-important{% endif %}">
+              {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)'), 'Dashboard (%(num)d new items)', c.new_activities) %}
+              <a href="{{ h.url_for(controller='user', action='dashboard') }}" title="{{ notifications_tooltip }}">
+                <i class="icon-dashboard"></i>
+                <span>{{ c.new_activities }}</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
                 <i class="icon-cog"></i>
               </a>
             </li>
             <li>
-              <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log me out') }}">
+              <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
                 <i class="icon-signout"></i>
               </a>
             </li>
