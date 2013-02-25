@@ -1,3 +1,7 @@
+.module {
+  margin: 20px 0;
+}
+
 .module-heading {
   margin: 0;
   padding: 7px @gutterX;
@@ -94,6 +98,10 @@
   padding-bottom: 10px;
 }
 
+.module h1 {
+  margin-bottom: 20px;
+}
+
 // Module Shallow
 
 .module-shallow .module-content {
@@ -187,9 +195,17 @@
 .module-resource {
   background-color: @layoutTrimBackgroundColor;
   border-bottom: 1px solid @genericBorderColor;
+  margin-top: 0;
   .border-radius(3px 3px 0 0);
 }
 
 .module .module-tags {
   padding-bottom: 8px;
+}
+
+.secondary,
+.primary {
+  .module:first-child {
+    margin-top: 0;
+  }
 }

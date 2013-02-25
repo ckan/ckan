@@ -5,6 +5,8 @@
 
 .nav-item > a {
   color: @navLinkColor;
+  font-size: @baseFontSize;
+  line-height: @baseLineHeight;
   margin: -7px -@gutterX;
   padding: 7px @gutterX;
 }
@@ -27,8 +29,8 @@
     top: 0;
     right: -6px;
     width: 6px;
-    height: 28px;
-    background-image: url("@{imagePath}/nav-active.png");
+    height: 34px;
+    background-image: url("@{imagePath}/nav-active.png?1");
   }
 }
 
@@ -87,30 +89,6 @@
 .nav-facet .nav-item.active > a:after {
   .ckan-icon-circle-cross;
   right: 3px;
-}
-
-.nav-group {
-  margin-bottom: 0;
-  li {
-    margin: 5px;
-    a {
-      overflow: hidden;
-      height: 25px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      .border-radius(4px);
-      img {
-        margin-right: 3px;
-        .border-radius(4px);
-      }
-      &:hover {
-        background-color: transparent;
-        span {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
 }
 
 .user-list {

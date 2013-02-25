@@ -1,8 +1,8 @@
 {% extends "user/edit_base.html" %}
 
-{% block actions_content %}
+{% block add_action_content %}
   {% if h.check_access('package_create') %}
-    <li>{% link_for _('Add a dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus" %}</li>
+    <li>{% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}</li>
   {% endif %}
 {% endblock %}
 
@@ -30,10 +30,10 @@
       {{ _('My Datasets') }}
     </h2>
     {% if c.user_dict['datasets'] %}
-      <ul class="nav nav-list">
+      <ul class="nav nav-simple">
         {% for package in c.user_dict['datasets'] %}
           {% set title = package.title or package.name %}
-          <li>
+          <li class="nav-item">
             {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.name)) }}
           </li>
         {% endfor %}
