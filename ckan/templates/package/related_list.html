@@ -10,5 +10,8 @@
     {% else %}
       <p class="empty">No related items</p>
     {% endif %}
+    <div class="form-actions">
+      {% link_for _('Add relative item'), controller='related', action='new', id=pkg.name, class_='btn btn-primary' %}
+    </div>
   </section>
 {% endblock %}
