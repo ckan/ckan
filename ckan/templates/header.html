@@ -5,6 +5,13 @@
       {% if c.userobj %}
         <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
           <ul class="unstyled">
+            {% if c.userobj.sysadmin %}
+              <li>
+                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
+                  <i class="icon-legal"></i>
+                </a>
+              </li>
+            {% endif %}
             <li>
               <a href="{{ h.url_for(controller='user', action='read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
                 {{ h.gravatar((c.userobj.email_hash if c and c.userobj else ''), size=22) }}
@@ -17,13 +24,6 @@
                 <span>{{ c.new_activities }}</span>
               </a>
             </li>
-            {% if c.userobj.sysadmin %}
-              <li>
-                <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
-                  <i class="icon-legal"></i>
-                </a>
-              </li>
-            {% endif %}
             <li>
               <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
                 <i class="icon-cog"></i>
