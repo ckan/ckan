@@ -6,6 +6,19 @@
   <div class="module-content">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
     <form method="GET">
+      <span class="control-group search-giant">
+        <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
+        <button type="submit">{{ _('Search') }}</button>
+      </span>
+      <h3>
+        {%- if request.params and c.page.item_count -%}
+          {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
+        {%- elif request.params and c.page.item_count == 0 -%}
+          {{ _('Sorry no datasets found for "{query}"').format(query=c.q) }}
+        {%- else -%}
+          {{ _('All datasets') }}
+        {%- endif -%}
+      </h3>
       <table class="table table-bordered table-header table-bulk-edit" data-module="table-selectable-rows">
         <col width="7">
         <col width="120">
