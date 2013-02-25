@@ -39,7 +39,6 @@ Customizing and Extending
    extensions
    writing-extensions
    toolkit
-   forms
    tag-vocabularies
    form-integration
    linked-data-and-rdf
