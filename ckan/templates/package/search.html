@@ -78,7 +78,7 @@
   <section class="module">
     <div class="module-content">
       <small>
-        You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
+        You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) }}
         (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/ckan-{0}/api.html'.format(g.ckan_base_version)) }})
         {% if g.dumps_url -%}
           or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
