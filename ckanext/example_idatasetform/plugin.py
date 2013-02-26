@@ -4,7 +4,6 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.navl.validators as validators
-import ckan.logic as logic
 import ckan.logic.converters as converters
 
 
@@ -36,21 +35,21 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         possible dataset country code values) using the API.
 
         '''
-        user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        user = toolkit.get_action('get_site_user')({'ignore_auth': True}, {})
         context = {'user': user['name']}
         try:
             data = {'id': 'country_codes'}
-            logic.get_action('vocabulary_show')(context, data)
+            toolkit.get_action('vocabulary_show')(context, data)
             logging.info("Example genre vocabulary already exists, skipping.")
-        except logic.NotFound:
+        except toolkit.ObjectNotFound:
             logging.info("Creating vocab 'country_codes'")
             data = {'name': 'country_codes'}
-            vocab = logic.get_action('vocabulary_create')(context, data)
+            vocab = toolkit.get_action('vocabulary_create')(context, data)
             for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
                 logging.info(
                         "Adding tag {0} to vocab 'country_codes'".format(tag))
                 data = {'name': tag, 'vocabulary_id': vocab['id']}
-                logic.get_action('tag_create')(context, data)
+                toolkit.get_action('tag_create')(context, data)
 
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
@@ -83,7 +82,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
         # Don't show vocab tags mixed in with normal 'free' tags
         # (e.g. on dataset pages, or on the search page)
-        schema['tags']['__extras'].append(logic.converters.free_tags_only)
+        schema['tags']['__extras'].append(converters.free_tags_only)
 
         # Add our custom country_code metadata field to the schema.
         schema.update({
@@ -104,9 +103,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # Add the list of available country codes, from the country_codes
         # vocab, to the template context.
         try:
-            toolkit.c.country_codes = logic.get_action('tag_list')(
+            toolkit.c.country_codes = toolkit.get_action('tag_list')(
                     context, {'vocabulary_id': 'country_codes'})
-        except logic.NotFound:
+        except toolkit.ObjectNotFound:
             toolkit.c.country_codes = None
 
     # These methods just record how many times they're called, for testing
