@@ -122,6 +122,8 @@ setup(
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
+    example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
+    example_igroupform=ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
     json_preview=ckanext.jsonpreview.plugin:JsonPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
@@ -132,7 +134,7 @@ setup(
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
     [babel.extractors]
-	    ckan = ckan.lib.extract:extract_ckan
+    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
