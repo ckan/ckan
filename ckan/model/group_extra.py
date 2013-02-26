@@ -15,7 +15,7 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('group_id', types.UnicodeText, ForeignKey('group.id')),
     Column('key', types.UnicodeText),
-    Column('value', _types.JsonType),
+    Column('value', types.UnicodeText),
 )
 
 vdm.sqlalchemy.make_table_stateful(group_extra_table)

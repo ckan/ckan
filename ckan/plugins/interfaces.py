@@ -511,14 +511,28 @@ class IAuthFunctions(Interface):
 
 
 class ITemplateHelpers(Interface):
-    """
-    Allow adding extra template functions available via h variable
-    """
+    '''Add custom template helper functions.
+
+    By implementing this plugin interface plugins can provide their own
+    template helper functions, which custom templates can then access via the
+    ``h`` variable.
+
+    See ``ckanext/example_itemplatehelpers`` for an example plugin.
+
+    '''
     def get_helpers(self):
-        """
-        Should return a dict, the keys being the name of the helper
-        function and the values being the functions themselves.
-        """
+        '''Return a dict mapping names to helper functions.
+
+        The keys of the dict should be the names with which the helper
+        functions will be made available to templates, and the values should be
+        the functions themselves. For example, a dict like:
+        ``{'example_helper': example_helper}`` allows templates to access the
+        ``example_helper`` function via ``h.example_helper()``.
+
+        Function names should start with the name of the extension providing
+        the function, to prevent name clashes between extensions.
+
+        '''
 
 
 class IDatasetForm(Interface):

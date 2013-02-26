@@ -2,6 +2,8 @@
 
 {% set organization = c.group_dict %}
 
+{% block add_action_content %}{% endblock %}
+
 {% block subtitle %}{{ organization.display_name }}{% endblock %}
 
 {% block breadcrumb_content %}
@@ -43,6 +45,8 @@
 {% block secondary_content %}
   {% if organization %}
     {% snippet 'snippets/organization.html', organization=organization %}
+  {% else %}
+    {{ super() }}
   {% endif %}
 {% endblock %}
 

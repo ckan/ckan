@@ -1,24 +1,15 @@
 .module {
-  .border-radius(3px);
-  .box-shadow(0 0 0 3px rgba(0, 0, 0, 0.03));
-  background-color: @moduleBackgroundColor;
-  margin-bottom: 20px;
-  border: 1px solid #D0D0D0;
+  margin: 20px 0;
 }
 
 .module-heading {
-  .border-radius(3px 3px 0 0);
   margin: 0;
+  padding: 7px @gutterX;
   font-size: 14px;
   line-height: 1.3;
-  padding: 7px @gutterX;
-  border-bottom: 1px solid @moduleHeadingBorderColor;
-  #gradient > .vertical(@moduleHeadingBackgroundColorStart, @moduleHeadingBackgroundColorEnd);
-}
-
-.module-heading-secondary {
-  .border-radius(0);
+  background-color: @moduleHeadingBackgroundColor;
   border-top: 1px solid @moduleHeadingBorderColor;
+  border-bottom: 1px solid @moduleHeadingBorderColor;
 }
 
 .module-heading .action {
@@ -47,12 +38,13 @@
   margin-bottom: 0;
 }
 
-.module-border-top {
-  border-top: 1px dotted @genericBorderColor;
+.module:first-child .module-heading {
+  .border-radius(3px 0 0 0);
+  border-top-width: 0;
 }
 
-.module-border-bottom {
-  border-bottom: 1px dotted @genericBorderColor;
+.module:last-child {
+  margin-bottom: 20px;
 }
 
 .module-footer {
@@ -100,10 +92,14 @@
   border-right-width: 1px;
 }
 
-// Action
+.module-content-shallow {
+  padding: 0;
+  margin-top: 10px;
+  padding-bottom: 10px;
+}
 
-.module .action {
-  text-align: center;
+.module h1 {
+  margin-bottom: 20px;
 }
 
 // Module Shallow
@@ -113,17 +109,17 @@
   margin: 0;
 }
 
+.module-shallow .module-tags {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .module-shallow .module-content:first-child {
   padding-top: 10px;
 }
 
 .module-shallow .module-content:last-child {
   padding-bottom: 10px;
-}
-
-.module-shallow small {
-  font-size: 11px;
-  display: block;
 }
 
 // Secondary column specific
@@ -193,5 +189,23 @@
 .package-info {
   h4 {
     margin-bottom: 10px;
+  }
+}
+
+.module-resource {
+  background-color: @layoutTrimBackgroundColor;
+  border-bottom: 1px solid @genericBorderColor;
+  margin-top: 0;
+  .border-radius(3px 3px 0 0);
+}
+
+.module .module-tags {
+  padding-bottom: 8px;
+}
+
+.secondary,
+.primary {
+  .module:first-child {
+    margin-top: 0;
   }
 }
