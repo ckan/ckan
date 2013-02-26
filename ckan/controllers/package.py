@@ -854,7 +854,7 @@ class PackageController(BaseController):
         """
         pkg = model.Package.get(id)
         if pkg:
-            return pkg.type or 'package'
+            return pkg.type or 'dataset'
         return None
 
     def _tag_string_to_list(self, tag_string):
@@ -1004,10 +1004,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            if package_type:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-            else:
+            if package_type is None or package_type == 'dataset':
                 url = h.url_for(controller='package', action='read', id=pkgname)
+            else:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
