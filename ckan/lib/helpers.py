@@ -350,23 +350,33 @@ def nav_link(text, controller, **kwargs):
     return link
 
 
+@maintain.deprecated('h.nav_named_link is deprecated please '
+                     'use h.build_nav\nNOTE: the order of the first two '
+                     'parameters is reversed in the new function')
 def nav_named_link(text, name, **kwargs):
-    '''Create a link for a named route.'''
-    return _link_to(text, name, **kwargs)
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
+    return build_nav(name, text, **kwargs)
 
 
+@maintain.deprecated('h.subnav_link is deprecated please '
+                     'use h.nav_link\nNOTE: if action is passed as the second '
+                     'parameter make sure it is passed as a named parameter '
+                     'eg. `action=\'my_action\'')
 def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.'''
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
     kwargs['action'] = action
     return _link_to(text, **kwargs)
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_named_link')
+                     'use h.build_nav\nNOTE: the order of the first two '
+                     'parameters is reversed in the new function')
 def subnav_named_route(text, routename, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return nav_named_link(text, routename, **kwargs)
+    return build_nav(routename, text, **kwargs)
 
 
 def build_nav_main(*args):
@@ -445,7 +455,7 @@ def _make_menu_item(menu_item, title, **kw):
         if need not in kw:
             raise Exception('menu item `%s` need parameter `%s`'
                             % (menu_item, need))
-    link = nav_named_link(title, menu_item, suppress_active_class=True, **item)
+    link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
