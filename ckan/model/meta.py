@@ -10,7 +10,7 @@ from sqlalchemy.orm.session import SessionExtension
 import extension
 import ckan.lib.activity_streams_session_extension as activity
 
-__all__ = ['Session', 'engine_is_sqlite']
+__all__ = ['Session', 'engine_is_sqlite', 'engine_is_pg']
 
 
 class CkanCacheExtension(SessionExtension):
@@ -153,8 +153,14 @@ mapper = orm.mapper
 # names, you'll need a metadata for each database
 metadata = MetaData()
 
+
 def engine_is_sqlite():
-    """
-    Returns true iff the engine is connected to a sqlite database.
-    """
+    # Returns true iff the engine is connected to a sqlite database.
     return engine.url.drivername == 'sqlite'
+
+
+def engine_is_pg():
+    # Returns true iff the engine is connected to a postgresql database.
+    # According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+    # all Postgres driver names start with `postgresql`
+    return engine.url.drivername.startswith('postgresql')

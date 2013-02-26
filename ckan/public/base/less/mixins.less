@@ -37,6 +37,25 @@
   background-repeat: no-repeat;
 }
 
+.tag {
+  display: inline-block;
+  margin-bottom: 4px;
+  color:  @tabTextColor;
+  background-color: @tagBackgroundColor;
+  padding: 1px 10px;
+  border: 1px solid darken(@tagBackgroundColor, 10%);
+  .border-radius(100px);
+  .box-shadow(inset 0 1px 0 lighten(@tagBackgroundColor, 10%));
+}
+
+a.tag:hover {
+  text-decoration: none;
+  color: #fff;
+  background-color: @btnPrimaryBackground;
+  border: 1px solid darken(@btnPrimaryBackground, 10%);
+  .box-shadow(inset 0 1px 0 lighten(@btnPrimaryBackground, 10%));
+}
+
 .pill {
   background-color: @pillBackgroundColor;
   color: @pillTextColor;
@@ -48,28 +67,6 @@
     &.remove {
       font-size: 11px;
     }
-  }
-}
-
-.tag {
-  background: url("@{imagePath}/background-tag.png") no-repeat -13px center;
-  position: relative;
-  display: block;
-  font-size: 11px;
-  line-height: 27px;
-  color: @layoutLinkColor;
-  padding-left: 10px;
-  padding-right: 5px;
-  margin-right: 11px;
-  &:before {
-    content: "";
-    background: url("@{imagePath}/background-tag.png") no-repeat center left;
-    position: absolute;
-    display: block;
-    top: 0;
-    bottom: 0;
-    right: -11px;
-    width: 11px;
   }
 }
 
@@ -131,4 +128,13 @@
 
 .js .tab-content.active {
   display: block;
+}
+
+.box {
+  background-color: #FFF;
+  margin-left: -1px;
+  margin-right: -1px;
+  border: 1px solid @layoutTrimBorderColor;
+  .border-radius(4px);
+  .box-shadow(0 0 0 4px rgba(0, 0, 0, 0.05));
 }

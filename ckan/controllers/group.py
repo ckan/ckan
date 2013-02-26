@@ -148,7 +148,7 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
-                   'for_view': True, 'extras_as_string': True}
+                   'for_view': True}
         data_dict = {'id': id}
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
@@ -290,7 +290,7 @@ class GroupController(BaseController):
             data['type'] = group_type
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -315,7 +315,7 @@ class GroupController(BaseController):
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
@@ -494,8 +494,10 @@ class GroupController(BaseController):
             else:
                 user = request.params.get('user')
                 if user:
-                    user= model.Session.query(model.User).get(user)
-                    c.user_name = user.name
+                    c.user_dict = get_action('user_show')(context, {'id': user})
+                    c.user_role = ckan.new_authz.users_role_for_group_or_org(id, user) or 'member'
+                else:
+                    c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
                 c.roles = self._action('member_roles_list')(context, {})
         except NotAuthorized:
@@ -550,8 +552,7 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(),
-                   'extras_as_string': True}
+                   'schema': self._form_to_db_schema()}
         data_dict = {'id': id}
         try:
             c.group_dict = self._action('group_show')(context, data_dict)
@@ -628,9 +629,8 @@ class GroupController(BaseController):
 
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = \
-            get_action('group_activity_list_html')(context,
-                                                   {'id': c.group_dict['id'], 'offset': offset})
+        c.group_activity_stream = get_action('group_activity_list_html')(
+                context, {'id': c.group_dict['id'], 'offset': offset})
 
         return render('group/activity_stream.html')
 
@@ -642,7 +642,9 @@ class GroupController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_group')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            group_dict = get_action('group_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                group_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -659,7 +661,9 @@ class GroupController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_group')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            group_dict = get_action('group_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                group_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -673,7 +677,11 @@ class GroupController(BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
-        c.followers = get_action('group_follower_list')(context, {'id': id})
+        try:
+            c.followers = get_action('group_follower_list')(context,
+                    {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html')
 
     def admins(self, id):

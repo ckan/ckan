@@ -1,4 +1,5 @@
 import datetime
+import urlparse
 
 from pylons import config
 from sqlalchemy.sql import select
@@ -9,6 +10,7 @@ import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
+import ckan.lib.search as search
 
 ## package save
 
@@ -17,6 +19,15 @@ def group_list_dictize(obj_list, context,
 
     active = context.get('active', True)
     with_private = context.get('include_private_packages', False)
+
+    query = search.PackageSearchQuery()
+
+    q = {'q': '+capacity:public' if not with_private else '*:*',
+         'fl': 'groups', 'facet.field': ['groups'],
+         'facet.limit': -1, 'rows': 1}
+
+    query.run(q)
+
     result_list = []
 
     for obj in obj_list:
@@ -31,8 +42,7 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = \
-                len(obj.packages(with_private=with_private, context=context))
+        group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
@@ -74,10 +84,6 @@ def extras_dict_dictize(extras_dict, context):
         if not extra.state == 'active':
             continue
         value = dictized["value"]
-        ## This is to make sure the frontend does not show a plain string
-        ## as json with brackets.
-        if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -90,8 +96,6 @@ def extras_list_dictize(extras_list, context):
         if active and extra.state not in ('active', 'pending'):
             continue
         value = dictized["value"]
-        if not(context.get("extras_as_string") and isinstance(value, basestring)):
-            dictized["value"] = h.json.dumps(value)
         result_list.append(dictized)
 
     return sorted(result_list, key=lambda x: x["key"])
@@ -134,8 +138,8 @@ def resource_dictize(res, context):
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    if not (url.startswith('http://') or url.startswith('https://')):
-        resource['url'] = u'http://' + url
+    if not urlparse.urlsplit(url).scheme:
+        resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
 def related_dictize(rel, context):
@@ -211,6 +215,7 @@ def package_dictize(pkg, context):
     q = q.where(resource_group.c.package_id == pkg.id)
     result = _execute_with_revision(q, res_rev, context)
     result_dict["resources"] = resource_list_dictize(result, context)
+    result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags
     tag_rev = model.package_tag_revision_table
@@ -220,6 +225,7 @@ def package_dictize(pkg, context):
         ).where(tag_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, tag_rev, context)
     result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
+    result_dict['num_tags'] = len(result_dict.get('tags', []))
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
@@ -302,11 +308,17 @@ def _get_members(context, group, member_type):
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    return model.Session.query(Entity, model.Member.capacity).\
+    q = model.Session.query(Entity, model.Member.capacity).\
                join(model.Member, model.Member.table_id == Entity.id).\
                filter(model.Member.group_id == group.id).\
                filter(model.Member.state == 'active').\
-               filter(model.Member.table_name == member_type[:-1]).all()
+               filter(model.Member.table_name == member_type[:-1])
+    if member_type == 'packages':
+        q = q.filter(Entity.private==False)
+    if 'limits' in context and member_type in context['limits']:
+        return q[:context['limits'][member_type]]
+    return q.all()
+
 
 def group_dictize(group, context):
     model = context['model']
@@ -322,6 +334,10 @@ def group_dictize(group, context):
     result_dict['packages'] = d.obj_list_dictize(
         _get_members(context, group, 'packages'),
         context)
+
+    query = search.PackageSearchQuery()
+    q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
@@ -374,22 +390,33 @@ def tag_list_dictize(tag_list, context):
     return result_list
 
 def tag_dictize(tag, context):
+    tag_dict = d.table_dictize(tag, context)
+    query = search.PackageSearchQuery()
 
-    result_dict = d.table_dictize(tag, context)
-    result_dict["packages"] = d.obj_list_dictize(tag.packages, context)
+    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
+         'wt': 'json', 'rows': 1000}
+
+    package_dicts = [h.json.loads(result['data_dict']) for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
-    assert not result_dict.has_key('display_name')
-    result_dict['display_name'] = result_dict['name']
+    assert not tag_dict.has_key('display_name')
+    tag_dict['display_name'] = tag_dict['name']
 
     if context.get('for_view'):
-        for item in plugins.PluginImplementations(
-                plugins.ITagController):
-            result_dict = item.before_view(result_dict)
+        for item in plugins.PluginImplementations(plugins.ITagController):
+            tag_dict = item.before_view(tag_dict)
 
-    return result_dict
+        tag_dict['packages'] = []
+        for package_dict in package_dicts:
+            for item in plugins.PluginImplementations(plugins.IPackageController):
+                package_dict = item.before_view(package_dict)
+            tag_dict['packages'].append(package_dict)
+    else:
+        tag_dict['packages'] = package_dicts
+
+    return tag_dict
 
 def user_list_dictize(obj_list, context,
                       sort_key=lambda x:x['name'], reverse=False):
@@ -449,7 +476,7 @@ def group_to_api(group, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
     dictized = group_dictize(group, context)
-    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     if api_version == 1:
         dictized["packages"] = sorted([pkg["name"] for pkg in dictized["packages"]])
@@ -482,7 +509,7 @@ def package_to_api(pkg, context):
 
     dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
                         if not tag.get('vocabulary_id')]
-    dictized["extras"] = dict((extra["key"], h.json.loads(extra["value"]))
+    dictized["extras"] = dict((extra["key"], extra["value"])
                               for extra in dictized["extras"])
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()

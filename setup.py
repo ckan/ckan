@@ -89,7 +89,10 @@ setup(
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
     trans = ckan.lib.cli:TranslationsCommand
     minify = ckan.lib.cli:MinifyCommand
+    less = ckan.lib.cli:LessCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
+    front-end-build = ckan.lib.cli:FrontEndBuildCommand
+
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
@@ -123,6 +126,7 @@ setup(
     json_preview=ckanext.jsonpreview.plugin:JsonPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
+    example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

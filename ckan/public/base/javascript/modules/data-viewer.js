@@ -12,6 +12,14 @@ this.ckan.module('data-viewer', function (jQuery) {
       jQuery.proxyAll(this, /_on/);
       this.el.on('load', this._onLoad);
       this._FirefoxFix();
+      this.sandbox.subscribe('data-viewer-error', this._onDataViewerError);
+    },
+
+    _onDataViewerError: function(message) {
+      var parent = this.el.parent();
+      $('.data-viewer-error .collapse', parent).html(message);
+      $('.data-viewer-error', parent).removeClass('js-hide');
+       this.el.hide();
     },
 
     _onLoad: function() {

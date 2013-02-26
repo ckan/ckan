@@ -1,4 +1,5 @@
 import json
+import nose
 import datetime
 
 import sqlalchemy.orm as orm
@@ -15,10 +16,11 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs
 class TestDatastoreUpsert(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -55,6 +57,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def test_upsert_requires_auth(self):
         data = {
@@ -239,10 +242,11 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 class TestDatastoreInsert(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -340,10 +344,11 @@ class TestDatastoreInsert(tests.WsgiAppCase):
 class TestDatastoreUpdate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
-    p.load('datastore')
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')

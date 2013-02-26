@@ -11,19 +11,18 @@
 @import "prose.less";
 @import "icons.less";
 @import "layout.less";
+@import "homepage.less";
 @import "masthead.less";
 @import "footer.less";
 @import "profile.less";
 @import "activity.less";
-@import "popover-context.less";
-@import "follower-list.less";
-@import "dashboard.less";
 @import "dropdown.less";
+@import "dashboard.less";
 
 body {
   // Using the masthead/footer gradient prevents the color from changing
   // at the bottom of the window on pages with little content.
-  background-color: @mastheadBackgroundColorEnd;
+  background: @mastheadBackgroundColor url("@{bgPath}");
 }
 
 [hidden] {
@@ -47,11 +46,10 @@ table .metric {
 }
 
 code {
-  padding: 2px 2px;
   color: @codeTextColor;
-  font-weight: bold;
   border: none;
   background: none;
+  white-space: normal;
 }
 
 pre {
@@ -95,6 +93,7 @@ iframe {
 }
 
 .page-heading {
+  margin-top: 0;
   margin-bottom: 16px;
 }
 

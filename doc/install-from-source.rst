@@ -7,13 +7,13 @@ This section describes how to install CKAN from source. Although
 CKAN from source works with Ubuntu 10.04, with other versions of Ubuntu (e.g.
 12.04) and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
 you install CKAN from source on your own operating system, please share your
-experiences on our wiki: http://wiki.ckan.org/Install
+experiences on our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+wiki page.
 
 From source is also the right installation method for developers who want to
 work on CKAN.
 
-If you run into problems, see :doc:`common-error-messages` or contact `the
-ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
+If you run into problems, see :doc:`common-error-messages`.
 
 1. Install the required packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +25,8 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-http://wiki.ckan.org/Install for help):
+our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+wiki page for help):
 
 =====================  ===============================================
 Package                Description
