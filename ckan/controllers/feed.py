@@ -151,8 +151,6 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
 class FeedController(BaseController):
 
-    base_url = config.get('ckan.site_url')
-
     def _alternate_url(self, params, **kwargs):
         search_params = params.copy()
         search_params.update(kwargs)
@@ -348,9 +346,8 @@ class FeedController(BaseController):
 
             feed.add_item(
                 title=pkg.get('title', ''),
-                link=self.base_url + url_for(controller='package',
-                                             action='read',
-                                             id=pkg['id']),
+                link=url_for(controller='package', action='read',
+                             id=pkg['id'], qualified=True),
                 description=pkg.get('notes', ''),
                 updated=updated_date,
                 published=published_date,
@@ -359,11 +356,9 @@ class FeedController(BaseController):
                 author_email=pkg.get('author_email', ''),
                 categories=[t['name'] for t in pkg.get('tags', [])],
                 enclosure=webhelpers.feedgenerator.Enclosure(
-                    self.base_url + url_for(controller='api',
-                                            register='package',
-                                            action='show',
-                                            id=pkg['name'],
-                                            ver='2'),
+                    url_for(controller='api', register='package',
+                            action='show', id=pkg['name'],
+                            ver='2', qualified=True),
                     unicode(len(json.dumps(pkg))),  # TODO fix this
                     u'application/json'
                 )
@@ -377,12 +372,13 @@ class FeedController(BaseController):
         """
         Constructs the url for the given action. Encoding the query parameters.
         """
-        path = url_for(controller=controller, action=action, **kwargs)
-        query = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
+        path = url_for(controller=controller, action=action,
+                       qualified=True, **kwargs)
+        query = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
                  for k, v in query.items()]
 
         # a trailing '?' is valid.
-        return self.base_url + path + u'?' + urlencode(query)
+        return path + u'?' + urlencode(query)
 
     def _navigation_urls(self, query, controller, action,
                          item_count, limit, **kwargs):
