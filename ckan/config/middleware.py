@@ -103,8 +103,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.challenge_decider,
                 logging.getLogger('repoze.who'),
                 logging.WARN, # ignored
-                # who_parser.remote_user_key,
-                'REMOTE_USER_REAL',  # changed to work with EC ODP http auth
+                who_parser.remote_user_key,
            )
     
     # Establish the Registry for this application
@@ -213,7 +212,7 @@ class PageCacheMiddleware(object):
 
         # Only use cache for GET requests
         # REMOTE_USER is used by some tests.
-        if environ['REQUEST_METHOD'] != 'GET' or environ.get('REMOTE_USER_REAL'):
+        if environ['REQUEST_METHOD'] != 'GET' or environ.get('REMOTE_USER'):
             return self.app(environ, start_response)
 
         # If there is a ckan cookie (or auth_tkt) we avoid the cache.
