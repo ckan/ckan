@@ -123,12 +123,9 @@ def make_map():
         m.connect('/action/{logic_function}', action='action',
                   conditions=GET_POST)
 
-    # /api ver 1, 2, 3 or none with default 3
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/3') as m:
-        m.connect('', action='get_api')
-
-    # /api ver 1, 2, 3 or none with default 1
+    # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/1') as m:
+        m.connect('', action='get_api')
         m.connect('/search/{register}', action='search')
 
     # /api ver 1, 2 or none
