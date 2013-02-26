@@ -10,8 +10,6 @@ class DatastoreController(BaseController):
         index_name = 'ckan-%s' % g.site_id
         query_string = request.environ['QUERY_STRING']
         redirect = "/elastic/%s/%s%s?%s" % (index_name, id, url, query_string)
-        # prepend 'open-data' to redirect string on EC ODP server
-        redirect = '/open-data' + redirect
         # headers must be ascii strings
         response.headers['X-Accel-Redirect'] = str(redirect)
 
