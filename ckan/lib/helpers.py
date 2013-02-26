@@ -335,28 +335,37 @@ def _link_to(text, *args, **kwargs):
     )
 
 
-def nav_link(text, controller, **kwargs):
+def nav_link(text, *args, **kwargs):
     '''
     params
     class_: pass extra class(s) to add to the <a> tag
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
-    if kwargs.pop('condition', True):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    if len == 1:
         kwargs['controller'] = controller
-        link = _link_to(text, **kwargs)
+        log.warning('h.nav_link() please supply controller as a named '
+                    'parameter not a positional one')
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
     else:
         link = ''
     return link
 
 
 @maintain.deprecated('h.nav_named_link is deprecated please '
-                     'use h.build_nav\nNOTE: the order of the first two '
-                     'parameters is reversed in the new function')
-def nav_named_link(text, name, **kwargs):
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def nav_named_link(text, named_route, **kwargs):
     '''Create a link for a named route.
     Deprecated in ckan 2.0 '''
-    return build_nav(name, text, **kwargs)
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
 @maintain.deprecated('h.subnav_link is deprecated please '
