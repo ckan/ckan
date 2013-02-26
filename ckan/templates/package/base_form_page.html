@@ -1,8 +1,4 @@
-{% extends "page.html" %}
-
-{% block breadcrumb_content %}
-  {{ h.snippet('package/snippets/new_package_breadcrumb.html') }}
-{% endblock %}
+{% extends "package/base.html" %}
 
 {% block primary_content %}
   <section class="module">
@@ -14,8 +10,8 @@
 
 {% block secondary_content %}
   {% block info_module %}
-    <section class="module module-narrow">
-      <h2 class="module-heading"><i class="icon-large icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
+    <section class="module module-narrow module-shallow">
+      <h2 class="module-heading"><i class="icon-info-sign"></i> {{ _('What are datasets?') }}</h2>
       <div class="module-content">
         <p>
           {% trans %}

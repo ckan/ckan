@@ -27,10 +27,10 @@ from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
 
-def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
+def make_app(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
 
-    ``global_conf``
+    ``conf``
         The inherited configuration for this application. Normally from
         the [DEFAULT] section of the Paste ini file.
 
@@ -51,7 +51,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     """
     # Configure the Pylons environment
-    load_environment(global_conf, app_conf)
+    load_environment(conf, app_conf)
 
     # The Pylons WSGI app
     app = PylonsApp()
@@ -90,7 +90,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     if asbool(full_stack):
         # Handle Python exceptions
-        app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
+        app = ErrorHandler(app, conf, **config['pylons.errorware'])
 
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
@@ -100,7 +100,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
             app = StatusCodeRedirect(app, [400, 404, 500])
 
     # Initialize repoze.who
-    who_parser = WhoConfig(global_conf['here'])
+    who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
     if asbool(config.get('openid_enabled', 'true')):

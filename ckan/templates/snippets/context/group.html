@@ -1,4 +1,4 @@
-<div class="popover-context profile-info">
+<div class="context-info">
   {% if description != 'null' %}
     {% set description = description|striptags %}
     <p class="about">
@@ -7,10 +7,6 @@
   {% endif %}
   <div class="btn-group">
     {{ h.follow_button('group', id) }}
-    <a href="{{ h.url_for(controller='group', action='read', id=name) }}" class="btn">
-      <i class="icon-eye-open"></i>
-      View Group
-    </a>
   </div>
   <div class="nums">
     <dl>
