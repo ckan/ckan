@@ -207,8 +207,7 @@ def related_list(context, data_dict=None):
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
-        package_id = _get_or_bust(data_dict, 'id')
-        dataset = model.Package.get(package_id)
+        dataset = model.Package.get(data_dict.get('id'))
 
     _check_access('related_show',context, data_dict)
 

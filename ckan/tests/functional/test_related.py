@@ -367,7 +367,8 @@ class TestRelated:
         usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
         context = dict(model=model, user=usr['name'], session=model.Session)
         data_dict = {}
-        assert_raises(logic.ValidationError, logic.get_action('related_list'), context, data_dict)
+        from sqlalchemy.orm.query import Query
+        assert type(logic.get_action('related_list')(context, data_dict)) == Query
 
     def test_related_list(self):
         p = model.Package.get('warandpeace')
