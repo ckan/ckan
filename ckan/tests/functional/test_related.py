@@ -362,6 +362,13 @@ class TestRelated:
         assert rel['description'] == result['description'], result
         assert rel['description'] == result['description'], result
 
+    def test_related_list_missing_id_and_name(self):
+        p = model.Package.get('warandpeace')
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = {}
+        assert_raises(logic.ValidationError, logic.get_action('related_list'), context, data_dict)
+
     def test_related_list(self):
         p = model.Package.get('warandpeace')
         r = model.Related(title="Title", type="idea")
