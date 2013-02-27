@@ -75,6 +75,13 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                     converters.convert_to_tags('country_codes')]
                 })
 
+        # Add our custom_test metadata field to the schema, this one will use
+        # convert_to_extras instead of convert_to_tags.
+        schema.update({
+                'custom_text': [validators.ignore_missing,
+                    converters.convert_to_extras]
+                })
+
         return schema
 
     def db_to_form_schema(self):
@@ -89,6 +96,12 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
             'country_code': [
                 converters.convert_from_tags('country_codes'),
                 validators.ignore_missing]
+            })
+
+        # Add our custom_text field to the dataset schema.
+        schema.update({
+            'custom_text': [
+                converters.convert_from_extras, validators.ignore_missing]
             })
 
         return schema
@@ -140,5 +153,8 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
     def check_data_dict(self, data_dict, schema=None):
         ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
-        return lib_plugins.DefaultDatasetForm.check_data_dict(self, data_dict,
-                schema)
+        # Disable DefaultDatasetForm's check_data_dict(), because it breaks
+        # with the new three-stage dataset creation when using
+        # convert_to_extras.
+        #return lib_plugins.DefaultDatasetForm.check_data_dict(self, data_dict,
+        #        schema)
