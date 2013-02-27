@@ -18,6 +18,13 @@ from ckan.lib.plugins import lookup_group_plugin
 
 log = logging.getLogger(__name__)
 
+
+def _encode_params(params):
+    return [(k, v.encode('utf-8') if isinstance(v, basestring)
+            else str(v))
+            for k, v in params]
+
+
 class GroupController(BaseController):
 
     ## hooks for subclasses
@@ -34,12 +41,12 @@ class GroupController(BaseController):
         return lookup_group_plugin(group_type).form_to_db_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
-        return lookup_group_plugin(group_type).setup_template_variables(context,data_dict)
+        return lookup_group_plugin(group_type).setup_template_variables(context, data_dict)
 
-    def _new_template(self,group_type):
+    def _new_template(self, group_type):
         return lookup_group_plugin(group_type).new_template()
 
-    def _index_template(self,group_type):
+    def _index_template(self, group_type):
         return lookup_group_plugin(group_type).index_template()
 
     def _read_template(self, group_type):
@@ -67,7 +74,6 @@ class GroupController(BaseController):
 
         return gt
 
-
     def index(self):
         group_type = self._guess_group_type()
 
@@ -90,8 +96,7 @@ class GroupController(BaseController):
             url=h.pager_url,
             items_per_page=20
         )
-        return render( self._index_template(group_type) )
-
+        return render(self._index_template(group_type))
 
     def read(self, id):
         from ckan.lib.search import SearchError
@@ -101,7 +106,7 @@ class GroupController(BaseController):
                    'schema': self._form_to_db_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
-        q = c.q = request.params.get('q', '') # unicode format (decoded from utf8)
+        q = c.q = request.params.get('q', '')  # unicode format (from utf8)
 
         try:
             c.group_dict = get_action('group_show')(context, data_dict)
@@ -115,10 +120,13 @@ class GroupController(BaseController):
         q += ' groups: "%s"' % c.group_dict.get('name')
 
         try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(c.group_dict.get('description',''))
+            description_formatted = ckan.misc.MarkdownFormat().to_html(
+                c.group_dict.get('description', '')
+            )
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
-            error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render description")
+            error_msg = "<span class='inline-warning'>%s</span>" %\
+                _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
 
         c.group_admins = self.authorizer.get_admins(c.group)
@@ -132,12 +140,13 @@ class GroupController(BaseController):
             abort(400, ('"page" parameter must be an integer'))
 
         # most search operations should reset the page counter:
-        params_nopage = [(k, v) for k,v in request.params.items() if k != 'page']
+        params_nopage = [(k, v) for k, v in request.params.items()
+                         if k != 'page']
 
         def search_url(params):
-            url = h.url_for(controller='group', action='read', id=c.group_dict.get('name'))
-            params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                            for k, v in params]
+            url = h.url_for(controller='group', action='read',
+                            id=c.group_dict.get('name'))
+            params = _encode_params(params)
             return url + u'?' + urlencode(params)
 
         def drill_down_url(**by):
@@ -171,23 +180,23 @@ class GroupController(BaseController):
                     else:
                         search_extras[param] = value
 
-
             fq = 'capacity:"public"'
             if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
                 fq = ''
                 context['ignore_capacity_check'] = True
 
             data_dict = {
-                'q':q,
-                'fq':fq,
-                'facet.field':g.facets,
-                'rows':limit,
-                'start':(page-1)*limit,
-                'extras':search_extras
+                'q': q,
+                'fq': fq,
+                'facet.field': g.facets,
+                'rows': limit,
+                'start': (page - 1) * limit,
+                'extras': search_extras
             }
 
-            query = get_action('package_search')(context,data_dict)
+            query = get_action('package_search')(context, data_dict)
 
+            c.search_url_params = urlencode(_encode_params(params_nopage))
             c.page = h.Page(
                 collection=query['results'],
                 page=page,
@@ -203,14 +212,16 @@ class GroupController(BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+            c.search_url_params = ''
 
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
         c.group_activity_stream = \
-                ckan.logic.action.get.group_activity_list_html(context,
-                    {'id': c.group_dict['id']})
+            ckan.logic.action.get.group_activity_list_html(
+                context, {'id': c.group_dict['id']}
+            )
 
-        return render( self._read_template(c.group_dict['type']) )
+        return render(self._read_template(c.group_dict['type']))
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)

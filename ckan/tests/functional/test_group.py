@@ -111,6 +111,7 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'russianfan'})
         assert 'Add A Group' in res, res
 
+
 class TestGroupWithSearch(FunctionalTestCase):
 
     @classmethod
@@ -143,6 +144,16 @@ class TestGroupWithSearch(FunctionalTestCase):
             pkg = model.Package.by_name(pkgname)
             res = res.click(pkg.title)
             assert '%s - Datasets' % pkg.title in res
+
+    def test_atom_feed_with_search(self):
+        group_name = u'david'
+        group = model.Group.by_name(group_name)
+        offset = url_for(controller='feed', action='group',
+                         id=group.name, q='tolstoy')
+        res = self.app.get(offset)
+        assert 'A Novel By Tolstoy' in res
+        assert not 'A Wonderful Story' in res
+
 
 class TestEdit(FunctionalTestCase):
 

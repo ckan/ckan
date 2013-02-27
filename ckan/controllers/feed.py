@@ -432,7 +432,6 @@ class FeedController(BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:
@@ -440,6 +439,8 @@ class FeedController(BaseController):
 
         limit = ITEMS_LIMIT
         data_dict = {
+            'q': request.params.get('q', u''),
+            'sort': request.params.get('sort', None),
             'start': (page - 1) * limit,
             'rows': limit
         }
