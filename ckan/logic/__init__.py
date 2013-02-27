@@ -354,7 +354,7 @@ def get_or_bust(data_dict, keys):
             value = data_dict[key]
             values.append(value)
         except KeyError:
-            errors[key] = _('Missing value')
+            errors[key] = [_('Missing value')]
     if errors:
         raise ValidationError(errors)
     if len(values) == 1:
