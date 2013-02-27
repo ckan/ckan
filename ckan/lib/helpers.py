@@ -380,12 +380,12 @@ def subnav_link(text, action, **kwargs):
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.build_nav\nNOTE: the order of the first two '
-                     'parameters is reversed in the new function')
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
 def subnav_named_route(text, routename, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return build_nav(routename, text, **kwargs)
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
 def build_nav_main(*args):
