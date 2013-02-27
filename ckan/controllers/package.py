@@ -739,7 +739,9 @@ class PackageController(BaseController):
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
             # user if there is a validation error. Use users data if there.
-            data = data or old_data
+            if data:
+                old_data.update(data)
+            data = old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
