@@ -507,6 +507,7 @@ def default_follow_group_schema():
 def default_package_list_schema():
     schema = {
         'limit': [ignore_missing, pos_int_validator],
+        'offset': [ignore_missing, pos_int_validator],
         'page': [ignore_missing, pos_int_validator]
     }
     return schema

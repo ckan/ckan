@@ -68,12 +68,13 @@ class TestAction(WsgiAppCase):
 
     def test_01_current_package_list_with_resources(self):
         url = '/api/action/current_package_list_with_resources'
+
         postparams = '%s=1' % json.dumps({
-            'limit': 2,
-            'page': 1})
+            'limit': 1,
+            'offset': 1})
         res = json.loads(self.app.post(url, params=postparams).body)
         assert res['success']
-        assert len(res['result']) == 2
+        assert len(res['result']) == 1
 
         postparams = '%s=1' % json.dumps({
             'limit': '5'})
@@ -86,12 +87,20 @@ class TestAction(WsgiAppCase):
         assert not res['success']
 
         postparams = '%s=1' % json.dumps({
-            'page': 0})
+            'offset': 'a'})
         res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
         assert not res['success']
 
         postparams = '%s=1' % json.dumps({
-            'page': 'a'})
+            'limit': 2,
+            'page': 1})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+        assert len(res['result']) == 2
+
+        postparams = '%s=1' % json.dumps({
+            'limit': 1,
+            'page': 0})
         res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
         assert not res['success']
 

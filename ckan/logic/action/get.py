@@ -86,7 +86,9 @@ def current_package_list_with_resources(context, data_dict):
         at most ``limit`` datasets per page and only one page will be returned
         at a time (optional)
     :type limit: int
-    :param page: when ``limit`` is given, which page to return
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+    :param page: when ``limit`` is given, which page to return, Deprecated use ``offset``
     :type page: int
 
     :rtype: list of dictionaries
@@ -98,11 +100,16 @@ def current_package_list_with_resources(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-    page = int(data_dict.get('page', 1))
     limit = data_dict.get('limit')
+    offset = int(data_dict.get('offset', 0))
 
-    if page < 1:
-        raise ValidationError(_('Must be larger than 0'))
+    if not 'offset' in data_dict and 'page' in data_dict:
+        log.warning('"page" parameter is deprecated.  '
+                    'Use the "offset" parameter instead')
+        page = int(data_dict['page'])
+        if page < 1:
+            raise ValidationError(_('Must be larger than 0'))
+        offset = (page - 1) * limit
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
@@ -113,7 +120,7 @@ def current_package_list_with_resources(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit is not None:
         query = query.limit(limit)
-        query = query.offset((page-1)*limit)
+        query = query.offset(offset)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
