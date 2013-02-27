@@ -381,3 +381,65 @@ def side_effect_free(action):
     wrapper.side_effect_free = True
 
     return wrapper
+
+
+class UnknownValidator(Exception):
+    pass
+
+
+_validators_cache = {}
+
+def clear_validators_cache():
+    _validators_cache.clear()
+
+
+def get_validator(validator):
+    if  not _validators_cache:
+        # find validators
+        import ckan.lib.navl.validators as validators
+        for k, v in validators.__dict__.items():
+            try:
+                if v.__module__ != 'ckan.lib.navl.validators':
+                    continue
+                _validators_cache[k] = v
+            except AttributeError:
+                pass
+
+        import ckan.logic.validators as validators
+        for k, v in validators.__dict__.items():
+            try:
+                if v.__module__ != 'ckan.logic.validators':
+                    continue
+                _validators_cache[k] = v
+            except AttributeError:
+                pass
+    try:
+        return _validators_cache[validator]
+    except KeyError:
+        raise UnknownValidator('Validator `%s` does not exist' % validator)
+
+
+class UnknownConverter(Exception):
+    pass
+
+
+_converters_cache = {}
+
+def clear_converters_cache():
+    _converters_cache.clear()
+
+
+def get_converter(converter):
+    if  not _converters_cache:
+        import ckan.logic.converters as converters
+        for k, v in converters.__dict__.items():
+            try:
+                if v.__module__ != 'ckan.logic.converters':
+                    continue
+                _converters_cache[k] = v
+            except AttributeError:
+                pass
+    try:
+        return _converters_cache[converter]
+    except KeyError:
+        raise UnknownConverter('Converter `%s` does not exist' % converter)
