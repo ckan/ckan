@@ -163,15 +163,16 @@
       var raw = jQuery.isArray(data) ? data : data.ResultSet && data.ResultSet.Result || {};
 
       var items = jQuery.map(raw, function (item) {
-        item = typeof item === 'string' ? item : item.name || item.Name || item.Format || '';
-        item = jQuery.trim(item);
+        var text = typeof item === 'string' ? item : item.title ||item.name || item.Name || item.Format || '';
+        text = jQuery.trim(text);
+        var id = typeof item.id != 'undefined' ? item.id : text;
 
-        var lowercased = item.toLowerCase();
+        var lowercased = text.toLowerCase();
         var returnObject = options && options.objects === true;
 
         if (lowercased && !map[lowercased]) {
           map[lowercased] = 1;
-          return returnObject ? {id: item, text: item} : item;
+          return returnObject ? {id: id, text: text} : text;
         }
 
         return null;
