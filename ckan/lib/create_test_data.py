@@ -332,6 +332,7 @@ class CreateTestData(object):
                 log.warning('Cannot create group "%s" as it already exists.' % \
                                 (group_dict['name']))
                 continue
+            pkg_names = group_dict.pop('packages', [])
             group = model.Group(name=unicode(group_dict['name']))
             group.type = auth_profile or 'group'
             for key in group_dict:
@@ -339,7 +340,6 @@ class CreateTestData(object):
                     setattr(group, key, group_dict[key])
                 else:
                     group.extras[key] = group_dict[key]
-            pkg_names = group_dict.get('packages', [])
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))

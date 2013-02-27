@@ -85,7 +85,7 @@ def url_for(*args, **kw):
     if kw.get('controller') == 'api':
         ver = kw.get('ver')
         if not ver:
-            raise Exception('api calls must specify the version! e.g. ver=1')
+            raise Exception('api calls must specify the version! e.g. ver=3')
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)
@@ -323,7 +323,7 @@ def _link_to(text, *args, **kwargs):
         if kwargs.pop('inner_span', None):
             text = literal('<span>') + text + literal('</span>')
         if icon:
-            text = literal('<i class="icon-large icon-%s"></i> ' % icon) + text
+            text = literal('<i class="icon-%s"></i> ' % icon) + text
         return text
 
     icon = kwargs.pop('icon', None)
@@ -440,13 +440,12 @@ def _make_menu_item(menu_item, title, **kw):
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
     active =  _link_active(item)
-    controller = item.pop('controller')
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
             raise Exception('menu item `%s` need parameter `%s`'
                             % (menu_item, need))
-    link = nav_link(title, controller, suppress_active_class=True, **item)
+    link = nav_named_link(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
@@ -687,7 +686,7 @@ def gravatar(email_hash, size=100, default=None):
         # treat the default as a url
         default = urllib.quote(default, safe='')
 
-    return literal('''<img src="http://gravatar.com/avatar/%s?s=%d&amp;d=%s"
+    return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" />'''
         % (email_hash, size, default, size, size)
         )

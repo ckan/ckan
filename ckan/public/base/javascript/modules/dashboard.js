@@ -30,13 +30,6 @@ this.ckan.module('dashboard', function ($, _) {
         });
       this.button.prop('title', title);
       this.popover = this.button.data('popover').tip().addClass('popover-followee');
-      // Are there new items in the dashboard? If so... reset the 
-      // notifications number to zero
-      if ($('.new', this.el)) {
-        setTimeout(function() {
-          $('.masthead .notifications').removeClass('notifications-important').html('0');
-        }, 2000);
-      }
     },
 
     /* Handles click event on the 'show me:' dropdown button

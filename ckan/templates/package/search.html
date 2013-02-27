@@ -3,8 +3,14 @@
 
 {% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
+{% block add_action_content %}
+  {% if h.check_access('package_create') %}
+    {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+  {% endif %}
+{% endblock %}
+
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_('Search Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
+  <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -69,15 +75,16 @@
     {{ c.page.pager(q=c.q) }}
   </section>
 
-  <section class="module module-narrow module-shallow">
-    <small class="module-content">
-      You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=1)) }}
-      <!--! FIXME the API Docs link should be for the version of ckan being used but the dev version of ckan needs to point to latest so not trivial -->
-      (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html') }})
-      {% if g.dumps_url -%}
-        or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
-      {%- endif %}.
-    </small>
+  <section class="module">
+    <div class="module-content">
+      <small>
+        You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) }}
+        (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/en/ckan-{0}/api.html'.format(g.ckan_base_version)) }})
+        {% if g.dumps_url -%}
+          or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
+        {%- endif %}.
+      </small>
+    </div>
   </section>
 {% endblock %}
 

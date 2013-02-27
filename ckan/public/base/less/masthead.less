@@ -1,202 +1,153 @@
-@mastheadPadding: 5px 10px 3px;
 @notificationsBg: #C9403A;
 
-@menuActiveBg: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 95%);
-@menuActiveHi: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 85%);
-@menuActiveLo: darken(@menuActiveBg, 10%);
-
-.masthead() {
-	.clearfix();
-	color: @mastheadTextColor;
-	padding: @mastheadPadding;
-	height: 55px;
-	#gradient > .vertical(@mastheadBackgroundColorStart, @mastheadBackgroundColorEnd);
+.account-masthead {
+  .clearfix();
+  min-height: 30px;
+  color: @mastheadTextColor;
+  background: darken(@mastheadBackgroundColor, 10%) url("@{bgPath}");
+  .account {
+    float: right;
+    ul {
+      .clearfix();
+      li {
+        display: block;
+        float: left;
+        border-left: 1px solid darken(@mastheadBackgroundColor, 15%);
+        a {
+          display: block;
+          color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
+          font-size: 13px;
+          font-weight: bold;
+          padding: 0 10px;
+          line-height: 31px;
+          span.username {
+            margin: 0 2px 0 4px;
+          }
+          &:hover {
+            color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
+            background-color: darken(@mastheadBackgroundColor, 15%);
+            text-decoration: none;
+          }
+          &.sub {
+            font-weight: 300;
+          }
+          .btn {
+            vertical-align: 1px;
+            margin-left: 3px;
+          }
+        }
+      }
+    }
+    .notifications {
+      a {
+        span {
+          font-size: 12px;
+          margin-left: 3px;
+          padding: 1px 6px;
+          background-color: darken(@mastheadBackgroundColor, 15%);
+          .border-radius(4px);
+        }
+        &:hover span {
+          color: @mastheadLinkColor;
+          background-color: darken(@mastheadBackgroundColor, 20%);
+        }
+      }
+      &.notifications-important a {
+        span {
+          color: @mastheadLinkColor;
+          background-color: @notificationsBg;
+        }
+      }
+    }
+    &.authed {
+      .image {
+        padding: 0 6px;
+        img {
+          vertical-align: -6px;
+          .border-radius(4px);
+        }
+      }
+    }
+  }
 }
 
-header.masthead {
+.masthead {
+  .clearfix();
+  min-height: 55px;
+  color: @mastheadTextColor;
+  background: @mastheadBackgroundColor url("@{bgPath}");
 
-	.masthead();
+  .container {
+    position: relative;
+  }
 
-	.container {
-		position: relative;
-	}
+  a {
+    color: @mastheadLinkColor;
+  }
 
-	a {
-		color: @mastheadLinkColor;
-	}
+  hgroup {
+    h1,
+    h2 {
+      float: left;
+      font-size: 30px;
+      line-height: 1.5;
+    }
+    h1 {
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin: 3px 0;
+    }
+    h2 {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      margin: 0;
+      font-size: 15px;
+      font-weight: normal;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  }
 
-	hgroup {
-		h1,
-		h2 {
-			float: left;
-			font-size: 34px;
-			line-height: 1.5;
-		}
-		h1 {
-			font-weight: 900;
-			letter-spacing: -1px;
-		}
-		h2 {
-			position: absolute;
-			bottom: -3px;
-			left: 0;
-			margin: 0;
-			font-size: 15px;
-			font-weight: normal;
-			line-height: 1.2;
-			white-space: nowrap;
-		}
-	}
+  .content {
+    position: absolute;
+    top: 10px;
+    right: 0;
+  }
 
-	.content {
-		position: absolute;
-		top: 10px;
-		right: 0;
-	}
+  .section {
+    float: left;
+  }
 
-	.section {
-		float: left;
-	}
+  input[type="text"] {
+    border-color: darken(@mastheadBackgroundColor, 5);
+  }
 
-	.navigation {
-		margin-right: 20px;
-		ul.unstyled {
-			.clearfix();
-			margin: 5px 0;
-			li {
-				display: block;
-				float: left;
-				a {
-					display: block;
-					font-size: 12px;
-					font-weight: bold;
-					padding: 4px 10px;
-					.border-radius(3px);
-				}
-				&.active a {
-					background-color: @menuActiveBg;
-					box-shadow: 0 -1px 0 @menuActiveLo, 0 1px 0 @menuActiveHi;
-				}
-			}
-		}
-	}
+  .navigation {
+    margin-right: 20px;
+    .nav-pills {
+      margin-bottom: 0;
+      li {
+        a:hover,
+        &.active a {
+          background-color: darken(@mastheadBackgroundColor, 10%);
+        }
+      }
+    }
+  }
 
-	.site-search {
-		margin: 3px 0;
-		input {
-			width: 190px;
-			font-size: 11px;
-			padding: 4px;
-		}
-	}
+  .site-search {
+    margin: 2px 8px 2px 0;
+    input {
+      width: 200px;
+      padding: 4px 10px;
+    }
+  }
 
-	.account {
-		background: darken(@mastheadBackgroundColorEnd, 5);
-		padding: 3px 5px;
-		margin: 2px 0 2px 30px;
-		.border-radius(4px);
-		.box-shadow(inset 0 2px 4px darken(@mastheadBackgroundColorEnd, 10));
-		ul.unstyled {
-			.clearfix();
-			li {
-				display: block;
-				float: left;
-				a {
-					display: block;
-					font-size: 12px;
-					font-weight: bold;
-					padding: 4px 10px;
-					&.sub {
-						font-weight: 300;
-						border-left: 1px solid darken(@mastheadBackgroundColorEnd, 10);
-					}
-				}
-			}
-		}
-		.dropdown {
-			float: left;
-		}
-		.button {
-			display: block;
-			text-decoration: none;
-			background-color: @mastheadBackgroundColorStart;
-			color: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 50%);
-			text-shadow: 0 1px 1px darken(@mastheadBackgroundColorStart, 10);
-			.border-radius(4px);
-			.box-shadow(inset 0 1px 0 lighten(@mastheadBackgroundColorStart, 5));
-		}
-		.image {
-			margin: 2px 0;
-			padding: 0 4px 0 0;
-			overflow: hidden;
-			font-size: 10px;
-			.border-radius(4px);
-			i {
-				vertical-align: -1px;
-			}
-			img {
-				opacity: 0.7;
-				border-right: 1px solid @mastheadBackgroundColorEnd;
-				.border-radius(4px 0 0 4px);
-			}
-		}
-		.notifications {
-			padding: 4px 8px 3px 8px;
-			margin: 2px 5px 2px 0;
-			&.notifications-important {
-				color: @mastheadLinkColor;
-				background-color: @notificationsBg;
-				text-shadow: 0 1px 1px darken(@notificationsBg, 10);
-				.box-shadow(inset 0 1px 0 lighten(@notificationsBg, 5));
-			}
-		}
-		.dropdown {
-			&.open .image img,
-			.image:hover img {
-				opacity: 1;
-				border-right-color: lighten(@mastheadBackgroundColorEnd, 10);
-			}
-			&.open .button,
-			.button:hover {
-				color: @mastheadLinkColor;
-				background-color: mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 60%);
-				.box-shadow(inset 0 1px 0 mix(@mastheadBackgroundColorStart, @mastheadLinkColor, 50%));
-				text-decoration: none;
-			}
-			&.open .notifications-important,
-			.notifications-important:hover {
-				background-color: lighten(@notificationsBg, 10);
-				text-shadow: 0 1px 1px @notificationsBg;
-				.box-shadow(inset 0 1px 0 lighten(@notificationsBg, 15));
-			}
-		}
-		&.authed {
-			margin: 0 0 0 30px;
-		}
-		&.not-authed {
-			padding-top: 2px;
-			padding-bottom: 2px;
-		}
-	}
-
-	.dropdown-menu {
-		margin-top: -1px;
-	}
-
-	.user-dropdown-menu {
-		min-width: 120px;
-		a {
-			color: @mastheadBackgroundColorStart;
-			&:hover {
-				color: @mastheadLinkColor;
-			}
-		}
-	}
-
-	.debug {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		color: rgba(255, 255, 255, 0.5);
-	}
+  .debug {
+    position: absolute;
+    top: 37px;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.5);
+  }
 }

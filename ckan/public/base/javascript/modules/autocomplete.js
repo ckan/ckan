@@ -103,7 +103,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
     },
 
     /* Looks up the completions for the provided text but also provides a few
-     * optimisations. It there is no search term it will automatically set
+     * optimisations. If there is no search term it will automatically set
      * an empty array. Ajax requests will also be debounced to ensure that
      * the server is not overloaded.
      *
