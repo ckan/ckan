@@ -99,7 +99,7 @@ def current_package_list_with_resources(context, data_dict):
             if limit < 0:
                 limit = 0
         except ValueError, e:
-            raise logic.ParameterError("'limit' should be an int")
+            raise ValidationError("'limit' should be an int")
     else:
         limit = None
     page = int(data_dict.get('page', 1))
@@ -2686,12 +2686,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
             order = 'asc'
         if allowed_fields:
             if field not in allowed_fields:
-                raise logic.ParameterError('Cannot sort by field `%s`' % field)
+                raise ValidationError('Cannot sort by field `%s`' % field)
         if order not in ['asc', 'desc']:
-            raise logic.ParameterError('Invalid sort direction `%s`' % order)
+            raise ValidationError('Invalid sort direction `%s`' % order)
         sorts.append((field, order))
     if total and len(sorts) > total:
-        raise logic.ParameterError(
+        raise ValidationError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
 

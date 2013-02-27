@@ -208,13 +208,6 @@ class ApiController(base.BaseController):
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
-        except logic.ParameterError, e:
-            return_dict['error'] = {'__type': 'Parameter Error',
-                                    'message': '%s: %s' %
-                                    (_('Parameter Error'), e.extra_msg)}
-            return_dict['success'] = False
-            log.error('Parameter error: %r' % e.extra_msg)
-            return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
                                     'message': 'Search Query is invalid: %r' %

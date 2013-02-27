@@ -46,13 +46,11 @@ class NotAuthorized(ActionError):
     pass
 
 
-class ParameterError(ActionError):
-    pass
-
-
-class ValidationError(ParameterError):
+class ValidationError(ActionError):
 
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
+        if not isinstance(error_dict, dict):
+            error_dict = {'message': error_dict}
         # tags errors are a mess so let's clean them up
         if 'tags' in error_dict:
             tag_errors = []

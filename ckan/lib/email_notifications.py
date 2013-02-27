@@ -30,7 +30,7 @@ def string_to_timedelta(s):
     7 days, 3:23:34.087465
     .087465 (microseconds only)
 
-    :raises ckan.logic.ParameterError: if the given string does not match any
+    :raises ckan.logic.ValidationError: if the given string does not match any
         of the recognised formats
 
     '''
@@ -55,7 +55,7 @@ def string_to_timedelta(s):
             break
 
     if not match:
-        raise logic.ParameterError('Not a valid time: {0}'.format(s))
+        raise logic.ValidationError('Not a valid time: {0}'.format(s))
 
     gd = match.groupdict()
     days = int(gd.get('days', '0'))
