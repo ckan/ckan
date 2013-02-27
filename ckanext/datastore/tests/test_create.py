@@ -1,5 +1,6 @@
 import json
 import nose
+from nose.tools import assert_equal
 
 import sqlalchemy.orm as orm
 
@@ -173,6 +174,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -186,10 +188,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
+                            extra_environ=auth, status=400)
         res_dict = json.loads(res.body)
 
+        # TODO: should be a validation errror at some point
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Integrity Error')
 
     def test_create_invalid_index(self):
         resource = model.Package.get('annakarenina').resources[0]
