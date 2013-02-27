@@ -5,12 +5,15 @@ import re
 
 from pylons.i18n import _
 
+import ckan.lib.navl as navl
 import ckan.lib.base as base
 import ckan.model as model
 from ckan.new_authz import is_authorized
 from ckan.lib.navl.dictization_functions import flatten_dict, DataError
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IActions
+
+_validate = navl.dictization_functions.validate
 
 log = logging.getLogger(__name__)
 
@@ -344,19 +347,24 @@ def get_or_bust(data_dict, keys):
     e.g single_value = get_or_bust(data_dict, 'a_key')
         value_1, value_2 = get_or_bust(data_dict, ['key1', 'key2'])
     '''
-    values = []
-    errors = {}
 
     if isinstance(keys, basestring):
         keys = [keys]
-    for key in keys:
-        try:
-            value = data_dict[key]
-            values.append(value)
-        except KeyError:
-            errors[key] = [_('Missing value')]
+
+    import ckan.logic.schema as schema_module
+    schema = schema_module._create_schema_for_required_keys(keys)
+    fake_context = {
+        'model': model,
+        'session': model.Session
+    }
+
+    data_dict, errors = _validate(data_dict, schema, context=fake_context)
+
     if errors:
         raise ValidationError(errors)
+
+    # cannot use data_dict.keys() because data_dict is not sorted
+    values = [data_dict[key] for key in keys]
     if len(values) == 1:
         return values[0]
     return tuple(values)

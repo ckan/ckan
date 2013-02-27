@@ -501,3 +501,11 @@ def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_group_name_or_id_to_id]}
     return schema
+
+
+def _create_schema_for_required_keys(keys):
+    ''' helper function that creates a schema definition where
+    each key from keys is validated against ``not_missing``.
+    '''
+    schema = dict([(x, [not_missing]) for x in keys])
+    return schema
