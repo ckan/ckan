@@ -85,7 +85,7 @@ def url_for(*args, **kw):
     if kw.get('controller') == 'api':
         ver = kw.get('ver')
         if not ver:
-            raise Exception('api calls must specify the version! e.g. ver=1')
+            raise Exception('api calls must specify the version! e.g. ver=3')
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)

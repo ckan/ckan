@@ -9,7 +9,6 @@ import ckan.lib.search as search
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
 
 class TagsTestCase(BaseModelApiTestCase):
 
@@ -58,4 +57,3 @@ class TagsTestCase(BaseModelApiTestCase):
 
 class TestTagsVersion1(Version1TestCase, TagsTestCase): pass
 class TestTagsVersion2(Version2TestCase, TagsTestCase): pass
-class TestTagsUnversioned(UnversionedTestCase, TagsTestCase): pass
