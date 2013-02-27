@@ -44,7 +44,7 @@ def datastore_create(context, data_dict):
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     '''
-    model = _get_or_bust(context, 'model')
+    model = context.get('model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
