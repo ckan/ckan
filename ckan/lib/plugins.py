@@ -272,7 +272,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type', 'owner_org',
+                               'resources', 'type', 'owner_org', 'private',
                                'log_message', 'tag_string', 'tags',
                                'url', 'version', 'extras']
 
