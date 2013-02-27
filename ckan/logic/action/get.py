@@ -93,16 +93,16 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    if 'limit' in data_dict:
-        try:
-            limit = int(data_dict['limit'])
-            if limit < 0:
-                limit = 0
-        except ValueError, e:
-            raise ValidationError("'limit' should be an int")
-    else:
-        limit = None
+    schema = context.get('schema', logic.schema.default_package_list_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     page = int(data_dict.get('page', 1))
+    limit = data_dict.get('limit')
+
+    if page < 1:
+        raise ValidationError(_('Must be larger than 0'))
 
     _check_access('current_package_list_with_resources', context, data_dict)
 

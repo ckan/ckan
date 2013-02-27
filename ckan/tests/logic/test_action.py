@@ -66,6 +66,35 @@ class TestAction(WsgiAppCase):
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
 
+    def test_01_current_package_list_with_resources(self):
+        url = '/api/action/current_package_list_with_resources'
+        postparams = '%s=1' % json.dumps({
+            'limit': 2,
+            'page': 1})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+        assert len(res['result']) == 2
+
+        postparams = '%s=1' % json.dumps({
+            'limit': '5'})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'limit': -2})
+        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'page': 0})
+        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'page': 'a'})
+        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
+
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
         postparams = '%s=1' % json.dumps({'id': anna_id})

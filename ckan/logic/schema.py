@@ -30,6 +30,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
+                                   pos_int_validator,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -500,6 +501,14 @@ def member_schema():
 def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_group_name_or_id_to_id]}
+    return schema
+
+
+def default_package_list_schema():
+    schema = {
+        'limit': [ignore_missing, pos_int_validator],
+        'page': [ignore_missing, pos_int_validator]
+    }
     return schema
 
 

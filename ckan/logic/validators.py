@@ -54,6 +54,12 @@ def int_validator(value, context):
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
 
+def pos_int_validator(value, context):
+    value = int_validator(value, context)
+    if value < 0:
+        raise Invalid(_('Must be positive integer'))
+    return value
+
 def boolean_validator(value, context):
     if isinstance(value, bool):
         return value
