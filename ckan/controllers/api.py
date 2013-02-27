@@ -186,9 +186,11 @@ class ApiController(base.BaseController):
             return_dict['result'] = result
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            return_dict['error'] = {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}
+            return_dict['success'] = False
+            return self._finish(400, return_dict, content_type='json')
         except NotAuthorized:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
@@ -351,9 +353,12 @@ class ApiController(base.BaseController):
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            error_dict = {
+                'success': False,
+                'error': {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}}
+            return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
             log.error('Unable to add package to search index: %s' %
                       request_data)
@@ -403,9 +408,12 @@ class ApiController(base.BaseController):
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            error_dict = {
+                'success': False,
+                'error': {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}}
+            return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
             log.error('Unable to update search index: %s' % request_data)
             return self._finish(500, _(u'Unable to update search index') %
