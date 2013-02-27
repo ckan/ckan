@@ -42,6 +42,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
                                    owner_org_validator,
+                                   require_admin_of_dataset,
                                    user_name_exists,
                                    role_exists,
                                    url_validator)
