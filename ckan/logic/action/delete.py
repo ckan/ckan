@@ -220,7 +220,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
 
     # organization delete will delete all datasets for that org
     if is_org:
-        for pkg in group.active_packages().all():
+        for pkg in group.packages():
             _get_action('package_delete')(context, {id: pkg.id})
 
     rev = model.repo.new_revision()
