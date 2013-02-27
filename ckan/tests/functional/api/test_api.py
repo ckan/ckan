@@ -54,8 +54,3 @@ class TestApi1(Api1TestCase, ApiTestCase): pass
 
 # Tests for Version 2 of the API.
 class TestApi2(Api2TestCase, ApiTestCase): pass
-
-# Tests for unversioned API.
-class TestApiUnversioned(ApiUnversionedTestCase, ApiTestCase): pass
-
-
