@@ -1,6 +1,10 @@
 import sys
 from logging import getLogger
-import collections
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 from pylons import config, c
 from pylons.i18n import _
@@ -15,6 +19,9 @@ log = getLogger(__name__)
 # be accessed directly
 class AuthFunctions:
     _functions = {}
+
+def clear_auth_functions_cache():
+    AuthFunctions._functions.clear()
 
 def is_sysadmin(username):
     ''' returns True is username is a sysadmin '''
@@ -66,7 +73,7 @@ def is_authorized(action, context, data_dict=None):
         raise ValueError(_('Authorization function not found: %s' % action))
 
 # these are the permissions that roles have
-ROLE_PERMISSIONS = collections.OrderedDict([
+ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
     ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
     ('member', ['read']),
@@ -205,7 +212,7 @@ def get_user_id_for_username(user_name, allow_none=False):
 def _get_auth_function(action, profile=None):
     from pylons import config
 
-    if AuthFunctions._functions:
+    if action in AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
 
     # Otherwise look in all the plugins to resolve all possible

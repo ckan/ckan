@@ -311,8 +311,7 @@ class PackageController(BaseController):
 
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'for_view': True}
+                   'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -359,7 +358,7 @@ class PackageController(BaseController):
     def comments(self, id):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True}
+                   'user': c.user or c.author}
 
         #check if package exists
         try:
@@ -396,8 +395,7 @@ class PackageController(BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'extras_as_string': True}
+                   'user': c.user or c.author}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -463,7 +461,7 @@ class PackageController(BaseController):
         package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params}
 
         # Package needs to have a organization group in the call to
@@ -527,8 +525,7 @@ class PackageController(BaseController):
 
             context = {'model': model, 'session': model.Session,
                        'api_version': 3,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author}
 
             data['package_id'] = id
             try:
@@ -594,8 +591,7 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author}
 
             # see if we have any data that we are trying to save
             data_provided = False
@@ -659,7 +655,7 @@ class PackageController(BaseController):
         vars['pkg_name'] = id
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,}
+                   'user': c.user or c.author}
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
@@ -679,8 +675,8 @@ class PackageController(BaseController):
             # we don't want to include save as it is part of the form
             del data['save']
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author}
+
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
@@ -714,7 +710,7 @@ class PackageController(BaseController):
 
         if not data:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'extras_as_string': True,}
+                       'user': c.user or c.author}
             data = get_action('package_show')(context, {'id': id})
         errors = errors or {}
         error_summary = error_summary or {}
@@ -730,7 +726,7 @@ class PackageController(BaseController):
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True}
@@ -797,7 +793,6 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'extras_as_string': True,
                    'schema': self._form_to_db_schema(
                                     package_type=package_type),
                    'revision_id': revision}
@@ -822,8 +817,7 @@ class PackageController(BaseController):
     def history_ajax(self, id):
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'extras_as_string': True}
+                   'user': c.user or c.author}
         data_dict = {'id': id}
         try:
             pkg_revisions = get_action('package_revision_list')(
@@ -860,7 +854,7 @@ class PackageController(BaseController):
         """
         pkg = model.Package.get(id)
         if pkg:
-            return pkg.type or 'package'
+            return pkg.type or 'dataset'
         return None
 
     def _tag_string_to_list(self, tag_string):
@@ -1010,10 +1004,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            if package_type:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-            else:
+            if package_type is None or package_type == 'dataset':
                 url = h.url_for(controller='package', action='read', id=pkgname)
+            else:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
@@ -1222,7 +1216,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_dataset')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -1239,7 +1235,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_dataset')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)

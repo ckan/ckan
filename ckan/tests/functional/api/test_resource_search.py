@@ -81,5 +81,3 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
 class TestResourceSearchApi1(Api1TestCase, ResourceSearchApiTestCase): pass
 class TestResourceSearchApi2(Api2TestCase, ResourceSearchApiTestCase): pass
-class TestResourceSearchApiUnversioned(ApiUnversionedTestCase, ResourceSearchApiTestCase):
-    pass

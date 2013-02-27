@@ -6,11 +6,6 @@
     top: -20px;
   }
 
-  .module,
-  .media-image {
-    border: 1px solid @genericBorderColor;
-  }
-
   .module-popup {
     border-bottom: none;
   }
@@ -42,34 +37,34 @@
   .control-large input {
     height: 56px; // Fixes cropped text in IE9
   }
-  .module {
-    // IE9 renders box shadows wildly out.
-    .box-shadow(0 0 5px rgba(0, 0, 0, 0.3));
-  }
 }
-
-// Internet Explorer 7 + 8
-.ie7,
-.ie8 {
-  .masthead {
-    nav ul li a.active {
-      position: relative;
-      top: -1px;
-      background-color: lighten(@mastheadBackgroundColorStart, 2);
-      border-top: 1px solid darken(@mastheadBackgroundColorStart, 3);
-      border-bottom: 1px solid lighten(@mastheadBackgroundColorStart, 5);
-    }
-  }  
-}
-
 
 // Internet Explorer 8
 .ie8 {
-  .masthead .account a.image {
-    display: block;
-    width: 25px;
-    padding-right: 10px;
-    white-space: nowrap;
+  .account-masthead {
+    a.image,
+    .username {
+      white-space: nowrap;
+    }
+  }
+}
+
+// Internet Explorer 7, 8 & 9
+.ie9,
+.ie8,
+.ie7 {
+  .homepage .media.module-heading .media-image img {
+    width: 85px !important;
+  }
+}
+
+// Internet Explorer 7 & 8
+.ie8,
+.ie7 {
+  // Homepage
+  .hero .hero-primary.module-popup .box {
+    padding-bottom: 20px !important;
+    margin-bottom: 0 !important;
   }
 }
 
@@ -101,8 +96,6 @@
     }
     .tag {
       display: block;
-      border: 1px solid @moduleHeadingBorderColor;
-      background: @moduleHeadingBackgroundColorStart;
     }
   }
 
@@ -157,25 +150,17 @@
   }
 
   // Header
+  .account-masthead {
+    .account a i {
+      line-height: 31px;
+    }
+  }
   .masthead {
     position: relative;
     z-index: 1;
     .logo img,
     nav {
       .ie7-inline-block;
-    }
-    nav ul {
-      margin-top: 5px;
-      li {
-        float: left;
-        a.active {
-          position: relative;
-          top: -1px;
-          background-color: lighten(@mastheadBackgroundColorStart, 2);
-          border-top: 1px solid darken(@mastheadBackgroundColorStart, 3);
-          border-bottom: 1px solid lighten(@mastheadBackgroundColorStart, 5);
-        }
-      }
     }
     .header-image {
       display: block;
@@ -214,6 +199,7 @@
   // Modules
   .module-heading {
     .clearfix;
+    position: relative;
     .media-content {
       position: relative;
     }
