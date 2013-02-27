@@ -344,7 +344,7 @@ def nav_link(text, *args, **kwargs):
     '''
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
-    if len == 1:
+    if args:
         kwargs['controller'] = controller
         log.warning('h.nav_link() please supply controller as a named '
                     'parameter not a positional one')
