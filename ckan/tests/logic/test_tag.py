@@ -1,11 +1,12 @@
 import json
 from pprint import pprint
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_equal
 
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import WsgiAppCase
 from ckan.tests import StatusCodes
+
 
 class TestAction(WsgiAppCase):
     @classmethod
@@ -24,19 +25,19 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/tag_list', params=postparams)
         resbody = json.loads(res.body)
         assert resbody['success'] is True
-        assert sorted(resbody['result']) == sorted(['russian', 'tolstoy',
-                u'Flexible \u30a1', 'tollbooth', 'tolkien', 'toledo',
-                'tolerance'])
-        assert resbody['help'].startswith(
-                'Return a list of tag dictionaries.')
-        #Get all fields
-        postparams = '%s=1' % json.dumps({'all_fields':True})
+        assert sorted(resbody['result']) == sorted([
+            'russian', 'tolstoy', u'Flexible \u30a1', 'tollbooth',
+            'tolkien', 'toledo', 'tolerance'
+        ])
+        # get all fields
+        postparams = '%s=1' % json.dumps({'all_fields': True})
         res = self.app.post('/api/action/tag_list', params=postparams)
         res_obj = json.loads(res.body)
         pprint(res_obj)
-        assert res_obj['success'] == True
+        assert res_obj['success']
 
-        names = [ res_obj['result'][i]['name'] for i in xrange(len(res_obj['result'])) ]
+        names = [res_obj['result'][i]['name']
+                 for i in xrange(len(res_obj['result']))]
         russian_index = names.index('russian')
         tolstoy_index = names.index('tolstoy')
         flexible_index = names.index(u'Flexible \u30a1')
@@ -54,7 +55,8 @@ class TestAction(WsgiAppCase):
         # Assert we have the correct number of packages, independantly of
         # whether the "moo" package may exist or not.
         assert number_of_russian_packages - number_of_tolstoy_packages == 1
-        assert number_of_flexible_packages == (number_of_russian_packages - number_of_tolstoy_packages) + 1
+        assert number_of_flexible_packages ==\
+            (number_of_russian_packages - number_of_tolstoy_packages) + 1
 
         assert 'id' in res_obj['result'][0]
         assert 'id' in res_obj['result'][1]
@@ -66,18 +68,19 @@ class TestAction(WsgiAppCase):
 
         # create vocab
         params = json.dumps({'name': vocab_name})
-        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
-        response = self.app.post('/api/action/vocabulary_create', params=params,
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+        response = self.app.post('/api/action/vocabulary_create',
+                                 params=params,
                                  extra_environ=extra_environ)
         assert response.json['success']
         vocab_id = response.json['result']['id']
 
         # create new tag with vocab
         params = json.dumps({'name': tag_name, 'vocabulary_id': vocab_id})
-        extra_environ = {'Authorization' : str(self.sysadmin_user.apikey)}
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
         response = self.app.post('/api/action/tag_create', params=params,
                                  extra_environ=extra_environ)
-        assert response.json['success'] == True
+        assert response.json['success']
 
         # check that tag shows up in list
         params = '%s=1' % json.dumps({'vocabulary_id': vocab_name})
@@ -85,18 +88,16 @@ class TestAction(WsgiAppCase):
         body = json.loads(res.body)
         assert body['success'] is True
         assert body['result'] == [tag_name]
-        assert body['help'].startswith('Return a list of tag dictionaries.')
 
         # check that invalid vocab name results in a 404
         params = '%s=1' % json.dumps({'vocabulary_id': 'invalid-vocab-name'})
         res = self.app.post('/api/action/tag_list', params=params, status=404)
 
     def test_07_tag_show(self):
-        postparams = '%s=1' % json.dumps({'id':'russian'})
+        postparams = '%s=1' % json.dumps({'id': 'russian'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows tag details'
-        assert res_obj['success'] == True
+        assert res_obj['success']
         result = res_obj['result']
         assert result['name'] == 'russian'
         assert 'id' in result
@@ -105,32 +106,35 @@ class TestAction(WsgiAppCase):
         packages = [package['name'] for package in result['packages']]
 
         # the "moo" package may be part of the retrieved packages, depending
-        # upon whether or not this test is run in isolation from the other tests
-        # in the suite.
+        # upon whether or not this test is run in isolation from the other
+        # tests in the suite.
         expected_packages = ['annakarenina', 'warandpeace'] + (
-            ['moo'] if 'moo' in packages else [])
+            ['moo'] if 'moo' in packages else []
+        )
 
-        assert sorted(packages) == sorted(expected_packages), "%s != %s" %(packages, expected_packages)
+        assert sorted(packages) == sorted(expected_packages),\
+            "%s != %s" % (packages, expected_packages)
 
     def test_07_flexible_tag_show(self):
         """
-        Asserts that the api can be used to retrieve the details of the flexible tag.
+        Asserts that the api can be used to retrieve the details of the
+        flexible tag.
 
         The flexible tag is the tag with spaces, punctuation and foreign
-        characters in its name, that's created in `ckan/lib/create_test_data.py`.
+        characters in its name, that's created in
+        `ckan/lib/create_test_data.py`.
         """
-        postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1'})
+        postparams = '%s=1' % json.dumps({'id': u'Flexible \u30a1'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Shows tag details'
-        assert res_obj['success'] == True
+        assert res_obj['success']
         result = res_obj['result']
         assert result['name'] == u'Flexible \u30a1'
         assert 'id' in result
         assert 'packages' in result and len(result['packages']) == 2
 
         assert sorted([package['name'] for package in result['packages']]) == \
-               sorted(['annakarenina', 'warandpeace'])
+            sorted(['annakarenina', 'warandpeace'])
 
     def test_07_tag_show_unknown_license(self):
         # create a tagged package which has an invalid license
@@ -138,11 +142,11 @@ class TestAction(WsgiAppCase):
             'name': u'tag_test',
             'tags': u'tolstoy',
             'license': 'never_heard_of_it',
-            }])
-        postparams = '%s=1' % json.dumps({'id':'tolstoy'})
+        }])
+        postparams = '%s=1' % json.dumps({'id': 'tolstoy'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['success'] == True
+        assert res_obj['success']
         result = res_obj['result']
         for pkg in result['packages']:
             if pkg['name'] == 'tag_test':
@@ -153,26 +157,32 @@ class TestAction(WsgiAppCase):
         assert_equal(pkg['isopen'], False)
 
     def test_08_user_create_not_authorized(self):
-        postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
+        postparams = '%s=1' % json.dumps({
+            'name': 'test_create_from_action_api',
+            'password': 'testpass'
+        })
         res = self.app.post('/api/action/user_create', params=postparams,
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
         res_obj = json.loads(res.body)
-        assert res_obj == {'help': 'Creates a new user',
-                           'success': False,
-                           'error': {'message': 'Access denied', '__type': 'Authorization Error'}}
+        res_obj.pop('help')
+        assert res_obj == {'success': False,
+                           'error': {'message': 'Access denied',
+                                     '__type': 'Authorization Error'}}
 
     def test_09_user_create(self):
-        user_dict = {'name':'test_create_from_action_api',
-                      'about': 'Just a test user',
-                      'email': 'me@test.org',
-                      'password':'testpass'}
+        user_dict = {'name': 'test_create_from_action_api',
+                     'about': 'Just a test user',
+                     'email': 'me@test.org',
+                     'password': 'testpass'}
 
         postparams = '%s=1' % json.dumps(user_dict)
-        res = self.app.post('/api/action/user_create', params=postparams,
-                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res = self.app.post(
+            '/api/action/user_create',
+            params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)}
+        )
         res_obj = json.loads(res.body)
-        assert res_obj['help'] == 'Creates a new user'
-        assert res_obj['success'] == True
+        assert res_obj['success']
         result = res_obj['result']
         assert result['name'] == user_dict['name']
         assert result['about'] == user_dict['about']
@@ -284,23 +294,19 @@ class TestAction(WsgiAppCase):
             self.app.post('/api/action/tag_search', params=params, status=404)
 
     def test_15_tag_autocomplete(self):
-        #Empty query
+        # empty query
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['success'] == True
+        assert res_obj['success']
         assert res_obj['result'] == []
-        assert res_obj['help'].startswith(
-                'Return a list of tag names that contain the given string.')
 
-        #Normal query
-        postparams = '%s=1' % json.dumps({'q':'r'})
+        # normal query
+        postparams = '%s=1' % json.dumps({'q': 'r'})
         res = self.app.post('/api/action/tag_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['success'] == True
+        assert res_obj['success']
         assert res_obj['result'] == ['russian', 'tolerance']
-        assert res_obj['help'].startswith(
-                'Return a list of tag names that contain the given string.')
 
     def test_15_tag_autocomplete_tag_with_spaces(self):
         """Asserts autocomplete finds tags that contain spaces"""
