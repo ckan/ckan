@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import time
 import datetime
 from nose.tools import assert_equal, assert_raises
-
-from pylons import config 
+from pylons import config
+from paste.deploy.converters import asbool
 
 from ckan.tests import *
 from ckan.lib import helpers as h
@@ -79,42 +78,64 @@ class TestHelpers(TestController):
 
     def test_gravatar(self):
         email = 'zephod@gmail.com'
-        expected =['<a href="https://gravatar.com/"',
-                '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"', '</a>']
-        # Hash the email address
+        expected = [
+            '<a href="https://gravatar.com/"',
+            '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"',
+            '</a>'
+        ]
+        enabled = asbool(config.get('ckan.display_gravatars', 'true'))
+
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default='mm')
+
         for e in expected:
-            assert e in res, (e,res)
+            if enabled:
+                assert e in res, (e, res)
+            else:
+                assert not e in res, (e, res)
 
     def test_gravatar_config_set_default(self):
-        """Test when default gravatar is None, it is pulled from the config file"""
+        """Test when default gravatar is None, it is pulled from the config """
         email = 'zephod@gmail.com'
         default = config.get('ckan.gravatar_default', 'identicon')
-        expected =['<a href="https://gravatar.com/"',
-                   '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default,
-                   '</a>']
-        # Hash the email address
+        expected = [
+            '<a href="https://gravatar.com/"',
+            '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"' % default,
+            '</a>'
+        ]
+        enabled = asbool(config.get('ckan.display_gravatars', 'true'))
+
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200)
+
         for e in expected:
-            assert e in res, (e,res)
+            if enabled:
+                assert e in res, (e, res)
+            else:
+                assert not e in res, (e, res)
 
     def test_gravatar_encodes_url_correctly(self):
         """Test when the default gravatar is a url, it gets urlencoded"""
         email = 'zephod@gmail.com'
         default = 'http://example.com/images/avatar.jpg'
-        expected =['<a href="https://gravatar.com/"',
-                   '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
-                   '</a>']
-        # Hash the email address
+        expected = [
+            '<a href="https://gravatar.com/"',
+            '<img src="http://gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"',
+            '</a>'
+        ]
+        enabled = asbool(config.get('ckan.display_gravatars', 'true'))
+
         import hashlib
         email_hash = hashlib.md5(email).hexdigest()
         res = h.linked_gravatar(email_hash, 200, default=default)
+
         for e in expected:
-            assert e in res, (e,res)
+            if enabled:
+                assert e in res, (e, res)
+            else:
+                assert not e in res, (e, res)
 
     def test_parse_rfc_2822_no_timezone_specified(self):
         """
