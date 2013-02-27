@@ -232,8 +232,11 @@ class TestPublisherGroupPackages(FunctionalTestCase):
         model.User.get_groups = f
         model.Package.get_groups = g
 
-    def test_new_success(self):
-        self._run_success_test('russianfan', 'package_create')
+    # not valid now
+    # see commit bd95619828207744c888cb45c570bd30ff25d4ed
+    #
+    # def test_new_success(self):
+    #     self._run_success_test('russianfan', 'package_create')
 
     # Currently valid to have any logged in user succeed
     #def test_new_fail(self):
