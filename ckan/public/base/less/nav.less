@@ -88,3 +88,44 @@
   .ckan-icon-circle-cross;
   right: 3px;
 }
+
+.nav-facet-tertiary {
+  margin-top: 10px;
+  .module-heading {
+    margin-bottom: 5px;
+    padding: 8px 12px;
+    border-bottom-width: 0;
+    .border-radius(5px);
+    i {
+      display: none;
+    }
+  }
+  .module-footer {
+    padding: 8px 12px;
+    border-top-width: 0;
+    a {
+      font-weight: normal;
+      color: #8C8C8C;
+    }
+  }
+  .nav {
+    margin-bottom: 0;
+  }
+  .module-content.empty {
+    padding: 8px 12px;
+    margin-top: 0;
+  }
+  .nav li.active {
+    position: relative;
+  }
+  .nav li.active > a:hover:after,
+  .nav li.active > a:after {
+    .ckan-icon;
+    .ckan-icon-circle-cross;
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    margin-top: -8px;
+  }
+}

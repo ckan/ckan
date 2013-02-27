@@ -3,24 +3,18 @@
 {% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  <div class="module-content">
+  <form method="GET" class="clearfix">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
-    <form method="GET">
-      <span class="control-group search-giant">
-        <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
-        <button type="submit">{{ _('Search') }}</button>
-      </span>
+    <div class="primary">
       <h3>
-        {%- if request.params and c.page.item_count -%}
+        {%- if c.page.item_count -%}
           {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
-        {%- elif request.params and c.page.item_count == 0 -%}
-          {{ _('Sorry no datasets found for "{query}"').format(query=c.q) }}
         {%- else -%}
-          {{ _('All datasets') }}
+          {{ _('Sorry no datasets found for "{query}"').format(query=c.q) }}
         {%- endif -%}
       </h3>
-      <table class="table table-bordered table-header table-bulk-edit" data-module="table-selectable-rows">
-        <col width="7">
+      <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
+        <col width="8">
         <col width="120">
         <thead>
           <tr>
@@ -56,8 +50,8 @@
               <input type="checkbox" name="dataset_{{ package.id }}">
             </td>
             <td class="context">
-              <a href="{% url_for controller='package', action='edit', id=package.name %}" class="btn pull-right">
-                <i class="icon-edit"></i>
+              <a href="{% url_for controller='package', action='edit', id=package.name %}" class="edit pull-right">
+                {{ _('Edit') }}
               </a>
               <h3 class="dataset-heading">
                 {{ h.link_to(h.truncate(title, truncate_title), h.url_for(controller='package', action='read', id=package.name)) }}
@@ -80,13 +74,15 @@
         {% endfor %}
         </tbody>
       </table>
-    </form>
-  </div>
+    </div>
+    <aside class="tertiary">
+      <span class="control-group search-normal">
+        <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search datasets...') }}" />
+        <button type="submit"><i class="icon-search"></i> <span>{{ _('Search') }}</span></button>
+      </span>
+      {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', within_tertiary=true, extras={'id':c.group_dict.name}) }}
+      {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', within_tertiary=true, extras={'id':c.group_dict.name}) }}
+    </aside>
+  </form>
   {{ c.page.pager() }}
-{% endblock %}
-
-{% block secondary_content %}
-  {{ super() }}
-  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', extras={'id':c.group_dict.id}) }}
-  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', extras={'id':c.group_dict.id}) }}
 {% endblock %}

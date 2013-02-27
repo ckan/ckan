@@ -1,5 +1,8 @@
 .table-selected td {
   background-color: @formActionsBackground;
+  .edit {
+    display: block;
+  }
 }
 
 .table-bulk-edit {
@@ -17,4 +20,14 @@
 
 .table-header thead th {
   background-color: @moduleHeadingBackgroundColorStart;
+}
+
+.table-edit-hover {
+  .edit {
+    display: none;
+    float: right;
+  }
+  tr:hover .edit {
+    display: block;
+  }
 }

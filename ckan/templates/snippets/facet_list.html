@@ -32,7 +32,12 @@ alternative_url
 
 #}
 {% with items = items or h.get_facet_items_dict(name) %}
-  <section class="module module-narrow module-shallow">
+  {% if within_tertiary %}
+    {% set nav_class = 'nav nav-pills nav-stacked' %}
+    {% set nav_item_class = ' ' %}
+    {% set wrapper_class = 'nav-facet nav-facet-tertiary' %}
+  {% endif %}
+  <section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
     <h2 class="module-heading">
       <i class="icon-medium icon-filter"></i>
       {{ title or h.get_facet_title(name) }}
@@ -40,12 +45,12 @@ alternative_url
     </h2>
     {% if items %}
       <nav>
-        <ul class="unstyled nav nav-simple nav-facet">
+        <ul class="{{ nav_class or 'unstyled nav nav-simple nav-facet' }}">
           {% for item in items %}
             {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
             {% set label = label_function(item) if label_function else h.truncate(item.display_name, 22) %}
             {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
-              <li class="nav-item{% if item.active %} active{% endif %}">
+              <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
                 <a href="{{ href }}">
                   <span>{{ label }} {{ count }}</span>
                 </a>
