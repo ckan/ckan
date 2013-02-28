@@ -1837,7 +1837,11 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Return a dictionary with information about the site's configuration.'''
+    '''Return a dictionary with information about the site's configuration.
+
+    :rtype: dictionary
+
+    '''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
