@@ -1,29 +1,29 @@
-import random
-
-from pylons.i18n import set_lang
+from pylons.i18n import _
+from pylons import g, c, config, cache
 import sqlalchemy.exc
 
-import ckan.logic
+import ckan.logic as logic
 import ckan.lib.maintain as maintain
-from ckan.lib.search import SearchError
-from ckan.lib.base import *
-from ckan.lib.helpers import url_for
+import ckan.lib.search as search
+import ckan.lib.base as base
+import ckan.model as model
+import ckan.lib.helpers as h
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
 # horrible hack
 dirty_cached_group_stuff = None
 
-class HomeController(BaseController):
+class HomeController(base.BaseController):
     repo = model.repo
 
     def __before__(self, action, **env):
         try:
-            BaseController.__before__(self, action, **env)
+            base.BaseController.__before__(self, action, **env)
             context = {'model': model, 'user': c.user or c.author}
-            ckan.logic.check_access('site_read', context)
-        except ckan.logic.NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            logic.check_access('site_read', context)
+        except logic.NotAuthorized:
+            base.abort(401, _('Not authorized to see this page'))
         except (sqlalchemy.exc.ProgrammingError,
                 sqlalchemy.exc.OperationalError), e:
             # postgres and sqlite errors for missing tables
@@ -31,7 +31,7 @@ class HomeController(BaseController):
             if ('relation' in msg and 'does not exist' in msg) or \
                     ('no such table' in msg):
                 # table missing, major database problem
-                abort(503, _('This site is currently off-line. Database '
+                base.abort(503, _('This site is currently off-line. Database '
                              'is not initialised.'))
                 # TODO: send an email to the admin person (#1285)
             else:
@@ -50,7 +50,7 @@ class HomeController(BaseController):
                 'sort': 'views_recent desc',
                 'fq': 'capacity:"public"'
             }
-            query = ckan.logic.get_action('package_search')(
+            query = logic.get_action('package_search')(
                 context, data_dict)
             c.search_facets = query['search_facets']
             c.package_count = query['count']
@@ -74,14 +74,14 @@ class HomeController(BaseController):
             if 'groups' in c.search_facets:
                 data_dict['groups'] = [ item['name'] for item in
                     c.search_facets['groups']['items'] ]
-            c.groups = ckan.logic.get_action('group_list')(context, data_dict)
-        except SearchError, se:
+            c.groups = logic.get_action('group_list')(context, data_dict)
+        except search.SearchError, se:
             c.package_count = 0
             c.groups = []
 
         if c.userobj is not None:
             msg = None
-            url = url_for(controller='user', action='edit')
+            url = h.url_for(controller='user', action='edit')
             is_google_id = \
                 c.userobj.name.startswith(
                     'https://www.google.com/accounts/o8/id')
@@ -130,8 +130,8 @@ class HomeController(BaseController):
             data_dict = {'id': id}
 
             try:
-                group_dict = ckan.logic.get_action('group_show')(context, data_dict)
-            except ckan.logic.NotFound:
+                group_dict = logic.get_action('group_show')(context, data_dict)
+            except logic.NotFound:
                 return None
 
             return {'group_dict' :group_dict}
@@ -172,13 +172,13 @@ class HomeController(BaseController):
 
         # END OF DIRTYNESS
 
-        return render('home/index.html', cache_force=True)
+        return base.render('home/index.html', cache_force=True)
 
     def license(self):
-        return render('home/license.html')
+        return base.render('home/license.html')
 
     def about(self):
-        return render('home/about.html')
+        return base.render('home/about.html')
 
     def cache(self, id):
         '''Manual way to clear the caches'''

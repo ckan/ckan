@@ -28,26 +28,18 @@
     }
   }
   .tags {
-    padding: 10px;
+    .clearfix();
+    padding: 5px 10px 10px 10px;
     background-color: darken(@mastheadBackgroundColor, 10%);
     .border-radius(0 0 3px 3px);
-    h3 {
-      font-size: 14px;
-      line-height: 21px;
-      margin: 0;
-    }
-    .tag,
-    .tag-list {
-      display: inline-block;
-    }
-    .tag-list {
-      padding: 0;
-      li {
-        margin-right: 0;
-      }
-    }
     .tag {
-      margin-right: 10px;
+      display: block;
+      float: left;
+      margin: 5px 10px 0 0;
+    }
+    h3.tag {
+      font-size: @baseFontSize;
+      line-height: @baseLineHeight;
       margin-bottom: 0;
     }
   }
@@ -85,5 +77,8 @@
   }
   .group-list {
     margin-bottom: 0;
+  }
+  .box .module {
+    margin-top: 0;
   }
 }

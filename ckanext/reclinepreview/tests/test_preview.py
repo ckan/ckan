@@ -1,7 +1,7 @@
 import pylons
-
 import paste.fixture
-from pylons import config
+
+import pylons.config as config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -115,12 +115,12 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_recline.min.js' in result.body, result.body
-        assert 'preload_resource' in result.body, result.body
-        assert 'data-module="reclinepreview"' in result.body, result.body
+        assert (('preview_recline.js' in result.body) or ('preview_recline.min.js' in result.body))
+        assert 'preload_resource' in result.body
+        assert 'data-module="reclinepreview"' in result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
         result = self.app.get(url)
-        assert 'data-module="data-viewer"' in result.body, result.body
-        assert '<iframe' in result.body, result.body
+        assert 'data-module="data-viewer"' in result.body
+        assert '<iframe' in result.body

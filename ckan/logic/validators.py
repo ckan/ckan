@@ -20,19 +20,19 @@ def owner_org_validator(key, data, errors, context):
 
     if value is missing or value is None:
         if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
-            raise Invalid('A group must be supplied')
+            raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
         raise StopOnError
 
     model = context['model']
     group = model.Group.get(value)
     if not group:
-        raise Invalid('Group does not exist')
+        raise Invalid(_('Organization does not exist'))
     group_id = group.id
     user = context['user']
     user = model.User.get(user)
     if not(user.sysadmin or user.is_in_group(group_id)):
-        raise Invalid('You cannot add a dataset to this group')
+        raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
 

@@ -1,8 +1,9 @@
-from ckan.lib.base import *
 from genshi.template.loader import TemplateNotFound
 
+import ckan.lib.base as base
 
-class TemplateController(BaseController):
+
+class TemplateController(base.BaseController):
 
     def view(self, url):
         """By default, the final controller tried to fulfill the request
@@ -27,12 +28,12 @@ class TemplateController(BaseController):
         Found)
         """
         try:
-            return render(url)
+            return base.render(url)
         except TemplateNotFound:
             if url.endswith('.html'):
-                abort(404)
+                base.abort(404)
             url += '.html'
             try:
-                return render(url)
+                return base.render(url)
             except TemplateNotFound:
-                abort(404)
+                base.abort(404)
