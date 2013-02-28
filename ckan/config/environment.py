@@ -18,6 +18,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
+import ckan.lib.render as render
 
 log = logging.getLogger(__name__)
 
@@ -347,3 +348,7 @@ def load_environment(global_conf, app_conf):
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
+
+    # reset the template cache - we do this here so that when we load the
+    # environment it is clean
+    render.reset_template_info_cache()
