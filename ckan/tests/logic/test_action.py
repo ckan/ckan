@@ -135,7 +135,7 @@ class TestAction(WsgiAppCase):
         assert not missing_keys, missing_keys
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q':'war'})
+        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -146,7 +146,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
     def test_02_package_autocomplete_match_title(self):
-        postparams = '%s=1' % json.dumps({'q':'a%20w'})
+        postparams = '%s=1' % json.dumps({'q':'a%20w', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -557,12 +557,14 @@ class TestAction(WsgiAppCase):
     def test_16_user_autocomplete(self):
         #Empty query
         postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res = self.app.post(
+            '/api/action/user_autocomplete',
+            params=postparams,
+            status=StatusCodes.STATUS_409_CONFLICT)
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith(
                 "Return a list of user names that contain a string.")
-        assert res_obj['result'] == []
-        assert res_obj['success'] is True
+        assert res_obj['success'] is False
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'joe'})

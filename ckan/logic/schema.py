@@ -489,7 +489,6 @@ def default_follow_dataset_schema():
 
 
 def member_schema():
-
     schema = {
         'id': [group_id_exists, unicode],
         'username': [user_name_exists, unicode],
@@ -509,6 +508,14 @@ def default_package_list_schema():
         'limit': [ignore_missing, pos_int_validator],
         'offset': [ignore_missing, pos_int_validator],
         'page': [ignore_missing, pos_int_validator]
+    }
+    return schema
+
+
+def default_autocomplete_schema():
+    schema = {
+        'q': [not_missing, unicode],
+        'limit': [ignore_missing, pos_int_validator]
     }
     return schema
 

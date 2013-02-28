@@ -1042,23 +1042,33 @@ def package_autocomplete(context, data_dict):
 
     :param q: the string to search for
     :type q: string
+    :param limit: the maximum number of resource formats to return (optional,
+        default: 10)
+    :type limit: int
 
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-    q = _get_or_bust(data_dict, 'q')
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
 
-    like_q = u"%s%%" % q
+    model = context['model']
 
     _check_access('package_autocomplete', context, data_dict)
+
+    limit = data_dict.get('limit', 10)
+    q = data_dict['q']
+
+    like_q = u"%s%%" % q
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
     query = query.filter(model.PackageRevision.current==True)
     query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
                                 model.PackageRevision.title.ilike(like_q)))
-    query = query.limit(10)
+    query = query.limit(limit)
 
     q_lower = q.lower()
     pkg_list = []
@@ -1087,16 +1097,19 @@ def format_autocomplete(context, data_dict):
     :rtype: list of strings
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     session = context['session']
 
     _check_access('format_autocomplete', context, data_dict)
 
-    q = data_dict.get('q', None)
-    if not q:
-        return []
-
+    q = data_dict['q']
     limit = data_dict.get('limit', 5)
+
     like_q = u'%' + q + u'%'
 
     query = session.query(model.ResourceRevision.format,
@@ -1125,15 +1138,18 @@ def user_autocomplete(context, data_dict):
         ``'fullname'``, and ``'id'``
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     user = context['user']
-    q = data_dict.get('q',None)
-    if not q:
-        return []
 
     _check_access('user_autocomplete', context, data_dict)
 
-    limit = data_dict.get('limit',20)
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
 
     query = model.User.search(q).limit(limit)
 
