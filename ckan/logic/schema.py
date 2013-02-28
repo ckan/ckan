@@ -536,6 +536,17 @@ def default_package_search_schema():
     return schema
 
 
+def default_resource_search_schema():
+    schema = {
+        'query': [ignore_missing],  # string or list of strings
+        'fields': [ignore_missing],  # dict of fields
+        'order_by': [ignore_missing, unicode],
+        'offset': [ignore_missing, pos_int_validator],
+        'limit': [ignore_missing, pos_int_validator]
+    }
+    return schema
+
+
 def _create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
