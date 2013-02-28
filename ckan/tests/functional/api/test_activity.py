@@ -2129,14 +2129,12 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        #response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
-        #response_dict = json.loads(response.body)
-        #print response_dict
-        #assert response_dict[2]['activity_type'] == 'new related item'
-
-
+        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response_dict = json.loads(activity_response.body)
+        assert activity_response_dict[0]['activity_type'] == 'new related item'
 
     def test_related_item_changed(self):
+        # Create related item
         user = self.normal_user
         data = {'title': 'random', 'type': 'Application', 'url':
                 'http://example.com/application'}
@@ -2147,20 +2145,42 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
+        # Modify it
         data = {'id': response_dict['result']['id'], 'title': 'random2',
-                'owner_id': user['id'], 'type': 'Application'}
+                'owner_id': str(user['id']), 'type': 'Application'}
         response = self.app.post('/api/action/related_update',
             json.dumps(data), extra_environ=extra_environ)
         response_dict = json.loads(response.body)
-        assert response_dict['success'] is True
-        assert response_dict[1]['activity_type'] == 'changed related item'
+        assert activity_response_dict['success'] is True
 
-    def test_related_item_updated(self):
-        data = {'id': response_dict['result']['id']}
-        response_dict = json.loads(response.body)
-        assert response_dict['success'] is True
-        response = self.app.post('/api/action/related_delete',
+        # Test for activity stream entries
+        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response_dict = json.loads(activity_response.body)
+        assert activity_response_dict[1]['activity_type'] == 'changed related item'
+        assert activity_response_dict[1]['object_id'] == response_dict['result']['id']
+
+    def test_related_item_deleted(self):
+        # Create related item
+        user = self.normal_user
+        data = {'title': 'random', 'type': 'Application', 'url':
+                'http://example.com/application'}
+        extra_environ = {'Authorization': str(user['apikey'])}
+        response = self.app.post('/api/action/related_create',
                                  json.dumps(data),
                                  extra_environ=extra_environ)
-        assert response_dict[0]['activity_type'] == 'deleted related item'
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
 
+        # Delete related item
+        data = {'id': response_dict['result']['id']}
+        deleted_response = self.app.post('/api/action/related_delete',
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
+        response_dict = json.loads(deleted_response.body)
+        assert response_dict['success'] is True
+
+        # Test for activity stream entries
+        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response_dict = json.loads(activity_response.body)
+        assert activity_response_dict[0]['activity_type'] == 'deleted related item'
+        assert activity_response_dict[1]['object_id'] == response_dict['result']['id']
