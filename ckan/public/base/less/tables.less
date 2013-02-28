@@ -1,0 +1,33 @@
+.table-selected td {
+  background-color: @formActionsBackground;
+  .edit {
+    display: block;
+  }
+}
+
+.table-bulk-edit {
+  th input {
+    top: -5px;
+  }
+  .table-actions .btn-group {
+    float: left;
+    margin: 0 10px 0 0;
+  }
+  .context p {
+    margin-bottom: 0;
+  }
+}
+
+.table-header thead th {
+  background-color: @moduleHeadingBackgroundColor;
+}
+
+.table-edit-hover {
+  .edit {
+    display: none;
+    float: right;
+  }
+  tr:hover .edit {
+    display: block;
+  }
+}

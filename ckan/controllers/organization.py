@@ -40,6 +40,9 @@ class OrganizationController(group.GroupController):
     def _admins_template(self, group_type):
         return 'organization/admins.html'
 
+    def _bulk_process_template(self, group_type):
+        return 'organization/bulk_process.html'
+
     def _read_template(self, group_type):
         return 'organization/read.html'
 

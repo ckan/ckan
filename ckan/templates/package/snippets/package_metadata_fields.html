@@ -7,7 +7,7 @@
     <div class="controls">
       <select id="field-private" name="private" data-module="autocomplete">
         {% for option in [(true, 'Private'), (false, 'Public')] %}
-        <option value="{{ option[0] }}" {% if option[0] == data.private%}selected="selected"{% endif %}>{{ option[1] }}</option>
+        <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
         {% endfor %}
       </select>
     </div>
