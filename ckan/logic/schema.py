@@ -520,6 +520,22 @@ def default_autocomplete_schema():
     return schema
 
 
+def default_package_search_schema():
+    schema = {
+        'q': [ignore_missing, unicode],
+        'fq': [ignore_missing, unicode],
+        'rows': [ignore_missing, pos_int_validator],
+        'sort': [ignore_missing, unicode],
+        'start': [ignore_missing, pos_int_validator],
+        'qf': [ignore_missing, unicode],
+        'facet': [ignore_missing, unicode],
+        'facet.mincount': [ignore_missing, pos_int_validator],
+        'facet.limit': [ignore_missing, pos_int_validator],
+        'facet.field': [ignore_missing]  # list of strings
+    }
+    return schema
+
+
 def _create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
