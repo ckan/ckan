@@ -394,6 +394,13 @@ def clear_validators_cache():
 
 
 def get_validator(validator):
+    '''Return a validator by name or UnknownValidator exception if the
+    validator is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param validator: name of the validator requested
+    :type validator: string
+    '''
     if  not _validators_cache:
         # find validators
         import ckan.lib.navl.validators as validators
@@ -430,6 +437,13 @@ def clear_converters_cache():
 
 
 def get_converter(converter):
+    '''Return a converter by name or UnknownConverter exception if the
+    converter is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param converter: name of the converter requested
+    :type converter: string
+    '''
     if  not _converters_cache:
         import ckan.logic.converters as converters
         for k, v in converters.__dict__.items():
