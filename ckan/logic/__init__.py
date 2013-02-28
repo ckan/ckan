@@ -402,24 +402,10 @@ def get_validator(validator):
     :type validator: string
     '''
     if  not _validators_cache:
-        # find validators
-        import ckan.lib.navl.validators as validators
-        for k, v in validators.__dict__.items():
-            try:
-                if v.__module__ != 'ckan.lib.navl.validators':
-                    continue
-                _validators_cache[k] = v
-            except AttributeError:
-                pass
-
-        import ckan.logic.validators as validators
-        for k, v in validators.__dict__.items():
-            try:
-                if v.__module__ != 'ckan.logic.validators':
-                    continue
-                _validators_cache[k] = v
-            except AttributeError:
-                pass
+        validators = _import_module_functions('ckan.lib.navl.validators')
+        _validators_cache.update(validators)
+        validators = _import_module_functions('ckan.logic.validators')
+        _validators_cache.update(validators)
     try:
         return _validators_cache[validator]
     except KeyError:
@@ -444,16 +430,27 @@ def get_converter(converter):
     :param converter: name of the converter requested
     :type converter: string
     '''
-    if  not _converters_cache:
-        import ckan.logic.converters as converters
-        for k, v in converters.__dict__.items():
-            try:
-                if v.__module__ != 'ckan.logic.converters':
-                    continue
-                _converters_cache[k] = v
-            except AttributeError:
-                pass
+    if not _converters_cache:
+        converters = _import_module_functions('ckan.logic.converters')
+        _converters_cache.update(converters)
     try:
         return _converters_cache[converter]
     except KeyError:
         raise UnknownConverter('Converter `%s` does not exist' % converter)
+
+
+def _import_module_functions(module_path):
+    '''Import a module and get the functions and return them in a dict'''
+    functions_dict = {}
+    module = __import__(module_path)
+    for part in module_path.split('.')[1:]:
+        module = getattr(module, part)
+    for k, v in module.__dict__.items():
+
+        try:
+            if v.__module__ != module_path:
+                continue
+            functions_dict[k] = v
+        except AttributeError:
+            pass
+    return functions_dict
