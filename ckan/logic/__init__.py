@@ -353,12 +353,8 @@ def get_or_bust(data_dict, keys):
 
     import ckan.logic.schema as schema_module
     schema = schema_module._create_schema_for_required_keys(keys)
-    fake_context = {
-        'model': model,
-        'session': model.Session
-    }
 
-    data_dict, errors = _validate(data_dict, schema, context=fake_context)
+    data_dict, errors = _validate(data_dict, schema)
 
     if errors:
         raise ValidationError(errors)
