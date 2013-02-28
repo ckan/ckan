@@ -4,12 +4,154 @@ CKAN CHANGELOG
 v2.0
 ====
 
-* [#2257] Removed restrict_template_vars config setting.
-* [#2257] Removed deprecated facet_title() template helper function, use
-  get_facet_title() instead.
-* [#2257] Removed deprecated am_authorized() template helper function, use
-  check_access() instead.
-* [#2257] Removed deprecated datetime_to_datestr() template helper function.
+Note: In the v2.0 changelog issue numbers with four digits refer to
+ trac.ckan.org tickets and issue numbers with three digits refer to GitHub
+ issues. For example:
+
+    - #3020 is http://trac.ckan.org/ticket/3020
+    - #271 is https://github.com/okfn/ckan/issues/271
+
+ Some GitHub issues URLs will redirect to GitHub pull request pages.
+
+Note: v2.0 is a huge release so the changes listed here are just the
+highlights. Bug fixes are not listed.
+
+New frontend:
+
+ * CKAN's frontend has been completely redesigned, inside and out
+   (#2375 and many other tickets)
+   - New default theme
+   - CSS "primer" page for theme developers
+   - We're now using LESS for CSS (new `paster less` command to build the CSS
+     files from the less source files, also see `paster front-end-build`)
+   - Scalable font icons (#2563)
+   - We've moved from Genshi to Jinja templates
+     - Block-based template inheritance
+     - Custom jinja tags:
+       - {% ckan_extends %} (#2503)
+       - {% snippet %} and {% url_for %} (#2502)
+       - {% trans %}
+    - Social sharing buttons (google plus, facebook, twitter)
+    - 'Popular' badges on datasets and resources
+    - Three-stage dataset creation form (#2501)
+ * New `paster front-end-build` command does everything needed to build the
+   frontend for a production CKAN site (runs `paster less` to compile the css
+   files, `paster minify` to minify the css and js files, etc.)
+ * Mocha JavaScript test suite added at /base/test,
+   e.g.: http://beta.ckan.org/base/test
+
+Organizations:
+
+ * CKAN's new "organizations" feature replaces the old authorization system
+   with a new one based on publisher organizations
+   - New organization-based authorization and organization of datasets
+   - Supports private datasets
+   - Publisher workflow
+   - New authorization ini file options
+
+Activity Streams, Following & User Dashboard:
+
+ * New visual design for activity streams (#2941)
+ * Group activity streams now include activities for changes to any of the
+   group's datasets (#1664)
+ * Group activity streams now appear on group pages (previously they could
+   only be retrieved via the api)
+ * Dataset activity streams now appear on dataset pages (previously they could
+   only be retrieved via the api) (#3024)
+ * Users can now follow groups (previously you could only follow users or
+   datasets) (#3005)
+ * When you're logged into CKAN, you now get a notifications count in the
+   top-right corner of the site, telling you how many new notifications you
+   have on your dashboard. Clicking on the count takes you to your dashboard
+   page to view your notifications. (#3009)
+ * Optionally, you can also receive notifications by email when you have new
+   activities on your dashboard (#1635)
+ * Infinite scrolling of activity streams (if you scroll to the bottom of a
+   an activity stream, CKAN will automatically load more activities) (#3018)
+ * Redesigned user dashboard (#3028)
+   - New dropdown-menu enables you to filter you dashboard activity stream to
+     show only activities from a particular user, dataset, group or
+     organization that you're following
+   - New sidebar shows previews and unfollow buttons (when the activity stream
+     is filtered)
+
+Data Preview:
+
+ * PDF files preview (#2203)
+ * JSON files preview
+ * HTML pages preview (in an iframe) (#2888)
+ * New plugin extension point that allows plugins to add custom data previews
+   for different data types (#2961)
+ * Image files preview
+ * Improved Recline Data Explorer previews (CSV files, Excel files..)
+ * Plain text files preview
+
+Plugins & Extensions:
+
+ * New example extensions in core, and better documentation for the relevant
+   plugin interfaces: example_itemplatehelpers (#447),
+   example_idatasetform (#2750), hopefully more to come in 2.1!
+ * #198 New ISearchFacets plugin interface, allows plugins to manipulate the
+   search facet titles displayed on the search page (#198, srkunze)
+ * New plugins toolkit provides a stable set of utility and helper functions
+   for CKAN plugins to depend on
+ * The get_action() function now automatically adds 'model' and 'session' to
+   the context dict (this saves on boiler-plate code, and means plugins don't
+   have to import ckan.model in order to call get_action()) (#172)
+
+API:
+
+ * The Action API is now CKAN's default API, and the API documentation has
+   been rewritten (#357)
+
+Other highlights:
+
+ * CKAN now has continuous integration testing at
+   https://travis-ci.org/okfn/ckan/
+ * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
+   links in the HTML headers, allows linked-data tools to find CKAN's RDF
+   rendering of a dataset's metadata (#413)
+ * CKAN's DataStore and Data API have been rewritten, and now use PostgreSQL
+   instead of elasticsearch, so there's no need to install elasticsearch
+   anymore (this feature was also back-ported to CKAN 1.8) (#2733)
+ * New Config page for sysadmins (/ckan-admin/config) enables sysadmins to set
+   the site title, tag line, logo, the intro text shown on the front page,
+   the about text shown on the /about page, select a theme, and add custom
+   CSS (#2302, #2781)
+ * New `paster color` command for creating color schemes
+ * Fanstatic integration (#2371):
+   - CKAN now uses Fanstatic to specify required static resource files
+     (js, css..) for web pages
+   - Enables each page to only include the static files that it needs,
+     reducing page loads
+   - Enables CKAN to use bundled and minified static files, further reducing
+     page loads
+   - CKAN's new `paster minify` command is used to create minified js and
+     css files (#2950) (also see `paster front-end-build`)
+ * CKAN will now recognise common file format strings such as
+   "application/json", "JSON", ".json" and "json" as a single file type "json"
+   (#2416)
+ * CKAN now supports internalization of strings in javascript files, the new
+   `paster trans` command is used to pull translatable strings out of
+   javascript files (#2774, #2750)
+ * convert_to/from_extras have been fixed to not add quotes around strings (#2930)
+ * Updated CKAN coding standards (#3020) and CONTRIBUTING.rst file
+ * Built-in page view counting.
+   There's also a paster command to export the tracking data to a csv file (#195)
+ * Updated CKAN Coding Standards and new CONTRIBUTING.rst file
+ * You can now change the sort ordering of datasets on the dataset search page
+
+Deprecated and removed:
+
+ * The IGenshiStreamFilter plugin interface is deprecated (#271), use the
+   ITemplateHelpers plugin interface instead
+ * The Model, Search and Util APIs are deprecated, use the Action API instead
+ * Removed restrict_template_vars config setting (#2257)
+ * Removed deprecated facet_title() template helper function, use
+   get_facet_title() instead (#2257)
+ * Removed deprecated am_authorized() template helper function, use
+   check_access() instead (#2257)
+ * Removed deprecated datetime_to_datestr() template helper function (#2257)
 
 v1.8 2012-10-19
 ===============
