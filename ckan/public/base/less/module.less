@@ -15,8 +15,12 @@
 .module-heading .action {
   float: right;
   color: @moduleHeadingActionTextColor;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: @baseLineHeight;
   text-decoration: underline;
+  &:hover {
+    color: @layoutTextColor;
+  }
 }
 
 .module-content {
@@ -66,12 +70,15 @@
 
 .module .pagination > ul {
   .border-radius(0);
+  .box-shadow(none);
   border: 0;
 }
 
 .module .pagination li a {
   border-top: none;
   border-bottom: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 .module .pagination li:first-child a,
@@ -197,6 +204,12 @@
   border-bottom: 1px solid @genericBorderColor;
   margin-top: 0;
   .border-radius(3px 3px 0 0);
+  .actions { 
+    position: relative;
+    float: right;
+    top: -10px;
+    right: -15px;
+  }
 }
 
 .module .module-tags {
