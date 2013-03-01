@@ -184,6 +184,8 @@ def form_to_db_package_schema():
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
     schema['type'] = [ignore_missing, unicode]
+    schema['private'] = [ignore_missing, boolean_validator]
+    schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
 
     ##changes
     schema.pop("id")
