@@ -596,14 +596,15 @@ def role_exists(role, context):
     return role
 
 
-def require_admin_of_dataset(key, data, errors, context):
-    # TODO: Think of better name
-    group_id = data.get('owner_org')
+def update_package_privacy(key, data, errors, context):
+    pkg = context.get('package')
+    group_id = pkg.owner_org
     if not group_id:
         return data[key]
     user_name  = context.get('user')
-
     if not ckan.new_authz.has_user_permission_for_group_or_org(
             group_id, user_name, 'update_privacy'):
-        raise Invalid(_('You cannot change this.'))
+        # if the value is not changed then no need to complain
+        if pkg.private != data[key]:
+            raise Invalid(_('You cannot change this.'))
     return data[key]

@@ -42,7 +42,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
                                    owner_org_validator,
-                                   require_admin_of_dataset,
+                                   update_package_privacy,
                                    user_name_exists,
                                    role_exists,
                                    url_validator)
@@ -161,7 +161,7 @@ def default_update_package_schema():
     schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
 
-    schema['private'] = [ignore_missing, boolean_validator]
+    schema['private'] = [ignore_missing, boolean_validator, update_package_privacy]
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
     return schema
 
@@ -184,7 +184,7 @@ def form_to_db_package_schema():
     schema['save'] = [ignore]
     schema['return_to'] = [ignore]
     schema['type'] = [ignore_missing, unicode]
-    schema['private'] = [ignore_missing, boolean_validator]
+    schema['private'] = [ignore_missing, boolean_validator, update_package_privacy]
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
 
     ##changes
