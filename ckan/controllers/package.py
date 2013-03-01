@@ -248,7 +248,7 @@ class PackageController(BaseController):
 
             # Facet titles
             for plugin in plugins.PluginImplementations(plugins.IFacets):
-                facets = plugin.dataset_facets(facets, dataset_type)
+                facets = plugin.dataset_facets(facets, package_type)
 
             c.facet_titles = facets
 
