@@ -516,7 +516,7 @@ def unselected_facet_items(facet, limit=10):
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 
-@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be removed')
+@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be removed.')
 def get_facet_title(name):
     '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
