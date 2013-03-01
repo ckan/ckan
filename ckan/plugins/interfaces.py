@@ -18,6 +18,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'IFacets',
 ]
 
 from inspect import isclass
@@ -775,3 +776,26 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+class IFacets(Interface):
+    ''' Allows specify which facets are displayed and also the names used.
+
+    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
+    to allow translatable dispaly names use _(...)
+    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    created each time the function is called.
+
+    The dict supplied is actually an ordered dict.
+    '''
+
+    def dataset_facets(self, facets_dict, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
