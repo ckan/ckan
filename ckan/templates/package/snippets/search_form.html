@@ -48,4 +48,4 @@
   <p><strong>There was an error while searching.</strong> Please try again.</p>
 {% endif %}
 
-{{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+{{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}

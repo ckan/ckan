@@ -739,7 +739,9 @@ class PackageController(BaseController):
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
             # user if there is a validation error. Use users data if there.
-            data = data or old_data
+            if data:
+                old_data.update(data)
+            data = old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -854,7 +856,7 @@ class PackageController(BaseController):
         """
         pkg = model.Package.get(id)
         if pkg:
-            return pkg.type or 'package'
+            return pkg.type or 'dataset'
         return None
 
     def _tag_string_to_list(self, tag_string):
@@ -1004,10 +1006,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            if package_type:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-            else:
+            if package_type is None or package_type == 'dataset':
                 url = h.url_for(controller='package', action='read', id=pkgname)
+            else:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):

@@ -100,7 +100,8 @@
   position: relative;
 }
 
-.search-giant {
+.search-giant,
+.search-normal {
   position: relative;
 }
 
@@ -110,6 +111,29 @@
   padding: 14px 10px;
   width: 100%;
   height: auto;
+}
+
+.search-normal input {
+  .box-sizing(border-box);
+  width: 100%;
+  height: auto;
+}
+
+.search-normal button {
+  cursor: pointer;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  background: transparent;
+  border: none;
+  color: #999;
+  margin-top: -17px;
+  span {
+    display: none;
+  }
+  &:hover {
+    color: #000;
+  }
 }
 
 .search-giant button {

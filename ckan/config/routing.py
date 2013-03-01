@@ -305,6 +305,7 @@ def make_map():
           'member_new',
           'member_delete',
           'history',
+          'bulk_process',
           'about'
           ]))
           )

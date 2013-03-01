@@ -1379,3 +1379,86 @@ class TestSearchPluginInterface(WsgiAppCase):
         assert res.body.count('string_not_found_in_rest_of_template') == 2
 
 
+class TestBulkActions(WsgiAppCase):
+
+    @classmethod
+    def setup_class(cls):
+        search.clear()
+        model.Session.add_all([
+            model.User(name=u'sysadmin', apikey=u'sysadmin',
+                       password=u'sysadmin', sysadmin=True),
+        ])
+        model.Session.commit()
+
+        data_dict = '%s=1' % json.dumps({
+            'name': 'org',
+        })
+        res = cls.app.post('/api/action/organization_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=data_dict)
+        cls.org_id = json.loads(res.body)['result']['id']
+
+        cls.package_ids = []
+        for i in range(0,12):
+            data_dict = '%s=1' % json.dumps({
+                'name': 'name{i}'.format(i=i),
+                'owner_org': 'org',
+            })
+            res = cls.app.post('/api/action/package_create',
+                                extra_environ={'Authorization': 'sysadmin'},
+                                params=data_dict)
+            cls.package_ids.append(json.loads(res.body)['result']['id'])
+
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_01_make_private_then_public(self):
+        data_dict = '%s=1' % json.dumps({
+            'datasets': self.package_ids,
+            'org_id': self.org_id,
+        })
+        res = self.app.post('/api/action/bulk_update_private',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=data_dict)
+
+        dataset_list = [row.private for row in
+                        model.Session.query(model.Package.private).all()]
+        assert len(dataset_list) == 12, len(dataset_list)
+        assert all(dataset_list)
+
+        res = self.app.get('/api/action/package_search?q=*:*')
+        assert json.loads(res.body)['result']['count'] == 0
+
+        res = self.app.post('/api/action/bulk_update_public',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=data_dict)
+
+        dataset_list = [row.private for row in
+                        model.Session.query(model.Package.private).all()]
+        assert len(dataset_list) == 12, len(dataset_list)
+        assert not any(dataset_list)
+
+        res = self.app.get('/api/action/package_search?q=*:*')
+        assert json.loads(res.body)['result']['count'] == 12
+
+    def test_02_bulk_delete(self):
+
+        data_dict = '%s=1' % json.dumps({
+            'datasets': self.package_ids,
+            'org_id': self.org_id,
+        })
+        res = self.app.post('/api/action/bulk_update_delete',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=data_dict)
+
+        dataset_list = [row.state for row in
+                        model.Session.query(model.Package.state).all()]
+        assert len(dataset_list) == 12, len(dataset_list)
+        assert all(state == 'deleted' for state in dataset_list)
+
+        res = self.app.get('/api/action/package_search?q=*:*')
+        assert json.loads(res.body)['result']['count'] == 0
+
+

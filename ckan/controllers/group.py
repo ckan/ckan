@@ -6,6 +6,7 @@ from urllib import urlencode
 
 from ckan.lib.base import BaseController, c, model, request, render, h, g
 from ckan.lib.base import ValidationException, abort, gettext
+import ckan.lib.base as base
 from pylons.i18n import get_lang, _
 from ckan.lib.helpers import Page
 import ckan.lib.maintain as maintain
@@ -63,6 +64,10 @@ class GroupController(BaseController):
 
     def _admins_template(self, group_type):
         return lookup_group_plugin(group_type).admins_template()
+
+    def _bulk_process_template(self, group_type):
+        return lookup_group_plugin(group_type).bulk_process_template()
+
 
     ## end hooks
     def _replace_group_org(self, string):
@@ -146,14 +151,14 @@ class GroupController(BaseController):
         )
         return render(self._index_template(group_type))
 
-    def read(self, id):
-        from ckan.lib.search import SearchError
+    def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
+
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
 
@@ -165,6 +170,18 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
+        self._read(id, limit)
+        return render(self._read_template(c.group_dict['type']))
+
+    def _read(self, id, limit):
+        ''' This is common code used by both read and bulk_process'''
+        group_type = self._get_group_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+
+        q = c.q = request.params.get('q', '')
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
 
@@ -183,7 +200,6 @@ class GroupController(BaseController):
         # if we drop support for those then we can delete this line.
         c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
-        limit = 20
         try:
             page = int(request.params.get('page', 1))
         except ValueError, e:
@@ -196,8 +212,18 @@ class GroupController(BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            url = self._url_for(controller='group', action='read',
-                            id=c.group_dict.get('name'))
+            if group_type == 'organization':
+                if c.action == 'bulk_process':
+                    url = self._url_for(controller='organization',
+                                        action='bulk_process',
+                                        id=id)
+                else:
+                    url = self._url_for(controller='organization',
+                                        action='read',
+                                        id=id)
+            else:
+                url = self._url_for(controller='group', action='read',
+                                id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
@@ -280,13 +306,70 @@ class GroupController(BaseController):
 
             c.sort_by_selected = sort_by
 
-        except SearchError, se:
+        except search.SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render(self._read_template(c.group_dict['type']))
+
+
+    def bulk_process(self, id):
+        ''' Allow bulk processing of datasets for an organization.  Make
+        private/public or delete. For organization admins.'''
+
+        group_type = self._get_group_type(id.split('@')[0])
+
+        if group_type  != 'organization':
+            # FIXME: better error
+            raise Exception('Must be an organization')
+
+        # check we are org admin
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+        data_dict = {'id': id}
+
+        try:
+            c.group_dict = self._action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
+
+        # Search within group
+        action = request.params.get('bulk_action')
+        # If no action then just show the datasets
+        if not action:
+            # unicode format (decoded from utf8)
+            limit = 500
+            self._read(id, limit)
+            c.packages = c.page.items
+            return render(self._bulk_process_template(group_type))
+
+        # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
+        datasets = []
+        for param in request.params:
+            if param.startswith('dataset_'):
+                datasets.append(param[8:])
+
+        action_functions = {
+            'private': 'bulk_update_private',
+            'public': 'bulk_update_public',
+            'delete': 'bulk_update_delete',
+        }
+
+        data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
+
+        try:
+            get_action(action_functions[action])(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to perform bulk update'))
+        base.redirect(h.url_for(controller='organization', action='bulk_process',
+                           id=id))
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
@@ -460,7 +543,10 @@ class GroupController(BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
-                h.flash_notice(_('Group has been deleted.'))
+                if self.group_type == 'organization':
+                    h.flash_notice(_('Organization has been deleted.'))
+                else:
+                    h.flash_notice(_('Group has been deleted.'))
                 self._redirect_to(controller='group', action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:

@@ -18,7 +18,7 @@ def proxy_resource(context, data_dict):
         url = resource['url']
 
         try:
-            r = requests.get(url, prefetch=False)
+            r = requests.get(url)
             r.raise_for_status()
 
             # write body

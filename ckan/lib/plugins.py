@@ -272,7 +272,7 @@ class DefaultDatasetForm(object):
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
                                'extras_validation', 'save', 'return_to',
-                               'resources', 'type', 'owner_org',
+                               'resources', 'type', 'owner_org', 'private',
                                'log_message', 'tag_string', 'tags',
                                'url', 'version', 'extras']
 
@@ -376,6 +376,13 @@ class DefaultGroupForm(object):
         rendered for the admins page
         """
         return 'group/admins.html'
+
+    def bulk_process_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the bulk_process page
+        """
+        return 'group/bulk_process.html'
 
     def about_template(self):
         '''Return the path to the template for the group's 'about' page.
