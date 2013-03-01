@@ -3,7 +3,6 @@ from collections import defaultdict
 import datetime
 
 import ckan.model as model
-import authztool
 
 log = logging.getLogger(__name__)
 
@@ -522,19 +521,6 @@ left arrow <
     def create_user(cls, name='', **kwargs):
         cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
-
-    @classmethod
-    def create_roles(cls, roles):
-        '''Each role is a tuple (object_name, role, subject_name).
-        There is clever searching going on to find the objects of any type,
-        by name or ID. You can also use the subject_name='system'.
-        '''
-        for role_tuple in roles:
-            object_name, role, subject_name = role_tuple
-            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
-                                                      except_on_error=True,
-                                                      do_commit=False)
-        model.repo.commit_and_remove()
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
