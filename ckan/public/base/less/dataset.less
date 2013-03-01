@@ -53,13 +53,15 @@
   top: 0;
 }
 
-.results {
+.results,
+.is-search-title {
   margin-bottom: 20px;
   padding-bottom: 25px;
   border-bottom: 1px dotted @genericBorderColor;
 }
 
-.results strong {
+.results strong,
+.is-search-title {
   display: block;
   font-size: 24px;
   line-height: 1.3;
@@ -67,10 +69,15 @@
   margin-bottom: 10px;
 }
 
+.is-search-title {
+  margin-bottom: 20px;
+}
+
 // Use a before block to space out the area occupied by the sort select box
 // this allows the text content in the strong tag to flow correctly around
 // the input.
-.results strong:before {
+.results strong:before,
+.is-search-title:before {
   float: right;
   content: " ";
   width: 280px;
