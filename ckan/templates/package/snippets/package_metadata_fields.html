@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 
 
-{% if data.owner_org %}
+{% if data.owner_org and h.has_user_permission_for_group_or_org(data.owner_org, 'update_privacy') %}
   <div class="control-group">
     <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
     <div class="controls">
