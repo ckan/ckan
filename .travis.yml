@@ -13,8 +13,6 @@ before_script:
   - psql -c 'CREATE DATABASE datastore;' -U postgres
   - psql -c 'CREATE USER readonlyuser;' -U postgres
   - python setup.py develop
-    # we should really remove the development.ini requirements from test-core.ini
-  - paster make-config ckan development.ini --no-interactive
   - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' test-core.ini
   - sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' test-core.ini
   - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantest/' test-core.ini
