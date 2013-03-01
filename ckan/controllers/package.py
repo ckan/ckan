@@ -37,6 +37,12 @@ from home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 import ckan.plugins as p
 
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
+
 log = logging.getLogger(__name__)
 
 
@@ -227,10 +233,29 @@ class PackageController(BaseController):
                 if not asbool(config.get('ckan.search.show_all_types', 'False')):
                     fq += ' +dataset_type:dataset'
 
+            facets = OrderedDict()
+
+            default_facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+
+            for facet in g.facets:
+                if facet in default_facet_titles:
+                    facets[facet] = default_facet_titles[facet]
+                else:
+                    facets[facet] = facet
+
+            # Facet titles
+            for plugin in plugins.PluginImplementations(plugins.IFacets):
+                facets = plugin.dataset_facets(facets, dataset_type)
+
+            c.facet_titles = facets
+
             data_dict = {
                 'q': q,
                 'fq': fq.strip(),
-                'facet.field': g.facets,
+                'facet.field': facets.keys(),
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
@@ -259,14 +284,6 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-
-        # Facet titles
-        c.facet_titles = {'groups': _('Groups'),
-                          'tags': _('Tags'),
-                          'res_format': _('Formats'),
-                          'license': _('Licence'), }
-        for plugin in plugins.PluginImplementations(plugins.IPackageController):
-            c.facet_titles = plugin.update_facet_titles(c.facet_titles)
 
 
         maintain.deprecate_context_item(
