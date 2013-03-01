@@ -89,7 +89,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags') }}
-  {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format') }}
-  {{ h.snippet('snippets/facet_list.html', title='Groups', name='groups') }}
+  {% for facet in c.facet_titles %}
+      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
+  {% endfor %}
 {% endblock %}
