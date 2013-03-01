@@ -19,6 +19,12 @@ import ckan.lib.search as search
 import ckan.new_authz
 
 from ckan.lib.plugins import lookup_group_plugin
+import ckan.plugins as plugins
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -268,10 +274,37 @@ class GroupController(BaseController):
                 fq = ''
                 context['ignore_capacity_check'] = True
 
+            facets = OrderedDict()
+
+            default_facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+
+            for facet in g.facets:
+                if facet in default_facet_titles:
+                    facets[facet] = default_facet_titles[facet]
+                else:
+                    facets[facet] = facet
+
+            # Facet titles
+            for plugin in plugins.PluginImplementations(plugins.IFacets):
+                if self.group_type == 'organization':
+                    facets = plugin.organization_facets(
+                        facets, self.group_type, None)
+                else:
+                    facets = plugin.group_facets(
+                        facets, self.group_type, None)
+
+            if 'capacity' in facets and (self.group_type != 'organization' or not user_member_of_orgs):
+                del facets['capacity']
+
+            c.facet_titles = facets
+
             data_dict = {
                 'q': q,
                 'fq': fq,
-                'facet.field': g.facets,
+                'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
                 'start': (page - 1) * limit,
@@ -294,10 +327,6 @@ class GroupController(BaseController):
               'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
-            c.facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
             c.search_facets_limits = {}
             for facet in c.facets.keys():
                 limit = int(request.params.get('_%s_limit' % facet, 10))
