@@ -14,6 +14,7 @@ case $1 in
 		${PGCTL} -D ${PGDATA} start
 		sleep 2;
 		psql -c "CREATE DATABASE ckantest;" postgres
+		psql -c "CREATE DATABASE ckantesting;" postgres
 		;;
 	stop)
 		## stop postgres

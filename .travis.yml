@@ -9,21 +9,21 @@ install:
   - "pip install -r pip-requirements.txt --use-mirrors"
   - "pip install -r pip-requirements-test.txt --use-mirrors"
 before_script:
-  - psql -c 'CREATE DATABASE ckantest;' -U postgres
+  - psql -c 'CREATE DATABASE ckantesting;' -U postgres
   - psql -c 'CREATE DATABASE datastore;' -U postgres
   - psql -c 'CREATE USER readonlyuser;' -U postgres
   - python setup.py develop
   - paster make-config ckan development.ini --no-interactive
-  - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
-  - sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' development.ini
-  - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantest/' development.ini
-  - sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@localhost\/datastore/' development.ini
-  - sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@localhost\/datastore/' development.ini
-  - cat development.ini
+    #  - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
+    #  - sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' development.ini
+    #  - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantest/' development.ini
+    #  - sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@localhost\/datastore/' development.ini
+    #  - sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@localhost\/datastore/' development.ini
+    #  - cat development.ini
   - echo -e "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
   - sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
   - sudo service jetty restart
-  - paster --plugin=ckan db init
+  - paster db init -c test-core.ini
   - paster datastore set-permissions postgres
 script: "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext"
 notifications:
