@@ -1401,6 +1401,10 @@ class PackageController(BaseController):
             on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
             data_dict['resource']['on_same_domain'] = on_same_domain
 
+            # FIXME this wants to not use plugins as it is an imported name
+            # and we already import it an p should really only be in
+            # extensu=ions in my opinion also just make it look nice and be
+            # readable grrrrrr
             plugins = p.PluginImplementations(p.IResourcePreview)
             plugins_that_can_preview = [plugin for plugin in plugins
                                     if plugin.can_preview(data_dict)]
