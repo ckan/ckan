@@ -23,7 +23,7 @@ before_script:
   - sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
   - sudo service jetty restart
   - paster db init -c test-core.ini
-  - paster datastore set-permissions postgres
+  - paster datastore set-permissions postgres -c test-core.ini
 script: "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext"
 notifications:
   irc:
