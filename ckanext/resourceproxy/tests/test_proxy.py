@@ -1,5 +1,7 @@
 import requests
 import unittest
+import json
+from httpretty import HTTPretty, httprettified
 
 import paste.fixture
 from pylons import config
@@ -10,9 +12,15 @@ import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
+import ckanext.resourceproxy.controller as controller
 
 import ckanext.resourceproxy.plugin as proxy
-import file_server
+
+
+JSON_STRING = json.dumps({
+    "a": "foo",
+    "bar": "yes, I'm proxied",
+    "b": 42})
 
 
 class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
@@ -25,12 +33,6 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         config['ckan.plugins'] = 'resource_proxy'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
-
-        if not cls.serving:
-            file_server.serve()
-            cls.serving = True
-            # gets shutdown when nose finishes all tests,
-            # so don't restart ever
 
         # create test resource
         create_test_data.CreateTestData.create()
@@ -62,21 +64,29 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
         self.data_dict = {'resource': resource, 'package': package}
 
+    @httprettified
     def test_resource_proxy_on_200(self):
-        self.set_resource_url('http://0.0.0.0:50001/test.json')
+        url = 'http://www.ckan.org/static/test.json'
+        HTTPretty.register_uri(
+            HTTPretty.GET, url,
+            content_type='application/json',
+            body=JSON_STRING)
+        self.set_resource_url(url)
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status == 200, result.status
-        assert "yes, I'm proxied" in result.body, result.body
-
+    @httprettified
     def test_resource_proxy_on_404(self):
-        self.set_resource_url('http://0.0.0.0:50001/foo.bar')
+        url = 'http://www.ckan.org/static/test.json'
+        HTTPretty.register_uri(
+            HTTPretty.GET, url,
+            body="I'm not here",
+            content_type='application/json',
+            status=404)
+        self.set_resource_url(url)
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
@@ -86,8 +96,14 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 404, result.status
 
+    @httprettified
     def test_large_file(self):
-        self.set_resource_url('http://0.0.0.0:50001/huge.json')
+        url = 'http://www.ckan.org/static/huge.json'
+        HTTPretty.register_uri(
+            HTTPretty.GET, url,
+            content_length=controller.MAX_FILE_SIZE + 1,
+            body=JSON_STRING)
+        self.set_resource_url(url)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
