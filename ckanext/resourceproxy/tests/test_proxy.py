@@ -1,7 +1,7 @@
 import requests
 import unittest
 import json
-from httpretty import HTTPretty, httprettified
+import httpretty
 
 import paste.fixture
 from pylons import config
@@ -64,11 +64,11 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
         self.data_dict = {'resource': resource, 'package': package}
 
-    @httprettified
+    @httpretty.httprettified
     def test_resource_proxy_on_200(self):
         url = 'http://www.ckan.org/static/test.json'
-        HTTPretty.register_uri(
-            HTTPretty.GET, url,
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.GET, url,
             content_type='application/json',
             body=JSON_STRING)
         self.set_resource_url(url)
@@ -78,11 +78,11 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-    @httprettified
+    @httpretty.httprettified
     def test_resource_proxy_on_404(self):
         url = 'http://www.ckan.org/static/test.json'
-        HTTPretty.register_uri(
-            HTTPretty.GET, url,
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.GET, url,
             body="I'm not here",
             content_type='application/json',
             status=404)
@@ -96,11 +96,11 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 404, result.status
 
-    @httprettified
+    @httpretty.httprettified
     def test_large_file(self):
         url = 'http://www.ckan.org/static/huge.json'
-        HTTPretty.register_uri(
-            HTTPretty.GET, url,
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.GET, url,
             content_length=controller.MAX_FILE_SIZE + 1,
             body=JSON_STRING)
         self.set_resource_url(url)
