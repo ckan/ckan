@@ -290,9 +290,11 @@ class GroupController(BaseController):
             # Facet titles
             for plugin in plugins.PluginImplementations(plugins.IFacets):
                 if self.group_type == 'organization':
-                    facets = plugin.organization_facets(facets, self.group_type)
+                    facets = plugin.organization_facets(
+                        facets, self.group_type, None)
                 else:
-                    facets = plugin.group_facets(facets, self.group_type)
+                    facets = plugin.group_facets(
+                        facets, self.group_type, None)
 
             if 'capacity' in facets and (self.group_type != 'organization' or not user_member_of_orgs):
                 del facets['capacity']

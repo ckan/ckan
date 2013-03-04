@@ -780,10 +780,10 @@ class IFacets(Interface):
         ''' Update the facets_dict and return it. '''
         return facets_dict
 
-    def group_facets(self, facets_dict, group_type):
+    def group_facets(self, facets_dict, group_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
 
-    def organization_facets(self, facets_dict, organization_type):
+    def organization_facets(self, facets_dict, organization_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
