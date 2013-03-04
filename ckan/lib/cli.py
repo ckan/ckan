@@ -1744,7 +1744,7 @@ class MinifyCommand(CkanCommand):
 
     Usage:
 
-        paster minify [--clean] [FILE|DIRECTORY] ...
+        paster minify [--clean] <path>
 
     for example:
 
