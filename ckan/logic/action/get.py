@@ -2538,7 +2538,7 @@ def user_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingUser.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of User objects.
@@ -2569,7 +2569,7 @@ def dataset_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
@@ -2601,7 +2601,7 @@ def group_followee_list(context, data_dict):
 
     # Get the list of UserFollowingGroup objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingGroup.followee_list(user_id)
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
@@ -2632,6 +2632,12 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of activity dictionaries
 
     '''
+    schema = context.get('schema',
+                         ckan.logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     _check_access('dashboard_activity_list', context, data_dict)
 
     model = context['model']
@@ -2669,6 +2675,8 @@ def dashboard_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    :param id: the id or name of the user
+    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
@@ -2680,6 +2688,12 @@ def dashboard_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
+    schema = context.get('schema',
+                         ckan.logic.schema.default_dashboard_activity_list_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     activity_stream = dashboard_activity_list(context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {

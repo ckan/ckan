@@ -512,6 +512,20 @@ def default_package_list_schema():
     return schema
 
 
+def default_pagination_schema():
+    schema = {
+        'limit': [ignore_missing, pos_int_validator],
+        'offset': [ignore_missing, pos_int_validator]
+    }
+    return schema
+
+
+def default_dashboard_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [unicode]
+    return schema
+
+
 def default_autocomplete_schema():
     schema = {
         'q': [not_missing, unicode],
