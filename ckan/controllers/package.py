@@ -201,13 +201,11 @@ class PackageController(BaseController):
             # a list of values eg {'tags':['tag1', 'tag2']}
             c.fields_grouped = {}
             search_extras = {}
-            fq = ''
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
                         if param not in c.fields_grouped:
                             c.fields_grouped[param] = [value]
                         else:
@@ -220,22 +218,23 @@ class PackageController(BaseController):
 
             if package_type and package_type != 'dataset':
                 # Only show datasets of this particular type
-                fq += ' +dataset_type:{type}'.format(type=package_type)
+                c.fields_grouped['dataset_type'] = package_type
             else:
                 # Unless changed via config options, don't show non standard
                 # dataset types on the default search page
                 if not asbool(config.get('ckan.search.show_all_types', 'False')):
-                    fq += ' +dataset_type:dataset'
+                    c.fields_grouped['dataset_type'] = 'dataset'
 
             data_dict = {
                 'q': q,
-                'fq': fq.strip(),
+                'filters': c.fields_grouped,
                 'facet.field': g.facets,
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
                 'extras': search_extras
             }
+            c.fields_grouped.pop('dataset_type', None)
 
             query = get_action('package_search')(context, data_dict)
 
