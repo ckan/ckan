@@ -18,3 +18,6 @@ class TestDataPreview():
         assert comp(['http://de.okfn.org', 'http://www.okfn.org']) == False
 
         assert comp(['http://de.okfn.org', 'http:www.foo.com']) == False
+
+        # Wrong URL. Makes urlparse choke
+        assert comp(['http://Server=cda3; Service=sde:sqlserver:cda3; Database=NationalDatasets; User=sde; Version=sde.DEFAULT', 'http://www.okf.org']) == False
