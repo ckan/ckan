@@ -124,9 +124,10 @@ class TestPlugins(TestCase):
         # Imported after call to plugins.load_all to ensure that we test the
         # plugin loader starting from a blank slate.
         from ckantestplugin import MapperPlugin, MapperPlugin2, RoutesPlugin
+        import ckan.lib.search as search
 
         system_plugins = set(plugin() for plugin in find_system_plugins())
-        assert PluginGlobals.env().services == set([MapperPlugin(), RoutesPlugin()]) | system_plugins
+        assert PluginGlobals.env().services == set([MapperPlugin(), RoutesPlugin(),  search.SynchronousSearchPlugin()]) | system_plugins
 
     def test_only_configured_plugins_loaded(self):
 
@@ -157,16 +158,17 @@ class TestPlugins(TestCase):
         expected_order = MapperPlugin, MapperPlugin2
 
         plugins.load_all(config)
-        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
-        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
+        print observerplugin.before_load.calls
+        assert observerplugin.before_load.calls[:-1] == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls[:-1] == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
 
         config['ckan.plugins'] = 'test_observer_plugin mapper_plugin2 mapper_plugin'
         expected_order = MapperPlugin2, MapperPlugin
         observerplugin.reset_calls()
 
         plugins.load_all(config)
-        assert observerplugin.before_load.calls == [((p,), {}) for p in expected_order]
-        assert observerplugin.after_load.calls == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
+        assert observerplugin.before_load.calls[:-1] == [((p,), {}) for p in expected_order]
+        assert observerplugin.after_load.calls[:-1] == [((p.__instance__,), {}) for p in (observerplugin,) + expected_order]
 
     def test_mapper_plugin_fired(self):
         config['ckan.plugins'] = 'mapper_plugin'

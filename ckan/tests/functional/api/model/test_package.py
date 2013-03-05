@@ -268,8 +268,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
-            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
+            SolrSettings.init(bad_solr_url)
 
             assert not self.get_package_by_name(self.package_fixture_data['name'])
             offset = self.package_offset()
@@ -659,8 +659,8 @@ class PackagesTestCase(BaseModelApiTestCase):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
-            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
+            SolrSettings.init(bad_solr_url)
 
             assert_raises(
                 search.SearchIndexError, self.assert_package_update_ok, 'name', 'post'

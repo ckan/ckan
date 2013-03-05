@@ -230,7 +230,6 @@ def load_environment(global_conf, app_conf):
 
     # load all CKAN plugins
     p.load_all(config)
-    update_config()
 
 
 def update_config():

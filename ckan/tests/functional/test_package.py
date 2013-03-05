@@ -1035,8 +1035,8 @@ class TestEdit(TestPackageForm):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
-            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
+            SolrSettings.init(bad_solr_url)
 
             fv = self.res.forms['dataset-edit']
             prefix = ''
@@ -1375,8 +1375,8 @@ class TestNew(TestPackageForm):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
-            SolrSettings.init(bad_solr_url)
             plugins.load('synchronous_search')
+            SolrSettings.init(bad_solr_url)
             new_package_name = u'new-package-missing-solr'
 
             offset = url_for(controller='package', action='new')
