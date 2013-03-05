@@ -183,7 +183,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def _create_alias_table(self):
         mapping_sql = '''
             SELECT DISTINCT
-                substr(md5(concat(dependee.relname, dependent.relname)), 0, 17) AS "_id",
+                substr(md5(dependee.relname || COALESCE(dependent.relname, '')), 0, 17) AS "_id",
                 dependee.relname AS name,
                 dependee.oid AS oid,
                 dependent.relname AS alias_of
