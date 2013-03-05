@@ -47,7 +47,7 @@
             </div>
           {% endblock %}
 
-          <div class="wrapper{% block wrapper_class %}{% endblock %}">
+          <div class="wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' %} no-nav{% endif %}">
 
             {% block actions %}
               <div class="btn-group actions">
