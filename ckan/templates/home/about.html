@@ -2,8 +2,6 @@
 
 {% block subtitle %}{{ _('About') }}{% endblock %}
 
-{% block wrapper_class %} no-nav{% endblock %}
-
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('About'), controller='home', action='about' %}</li>
 {% endblock %}
@@ -23,4 +21,4 @@
   </article>
 {% endblock %}
 
-{% block sidebar %}{% endblock %}
+{% block secondary %}{% endblock %}
