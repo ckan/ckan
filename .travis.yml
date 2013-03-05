@@ -9,13 +9,13 @@ install:
   - "pip install -r pip-requirements.txt --use-mirrors"
   - "pip install -r pip-requirements-test.txt --use-mirrors"
 before_script:
-  - psql -c 'CREATE DATABASE ckantesting;' -U postgres
+  - psql -c 'CREATE DATABASE ckan_test;' -U postgres
   - psql -c 'CREATE DATABASE datastore;' -U postgres
   - psql -c 'CREATE USER readonlyuser;' -U postgres
   - python setup.py develop
   - sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' test-core.ini
   - sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' test-core.ini
-  - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantesting/' test-core.ini
+  - sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckan_test/' test-core.ini
   - sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@localhost\/datastore/' test-core.ini
   - sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@localhost\/datastore/' test-core.ini
   - cat test-core.ini

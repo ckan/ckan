@@ -13,8 +13,8 @@ case $1 in
 		${PGCTL} -D ${PGDATA} init
 		${PGCTL} -D ${PGDATA} start
 		sleep 2;
-		psql -c "CREATE DATABASE ckantest;" postgres
-		psql -c "CREATE DATABASE ckantesting;" postgres
+		psql -c "CREATE DATABASE ckan_dev;" postgres
+		psql -c "CREATE DATABASE ckan_test;" postgres
 		;;
 	stop)
 		## stop postgres
