@@ -8,7 +8,6 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.pdfpreview.plugin as previewplugin
 from ckan.lib.create_test_data import CreateTestData
 from ckan.config.middleware import make_app
 
@@ -21,7 +20,7 @@ class TestPdfPreview(tests.WsgiAppCase):
         plugins.load('pdf_preview')
         cls.app = paste.fixture.TestApp(wsgiapp)
 
-        cls.p = previewplugin.PdfPreview()
+        cls.p = plugins.get_pugin('pdf_preview')
 
         # create test resource
         CreateTestData.create()
