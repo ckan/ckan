@@ -1769,10 +1769,11 @@ class MinifyCommand(CkanCommand):
             action='store_true', default=False, help='remove any minified files in the path')
 
     def command(self):
+        clean = getattr(self.options, 'clean', False)
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
-                if self.options.clean:
+                if clean:
                     self.clear_minifyed(base_path)
                 else:
                     self.minify_file(base_path)
@@ -1781,7 +1782,7 @@ class MinifyCommand(CkanCommand):
                     dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
-                        if self.options.clean:
+                        if clean:
                             self.clear_minifyed(path)
                         else:
                             self.minify_file(path)
