@@ -126,12 +126,11 @@ class TestExampleIDatasetFormPlugin:
         # these methods are actually used, not just that the methods get
         # called.
         import ckanext.example_idatasetform.plugin as plugin
-        assert plugin.ExampleIDatasetFormPlugin.num_times_package_form_called == 2
-        assert plugin.ExampleIDatasetFormPlugin.num_times_read_template_called == 2
-        #assert plugin.ExampleIDatasetFormPlugin.num_times_edit_template_called == 2
         assert plugin.ExampleIDatasetFormPlugin.num_times_new_template_called == 1
-        #assert plugin.ExampleIDatasetFormPlugin.num_times_index_template_called == 1
+        assert plugin.ExampleIDatasetFormPlugin.num_times_read_template_called == 2
+        assert plugin.ExampleIDatasetFormPlugin.num_times_edit_template_called == 1
+        assert plugin.ExampleIDatasetFormPlugin.num_times_comments_template_called == 0
+        assert plugin.ExampleIDatasetFormPlugin.num_times_search_template_called == 1
         assert plugin.ExampleIDatasetFormPlugin.num_times_history_template_called == 1
-
-        # TODO: Test IDatasetForm's comments_template() method.
-        # (I think this requires the disqus plugin?)
+        assert plugin.ExampleIDatasetFormPlugin.num_times_package_form_called == 2
+        assert plugin.ExampleIDatasetFormPlugin.num_times_check_data_dict_called == 3

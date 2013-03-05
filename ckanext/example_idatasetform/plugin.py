@@ -19,13 +19,14 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
     # These record how many times methods that this plugin's methods are
     # called, for testing purposes.
-    num_times_check_data_dict_called = 0
     num_times_new_template_called = 0
+    num_times_read_template_called = 0
+    num_times_edit_template_called = 0
     num_times_comments_template_called = 0
     num_times_search_template_called = 0
-    num_times_read_template_called = 0
     num_times_history_template_called = 0
     num_times_package_form_called = 0
+    num_times_check_data_dict_called = 0
 
     def create_country_codes(self):
         '''Create country_codes vocab and tags, if they don't exist already.
@@ -131,6 +132,14 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         ExampleIDatasetFormPlugin.num_times_new_template_called += 1
         return lib_plugins.DefaultDatasetForm.new_template(self)
 
+    def read_template(self):
+        ExampleIDatasetFormPlugin.num_times_read_template_called += 1
+        return lib_plugins.DefaultDatasetForm.read_template(self)
+
+    def edit_template(self):
+        ExampleIDatasetFormPlugin.num_times_edit_template_called += 1
+        return lib_plugins.DefaultDatasetForm.edit_template(self)
+
     def comments_template(self):
         ExampleIDatasetFormPlugin.num_times_comments_template_called += 1
         return lib_plugins.DefaultDatasetForm.comments_template(self)
@@ -138,10 +147,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def search_template(self):
         ExampleIDatasetFormPlugin.num_times_search_template_called += 1
         return lib_plugins.DefaultDatasetForm.search_template(self)
-
-    def read_template(self):
-        ExampleIDatasetFormPlugin.num_times_read_template_called += 1
-        return lib_plugins.DefaultDatasetForm.read_template(self)
 
     def history_template(self):
         ExampleIDatasetFormPlugin.num_times_history_template_called += 1
