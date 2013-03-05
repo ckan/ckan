@@ -82,7 +82,7 @@ class TestExampleIDatasetFormPlugin:
 
         # Fill out the form and submit it, changing the country_code value.
         form = response.forms[1]
-        #form['tag_string'] = 'testing, idatasetform, test_update_tag'
+        form['tag_string'] = 'testing, idatasetform, test_update_tag'
         form['country_code'] = 'fr'
         response = form.submit('save', extra_environ=extra_environ)
         assert response.status == 302
@@ -97,9 +97,8 @@ class TestExampleIDatasetFormPlugin:
         # FIXME: Tags aren't shown on the dataset read page, so check them
         # another way.
         # TODO: Also edit some other fields and check their values.
-        assert '<a href="/tag/idatasetform">idatasetform</a>' in response
-        assert '<a href="/tag/testing">testing</a>' in response
-        assert '<a href="/tag/test_update_tag">test_update_tag</a>' in response
+        for tag in ('test_update_tag', 'idatasetform', 'testing'):
+            assert 'href="/dataset?tags={0}"'.format(tag) in response
 
         # Fetch the dataset search page, just to test that the plugin's
         # search_template() method gets called.
