@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import ckan.lib.datapreview as datapreview
 
 
@@ -20,6 +21,8 @@ class TestDataPreview():
 
         assert comp(['http://de.okfn.org', 'http:www.foo.com']) is False
 
+        assert comp(['httpö://wöwöwö.ckan.dö', 'www.ckän.örg']) is False
+        assert comp(['www.ckän.örg', 'www.ckän.örg']) is True
 
         # Wrong URL. Makes urlparse choke
         assert comp(['http://Server=cda3; Service=sde:sqlserver:cda3; Database=NationalDatasets; User=sde; Version=sde.DEFAULT', 'http://www.okf.org']) is False
