@@ -752,6 +752,11 @@ class ISubscription(Interface):
             Update the preliminary definition.
         '''
 
+    def deleted(self, subscription):
+        '''
+            Delete additional data of the given subscription.
+        '''
+
     def get_current_items(self, subscription_definition):
         '''
             Return a list of the current items + their names by

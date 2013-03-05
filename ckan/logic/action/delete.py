@@ -455,5 +455,7 @@ def subscription_delete(context, data_dict):
     user = model.User.get(context['user'])
 
     subscription = model.subscription.get_subscription(user.id, data_dict)
+    for item in plugins.PluginImplementations(plugins.ISubscription):
+        item.deleted(subscription)
     subscription.delete()
     model.repo.commit()
