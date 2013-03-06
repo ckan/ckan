@@ -107,7 +107,6 @@ class DatastorePlugin(p.SingletonPlugin):
             logic._actions['resource_show'] = new_resource_show
 
     def _is_read_only_database(self):
-        read_only_database = True
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
                 {'connection_url': url}).connect()
@@ -121,10 +120,10 @@ class DatastorePlugin(p.SingletonPlugin):
                 else:
                     raise
             else:
-                read_only_database = False
+                return False
             finally:
                 trans.rollback()
-        return read_only_database
+        print True
 
     def _check_separate_db(self):
         '''
