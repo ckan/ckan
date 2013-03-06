@@ -78,8 +78,6 @@ setup(
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     notify = ckan.lib.cli:Notification
-    rights = ckan.lib.authztool:RightsCommand
-    roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
