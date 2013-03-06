@@ -5,8 +5,7 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       ignore,
                                       if_empty_same_as,
                                       not_missing,
-                                      ignore_empty,
-                                      read_only_validator
+                                      ignore_empty
                                      )
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
@@ -307,7 +306,6 @@ def default_group_schema():
 def group_form_schema():
     schema = default_group_schema()
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
-    schema['num_followers'] = [ignore_missing, int_validator, read_only_validator]
     schema['packages'] = {
         "name": [not_empty, unicode],
         "title": [ignore_missing],
