@@ -123,7 +123,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 return False
             finally:
                 trans.rollback()
-        print True
+        return True
 
     def _check_separate_db(self):
         '''
