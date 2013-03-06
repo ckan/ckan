@@ -34,7 +34,6 @@
           {{ _('All groups') }}
         {% endif %}
       </h2>
-      <hr>
       {% if c.page.items or request.params %}
         {% snippet "group/snippets/group_list.html", groups=c.page.items %}
       {% else %}
