@@ -1,6 +1,6 @@
 /* Table toggle more
  * When a table has more things to it that need to be hidden and then shown more
- */	
+ */
 this.ckan.module('table-toggle-more', function($, _) {
   return {
     /* options object can be extended using data-module-* attributes */
@@ -21,9 +21,9 @@ this.ckan.module('table-toggle-more', function($, _) {
       // Do we actually want this table to expand?
       var rows = $('.toggle-more', this.el).length;
       if (rows) {
-      	// How much is the colspan?
-      	var cols = $('thead tr th', this.el).length;
-      	var template_more = [
+        // How much is the colspan?
+        var cols = $('thead tr th', this.el).length;
+        var template_more = [
           '<tr class="toggle-show toggle-show-more">',
           '<td colspan="'+cols+'">',
           '<small>',
