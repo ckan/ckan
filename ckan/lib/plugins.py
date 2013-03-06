@@ -370,6 +370,13 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
+    def activity_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the activity stream page
+        """
+        return 'group/activity_stream.html'
+
     def admins_template(self):
         """
         Returns a string representing the location of the template to be
