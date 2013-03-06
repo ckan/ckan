@@ -126,6 +126,7 @@ setup(
     json_preview=ckanext.jsonpreview.plugin:JsonPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
+    example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

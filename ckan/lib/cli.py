@@ -1346,8 +1346,7 @@ class CreateColorSchemeCommand(CkanCommand):
 
     rules = [
         '@layoutLinkColor',
-        '@mastheadBackgroundColorStart',
-        '@mastheadBackgroundColorEnd',
+        '@mastheadBackgroundColor',
         '@btnPrimaryBackground',
         '@btnPrimaryBackgroundHighlight',
     ]
@@ -1745,13 +1744,16 @@ class MinifyCommand(CkanCommand):
 
     Usage:
 
-        paster minify [FILE|DIRECTORY] ...
+        paster minify [--clean] <path>
 
     for example:
 
         paster minify ckan/public/base
         paster minify ckan/public/base/css/*.css
         paster minify ckan/public/base/css/red.css
+
+    if the --clean option is provided any minified files will be removed.
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1759,20 +1761,45 @@ class MinifyCommand(CkanCommand):
 
     exclude_dirs = ['vendor']
 
+    def __init__(self, name):
+
+        super(MinifyCommand, self).__init__(name)
+
+        self.parser.add_option('--clean', dest='clean',
+            action='store_true', default=False, help='remove any minified files in the path')
+
     def command(self):
+        clean = getattr(self.options, 'clean', False)
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
-                self.minify_file(base_path)
+                if clean:
+                    self.clear_minifyed(base_path)
+                else:
+                    self.minify_file(base_path)
             elif os.path.isdir(base_path):
                 for root, dirs, files in os.walk(base_path):
                     dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
-                        self.minify_file(path)
+                        if clean:
+                            self.clear_minifyed(path)
+                        else:
+                            self.minify_file(path)
             else:
                 # Path is neither a file or a dir?
                 continue
+
+    def clear_minifyed(self, path):
+        path_only, extension = os.path.splitext(path)
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        if path_only.endswith('.min'):
+            print 'removing %s' % path
+            os.remove(path)
 
     def minify_file(self, path):
         '''Create the minified version of the given file.

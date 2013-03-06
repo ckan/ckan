@@ -12,6 +12,7 @@ import paste
 import paste.deploy
 import pylons.test
 
+from pylons import config
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         pylons_controller.PylonsTestCase):
@@ -36,7 +37,7 @@ class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
                 }
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
         mock_mail_server.SmtpServerHarness.teardown_class()
         pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
@@ -327,14 +328,13 @@ class TestEmailNotificationsIniSetting(
     '''
     @classmethod
     def setup_class(cls):
-        config = paste.deploy.appconfig('config:test.ini',
-                relative_to=ckan.tests.conf_dir)
+        cls._original_config = config.copy()
 
         # Disable the email notifications feature.
-        config.local_conf['ckan.activity_streams_email_notifications'] = False
+        config['ckan.activity_streams_email_notifications'] = False
 
-        wsgiapp = ckan.config.middleware.make_app(config.global_conf,
-                **config.local_conf)
+        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
+                **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         mock_mail_server.SmtpServerHarness.setup_class()
@@ -351,7 +351,9 @@ class TestEmailNotificationsIniSetting(
                 }
 
     @classmethod
-    def teardown_class(self):
+    def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         mock_mail_server.SmtpServerHarness.teardown_class()
         pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()
@@ -409,15 +411,14 @@ class TestEmailNotificationsSinceIniSetting(
 
     @classmethod
     def setup_class(cls):
-        config = paste.deploy.appconfig('config:test.ini',
-                relative_to=ckan.tests.conf_dir)
+        cls._original_config = config.copy()
 
         # Don't send email notifications for activities older than 1
         # microsecond.
-        config.local_conf['ckan.email_notifications_since'] = '.000001'
+        config['ckan.email_notifications_since'] = '.000001'
 
-        wsgiapp = ckan.config.middleware.make_app(config.global_conf,
-                **config.local_conf)
+        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
+                **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         mock_mail_server.SmtpServerHarness.setup_class()
@@ -435,6 +436,8 @@ class TestEmailNotificationsSinceIniSetting(
 
     @classmethod
     def teardown_class(self):
+        config.clear()
+        config.update(self._original_config)
         mock_mail_server.SmtpServerHarness.teardown_class()
         pylons_controller.PylonsTestCase.teardown_class()
         model.repo.rebuild_db()

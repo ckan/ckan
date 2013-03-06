@@ -232,6 +232,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             q = q.filter(cls.type != 'organization')
             if group_type:
                 q = q.filter(cls.type == group_type)
+        q = q.filter(cls.state == 'active')
         return q.order_by(cls.title)
 
     def add_package_by_name(self, package_name):

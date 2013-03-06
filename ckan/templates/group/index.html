@@ -6,17 +6,36 @@
   <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
 {% endblock %}
 
-{% block actions_content %}
+{% block add_action_content %}
   {% if h.check_access('group_create') %}
-    <li>{% link_for _('Add Group'), controller='group', action='new', class_='btn', icon='plus' %}</li>
+    {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content %}
   <div class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Groups') }}</h1>
-      {% if c.page.items %}
+      <h1 class="hide-heading">{{ _('Groups') }}</h1>
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search groups...') %}
+      <h2 class="is-search-title">
+        {% if request.params and c.page.item_count %}
+          {% if c.q %}
+            {{ _('{0} groups found for "{1}"').format(c.page.item_count, c.q) }}
+          {% else %}
+            {{ _('{0} groups').format(c.page.item_count) }}
+          {% endif %}
+        {% elif request.params and c.page.item_count == 0 %}
+          {% if c.q %}
+            {{ _('Sorry no groups found for "{0}"').format(c.q) }}
+          {% else %}
+            {{ _('Sorry no groups found') }}
+          {% endif %}
+        {% else %}
+          {{ _('All groups') }}
+        {% endif %}
+      </h2>
+      <hr>
+      {% if c.page.items or request.params %}
         {% snippet "group/snippets/group_list.html", groups=c.page.items %}
       {% else %}
         <p class="empty">
