@@ -548,15 +548,28 @@ def _search_url(params):
     return _url_with_params(url, params)
 
 
-def sorted_extras(list_):
-    ''' Used for outputting package extras '''
+def sorted_extras(package_extras, auto_clean=False, subs=None):
+    ''' Used for outputting package extras
+
+    :param package_extras: the package extras
+    :type package_extras: dict
+    :param auto_clean: If true capitalize and replace -_ with spaces
+    :type auto_clean: bool
+    :param subs: substitutes to use instead of given keys
+    :type subs: dict {'key': 'replacement'}
+    '''
+
     output = []
-    for extra in sorted(list_, key=lambda x: x['key']):
+    for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
         if k in g.package_hide_extras:
             continue
+        if subs and k in subs:
+            k = subs[k]
+        elif auto_clean:
+            k = k.replace('_', ' ').replace('-', ' ').title()
         if isinstance(v, (list, tuple)):
             v = ", ".join(map(unicode, v))
         output.append((k, v))
