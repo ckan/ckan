@@ -23,8 +23,10 @@
     {% block page_header %}
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
-          {{ h.build_nav_icon('user_datasets', _('Datasets'), id=user.name) }}
-          {{ h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name) }}
+          {% block page_header_tabs %}
+            {{ h.build_nav_icon('user_datasets', _('Datasets'), id=user.name) }}
+            {{ h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name) }}
+          {% endblock %}
         </ul>
       </header>
     {% endblock %}
