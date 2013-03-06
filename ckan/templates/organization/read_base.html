@@ -17,18 +17,17 @@
 
 {% block primary_content %}
   <section class="module">
-    <header class="module-content page-header">
-      <ul class="nav nav-tabs">
-        <li{% if c.action == 'read' %} class="active"{% endif %}>
-          {% link_for _('Datasets'), controller='organization', action='read', id=c.group_dict.name, icon='sitemap' %}
-        </li>
-        <li{% if c.action == 'about' %} class="active"{% endif %}>
-          {% link_for _('About'), controller='organization', action='about', id=c.group_dict.name, icon='info-sign' %}
-        </li>
-      </ul>
-    </header>
-    {% block primary_content_inner %}
+    {% block page_header %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          {% block page_header_tabs %}
+            {{ h.build_nav_icon('organization_read', _('Datasets'), id=c.group_dict.name) }}
+            {{ h.build_nav_icon('organization_about', _('About'), id=c.group_dict.name) }}
+          {% endblock %}
+        </ul>
+      </header>
     {% endblock %}
+    {% block primary_content_inner %}{% endblock %}
   </section>
 {% endblock %}
 
