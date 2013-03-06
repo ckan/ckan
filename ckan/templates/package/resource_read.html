@@ -11,35 +11,33 @@
   <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
-{% block actions_content %}
-
-  {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
-  {% endif %}
-
-  {% if res.url %}
-    <li>
-      <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
-        {% if res.resource_type in ('listing', 'service') %}
-          <i class="icon-eye-open"></i> {{ _('View') }}
-        {% elif  res.resource_type == 'api' %}
-          <i class="icon-key"></i> {{ _('API Endpoint') }}
-        {% else %}
-          <i class="icon-download"></i> {{ _('Download') }}
-        {%endif %}
-      </a>
-    </li>
-  {% endif %}
-
-  {% if 'datastore' in g.plugins %}
-    <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
-  {% endif %}
-{% endblock %}
-
 {% block pre_primary %}
   {% block resource %}
     <section class="module module-resource">
       <div class="module-content">
+        <div class="actions">
+          <ul>
+            {% if h.check_access('package_update', {'id':pkg.id }) %}
+              <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+            {% endif %}
+            {% if res.url %}
+              <li>
+                <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+                  {% if res.resource_type in ('listing', 'service') %}
+                    <i class="icon-eye-open"></i> {{ _('View') }}
+                  {% elif  res.resource_type == 'api' %}
+                    <i class="icon-key"></i> {{ _('API Endpoint') }}
+                  {% else %}
+                    <i class="icon-download"></i> {{ _('Download') }}
+                  {%endif %}
+                </a>
+              </li>
+            {% endif %}
+            {% if 'datastore' in g.plugins %}
+              <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
+            {% endif %}
+          </ul>
+        </div>
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
