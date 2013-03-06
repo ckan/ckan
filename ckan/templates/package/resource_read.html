@@ -42,6 +42,11 @@
       <div class="module-content">
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_url %}
+            {% if res.url %}
+              <p class="muted">{{ _('URL:') }} <a href="{{ res.url }}">{{ res.url }}</a></p>
+            {% endif %}
+          {% endblock %}
           <div class="prose notes" property="rdfs:label">
             {% if res.description %}
               {{ h.render_markdown(res.description) }}
