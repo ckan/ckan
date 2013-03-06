@@ -12,6 +12,7 @@
     <li>{% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus-sign-alt' %}</li>
     <li>{% link_for _('Edit'), controller='organization', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
+  <li>{{ h.follow_button('group', c.group_dict.id) }}</li>
   {# <li>{% link_for _('History'), controller='organization', action='history', id=c.group_dict.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
@@ -21,6 +22,9 @@
       <ul class="nav nav-tabs">
         <li{% if c.action == 'read' %} class="active"{% endif %}>
           {% link_for _('Datasets'), controller='organization', action='read', id=c.group_dict.name, icon='sitemap' %}
+        </li>
+        <li{% if c.action == 'activity' %} class="active"{% endif %}>
+          {% link_for _('Activity Stream'), controller='organization', action='activity', id=c.group_dict.name, icon='time' %}
         </li>
         <li{% if c.action == 'about' %} class="active"{% endif %}>
           {% link_for _('About'), controller='organization', action='about', id=c.group_dict.name, icon='info-sign' %}

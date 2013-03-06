@@ -309,6 +309,8 @@ def make_map():
           'about'
           ]))
           )
+        m.connect('organization_activity', '/organization/activity/{id}',
+                  action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
     register_package_plugins(map)
     register_group_plugins(map)

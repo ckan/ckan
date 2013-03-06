@@ -68,6 +68,9 @@ class GroupController(BaseController):
     def _edit_template(self, group_type):
         return lookup_group_plugin(group_type).edit_template()
 
+    def _activity_template(self, group_type):
+        return lookup_group_plugin(group_type).activity_template()
+
     def _admins_template(self, group_type):
         return lookup_group_plugin(group_type).admins_template()
 
@@ -751,7 +754,8 @@ class GroupController(BaseController):
         c.group_activity_stream = get_action('group_activity_list_html')(
                 context, {'id': c.group_dict['id'], 'offset': offset})
 
-        return render('group/activity_stream.html')
+        #return render('group/activity_stream.html')
+        return render(self._activity_template(c.group_dict['type']))
 
     def follow(self, id):
         '''Start following this group.'''
