@@ -1,4 +1,4 @@
-{% extends "page.html" %}
+{% extends "revision/read_base.html" %}
 
 {% set pkg = c.pkg %}
 {% set group = c.group %}
@@ -19,42 +19,38 @@
   {% endif %}
 {% endblock %}
 
-{% block primary %}
-  <section class="module prose">
-    <section class="module-content">
-      <h1>{{ _('Revision Differences') }} -
-        {% if c.diff_entity == 'package' %}
-          {% link_for pkg.title, controller='package', action='read', id=pkg.name %}
-        {% elif c.diff_entity == 'group' %}
-          {% link_for group.display_name, controller='group', action='read', id=group.name %}
-        {% endif %}
-      </h1>
+{% block primary_content_inner %}
+  <h1>{{ _('Revision Differences') }} -
+    {% if c.diff_entity == 'package' %}
+      {% link_for pkg.title, controller='package', action='read', id=pkg.name %}
+    {% elif c.diff_entity == 'group' %}
+      {% link_for group.display_name, controller='group', action='read', id=group.name %}
+    {% endif %}
+  </h1>
 
-      <p>
-        <strong>From:</strong> {% link_for c.revision_from.id, controller='revision', action='read', id=c.revision_from.id %} -
-          {{ h.render_datetime(c.revision_from.timestamp, with_hours=True) }}
-      </p>
-      <p>
-        <strong>To:</strong> {% link_for c.revision_to.id, controller='revision', action='read', id=c.revision_to.id %} -
-          {{ h.render_datetime(c.revision_to.timestamp, with_hours=True) }}
-      </p>
+  <p>
+    <strong>From:</strong> {% link_for c.revision_from.id, controller='revision', action='read', id=c.revision_from.id %} -
+      {{ h.render_datetime(c.revision_from.timestamp, with_hours=True) }}
+  </p>
+  <p>
+    <strong>To:</strong> {% link_for c.revision_to.id, controller='revision', action='read', id=c.revision_to.id %} -
+      {{ h.render_datetime(c.revision_to.timestamp, with_hours=True) }}
+  </p>
 
-      {% if c.diff %}
-        <table class="table table-bordered table-striped">
-          <tr>
-            <th>{{ _('Field') }}</th>
-            <th>{{ _('Difference') }}</th>
-          </tr>
-          {% for field, diff in c.diff %}
-            <tr>
-              <td>{{ field }}</td>
-              <td><pre>{{ diff }}</pre></td>
-            </tr>
-          {% endfor %}
-        </table>
-      {% else %}
-        <h3>{{ _('No Differences') }}</h3>
-      {% endif %}
-    </section>
-  </section>
+  {% if c.diff %}
+    <table class="table table-bordered table-striped">
+      <tr>
+        <th>{{ _('Field') }}</th>
+        <th>{{ _('Difference') }}</th>
+      </tr>
+      {% for field, diff in c.diff %}
+        <tr>
+          <td>{{ field }}</td>
+          <td><pre>{{ diff }}</pre></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <h3>{{ _('No Differences') }}</h3>
+  {% endif %}
 {% endblock %}

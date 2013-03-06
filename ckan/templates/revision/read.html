@@ -1,4 +1,4 @@
-{% extends "page.html" %}
+{% extends "revision/read_base.html" %}
 
 {% set rev = c.revision %}
 
@@ -34,64 +34,60 @@
   {% endif %}
 {% endblock %}
 
-{% block primary %}
-  <section class="module prose">
-    <section class="module-content">
-      <h1>{{ _('Revision') }}: {{ rev.id }}</h1>
+{% block primary_content_inner %}
+  <h1>{{ _('Revision') }}: {{ rev.id }}</h1>
 
-      <div class="state-{{ rev.state }}">
-        <div class="embedded-content">
-          {% if rev.state != 'active' %}
-          <p class="state-notice">
-            {{ rev.state }}
-          </p>
-          {% endif %}
+  <div class="state-{{ rev.state }}">
+    <div class="embedded-content">
+      {% if rev.state != 'active' %}
+      <p class="state-notice">
+        {{ rev.state }}
+      </p>
+      {% endif %}
 
-          <p>
-            <strong>{{ _('Author') }}:</strong> {{ h.linked_user(rev.author) }}
-          </p>
-          <p>
-            <strong>{{ _('Timestamp') }}:</strong> {{ h.render_datetime(rev.timestamp, with_hours=True) }}
-          </p>
-          <p>
-            <strong>{{ _('Log Message') }}:</strong>
-          </p>
-          <p>
-            {{ rev.message }}
-          </p>
-        </div>
+      <p>
+        <strong>{{ _('Author') }}:</strong> {{ h.linked_user(rev.author) }}
+      </p>
+      <p>
+        <strong>{{ _('Timestamp') }}:</strong> {{ h.render_datetime(rev.timestamp, with_hours=True) }}
+      </p>
+      <p>
+        <strong>{{ _('Log Message') }}:</strong>
+      </p>
+      <p>
+        {{ rev.message }}
+      </p>
+    </div>
 
-        <div class="embedded-content">
-          <h2>{{ _('Changes') }}</h2>
-          <h3>{{ _('Datasets') }}</h3>
-          <ul>
-            {% for pkg in c.packages %}
-              <li>
-                {{ h.link_to(pkg.name, h.url_for(controller='package', action='read', id=pkg.name)) }}
-              </li>
-            {% endfor %}
-          </ul>
+    <div class="embedded-content">
+      <h2>{{ _('Changes') }}</h2>
+      <h3>{{ _('Datasets') }}</h3>
+      <ul>
+        {% for pkg in c.packages %}
+          <li>
+            {{ h.link_to(pkg.name, h.url_for(controller='package', action='read', id=pkg.name)) }}
+          </li>
+        {% endfor %}
+      </ul>
 
-          <h3>{{ _('Datasets\' Tags') }}</h3>
-          <ul>
-            {% for pkgtag in c.pkgtags %}
-              <li>
-                Dataset - {{ h.link_to(pkgtag.package.name, h.url_for(controller='package', action='read', id=pkgtag.package.name)) }},
-                Tag - {{ h.link_to(pkgtag.tag.name, h.url_for(controller='tag', action='read', id=pkgtag.tag.name)) }}
-              </li>
-            {% endfor %}
-          </ul>
+      <h3>{{ _('Datasets\' Tags') }}</h3>
+      <ul>
+        {% for pkgtag in c.pkgtags %}
+          <li>
+            Dataset - {{ h.link_to(pkgtag.package.name, h.url_for(controller='package', action='read', id=pkgtag.package.name)) }},
+            Tag - {{ h.link_to(pkgtag.tag.name, h.url_for(controller='tag', action='read', id=pkgtag.tag.name)) }}
+          </li>
+        {% endfor %}
+      </ul>
 
-          <h3>{{ _('Groups') }}</h3>
-          <ul>
-            {% for group in c.groups %}
-              <li>
-                {{ h.link_to(group.name, h.url_for(controller='group', action='read', id=group.name)) }}
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </section>
-  </section>
+      <h3>{{ _('Groups') }}</h3>
+      <ul>
+        {% for group in c.groups %}
+          <li>
+            {{ h.link_to(group.name, h.url_for(controller='group', action='read', id=group.name)) }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 {% endblock %}
