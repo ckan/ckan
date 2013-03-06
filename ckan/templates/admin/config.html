@@ -22,7 +22,7 @@
     <div class="module-content">
       {% set about_url = h.url_for(controller='home', action='about') %}
       {% set home_url = h.url_for(controller='home', action='index') %}
-      {% set docs_url = "http://docs.ckan.org/en/ckan-{0}/theming.html".format(g.ckan_base_version) %}
+      {% set docs_url = "http://docs.ckan.org/{0}/{1}/theming.html".format(request.environ.CKAN_LANG, g.ckan_doc_version) %}
       {% trans %}
         <p><strong>Site Title:</strong> This is the title of this CKAN instance
           It appears in various places throughout CKAN.</p>
