@@ -4,5 +4,11 @@ h.literal('<li class="active">') + h.link_to('Active Tab', '#') + h.literal('</l
 h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
 h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
 ) %}
-	{% snippet 'snippets/page_header.html', items=items %}
+  <header class="module-content page-header">
+    <ul class="nav nav-tabs">
+      {% for item in items %}
+        {{ item }}
+      {% endfor %}
+    </ul>
+  </header>
 {% endwith %}

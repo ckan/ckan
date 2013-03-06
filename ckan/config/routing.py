@@ -284,12 +284,15 @@ def make_map():
           'follow',
           'unfollow',
           'admins',
-          'about',
           'activity',
           ]))
           )
-        m.connect('group_activity', '/group/activity/{id}/{offset}', action='activity'),
-        m.connect('group_read', '/group/{id}', action='read')
+        m.connect('group_about', '/group/about/{id}', action='about',
+                  ckan_icon='info-sign'),
+        m.connect('group_activity', '/group/activity/{id}/{offset}',
+                  action='activity', ckan_icon='time'),
+        m.connect('group_read', '/group/{id}', action='read',
+                  ckan_icon='sitemap')
 
     # organizations these basically end up being the same as groups
     with SubMapper(map, controller='organization') as m:
@@ -305,13 +308,16 @@ def make_map():
           'member_new',
           'member_delete',
           'history',
-          'bulk_process',
-          'about'
+          'bulk_process'
           ]))
           )
         m.connect('organization_activity', '/organization/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
+        m.connect('organization_about', '/organization/about/{id}',
+                  action='about', ckan_icon='info-sign')
+        m.connect('organization_read', '/organization/{id}', action='read',
+                  ckan_icon='sitemap')
     register_package_plugins(map)
     register_group_plugins(map)
 
