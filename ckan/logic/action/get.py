@@ -845,12 +845,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
 
-    if schema:
-        group_dict, errors = _validate(group_dict, schema, context=context)
-
     group_dict['num_followers'] = logic.get_action('group_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': group_dict['id']})
+
+    if schema:
+        group_dict, errors = _validate(group_dict, schema, context=context)
     return group_dict
 
 
