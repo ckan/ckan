@@ -58,7 +58,7 @@ def _pluck(field, arr):
 
 def _get_list(input, strip=True):
     """Transforms a string or list to a list"""
-    if input == None:
+    if input is None:
         return
     if input == '':
         return []
@@ -142,11 +142,11 @@ def _cache_types(context):
 
 def _pg_version_is_at_least(connection, version):
     try:
+        v = distutils.version.LooseVersion(version)
         pg_version = connection.execute('select version();').fetchone()
         pg_version_number = pg_version[0].split()[1]
-        v = distutils.version.LooseVersion(version)
         pv = distutils.version.LooseVersion(pg_version_number)
-        return v >= pv
+        return v <= pv
     except ValueError:
         return False
 
