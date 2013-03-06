@@ -15,12 +15,7 @@
 </form>
 <div class="results">
   <strong>
-    {% if c.q %}
-      {{ _('{number} datasets found for "{query}"').format(query=c.q, number=c.page.item_count) }}
-    {% else %}
-      {{ _('{number} datasets found').format(number=c.page.item_count) }}
-    {% endif %}
-
+    {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
   </strong>
   <div class="filter-list">
     {% for field in c.fields_grouped %}
