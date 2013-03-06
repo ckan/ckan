@@ -15,13 +15,7 @@
 </form>
 <div class="results">
   <strong>
-    {% if request.params and c.page.item_count %}
-      {{ c.page.item_count }} datasets{% if c.q %} found for &#147;{{ c.q }}&#148;{% endif %}
-    {% elif request.params and c.page.item_count == 0 %}
-      Sorry no datasets found{% if c.q %} for &#147;{{ c.q }}&#148;{% endif %}
-    {% else %}
-      All datasets
-    {% endif %}
+    {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
   </strong>
   <div class="filter-list">
     {% for field in c.fields_grouped %}
