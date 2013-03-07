@@ -4,7 +4,7 @@
   {% block error_summary %}
     {% if error_summary | count %}
       <div class="alert alert-error error-explanation">
-        <p>The form contains invalid entries:</p>
+          <p>{{ _('The form contains invalid entries:') }}</p>
         <ul>
           {% for key, error in error_summary.items() %}
             <li>{{ key }}: {{ error }}</li>
