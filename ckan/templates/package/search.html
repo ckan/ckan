@@ -71,15 +71,20 @@
 
   <section class="module">
     <div class="module-content">
-      {% trans %}
       <small>
-        You can also access this registry using the {{ h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) }}
-        (see {{ h.link_to(_('API Docs'), 'http://docs.ckan.org/{0}/{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_doc_version)) }})
+        {% set api_link = h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) %}
+        {% set api_doc_link = h.link_to(_('API Docs'), 'http://docs.ckan.org/{0}/{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_doc_version)) %}
         {% if g.dumps_url -%}
-          or download a <a href="{{ g.dumps_url }}">full {{ g.dumps_format }} dump</a>
+          {% trans %}
+            You can also access this registry using the {{ api_link }} (see {{ api_doc_link}}).
+          {% endtrans %}
+        {% else %}
+          {% set dump = h.link_to(_('full {format} dump').format(format=g.dumps_format), g.dumps_url) %}
+          {% trans %}
+            You can also access this registry using the {{ api_link }} (see {{ api_doc_link }}) or download a {{ dump_link }}.
+          {% endtrans %}
         {%- endif %}.
       </small>
-      {% endtrans %}
     </div>
   </section>
 {% endblock %}
