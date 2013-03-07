@@ -2,7 +2,7 @@
 
 {% set organization = c.group_dict %}
 
-{% block bodytag %}{{ super() }} class="editing"{% endblock %}
+{% block add_action_content %}{% endblock %}
 
 {% block subtitle %}{{ organization.display_name }}{% endblock %}
 
@@ -10,13 +10,13 @@
   <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
   {% block breadcrumb_content_inner %}
     <li>{% link_for organization.display_name|truncate(35), controller='organization', action='read', id=organization.name %}</li>
-    <li class="active">{% link_for _('Edit Organization'), controller='organization', action='edit', id=organization.name %}</li>
+    <li class="active">{% link_for _('Edit'), controller='organization', action='edit', id=organization.name %}</li>
   {% endblock %}
 {% endblock %}
 
 {% block actions_content %}
   {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
-    <li><a href="{% url_for controller='organization', action='read', id=organization.name %}" class="btn">{{ _('View organization') }} <i class="icon-arrow-right"></i></a></li>
+    <li>{% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}</li>
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
@@ -27,7 +27,10 @@
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
           <li{% if c.action == 'edit' %} class="active"{% endif %}>
-            {% link_for _('Info'), controller='organization', action='edit', id=organization.name, icon='info-sign' %}
+            {% link_for _('Edit'), controller='organization', action='edit', id=organization.name, icon='edit' %}
+          </li>
+          <li{% if c.action == 'bulk_process' %} class="active"{% endif %}>
+            {% link_for _('Datasets'), controller='organization', action='bulk_process', id=organization.name, icon='sitemap' %}
           </li>
           {% if h.check_access('organization_member_create', {'id': organization.id}) %}
           <li{% if c.action == 'members' or c.action =='member_new' %} class="active"{% endif %}>
@@ -43,9 +46,10 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {{ super() }}
   {% if organization %}
     {% snippet 'snippets/organization.html', organization=organization %}
+  {% else %}
+    {{ super() }}
   {% endif %}
 {% endblock %}
 

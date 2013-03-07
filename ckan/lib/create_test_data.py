@@ -3,7 +3,6 @@ from collections import defaultdict
 import datetime
 
 import ckan.model as model
-import authztool
 
 log = logging.getLogger(__name__)
 
@@ -332,6 +331,7 @@ class CreateTestData(object):
                 log.warning('Cannot create group "%s" as it already exists.' % \
                                 (group_dict['name']))
                 continue
+            pkg_names = group_dict.pop('packages', [])
             group = model.Group(name=unicode(group_dict['name']))
             group.type = auth_profile or 'group'
             for key in group_dict:
@@ -339,7 +339,6 @@ class CreateTestData(object):
                     setattr(group, key, group_dict[key])
                 else:
                     group.extras[key] = group_dict[key]
-            pkg_names = group_dict.get('packages', [])
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))
@@ -522,19 +521,6 @@ left arrow <
     def create_user(cls, name='', **kwargs):
         cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
-
-    @classmethod
-    def create_roles(cls, roles):
-        '''Each role is a tuple (object_name, role, subject_name).
-        There is clever searching going on to find the objects of any type,
-        by name or ID. You can also use the subject_name='system'.
-        '''
-        for role_tuple in roles:
-            object_name, role, subject_name = role_tuple
-            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
-                                                      except_on_error=True,
-                                                      do_commit=False)
-        model.repo.commit_and_remove()
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],

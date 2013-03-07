@@ -74,6 +74,18 @@ class TestGroup(FunctionalTestCase):
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
 
+    def test_atom_feed_page_negative(self):
+        group_name = 'deletetest'
+        CreateTestData.create_groups([{'name': group_name,
+                                       'packages': []}],
+                                     admin_user_name='testsysadmin')
+
+        offset = url_for(controller='feed', action='group',
+                         id=group_name)
+        offset = offset + '?page=-2'
+        res = self.app.get(offset, expect_errors=True)
+        assert '"page" parameter must be a positive integer' in res, res
+
     def test_children(self):
         if model.engine_is_sqlite() :
             from nose import SkipTest
@@ -680,72 +692,3 @@ class TestRevisions(FunctionalTestCase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
-
-
-class TestOrganizationGroup(FunctionalTestCase):
-
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        CreateTestData.create(auth_profile='publisher')
-
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_index(self):
-        from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
-
-        offset = url_for(controller='group', action='index')
-        res = self.app.get(offset)
-        assert '<h1 class="page_heading">Groups' in res, res
-        groupname = 'david'
-        group = model.Group.by_name(unicode(groupname))
-        group_title = group.title
-        group_packages_count = len(group.packages())
-        group_description = group.description
-        self.check_named_element(res, 'tr', group_title,
-                                 group_packages_count,
-                                 group_description)
-        res = res.click(group_title)
-        assert groupname in res
-        assert 'organization' == group.type, group.type
-
-    def test_read(self):
-        from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
-
-        # Relies on the search index being available
-        setup_test_search_index()
-        name = u'david'
-        title = u'Dave\'s books'
-        pkgname = u'warandpeace'
-        group = model.Group.by_name(name)
-        assert 'organization' == group.type
-        for group_ref in (group.name, group.id):
-            offset = url_for(controller='group', action='read', id=group_ref)
-            res = self.app.get(offset)
-            main_res = self.main_div(res)
-            assert title in res, res
-            assert 'Administrators' in res, res
-            assert 'testsysadmin' in main_res, main_res
-            assert name in res, res
-            assert '0 datasets found.' in self.strip_tags(main_res), main_res
-
-    def test_read_and_not_authorized_to_edit(self):
-        from pylons import config
-        from nose.exc import SkipTest
-        if config.get('ckan.auth.profile', '') != 'publisher':
-            raise SkipTest('Publisher auth profile not enabled')
-
-        name = u'david'
-        title = u'Dave\'s books'
-        pkgname = u'warandpeace'
-        offset = url_for(controller='group', action='edit', id=name)
-        res = self.app.get(offset,  status=200,
-                           extra_environ={'REMOTE_USER': 'testsysadmin'})

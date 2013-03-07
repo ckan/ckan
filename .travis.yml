@@ -1,5 +1,6 @@
 language: python
 python:
+  - "2.6"
   - "2.7"
 before_install:
   - sudo apt-get update -qq
@@ -23,12 +24,13 @@ before_script:
   - sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
   - sudo service jetty restart
   - paster --plugin=ckan db init
-  - sed -i -e 's/ -W//g' ckanext/datastore/bin/datastore_setup.py
   - paster datastore set-permissions postgres
-script: "nosetests --ckan ckan && nosetests --ckan --with-pylons=test-core.ini --nologcapture --cover-package=ckanext.datastore ckanext/datastore/tests -x"
+script: "nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext"
 notifications:
   irc:
     channels:
       - "irc.freenode.org#ckan"
+    on_success: never
+    on_failure: change
     template:
-      - "%{repository} (%{branch} - %{commit}) [%{build_url}] %{author}: %{message}"
+      - "%{repository} %{branch} %{commit} %{build_url} %{author}: %{message}"

@@ -43,7 +43,6 @@ _text = sqlalchemy.text
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
-    model = context["model"]
     for package in package_revision_list:
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
@@ -94,7 +93,7 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    if data_dict.has_key('limit'):
+    if 'limit' in data_dict:
         try:
             limit = int(data_dict['limit'])
             if limit < 0:
@@ -205,7 +204,6 @@ def related_list(context, data_dict=None):
 
     '''
     model = context['model']
-    session = context['session']
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
@@ -261,7 +259,6 @@ def member_list(context, data_dict=None):
 
     '''
     model = context['model']
-    user = context['user']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
     obj_type = data_dict.get('object_type', None)
@@ -288,20 +285,31 @@ def member_list(context, data_dict=None):
             return lookup[name]
         return None
 
-    return [ (m.table_id, type_lookup(m.table_name) ,m.capacity,)
-             for m in q.all() ]
+    trans = new_authz.roles_trans()
+    def translated_capacity(capacity):
+        try:
+            return trans[capacity]
+        except KeyError:
+            return capacity
+
+    return [(m.table_id,
+             type_lookup(m.table_name),
+             translated_capacity(m.capacity),)
+            for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
-    ref_group_by = 'id' if api == 2 else 'name';
+    ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
+    q = data_dict.get('q')
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
-    order_by = data_dict.get('order_by')
+    order_by = data_dict.get('order_by', '')
     if order_by:
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
@@ -323,6 +331,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.current==True)
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
+    if q:
+        q = u'%{0}%'.format(q)
+        query = query.filter(_or_(
+            model.GroupRevision.name.like(q),
+            model.GroupRevision.title.like(q),
+            model.GroupRevision.description.like(q),
+        ))
+
 
     query = query.filter(model.GroupRevision.is_organization==is_org)
 
@@ -660,13 +676,12 @@ def package_relationships_list(context, data_dict):
     '''
     ##TODO needs to work with dictization layer
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
 
     id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == 2 else 'name';
+    ref_package_by = 'id' if api == 2 else 'name'
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -1035,8 +1050,6 @@ def package_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
-    user = context['user']
     q = _get_or_bust(data_dict, 'q')
 
     like_q = u"%s%%" % q
@@ -1079,7 +1092,6 @@ def format_autocomplete(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    user = context['user']
 
     _check_access('format_autocomplete', context, data_dict)
 
@@ -1117,7 +1129,6 @@ def user_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
     user = context['user']
     q = data_dict.get('q',None)
     if not q:
@@ -1346,7 +1357,7 @@ def resource_search(context, data_dict):
     limit or query parameters having an effect.  The ``results`` field is a
     list of dictized Resource objects.
 
-    The 'q' parameter is a required field.  It is a string of the form
+    The 'query' parameter is a required field.  It is a string of the form
     ``{field}:{term}`` or a list of strings, each of the same form.  Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
@@ -1539,7 +1550,7 @@ def _tag_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if data_dict.has_key('vocabulary_id'):
+    if 'vocabulary_id' in data_dict:
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
@@ -1707,7 +1718,8 @@ def term_translation_show(context, data_dict):
     terms = _get_or_bust(data_dict, 'terms')
     if isinstance(terms, basestring):
         terms = [terms]
-    q = q.where(trans_table.c.term.in_(terms))
+    if terms:
+        q = q.where(trans_table.c.term.in_(terms))
 
     # This action accepts `lang_codes` as either a list of strings, or a single
     # string.

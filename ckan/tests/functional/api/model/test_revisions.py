@@ -6,7 +6,6 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
 
 class RevisionsTestCase(BaseModelApiTestCase):
 
@@ -64,4 +63,3 @@ class RevisionsTestCase(BaseModelApiTestCase):
 
 class TestRevisionsVersion1(Version1TestCase, RevisionsTestCase): pass
 class TestRevisionsVersion2(Version2TestCase, RevisionsTestCase): pass
-class TestRevisionsUnversioned(UnversionedTestCase, RevisionsTestCase): pass

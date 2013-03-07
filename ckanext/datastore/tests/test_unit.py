@@ -29,3 +29,23 @@ class TestTypeGetters(unittest.TestCase):
         assert db._get_bool('0') == False
         assert db._get_bool('on') == True
         assert db._get_bool('off') == False
+
+    def test_is_valid_field_name(self):
+        assert db._is_valid_field_name("foo")
+        assert db._is_valid_field_name("foo bar")
+        assert db._is_valid_field_name("42")
+        assert not db._is_valid_field_name('foo"bar')
+        assert not db._is_valid_field_name('"')
+        assert db._is_valid_field_name("'")
+        assert not db._is_valid_field_name("")
+        assert db._is_valid_field_name("foo%bar")
+
+    def test_is_valid_table_name(self):
+        assert db._is_valid_table_name("foo")
+        assert db._is_valid_table_name("foo bar")
+        assert db._is_valid_table_name("42")
+        assert not db._is_valid_table_name('foo"bar')
+        assert not db._is_valid_table_name('"')
+        assert db._is_valid_table_name("'")
+        assert not db._is_valid_table_name("")
+        assert not db._is_valid_table_name("foo%bar")

@@ -29,7 +29,7 @@ def deprecated(message=''):
                             'It must include the word `deprecated`.'
                             % (fn.__name__, fn.__module__))
         # Log deprecated functions
-        log.info('Function %s() in module %s has been deprecated. %s'
+        log.debug('Function %s() in module %s has been deprecated. %s'
                             % (fn.__name__, fn.__module__, message))
 
         def wrapped(*args, **kw):

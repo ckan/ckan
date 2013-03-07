@@ -1346,8 +1346,7 @@ class CreateColorSchemeCommand(CkanCommand):
 
     rules = [
         '@layoutLinkColor',
-        '@mastheadBackgroundColorStart',
-        '@mastheadBackgroundColorEnd',
+        '@mastheadBackgroundColor',
         '@btnPrimaryBackground',
         '@btnPrimaryBackgroundHighlight',
     ]
@@ -1745,13 +1744,16 @@ class MinifyCommand(CkanCommand):
 
     Usage:
 
-        paster minify [FILE|DIRECTORY] ...
+        paster minify [--clean] <path>
 
     for example:
 
         paster minify ckan/public/base
         paster minify ckan/public/base/css/*.css
         paster minify ckan/public/base/css/red.css
+
+    if the --clean option is provided any minified files will be removed.
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1759,20 +1761,45 @@ class MinifyCommand(CkanCommand):
 
     exclude_dirs = ['vendor']
 
+    def __init__(self, name):
+
+        super(MinifyCommand, self).__init__(name)
+
+        self.parser.add_option('--clean', dest='clean',
+            action='store_true', default=False, help='remove any minified files in the path')
+
     def command(self):
+        clean = getattr(self.options, 'clean', False)
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
-                self.minify_file(base_path)
+                if clean:
+                    self.clear_minifyed(base_path)
+                else:
+                    self.minify_file(base_path)
             elif os.path.isdir(base_path):
                 for root, dirs, files in os.walk(base_path):
                     dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
-                        self.minify_file(path)
+                        if clean:
+                            self.clear_minifyed(path)
+                        else:
+                            self.minify_file(path)
             else:
                 # Path is neither a file or a dir?
                 continue
+
+    def clear_minifyed(self, path):
+        path_only, extension = os.path.splitext(path)
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        if path_only.endswith('.min'):
+            print 'removing %s' % path
+            os.remove(path)
 
     def minify_file(self, path):
         '''Create the minified version of the given file.
@@ -1804,3 +1831,122 @@ class MinifyCommand(CkanCommand):
             f.write(rjsmin.jsmin(source))
         f.close()
         print "Minified file '{0}'".format(path)
+
+
+class LessCommand(CkanCommand):
+    '''Compile all root less documents into their CSS counterparts
+
+    Usage:
+
+        paster less
+
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 0
+
+    def command(self):
+        self.less()
+
+    custom_css = {
+        'fuchsia': '''
+            @layoutLinkColor: #b509b5;
+            @mastheadBackgroundColorStart: #dc0bdc;
+            @mastheadBackgroundColorEnd: #f31df3;
+            @btnPrimaryBackground: #f544f5;
+            @btnPrimaryBackgroundHighlight: #f76bf7;
+            ''',
+
+        'green': '''
+            @layoutLinkColor: #045b04;
+            @mastheadBackgroundColorStart: #068106;
+            @mastheadBackgroundColorEnd: #08a808;
+            @btnPrimaryBackground: #0acf0a;
+            @btnPrimaryBackgroundHighlight: #10f210
+            ''',
+
+        'red': '''
+            @layoutLinkColor: #b50909;
+            @mastheadBackgroundColorStart: #dc0b0b;
+            @mastheadBackgroundColorEnd: #f31d1d;
+            @btnPrimaryBackground: #f54444;
+            @btnPrimaryBackgroundHighlight: #f76b6b;
+            ''',
+
+        'maroon': '''
+            @layoutLinkColor: #5b0404;
+            @mastheadBackgroundColorStart: #810606;
+            @mastheadBackgroundColorEnd: #a80808;
+            @btnPrimaryBackground: #cf0a0a;
+            @btnPrimaryBackgroundHighlight: #f21010;
+            ''',
+    }
+    def less(self):
+        ''' Compile less files '''
+        import subprocess
+        command = 'npm bin'
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output = process.communicate()
+        directory = output[0].strip()
+        less_bin = os.path.join(directory, 'lessc')
+
+        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        root = os.path.abspath(root)
+        custom_less = os.path.join(root, 'less', 'custom.less')
+        for color in self.custom_css:
+            f = open(custom_less, 'w')
+            f.write(self.custom_css[color])
+            f.close()
+            self.compile_less(root, less_bin, color)
+        f = open(custom_less, 'w')
+        f.write('// This file is needed in order for ./bin/less to compile in less 1.3.1+\n')
+        f.close()
+        self.compile_less(root, less_bin, 'main')
+
+
+
+    def compile_less(self, root, less_bin, color):
+        print 'compile %s.css' % color
+        import subprocess
+        main_less = os.path.join(root, 'less', 'main.less')
+        main_css = os.path.join(root, 'css', '%s.css' % color)
+
+        command = '%s %s %s' % (less_bin, main_less, main_css)
+
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        output = process.communicate()
+
+
+
+class FrontEndBuildCommand(CkanCommand):
+    ''' Creates and minifies css and JavaScript files
+
+    Usage:
+
+        paster front-end-build
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+
+        # Less css
+        cmd = LessCommand('less')
+        cmd.command()
+
+        # js translation strings
+        cmd = TranslationsCommand('trans')
+        cmd.options = self.options
+        cmd.args = ('js',)
+        cmd.command()
+
+        # minification
+        cmd = MinifyCommand('minify')
+        cmd.options = self.options
+        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        root = os.path.abspath(root)
+        cmd.args = (root,)
+        cmd.command()
