@@ -685,14 +685,15 @@ class PackageController(BaseController):
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
             data = data or clean_dict(unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
 
             data_dict = get_action('package_show')(context, {'id': id})
 
@@ -726,8 +727,6 @@ class PackageController(BaseController):
             redirect(h.url_for(controller='package', action='read', id=id))
 
         if not data:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
             data = get_action('package_show')(context, {'id': id})
         errors = errors or {}
         error_summary = error_summary or {}
