@@ -58,8 +58,12 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-First, make sure you have specified a PostgreSQL database with the
-``sqlalchemy.url`` parameter in your ``development.ini`` file.
+Starting in CKAN 2.1 tests are run in a separate postgres database by default.  You should create the test database as follows.::
+
+    sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
+
+This database connection is specified in the ``test-core.ini`` file by the
+``sqlalchemy.url`` parameter.
 
 CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
 database library (it also sets ``faster_db_test_hacks``). To run the tests more
@@ -92,24 +96,12 @@ With the ``--ckan-migration`` option the tests will run using a database that
 has been created by running the migration scripts in ``ckan/migration``, which
 is how the database is created and upgraded in production.
 
-.. caution ::
-
-    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL
-    database so these also get used when running ``test-core.ini``, since
-    ``test-core.ini`` inherits from ``development.ini``. If you were to change
-    the ``sqlalchemy.url`` option in your ``development.ini`` file to use
-    SQLite, the command above would actually test SQLite rather than
-    PostgreSQL, so always check the setting in ``development.ini`` to ensure
-    you are running the full tests.
-
 .. warning ::
 
    A common error when wanting to run tests against a particular database is to
    change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem
    is that these are versioned files and people have checked in these by
-   mistake, creating problems for other developers and the CKAN buildbot. This
-   is easily avoided by only changing ``sqlalchemy.url`` in your local
-   ``development.ini`` and testing ``--with-pylons=test-core.ini``.
+   mistake, creating problems for other developers.
 
 Common error messages
 ---------------------

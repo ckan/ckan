@@ -104,9 +104,6 @@ Create the database (owned by ``ckanuser``), which we'll call ``ckan_dev``::
 
     sudo -u postgres createdb -O ckanuser ckan_dev -E utf-8
 
-If you are planning to run the test then create a database for them too::
-
-    sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
