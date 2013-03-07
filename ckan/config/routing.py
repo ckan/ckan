@@ -301,14 +301,11 @@ def make_map():
         m.connect('/organization/new', action='new')
         m.connect('/organization/{action}/{id}',
           requirements=dict(action='|'.join([
-          'edit',
           'delete',
           'admins',
-          'members',
           'member_new',
           'member_delete',
-          'history',
-          'bulk_process'
+          'history'
           ]))
           )
         m.connect('organization_activity', '/organization/activity/{id}',
@@ -318,6 +315,12 @@ def make_map():
                   action='about', ckan_icon='info-sign')
         m.connect('organization_read', '/organization/{id}', action='read',
                   ckan_icon='sitemap')
+        m.connect('organization_edit', '/organization/edit/{id}',
+                  action='edit', ckan_icon='edit')
+        m.connect('organization_members', '/organization/members/{id}',
+                  action='members', ckan_icon='group')
+        m.connect('organization_bulk_process', '/organization/bulk_process/{id}',
+                  action='bulk_process', ckan_icon='sitemap')
     register_package_plugins(map)
     register_group_plugins(map)
 
