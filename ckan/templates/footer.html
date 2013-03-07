@@ -6,7 +6,7 @@
           <ul class="unstyled row-fluid">
             {% block footer_links %}
               {% set api_url = 'http://docs.ckan.org/{0}/{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_doc_version) %}
-              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}'.format( g.site_title)) }}</a></li>
+              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}').format(g.site_title) }}</a></li>
               <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
               <li><a href="http://www.opendefinition.org/okd/"><img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
               <li><a href="http://www.okfn.org/">{{ _('Open Knowledge Foundation') }}</a></li>
