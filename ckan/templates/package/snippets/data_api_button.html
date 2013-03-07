@@ -9,5 +9,5 @@ datastore_root_url: the root url of the datastore
   {% set api_info_url = h.url_for(controller='api', action='snippet', ver=1, snippet_path='api_info.html', datastore_root_url=datastore_root_url, resource_id=resource.id) %}
   <a class="btn btn-success" href="{{ api_info_url }}" data-module="api-info" data-module-template="{{ api_info_url }}" data-loading-text="{{ loading_text }}"><i class="icon-beaker icon-large"></i> {{ _('Data API') }}</a>
 {% else %}
-<a class="btn disabled" rel="tooltip" title="{{ _('Data API is unavailable for this resource as no data has been pushed to it yet') }}"><i class="icon-beaker icon-large"></i> {{ _('Data API') }}</a>
+  <a class="btn disabled" rel="tooltip" title="{{ _('Data API is unavailable for this resource as no data has been pushed to it yet') }}"><i class="icon-beaker icon-large"></i> {{ _('Data API') }}</a>
 {% endif %}
