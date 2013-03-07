@@ -44,7 +44,7 @@ class DatastorePlugin(p.SingletonPlugin):
         import sys
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
             log.warn('Omitting permission checks because you are '
-                        'running paster commands.')
+                     'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
@@ -74,8 +74,8 @@ class DatastorePlugin(p.SingletonPlugin):
                     "The DataStore will NOT work and datastore tests will be skipped.")
 
         ## Do light wrapping around action function to add datastore_active
-        ## to resource dict.  Not using IAction extension as this prevents other plugins
-        ## from having a custom resource_read.
+        ## to resource dict.  Not using IAction extension as this prevents
+        ## other plugins from having a custom resource_read.
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
@@ -107,7 +107,6 @@ class DatastorePlugin(p.SingletonPlugin):
             logic._actions['resource_show'] = new_resource_show
 
     def _is_read_only_database(self):
-        read_only_database = True
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
                 {'connection_url': url}).connect()
@@ -121,10 +120,10 @@ class DatastorePlugin(p.SingletonPlugin):
                 else:
                     raise
             else:
-                read_only_database = False
+                return False
             finally:
                 trans.rollback()
-        return read_only_database
+        return True
 
     def _check_separate_db(self):
         '''
@@ -132,8 +131,9 @@ class DatastorePlugin(p.SingletonPlugin):
         all internal tables via the api.
         '''
 
-        if self.write_url == self.read_url:
-            raise Exception("The write and read-only database connection url are the same.")
+        if not self.legacy_mode:
+            if self.write_url == self.read_url:
+                raise Exception("The write and read-only database connection url are the same.")
 
         if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):
             raise Exception("The CKAN and datastore database are the same.")
@@ -207,9 +207,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def get_actions(self):
         actions = {'datastore_create': action.datastore_create,
-                'datastore_upsert': action.datastore_upsert,
-                'datastore_delete': action.datastore_delete,
-                'datastore_search': action.datastore_search}
+                   'datastore_upsert': action.datastore_upsert,
+                   'datastore_delete': action.datastore_delete,
+                   'datastore_search': action.datastore_search}
         if not self.legacy_mode:
             actions['datastore_search_sql'] = action.datastore_search_sql
         return actions
