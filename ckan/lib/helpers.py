@@ -1449,6 +1449,11 @@ def SI_number_span(number):
         output = literal('<span title="' + formatters.localised_number(number) + '">')
     return output + formatters.localised_SI_number(number) + literal('<span>')
 
+# add some formatter functions
+localised_number = formatters.localised_number
+localised_SI_number = formatters.localised_SI_number
+localised_nice_date = formatters.localised_nice_date
+localised_filesize = formatters.localised_filesize
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1528,6 +1533,10 @@ __allowed_functions__ = [
            'format_resource_items',
            'resource_preview',
            'SI_number_span',
+           'localised_number',
+           'localised_SI_number',
+           'localised_nice_date',
+           'localised_filesize',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
