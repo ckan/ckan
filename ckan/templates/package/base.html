@@ -17,6 +17,6 @@
     <li{{ self.breadcrumb_content_selected() }}>{% link_for dataset|truncate(30), controller='package', action='read', id=pkg.name %}</li>
   {% else %}
     <li>{% link_for _('Datasets'), controller='package', action='search' %}</li>
-    <li class="active"><a href="">Create Dataset</a></li>
+    <li class="active"><a href="">{{ _('Create Dataset') }}</a></li>
   {% endif %}
 {% endblock %}
