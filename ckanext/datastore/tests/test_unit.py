@@ -5,7 +5,7 @@ import ckanext.datastore.db as db
 
 class TestTypeGetters(unittest.TestCase):
     def test_list(self):
-        assert db._get_list(None) == None
+        assert db._get_list(None) is None
         assert db._get_list([]) == []
         assert db._get_list('') == []
         assert db._get_list('foo') == ['foo']
@@ -18,17 +18,17 @@ class TestTypeGetters(unittest.TestCase):
         assert db._get_list(['foo', ['bar', 'baz']]) == ['foo', ['bar', 'baz']]
 
     def test_bool(self):
-        assert db._get_bool(None) == False
-        assert db._get_bool(False) == False
-        assert db._get_bool(True) == True
-        assert db._get_bool('', True) == True
-        assert db._get_bool('', False) == False
-        assert db._get_bool('True') == True
-        assert db._get_bool('False') == False
-        assert db._get_bool('1') == True
-        assert db._get_bool('0') == False
-        assert db._get_bool('on') == True
-        assert db._get_bool('off') == False
+        assert db._get_bool(None) is False
+        assert db._get_bool(False) is False
+        assert db._get_bool(True) is True
+        assert db._get_bool('', True) is True
+        assert db._get_bool('', False) is False
+        assert db._get_bool('True') is True
+        assert db._get_bool('False') is False
+        assert db._get_bool('1') is True
+        assert db._get_bool('0') is False
+        assert db._get_bool('on') is True
+        assert db._get_bool('off') is False
 
     def test_is_valid_field_name(self):
         assert db._is_valid_field_name("foo")
