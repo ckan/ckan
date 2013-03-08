@@ -243,14 +243,14 @@ def package_dictize(pkg, context):
     tracking = model.TrackingSummary.get_for_package(pkg.id)
     result_dict['tracking_summary'] = tracking
     #groups
-    member_rev = model.member_revision_table
+    member = model.member_table
     group = model.group_table
-    q = select([group, member_rev.c.capacity],
-               from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
-               ).where(member_rev.c.table_id == pkg.id)\
-                .where(member_rev.c.state == 'active') \
+    q = select([group, member.c.capacity],
+               from_obj=member.join(group, group.c.id == member.c.group_id)
+               ).where(member.c.table_id == pkg.id)\
+                .where(member.c.state == 'active') \
                 .where(group.c.is_organization == False)
-    result = _execute_with_revision(q, member_rev, context)
+    result = model.Session.execute(q)
     result_dict["groups"] = d.obj_list_dictize(result, context)
     #owning organization
     group_rev = model.group_revision_table
