@@ -3,6 +3,8 @@ Renders the login form.
 
 action        - The url that the form should be submitted to.
 error_summary - A tuple/list of form errors.
+disabled      - Whether the form fields should be disabled (ie in the logout
+                first template)
 
 Example:
 
@@ -13,15 +15,17 @@ Example:
 
 {% set username_error = true if error_summary %}
 {% set password_error = true if error_summary %}
+{% set attrs = {"disabled": "disabled"} if disabled else {} %}
+
 
 <form action="{{ action }}" method="post" class="form-horizontal">
   {{ form.errors(errors=error_summary) }}
 
-  {{ form.input('login', label=_("Username"), id='field-login', value="", error=username_error, classes=["control-medium"]) }}
+  {{ form.input('login', label=_("Username"), id='field-login', value="", error=username_error, classes=["control-medium"], attrs=attrs) }}
 
-  {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", error=password_error, classes=["control-medium"]) }}
+  {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", error=password_error, classes=["control-medium"], attrs=attrs) }}
 
-  {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
+  {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000", attrs=attrs) }}
 
   <div class="form-actions">
     <button class="btn btn-primary" type="submit">{{ _('Log in') }}</button>
