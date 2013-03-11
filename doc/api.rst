@@ -139,7 +139,7 @@ API Versions
 The CKAN APIs are versioned. If you make a request to an API URL without a
 version number, CKAN will choose the latest version of the API::
 
-    http://demo.ckan.org/api/3/action/package_list
+    http://demo.ckan.org/api/action/package_list
 
 Alternatively, you can specify the desired API version number in the URL that
 you request::
