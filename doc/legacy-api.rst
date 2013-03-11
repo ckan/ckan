@@ -2,9 +2,11 @@
 Legacy APIs
 ===========
 
-The legacy APIs documented in this section are provided for
-backwards-compatibility, but support for new CKAN features will not be added to
-these APIs.
+.. warning::
+
+    The legacy APIs documented in this section are provided for
+    backwards-compatibility, but support for new CKAN features will not be
+    added to these APIs.
 
 
 API Versions
