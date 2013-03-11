@@ -29,3 +29,4 @@ Jinja2==2.6
 fanstatic==0.12
 requests==1.1.0
 WebTest==1.4.3
+dateutils==0.6.5
