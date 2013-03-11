@@ -10,11 +10,11 @@ calls the CKAN API.  For example, using the CKAN API your app can:
 
 * Get JSON-formatted lists of a site's datasets, groups or other CKAN objects:
 
-  http://demo.ckan.org/api/3/action/package_list?foo
+  http://demo.ckan.org/api/3/action/package_list
 
-  http://demo.ckan.org/api/3/action/group_list?foo
+  http://demo.ckan.org/api/3/action/group_list
 
-  http://demo.ckan.org/api/3/action/tag_list?foo
+  http://demo.ckan.org/api/3/action/tag_list
 
 * Get a full JSON representation of a dataset, resource or other object:
 
@@ -34,7 +34,7 @@ calls the CKAN API.  For example, using the CKAN API your app can:
 
 * Get an activity stream of recently changed datasets on a site:
 
-  http://demo.ckan.org/api/3/action/recently_changed_packages_activity_list?foo
+  http://demo.ckan.org/api/3/action/recently_changed_packages_activity_list
 
 
 
@@ -157,20 +157,6 @@ different sites running different versions of CKAN, the result of an API
 request that doesn't specify the API version number cannot be relied on.
 
 
-Making an API Request with No Parameters
-----------------------------------------
-
-If the API function you're calling doesn't require any parameters, you still
-need to post an empty dictionary. For example, with HTTPie::
-
-    http http://demo.ckan.org/api/3/action/package_list body=''
-
-Or, in Python::
-
-    response = urllib2.urlopen(
-        'http://demo.ckan.org/api/3/action/group_list', '{}')
-
-
 Authentication and API Keys
 ---------------------------
 
@@ -208,8 +194,13 @@ GET-able API Functions
 ----------------------
 
 Functions defined in :doc:`ckan.logic.action.get` can also be called with an HTTP
-GET request.  For example, to search for datasets (packages) matching the
-search query ``spending``, on demo.ckan.org, open this URL in your browser:
+GET request.  For example, to get the list of datasets (packages) from
+demo.ckan.org, open this URL in your browser::
+
+http://demo.ckan.org/api/3/action/package_list
+
+Or, to search for datasets (packages) matching the search query ``spending``,
+on demo.ckan.org, open this URL in your browser:
 
 http://demo.ckan.org/api/3/action/package_search?q=spending
 
@@ -229,12 +220,6 @@ When an action requires a list of strings as the value of a parameter, the
 value can be sent by giving the parameter multiple times in the URL:
 
 http://demo.ckan.org/api/3/action/term_translation_show?terms=russian&terms=romantic%20novel
-
-If the action you're calling doesn't require any parameters, you still need
-to add a fake parameter to the URL. For example to get a list of all
-datasets on demo.ckan.org:
-
-http://demo.ckan.org/api/3/action/package_list?foo
 
 
 JSONP Support
