@@ -10,7 +10,7 @@ from urlparse import urljoin
 from pylons.i18n.translation import _
 from pylons import config, g
 from ckan import model, __version__
-from ckan.lib.helpers import url_for
+import ckan.lib.helpers as h
 import paste.deploy.converters
 
 log = logging.getLogger(__name__)
@@ -115,7 +115,7 @@ def create_reset_key(user):
 
 def get_reset_link(user):
     return urljoin(g.site_url,
-                   url_for(controller='user',
+                   h.url_for(controller='user',
                            action='perform_reset',
                            id=user.id,
                            key=user.reset_key))
