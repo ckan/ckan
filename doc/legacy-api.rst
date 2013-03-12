@@ -1,40 +1,46 @@
-============================
-API Details - Versions 1 & 2
-============================
+===========
+Legacy APIs
+===========
 
-The CKAN API version 1 & 2 is separated into three parts.
+.. warning::
 
-* `Model API`_
-* `Search API`_
+    The legacy APIs documented in this section are provided for
+    backwards-compatibility, but support for new CKAN features will not be
+    added to these APIs.
 
-The resources, methods, and data formats of each are described below.
 
-Versions 1 & 2
-~~~~~~~~~~~~~~
+API Versions
+~~~~~~~~~~~~
 
-These are very similar, but when the API returns a reference to an object, Version 1 API will return the Name of the object (e.g. "river-pollution") and Version 2 API will return the ID of the object (e.g. "a3dd8f64-9078-4f04-845c-e3f047125028").
+There are two versions of the legacy APIs. When the API returns a reference to
+an object, version 1 of the API will return the name of the object (e.g.
+``"river-pollution"``), whereas version 2 will return the ID of the object
+(e.g.  ``"a3dd8f64-9078-4f04-845c-e3f047125028"``). Tag objects are an
+exception, tag names are immutable so tags are always referred to with their
+name.
 
-The reason for this is that Names can change, so to reliably refer to the same dataset every time, you will want to use the ID and therefore use API v2. Alternatively, many people prefer to deal with Names, so API v1 suits them.
+You can specify which version of the API to use in the URL. For example,
+opening this URL in your web browser will list demo.ckan.org's datasets using
+API version 1:
 
-When making requests, you can call objects by either their Name or ID, interchangeably.
+http://demo.ckan.org/api/1/rest/dataset
 
-The only exception for this is for Tag objects. Since Tag names are immutable, they are always referred to with their Name.
+Opening this URL calls the same function using API version 2:
 
-Locators
-~~~~~~~~
+http://demo.ckan.org/api/2/rest/dataset
 
-The locator for a given resource can be formed by appending
-the relative path for that resource to the API locator.
+If no version number is given in the URL then the API defaults to version 1, so
+this URL will list the site's datasets using API version 1:
 
-  ``Resource Locator = API Locator + Resource Path``
+http://demo.ckan.org/api/rest/dataset
 
-The API locators for the CKAN APIs (by version) are:
+Dataset names can change, so to reliably refer to the same dataset over time,
+you will want to use the dataset's ID and therefore use API v2. Alternatively,
+many people prefer to deal with Names, so API v1 suits them.
 
- * ``/api`` (version 1)
- * ``/api/1`` (version 1)
- * ``/api/2`` (version 2)
+When posting parameters with your API requests, you can refer to objects by
+either their name or ID, interchangeably.
 
-The relative paths for each resource are listed in the sections below.
 
 Model API
 ~~~~~~~~~
@@ -411,6 +417,136 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 | since_id              | Uuid          | since_id=6c9f32ef-1f93-4b2f-891b-fd01924ebe08       | The stated id will not be        |
 |                       |               |                                                     | included in the results.         |
 +-----------------------+---------------+-----------------------------------------------------+----------------------------------+
+
+
+Util API
+~~~~~~~~
+
+The Util API provides various utility APIs -- e.g. auto-completion APIs used by
+front-end javascript.
+
+All Util APIs are read-only. The response format is JSON. Javascript calls may
+want to use the JSONP formatting.
+
+.. Note::
+
+  Some CKAN deployments have the API deployed at a different domain to the main CKAN website. To make sure that the AJAX calls in the Web UI work, you'll need to configue the ckan.api_url. e.g.::
+
+    ckan.api_url = http://api.example.com/
+
+
+dataset autocomplete
+````````````````````
+
+There an autocomplete API for package names which matches on name or title.
+
+This URL:
+
+::
+
+    /api/2/util/dataset/autocomplete?incomplete=a%20novel
+
+Returns:
+
+::
+
+    {"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}
+
+
+tag autocomplete
+````````````````
+
+There is also an autocomplete API for tags which looks like this:
+
+This URL:
+
+::
+
+    /api/2/util/tag/autocomplete?incomplete=ru
+
+Returns:
+
+::
+
+    {"ResultSet": {"Result": [{"Name": "russian"}]}}
+
+resource format autocomplete
+````````````````````````````
+
+Similarly, there is an autocomplete API for the resource format field
+which is available at:
+
+::
+
+    /api/2/util/resource/format_autocomplete?incomplete=cs
+
+This returns:
+
+::
+
+    {"ResultSet": {"Result": [{"Format": "csv"}]}}
+
+markdown
+````````
+
+Takes a raw markdown string and returns a corresponding chunk of HTML. CKAN uses the basic Markdown format with some modifications (for security) and useful additions (e.g. auto links to datasets etc. e.g. ``dataset:river-quality``).
+
+Example::
+
+    /api/util/markdown?q=<http://ibm.com/>
+
+Returns::
+
+    "<p><a href="http://ibm.com/" target="_blank" rel="nofollow">http://ibm.com/</a>\n</p>"
+
+is slug valid
+`````````````
+
+Checks a name is valid for a new dataset (package) or group, with respect to it being used already.
+
+Example::
+
+    /api/2/util/is_slug_valid?slug=river-quality&type=package
+
+Response::
+
+    {"valid": true}
+
+munge package name
+``````````````````
+
+For taking an readable identifier and munging it to ensure it is a valid dataset id. Symbols and whitespeace are converted into dashes. Example::
+
+    /api/util/dataset/munge_name?name=police%20spending%20figures%202009
+
+Returns::
+
+    "police-spending-figures-2009"
+
+munge title to package name
+```````````````````````````
+
+For taking a title of a package and munging it to a readable and valid dataset id. Symbols and whitespeace are converted into dashes, with multiple dashes collapsed. Ensures that long titles with a year at the end preserves the year should it need to be shortened. Example::
+
+    /api/util/dataset/munge_title_to_name?title=police:%20spending%20figures%202009
+
+Returns::
+
+    "police-spending-figures-2009"
+
+
+munge tag
+`````````
+
+For taking a readable word/phrase and munging it to a valid tag (name). Symbols and whitespeace are converted into dashes. Example::
+
+    /api/util/tag/munge?tag=water%20quality
+
+Returns::
+
+    "water-quality"
+
+
 
 Status Codes
 ~~~~~~~~~~~~
