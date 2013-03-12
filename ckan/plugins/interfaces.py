@@ -18,6 +18,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'IFacets',
 ]
 
 from inspect import isclass
@@ -398,18 +399,6 @@ class IPackageController(Interface):
 
         return search_results
 
-    def update_facet_titles(self, facet_titles):
-        '''
-            Update the dictionary mapping facet names to facet titles.
-
-            Example: {'facet_name': 'The title of the facet'}
-
-            Called after the search operation was performed and
-            before the search page will be displayed.
-            The titles show up on the search page.
-        '''
-        return facet_titles
-
     def before_index(self, pkg_dict):
         '''
              Extensions will receive what will be given to the solr for
@@ -775,3 +764,26 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+class IFacets(Interface):
+    ''' Allows specify which facets are displayed and also the names used.
+
+    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
+    to allow translatable dispaly names use _(...)
+    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    created each time the function is called.
+
+    The dict supplied is actually an ordered dict.
+    '''
+
+    def dataset_facets(self, facets_dict, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict

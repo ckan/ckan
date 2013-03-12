@@ -316,14 +316,6 @@ class Api3TestCase(ApiTestCase):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)
         assert 'download_url' not in msg, msg
 
-class ApiUnversionedTestCase(Api1TestCase):
-
-    api_version = ''
-    oldest_api_version = 1
-
-    def get_expected_api_version(self):
-        return self.oldest_api_version
-
 
 class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
 

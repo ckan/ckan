@@ -6,11 +6,10 @@ from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 
-from ckan import model
-from ckan.logic import get_action
 from ckan.common import json
-from common import make_connection, SearchError, SearchQueryError
-
+from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
+import ckan.logic as logic
+import ckan.model as model
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ solr_regex = re.compile(r'([\\+\-&|!(){}\[\]^"~*?:])')
 
 def escape_legacy_argument(val):
     # escape special chars \+-&|!(){}[]^"~*?:
-        return solr_regex.sub(r'\\\1', val)
+    return solr_regex.sub(r'\\\1', val)
 
 def convert_legacy_parameters_to_solr(legacy_params):
     '''API v1 and v2 allowed search params that the SOLR syntax does not
@@ -186,7 +185,7 @@ class TagSearchQuery(SearchQuery):
             'offset': options.get('offset'),
             'limit': options.get('limit')
         }
-        results = get_action('tag_search')(context, data_dict)
+        results = logic.get_action('tag_search')(context, data_dict)
 
         if not options.return_objects:
             # if options.all_fields is set, return a dict
@@ -230,7 +229,7 @@ class ResourceSearchQuery(SearchQuery):
             'limit': options.get('limit'),
             'order_by': options.get('order_by')
         }
-        results = get_action('resource_search')(context, data_dict)
+        results = logic.get_action('resource_search')(context, data_dict)
 
         if not options.return_objects:
             # if options.all_fields is set, return a dict
