@@ -20,7 +20,6 @@ label {
 label {
   cursor: pointer;
   font-size: 14px;
-  line-height: 2;
 }
 
 label:after {
@@ -30,14 +29,6 @@ label:after {
 label.radio:after,
 label.checkbox:after {
   content: "";
-}
-
-input,
-textarea,
-select,
-.uneditable-input {
-  font-size: 14px;
-  padding: 8px 10px;
 }
 
 input[type=radio],
@@ -52,7 +43,6 @@ input[type=checkbox] {
 }
 
 select {
-  margin-top: 6px;
   padding: 4px;
 }
 
@@ -81,7 +71,8 @@ textarea {
 
 .control-large input,
 .control-large .control-label {
-  font-size: 18px;
+  font-size: @baseFontSize * 1.25;
+  line-height: @baseLineHeight * 1.5;
 }
 
 .form-actions {
@@ -110,18 +101,6 @@ textarea {
 // Override the default form widths.
 .form-horizontal .control-label {
   width: 120px;
-  line-height: 1.3;
-  padding-top: 9px;
-}
-
-.form-horizontal .control-large input,
-.form-horizontal .control-large .control-label {
-  font-size: 18px;
-  line-height: 2;
-}
-
-.form-horizontal .control-large .control-label {
-  padding-top: 10px;
 }
 
 .form-horizontal .controls {
@@ -618,7 +597,7 @@ textarea {
 }
 
 .select2-container {
-  margin-top: 5px;
+  margin-top: 1px;
 }
 
 .select2-container-multi {
