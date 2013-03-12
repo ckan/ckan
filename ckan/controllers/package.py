@@ -297,13 +297,6 @@ class PackageController(BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = len(c.pkg.related)
 
-        # Add the package's activity stream (already rendered to HTML) to the
-        # template context for the package/read.html template to retrieve
-        # later.
-        c.package_activity_stream = \
-                ckan.logic.action.get.package_activity_list_html(context,
-                    {'id': c.current_package_id})
-
         PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template( package_type )
