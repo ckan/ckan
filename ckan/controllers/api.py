@@ -833,8 +833,11 @@ class ApiController(base.BaseController):
                 raise ValueError(msg)
             cls.log.debug('Retrieved request body: %r' % request.body)
             if not request_data:
-                msg = "No request body data"
-                raise ValueError(msg)
+                if not try_url_params:
+                    msg = "No request body data"
+                    raise ValueError(msg)
+                else:
+                    request_data = {}
         if request_data:
             try:
                 request_data = h.json.loads(request_data, encoding='utf8')

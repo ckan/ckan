@@ -383,3 +383,76 @@ def side_effect_free(action):
     wrapper.side_effect_free = True
 
     return wrapper
+
+
+class UnknownValidator(Exception):
+    pass
+
+
+_validators_cache = {}
+
+def clear_validators_cache():
+    _validators_cache.clear()
+
+
+def get_validator(validator):
+    '''Return a validator by name or UnknownValidator exception if the
+    validator is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param validator: name of the validator requested
+    :type validator: string
+    '''
+    if  not _validators_cache:
+        validators = _import_module_functions('ckan.lib.navl.validators')
+        _validators_cache.update(validators)
+        validators = _import_module_functions('ckan.logic.validators')
+        _validators_cache.update(validators)
+    try:
+        return _validators_cache[validator]
+    except KeyError:
+        raise UnknownValidator('Validator `%s` does not exist' % validator)
+
+
+class UnknownConverter(Exception):
+    pass
+
+
+_converters_cache = {}
+
+def clear_converters_cache():
+    _converters_cache.clear()
+
+
+def get_converter(converter):
+    '''Return a converter by name or UnknownConverter exception if the
+    converter is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param converter: name of the converter requested
+    :type converter: string
+    '''
+    if not _converters_cache:
+        converters = _import_module_functions('ckan.logic.converters')
+        _converters_cache.update(converters)
+    try:
+        return _converters_cache[converter]
+    except KeyError:
+        raise UnknownConverter('Converter `%s` does not exist' % converter)
+
+
+def _import_module_functions(module_path):
+    '''Import a module and get the functions and return them in a dict'''
+    functions_dict = {}
+    module = __import__(module_path)
+    for part in module_path.split('.')[1:]:
+        module = getattr(module, part)
+    for k, v in module.__dict__.items():
+
+        try:
+            if v.__module__ != module_path:
+                continue
+            functions_dict[k] = v
+        except AttributeError:
+            pass
+    return functions_dict
