@@ -2,7 +2,7 @@ from webob import Request, Response
 from openid.consumer import consumer
 from openid.extensions import sreg, ax
 
-import lib.helpers as h
+import ckan.lib.helpers as h
 
 # #1659 fix - logged_out_url prefixed with mount point
 def get_full_path(path, environ):

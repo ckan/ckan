@@ -27,12 +27,15 @@ from paste.deploy import loadapp
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
-from ckan.lib.helpers import _flash, url_for
-from ckan.lib.helpers import json
+import ckan.lib.helpers as h
 from ckan.logic import get_action
 from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
+from ckan.common import json
+
+# evil hack as url_for is passed out
+url_for = h.url_for
 
 __all__ = ['url_for',
            'TestController',
@@ -349,7 +352,7 @@ def regex_related(test):
     return test
 
 def clear_flash(res=None):
-    messages = _flash.pop_messages()
+    messages = h._flash.pop_messages()
 
 try:
     from nose.tools import assert_in, assert_not_in

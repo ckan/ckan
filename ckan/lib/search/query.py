@@ -6,10 +6,11 @@ from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 
+from ckan.common import json
+from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
 import ckan.logic as logic
-from ckan import model
-from ckan.lib.helpers import json
-from common import make_connection, SearchError, SearchQueryError
+import ckan.model as model
+
 log = logging.getLogger(__name__)
 
 _open_licenses = None
