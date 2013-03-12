@@ -303,7 +303,10 @@ def package_version_validator(value, context):
 
 def duplicate_extras_key(key, data, errors, context):
 
-    unflattened = unflatten(data)
+    data_no_extras = dict(data)
+    if ('extras',) in data:
+        del data_no_extras[('extras',)]
+    unflattened = unflatten(data_no_extras)
     extras = unflattened.get('extras', [])
     extras_keys = []
     for extra in extras:
