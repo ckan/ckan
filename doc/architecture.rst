@@ -54,7 +54,7 @@ interesting discussion about APIs.
 
 **All** publicly visible functions in the
 ``ckan.logic.action.{create,delete,get,update}`` namespaces will be exposed
-through the :doc:`apiv3`. **This includes functions imported** by those
+through the :doc:`api`. **This includes functions imported** by those
 modules, **as well as any helper functions** defined within those modules.  To
 prevent inadvertent exposure of non-action functions through the action api,
 care should be taken to:

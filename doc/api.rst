@@ -195,7 +195,7 @@ GET-able API Functions
 
 Functions defined in :doc:`ckan.logic.action.get` can also be called with an HTTP
 GET request.  For example, to get the list of datasets (packages) from
-demo.ckan.org, open this URL in your browser::
+demo.ckan.org, open this URL in your browser:
 
 http://demo.ckan.org/api/3/action/package_list
 
