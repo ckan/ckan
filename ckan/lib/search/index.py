@@ -157,7 +157,9 @@ class PackageSearchIndex(SearchIndex):
         # if there is an owner_org we want to add this to groups for index
         # purposes
         if pkg_dict['owner_org']:
-            pkg_dict['groups'].append(pkg_dict['organization']['name'])
+           pkg_dict['organization'] = pkg_dict['organization']['name']
+        else:
+           pkg_dict['organization'] = None
 
 
         # tracking
