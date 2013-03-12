@@ -78,6 +78,10 @@ class MockPackageControllerPlugin(SingletonPlugin):
 
     def after_delete(self, context, data_dict):
         self.calls['after_delete'] += 1
+
+        assert 'name' in data_dict
+        assert 'title' in data_dict
+
         return data_dict
 
     def after_show(self, context, data_dict):
