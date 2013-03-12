@@ -1,6 +1,9 @@
+from pylons.test import pylonsapp
+from pylons import config
+from nose import SkipTest
+import paste.fixture
 import datetime
 import logging
-logger = logging.getLogger(__name__)
 
 import ckan
 import ckan.model as model
@@ -10,10 +13,9 @@ from ckan.logic.action.update import user_update, group_update
 from ckan.logic.action.delete import package_delete
 from ckan.logic.action.get import package_list, package_show
 from ckan.lib.dictization.model_dictize import resource_list_dictize
-from pylons.test import pylonsapp
-import paste.fixture
-from ckan.lib.helpers import json
+import ckan.lib.helpers as h
 
+logger = logging.getLogger(__name__)
 
 def package_update(context, data_dict):
     # These tests call package_update directly which is really bad
@@ -82,6 +84,7 @@ def make_package(name=None):
     pkg['tags'] = [tag1, tag2]
     return pkg
 
+
 def find_new_activities(before, after):
     new_activities = []
     for activity in after:
@@ -89,10 +92,12 @@ def find_new_activities(before, after):
             new_activities.append(activity)
     return new_activities
 
-class TestActivity:
 
+class TestActivity:
     @classmethod
     def setup_class(self):
+        if not h.asbool(config.get('ckan.activity_streams_enabled', 'true')):
+            raise SkipTest('Activity streams not enabled')
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')
@@ -106,20 +111,20 @@ class TestActivity:
 
     def user_activity_stream(self, user_id):
         response = self.app.get("/api/2/rest/user/%s/activity" % user_id)
-        return json.loads(response.body)
+        return h.json.loads(response.body)
 
     def package_activity_stream(self, package_id):
         response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id)
-        return json.loads(response.body)
+        return h.json.loads(response.body)
 
     def group_activity_stream(self, group_id):
         response = self.app.get("/api/2/rest/group/%s/activity" % group_id)
-        return json.loads(response.body)
+        return h.json.loads(response.body)
 
     def recently_changed_datasets_stream(self):
         response = self.app.post(
                 '/api/action/recently_changed_packages_activity_list',
-                params=json.dumps({}),
+                params=h.json.dumps({}),
                 status=200)
         assert response.json['success'] == True
         activities = response.json['result']
@@ -128,7 +133,7 @@ class TestActivity:
     def activity_details(self, activity):
         response = self.app.get(
                 "/api/2/rest/activity/%s/details" % activity['id'])
-        return json.loads(response.body)
+        return h.json.loads(response.body)
 
     def record_details(self, user_id, package_id=None, group_id=None):
         details = {}
@@ -608,7 +613,7 @@ class TestActivity:
         before = self.record_details(user.id, package.id)
 
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         assert response.json['success'] == True
 
@@ -1557,7 +1562,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params), status=403)
+            params=h.json.dumps(params), status=403)
         assert response.json['success'] == False
 
     def test_activity_create_not_authorized(self):
@@ -1572,7 +1577,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.normal_user.apikey)},
             status=403)
         assert response.json['success'] == False
@@ -1589,7 +1594,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': 'xxxxxxxxxx'},
             status=403)
         assert response.json['success'] == False
@@ -1659,7 +1664,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1678,7 +1683,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1688,7 +1693,7 @@ class TestActivity:
 
         params['user_id'] = None
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1707,7 +1712,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create', 
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1726,7 +1731,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1746,7 +1751,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1757,7 +1762,7 @@ class TestActivity:
 
         params['object_id'] = None
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1777,7 +1782,7 @@ class TestActivity:
             'activity_type': 'changed package',
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1796,7 +1801,7 @@ class TestActivity:
             'object_id': self.warandpeace.id,
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1816,7 +1821,7 @@ class TestActivity:
             'activity_type': ''
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1827,7 +1832,7 @@ class TestActivity:
 
         params['activity_type'] = None
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False
@@ -1847,7 +1852,7 @@ class TestActivity:
             'activity_type': 'foobar'
         }
         response = self.app.post('/api/action/activity_create',
-            params=json.dumps(params),
+            params=h.json.dumps(params),
             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
             status=409)
         assert response.json['success'] == False

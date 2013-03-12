@@ -1,6 +1,8 @@
 import logging
+from pylons import config
 from pylons.i18n import _
 
+import ckan.lib.helpers as h
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -749,6 +751,9 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+    if not h.asbool(config.get('ckan.activity_streams_enabled', 'true')):
+        return
+
     model = context['model']
     user = context['user']
 
