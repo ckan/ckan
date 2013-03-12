@@ -1247,7 +1247,7 @@ class TestActionPackageSearch(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=postparams,
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
-        assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+        assert '"Invalid search parameters: [\'weird_param\']' in res.body, res.body
 
     def test_4_sort_by_metadata_modified(self):
         search_params = '%s=1' % json.dumps({
