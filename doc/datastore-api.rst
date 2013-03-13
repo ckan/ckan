@@ -1,46 +1,26 @@
-======================
-The DataStore Data API
-======================
+=================
+The DataStore API
+=================
 
-The following provides an introduction to using the CKAN :doc:`DataStore<datastore>` Data API.
+The DataStore API allows tabular data to be stored inside CKAN quickly and
+easily. Each resource in a CKAN instance can have an associated DataStore
+table. The API for using the DataStore is outlined below.
 
-The DataStore's Data API, which derives from the underlying data table, is JSON-based with extensive query capabilities.
+Making a DataStore API Request
+==============================
 
-Each resource in a CKAN instance can have an associated DataStore 'table'. The basic API for accessing the DataStore is outlined below.
+Making a DataStore API request is the same as making an Action API request: you
+post a JSON dictionary in an HTTP POST request to an API URL, and the API also
+returns its response in a JSON dictionary. See the :ref:`action-api` for
+details.
 
-Introduction
-============
-
-The DataStore API allows tabular data to be stored inside CKAN quickly and easily. It is accessible through an interface accessible over HTTP and can be interacted with using JSON (the JavaScript Object Notation).
-
-
-Quickstart
-==========
-
-There are several endpoints into the DataStore API, they are:
-
-:meth:`~ckanext.datastore.logic.action.datastore_create`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_create``
-:meth:`~ckanext.datastore.logic.action.datastore_delete`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_delete``
-:meth:`~ckanext.datastore.logic.action.datastore_upsert`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_upsert``
-:meth:`~ckanext.datastore.logic.action.datastore_search`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search``
-:meth:`~ckanext.datastore.logic.action.datastore_search_sql`, not available in :ref:`legacy mode<legacy_mode>`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_sql``
-``datastore_search_htsql()``, see :ref:`datastore_search_htsql`
-  at ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search_htsql``
-
-To understand the differences between the three last API endpoints, see :ref:`comparison_querying`.
 
 API Reference
 =============
 
-The datastore related API actions are accessed via CKAN's :ref:`action-api`. When POSTing
-requests, parameters should be provided as JSON objects.
-
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all vaid boolean values.
+
+.. note:: The table structure of the DataStore is explained in :ref:`db_internals`.
 
 .. automodule:: ckanext.datastore.logic.action
    :members:
@@ -131,12 +111,12 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
+.. _resource_aliases:
 
-Table aliases
--------------
+Resource aliases
+----------------
 
-A resource in the DataStore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the datastore_create API endpoint. All aliases can be found in a special view called ``_table_metadata``.
-
+A resource in the DataStore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the :meth:`~ckanext.datastore.logic.action.datastore_create` API endpoint. All aliases can be found in a special view called ``_table_metadata``. See :ref:`db_internals` for full reference.
 
 .. _datastore_search_htsql:
 
@@ -157,182 +137,31 @@ The DataStore supports querying with multiple API endpoints. They are similar bu
 ==============================  ========================================================  ============================================================  =============================
 ..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
 ==============================  ========================================================  ============================================================  =============================
-**Status**                      Stable                                                    Stable                                                        Available as extension
 **Ease of use**                 Easy                                                      Complex                                                       Medium
 **Flexibility**                 Low                                                       High                                                          Medium
 **Query language**              Custom (JSON)                                             SQL                                                           HTSQL
-**Connect multiple resources**  No                                                        Yes                                                           Not yet
-**Use aliases**                 Yes                                                       Yes                                                           Yes
+**Join resources**              No                                                        Yes                                                           No
 ==============================  ========================================================  ============================================================  =============================
 
 
-Using the Data API
-==================
+.. _db_internals:
 
-Before going into detail about the API and the examples, it is useful to create a resource first so that you can store data against it in the Datastore. This can be done either through the CKAN Graphical User Interface or the API.
+Internal structure of the database
+----------------------------------
 
-Using the data API, we need to send JSON with this structure::
+The DataStore is a thin layer on top of a PostgreSQL database. Each DataStore resource belongs to a CKAN resource. The name of a table in the DataStore is always the resource id of the CKAN resource for the data.
 
-  {
-    id: Uuid,
-    name: Name-String,
-    title: String,
-    version: String,
-    url: String,
-    resources: [ { url: String, format: String, description: String, hash: String }, ...],
-    author: String,
-    author_email: String,
-    maintainer: String,
-    maintainer_email: String,
-    license_id: String,
-    tags: Tag-List,
-    notes: String,
-    extras: { Name-String: String, ... }
- }
+As explained in :ref:`resource_aliases`, a resource can have mnemonic aliases which are stored as views in the database.
 
-To the following endpoint:
+All aliases (views) and resources (tables respectively relations) of the DataStore can be found in a special view called ``_table_metadata``. To access the list, open ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search?resource_id=_table_metadata``.
 
-* Dataset Model Endpoint: ``http://{YOUR-CKAN-INSTALLATION}/api/rest/dataset``
+``_table_metadata`` has the following fields:
 
-More details about creating a resource through the Data API are available on the :ref:`CKAN API page <api>`.
-
-
-Examples
---------
-
-.. note:: There is a special view that lists all available resources from the DataStore. It can be found at the alias ``_table_metadata``.
-
-Some of the following commands require obtaining an :ref:`API Key <get-api-key>`.
-
-cURL (or Browser)
-~~~~~~~~~~~~~~~~~
-
-The following examples utilize the cURL_ command line utility. If you prefer, you you can just open the relevant urls in your browser::
-
-  # This creates a datastore
-  curl -X POST <ENDPOINT:datastore_create> -H "Authorization: <YOUR-API-KEY>" -d '{"resource_id": "<RESOURCE-ID>", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
-
-
-  #This queries a datastore
-  curl "<ENDPOINT:datastore_search>?resource_id=<RESOURCE-ID>" -H "Authorization: <YOUR-API-KEY>"
-
-.. _cURL: http://curl.haxx.se/
-
-Javascript
-~~~~~~~~~~
-
-A simple ajax (JSONP) request to the data API using jQuery::
-
-  $.ajax({
-    url: '<ENDPOINT:datastore_search>',
-    data: {'resource_id': '<RESOURCE-ID>'},
-    dataType: 'jsonp',
-    success: function(data) {
-      alert('Total results found: ' + data.result.total)
-    }
-  });
-
-The Data API supports CORs so you can also write to it (this requires the json2_ library for ``JSON.stringify``)::
-
-  Coming soon...
-
-..
-    The Data API supports CORs so you can also write to it (this requires the json2_ library for ``JSON.stringify``)::
-
-      var data = {
-        title: 'jones',
-        amount: 5.7
-      };
-      $.ajax({
-        url: {{endpoint}},
-        type: 'POST',
-        data: JSON.stringify(data),
-        success: function(data) {
-          alert('Uploaded ok')
-        }
-      });
-
-    .. _json2: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
-
-Python
-~~~~~~
-
-A Python URLLib2 datastore_create and datastore_search would look like::
-
-  #! /usr/bin/env python
-  import urllib
-  import urllib2
-  import json
-
-  auth_key = '<YOUR-API-KEY>'
-
-  # In python using urllib2 for datastore_create it is...
-
-  url = "<API-ENDPOINT>"
-
-  datastore_structure = {
-                  'resource_id': '<RESOURCE-ID>',
-                  'fields': [{"id": "a"}, {"id": "b"}],
-                  "records": [{"a": 12, "b": "abc"}, {"a": 2, "b": "zzz"}]
-                }
-  headers = {'content-type': 'application/json', 'Authorization': auth_key}
-
-  req = urllib2.Request(url + 'datastore_create', data=json.dumps(datastore_structure), headers=headers)
-  response = urllib2.urlopen(req)
-
-
-  # in python for datastore_search using urllib2....
-
-  datastore_structure = {
-      'resource_id': '<RESOURCE-ID>'
-    }
-
-  url_values = urllib.urlencode(datastore_structure)
-  req = urllib2.Request(url + 'datastore_search?' + url_values, headers=headers)
-  response = urllib2.urlopen(req)
-
-  print response.read()
-
-  print "done\n"
-
-
-Using the Python Requests_ library we can create a datastore like this::
-
- #! /usr/bin/env python
-
- import requests
- import json
-
- auth_key = '<YOUR-API-KEY>'
-
- url = '<API-ENDPOINT>'
-
- datastore_structure = {
-                         'resource_id': '<RESOURCE-ID>',
-                         'fields': [ {"id": "a"}, {"id": "b"} ],
-                         "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]
-                       }
- headers = {'content-type': 'application/json', 'Authorization': auth_key}
- r = requests.post(url + 'datastore_create', data=json.dumps(datastore_structure), headers=headers)
- print "done, and now for a quick search\n"
-
- datastore_structure = {
-                         'resource_id': '<RESOURCE-ID>'
-                       }
- headers = {'content-type': 'application/json', 'Authorization': auth_key}
- r = requests.post(url + 'datastore_search', data=json.dumps(datastore_structure), headers=headers)
-
- print r.text
-
- print "done\n"
-
-
-.. _Requests: http://docs.python-requests.org/
-
-PHP
-~~~~~~
-
-::
-
-  Coming soon...
-
+_id
+    Unique key of the relation in ``_table_metadata``.
+alias_of
+    Name of a relation that this alias point to. This field is ``null`` iff the name is not an alias.
+name
+    Contains the name of the alias if alias_of is not null. Otherwise, this is the resource id of the CKAN resource for the DataStore resource.
+oid
+    The PostgreSQL object ID of the table that belongs to name.

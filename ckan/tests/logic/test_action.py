@@ -1,5 +1,6 @@
 import re
 import json
+import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
@@ -65,6 +66,12 @@ class TestAction(WsgiAppCase):
         assert 'annakarenina' in res['result']
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
+
+        # Test GET request
+        res = json.loads(self.app.get('/api/action/package_list').body)
+        assert len(res['result']) == 2
+        assert 'warandpeace' in res['result']
+        assert 'annakarenina' in res['result']
 
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
@@ -453,6 +460,11 @@ class TestAction(WsgiAppCase):
         assert res_obj['help'].startswith(
                 "Return a list of the names of the site's groups.")
 
+        # Test GET request
+        res = self.app.get('/api/action/group_list')
+        res_obj = json.loads(res.body)
+        assert res_obj['result'] == ['david', 'roger']
+
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/group_list', params=postparams)
@@ -822,7 +834,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps('not a dict')
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
-        assert 'Request data JSON decoded to u\'not a dict\' but it needs to be a dictionary.' in res.body, res.body
+        assert "Bad request - JSON Error: Request data JSON decoded to 'not a dict' but it needs to be a dictionary." in res.body, res.body
 
     def test_31_bad_request_format_not_json(self):
         postparams = '=1'
@@ -1176,17 +1188,44 @@ class TestActionPackageSearch(WsgiAppCase):
         model.repo.rebuild_db()
 
     def test_1_basic(self):
-        postparams = '%s=1' % json.dumps({
+        params = {
                 'q':'tolstoy',
                 'facet.field': ('groups', 'tags', 'res_format', 'license'),
                 'rows': 20,
                 'start': 0,
-            })
+            }
+        postparams = '%s=1' % json.dumps(params)
         res = self.app.post('/api/action/package_search', params=postparams)
         res = json.loads(res.body)
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 1)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+        # Test GET request
+        url_params = urllib.urlencode(params)
+        res = self.app.get('/api/action/package_search?{0}'.format(url_params))
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 1)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+    def test_1_basic_no_params(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 2)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+        # Test GET request
+        res = self.app.get('/api/action/package_search')
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 2)
         assert_equal(result['results'][0]['name'], 'annakarenina')
 
     def test_2_bad_param(self):
@@ -1208,7 +1247,7 @@ class TestActionPackageSearch(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=postparams,
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
-        assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+        assert '"Invalid search parameters: [\'weird_param\']' in res.body, res.body
 
     def test_4_sort_by_metadata_modified(self):
         search_params = '%s=1' % json.dumps({

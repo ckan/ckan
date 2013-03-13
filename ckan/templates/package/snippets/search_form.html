@@ -15,13 +15,7 @@
 </form>
 <div class="results">
   <strong>
-    {% if request.params and c.page.item_count %}
-      {{ c.page.item_count }} datasets{% if c.q %} found for &#147;{{ c.q }}&#148;{% endif %}
-    {% elif request.params and c.page.item_count == 0 %}
-      Sorry no datasets found{% if c.q %} for &#147;{{ c.q }}&#148;{% endif %}
-    {% else %}
-      All datasets
-    {% endif %}
+    {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
   </strong>
   <div class="filter-list">
     {% for field in c.fields_grouped %}
@@ -37,15 +31,18 @@
         </span>
       {% endfor %}
     {% endfor %}
-    {% if request.params and c.q and c.page.item_count == 0 %}
-      <p class="extra">Try another search term,
-      browse the datasets below or <a href="{{ h.url_for(action='new', id=None) }}">add your own data</a>.</p>
-    {% endif %}
   </div>
 </div>
 
 {% if c.query_error %}
-  <p><strong>There was an error while searching.</strong> Please try again.</p>
-{% endif %}
+  <p>
+  {% trans %}
+    <strong>There was an error while searching.</strong> Please try again.
+  {% endtrans %}
+  </p>
 
-{{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
+{% else %}
+  {% if c.page.items %}
+    {{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
+  {% endif %}
+{% endif %}
