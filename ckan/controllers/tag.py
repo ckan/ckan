@@ -65,4 +65,4 @@ class TagController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Tag not found'))
 
-        return base.render('tag/read.html')
+        h.redirect_to(controller='package', action='search', tags=c.tag.get('name'))
