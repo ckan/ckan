@@ -156,7 +156,7 @@ class PackageSearchIndex(SearchIndex):
 
         # if there is an owner_org we want to add this to groups for index
         # purposes
-        if pkg_dict['owner_org']:
+        if pkg_dict['owner_org'] and pkg_dict.get('organization'):
            pkg_dict['organization'] = pkg_dict['organization']['name']
         else:
            pkg_dict['organization'] = None
