@@ -90,8 +90,9 @@
           <button type="submit"><i class="icon-search"></i> <span>{{ _('Search') }}</span></button>
         </span>
       </form>
-      {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', within_tertiary=true, extras={'id':c.group_dict.name}) }}
-      {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', within_tertiary=true, extras={'id':c.group_dict.name}) }}
+      {% for facet in c.facet_titles %}
+        {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
+      {% endfor %}
     </aside>
   </div>
   {{ c.page.pager() }}
