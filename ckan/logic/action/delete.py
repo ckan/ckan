@@ -41,6 +41,9 @@ def package_delete(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
+
+        item.after_delete(context, data_dict)
+
     entity.delete()
     model.repo.commit()
 
@@ -216,9 +219,11 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         _check_access('group_delete', context, data_dict)
 
     # organization delete will delete all datasets for that org
+    # FIXME this gets all the packages the user can see which generally will
+    # be all but this is only a fluke so we should fix this properly
     if is_org:
-        for pkg in group.active_packages().all():
-            _get_action('package_delete')(context, {id: pkg.id})
+        for pkg in group.packages(with_private=True):
+            _get_action('package_delete')(context, {'id': pkg.id})
 
     rev = model.repo.new_revision()
     rev.author = user

@@ -4,16 +4,17 @@ from nose.tools import assert_equal
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
+import ckan.lib.search as search
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
 
 class TagsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
+        search.clear()
         CreateTestData.create()
         cls.testsysadmin = model.User.by_name(u'testsysadmin')
         cls.comment = u'Comment umlaut: \xfc.'
@@ -22,6 +23,7 @@ class TagsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def teardown_class(cls):
+        search.clear()
         model.repo.rebuild_db()
 
     def test_register_get_ok(self):
@@ -55,4 +57,3 @@ class TagsTestCase(BaseModelApiTestCase):
 
 class TestTagsVersion1(Version1TestCase, TagsTestCase): pass
 class TestTagsVersion2(Version2TestCase, TagsTestCase): pass
-class TestTagsUnversioned(UnversionedTestCase, TagsTestCase): pass

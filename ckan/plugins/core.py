@@ -11,7 +11,7 @@ from pyutilib.component.core import ExtensionPoint as PluginImplementations
 from pyutilib.component.core import SingletonPlugin as _pca_SingletonPlugin
 from pyutilib.component.core import Plugin as _pca_Plugin
 
-from ckan.plugins.interfaces import IPluginObserver
+from ckan.plugins.interfaces import IPluginObserver, IGenshiStreamFilter
 
 __all__ = [
     'PluginImplementations', 'implements',
@@ -111,11 +111,17 @@ def reset():
     from pylons import config
     load_all(config)
 
+def _clear_logic_and_auth_caches():
+    import ckan.logic
+    import ckan.new_authz
+    ckan.logic.clear_actions_cache()
+    ckan.new_authz.clear_auth_functions_cache()
 
 def load(plugin):
     """
     Load a single plugin, given a plugin name, class or instance
     """
+    _clear_logic_and_auth_caches()
     observers = PluginImplementations(IPluginObserver)
     for observer_plugin in observers:
         observer_plugin.before_load(plugin)
@@ -123,6 +129,10 @@ def load(plugin):
     service.activate()
     for observer_plugin in observers:
         observer_plugin.after_load(service)
+
+    if IGenshiStreamFilter in service.__interfaces__:
+       log.warn("Plugin '%s' is using deprecated interface IGenshiStreamFilter" % plugin)
+
     return service
 
 
@@ -139,6 +149,7 @@ def unload(plugin):
     """
     Unload a single plugin, given a plugin name, class or instance
     """
+    _clear_logic_and_auth_caches()
     observers = PluginImplementations(IPluginObserver)
     service = _get_service(plugin)
     for observer_plugin in observers:

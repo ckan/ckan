@@ -9,17 +9,15 @@ from genshi.template.text import NewTextTemplate
 from paste.deploy.converters import asbool
 
 from ckan.logic import get_action, check_access
-from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import (request,
                            render,
                            BaseController,
                            model,
-                           abort, h, g, c)
+                           abort, g, c)
 from ckan.lib.base import response, redirect, gettext
 import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
-from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import (tuplize_dict,
                         clean_dict,
@@ -36,6 +34,12 @@ from home import CACHE_PARAMETERS
 
 from ckan.lib.plugins import lookup_package_plugin
 import ckan.plugins as p
+
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -227,10 +231,29 @@ class PackageController(BaseController):
                 if not asbool(config.get('ckan.search.show_all_types', 'False')):
                     fq += ' +dataset_type:dataset'
 
+            facets = OrderedDict()
+
+            default_facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+
+            for facet in g.facets:
+                if facet in default_facet_titles:
+                    facets[facet] = default_facet_titles[facet]
+                else:
+                    facets[facet] = facet
+
+            # Facet titles
+            for plugin in plugins.PluginImplementations(plugins.IFacets):
+                facets = plugin.dataset_facets(facets, package_type)
+
+            c.facet_titles = facets
+
             data_dict = {
                 'q': q,
                 'fq': fq.strip(),
-                'facet.field': g.facets,
+                'facet.field': facets.keys(),
                 'rows': limit,
                 'start': (page - 1) * limit,
                 'sort': sort_by,
@@ -259,14 +282,6 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-
-        # Facet titles
-        c.facet_titles = {'groups': _('Groups'),
-                          'tags': _('Tags'),
-                          'res_format': _('Formats'),
-                          'license': _('Licence'), }
-        for plugin in plugins.PluginImplementations(plugins.IPackageController):
-            c.facet_titles = plugin.update_facet_titles(c.facet_titles)
 
 
         maintain.deprecate_context_item(
@@ -311,8 +326,7 @@ class PackageController(BaseController):
 
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
-                   'for_view': True}
+                   'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -323,7 +337,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision_ref
             else:
                 try:
-                    date = date_str_to_datetime(revision_ref)
+                    date = h.date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
                 except TypeError, e:
                     abort(400, _('Invalid revision format: %r') % e.args)
@@ -359,7 +373,7 @@ class PackageController(BaseController):
     def comments(self, id):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True}
+                   'user': c.user or c.author}
 
         #check if package exists
         try:
@@ -396,8 +410,7 @@ class PackageController(BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'extras_as_string': True}
+                   'user': c.user or c.author}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -463,7 +476,7 @@ class PackageController(BaseController):
         package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params}
 
         # Package needs to have a organization group in the call to
@@ -478,7 +491,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
@@ -502,7 +515,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
                 'action': 'new', 'stage': stage}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
@@ -527,8 +540,7 @@ class PackageController(BaseController):
 
             context = {'model': model, 'session': model.Session,
                        'api_version': 3,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author}
 
             data['package_id'] = id
             try:
@@ -594,9 +606,7 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author}
 
             # see if we have any data that we are trying to save
             data_provided = False
@@ -660,7 +670,7 @@ class PackageController(BaseController):
         vars['pkg_name'] = id
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,}
+                   'user': c.user or c.author}
         pkg_dict = get_action('package_show')(context, {'id': id})
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
@@ -673,16 +683,16 @@ class PackageController(BaseController):
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
+
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
             data = data or clean_dict(unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-            context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
@@ -715,19 +725,22 @@ class PackageController(BaseController):
             redirect(h.url_for(controller='package', action='read', id=id))
 
         if not data:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'extras_as_string': True,}
             data = get_action('package_show')(context, {'id': id})
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
         vars['pkg_name'] = id
+
+        package_type = self._get_package_type(id)
+        self._setup_template_variables(context, {},
+                                       package_type=package_type)
+
         return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'extras_as_string': True,
+                   'user': c.user or c.author,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True}
@@ -740,7 +753,9 @@ class PackageController(BaseController):
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
             # user if there is a validation error. Use users data if there.
-            data = data or old_data
+            if data:
+                old_data.update(data)
+            data = old_data
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -753,7 +768,7 @@ class PackageController(BaseController):
                             error_summary=error_summary)
 
         c.pkg = context.get("package")
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
 
         try:
             check_access('package_update', context)
@@ -766,7 +781,7 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit'}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -794,7 +809,6 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'extras_as_string': True,
                    'schema': self._form_to_db_schema(
                                     package_type=package_type),
                    'revision_id': revision}
@@ -814,13 +828,12 @@ class PackageController(BaseController):
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def history_ajax(self, id):
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'extras_as_string': True}
+                   'user': c.user or c.author}
         data_dict = {'id': id}
         try:
             pkg_revisions = get_action('package_revision_list')(
@@ -846,7 +859,7 @@ class PackageController(BaseController):
                          'current_approved': current_approved})
 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def _get_package_type(self, id):
         """
@@ -857,7 +870,7 @@ class PackageController(BaseController):
         """
         pkg = model.Package.get(id)
         if pkg:
-            return pkg.type or 'package'
+            return pkg.type or 'dataset'
         return None
 
     def _tag_string_to_list(self, tag_string):
@@ -959,7 +972,6 @@ class PackageController(BaseController):
             data_dict = clean_dict(unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
-                context['api_version'] = 3
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
                 data_dict['tags'] = self._tag_string_to_list(
@@ -1008,10 +1020,10 @@ class PackageController(BaseController):
         if url:
             url = url.replace('<NAME>', pkgname)
         else:
-            if package_type:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
-            else:
+            if package_type is None or package_type == 'dataset':
                 url = h.url_for(controller='package', action='read', id=pkgname)
+            else:
+                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
@@ -1212,10 +1224,6 @@ class PackageController(BaseController):
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
-    def api_data(self, id=None):
-        url = h.url_for('datastore_read', id=id, qualified=True)
-        return render('package/resource_api_data.html', {'datastore_root_url': url})
-
     def follow(self, id):
         '''Start following this dataset.'''
         context = {'model': model,
@@ -1224,7 +1232,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_dataset')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -1241,7 +1251,9 @@ class PackageController(BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_dataset')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            package_dict = get_action('package_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                     or e.error_dict)
@@ -1303,7 +1315,7 @@ class PackageController(BaseController):
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
+            c.resource_json = h.json.dumps(c.resource)
 
             # double check that the resource belongs to the specified package
             if not c.resource['id'] in [r['id']
@@ -1322,7 +1334,7 @@ class PackageController(BaseController):
             abort(400, ('"state" parameter must be a valid recline '
                         'state (version %d)' % state_version))
 
-        c.recline_state = json.dumps(recline_state)
+        c.recline_state = h.json.dumps(recline_state)
 
         c.width = max(int(request.params.get('width', width)), 100)
         c.height = max(int(request.params.get('height', height)), 100)
@@ -1338,7 +1350,7 @@ class PackageController(BaseController):
         recline_state = {}
         for k, v in request.params.items():
             try:
-                v = json.loads(v)
+                v = h.json.loads(v)
             except ValueError:
                 pass
             recline_state[k] = v
@@ -1386,6 +1398,10 @@ class PackageController(BaseController):
             on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
             data_dict['resource']['on_same_domain'] = on_same_domain
 
+            # FIXME this wants to not use plugins as it is an imported name
+            # and we already import it an p should really only be in
+            # extensu=ions in my opinion also just make it look nice and be
+            # readable grrrrrr
             plugins = p.PluginImplementations(p.IResourcePreview)
             plugins_that_can_preview = [plugin for plugin in plugins
                                     if plugin.can_preview(data_dict)]
@@ -1398,7 +1414,7 @@ class PackageController(BaseController):
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, data_dict)
 
-            c.resource_json = json.dumps(c.resource)
+            c.resource_json = h.json.dumps(c.resource)
 
         except NotFound:
             abort(404, _('Resource not found'))

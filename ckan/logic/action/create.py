@@ -148,6 +148,7 @@ def package_create(context, data_dict):
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
     model.Session.flush()
+    data['id'] = pkg.id
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -158,6 +159,8 @@ def package_create(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
+
+        item.after_create(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -668,11 +671,6 @@ def organization_create(context, data_dict):
         the dataset) and optionally ``'title'`` (string, the title of the
         dataset)
     :type packages: list of dictionaries
- ##   :param groups: the groups that belong to the group, a list of dictionaries
- ##       each with key ``'name'`` (string, the id or name of the group) and
- ##       optionally ``'capacity'`` (string, the capacity in which the group is
- ##       a member of the group)
- ##   :type groups: list of dictionaries
     :param users: the users that belong to the organization, a list of dictionaries
         each with key ``'name'`` (string, the id or name of the user) and
         optionally ``'capacity'`` (string, the capacity in which the user is
@@ -1018,30 +1016,14 @@ def follow_user(context, data_dict):
     # Don't let a user follow someone she is already following.
     if model.UserFollowingUser.is_following(userobj.id,
             validated_data_dict['id']):
+        followeduserobj = model.User.get(validated_data_dict['id'])
+        name = followeduserobj.display_name
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingUser)
-
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow user',
-            }
-    activity_dict['data'] = {
-            'user': ckan.lib.dictization.table_dictize(
-                model.User.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit': True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1089,30 +1071,16 @@ def follow_dataset(context, data_dict):
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
+        # FIXME really package model should have this logic and provide
+        # 'dispaly_name' like users and groups
+        pkgobj = model.Package.get(validated_data_dict['id'])
+        name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingDataset)
-
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow dataset',
-            }
-    activity_dict['data'] = {
-            'dataset': ckan.lib.dictization.table_dictize(
-                model.Package.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit':True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1199,30 +1167,14 @@ def follow_group(context, data_dict):
     # Don't let a user follow a group she is already following.
     if model.UserFollowingGroup.is_following(userobj.id,
             validated_data_dict['id']):
+        groupobj = model.Group.get(validated_data_dict['id'])
+        name = groupobj.display_name
         message = _(
-                'You are already following {0}').format(data_dict['id'])
+                'You are already following {0}').format(name)
         raise ValidationError({'message': message}, error_summary=message)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
             model.UserFollowingGroup)
-
-    activity_dict = {
-            'user_id': userobj.id,
-            'object_id': validated_data_dict['id'],
-            'activity_type': 'follow group',
-            }
-    activity_dict['data'] = {
-            'group': ckan.lib.dictization.table_dictize(
-                model.Group.get(validated_data_dict['id']), context),
-            }
-    activity_create_context = {
-        'model': model,
-        'user': userobj,
-        'defer_commit': True,
-        'session': session
-    }
-    logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
 
     if not context.get('defer_commit'):
         model.repo.commit()

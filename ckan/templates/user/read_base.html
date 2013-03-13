@@ -11,7 +11,7 @@
 
 {% block actions_content %}
 {% if h.check_access('user_update', user) %}
-  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}</li>
+  <li>{% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn btn-primary', icon='wrench' %}</li>
 {% endif %}
 {% if c.is_myself == false %}
   <li>{{ h.follow_button('user', user.id) }}</li>
@@ -21,11 +21,14 @@
 {% block primary_content %}
   <article class="module profile">
     {% block page_header %}
-      {% snippet 'snippets/page_header.html', items=[
-          h.build_nav_icon('user_datasets', _('Datasets'), id=user.name),
-          h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name),
-          h.build_nav_icon('user_followers', _('Followers'), id=user.name),
-        ] %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          {% block page_header_tabs %}
+            {{ h.build_nav_icon('user_datasets', _('Datasets'), id=user.name) }}
+            {{ h.build_nav_icon('user_activity_stream', _('Activity Stream'), id=user.name) }}
+          {% endblock %}
+        </ul>
+      </header>
     {% endblock %}
     <section class="module-content">
       {% block primary_content_inner %}{% endblock %}
@@ -34,11 +37,11 @@
 {% endblock %}
 
 {% block secondary_content %}
-<div class="module profile-info">
+<div class="module context-info">
   <section class="module-content">
     {% block secondary_content_inner %}
-      <div class="avatar">{{ h.linked_gravatar(user.email_hash, 180) }}</div>
-      <h1 class="heading">{{ user.fullname or _('No full name provided') }}</h1>
+      <div class="image">{{ h.linked_gravatar(user.email_hash, 190) }}</div>
+      <h1 class="heading">{{ user.display_name }}</h1>
       {% if c.about_formatted %}
         {{ c.about_formatted }}
       {% else %}
@@ -53,15 +56,15 @@
       <div class="nums">
         <dl>
           <dt>{{ _('Followers') }}</dt>
-          <dd>{{ user.num_followers }}</dd>
+          <dd>{{ h.SI_number_span(user.num_followers) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ user.number_administered_packages }}</dd>
+          <dd>{{ h.SI_number_span(user.number_administered_packages) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Edits') }}</dt>
-          <dd>{{ user.number_of_edits }}</dd>
+          <dd>{{ h.SI_number_span(user.number_of_edits) }}</dd>
         </dl>
       </div>
       <div class="info">

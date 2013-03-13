@@ -1,4 +1,5 @@
 import json
+import nose
 import pprint
 
 import sqlalchemy.orm as orm
@@ -18,6 +19,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -67,6 +70,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
+        p.unload('datastore')
 
     def test_search_basic(self):
         data = {'resource_id': self.data['resource_id']}
@@ -331,6 +335,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -368,6 +374,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        p.unload('datastore')
 
     def test_search_full_text(self):
         data = {'resource_id': self.data['resource_id'],
@@ -397,7 +404,11 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
+        if not tests.is_datastore_supported():
+            raise nose.SkipTest("Datastore not supported")
+        plugin = p.load('datastore')
+        if plugin.legacy_mode:
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -441,6 +452,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
+        p.unload('datastore')
 
     def test_is_single_statement(self):
         singles = ['SELECT * FROM footable',

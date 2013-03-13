@@ -54,19 +54,43 @@ class TestGroup(object):
         assert grp in anna.get_groups()
 
     def test_3_search(self):
-        def search_results(query):
-            results = model.Group.search_by_name_or_title(query)
-            return set([group.name for group in results])
-        assert_equal(search_results('random'), set([]))
-        assert_equal(search_results('david'), set(['david']))
-        assert_equal(search_results('roger'), set(['roger']))
-        assert_equal(search_results('roger '), set(['roger']))
-        assert_equal(search_results('David'), set(['david']))
-        assert_equal(search_results('Dave'), set(['david']))
-        assert_equal(search_results('Dave\'s'), set(['david']))
-        assert_equal(search_results('Dave\'s books'), set(['david']))
-        assert_equal(search_results('Books'), set(['david', 'roger']))
+        model.repo.new_revision()
+        model.Session.add(model.Group(name=u'test_org',
+                                       title=u'Test org',
+                                       type=u'organization'
+                         ))
+        model.repo.commit_and_remove()
 
+
+        assert_equal(self._search_results('random'), set([]))
+        assert_equal(self._search_results('david'), set(['david']))
+        assert_equal(self._search_results('roger'), set(['roger']))
+        assert_equal(self._search_results('roger '), set(['roger']))
+        assert_equal(self._search_results('David'), set(['david']))
+        assert_equal(self._search_results('Dave'), set(['david']))
+        assert_equal(self._search_results('Dave\'s'), set(['david']))
+        assert_equal(self._search_results('Dave\'s books'), set(['david']))
+        assert_equal(self._search_results('Books'), set(['david', 'roger']))
+        assert_equal(self._search_results('Books', is_org=True), set([]))
+        assert_equal(self._search_results('Test', is_org=True), set(['test_org']))
+
+    def test_search_by_name_or_title_only_returns_active_groups(self):
+        model.repo.new_revision()
+
+        active_group = model.Group(name=u'active_group')
+        active_group.state = u'active'
+        inactive_group = model.Group(name=u'inactive_group')
+        inactive_group.state = u'inactive'
+        model.Session.add(active_group)
+        model.Session.add(inactive_group)
+        model.repo.commit_and_remove()
+
+        assert_equal(self._search_results('active_group'), set(['active_group']))
+        assert_equal(self._search_results('inactive_group'), set([]))
+
+    def _search_results(self, query, is_org=False):
+        results = model.Group.search_by_name_or_title(query,is_org=is_org)
+        return set([group.name for group in results])
 
 class TestGroupRevisions:
     @classmethod

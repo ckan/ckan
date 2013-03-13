@@ -41,7 +41,6 @@ class TestActivity(HtmlCheckMethods):
             'session': ckan.model.Session,
             'user': self.sysadmin_user.name,
             'allow_partial_update': True,
-            'extras_as_string': True,
             }
         user = user_create(context, user_dict)
         offset = url_for(controller='user', action='read', id=user['id'])
@@ -120,14 +119,14 @@ class TestActivity(HtmlCheckMethods):
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s started following %s' % (user['fullname'],
-                package['title']) in stripped, stripped
+                package['title']) not in stripped, stripped
 
         # Follow another user.
         follow_user(context, {'id': 'joeadmin'})
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s started following %s' % (user['fullname'],
-                'joeadmin') in stripped, stripped
+                'joeadmin') not in stripped, stripped
 
         # Create a new group.
         group = {

@@ -93,6 +93,8 @@ class CkanExtend(ext.Extension):
         template_path = parser.filename
         # find where in the search path this template is from
         index = 0
+        if not hasattr(self, 'searchpath'):
+            return node
         for searchpath in self.searchpath:
             if template_path.startswith(searchpath):
                 break
@@ -185,6 +187,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 continue
             try:
                 contents = f.read().decode(self.encoding)
+            except UnicodeDecodeError, e:
+                log.critical(
+                    'Template corruption in `%s` unicode decode errors'
+                    % filename
+                )
+                raise e
             finally:
                 f.close()
 

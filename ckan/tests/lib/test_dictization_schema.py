@@ -72,8 +72,8 @@ class TestBasicDictize:
         converted_data, errors = validate(result, default_package_schema(), self.context)
 
 
-        assert converted_data == {'extras': [{'key': u'genre', 'value': u'"romantic novel"'},
-                                            {'key': u'original media', 'value': u'"book"'}],
+        assert converted_data == {'extras': [{'key': u'genre', 'value': u'romantic novel'},
+                                            {'key': u'original media', 'value': u'book'}],
                                    'groups': [{u'name': u'david',
                                                u'title': u"Dave's books"},
                                               {u'name': u'roger',
@@ -88,12 +88,14 @@ class TestBasicDictize:
                                                 'format': u'plain text',
                                                 'hash': u'abc123',
                                                 'size_extra': u'123',
+                                                'tracking_summary': {'recent': 0, 'total': 0},
                                                 'url': u'http://www.annakarenina.com/download/x=1&y=2'},
                                                {'alt_url': u'alt345',
                                                 'description': u'Index of the novel',
                                                 'format': u'JSON',
                                                 'hash': u'def456',
                                                 'size_extra': u'345',
+                                                'tracking_summary': {'recent': 0, 'total': 0},
                                                 'url': u'http://www.annakarenina.com/index.json'}],
                                  'tags': [{'name': u'Flexible \u30a1'},
                                           {'name': u'russian'},

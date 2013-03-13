@@ -18,6 +18,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'IFacets',
 ]
 
 from inspect import isclass
@@ -204,7 +205,7 @@ class IResourcePreview(Interface):
         Return True if the extension can preview the resource. The ``data_dict``
         contains the resource and the package.
 
-        Make sure you also make sure to ckeck the ``on_same_domain`` value of the
+        Make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
         '''
@@ -335,6 +336,38 @@ class IPackageController(Interface):
     def delete(self, entity):
         pass
 
+    def after_create(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            has been created (Note that the create method will return a package
+            domain object, which may not include all fields). Also the newly
+            created package id will be added to the dict.
+        '''
+        pass
+
+    def after_update(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            has been updated (Note that the edit method will return a package
+            domain object, which may not include all fields).
+        '''
+        pass
+
+    def after_delete(self, context, pkg_dict):
+        '''
+            Extensions will receive the data dict (tipically containing
+            just the package id) after the package has been deleted.
+        '''
+        pass
+
+    def after_show(self, context, pkg_dict):
+        '''
+            Extensions will receive the validated data dict after the package
+            is ready for display (Note that the read method will return a
+            package domain object, which may not include all fields).
+        '''
+        pass
+
     def before_search(self, search_params):
         '''
             Extensions will receive a dictionary with the query parameters,
@@ -365,18 +398,6 @@ class IPackageController(Interface):
         '''
 
         return search_results
-
-    def update_facet_titles(self, facet_titles):
-        '''
-            Update the dictionary mapping facet names to facet titles.
-
-            Example: {'facet_name': 'The title of the facet'}
-
-            Called after the search operation was performed and
-            before the search page will be displayed.
-            The titles show up on the search page.
-        '''
-        return facet_titles
 
     def before_index(self, pkg_dict):
         '''
@@ -479,14 +500,28 @@ class IAuthFunctions(Interface):
 
 
 class ITemplateHelpers(Interface):
-    """
-    Allow adding extra template functions available via h variable
-    """
+    '''Add custom template helper functions.
+
+    By implementing this plugin interface plugins can provide their own
+    template helper functions, which custom templates can then access via the
+    ``h`` variable.
+
+    See ``ckanext/example_itemplatehelpers`` for an example plugin.
+
+    '''
     def get_helpers(self):
-        """
-        Should return a dict, the keys being the name of the helper
-        function and the values being the functions themselves.
-        """
+        '''Return a dict mapping names to helper functions.
+
+        The keys of the dict should be the names with which the helper
+        functions will be made available to templates, and the values should be
+        the functions themselves. For example, a dict like:
+        ``{'example_helper': example_helper}`` allows templates to access the
+        ``example_helper`` function via ``h.example_helper()``.
+
+        Function names should start with the name of the extension providing
+        the function, to prevent name clashes between extensions.
+
+        '''
 
 
 class IDatasetForm(Interface):
@@ -729,3 +764,26 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+class IFacets(Interface):
+    ''' Allows specify which facets are displayed and also the names used.
+
+    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
+    to allow translatable dispaly names use _(...)
+    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    created each time the function is called.
+
+    The dict supplied is actually an ordered dict.
+    '''
+
+    def dataset_facets(self, facets_dict, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict

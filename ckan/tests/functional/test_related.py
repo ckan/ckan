@@ -1,5 +1,7 @@
 import json
 
+from nose.tools import assert_equal, assert_raises
+
 import ckan.tests as tests
 import ckan.model as model
 import ckan.logic as logic
@@ -58,7 +60,6 @@ class TestRelatedUI(base.FunctionalTestCase):
         assert 'error' in res, res
 
 
-from nose.tools import assert_equal, assert_raises, assert_regexp_matches
 
 class TestRelated:
 
@@ -314,7 +315,7 @@ class TestRelated:
             logic.get_action('related_update')(context, result)
         except logic.NotAuthorized, e:
             # Check it's the correct authorization error
-            assert_regexp_matches(str(e), 'featured')
+            assert 'featured' in str(e)
 
     def test_non_sysadmin_can_update_related_item(self):
         '''Non-sysadmins can change related item.
