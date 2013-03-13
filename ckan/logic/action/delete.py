@@ -39,6 +39,9 @@ def package_delete(context, data_dict):
     rev.author = user
     rev.message = _(u'REST API: Delete Package: %s') % entity.name
 
+    # Pass the whole dict to extensions, not just the id
+    data_dict = model_dictize.package_dictize(entity, context)
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
 
