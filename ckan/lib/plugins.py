@@ -370,12 +370,26 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
+    def activity_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the activity stream page
+        """
+        return 'group/activity_stream.html'
+
     def admins_template(self):
         """
         Returns a string representing the location of the template to be
         rendered for the admins page
         """
         return 'group/admins.html'
+
+    def bulk_process_template(self):
+        """
+        Returns a string representing the location of the template to be
+        rendered for the bulk_process page
+        """
+        return 'group/bulk_process.html'
 
     def about_template(self):
         '''Return the path to the template for the group's 'about' page.

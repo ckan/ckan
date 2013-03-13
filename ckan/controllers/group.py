@@ -4,10 +4,11 @@ import genshi
 import datetime
 from urllib import urlencode
 
-from ckan.lib.base import BaseController, c, model, request, render, h, g
+from ckan.lib.base import BaseController, c, model, request, render, g
 from ckan.lib.base import ValidationException, abort, gettext
+import ckan.lib.base as base
 from pylons.i18n import get_lang, _
-from ckan.lib.helpers import Page
+import ckan.lib.helpers as h
 import ckan.lib.maintain as maintain
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
 from ckan.logic import NotFound, NotAuthorized, ValidationError
@@ -18,6 +19,12 @@ import ckan.lib.search as search
 import ckan.new_authz
 
 from ckan.lib.plugins import lookup_group_plugin
+import ckan.plugins as plugins
+
+try:
+    from collections import OrderedDict # 2.7
+except ImportError:
+    from sqlalchemy.util import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -61,8 +68,15 @@ class GroupController(BaseController):
     def _edit_template(self, group_type):
         return lookup_group_plugin(group_type).edit_template()
 
+    def _activity_template(self, group_type):
+        return lookup_group_plugin(group_type).activity_template()
+
     def _admins_template(self, group_type):
         return lookup_group_plugin(group_type).admins_template()
+
+    def _bulk_process_template(self, group_type):
+        return lookup_group_plugin(group_type).bulk_process_template()
+
 
     ## end hooks
     def _replace_group_org(self, string):
@@ -119,8 +133,12 @@ class GroupController(BaseController):
                    'user': c.user or c.author, 'for_view': True,
                    'with_private': False}
 
-        data_dict = {'all_fields': True}
-
+        q = c.q = request.params.get('q', '')
+        data_dict = {'all_fields': True,
+                     'q': q,}
+        sort_by = c.sort_by_selected = request.params.get('sort')
+        if sort_by:
+            data_dict['sort'] = sort_by
         try:
             self._check_access('site_read', context)
         except NotAuthorized:
@@ -134,7 +152,7 @@ class GroupController(BaseController):
 
         results = self._action('group_list')(context, data_dict)
 
-        c.page = Page(
+        c.page = h.Page(
             collection=results,
             page=request.params.get('page', 1),
             url=h.pager_url,
@@ -142,14 +160,14 @@ class GroupController(BaseController):
         )
         return render(self._index_template(group_type))
 
-    def read(self, id):
-        from ckan.lib.search import SearchError
+    def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True}
         data_dict = {'id': id}
+
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', '')
 
@@ -161,6 +179,18 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
+        self._read(id, limit)
+        return render(self._read_template(c.group_dict['type']))
+
+    def _read(self, id, limit):
+        ''' This is common code used by both read and bulk_process'''
+        group_type = self._get_group_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+
+        q = c.q = request.params.get('q', '')
         # Search within group
         q += ' groups: "%s"' % c.group_dict.get('name')
 
@@ -179,7 +209,6 @@ class GroupController(BaseController):
         # if we drop support for those then we can delete this line.
         c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
 
-        limit = 20
         try:
             page = int(request.params.get('page', 1))
         except ValueError, e:
@@ -192,8 +221,18 @@ class GroupController(BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            url = self._url_for(controller='group', action='read',
-                            id=c.group_dict.get('name'))
+            if group_type == 'organization':
+                if c.action == 'bulk_process':
+                    url = self._url_for(controller='organization',
+                                        action='bulk_process',
+                                        id=id)
+                else:
+                    url = self._url_for(controller='organization',
+                                        action='read',
+                                        id=id)
+            else:
+                url = self._url_for(controller='group', action='read',
+                                id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
@@ -238,10 +277,37 @@ class GroupController(BaseController):
                 fq = ''
                 context['ignore_capacity_check'] = True
 
+            facets = OrderedDict()
+
+            default_facet_titles = {'groups': _('Groups'),
+                              'tags': _('Tags'),
+                              'res_format': _('Formats'),
+                              'license': _('Licence'), }
+
+            for facet in g.facets:
+                if facet in default_facet_titles:
+                    facets[facet] = default_facet_titles[facet]
+                else:
+                    facets[facet] = facet
+
+            # Facet titles
+            for plugin in plugins.PluginImplementations(plugins.IFacets):
+                if self.group_type == 'organization':
+                    facets = plugin.organization_facets(
+                        facets, self.group_type, None)
+                else:
+                    facets = plugin.group_facets(
+                        facets, self.group_type, None)
+
+            if 'capacity' in facets and (self.group_type != 'organization' or not user_member_of_orgs):
+                del facets['capacity']
+
+            c.facet_titles = facets
+
             data_dict = {
                 'q': q,
                 'fq': fq,
-                'facet.field': g.facets,
+                'facet.field': facets.keys(),
                 'rows': limit,
                 'sort': sort_by,
                 'start': (page - 1) * limit,
@@ -264,10 +330,6 @@ class GroupController(BaseController):
               'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
-            c.facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
             c.search_facets_limits = {}
             for facet in c.facets.keys():
                 limit = int(request.params.get('_%s_limit' % facet, 10))
@@ -276,13 +338,70 @@ class GroupController(BaseController):
 
             c.sort_by_selected = sort_by
 
-        except SearchError, se:
+        except search.SearchError, se:
             log.error('Group search error: %r', se.args)
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        return render(self._read_template(c.group_dict['type']))
+
+
+    def bulk_process(self, id):
+        ''' Allow bulk processing of datasets for an organization.  Make
+        private/public or delete. For organization admins.'''
+
+        group_type = self._get_group_type(id.split('@')[0])
+
+        if group_type  != 'organization':
+            # FIXME: better error
+            raise Exception('Must be an organization')
+
+        # check we are org admin
+
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author,
+                   'schema': self._db_to_form_schema(group_type=group_type),
+                   'for_view': True, 'extras_as_string': True}
+        data_dict = {'id': id}
+
+        try:
+            c.group_dict = self._action('group_show')(context, data_dict)
+            c.group = context['group']
+        except NotFound:
+            abort(404, _('Group not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read group %s') % id)
+
+        # Search within group
+        action = request.params.get('bulk_action')
+        # If no action then just show the datasets
+        if not action:
+            # unicode format (decoded from utf8)
+            limit = 500
+            self._read(id, limit)
+            c.packages = c.page.items
+            return render(self._bulk_process_template(group_type))
+
+        # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
+        datasets = []
+        for param in request.params:
+            if param.startswith('dataset_'):
+                datasets.append(param[8:])
+
+        action_functions = {
+            'private': 'bulk_update_private',
+            'public': 'bulk_update_public',
+            'delete': 'bulk_update_delete',
+        }
+
+        data_dict = {'datasets': datasets, 'org_id': c.group_dict['id']}
+
+        try:
+            get_action(action_functions[action])(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Not authorized to perform bulk update'))
+        base.redirect(h.url_for(controller='organization', action='bulk_process',
+                           id=id))
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
@@ -635,7 +754,8 @@ class GroupController(BaseController):
         c.group_activity_stream = get_action('group_activity_list_html')(
                 context, {'id': c.group_dict['id'], 'offset': offset})
 
-        return render('group/activity_stream.html')
+        #return render('group/activity_stream.html')
+        return render(self._activity_template(c.group_dict['type']))
 
     def follow(self, id):
         '''Start following this group.'''

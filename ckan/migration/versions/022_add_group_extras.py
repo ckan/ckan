@@ -5,7 +5,8 @@ import vdm.sqlalchemy
 import uuid
 from sqlalchemy import types
 
-from ckan.lib.helpers import json
+from ckan.common import json
+
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
     '''

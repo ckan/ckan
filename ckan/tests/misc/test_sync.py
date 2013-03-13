@@ -8,7 +8,7 @@ from pylons import config
 import ckan.model as model
 from ckan.tests import *
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
+from ckan.common import json
 
 instance_dir = config['here']
 

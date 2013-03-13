@@ -40,6 +40,9 @@ class OrganizationController(group.GroupController):
     def _admins_template(self, group_type):
         return 'organization/admins.html'
 
+    def _bulk_process_template(self, group_type):
+        return 'organization/bulk_process.html'
+
     def _read_template(self, group_type):
         return 'organization/read.html'
 
@@ -48,6 +51,9 @@ class OrganizationController(group.GroupController):
 
     def _edit_template(self, group_type):
         return 'organization/edit.html'
+
+    def _activity_template(self, group_type):
+        return 'organization/activity_stream.html'
 
     def _guess_group_type(self, expecting_name=False):
         return 'organization'
