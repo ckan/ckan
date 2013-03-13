@@ -84,9 +84,10 @@
       {% endif %}
     </div>
     <aside class="tertiary">
-    {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}
-      {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', within_tertiary=true, extras={'id':c.group_dict.name}) }}
-      {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', within_tertiary=true, extras={'id':c.group_dict.name}) }}
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}
+      {% for facet in c.facet_titles %}
+        {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
+      {% endfor %}
     </aside>
   </div>
   {{ c.page.pager() }}
