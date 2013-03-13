@@ -1,7 +1,8 @@
-<form class="dataset-search clearfix" method="GET" data-module="select-switch">
-  <span class="control-group search-giant">
+{% set input_class = input_class or 'search-giant' %}
+<form class="dataset-search {{ wrap_class }}" method="GET" data-module="select-switch">
+  <span class="control-group {{ input_class }}">
     <input type="text" class="search" name="q" value="{{ q }}" autocomplete="off" placeholder="{{ placeholder }}" />
-    <button type="submit">{{ _('Search') }}</button>
+    <button type="submit"><i class="icon-search"></i> <span>{{ _('Search') }}</span></button>
   </span>
   <span class="form-select control-group control-order-by">
     <label for="field-order-by">{{ _('Order by') }}</label>
