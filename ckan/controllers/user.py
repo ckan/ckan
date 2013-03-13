@@ -80,6 +80,9 @@ class UserController(base.BaseController):
     def _get_repoze_handler(self, handler_name):
         '''Returns the URL that repoze.who will respond to and perform a
         login or logout.'''
+        # FIXME this shouldn't be here
+        # FIXME we need to deal with the aborts properly
+        abort(401, _('Not authorized to see this page'))
         return getattr(request.environ['repoze.who.plugins']['friendlyform'],
                        handler_name)
 
@@ -179,6 +182,8 @@ class UserController(base.BaseController):
                 logic.tuplize_dict(logic.parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             captcha.check_recaptcha(request)
+            if c.saml2user:
+                data_dict['openid'] = c.saml2user
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to create user %s') % '')
@@ -297,6 +302,10 @@ class UserController(base.BaseController):
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
+        if c.saml2user:
+            return h.redirect_to(controller='user',
+                                 action='me')
+
         if request.environ['SCRIPT_NAME'] and g.openid_enabled:
             # #1662 restriction
             log.warn('Cannot mount CKAN at a URL and login with OpenID.')
@@ -352,7 +361,27 @@ class UserController(base.BaseController):
         # save our language in the session so we don't lose it
         session['lang'] = request.environ.get('CKAN_LANG')
         session.save()
+        if c.saml2user:
+            h.redirect_to('/slo')
         h.redirect_to(self._get_repoze_handler('logout_handler_path'))
+
+    def slo(self):
+        environ = request.environ
+        # so here I might get either a LogoutResponse or a LogoutRequest
+        client = environ['repoze.who.plugins']['saml2auth']
+        sids = None
+        if 'QUERY_STRING' in environ:
+            try:
+                res = client.saml_client.logout_request_response(
+                                                    request.GET['SAMLResponse'][0],
+                                                    binding=BINDING_HTTP_REDIRECT)
+            except KeyError:
+                # return error reply
+                pass
+
+        if not sids:
+            response.delete_cookie('auth_tkt')
+            h.redirect_to(controller='user', action='logged_out')
 
     def set_lang(self, lang):
         # this allows us to set the lang in session.  Used for logging
