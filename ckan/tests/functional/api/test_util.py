@@ -4,7 +4,7 @@ from ckan import model, __version__
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
-from ckan.lib.helpers import json
+from ckan.common import json
 
 class TestUtil(ControllerTestCase):
     @classmethod

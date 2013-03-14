@@ -1,5 +1,6 @@
 import re
 import json
+import urllib
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
@@ -65,6 +66,12 @@ class TestAction(WsgiAppCase):
         assert 'annakarenina' in res['result']
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
+
+        # Test GET request
+        res = json.loads(self.app.get('/api/action/package_list').body)
+        assert len(res['result']) == 2
+        assert 'warandpeace' in res['result']
+        assert 'annakarenina' in res['result']
 
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
@@ -171,6 +178,60 @@ class TestAction(WsgiAppCase):
         package_created.pop('metadata_created')
         package_created.pop('metadata_modified')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
+
+    def test_03_create_private_package(self):
+
+        def _do_request(package_dict):
+            postparams = '%s=1' % json.dumps(package_dict)
+            res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+            package_created = json.loads(res.body)['result']
+            return package_created
+
+        # Create a dataset without specifying visibility
+        package_dict = {
+            'extras': [{'key': u'original media','value': u'"book"'}],
+            'license_id': u'other-open',
+            'maintainer_email': None,
+            'name': u'annakarenina_vis',
+            'notes': u'Some test now',
+            'resources': [{'alt_url': u'alt123',
+                           'description': u'Full text.',
+                           'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                           'format': u'plain text',
+                           'hash': u'abc123',
+                           'position': 0,
+                           'url': u'http://www.annakarenina.com/download/'},
+                          {'alt_url': u'alt345',
+                           'description': u'Index of the novel',
+                           'extras': {u'alt_url': u'alt345', u'size': u'345'},
+                           'format': u'JSON',
+                           'hash': u'def456',
+                           'position': 1,
+                           'url': u'http://www.annakarenina.com/index.json'}],
+            'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+            'version': u'0.7a',
+        }
+
+        package_created = _do_request(package_dict)
+        assert package_created['private'] is False
+
+        # Create a new one, explicitly saying it is public
+        package_dict['name'] = u'annakareninanew_vis_public'
+        package_dict['private'] = False
+
+        package_created_public = _do_request(package_dict)
+        assert package_created_public['private'] is False
+
+        # Create a new one, explicitly saying it is private
+        package_dict['name'] = u'annakareninanew_vis_private'
+        package_dict['private'] = True
+
+        package_created_private = _do_request(package_dict)
+        assert package_created_private['private'] is True
+
 
     def test_18_create_package_not_authorized(self):
         # I cannot understand the logic on this one we seem to be user
@@ -452,6 +513,11 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is True
         assert res_obj['help'].startswith(
                 "Return a list of the names of the site's groups.")
+
+        # Test GET request
+        res = self.app.get('/api/action/group_list')
+        res_obj = json.loads(res.body)
+        assert res_obj['result'] == ['david', 'roger']
 
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
@@ -822,7 +888,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps('not a dict')
         res = self.app.post('/api/action/package_list', params=postparams,
                             status=400)
-        assert 'Request data JSON decoded to u\'not a dict\' but it needs to be a dictionary.' in res.body, res.body
+        assert "Bad request - JSON Error: Request data JSON decoded to 'not a dict' but it needs to be a dictionary." in res.body, res.body
 
     def test_31_bad_request_format_not_json(self):
         postparams = '=1'
@@ -1176,17 +1242,44 @@ class TestActionPackageSearch(WsgiAppCase):
         model.repo.rebuild_db()
 
     def test_1_basic(self):
-        postparams = '%s=1' % json.dumps({
+        params = {
                 'q':'tolstoy',
                 'facet.field': ('groups', 'tags', 'res_format', 'license'),
                 'rows': 20,
                 'start': 0,
-            })
+            }
+        postparams = '%s=1' % json.dumps(params)
         res = self.app.post('/api/action/package_search', params=postparams)
         res = json.loads(res.body)
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 1)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+        # Test GET request
+        url_params = urllib.urlencode(params)
+        res = self.app.get('/api/action/package_search?{0}'.format(url_params))
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 1)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+    def test_1_basic_no_params(self):
+        postparams = '%s=1' % json.dumps({})
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 2)
+        assert_equal(result['results'][0]['name'], 'annakarenina')
+
+        # Test GET request
+        res = self.app.get('/api/action/package_search')
+        res = json.loads(res.body)
+        result = res['result']
+        assert_equal(res['success'], True)
+        assert_equal(result['count'], 2)
         assert_equal(result['results'][0]['name'], 'annakarenina')
 
     def test_2_bad_param(self):
@@ -1208,7 +1301,7 @@ class TestActionPackageSearch(WsgiAppCase):
         res = self.app.post('/api/action/package_search', params=postparams,
                             status=400)
         assert '"message": "Search Query is invalid:' in res.body, res.body
-        assert '"Invalid search parameters: [u\'weird_param\']' in res.body, res.body
+        assert '"Invalid search parameters: [\'weird_param\']' in res.body, res.body
 
     def test_4_sort_by_metadata_modified(self):
         search_params = '%s=1' % json.dumps({
