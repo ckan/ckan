@@ -4,7 +4,7 @@
 
 {% block primary_content_inner %}
   <div class="module-content">
-      {% link_for _('Add member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
+    {% link_for _('Add Member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
     <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
     <table class="table table-header table-hover table-bordered">
       <col width="70" />
