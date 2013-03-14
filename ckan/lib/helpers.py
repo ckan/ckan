@@ -536,7 +536,7 @@ def _search_url(params):
     return _url_with_params(url, params)
 
 
-def sorted_extras(package_extras, auto_clean=False, subs=None):
+def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
     ''' Used for outputting package extras
 
     :param package_extras: the package extras
@@ -545,14 +545,19 @@ def sorted_extras(package_extras, auto_clean=False, subs=None):
     :type auto_clean: bool
     :param subs: substitutes to use instead of given keys
     :type subs: dict {'key': 'replacement'}
+    :param exclude: keys to exclude
+    :type exclude: list of strings
     '''
 
+    # If exclude is not supplied use values defined in the config
+    if not exclude:
+        exclude = g.package_hide_extras
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
-        if k in g.package_hide_extras:
+        if k in exclude:
             continue
         if subs and k in subs:
             k = subs[k]
