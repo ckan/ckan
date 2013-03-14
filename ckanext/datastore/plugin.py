@@ -24,6 +24,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IRoutes, inherit=True)
 
     legacy_mode = False
 
@@ -219,3 +220,10 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search}
+
+    def before_map(self, m):
+        print "Load mapping"
+        m.connect('/datastore/dump/{resource_id}',
+                  controller='ckanext.datastore.controller:DatastoreController',
+                  action='dump')
+        return m
