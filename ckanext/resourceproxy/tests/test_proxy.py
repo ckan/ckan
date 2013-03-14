@@ -23,7 +23,28 @@ JSON_STRING = json.dumps({
     "b": 42})
 
 
-class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
+def set_resource_url(url):
+    testpackage = model.Package.get('annakarenina')
+
+    context = {
+        'model': model,
+        'session': model.Session,
+        'user': model.User.get('testsysadmin').name
+    }
+
+    resource = logic.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
+    package = logic.get_action('package_show')(context, {'id': testpackage.id})
+
+    resource['url'] = url
+    logic.action.update.resource_update(context, resource)
+
+    testpackage = model.Package.get('annakarenina')
+    assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
+
+    return {'resource': resource, 'package': package}
+
+
+class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
     serving = False
 
@@ -44,34 +65,16 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         model.repo.rebuild_db()
         plugins.reset()
 
-    def set_resource_url(self, url):
-        testpackage = model.Package.get('annakarenina')
-
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': model.User.get('testsysadmin').name
-        }
-
-        resource = logic.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
-        package = logic.get_action('package_show')(context, {'id': testpackage.id})
-
-        resource['url'] = url
-        logic.action.update.resource_update(context, resource)
-
-        testpackage = model.Package.get('annakarenina')
-        assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
-
-        self.data_dict = {'resource': resource, 'package': package}
+    def setUp(self):
+        self.url = 'http://www.ckan.org/static/example.json'
+        self.data_dict = set_resource_url(self.url)
 
     @httpretty.httprettified
     def test_resource_proxy_on_200(self):
-        url = 'http://www.ckan.org/static/test.json'
         httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, url,
+            httpretty.HTTPretty.GET, self.url,
             content_type='application/json',
             body=JSON_STRING)
-        self.set_resource_url(url)
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
@@ -80,13 +83,11 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @httpretty.httprettified
     def test_resource_proxy_on_404(self):
-        url = 'http://www.ckan.org/static/test.json'
         httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, url,
+            httpretty.HTTPretty.GET, self.url,
             body="I'm not here",
             content_type='application/json',
             status=404)
-        self.set_resource_url(url)
 
         url = self.data_dict['resource']['url']
         result = requests.get(url)
@@ -98,12 +99,10 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @httpretty.httprettified
     def test_large_file(self):
-        url = 'http://www.ckan.org/static/huge.json'
         httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, url,
+            httpretty.HTTPretty.GET, self.url,
             content_length=controller.MAX_FILE_SIZE + 1,
             body=JSON_STRING)
-        self.set_resource_url(url)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
@@ -111,7 +110,7 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
         assert 'too large' in result.body, result.body
 
     def test_resource_proxy_non_existent(self):
-        self.set_resource_url('http://foo.bar')
+        set_resource_url('http://foo.bar')
 
         def f1():
             url = self.data_dict['resource']['url']
