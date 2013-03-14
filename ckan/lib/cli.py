@@ -730,6 +730,332 @@ class UserCmd(CkanCommand):
         model.repo.commit_and_remove()
         print('Deleted user: %s' % username)
 
+class GroupCmd(CkanCommand):
+    '''Manage groups within CKAN
+
+    Usage:
+
+        Info for groups:
+            group list
+            group <group-name>   - shows properties for the group
+            group search <query> - Finds groups whose name matches the query
+
+        Adding
+            If the group already exists but is marked deleted, you
+            should specify force=true at the end of the command
+
+            group add <group-name> "<description>" <type> [force=true]
+
+            You can add a user to a group using the following where role
+            is either 'editor' or 'admin' :
+
+            group adduser <group-name> <username> <role>
+
+        Removing
+            Removes the named group by setting its state to deleted
+
+            group remove <group-name>
+
+            To really remove a group (by deleting it entirely) you should
+            use, but be careful as there is no check and no undo.
+
+            group purge <group-name>
+
+            You can remove a user from a group with:
+
+            group removeuser <group-name> <username>
+    '''
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    max_args = 5
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        import ckan.model as model
+
+        if not self.args:
+            print self.usage
+        else:
+            cmd = self.args[0].lower()
+            if cmd == 'add':
+                self.add()
+            if cmd == 'adduser':
+                self.add_user()
+            elif cmd == 'remove':
+                self.remove()
+            elif cmd == 'removeuser':
+                self.remove_user()
+            elif cmd == 'search':
+                self.search()
+            elif cmd == 'list':
+                self.list()
+            elif cmd == 'show':
+                self.show()
+            elif cmd == 'purge':
+                self.purge()
+
+    def get_group_str(self, group):
+        return "title={0}, name={1}, type={2}, state={3}".format(group.title,group.name,
+            group.type,group.state)
+
+    def purge(self):
+        from ckan import plugins
+        import ckan.model as model
+
+        groupname = self.args[1]
+        group = model.Group.by_name(groupname)
+        if not group:
+            print "Cannot find the group '{g}'".format(g=groupname)
+            return
+
+        members = model.Session.query(model.Member).filter(model.Member.group_id==group.id).\
+            filter(model.Member.state=='active').filter(model.Member.table_name=='package')
+        if members.count() > 0:
+            model.repo.new_revision()
+            for m in members.all():
+                m.delete()
+            model.repo.commit_and_remove()
+
+        plugins.load('synchronous_search')
+        rev = model.repo.new_revision()
+        group.purge()
+        model.repo.commit_and_remove()
+        print '%s purged' % groupname
+
+
+    def list(self):
+        """ Lists all groups, regardless of state """
+
+        import ckan.model as model
+
+        print 'Groups:'
+        groups = model.Session.query(model.Group)
+        print 'count = %i' % groups.count()
+        for group in groups:
+            print self.get_group_str(group)
+
+    def _display_group(self, group):
+        """ Displays some useful information about the group """
+
+        import ckan.model as model
+
+        print '*' * 40, "info"
+        print "Title:       {title}".format(title=group.title)
+        print "Type:        {type}".format(type=group.type or "default")
+        print "Name:        {name}".format(name=group.name)
+        print "Description: {desc}".format(desc=group.description)
+        print "Image URL:   {u}".format(u=group.image_url)
+        print "Status:      {s}".format(s=group.state)
+
+        print '*' * 40, "stats"
+        admin_count = group.members_of_type(model.User, 'admin').count()
+        print "Admins: {uc}".format(uc=admin_count)
+        if admin_count:
+            print "    -> ",
+            print ', '.join(u.name for u in group.members_of_type(model.User, 'admin').all())
+
+        editor_count = group.members_of_type(model.User, 'editor').count()
+        print "Editors: {uc}".format(uc=editor_count)
+        if editor_count:
+            print "    -> ",
+            print ', '.join(u.name for u in group.members_of_type(model.User, 'editor').all())
+
+        print "Dataset count: {dc}".format(dc=group.members_of_type(model.Package).count())
+
+
+    def show(self):
+        """ Shows information about a single group """
+        import ckan.model as model
+
+        if len(self.args) < 2:
+            print "Please specify the groupname"
+            print self.usage
+            return
+
+        groupname = self.args[1]
+        group = model.Group.by_name(groupname)
+        if group:
+            self._display_group(group)
+        else:
+            print "Group {g} not found".format(g=groupname)
+
+
+    def search(self):
+        """ Finds a group based on the supplied name and an ilike lookup """
+        import ckan.model as model
+
+        if len(self.args) < 2:
+            print 'Need group name query string.'
+            print self.usage
+            return
+        query_str = self.args[1].lower()
+
+        query = model.Session.query(model.Group).\
+            filter(model.Group.title.ilike('%%%s%%' % query_str))
+
+        print '%i groups matching %r:' % (query.count(), query_str)
+        for group in query.all():
+            print self.get_group_str(group)
+
+    def add_user(self):
+        """ Adds a user to the group with the specific role (capacity) """
+        import ckan.model as model
+        # group adduser <groupname> <username> <role>
+
+        if len(self.args) != 4:
+            print "You must specify the groupname and the username as well as the role"
+            print self.usage
+            return
+
+        groupname, username, role = self.args[1:]
+
+        group = model.Group.by_name(unicode(groupname))
+        if not group:
+            print "Could not find group '{name}'".format(name=groupname)
+            return
+
+        user = model.User.by_name(unicode(username))
+        if not user:
+            print "Could not find user '{name}'".format(name=username)
+            return
+
+        if not role in ['editor', 'admin']:
+            print "Role can only be 'editor', or 'admin'"
+            return
+
+        model.repo.new_revision()
+
+        # If the user is already a member of this group, then change the capacity
+        # and update the membership.
+        members = model.Session.query(model.Member).filter(model.Member.group_id==group.id).\
+            filter(model.Member.state=='active').filter(model.Member.table_name=='user').\
+            filter(model.Member.table_id==user.id)
+        if members.count() > 0:
+            print "User {u} is already a member of {g}, checking capacity".\
+                format(u=username, g=groupname)
+            m = members[0]
+            m.capacity = role
+            model.Session.add(m)
+            model.repo.commit_and_remove()
+            self._display_group(group)
+            return
+
+        member = model.Member(group=group, table_name='user', table_id=user.id, capacity=role)
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
+        # Show the group so that we can see the change.
+        self._display_group(group)
+
+
+    def add(self):
+        """ Adds a new group, and provides a means to change the state if
+            the group already exists """
+        import ckan.model as model
+
+        # need title, type as a minimum
+        if len(self.args) < 4:
+            print 'Need name, title and type of the group'
+            print self.usage
+            return
+
+        groupname = self.args[1]
+        grouptitle = self.args[2]
+        grouptype = self.args[3]
+        force = len(self.args) == 5 and self.args[4][:5] == 'force' and self.args[4][6:] == 'true'
+
+        group = model.Group.by_name(unicode(groupname))
+        if group:
+            if group.state =='deleted' and not force:
+                print "Group %s exists, but is deleted, use 'force=true' to reinstate" % group.name
+                sys.exit(1)
+            elif group.state == 'deleted' and force:
+                print "Changing the status of the group to 'active'"
+                group.state = 'active'
+                model.repo.new_revision()
+                model.Session.add(group)
+                model.repo.commit_and_remove()
+                self._display_group(group)
+                return
+            else:
+                print 'Group "%s" already exists' % groupname
+                return
+
+        print('Creating group: %r' % groupname)
+
+        group_params = {'name': unicode(groupname),
+                        'title': grouptitle,
+                        'type': grouptype}
+        model.repo.new_revision()
+        group = model.Group(**group_params)
+        model.Session.add(group)
+        model.repo.commit_and_remove()
+        group = model.Group.by_name(unicode(groupname))
+        if not group:
+            print("Something went wrong, unable to find the group after creation")
+
+    def remove(self):
+        """ Sets the state of the named group to deleted """
+        import ckan.model as model
+
+        if len(self.args) < 2:
+            print 'Need name of the group.'
+            print self.usage
+            return
+
+        groupname = self.args[1]
+
+        rev = model.repo.new_revision()
+        group = model.Group.by_name(unicode(groupname))
+        if not group:
+            print 'Error: group "%s" not found!' % groupname
+            return
+        group.delete()
+        model.repo.commit_and_remove()
+        print('Deleted group: %s' % groupname)
+
+    def remove_user(self):
+        """ Removes a user entirely from the group """
+        import ckan.model as model
+        # group removeuser <groupname> <username>
+
+        if len(self.args) != 3:
+            print "You must specify the groupname and the username"
+            print self.usage
+            return
+
+        groupname, username = self.args[1:]
+
+        group = model.Group.by_name(unicode(groupname))
+        if not group:
+            print "Could not find group '{name}'".format(name=groupname)
+            return
+
+        user = model.User.by_name(unicode(username))
+        if not user:
+            print "Could not find user '{name}'".format(name=username)
+            return
+
+        # If the user is already a member of this group, then change the capacity
+        # and update the membership.
+        members = model.Session.query(model.Member).filter(model.Member.group_id==group.id).\
+            filter(model.Member.state=='active').filter(model.Member.table_name=='user').\
+            filter(model.Member.table_id==user.id)
+        if members.count() > 0:
+            model.repo.new_revision()
+            for m in members.all():
+                m.delete()
+            model.repo.commit_and_remove()
+            print "'{u}' has been removed from '{g}'".format(u=username, g=groupname)
+
+            # Show the group so that we can see the change.
+            self._display_group(group)
+
+        else:
+            print "'{u}' is not in the group '{g}'".format(u=username, g=groupname)
+            return
+
 
 class DatasetCmd(CkanCommand):
     '''Manage datasets
@@ -738,6 +1064,8 @@ class DatasetCmd(CkanCommand):
       dataset <dataset-name/id>          - shows dataset properties
       dataset show <dataset-name/id>     - shows dataset properties
       dataset list                       - lists datasets
+      dataset addtogroup <dataset-name/id> <groupname>   - Adds dataset to the group
+      dataset removefromgroup <dataset-name/id> <groupname>   - Removes dataset from the group
       dataset delete <dataset-name/id>   - changes dataset state to 'deleted'
       dataset purge <dataset-name/id>    - removes dataset from db entirely
     '''
@@ -762,8 +1090,69 @@ class DatasetCmd(CkanCommand):
                 self.list()
             elif cmd == 'show':
                 self.show(self.args[1])
+            elif cmd == 'addtogroup':
+                self.add_to_group(self.args[1], self.args[2])
+            elif cmd == 'removefromgroup':
+                self.remove_from_group(self.args[1], self.args[2])
             else:
                 self.show(self.args[0])
+
+    def add_to_group(self, datasetname, groupname):
+        import ckan.model as model
+
+        group = model.Group.by_name(groupname)
+        if not group:
+            print "Could not find group '{g}'".format(g=groupname)
+            return
+
+        dataset = model.Package.by_name(datasetname)
+        if not dataset:
+            print "Could not find dataset '{d}'".format(d=datasetname)
+            return
+
+        # Check if this dataset is already in the group, and bail if so.
+        members = model.Session.query(model.Member).filter(model.Member.group_id==group.id).\
+            filter(model.Member.state=='active').filter(model.Member.table_name=='package').\
+            filter(model.Member.table_id==dataset.id)
+        if members.count() > 0:
+            print "Dataset '{d}' is already in group '{g}'".format(d=datasetname, g=groupname)
+            return
+
+        print "Adding {d} to {g}".format(d=datasetname, g=groupname)
+
+        model.repo.new_revision()
+        member = model.Member(group=group, table_name='package', table_id=dataset.id, capacity='public')
+        model.Session.add(member)
+        model.repo.commit_and_remove()
+
+
+    def remove_from_group(self, datasetname, groupname):
+        import ckan.model as model
+        print "Removing {d} from {g}".format(d=datasetname, g=groupname)
+
+        group = model.Group.by_name(groupname)
+        if not group:
+            print "Could not find group '{g}'".format(g=groupname)
+            return
+
+        dataset = model.Package.by_name(datasetname)
+        if not dataset:
+            print "Could not find dataset '{d}'".format(d=datasetname)
+            return
+
+        members = model.Session.query(model.Member).filter(model.Member.group_id==group.id).\
+            filter(model.Member.state=='active').filter(model.Member.table_name=='package').\
+            filter(model.Member.table_id==dataset.id)
+        if members.count() == 0:
+            print "Dataset '{d}' is not in group '{g}'".format(d=datasetname, g=groupname)
+            return
+
+        for m in members.all():
+            model.repo.new_revision()
+            for m in members.all():
+                m.delete()
+            model.repo.commit_and_remove()
+
 
     def list(self):
         import ckan.model as model
@@ -778,7 +1167,9 @@ class DatasetCmd(CkanCommand):
     def _get_dataset(self, dataset_ref):
         import ckan.model as model
         dataset = model.Package.get(unicode(dataset_ref))
-        assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
+        if not dataset:
+            print 'Could not find dataset matching reference: %r' % dataset_ref
+            sys.exit(1)
         return dataset
 
     def show(self, dataset_ref):
