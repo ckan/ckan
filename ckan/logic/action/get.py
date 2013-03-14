@@ -480,7 +480,7 @@ def organization_list_for_user(context, data_dict):
 
     if sysadmin:
         # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
+        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -506,7 +506,7 @@ def organization_list_for_user(context, data_dict):
 
     q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name} for org in q.all()]
+    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
