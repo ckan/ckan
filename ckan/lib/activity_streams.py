@@ -82,7 +82,11 @@ def activity_stream_string_changed_user(context, activity):
     return _("{actor} updated their profile")
 
 def activity_stream_string_changed_related_item(context, activity):
-    return _("{actor} updated the {related_type} {related_item}")
+    if activity['data'].get('dataset'):
+        return _("{actor} updated the {related_type} {related_item} of the "
+                "dataset {dataset}")
+    else:
+        return _("{actor} updated the {related_type} {related_item}")
 
 def activity_stream_string_deleted_group(context, activity):
     return _("{actor} deleted the group {group}")
