@@ -147,6 +147,11 @@ def related_update(context, data_dict):
 
     related = model_save.related_dict_save(data, context)
 
+    dataset_dict = None
+    if 'package' in context:
+        dataset = context['package']
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
+
     related_dict = model_dictize.related_dictize(related, context)
     activity_dict = {
         'user_id': userobj.id,
@@ -154,7 +159,8 @@ def related_update(context, data_dict):
         'activity_type': 'changed related item',
     }
     activity_dict['data'] = {
-        'related': related_dict
+        'related': related_dict,
+        'dataset': dataset_dict,
     }
     activity_create_context = {
         'model': model,
