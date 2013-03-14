@@ -110,7 +110,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert 'too large' in result.body, result.body
 
     def test_resource_proxy_non_existent(self):
-        set_resource_url('http://foo.bar')
+        self.data_dict = set_resource_url('http://foo.bar')
 
         def f1():
             url = self.data_dict['resource']['url']
