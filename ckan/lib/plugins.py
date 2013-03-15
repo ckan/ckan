@@ -238,26 +238,6 @@ class DefaultDatasetForm(object):
     def db_to_form_schema(self):
         return logic.schema.db_to_form_package_schema()
 
-    def check_data_dict(self, data_dict, schema=None):
-        '''Check for spammers submitting only part of the form.'''
-
-        # Resources might not exist yet (eg. Add Dataset)
-        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
-                               'resources', 'type', 'owner_org', 'private',
-                               'log_message', 'tag_string', 'tags',
-                               'url', 'version', 'extras']
-
-        if not schema:
-            schema = self.form_to_db_schema()
-        schema_keys = schema.keys()
-        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-        missing_keys = keys_in_schema - set(data_dict.keys())
-        if missing_keys:
-            log.info('incorrect form fields posted, missing %s' % missing_keys)
-            raise dictization_functions.DataError(data_dict)
-
     def setup_template_variables(self, context, data_dict):
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
