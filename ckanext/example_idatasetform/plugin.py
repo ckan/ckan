@@ -129,36 +129,36 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
     def setup_template_variables(self, context, data_dict):
         ExampleIDatasetFormPlugin.num_times_setup_template_variables_called += 1
-        return tk.DefaultDatasetForm.setup_template_variables(self, context,
-                data_dict)
+        return super(ExampleIDatasetFormPlugin, self).setup_template_variables(
+                context, data_dict)
 
     def new_template(self):
         ExampleIDatasetFormPlugin.num_times_new_template_called += 1
-        return tk.DefaultDatasetForm.new_template(self)
+        return super(ExampleIDatasetFormPlugin, self).new_template()
 
     def read_template(self):
         ExampleIDatasetFormPlugin.num_times_read_template_called += 1
-        return tk.DefaultDatasetForm.read_template(self)
+        return super(ExampleIDatasetFormPlugin, self).read_template()
 
     def edit_template(self):
         ExampleIDatasetFormPlugin.num_times_edit_template_called += 1
-        return tk.DefaultDatasetForm.edit_template(self)
+        return super(ExampleIDatasetFormPlugin, self).edit_template()
 
     def comments_template(self):
         ExampleIDatasetFormPlugin.num_times_comments_template_called += 1
-        return tk.DefaultDatasetForm.comments_template(self)
+        return super(ExampleIDatasetFormPlugin, self).comments_template()
 
     def search_template(self):
         ExampleIDatasetFormPlugin.num_times_search_template_called += 1
-        return tk.DefaultDatasetForm.search_template(self)
+        return super(ExampleIDatasetFormPlugin, self).search_template()
 
     def history_template(self):
         ExampleIDatasetFormPlugin.num_times_history_template_called += 1
-        return tk.DefaultDatasetForm.history_template(self)
+        return super(ExampleIDatasetFormPlugin, self).history_template()
 
     def package_form(self):
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
-        return tk.DefaultDatasetForm.package_form(self)
+        return super(ExampleIDatasetFormPlugin, self).package_form()
 
     # check_data_dict() is deprecated, this method is only here to test that
     # legacy support for the deprecated method works.
