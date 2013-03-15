@@ -2,11 +2,10 @@ import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
-import ckan.lib.plugins as lib_plugins
 
 
 class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
-        lib_plugins.DefaultDatasetForm):
+        tk.DefaultDatasetForm):
     '''An example IDatasetForm CKAN plugin.
 
     Uses a tag vocabulary to add a custom metadata field to datasets.
@@ -128,31 +127,31 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
 
     def new_template(self):
         ExampleIDatasetFormPlugin.num_times_new_template_called += 1
-        return lib_plugins.DefaultDatasetForm.new_template(self)
+        return tk.DefaultDatasetForm.new_template(self)
 
     def read_template(self):
         ExampleIDatasetFormPlugin.num_times_read_template_called += 1
-        return lib_plugins.DefaultDatasetForm.read_template(self)
+        return tk.DefaultDatasetForm.read_template(self)
 
     def edit_template(self):
         ExampleIDatasetFormPlugin.num_times_edit_template_called += 1
-        return lib_plugins.DefaultDatasetForm.edit_template(self)
+        return tk.DefaultDatasetForm.edit_template(self)
 
     def comments_template(self):
         ExampleIDatasetFormPlugin.num_times_comments_template_called += 1
-        return lib_plugins.DefaultDatasetForm.comments_template(self)
+        return tk.DefaultDatasetForm.comments_template(self)
 
     def search_template(self):
         ExampleIDatasetFormPlugin.num_times_search_template_called += 1
-        return lib_plugins.DefaultDatasetForm.search_template(self)
+        return tk.DefaultDatasetForm.search_template(self)
 
     def history_template(self):
         ExampleIDatasetFormPlugin.num_times_history_template_called += 1
-        return lib_plugins.DefaultDatasetForm.history_template(self)
+        return tk.DefaultDatasetForm.history_template(self)
 
     def package_form(self):
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
-        return lib_plugins.DefaultDatasetForm.package_form(self)
+        return tk.DefaultDatasetForm.package_form(self)
 
     # check_data_dict() is deprecated, this method is only here to test that
     # legacy support for the deprecated method works.
