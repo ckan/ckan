@@ -61,6 +61,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_history_template_called = 0
     num_times_package_form_called = 0
     num_times_check_data_dict_called = 0
+    num_times_setup_template_variables_called = 0
 
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
@@ -125,6 +126,11 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     # TODO: It might be better to test that custom templates returned by
     # these methods are actually used, not just that the methods get
     # called.
+
+    def setup_template_variables(self, context, data_dict):
+        ExampleIDatasetFormPlugin.num_times_setup_template_variables_called += 1
+        return tk.DefaultDatasetForm.setup_template_variables(self, context,
+                data_dict)
 
     def new_template(self):
         ExampleIDatasetFormPlugin.num_times_new_template_called += 1
