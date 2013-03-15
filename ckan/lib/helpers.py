@@ -30,10 +30,6 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 import i18n
 import ckan.exceptions
-from pylons import request
-from pylons import session
-from pylons import c, g
-from pylons.i18n import _, ungettext
 
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
@@ -41,22 +37,14 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 
+from ckan.common import (
+    _, ungettext, g, c, request, session, json, OrderedDict
+)
+
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
 
 log = logging.getLogger(__name__)
-
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-_log = logging.getLogger(__name__)
 
 
 def redirect_to(*args, **kw):
@@ -548,7 +536,7 @@ def _search_url(params):
     return _url_with_params(url, params)
 
 
-def sorted_extras(package_extras, auto_clean=False, subs=None):
+def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
     ''' Used for outputting package extras
 
     :param package_extras: the package extras
@@ -557,14 +545,19 @@ def sorted_extras(package_extras, auto_clean=False, subs=None):
     :type auto_clean: bool
     :param subs: substitutes to use instead of given keys
     :type subs: dict {'key': 'replacement'}
+    :param exclude: keys to exclude
+    :type exclude: list of strings
     '''
 
+    # If exclude is not supplied use values defined in the config
+    if not exclude:
+        exclude = g.package_hide_extras
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
-        if k in g.package_hide_extras:
+        if k in exclude:
             continue
         if subs and k in subs:
             k = subs[k]
@@ -626,7 +619,7 @@ def markdown_extract(text, extract_length=190):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
     if not extract_length or len(plain) < extract_length:
-        return plain
+        return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 

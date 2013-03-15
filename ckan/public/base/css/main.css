@@ -5414,7 +5414,6 @@ label {
 label {
   cursor: pointer;
   font-size: 14px;
-  line-height: 2;
 }
 label:after {
   content: ":";
@@ -5422,13 +5421,6 @@ label:after {
 label.radio:after,
 label.checkbox:after {
   content: "";
-}
-input,
-textarea,
-select,
-.uneditable-input {
-  font-size: 14px;
-  padding: 8px 10px;
 }
 input[type=radio],
 input[type=checkbox] {
@@ -5442,7 +5434,6 @@ input[type=checkbox].checkbox-onown {
   top: 0;
 }
 select {
-  margin-top: 6px;
   padding: 4px;
 }
 textarea {
@@ -5468,7 +5459,11 @@ textarea {
 }
 .control-large input,
 .control-large .control-label {
-  font-size: 18px;
+  font-size: 17.5px;
+  line-height: 30px;
+}
+.control-large input {
+  height: 41px;
 }
 .form-actions {
   background: none;
@@ -5492,16 +5487,6 @@ textarea {
 }
 .form-horizontal .control-label {
   width: 120px;
-  line-height: 1.3;
-  padding-top: 9px;
-}
-.form-horizontal .control-large input,
-.form-horizontal .control-large .control-label {
-  font-size: 18px;
-  line-height: 2;
-}
-.form-horizontal .control-large .control-label {
-  padding-top: 10px;
 }
 .form-horizontal .controls {
   margin-left: 130px;
@@ -5965,7 +5950,7 @@ textarea {
   padding-left: 10px;
 }
 .select2-container {
-  margin-top: 5px;
+  margin-top: 1px;
 }
 .select2-container-multi {
   margin-top: 0;
@@ -6110,6 +6095,10 @@ textarea {
 .search-normal {
   position: relative;
 }
+.search-normal {
+  display: block;
+  margin-bottom: 0;
+}
 .search-giant input {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -6158,7 +6147,7 @@ textarea {
 }
 .control-order-by {
   position: absolute;
-  bottom: -65px;
+  bottom: -73px;
   right: 0;
 }
 .control-order-by label,
@@ -6167,6 +6156,29 @@ textarea {
 }
 .control-order-by select {
   width: 160px;
+}
+.search-aside .control-order-by {
+  clear: both;
+  overflow: hidden;
+  display: block;
+  position: relative;
+  bottom: 0;
+}
+.search-aside .control-order-by label {
+  float: left;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 20px;
+}
+.search-aside .control-order-by select {
+  float: left;
+  padding: 2px 4px;
+  margin: 0;
+  width: inherit;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
+  width: 120px;
 }
 .resource-list {
   margin: 0;

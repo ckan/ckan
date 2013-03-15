@@ -293,6 +293,8 @@ def package_update(context, data_dict):
 
     return_id_only = context.get('return_id_only', False)
 
+    # we could update the dataset so we should still be able to read it.
+    context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
             else _get_action('package_show')(context, {'id': data_dict['id']})
 

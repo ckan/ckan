@@ -205,7 +205,7 @@ class IResourcePreview(Interface):
         Return True if the extension can preview the resource. The ``data_dict``
         contains the resource and the package.
 
-        Make sure you also make sure to ckeck the ``on_same_domain`` value of the
+        Make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
         '''

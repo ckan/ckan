@@ -676,11 +676,6 @@ def organization_create(context, data_dict):
         the dataset) and optionally ``'title'`` (string, the title of the
         dataset)
     :type packages: list of dictionaries
- ##   :param groups: the groups that belong to the group, a list of dictionaries
- ##       each with key ``'name'`` (string, the id or name of the group) and
- ##       optionally ``'capacity'`` (string, the capacity in which the group is
- ##       a member of the group)
- ##   :type groups: list of dictionaries
     :param users: the users that belong to the organization, a list of dictionaries
         each with key ``'name'`` (string, the id or name of the user) and
         optionally ``'capacity'`` (string, the capacity in which the user is

@@ -9,17 +9,15 @@ from genshi.template.text import NewTextTemplate
 from paste.deploy.converters import asbool
 
 from ckan.logic import get_action, check_access
-from ckan.lib.helpers import date_str_to_datetime
 from ckan.lib.base import (request,
                            render,
                            BaseController,
                            model,
-                           abort, h, g, c)
+                           abort, g, c)
 from ckan.lib.base import response, redirect, gettext
 import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
-from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import (tuplize_dict,
                         clean_dict,
@@ -348,7 +346,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision_ref
             else:
                 try:
-                    date = date_str_to_datetime(revision_ref)
+                    date = h.date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
                 except TypeError, e:
                     abort(400, _('Invalid revision format: %r') % e.args)
@@ -502,7 +500,7 @@ class PackageController(BaseController):
 
         data = data or clean_dict(unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
@@ -526,7 +524,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
                 'action': 'new', 'stage': stage}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
@@ -779,7 +777,7 @@ class PackageController(BaseController):
                             error_summary=error_summary)
 
         c.pkg = context.get("package")
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
 
         try:
             check_access('package_update', context)
@@ -792,7 +790,7 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit'}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -839,7 +837,7 @@ class PackageController(BaseController):
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def history_ajax(self, id):
 
@@ -870,7 +868,7 @@ class PackageController(BaseController):
                          'current_approved': current_approved})
 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def _get_package_type(self, id):
         """
@@ -1326,7 +1324,7 @@ class PackageController(BaseController):
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
+            c.resource_json = h.json.dumps(c.resource)
 
             # double check that the resource belongs to the specified package
             if not c.resource['id'] in [r['id']
@@ -1345,7 +1343,7 @@ class PackageController(BaseController):
             abort(400, ('"state" parameter must be a valid recline '
                         'state (version %d)' % state_version))
 
-        c.recline_state = json.dumps(recline_state)
+        c.recline_state = h.json.dumps(recline_state)
 
         c.width = max(int(request.params.get('width', width)), 100)
         c.height = max(int(request.params.get('height', height)), 100)
@@ -1361,7 +1359,7 @@ class PackageController(BaseController):
         recline_state = {}
         for k, v in request.params.items():
             try:
-                v = json.loads(v)
+                v = h.json.loads(v)
             except ValueError:
                 pass
             recline_state[k] = v
@@ -1425,7 +1423,7 @@ class PackageController(BaseController):
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, data_dict)
 
-            c.resource_json = json.dumps(c.resource)
+            c.resource_json = h.json.dumps(c.resource)
 
         except NotFound:
             abort(404, _('Resource not found'))
