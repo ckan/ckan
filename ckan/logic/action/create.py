@@ -435,13 +435,14 @@ def member_create(context, data_dict=None):
             filter(model.Member.table_name == obj_type).\
             filter(model.Member.table_id == obj_id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active").first()
+            filter(model.Member.state == "active").first()
     if member:
         member.capacity = capacity
     else:
         member = model.Member(table_name = obj_type,
                               table_id = obj_id,
                               group_id = group.id,
+                              state = 'active',
                               capacity=capacity)
 
     model.Session.add(member)
