@@ -154,10 +154,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
         return lib_plugins.DefaultDatasetForm.package_form(self)
 
+    # check_data_dict() is deprecated, this method is only here to test that
+    # legacy support for the deprecated method works.
     def check_data_dict(self, data_dict, schema=None):
         ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
-        # Disable DefaultDatasetForm's check_data_dict(), because it breaks
-        # with the new three-stage dataset creation when using
-        # convert_to_extras.
-        #return lib_plugins.DefaultDatasetForm.check_data_dict(self, data_dict,
-        #        schema)

@@ -621,19 +621,6 @@ class IDatasetForm(Interface):
 
         '''
 
-    def check_data_dict(self, data_dict, schema=None):
-        '''Check if the given data_dict is correct, raise DataError if not.
-
-        This function is called when a user creates or updates a dataset.  The
-        given ``data_dict`` is the dataset submitted by the user via the
-        dataset form, before it has been validated and converted by the schema
-        returned by ``form_to_db_schema()`` above.
-
-        :raises ckan.lib.navl.dictization_functions.DataError: if the given
-          ``data_dict`` is not correct
-
-        '''
-
     def setup_template_variables(self, context, data_dict):
         '''Add variables to the template context for use in templates.
 
