@@ -53,6 +53,8 @@ then
   paster datastore set-permissions postgres -c test-core.ini
 fi
 
+cp test-core.ini development.ini
+
 
 # And finally, run the tests
 nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
