@@ -305,9 +305,11 @@ def _group_or_org_list(context, data_dict, is_org=False):
     ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
+    q = data_dict.get('q')
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
-    order_by = data_dict.get('order_by')
+    order_by = data_dict.get('order_by', '')
     if order_by:
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
@@ -329,6 +331,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.current==True)
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
+    if q:
+        q = u'%{0}%'.format(q)
+        query = query.filter(_or_(
+            model.GroupRevision.name.like(q),
+            model.GroupRevision.title.like(q),
+            model.GroupRevision.description.like(q),
+        ))
+
 
     query = query.filter(model.GroupRevision.is_organization==is_org)
 
@@ -470,7 +480,7 @@ def organization_list_for_user(context, data_dict):
 
     if sysadmin:
         # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
+        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -496,7 +506,7 @@ def organization_list_for_user(context, data_dict):
 
     q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name} for org in q.all()]
+    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -2573,19 +2583,19 @@ def group_followee_list(context, data_dict):
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
-    Unlike the activity dictionaries returned by other *_activity_list actions,
-    these activity dictionaries have an extra boolean value with key 'is_new'
-    that tells you whether the activity happened since the user last viewed her
-    dashboard ('is_new': True) or not ('is_new': False).
+    Unlike the activity dictionaries returned by other ``*_activity_list``
+    actions, these activity dictionaries have an extra boolean value with key
+    ``is_new`` that tells you whether the activity happened since the user last
+    viewed her dashboard (``'is_new': True``) or not (``'is_new': False``).
 
-    The user's own activities are always marked 'is_new': False.
+    The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        ``ckan.activity_list_limit`` setting)
 
     :rtype: list of activity dictionaries
 

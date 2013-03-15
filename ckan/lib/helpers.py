@@ -30,10 +30,6 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 import i18n
 import ckan.exceptions
-from pylons import request
-from pylons import session
-from pylons import c, g
-from pylons.i18n import _, ungettext
 
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
@@ -41,22 +37,14 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 
+from ckan.common import (
+    _, ungettext, g, c, request, session, json, OrderedDict
+)
+
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
 
 log = logging.getLogger(__name__)
-
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-_log = logging.getLogger(__name__)
 
 
 def redirect_to(*args, **kw):
@@ -516,8 +504,9 @@ def unselected_facet_items(facet, limit=10):
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 
+@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be removed.')
 def get_facet_title(name):
-
+    '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
     config_title = config.get('search.facets.%s.title' % name)
     if config_title:
@@ -547,15 +536,33 @@ def _search_url(params):
     return _url_with_params(url, params)
 
 
-def sorted_extras(list_):
-    ''' Used for outputting package extras '''
+def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
+    ''' Used for outputting package extras
+
+    :param package_extras: the package extras
+    :type package_extras: dict
+    :param auto_clean: If true capitalize and replace -_ with spaces
+    :type auto_clean: bool
+    :param subs: substitutes to use instead of given keys
+    :type subs: dict {'key': 'replacement'}
+    :param exclude: keys to exclude
+    :type exclude: list of strings
+    '''
+
+    # If exclude is not supplied use values defined in the config
+    if not exclude:
+        exclude = g.package_hide_extras
     output = []
-    for extra in sorted(list_, key=lambda x: x['key']):
+    for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
-        if k in g.package_hide_extras:
+        if k in exclude:
             continue
+        if subs and k in subs:
+            k = subs[k]
+        elif auto_clean:
+            k = k.replace('_', ' ').replace('-', ' ').title()
         if isinstance(v, (list, tuple)):
             v = ", ".join(map(unicode, v))
         output.append((k, v))
@@ -612,7 +619,7 @@ def markdown_extract(text, extract_length=190):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
     if not extract_length or len(plain) < extract_length:
-        return plain
+        return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
@@ -1390,10 +1397,9 @@ def resource_preview(resource, pkg_id):
     data_dict = {'resource': resource, 'package': c.package}
 
     if not resource['url']:
-        log.info('No url for resource {0} defined.'.format(resource['id']))
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
-                       reason='No valid resource url has been defined.')
+                       reason=_(u'The resource url is not specified.'))
     direct_embed = config.get('ckan.preview.direct', '').split()
     if not direct_embed:
         direct_embed = datapreview.DEFAULT_DIRECT_EMBED
@@ -1410,10 +1416,15 @@ def resource_preview(resource, pkg_id):
     elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
-        log.info(
-            'No preview handler for resource type {0}'.format(format_lower)
-        )
+        reason = None
+        if format_lower:
+            log.info(
+                _(u'No preview handler for resource of type {0}'.format(format_lower))
+            )
+        else:
+            reason = _(u'The resource format is not specified.')
         return snippet("dataviewer/snippets/no_preview.html",
+                       reason=reason,
                        resource_type=format_lower)
 
     return snippet("dataviewer/snippets/data_preview.html",
@@ -1431,6 +1442,11 @@ def SI_number_span(number):
         output = literal('<span title="' + formatters.localised_number(number) + '">')
     return output + formatters.localised_SI_number(number) + literal('<span>')
 
+# add some formatter functions
+localised_number = formatters.localised_number
+localised_SI_number = formatters.localised_SI_number
+localised_nice_date = formatters.localised_nice_date
+localised_filesize = formatters.localised_filesize
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1510,6 +1526,10 @@ __allowed_functions__ = [
            'format_resource_items',
            'resource_preview',
            'SI_number_span',
+           'localised_number',
+           'localised_SI_number',
+           'localised_nice_date',
+           'localised_filesize',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

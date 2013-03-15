@@ -1,5 +1,6 @@
 import logging
 import datetime
+import json
 
 import pylons
 from pylons.i18n import _
@@ -17,6 +18,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications
+import ckan.lib.search as search
 
 log = logging.getLogger(__name__)
 
@@ -314,6 +316,8 @@ def package_update(context, data_dict):
 
     return_id_only = context.get('return_id_only', False)
 
+    # we could update the dataset so we should still be able to read it.
+    context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
@@ -1103,3 +1107,102 @@ def package_owner_org_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.Session.commit()
+
+
+def _bulk_update_dataset(context, data_dict, update_dict):
+    ''' Bulk update shared code for organizations'''
+
+    datasets = data_dict.get('datasets', [])
+    org_id = data_dict.get('org_id')
+
+    model = context['model']
+
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == org_id) \
+        .update(update_dict, synchronize_session=False)
+
+    # revisions
+    model.Session.query(model.package_revision_table) \
+        .filter(model.PackageRevision.id.in_(datasets)) \
+        .filter(model.PackageRevision.owner_org == org_id) \
+        .filter(model.PackageRevision.current == True) \
+        .update(update_dict, synchronize_session=False)
+
+    model.Session.commit()
+
+    # solr update here
+    psi = search.PackageSearchIndex()
+
+    # update the solr index in batches
+    BATCH_SIZE = 50
+
+    def process_solr(q):
+        # update the solr index for the query
+        query = search.PackageSearchQuery()
+        q = {
+            'q': q,
+            'fl': 'data_dict',
+            'wt': 'json',
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'rows': BATCH_SIZE
+        }
+
+        for result in query.run(q)['results']:
+            data_dict = json.loads(result['data_dict'])
+            if data_dict['owner_org'] == org_id:
+                data_dict.update(update_dict)
+                psi.index_package(data_dict, defer_commit=True)
+
+    count = 0
+    q = []
+    for id in datasets:
+        q.append('id:%s' % (id))
+        count += 1
+        if count % BATCH_SIZE == 0:
+            process_solr(' OR '.join(q))
+            q = []
+    if len(q):
+        process_solr(' OR '.join(q))
+    # finally commit the changes
+    psi.commit()
+
+
+def bulk_update_private(context, data_dict):
+    ''' Make a list of datasets private
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_private', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'private': True})
+
+def bulk_update_public(context, data_dict):
+    ''' Make a list of datasets public
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_public', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'private': False})
+
+def bulk_update_delete(context, data_dict):
+    ''' Make a list of datasets deleted
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_delete', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'state': 'deleted'})

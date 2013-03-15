@@ -15,8 +15,12 @@
 {% block primary_content %}
   <div class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Organizations') }}</h1>
-      {% if c.page.items %}
+      <h1 class="hide-heading">{{ _('Organizations') }}</h1>
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
+      <h2 class="is-search-title">
+        {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='organization' %}
+      </h2>
+      {% if c.page.items or request.params %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
       {% else %}
         <p class="empty">

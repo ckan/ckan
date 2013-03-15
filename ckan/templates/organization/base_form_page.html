@@ -2,7 +2,9 @@
 
 {% block primary_content_inner %}
   <div class="module-content">
-    <h1 class="page-heading">{% block page_heading %}{{ _('Organization Form') }}{% endblock %}</h1>
+    {% block page_heading %}
+      <h1 class="page-heading">{{ _('Organization Form') }}</h1>
+    {% endblock %}
     {% block form %}
       {{ c.form | safe }}
     {% endblock %}

@@ -1,7 +1,7 @@
 import ckan
 from pylons.test import pylonsapp
 import paste.fixture
-from ckan.lib.helpers import json
+from ckan.common import json
 import ckan.lib.dictization.model_dictize as model_dictize
 import sqlalchemy
 from nose.tools import raises, assert_raises

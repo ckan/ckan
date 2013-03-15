@@ -416,6 +416,9 @@ class UserController(base.BaseController):
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
+        # FIXME 403 error for invalid key is a non helpful page
+        # FIXME We should reset the reset key when it is used to prevent
+        # reuse of the url
         context = {'model': model, 'session': model.Session,
                    'user': c.user,
                    'keep_sensitive_data': True}
@@ -473,6 +476,7 @@ class UserController(base.BaseController):
                 raise ValueError(_('The passwords you entered'
                                  ' do not match.'))
             return password1
+        raise ValueError(_('You must provide a password'))
 
     def followers(self, id=None):
         context = {'for_view': True}
