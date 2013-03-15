@@ -20,10 +20,10 @@ sudo sed -i -e 's/ident/trust/g' /etc/postgresql/$PGVERSION/main/pg_hba.conf
 
 sudo service postgresql reload
 
-pip install -r pip-requirements.txt --use-mirrors
-pip install -r pip-requirements-test.txt --use-mirrors
+#pip install -r pip-requirements.txt --use-mirrors
+#pip install -r pip-requirements-test.txt --use-mirrors
 
-psql -c 'CREATE DATABASE ckantest;' -U postgres
+psql -c 'CREATE DATABASE ckan_test;' -U postgres
 psql -c 'CREATE DATABASE datastore;' -U postgres
 
 python setup.py develop
@@ -31,7 +31,7 @@ python setup.py develop
 # Configure CKAN's configuration file
 sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' test-core.ini
 sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' test-core.ini
-sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckantest/' test-core.ini
+sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckan_test/' test-core.ini
 sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@localhost\/datastore/' test-core.ini
 sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@localhost\/datastore/' test-core.ini
 
@@ -40,6 +40,8 @@ echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" |
 # FIXME the solr schema cannot be hardcoded as it is dependent on the ckan version
 sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
 sudo service jetty restart
+
+cat test-core.ini
 
 paster db init -c test-core.ini
 
