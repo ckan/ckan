@@ -4,8 +4,34 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 
 
+def create_country_codes():
+    '''Create country_codes vocab and tags, if they don't exist already.
+
+    Note that you could also create the vocab and tags using CKAN's API,
+    and once they are created you can edit them (e.g. to add and remove
+    possible dataset country code values) using the API.
+
+    '''
+    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
+    context = {'user': user['name']}
+    try:
+        data = {'id': 'country_codes'}
+        tk.get_action('vocabulary_show')(context, data)
+        logging.info("Example genre vocabulary already exists, skipping.")
+    except tk.ObjectNotFound:
+        logging.info("Creating vocab 'country_codes'")
+        data = {'name': 'country_codes'}
+        vocab = tk.get_action('vocabulary_create')(context, data)
+        for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
+            logging.info(
+                    "Adding tag {0} to vocab 'country_codes'".format(tag))
+            data = {'name': tag, 'vocabulary_id': vocab['id']}
+            tk.get_action('tag_create')(context, data)
+
+
 def country_codes():
     '''Return the list of country codes from the country codes vocabulary.'''
+    create_country_codes()
     try:
         country_codes = tk.get_action('tag_list')(
                 data_dict={'vocabulary_id': 'country_codes'})
@@ -36,30 +62,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_package_form_called = 0
     num_times_check_data_dict_called = 0
 
-    def create_country_codes(self):
-        '''Create country_codes vocab and tags, if they don't exist already.
-
-        Note that you could also create the vocab and tags using CKAN's API,
-        and once they are created you can edit them (e.g. to add and remove
-        possible dataset country code values) using the API.
-
-        '''
-        user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-        context = {'user': user['name']}
-        try:
-            data = {'id': 'country_codes'}
-            tk.get_action('vocabulary_show')(context, data)
-            logging.info("Example genre vocabulary already exists, skipping.")
-        except tk.ObjectNotFound:
-            logging.info("Creating vocab 'country_codes'")
-            data = {'name': 'country_codes'}
-            vocab = tk.get_action('vocabulary_create')(context, data)
-            for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
-                logging.info(
-                        "Adding tag {0} to vocab 'country_codes'".format(tag))
-                data = {'name': tag, 'vocabulary_id': vocab['id']}
-                tk.get_action('tag_create')(context, data)
-
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
         # that CKAN will use this plugin's custom templates.
@@ -79,10 +81,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return []
 
     def form_to_db_schema(self):
-
-        # Create the country_codes vocab and tags, if they don't already exist.
-        self.create_country_codes()
-
         schema = super(ExampleIDatasetFormPlugin, self).form_to_db_schema()
 
         # Add our custom country_code metadata field to the schema.
