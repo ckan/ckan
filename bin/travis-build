@@ -31,9 +31,8 @@ python setup.py develop
 # Configure CKAN's configuration file
 sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' test-core.ini
 sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' test-core.ini
-sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@localhost\/ckan_test/' test-core.ini
-sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@localhost\/datastore/' test-core.ini
-sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@localhost\/datastore/' test-core.ini
+sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@\/ckan_test/' test-core.ini
+sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@\/datastore/' test-core.ini
 
 # Configure Solr
 echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
