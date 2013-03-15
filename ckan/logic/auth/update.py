@@ -1,18 +1,17 @@
 import ckan.logic as logic
 import ckan.new_authz as new_authz
-from ckan.logic.auth import (get_package_object, get_resource_object,
-                            get_group_object, get_user_object,
-                            get_resource_object, get_related_object)
-from ckan.logic.auth.create import _check_group_auth, package_relationship_create
-from ckan.lib.base import _
-import ckan.new_authz
+import ckan.logic.auth as logic_auth
+from ckan.common import _
+
+# FIXME this import is evil and should be refactored
+from ckan.logic.auth.create import _check_group_auth
 
 def make_latest_pending_package_active(context, data_dict):
-    return package_update(context, data_dict)
+    return new_authz.is_authorized('package_update', context, data_dict)
 
 def package_update(context, data_dict):
     user = context.get('user')
-    package = get_package_object(context, data_dict)
+    package = logic_auth.get_package_object(context, data_dict)
 
     if package.owner_org:
         # if there is an owner org then we must have update_dataset
@@ -37,7 +36,7 @@ def package_update(context, data_dict):
 def resource_update(context, data_dict):
     model = context['model']
     user = context.get('user')
-    resource = get_resource_object(context, data_dict)
+    resource = logic_auth.get_resource_object(context, data_dict)
 
     # check authentication against package
     query = model.Session.query(model.Package)\
@@ -49,7 +48,7 @@ def resource_update(context, data_dict):
         raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
     pkg_dict = {'id': pkg.id}
-    authorized = package_update(context, pkg_dict).get('success')
+    authorized = new_authz.is_authorized('package_update', context, pkg_dict).get('success')
 
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to edit resource %s') % (str(user), resource.id)}
@@ -57,11 +56,11 @@ def resource_update(context, data_dict):
         return {'success': True}
 
 def package_relationship_update(context, data_dict):
-    return package_relationship_create(context, data_dict)
+    return new_authz.is_authorized('package_relationship_create', context, data_dict)
 
 def package_change_state(context, data_dict):
     user = context['user']
-    package = get_package_object(context, data_dict)
+    package = logic_auth.get_package_object(context, data_dict)
 
     # use the logic for package_update
     authorized = new_authz.is_authorized_boolean('package_update', context, data_dict)
@@ -71,7 +70,7 @@ def package_change_state(context, data_dict):
         return {'success': True}
 
 def group_update(context, data_dict):
-    group = get_group_object(context, data_dict)
+    group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'update')
@@ -81,7 +80,7 @@ def group_update(context, data_dict):
         return {'success': True}
 
 def organization_update(context, data_dict):
-    group = get_group_object(context, data_dict)
+    group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'update')
@@ -96,7 +95,7 @@ def related_update(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Only the owner can update a related item')}
 
-    related = get_related_object(context, data_dict)
+    related = logic_auth.get_related_object(context, data_dict)
     userobj = model.User.get( user )
     if not userobj or userobj.id != related.owner_id:
         return {'success': False, 'msg': _('Only the owner can update a related item')}
@@ -112,7 +111,7 @@ def related_update(context, data_dict):
 
 def group_change_state(context, data_dict):
     user = context['user']
-    group = get_group_object(context, data_dict)
+    group = logic_auth.get_group_object(context, data_dict)
 
     # use logic for group_update
     authorized = new_authz.is_authorized_boolean('group_update', context, data_dict)
@@ -123,7 +122,7 @@ def group_change_state(context, data_dict):
 
 def group_edit_permissions(context, data_dict):
     user = context['user']
-    group = get_group_object(context, data_dict)
+    group = logic_auth.get_group_object(context, data_dict)
 
     if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
         return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
@@ -134,7 +133,7 @@ def group_edit_permissions(context, data_dict):
 
 def user_update(context, data_dict):
     user = context['user']
-    user_obj = get_user_object(context, data_dict)
+    user_obj = logic_auth.get_user_object(context, data_dict)
 
     if not (user == user_obj.name) and \
        not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj.reset_key):
@@ -164,9 +163,7 @@ def term_translation_update(context, data_dict):
 
 
 def dashboard_mark_activities_old(context, data_dict):
-    # FIXME: This should go through check_access() not call is_authorized()
-    # directly, but wait until 2939-orgs is merged before fixing this.
-    return ckan.new_authz.is_authorized('dashboard_activity_list',
+    return new_authz.is_authorized('dashboard_activity_list',
             context, data_dict)
 
 
@@ -183,7 +180,7 @@ def package_update_rest(context, data_dict):
     if user in (model.PSEUDO_USER__VISITOR, ''):
         return {'success': False, 'msg': _('Valid API key needed to edit a package')}
 
-    return package_update(context, data_dict)
+    return new_authz.is_authorized('package_update', context, data_dict)
 
 def group_update_rest(context, data_dict):
     model = context['model']
