@@ -49,6 +49,7 @@ def get_group_or_org_admin_ids(group_id):
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id == group_id) \
         .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.state == 'active') \
         .filter(model.Member.capacity == 'admin')
     return [a.table_id for a in q.all()]
 
@@ -135,6 +136,7 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id == group_id) \
         .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.state == 'active') \
         .filter(model.Member.table_id == user_id)
     # see if any role has the required permission
     # admin permission allows anything for the group
@@ -158,6 +160,7 @@ def users_role_for_group_or_org(group_id, user_name):
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id == group_id) \
         .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.state == 'active') \
         .filter(model.Member.table_id == user_id)
     # return the first role we find
     for row in q.all():
@@ -176,6 +179,7 @@ def has_user_permission_for_some_org(user_name, permission):
     # get any groups the user has with the needed role
     q = model.Session.query(model.Member) \
         .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.state == 'active') \
         .filter(model.Member.capacity.in_(roles)) \
         .filter(model.Member.table_id == user_id)
     group_ids = []
