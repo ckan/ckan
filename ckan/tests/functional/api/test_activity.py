@@ -2129,9 +2129,10 @@ class TestActivity:
         response_dict = json.loads(response.body)
         assert response_dict['success'] is True
 
-        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
         activity_response_dict = json.loads(activity_response.body)
-        assert activity_response_dict[0]['activity_type'] == 'new related item'
+        assert activity_response_dict['result'][0]['activity_type'] == 'new related item'
 
     def test_related_item_changed(self):
         # Create related item
@@ -2154,10 +2155,11 @@ class TestActivity:
         assert response_dict['success'] is True
 
         # Test for activity stream entries
-        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
         activity_response_dict = json.loads(activity_response.body)
-        assert activity_response_dict[0]['activity_type'] == 'changed related item'
-        assert activity_response_dict[0]['object_id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['activity_type'] == 'changed related item'
+        assert activity_response_dict['result'][0]['object_id'] == response_dict['result']['id']
 
     def test_related_item_deleted(self):
         # Create related item
@@ -2180,7 +2182,8 @@ class TestActivity:
         assert deleted_response_dict['success'] is True
 
         # Test for activity stream entries
-        activity_response = self.app.get('/api/2/rest/user/%s/activity' % user['id'])
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
         activity_response_dict = json.loads(activity_response.body)
-        assert activity_response_dict[0]['activity_type'] == 'deleted related item'
-        assert activity_response_dict[0]['object_id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['activity_type'] == 'deleted related item'
+        assert activity_response_dict['result'][0]['object_id'] == response_dict['result']['id']
