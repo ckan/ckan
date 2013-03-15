@@ -4,6 +4,16 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 
 
+def country_codes():
+    '''Return the list of country codes from the country codes vocabulary.'''
+    try:
+        country_codes = tk.get_action('tag_list')(
+                data_dict={'vocabulary_id': 'country_codes'})
+        return country_codes
+    except tk.ObjectNotFound:
+        return None
+
+
 class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         tk.DefaultDatasetForm):
     '''An example IDatasetForm CKAN plugin.
@@ -13,6 +23,7 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     '''
     plugins.implements(plugins.IConfigurer, inherit=False)
     plugins.implements(plugins.IDatasetForm, inherit=False)
+    plugins.implements(plugins.ITemplateHelpers, inherit=False)
 
     # These record how many times methods that this plugin's methods are
     # called, for testing purposes.
@@ -54,6 +65,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # that CKAN will use this plugin's custom templates.
         tk.add_template_directory(config, 'templates')
 
+    def get_helpers(self):
+        return {'country_codes': country_codes}
+
     def is_fallback(self):
         # Return True to register this plugin as the default handler for
         # package types not handled by any other IDatasetForm plugin.
@@ -65,6 +79,10 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return []
 
     def form_to_db_schema(self):
+
+        # Create the country_codes vocab and tags, if they don't already exist.
+        self.create_country_codes()
+
         schema = super(ExampleIDatasetFormPlugin, self).form_to_db_schema()
 
         # Add our custom country_code metadata field to the schema.
@@ -103,21 +121,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
             })
 
         return schema
-
-    def setup_template_variables(self, context, data_dict=None):
-        super(ExampleIDatasetFormPlugin, self).setup_template_variables(
-                context, data_dict)
-
-        # Create the country_codes vocab and tags, if they don't already exist.
-        self.create_country_codes()
-
-        # Add the list of available country codes, from the country_codes
-        # vocab, to the template context.
-        try:
-            tk.c.country_codes = tk.get_action('tag_list')(
-                    context, {'vocabulary_id': 'country_codes'})
-        except tk.ObjectNotFound:
-            tk.c.country_codes = None
 
     # These methods just record how many times they're called, for testing
     # purposes.
