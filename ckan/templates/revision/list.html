@@ -1,4 +1,4 @@
-{% extends "page.html" %}
+{% extends "revision/read_base.html" %}
 
 {% block subtitle %}{{ _('Revision History') }}{% endblock %}
 
@@ -6,19 +6,14 @@
   <li class="active"><a href="" title="{{ _('Revision History') }}">{{ _('Revisions') }}</a></li>
 {% endblock %}
 
-{% block primary %}
-  <section class="module prose">
-    <section class="module-content">
-      <h1>{{ _('Revision History') }}</h1>
+{% block primary_content_inner %}
+  <h1>{{ _('Revision History') }}</h1>
 
-      {{ c.page.pager() }}
+  {{ c.page.pager() }}
 
-      {% block revisions_list %}
-        {% snippet "revision/snippets/revisions_list.html", revisions=c.page.items %}
-      {% endblock %}
+  {% block revisions_list %}
+    {% snippet "revision/snippets/revisions_list.html", revisions=c.page.items %}
+  {% endblock %}
 
-      {{ c.page.pager() }}
-
-    </section>
-  </section>
+  {{ c.page.pager() }}
 {% endblock %}
