@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Reset Your Password') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Password Reset'), controller='user', action='register' %}</li>
+  <li class="active">{% link_for _('Password Reset'), controller='user', action='request_reset' %}</li>
 {% endblock %}
 
 {% block primary_content %}
