@@ -3,10 +3,12 @@
 import logging
 import time
 from threading import Lock
+import re
 
 from paste.deploy.converters import asbool
 from pylons import config
 
+import ckan
 import ckan.model as model
 
 log = logging.getLogger(__name__)
@@ -70,7 +72,7 @@ def set_main_css(css_file):
     ''' Sets the main_css using debug css if needed.  The css_file
     must be of the form file.css '''
     assert css_file.endswith('.css')
-    if config.debug and css_file == '/base/css/main.css':
+    if config.get('debug') and css_file == '/base/css/main.css':
         new_css = '/base/css/main.debug.css'
     else:
         new_css = css_file
@@ -173,6 +175,14 @@ class _Globals(object):
                 self._mutex.release()
 
     def _init(self):
+
+        self.ckan_version = ckan.__version__
+        self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
+        if self.ckan_base_version == self.ckan_version:
+            self.ckan_doc_version = 'ckan-{0}'.format(self.ckan_version)
+        else:
+            self.ckan_doc_version = 'latest'
+
         # process the config_details to set globals
         for name, options in config_details.items():
             if 'name' in options:

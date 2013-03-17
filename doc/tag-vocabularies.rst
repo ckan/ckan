@@ -29,7 +29,7 @@ A CKAN developer/sysadmin user will have to do a number of things to add some cu
 1. Adding Vocabularies
 ~~~~~~~~~~~~~~~~~~~~~~
 
-This needs to be done via the action API (:doc:`apiv3`). Please check the examples section to see which calls are needed.
+This needs to be done via the action API (:doc:`api`). Please check the examples section to see which calls are needed.
 
 2. Custom Form Schema
 ~~~~~~~~~~~~~~~~~~~~~

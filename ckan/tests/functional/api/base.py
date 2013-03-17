@@ -10,12 +10,13 @@ from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
+from webhelpers.html import url_escape
 
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json, url_escape
 from ckan.tests import TestController as ControllerTestCase
+from ckan.common import json
 
 ACCESS_DENIED = [403]
 
@@ -314,14 +315,6 @@ class Api3TestCase(ApiTestCase):
     def assert_msg_represents_anna(self, msg):
         super(Api2TestCase, self).assert_msg_represents_anna(msg)
         assert 'download_url' not in msg, msg
-
-class ApiUnversionedTestCase(Api1TestCase):
-
-    api_version = ''
-    oldest_api_version = 1
-
-    def get_expected_api_version(self):
-        return self.oldest_api_version
 
 
 class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):

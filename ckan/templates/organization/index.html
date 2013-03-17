@@ -6,17 +6,21 @@
   <li class="active">{% link_for _('Organizations'), controller='organization', action='index' %}</li>
 {% endblock %}
 
-{% block actions_content %}
+{% block add_action_content %}
   {% if h.check_access('organization_create') %}
-    <li>{% link_for _('Add Organization'), controller='organization', action='new', class_='btn', icon='plus' %}</li>
+    {% link_for _('Add Organization'), controller='organization', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content %}
   <div class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Organizations') }}</h1>
-      {% if c.page.items %}
+      <h1 class="hide-heading">{{ _('Organizations') }}</h1>
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
+      <h2 class="is-search-title">
+        {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='organization' %}
+      </h2>
+      {% if c.page.items or request.params %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
       {% else %}
         <p class="empty">
@@ -34,7 +38,7 @@
 {% block secondary_content %}
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
-      <i class="icon-large icon-info-sign"></i>
+      <i class="icon-info-sign"></i>
       {{ _('What are Organizations?') }}
     </h2>
     <div class="module-content">

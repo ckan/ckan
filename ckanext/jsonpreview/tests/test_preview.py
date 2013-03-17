@@ -1,7 +1,7 @@
 import pylons
-
 import paste.fixture
-from paste.deploy import appconfig
+
+import pylons.config as config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -17,9 +17,9 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        config = appconfig('config:test.ini', relative_to=tests.conf_dir)
-        config.local_conf['ckan.plugins'] = 'json_preview'
-        wsgiapp = make_app(config.global_conf, **config.local_conf)
+        cls._original_config = config.copy()
+        config['ckan.plugins'] = 'json_preview'
+        wsgiapp = make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.JsonPreview()
@@ -40,7 +40,10 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         plugins.reset()
+        CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
@@ -80,12 +83,12 @@ class TestJsonPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'preview_json.js' in result.body, result.body
-        assert 'preload_resource' in result.body, result.body
-        assert 'data-module="jsonpreview"' in result.body, result.body
+        assert (('preview_json.js' in result.body) or ('preview_json.min.js' in result.body))
+        assert 'preload_resource' in result.body
+        assert 'data-module="jsonpreview"' in result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
         result = self.app.get(url)
-        assert 'data-module="data-viewer"' in result.body, result.body
-        assert '<iframe' in result.body, result.body
+        assert 'data-module="data-viewer"' in result.body
+        assert '<iframe' in result.body
