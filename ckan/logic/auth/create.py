@@ -101,10 +101,11 @@ def user_create(context, data_dict=None):
 
     create_user_via_api = new_authz.check_config_permission(
             'create_user_via_api')
-    create_user = new_authz.check_config_permission('create_user')
+    create_user_via_web = new_authz.check_config_permission(
+            'create_user_via_web')
     using_api = 'api_version' in context
 
-    if not create_user:
+    if not create_user_via_web:
         return {'success': False, 'msg': _('User {user} not authorized to '
             'create users').format(user=user)}
     elif using_api and not create_user_via_api:
