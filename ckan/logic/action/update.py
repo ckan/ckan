@@ -295,37 +295,6 @@ def package_update(context, data_dict):
 
     return output
 
-def package_update_validate(context, data_dict):
-    model = context['model']
-    user = context['user']
-
-    id = _get_or_bust(data_dict, "id")
-
-    pkg = model.Package.get(id)
-    context["package"] = pkg
-
-    if pkg is None:
-        raise NotFound(_('Package was not found.'))
-    data_dict["id"] = pkg.id
-
-    # get the schema
-    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    try:
-        schema = package_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
-                                               'context': context})
-    except AttributeError:
-        schema = package_plugin.form_to_db_schema()
-
-    _check_access('package_update', context, data_dict)
-
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-    return data
-
-
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
     api = context.get('api_version')
