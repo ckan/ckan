@@ -6,8 +6,10 @@ from ckan.common import _
 # FIXME this import is evil and should be refactored
 from ckan.logic.auth.create import _check_group_auth
 
+
 def make_latest_pending_package_active(context, data_dict):
     return new_authz.is_authorized('package_update', context, data_dict)
+
 
 def package_update(context, data_dict):
     user = context.get('user')
@@ -16,7 +18,9 @@ def package_update(context, data_dict):
     if package.owner_org:
         # if there is an owner org then we must have update_dataset
         # premission for that organization
-        check1 = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'update_dataset')
+        check1 = new_authz.has_user_permission_for_group_or_org(
+            package.owner_org, user, 'update_dataset'
+        )
     else:
         # If dataset is not owned then we can edit if config permissions allow
         if new_authz.auth_is_registered_user():
@@ -25,13 +29,18 @@ def package_update(context, data_dict):
         else:
             check1 = new_authz.check_config_permission('anon_create_dataset')
     if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to edit package %s') % (str(user), package.id)}
+        return {'success': False,
+                'msg': _('User %s not authorized to edit package %s') %
+                        (str(user), package.id)}
     else:
-        check2 = _check_group_auth(context,data_dict)
+        check2 = _check_group_auth(context, data_dict)
         if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+            return {'success': False,
+                    'msg': _('User %s not authorized to edit these groups') %
+                            (str(user))}
 
     return {'success': True}
+
 
 def resource_update(context, data_dict):
     model = context['model']
@@ -45,39 +54,58 @@ def resource_update(context, data_dict):
         .filter(model.ResourceGroup.id == resource.resource_group_id)
     pkg = query.first()
     if not pkg:
-        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
+        raise logic.NotFound(
+            _('No package found for this resource, cannot check auth.')
+        )
 
     pkg_dict = {'id': pkg.id}
     authorized = new_authz.is_authorized('package_update', context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit resource %s') % (str(user), resource.id)}
+        return {'success': False,
+                'msg': _('User %s not authorized to edit resource %s') %
+                        (str(user), resource.id)}
     else:
         return {'success': True}
 
+
 def package_relationship_update(context, data_dict):
-    return new_authz.is_authorized('package_relationship_create', context, data_dict)
+    return new_authz.is_authorized('package_relationship_create',
+                                   context,
+                                   data_dict)
+
 
 def package_change_state(context, data_dict):
     user = context['user']
     package = logic_auth.get_package_object(context, data_dict)
 
     # use the logic for package_update
-    authorized = new_authz.is_authorized_boolean('package_update', context, data_dict)
+    authorized = new_authz.is_authorized_boolean('package_update',
+                                                 context,
+                                                 data_dict)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to change state of package %s') % (str(user),package.id)}
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to change state of package %s') %
+                    (str(user), package.id)
+        }
     else:
         return {'success': True}
+
 
 def group_update(context, data_dict):
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
-    authorized = new_authz.has_user_permission_for_group_or_org(
-        group.id, user, 'update')
+    authorized = new_authz.has_user_permission_for_group_or_org(group.id,
+                                                                user,
+                                                                'update')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit group %s') % (str(user),group.id)}
+        return {'success': False,
+                'msg': _('User %s not authorized to edit group %s') %
+                        (str(user), group.id)}
     else:
         return {'success': True}
+
 
 def organization_update(context, data_dict):
     group = logic_auth.get_group_object(context, data_dict)
@@ -85,20 +113,25 @@ def organization_update(context, data_dict):
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'update')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to edit organization %s') % (user, group.id)}
+        return {'success': False,
+                'msg': _('User %s not authorized to edit organization %s') %
+                        (user, group.id)}
     else:
         return {'success': True}
+
 
 def related_update(context, data_dict):
     model = context['model']
     user = context['user']
     if not user:
-        return {'success': False, 'msg': _('Only the owner can update a related item')}
+        return {'success': False,
+                'msg': _('Only the owner can update a related item')}
 
     related = logic_auth.get_related_object(context, data_dict)
-    userobj = model.User.get( user )
+    userobj = model.User.get(user)
     if not userobj or userobj.id != related.owner_id:
-        return {'success': False, 'msg': _('Only the owner can update a related item')}
+        return {'success': False,
+                'msg': _('Only the owner can update a related item')}
 
     # Only sysadmins can change the featured field.
     if ('featured' in data_dict and data_dict['featured'] != related.featured):
@@ -114,57 +147,85 @@ def group_change_state(context, data_dict):
     group = logic_auth.get_group_object(context, data_dict)
 
     # use logic for group_update
-    authorized = new_authz.is_authorized_boolean('group_update', context, data_dict)
+    authorized = new_authz.is_authorized_boolean('group_update',
+                                                 context,
+                                                 data_dict)
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to change state of group %s') % (str(user),group.id)}
+        return {
+            'success': False,
+            'msg': _('User %s not authorized to change state of group %s') %
+                    (str(user), group.id)
+        }
     else:
         return {'success': True}
+
 
 def group_edit_permissions(context, data_dict):
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
 
-    if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
-        return {'success': False, 'msg': _('User %s not authorized to edit permissions of group %s') % (str(user),group.id)}
+    authorized = new_authz.has_user_permission_for_group_or_org(group.id,
+                                                                user,
+                                                                'update')
+
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to edit permissions of group %s') %
+                        (str(user), group.id)}
     else:
         return {'success': True}
-
 
 
 def user_update(context, data_dict):
     user = context['user']
     user_obj = logic_auth.get_user_object(context, data_dict)
+    user_reset = ('reset_key' in data_dict and
+                  data_dict['reset_key'] == user_obj.reset_key)
 
-    if not (user == user_obj.name) and \
-       not ('reset_key' in data_dict and data_dict['reset_key'] == user_obj.reset_key):
-        return {'success': False, 'msg': _('User %s not authorized to edit user %s') % (str(user), user_obj.id)}
+    if not (user == user_obj.name) and not user_reset:
+        return {'success': False,
+                'msg': _('User %s not authorized to edit user %s') %
+                        (str(user), user_obj.id)}
 
     return {'success': True}
+
 
 def revision_change_state(context, data_dict):
     # FIXME currently only sysadmins can change state
     user = context['user']
+    return {
+        'success': False,
+        'msg': _('User %s not authorized to change state of revision') % user
+    }
 
-    return {'success': False, 'msg': _('User %s not authorized to change state of revision' ) % user}
 
 def task_status_update(context, data_dict):
     # sysadmins only
     user = context['user']
-    return {'success': False, 'msg': _('User %s not authorized to update task_status table') % user}
+    return {
+        'success': False,
+        'msg': _('User %s not authorized to update task_status table') % user
+    }
+
 
 def vocabulary_update(context, data_dict):
     # sysadmins only
     return {'success': False}
 
+
 def term_translation_update(context, data_dict):
     # sysadmins only
     user = context['user']
-    return {'success': False, 'msg': _('User %s not authorized to update term_translation table') % user}
+    return {
+        'success': False,
+        'msg': _('User %s not authorized to update term_translation table') % user
+    }
 
 
 def dashboard_mark_activities_old(context, data_dict):
     return new_authz.is_authorized('dashboard_activity_list',
-            context, data_dict)
+                                   context,
+                                   data_dict)
 
 
 def send_email_notifications(context, data_dict):
@@ -178,17 +239,21 @@ def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):
-        return {'success': False, 'msg': _('Valid API key needed to edit a package')}
+        return {'success': False,
+                'msg': _('Valid API key needed to edit a package')}
 
     return new_authz.is_authorized('package_update', context, data_dict)
+
 
 def group_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
     if user in (model.PSEUDO_USER__VISITOR, ''):
-        return {'success': False, 'msg': _('Valid API key needed to edit a group')}
+        return {'success': False,
+                'msg': _('Valid API key needed to edit a group')}
 
     return group_update(context, data_dict)
+
 
 def package_owner_org_update(context, data_dict):
     # sysadmins only
