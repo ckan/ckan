@@ -50,6 +50,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
 from formencode.validators import OneOf
 import ckan.model
+import ckan.lib.maintain as maintain
 
 def default_resource_schema():
 
@@ -166,10 +167,12 @@ def default_update_package_schema():
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
     return schema
 
+
+@maintain.deprecated()
 def package_form_schema():
-    # This function is deprecated and was replaced by
-    # form_to_db_package_schema(), it remains here for backwards compatibility.
+    '''DEPRECATED. Use form_to_db_package_schema() instead.'''
     return form_to_db_package_schema()
+
 
 def form_to_db_package_schema():
 
