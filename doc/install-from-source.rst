@@ -245,7 +245,7 @@ You can now proceed to :doc:`post-installation` which covers creating a CKAN
 sysadmin account and deploying CKAN with Apache.
 
 Upgrade a source install
-========================
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before upgrading your version of CKAN you should check that any custom
 templates or extensions you're using work with the new version of CKAN. For

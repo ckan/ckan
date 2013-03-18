@@ -80,14 +80,6 @@ version.
 
 	sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
 	sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
-
-   After updating the symlink, you must rebuild your search index by running
-   the ``ckan search-index rebuild`` command, for example::
-
-    paster --plugin=ckan search-index rebuild --config=/path/to/your/ckan.ini
-
-   See :ref:`rebuild search index` for details of the
-   ``ckan search-index rebuild`` command.
    
 5. If you are upgrading to a new major version of CKAN (for example if you are
    upgrading to CKAN 2.0, etc.), update your CKAN database's schema
@@ -108,11 +100,19 @@ version.
    database.
 
    See :ref:`upgrade migration` for details of the ``ckan db upgrade`` command.
+   
+6. After updating the symlink (and/or the database), you must rebuild your search index by running
+   the ``ckan search-index rebuild`` command, for example::
 
-6. Finally, restart your web server. For example if you have deployed CKAN
+    paster --plugin=ckan search-index rebuild --config=/path/to/your/ckan.ini
+
+   See :ref:`rebuild search index` for details of the
+   ``ckan search-index rebuild`` command.
+
+7. Finally, restart your web server. For example if you have deployed CKAN
    using the Apache web server on Ubuntu linux, run this command::
 
     sudo service apache2 restart
 
-7. You're done! You should now be able to visit your CKAN website in your web
+8. You're done! You should now be able to visit your CKAN website in your web
    browser and see that it's now running the new version of CKAN.
