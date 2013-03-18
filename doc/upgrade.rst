@@ -6,15 +6,16 @@ This section describes how to upgrade CKAN for both packages and source installa
 
 The overall process is the following:
 
-=======                            ======
-Package                            Source
-=======                            ======
-* :ref:`upgrade-ckan-package`      * :ref:`upgrade-ckan-source`
-* :ref:`update-solr-package`       * :ref:`update-solr-source`
-* :ref:`upgrade-database-package`  * :ref:`upgrade-database-source`
-* :ref:`rebuild-search-package`    * :ref:`rebuild-search-source`
-* :ref:`restart-apache-package`    * :ref:`restart-apache-source`
-=======                            ======
+==================================  ==================================
+Package                             Source
+==================================  ==================================
+* :ref:`upgrade-ckan-package`       * :ref:`upgrade-ckan-source`
+* :ref:`update-solr-package`        * :ref:`update-solr-source`
+* :ref:`upgrade-database-package`   * :ref:`upgrade-database-source`
+* :ref:`rebuild-search-package`     * :ref:`rebuild-search-source`
+* :ref:`restart-apache-package`     * :ref:`restart-apache-source`
+==================================  ==================================
+
 For support during your upgrade, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 
 .. _upgrading:
