@@ -30,6 +30,18 @@ You should also read the `CKAN Changelog <https://github.com/okfn/ckan/blob/mast
 to see if there are any extra notes to be aware of when upgrading to the new
 version.
 
+.. note::
+
+    If you installed CKAN from source, you will need to activate the virtualenv and switch to the ckan source directory.
+    In this case, you don't need to specifiy the `--plugin` or `--config` parameters when executing the paster commands, e.g.::
+
+        (pyenv):~/pyenv/src/ckan$ paster user list
+    
+    Activate your virtualenv and change into the appropriate kcan directory, e.g.::
+    
+    	. ~/pyenv/bin/activate
+    	cd ~/pyenv/src/ckan
+
 1. Backup your CKAN database using the ``ckan db dump`` command, for example::
 
     paster --plugin=ckan db dump --config=/path/to/your/ckan.ini my_ckan_database.pg_dump
