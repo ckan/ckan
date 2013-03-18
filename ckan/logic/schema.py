@@ -112,8 +112,9 @@ def default_create_tag_schema():
     schema['id'] = [empty]
     return schema
 
-def default_package_schema():
 
+def _base_package_schema():
+    '''Return a base schema for other package schemas.'''
     schema = {
         'id': [ignore_missing, unicode, package_id_exists],
         'revision_id': [ignore],
@@ -149,14 +150,14 @@ def default_package_schema():
 
 def default_create_package_schema():
 
-    schema = default_package_schema()
+    schema = _base_package_schema()
     schema["id"] = [empty]
 
     return schema
 
 def default_update_package_schema():
 
-    schema = default_package_schema()
+    schema = _base_package_schema()
     schema["id"] = [ignore_missing, package_id_not_changed]
     schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
     schema["title"] = [ignore_missing, unicode]
@@ -172,7 +173,7 @@ def package_form_schema():
 
 def form_to_db_package_schema():
 
-    schema = default_package_schema()
+    schema = _base_package_schema()
     ##new
     schema['log_message'] = [ignore_missing, unicode, no_http]
     schema['groups'] = {
@@ -196,7 +197,7 @@ def form_to_db_package_schema():
     return schema
 
 def db_to_form_package_schema():
-    schema = default_package_schema()
+    schema = _base_package_schema()
 
     schema.update({
         'tags': {'__extras': [ckan.lib.navl.validators.keep_extras]}})
@@ -246,7 +247,7 @@ def db_to_form_package_schema():
     schema['url'] = []
     schema['version'] = []
 
-    # Add several keys that are missing from default_package_schema(), so
+    # Add several keys that are missing from _base_package_schema(), so
     # validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
