@@ -17,7 +17,7 @@ from ckan.lib.base import (request,
 from ckan.lib.base import response, redirect, gettext
 import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
+from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import (tuplize_dict,
                         clean_dict,
@@ -66,14 +66,6 @@ class PackageController(BaseController):
 
     def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
-
-    def _form_to_db_schema(self, package_type=None):
-        return lookup_package_plugin(package_type).form_to_db_schema()
-
-    def _db_to_form_schema(self, package_type=None):
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-        return lookup_package_plugin(package_type).db_to_form_schema()
 
     def _check_data_dict(self, data_dict, package_type=None):
         '''Check if the return data is correct, mostly for checking out if
@@ -809,14 +801,9 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(
-                                    package_type=package_type),
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema:
-                data, errors = validate(data, schema)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
