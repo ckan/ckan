@@ -178,19 +178,6 @@ def package_create(context, data_dict):
 
     return output
 
-def package_create_validate(context, data_dict):
-    model = context['model']
-    schema = lib_plugins.lookup_package_plugin().form_to_db_schema()
-
-    _check_access('package_create',context,data_dict)
-
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-    else:
-        return data
-
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
