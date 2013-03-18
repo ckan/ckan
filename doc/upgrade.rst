@@ -1,18 +1,21 @@
-==============================
-Option 1: Package Installation
-==============================
+=============================
+Upgrading a CKAN installation
+=============================
 
-This section describes how to install CKAN from packages. This is the recommended and by far the easiest way to install CKAN.
+This section describes how to upgrade CKAN for both packages and source installations.
 
 The overall process is the following:
 
-* :ref:`prepare-your-system`
-* :ref:`run-package-installer`
-* :ref:`upgrading`
-
-.. note:: We recommend you use package installation unless you are a core CKAN developer or have no access to Ubuntu 10.04 through any of the methods above, in which case, you should use :doc:`install-from-source`.
-
-For support during installation, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
+=======                            ======
+Package                            Source
+=======                            ======
+* :ref:`upgrade-ckan-package`      * :ref:`upgrade-ckan-source`
+* :ref:`update-solr-package`       * :ref:`update-solr-source`
+* :ref:`upgrade-database-package`  * :ref:`upgrade-database-source`
+* :ref:`rebuild-search-package`    * :ref:`rebuild-search-source`
+* :ref:`restart-apache-package`    * :ref:`restart-apache-source`
+=======                            ======
+For support during your upgrade, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 
 .. _upgrading:
 
