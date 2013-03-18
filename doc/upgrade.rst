@@ -5,7 +5,7 @@ Upgrading a CKAN installation
 This section describes how to upgrade CKAN for both packages and source installations. The overall process is the following:
 
 ==================================  ==================================
-:ref: `_upgrade-package`            :ref: `_upgrade-source`
+:ref:`upgrade-package`              :ref:`upgrade-source`
 ==================================  ==================================
 * :ref:`upgrade-ckan-package`       * :ref:`upgrade-ckan-source`
 * :ref:`update-solr-package`        * :ref:`update-solr-source`
