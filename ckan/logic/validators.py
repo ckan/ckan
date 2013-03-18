@@ -15,7 +15,8 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
 import ckan.new_authz
 
 def owner_org_validator(key, data, errors, context):
-
+    # FIXME I think this needs review and can be used to change ownership
+    # when not allowed.
     value = data.get(key)
 
     if value is missing or value is None:
@@ -593,3 +594,17 @@ def role_exists(role, context):
     if role not in ckan.new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
+
+
+def update_package_privacy(key, data, errors, context):
+    pkg = context.get('package')
+    group_id = pkg.owner_org
+    if not group_id:
+        return data[key]
+    user_name  = context.get('user')
+    if not ckan.new_authz.has_user_permission_for_group_or_org(
+            group_id, user_name, 'update_privacy'):
+        # if the value is not changed then no need to complain
+        if pkg.private != data[key]:
+            raise Invalid(_('You cannot change this.'))
+    return data[key]

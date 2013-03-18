@@ -36,6 +36,7 @@ import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
+import ckan.new_authz as new_authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -585,6 +586,12 @@ def check_access(action, data_dict=None):
 
     return authorized
 
+
+def has_user_permission_for_group_or_org(group_id, permission):
+    '''Check if the current user has a given permission for a group or
+    organization '''
+    return new_authz.has_user_permission_for_group_or_org(
+            group_id, c.user, permission)
 
 def linked_user(user, maxlength=0, avatar=20):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
@@ -1466,6 +1473,7 @@ __allowed_functions__ = [
            'subnav_named_route',
            'default_group_type',
            'check_access',
+           'has_user_permission_for_group_or_org',
            'linked_user',
            'group_name_to_title',
            'markdown_extract',
