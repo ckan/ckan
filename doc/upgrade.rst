@@ -18,6 +18,132 @@ The overall process is the following:
 
 For support during your upgrade, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 
+Upgrade a package install
+=========================
+
+Starting on CKAN 1.7, the updating process is different depending on wether
+the new version is a major release (e.g. 1.7, 1.8, etc) or a minor release
+(e.g. 1.7.X, 1.7.Y). Major releases can introduce backwards incompatible
+changes, changes on the database and the Solr schema. Each major release and
+its subsequent minor versions has its own apt repository (Please note that this
+was not true for 1.5 and 1.5.1 versions).
+
+Minor versions, on the other hand contain only bug fixes, non-breaking
+optimizations and new translations.
+
+A fresh install or upgrade from another major version will install the latest minor
+version.
+
+Upgrading from another major version
+------------------------------------
+
+If you already have a major version installed via package install and wish to upgrade, you can try the approach documented below.
+
+1. Backup and remove your old CKAN code:
+
+   .. caution ::
+
+	Always make a backup first and be prepared to start again with a fresh install of the newer version of CKAN.
+
+   First remove the old CKAN code (it doesn't remove your data):
+
+   ::
+
+	sudo apt-get autoremove ckan
+
+   Then update the repositories (replace `MAJOR_VERSION` with a suitable value):
+
+   ::
+
+	echo "deb http://apt.ckan.org/ckan-1.MAJOR_VERSION lucid universe" | sudo tee /etc/apt/sources.list.d/ckan.list
+	wget -qO- "http://apt.ckan.org/packages_public.key" | sudo apt-key add -
+	sudo apt-get update
+
+2. Install the new CKAN and update all the dependencies:
+
+   ::
+
+	sudo apt-get install ckan
+
+Now you need to make some manual changes. In the following commands replace ``std`` with the name of your CKAN instance. 
+Perform these steps for each instance you wish to upgrade.
+
+3. Upgrade the Solr schema
+
+    .. note ::
+
+       This only needs to be done if the Solr schema has been updated between major releases. The CHANGELOG or the announcement
+       emails will specify if this is the case.
+
+   Configure ``ckan.site_url`` or ``ckan.site_id`` in ``/etc/ckan/std/std.ini`` for SOLR search-index rebuild to work. eg:
+
+   ::
+
+       ckan.site_id = yoursite.ckan.org
+
+   The site_id must be unique so the domain name of the CKAN instance is a good choice.
+
+   Install the new schema:
+
+   ::
+
+       sudo rm /usr/share/solr/conf/schema.xml
+       sudo ln -s /usr/lib/pymodules/python2.6/ckan/config/solr/schema-1.4.xml /usr/share/solr/conf/schema.xml
+
+4. Upgrade the database
+
+   First install pastescript:
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/pip install --ignore-installed pastescript
+
+   Then upgrade the database:
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
+
+   When upgrading from CKAN 1.5 you may experience error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key``. In this case then you need to rename users with duplicate names, before the database upgrade will run successfully. For example::
+
+        sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
+        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>1);').fetchall()
+        users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
+        users[1].name = users[1].name[:-1]
+        model.repo.commit_and_remove()
+
+5. Rebuild the search index (this can take some time - e.g. an hour for 5000 datasets):
+
+   ::
+
+       sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan search-index rebuild --config=/etc/ckan/std/std.ini
+
+6. Restart Apache
+
+   ::
+
+       sudo /etc/init.d/apache2 restart
+
+
+Upgrading from the same major version
+-------------------------------------
+
+If you want to update to a new minor version of a major release (e.g. upgrade
+to 1.7.1 to 1.7, or to 1.7.2 from 1.7.1), then you only need to update the
+`python-ckan` package to get the latest changes::
+
+    sudo apt-get install python-ckan
+
+.. caution::
+
+    This assumes that you already have installed CKAN via package install. If
+    not, do not install this single package, follow the instructions on :ref:`run-package-installer`
+
+After upgrading the package, you need to restart Apache for the effects to take
+place::
+
+   sudo /etc/init.d/apache2 restart
+
 Upgrade a source install
 ========================
 
@@ -114,5 +240,4 @@ version.
 
     sudo service apache2 restart
 
-8. You're done! You should now be able to visit your CKAN website in your web
-   browser and see that it's now running the new version of CKAN.
+You're done! You should now be able to visit your CKAN website in your web browser and see that it's now running the new version of CKAN.
