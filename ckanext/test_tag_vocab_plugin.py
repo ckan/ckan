@@ -7,7 +7,7 @@ from genshi.input import HTML
 from genshi.filters import Transformer
 from ckan.logic import get_action
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
-from ckan.logic.schema import default_package_schema
+from ckan.logic.schema import _base_package_schema
 from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan import plugins
 
@@ -50,14 +50,14 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         c.vocab_tags = get_action('tag_list')(context, {'vocabulary_id': TEST_VOCAB_NAME})
 
     def form_to_db_schema(self):
-        schema = default_package_schema()
+        schema = _base_package_schema()
         schema.update({
             'vocab_tags': [ignore_missing, convert_to_tags(TEST_VOCAB_NAME)],
         })
         return schema
 
     def db_to_form_schema(self):
-        schema = default_package_schema()
+        schema = _base_package_schema()
         schema.update({
             'tags': {
                 '__extras': [keep_extras, free_tags_only]

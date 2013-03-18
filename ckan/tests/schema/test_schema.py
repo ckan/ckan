@@ -8,7 +8,7 @@ class TestPackage:
     def test_name_validation(self):
         context = {'model': ckan.model,
                    'session': ckan.model.Session}
-        schema = ckan.logic.schema.default_package_schema()
+        schema = ckan.logic.schema._base_package_schema()
         def get_package_name_validation_errors(package_name):
             data_dict = {'name': package_name}
             data, errors = validate(data_dict, schema, context)
@@ -37,7 +37,7 @@ class TestPackage:
     def test_version_validation(self):
         context = {'model': ckan.model,
                    'session': ckan.model.Session}
-        schema = ckan.logic.schema.default_package_schema()
+        schema = ckan.logic.schema._base_package_schema()
         def get_package_version_validation_errors(package_version):
             data_dict = {'version': package_version}
             data, errors = validate(data_dict, schema, context)
