@@ -2,12 +2,10 @@
 Upgrading a CKAN installation
 =============================
 
-This section describes how to upgrade CKAN for both packages and source installations.
-
-The overall process is the following:
+This section describes how to upgrade CKAN for both packages and source installations. The overall process is the following:
 
 ==================================  ==================================
-Package                             Source
+:ref: `_upgrade-package`            :ref: `_upgrade-source`
 ==================================  ==================================
 * :ref:`upgrade-ckan-package`       * :ref:`upgrade-ckan-source`
 * :ref:`update-solr-package`        * :ref:`update-solr-source`
@@ -18,10 +16,10 @@ Package                             Source
 
 For support during your upgrade, please contact `the ckan-dev mailing list <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_.
 
-.. _upgrading:
+.. _upgrade-package:
 
-Upgrading a package install
----------------------------
+Upgrade a package install
+-------------------------
 
 Starting on CKAN 1.7, the updating process is different depending on wether
 the new version is a major release (e.g. 1.7, 1.8, etc) or a minor release
