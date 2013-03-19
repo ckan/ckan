@@ -180,27 +180,8 @@ class DefaultDatasetForm(object):
     def update_package_schema(self):
         return None
 
-    def db_to_form_schema(self):
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-        return logic.schema.default_show_package_schema()
-
-    def db_to_form_schema_options(self, options):
-        '''Return different db_to_form_schemas under different conditions.
-
-        For example:
-
-        - if a context is provided, and it contains a schema, return that
-          schema
-        - otherwise return db_to_form_schema()
-
-        The schemas are defined by the methods below.
-
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
-        return self.db_to_form_schema()
+    def show_package_schema(self):
+        return None
 
     def setup_template_variables(self, context, data_dict):
         authz_fn = logic.get_action('group_list_authz')

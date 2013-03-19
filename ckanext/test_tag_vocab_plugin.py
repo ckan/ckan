@@ -63,7 +63,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         })
         return schema
 
-    def db_to_form_schema(self):
+    def show_package_schema(self):
         schema = default_show_package_schema()
         schema.update({
             'tags': {
