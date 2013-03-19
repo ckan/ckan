@@ -236,11 +236,11 @@ def package_update(context, data_dict):
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     try:
-        schema = package_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
-                                               'context': context})
+        schema = package_plugin.update_package_schema()
     except AttributeError:
-        schema = package_plugin.form_to_db_schema()
+        schema = None
+    if schema is None:
+        schema = ckan.logic.schema.default_update_package_schema()
 
     if 'api_version' not in context:
         # old plugins do not support passing the schema so we need

@@ -218,35 +218,11 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
-    def form_to_db_schema_options(self, options):
-        ''' This allows us to select different schemas for different
-        purpose eg via the web interface or via the api or creation vs
-        updating. It is optional and if not available form_to_db_schema
-        should be used.
-        If a context is provided, and it contains a schema, it will be
-        returned.
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
+    def create_package_schema(self):
+        return None
 
-        if options.get('api'):
-            if options.get('type') == 'create':
-                return self.form_to_db_schema_api_create()
-            else:
-                assert options.get('type') == 'update'
-                return self.form_to_db_schema_api_update()
-        else:
-            return self.form_to_db_schema()
-
-    def form_to_db_schema(self):
-        return logic.schema.form_to_db_package_schema()
-
-    def form_to_db_schema_api_create(self):
-        return logic.schema.default_create_package_schema()
-
-    def form_to_db_schema_api_update(self):
-        return logic.schema.default_update_package_schema()
+    def update_package_schema(self):
+        return None
 
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
