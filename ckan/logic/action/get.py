@@ -11,6 +11,7 @@ import sqlalchemy
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -738,12 +739,11 @@ def package_show(context, data_dict):
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
     try:
-        schema = package_plugin.db_to_form_schema_options({
-            'type':'show',
-            'api': 'api_version' in context,
-            'context': context })
+        schema = package_plugin.show_package_schema()
     except AttributeError:
-        schema = package_plugin.db_to_form_schema()
+        schema = None
+    if schema is None:
+        schema = ckan.logic.schema.default_show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
