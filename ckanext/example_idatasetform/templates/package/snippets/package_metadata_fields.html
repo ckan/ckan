@@ -2,33 +2,17 @@
 
 {% block package_metadata_fields %}
 
-  {% set groups_available = h.groups_available() %}
-  {% if groups_available %}
-    <div class="control-group">
-      {% set groups = h.dict_list_reduce(data.groups, 'id') %}
-      <label for="field-groups" class="control-label">{{ _('Add to Groups') }}</label>
-      <div class="controls">
-        <select id="field-groups" name="groups__{{ groups | count }}__id" data-module="autocomplete">
-          <option value="">{{ _('Select a group...') }}</option>
-          {% for group in groups_available %}
-          <option value="{{ group.id }}" {% if group.id in groups %}selected="selected"{% endif %}>{{ group.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
+  <div class="control-group">
+    <label class="control-label" for="field-country_code">{{ _("Country Code") }}</label>
+    <div class="controls">
+      <select id="field-country_code" name="country_code" data-module="autocomplete">
+        {% for country_code in h.country_codes()  %}
+          <option value="{{ country_code }}" {% if country_code in data.get('country_code', []) %}selected="selected"{% endif %}>{{ country_code }}</option>
+        {% endfor %}
+      </select>
     </div>
-  {% endif %}
-
-  {{ super() }}
-
-  <label class="control-label" for="field-country_code">{{ _("Country Code") }}</label>
-  <div class="controls">
-    <select id="field-country_code" name="country_code" data-module="autocomplete">
-      {% for country_code in h.country_codes()  %}
-        <option value="{{ country_code }}" {% if country_code in data.get('country_code', []) %}selected="selected"{% endif %}>{{ country_code }}</option>
-      {% endfor %}
-    </select>
   </div>
 
-  {{ form.input('custom_text', label=_('Custom Text'), id='field-custom_text', placeholder=_('custom text'), value=data.custom_text, error=errors.custom_text, classes=['control-medium']) }}
+  {{ super() }}
 
 {% endblock %}
