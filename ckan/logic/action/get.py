@@ -738,12 +738,7 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    try:
-        schema = package_plugin.show_package_schema()
-    except AttributeError:
-        schema = None
-    if schema is None:
-        schema = ckan.logic.schema.default_show_package_schema()
+    schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)

@@ -2,7 +2,6 @@ import logging
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
-import ckan.logic.schema
 
 
 def create_country_codes():
@@ -97,17 +96,17 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         return schema
 
     def create_package_schema(self):
-        schema = ckan.logic.schema.default_create_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 
     def update_package_schema(self):
-        schema = ckan.logic.schema.default_update_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).update_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 
     def show_package_schema(self):
-        schema = ckan.logic.schema.default_show_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
 
         # Don't show vocab tags mixed in with normal 'free' tags
         # (e.g. on dataset pages, or on the search page)

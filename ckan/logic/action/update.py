@@ -235,12 +235,7 @@ def package_update(context, data_dict):
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    try:
-        schema = package_plugin.update_package_schema()
-    except AttributeError:
-        schema = None
-    if schema is None:
-        schema = ckan.logic.schema.default_update_package_schema()
+    schema = package_plugin.update_package_schema()
 
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a

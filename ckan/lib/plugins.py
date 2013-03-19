@@ -175,13 +175,13 @@ class DefaultDatasetForm(object):
 
     '''
     def create_package_schema(self):
-        return None
+        return ckan.logic.schema.default_create_package_schema()
 
     def update_package_schema(self):
-        return None
+        return ckan.logic.schema.default_update_package_schema()
 
     def show_package_schema(self):
-        return None
+        return ckan.logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
         authz_fn = logic.get_action('group_list_authz')
