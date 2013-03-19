@@ -247,6 +247,29 @@ class OrganizationDatasetForm(SingletonPlugin):
         schema['__after'] = [group_required]
         return schema
 
+    def form_to_db_schema_options(self, options):
+        ''' This allows us to select different schemas for different
+        purpose eg via the web interface or via the api or creation vs
+        updating. It is optional and if not available form_to_db_schema
+        should be used.
+        If a context is provided, and it contains a schema, it will be
+        returned.
+        '''
+        schema = options.get('context', {}).get('schema', None)
+        if not schema:
+            if options.get('api'):
+                if options.get('type') == 'create':
+                    schema = self.form_to_db_schema_api_create()
+                else:
+                    assert options.get('type') == 'update'
+                    schema = self.form_to_db_schema_api_update()
+            else:
+                schema = self.form_to_db_schema()
+
+        schema['groups']['capacity'] = [ignore_missing, unicode]
+        schema['__after'] = [group_required]
+        return schema
+
     def check_data_dict(self, data_dict, schema=None):
         '''Check if the return data is correct, mostly for checking out
         if spammers are submitting only part of the form'''
