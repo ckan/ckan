@@ -173,7 +173,7 @@ def default_update_package_schema():
 
     return schema
 
-def db_to_form_package_schema():
+def default_show_package_schema():
     schema = default_create_package_schema()
 
     # Don't strip ids from package dicts when validating them.
