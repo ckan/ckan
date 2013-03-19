@@ -23,7 +23,7 @@ def group_list_dictize(obj_list, context,
     query = search.PackageSearchQuery()
 
     q = {'q': '+capacity:public' if not with_private else '*:*',
-         'fl': 'groups', 'facet.field': ['groups'],
+         'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
 
     query.run(q)
@@ -42,7 +42,10 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
+        if obj.is_organization:
+            group_dict['packages'] = query.facets['owner_org'].get(obj.id, 0)
+        else:
+            group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
@@ -336,7 +339,10 @@ def group_dictize(group, context):
         context)
 
     query = search.PackageSearchQuery()
-    q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    if group.is_organization:
+        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+    else:
+        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
     result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
