@@ -1,17 +1,12 @@
 import sys
 from logging import getLogger
 
-try:
-    from collections import OrderedDict # 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
-from pylons import config, c
-from pylons.i18n import _
+from pylons import config
 from paste.deploy.converters import asbool
 
 import ckan.plugins as p
 import ckan.model as model
+from ckan.common import OrderedDict, _, c
 
 log = getLogger(__name__)
 
