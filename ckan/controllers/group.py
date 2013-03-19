@@ -192,7 +192,10 @@ class GroupController(BaseController):
 
         q = c.q = request.params.get('q', '')
         # Search within group
-        q += ' groups: "%s"' % c.group_dict.get('name')
+        if c.group_dict.get('is_organization'):
+            q += ' owner_org: "%s"' % c.group_dict.get('id')
+        else:
+            q += ' groups: "%s"' % c.group_dict.get('name')
 
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(
