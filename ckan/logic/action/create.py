@@ -107,12 +107,7 @@ def package_create(context, data_dict):
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-    try:
-        schema = package_plugin.create_package_schema()
-    except AttributeError:
-        schema = None
-    if schema is None:
-        schema = ckan.logic.schema.default_create_package_schema()
+    schema = package_plugin.create_package_schema()
 
     _check_access('package_create', context, data_dict)
 
