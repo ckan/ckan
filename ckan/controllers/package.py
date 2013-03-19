@@ -804,9 +804,6 @@ class PackageController(BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
 
-        ## hack as db_to_form schema should have this
-        data['tag_string'] = ', '.join([tag['name'] for tag
-                                        in data.get('tags', [])])
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -871,9 +868,6 @@ class PackageController(BaseController):
         # this is a real new.
         is_an_update = False
         ckan_phase = request.params.get('_ckan_phase')
-        if ckan_phase:
-            # phased add dataset so use api schema for validation
-            context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
