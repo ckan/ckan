@@ -75,7 +75,16 @@ class PackageController(base.BaseController):
     def _check_data_dict(self, data_dict, package_type=None):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
-        return lookup_package_plugin(package_type).check_data_dict(data_dict)
+
+        # check_data_dict() is deprecated. If the package_plugin has a
+        # check_data_dict() we'll call it, if it doesn't have the method we'll
+        # do nothing.
+        package_plugin = lookup_package_plugin(package_type)
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
+        if check_data_dict:
+            return check_data_dict(data_dict)
+        else:
+            return data_dict
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).\
