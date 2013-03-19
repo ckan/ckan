@@ -12,6 +12,7 @@
       </select>
     </div>
   </div>
+  {{ form.input('custom_text', label=_('Custom Text'), id='field-custom_text', placeholder=_('custom text'), value=data.custom_text, error=errors.custom_text, classes=['control-medium']) }}
 
   {{ super() }}
 
