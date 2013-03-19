@@ -50,7 +50,7 @@ then
   paster datastore set-permissions postgres -c test-core.ini
 fi
 
-if [ $PGVERSION == '8.4' ]
+if [ $PGVERSION = '8.4' ]
 then
   sed -i -e 's/.*datastore.read_url.*//' test-core.ini
 fi
