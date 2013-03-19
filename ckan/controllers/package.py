@@ -67,11 +67,6 @@ class PackageController(BaseController):
     def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
 
-    def _check_data_dict(self, data_dict, package_type=None):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form'''
-        return lookup_package_plugin(package_type).check_data_dict(data_dict)
-
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).\
             setup_template_variables(context, data_dict)
