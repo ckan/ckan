@@ -158,66 +158,22 @@ def register_group_plugins(map):
 
 
 class DefaultDatasetForm(object):
-    """
-    Provides a default implementation of the pluggable package
-    controller behaviour.
+    '''The default implementation of IDatasetForm.
 
-    This class has 2 purposes:
+    See ckan.plugins.interfaces.IDatasetForm.
 
-     - it provides a base class for IDatasetForm implementations to use
-       if only a subset of the 5 method hooks need to be customised.
+    This class has two purposes:
 
-     - it provides the fallback behaviour if no plugin is setup to
-       provide the fallback behaviour.
+    1. It provides a base class for IDatasetForm implementations to inherit
+       from.
+
+    2. It is used as the default fallback plugin, if no IDatasetForm plugin
+       registers itself as the fallback.
 
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
-    """
-    def new_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the new page
-        """
-        return 'package/new.html'
 
-    def edit_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the edit page
-        """
-        return 'package/edit.html'
-
-    def comments_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the comments page
-        """
-        return 'package/comments.html'
-
-    def search_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the search page (if present)
-        """
-        return 'package/search.html'
-
-    def read_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the read page
-        """
-        return 'package/read.html'
-
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
-        """
-        return 'package/history.html'
-
-    def package_form(self):
-        return 'package/new_package_form.html'
-
+    '''
     def create_package_schema(self):
         return None
 
@@ -226,27 +182,6 @@ class DefaultDatasetForm(object):
 
     def show_package_schema(self):
         return None
-
-    def check_data_dict(self, data_dict, schema=None):
-        '''Check if the return data is correct, mostly for checking out
-        if spammers are submitting only part of the form'''
-
-        # Resources might not exist yet (eg. Add Dataset)
-        surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
-                               'resources', 'type', 'owner_org', 'private',
-                               'log_message', 'tag_string', 'tags',
-                               'url', 'version', 'extras']
-
-        if not schema:
-            schema = self.form_to_db_schema()
-        schema_keys = schema.keys()
-        keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-        missing_keys = keys_in_schema - set(data_dict.keys())
-        if missing_keys:
-            log.info('incorrect form fields posted, missing %s' % missing_keys)
-            raise dictization_functions.DataError(data_dict)
 
     def setup_template_variables(self, context, data_dict):
         authz_fn = logic.get_action('group_list_authz')
@@ -272,6 +207,27 @@ class DefaultDatasetForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+    def new_template(self):
+        return 'package/new.html'
+
+    def read_template(self):
+        return 'package/read.html'
+
+    def edit_template(self):
+        return 'package/edit.html'
+
+    def comments_template(self):
+        return 'package/comments.html'
+
+    def search_template(self):
+        return 'package/search.html'
+
+    def history_template(self):
+        return 'package/history.html'
+
+    def package_form(self):
+        return 'package/new_package_form.html'
 
 
 class DefaultGroupForm(object):
