@@ -104,6 +104,11 @@
   position: relative;
 }
 
+.search-normal {
+  display: block;
+  margin-bottom: 0;
+}
+
 .search-giant input {
   .box-sizing(border-box);
   font-size: 16px;
@@ -152,7 +157,7 @@
 
 .control-order-by {
   position: absolute;
-  bottom: -65px;
+  bottom: -73px;
   right: 0;
 }
 
@@ -163,6 +168,32 @@
 
 .control-order-by select {
   width: 160px;
+}
+
+.search-aside {
+  .control-order-by {
+    clear: both;
+    overflow: hidden;
+    display: block;
+    position: relative;
+    bottom: 0;
+    label {
+      float: left;
+      font-weight: normal;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    select {
+      float: left;
+      padding: 2px 4px;
+      margin: 0;
+      width: inherit;
+      font-size: 12px;
+      height: 20px;
+      line-height: 20px;
+      width: 120px;
+    }
+  }
 }
 
 // Resource List

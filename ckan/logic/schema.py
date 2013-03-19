@@ -130,6 +130,7 @@ def default_package_schema():
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
+        'private': [ignore_missing, boolean_validator],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
