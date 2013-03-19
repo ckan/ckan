@@ -1,8 +1,0 @@
-{% ckan_extends %}
-
-<!-- Pass c.country_codes to package_metadata_fields.html.
-FIXME: If ckan passed c to package_metadata_fields.html anyway, we wouldn't
-need to override this block here. -->
-{% block metadata_fields %}
-  {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors, country_codes=c.country_codes %}
-{% endblock %}

@@ -125,7 +125,6 @@ setup(
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
-    example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
