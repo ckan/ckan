@@ -244,8 +244,8 @@ they all pass. See :doc:`test`.
 You can now proceed to :doc:`post-installation` which covers creating a CKAN
 sysadmin account and deploying CKAN with Apache.
 
-Upgrading a source install
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Upgrade a source install
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before upgrading your version of CKAN you should check that any custom
 templates or extensions you're using work with the new version of CKAN. For
@@ -256,9 +256,24 @@ You should also read the `CKAN Changelog <https://github.com/okfn/ckan/blob/mast
 to see if there are any extra notes to be aware of when upgrading to the new
 version.
 
-1. Backup your CKAN database using the ``ckan db dump`` command, for example::
+.. note::
 
-    paster --plugin=ckan db dump --config=/path/to/your/ckan.ini my_ckan_database.pg_dump
+    If you installed CKAN from source, you will need to activate the
+    virtualenv and switch to the ckan source directory, e.g.::
+
+        . ~/pyenv/bin/activate
+        cd ~/pyenv/src/ckan
+
+    In this case, you don't need to specifiy the `--plugin` or `--config`
+    parameters when executing the paster commands, e.g.::
+
+        (pyenv):~/pyenv/src/ckan$ paster user list
+
+1. Backup your CKAN database using the ``ckan db dump`` command, for
+   example::
+
+    paster --plugin=ckan db dump --config=/path/to/your/ckan.ini
+    my_ckan_database.pg_dump
 
    This will create a file called ``my_ckan_database.pg_dump``, if something
    goes wrong with the CKAN upgrade you can use this file to restore the
@@ -269,7 +284,7 @@ version.
 
     cd pyenv/src/ckan
     git fetch
-    git checkout release-v1.8.1
+    git checkout release-v2.0
 
    If you have any CKAN extensions installed from source, you may need to
    checkout newer versions of the extensions at this point as well. Refer to
@@ -280,8 +295,25 @@ version.
 
      pip install --upgrade -r /path/to/your/pyenv/ckan/ckan/pip-requirements.txt
 
-4. If you are upgrading to a new major version of CKAN (for example if you are
-   upgrading to CKAN 1.7, 1.8 or 1.9, etc.), update your CKAN database's schema
+4. If CKAN's Solr schema version has changed between the CKAN versions you're
+   upgrading from and to, then you need to update your solr schema symlink
+   (Check the CHANGELOG to see if it necessary to update the schema,
+   otherwise you can skip this step. This will be required from CKAN 1.8 to
+   2.0.).
+
+   When :ref:`setting up solr` you created a symlink
+   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
+   ``/path/to/your/pyenv/ckan/ckan/config/solr/schema-1.4.xml``. This symlink
+   should be updated to point to the latest schema file in
+   ``/path/to/your/pyenv/ckan/ckan/config/solr/``, if it doesn't already.
+
+   For example, to update the symlink::
+
+	sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+	sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+
+5. If you are upgrading to a new major version of CKAN (for example if you
+   are upgrading to CKAN 2.0, etc.), update your CKAN database's schema
    using the ``ckan db upgrade`` command.
 
     .. warning ::
@@ -294,35 +326,26 @@ version.
 
     paster --plugin=ckan db upgrade --config=/path/to/your/ckan.ini
 
-   If you are just upgrading to a minor version of CKAN (for example upgrading
-   from version 1.8 to 1.8.1) then it should not be necessary to upgrade your
-   database.
+   If you are just upgrading to a minor version of CKAN (for example
+   upgrading from version 2.0 to 2.0.1) then it should not be necessary to
+   upgrade your database.
 
-   See :ref:`upgrade migration` for details of the ``ckan db upgrade`` command.
+   See :ref:`upgrade migration` for details of the ``ckan db upgrade``
+   command.
 
-5. If CKAN's Solr schema version has changed between the CKAN versions you're
-   upgrading from and to, then you need to update your solr schema symlink
-   (Check the CHANGELOG to see if it necessary to update the schema, otherwise
-   you can skip this step).
-
-   When :ref:`setting up solr` you created a symlink
-   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
-   ``/path/to/your/pyenv/ckan/ckan/config/solr/schema-1.4.xml``. This symlink
-   should be updated to point to the latest schema file in
-   ``/path/to/your/pyenv/ckan/ckan/config/solr/``, if it doesn't already.
-
-   After updating the symlink, you must rebuild your search index by running
-   the ``ckan search-index rebuild`` command, for example::
+6. After updating the symlink (and/or the database), you must rebuild your
+   search index by running the ``ckan search-index rebuild`` command, for
+   example::
 
     paster --plugin=ckan search-index rebuild --config=/path/to/your/ckan.ini
 
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
 
-6. Finally, restart your web server. For example if you have deployed CKAN
+7. Finally, restart your web server. For example if you have deployed CKAN
    using the Apache web server on Ubuntu linux, run this command::
 
     sudo service apache2 restart
 
-7. You're done! You should now be able to visit your CKAN website in your web
+8. You're done! You should now be able to visit your CKAN website in your web
    browser and see that it's now running the new version of CKAN.
