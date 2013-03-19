@@ -96,7 +96,7 @@ def package_show(context, data_dict):
     package = get_package_object(context, data_dict)
     # draft state indicates package is still in the creation process
     # so we need to check we have creation rights.
-    if package.state.startswith('draft'):
+    if package.state.startswith('draft') or package.state == 'deleted':
         auth = new_authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
