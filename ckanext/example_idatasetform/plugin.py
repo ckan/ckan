@@ -81,26 +81,32 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
         # registers itself as the default (above).
         return []
 
-    def form_to_db_schema(self):
-        schema = super(ExampleIDatasetFormPlugin, self).form_to_db_schema()
-
+    def _modify_package_schema(self, schema):
         # Add our custom country_code metadata field to the schema.
         schema.update({
                 'country_code': [tk.get_validator('ignore_missing'),
                     tk.get_converter('convert_to_tags')('country_codes')]
                 })
-
         # Add our custom_test metadata field to the schema, this one will use
         # convert_to_extras instead of convert_to_tags.
         schema.update({
                 'custom_text': [tk.get_validator('ignore_missing'),
                     tk.get_converter('convert_to_extras')]
                 })
-
         return schema
 
-    def db_to_form_schema(self):
-        schema = super(ExampleIDatasetFormPlugin, self).db_to_form_schema()
+    def create_package_schema(self):
+        schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
+        schema = self._modify_package_schema(schema)
+        return schema
+
+    def update_package_schema(self):
+        schema = super(ExampleIDatasetFormPlugin, self).update_package_schema()
+        schema = self._modify_package_schema(schema)
+        return schema
+
+    def show_package_schema(self):
+        schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
 
         # Don't show vocab tags mixed in with normal 'free' tags
         # (e.g. on dataset pages, or on the search page)

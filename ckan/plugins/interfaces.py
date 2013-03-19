@@ -538,7 +538,7 @@ class IDatasetForm(Interface):
     IDatasetForm plugin (if any) gets delegated to.
 
     When implementing IDatasetForm, you can inherit from
-    ``ckan.lib.plugins.DefaultDatasetForm``, which provides default
+    ``ckan.plugins.toolkit.DefaultDatasetForm``, which provides default
     implementations for each of the methods defined in this interface.
 
     See ``ckanext/example_idatasetform`` for an example plugin.
@@ -569,26 +569,26 @@ class IDatasetForm(Interface):
         raise an exception at startup.
 
         If no IDatasetForm plugin's ``is_fallback()`` method returns ``True``,
-        CKAN will use ``ckan.lib.plugins.DefaultDatasetForm`` as the fallback.
+        CKAN will use ``DefaultDatasetForm`` as the fallback.
 
         :rtype: boolean
 
         '''
 
-    def form_to_db_schema(self):
-        '''Return the schema for mapping dataset dicts from form to db.
+    def create_package_schema(self):
+        '''Return the schema for validating new dataset dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from users (via the dataset form) before entering that data into the
-        database.
+        from users (via the dataset form or API) when creating new datasets,
+        before entering that data into the database.
 
-        If it inherits from ``DefaultDatasetForm``, a plugin can call
-        ``DefaultDatasetForm``'s ``form_to_db_schema()`` method to get the
-        default schema and then modify and return it.
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``create_package_schema()``
+        method to get the default schema and then modify and return it.
 
-        CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` function can be
-        used to convert custom fields into dataset tags or extras for storing
-        in the database.
+        CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
+        be used to convert custom fields into dataset tags or extras for
+        storing in the database.
 
         See ``ckanext/example_idatasetform`` for examples.
 
@@ -598,20 +598,46 @@ class IDatasetForm(Interface):
 
         '''
 
-    def db_to_form_schema(self):
-        '''Return the schema to map dataset dicts from db to form.
+    def update_package_schema(self):
+        '''Return the schema for validating updated dataset dicts.
 
         CKAN will use the returned schema to validate and convert data coming
-        from the database before it is passed to a template for rendering.
+        from users (via the dataset form or API) when updating datasets, before
+        entering that data into the database.
 
-        If it inherits from ``DefaultDatasetForm``, a plugin can call
-        ``DefaultDatasetForm``'s ``db_to_form_schema()`` method to get the
-        default schema and then modify and return it.
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``update_package_schema()``
+        method to get the default schema and then modify and return it.
+
+        CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
+        be used to convert custom fields into dataset tags or extras for
+        storing in the database.
+
+        See ``ckanext/example_idatasetform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+
+    def show_package_schema(self):
+        '''
+        Return a schema to validate datasets before they're shown to the user.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``show_package_schema()``
+        method to get the default schema and then modify and return it.
 
         If you have used ``convert_to_tags()`` or ``convert_to_extras()`` in
-        your form_to_db_schema then you should use ``convert_from_tags()`` or
-        ``convert_from_extras()`` in your db_to_form_schema to convert the tags
-        or extras in the database back into your custom dataset fields.
+        your ``create_package_schema()`` and ``update_package_schema()`` then
+        you should use ``convert_from_tags()`` or ``convert_from_extras()`` in
+        your ``show_package_schema()`` to convert the tags or extras in the
+        database back into your custom dataset fields.
 
         See ``ckanext/example_idatasetform`` for examples.
 
