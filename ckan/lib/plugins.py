@@ -227,7 +227,7 @@ class DefaultDatasetForm(object):
     def db_to_form_schema(self):
         '''This is an interface to manipulate data from the database
         into a format suitable for the form (optional)'''
-        return logic.schema.db_to_form_package_schema()
+        return logic.schema.default_show_package_schema()
 
     def db_to_form_schema_options(self, options):
         '''This allows the selectino of different schemas for different

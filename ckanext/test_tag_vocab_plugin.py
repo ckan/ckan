@@ -7,7 +7,7 @@ from genshi.input import HTML
 from genshi.filters import Transformer
 from ckan.logic import get_action
 from ckan.logic.converters import convert_to_tags, convert_from_tags, free_tags_only
-from ckan.logic.schema import default_create_package_schema, default_update_package_schema, db_to_form_package_schema
+from ckan.logic.schema import default_create_package_schema, default_update_package_schema, default_show_package_schema
 from ckan.lib.navl.validators import ignore_missing, keep_extras
 from ckan import plugins
 
@@ -64,7 +64,7 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         return schema
 
     def db_to_form_schema(self):
-        schema = db_to_form_package_schema()
+        schema = default_show_package_schema()
         schema.update({
             'tags': {
                 '__extras': [keep_extras, free_tags_only]
