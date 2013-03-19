@@ -109,9 +109,15 @@ def reset():
             value = model.get_system_info(key)
         else:
             value = None
+        config_value = config.get(key)
+        # sort encodeings if needed
+        if isinstance(config_value, str):
+            try:
+                config_value = config_value.decode('utf-8')
+            except UnicodeDecodeError:
+                config_value = config_value.decode('latin-1')
         # we want to store the config the first time we get here so we can
         # reset them if needed
-        config_value = config.get(key)
         if key not in _CONFIG_CACHE:
             _CONFIG_CACHE[key] = config_value
         if value is not None:
