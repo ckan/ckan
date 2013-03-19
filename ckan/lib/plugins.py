@@ -174,49 +174,11 @@ class DefaultDatasetForm(object):
            don't want this being registered.
 
     '''
-    def form_to_db_schema_options(self, options):
-        '''Return different form_to_db_schemas under different conditions.
+    def create_package_schema(self):
+        return None
 
-        For example:
-
-        - if a context is provided, and it contains a schema, return that
-          schema
-        - if a dataset is being created via the api then return
-          form_to_db_schema_api_create()
-        - if a dataset is being updated via the api then return
-          form_to_db_schema_api_update()
-        - if a dataset is being created via the web form then return
-          form_to_db_schema()
-
-        The schemas are defined by the methods below.
-
-        Because of this method, if an IDatasetForm plugin inherits from this
-        class then its form_to_db_schema() method will only be called when a
-        dataset is being created or updated over the web interface, and not
-        when the api is being used.
-
-        '''
-        schema = options.get('context', {}).get('schema', None)
-        if schema:
-            return schema
-
-        if options.get('api'):
-            if options.get('type') == 'create':
-                return self.form_to_db_schema_api_create()
-            else:
-                assert options.get('type') == 'update'
-                return self.form_to_db_schema_api_update()
-        else:
-            return self.form_to_db_schema()
-
-    def form_to_db_schema(self):
-        return logic.schema.form_to_db_package_schema()
-
-    def form_to_db_schema_api_create(self):
-        return logic.schema.default_create_package_schema()
-
-    def form_to_db_schema_api_update(self):
-        return logic.schema.default_update_package_schema()
+    def update_package_schema(self):
+        return None
 
     def db_to_form_schema_options(self, options):
         '''Return different db_to_form_schemas under different conditions.

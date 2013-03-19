@@ -9,7 +9,8 @@ from ckan.lib.dictization import (table_dictize,
 
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize)
-from ckan.logic.schema import (_base_package_schema,
+from ckan.logic.schema import (default_create_package_schema,
+                               default_update_package_schema,
                                default_group_schema,
                                default_tags_schema)
 from ckan.lib.navl.dictization_functions import validate
@@ -68,7 +69,7 @@ class TestBasicDictize:
         del result['relationships_as_subject']
 
         converted_data, errors = validate(result,
-                                          _base_package_schema(),
+                                          default_create_package_schema(),
                                           self.context)
 
         expected_data = {
@@ -114,7 +115,7 @@ class TestBasicDictize:
         data["resources"][1].pop("url")
 
         converted_data, errors = validate(data,
-                                          _base_package_schema(),
+                                          default_create_package_schema(),
                                           self.context)
 
         assert errors == {
@@ -127,7 +128,7 @@ class TestBasicDictize:
         data["id"] = package_id
 
         converted_data, errors = validate(data,
-                                          _base_package_schema(),
+                                          default_update_package_schema(),
                                           self.context)
 
         assert errors == {
@@ -137,7 +138,7 @@ class TestBasicDictize:
         data['name'] = '????jfaiofjioafjij'
 
         converted_data, errors = validate(data,
-                                          _base_package_schema(),
+                                          default_update_package_schema(),
                                           self.context)
         assert errors == {
             'name': [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
