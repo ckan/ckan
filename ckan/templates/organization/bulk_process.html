@@ -6,7 +6,8 @@
   <div class="clearfix">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
     <div class="primary">
-      <h3>
+      {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
+      <h3 class="page-heading">
         {%- if c.page.item_count -%}
           {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
         {%- elif request.params -%}
@@ -16,7 +17,7 @@
         {%- endif -%}
       </h3>
       {% if c.page.item_count %}
-        <form method="GET">
+        <form method="POST">
           <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
             <col width="8">
             <col width="120">

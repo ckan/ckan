@@ -11,6 +11,7 @@ import sqlalchemy
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -334,9 +335,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.like(q),
-            model.GroupRevision.title.like(q),
-            model.GroupRevision.description.like(q),
+            model.GroupRevision.name.ilike(q),
+            model.GroupRevision.title.ilike(q),
+            model.GroupRevision.description.ilike(q),
         ))
 
 
@@ -737,13 +738,7 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    try:
-        schema = package_plugin.db_to_form_schema_options({
-            'type':'show',
-            'api': 'api_version' in context,
-            'context': context })
-    except AttributeError:
-        schema = package_plugin.db_to_form_schema()
+    schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
@@ -1323,7 +1318,7 @@ def package_search(context, data_dict):
         for key_, value_ in value.items():
             new_facet_dict = {}
             new_facet_dict['name'] = key_
-            if key == 'groups':
+            if key in ('groups', 'organization'):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
