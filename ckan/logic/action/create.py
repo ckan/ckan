@@ -107,22 +107,22 @@ def package_create(context, data_dict):
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-    try:
-        schema = package_plugin.form_to_db_schema_options({'type':'create',
-                                               'api':'api_version' in context,
-                                               'context': context})
-    except AttributeError:
-        schema = package_plugin.form_to_db_schema()
+    schema = package_plugin.create_package_schema()
 
     _check_access('package_create', context, data_dict)
 
     if 'api_version' not in context:
-        # old plugins do not support passing the schema so we need
-        # to ensure they still work
-        try:
-            package_plugin.check_data_dict(data_dict, schema)
-        except TypeError:
-            package_plugin.check_data_dict(data_dict)
+        # check_data_dict() is deprecated. If the package_plugin has a
+        # check_data_dict() we'll call it, if it doesn't have the method we'll
+        # do nothing.
+        check_data_dict = getattr(package_plugin, 'check_datadict', None)
+        if check_data_dict:
+            try:
+                check_data_dict(data_dict, schema)
+            except TypeError:
+                # Old plugins do not support passing the schema so we need
+                # to ensure they still work
+                package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
@@ -177,19 +177,6 @@ def package_create(context, data_dict):
             else _get_action('package_show')(context, {'id':context['id']})
 
     return output
-
-def package_create_validate(context, data_dict):
-    model = context['model']
-    schema = lib_plugins.lookup_package_plugin().form_to_db_schema()
-
-    _check_access('package_create',context,data_dict)
-
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-    else:
-        return data
 
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
@@ -435,13 +422,14 @@ def member_create(context, data_dict=None):
             filter(model.Member.table_name == obj_type).\
             filter(model.Member.table_id == obj_id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active").first()
+            filter(model.Member.state == "active").first()
     if member:
         member.capacity = capacity
     else:
         member = model.Member(table_name = obj_type,
                               table_id = obj_id,
                               group_id = group.id,
+                              state = 'active',
                               capacity=capacity)
 
     model.Session.add(member)
@@ -671,11 +659,6 @@ def organization_create(context, data_dict):
         the dataset) and optionally ``'title'`` (string, the title of the
         dataset)
     :type packages: list of dictionaries
- ##   :param groups: the groups that belong to the group, a list of dictionaries
- ##       each with key ``'name'`` (string, the id or name of the group) and
- ##       optionally ``'capacity'`` (string, the capacity in which the group is
- ##       a member of the group)
- ##   :type groups: list of dictionaries
     :param users: the users that belong to the organization, a list of dictionaries
         each with key ``'name'`` (string, the id or name of the user) and
         optionally ``'capacity'`` (string, the capacity in which the user is

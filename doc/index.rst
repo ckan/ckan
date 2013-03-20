@@ -39,7 +39,6 @@ Customizing and Extending
    extensions
    writing-extensions
    toolkit
-   forms
    tag-vocabularies
    form-integration
    linked-data-and-rdf
@@ -67,11 +66,13 @@ The CKAN API
 ============
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    api
-   api-tutorial
    datastore-api
+   filestore-api
+   legacy-api
+
 
 General Administration
 ======================

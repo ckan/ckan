@@ -41,12 +41,17 @@ class _Toolkit(object):
         'aslist',               # converts an object to a list
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
+        'get_converter',        # get validator function
+        'get_validator',        # get convertor action function
         'check_access',         # check logic function authorisation
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
+        'UnknownConverter',     # convertor not found exception
+        'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
         'CkanCommand',          # class for providing cli interfaces
+        'DefaultDatasetForm',   # base class for IDatasetForm plugins
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -68,6 +73,7 @@ class _Toolkit(object):
         import ckan.lib.base as base
         import ckan.logic as logic
         import ckan.lib.cli as cli
+        import ckan.lib.plugins as lib_plugins
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -87,12 +93,17 @@ class _Toolkit(object):
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
+        t['get_converter'] = logic.get_converter
+        t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
+        t['UnknownConverter'] = logic.UnknownConverter
+        t['UnknownValidator'] = logic.UnknownValidator
 
         t['CkanCommand'] = cli.CkanCommand
+        t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
 
         # class functions
         t['render_snippet'] = self._render_snippet

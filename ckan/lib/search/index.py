@@ -3,6 +3,7 @@ import string
 import logging
 import collections
 import json
+from dateutil.parser import parse
 
 import re
 
@@ -156,8 +157,10 @@ class PackageSearchIndex(SearchIndex):
 
         # if there is an owner_org we want to add this to groups for index
         # purposes
-        if pkg_dict['owner_org']:
-            pkg_dict['groups'].append(pkg_dict['organization']['name'])
+        if pkg_dict['owner_org'] and pkg_dict.get('organization'):
+           pkg_dict['organization'] = pkg_dict['organization']['name']
+        else:
+           pkg_dict['organization'] = None
 
 
         # tracking
@@ -192,7 +195,21 @@ class PackageSearchIndex(SearchIndex):
         # Save dataset type
         pkg_dict['dataset_type'] = pkg_dict['type']
 
-        pkg_dict = dict([(k.encode('ascii', 'ignore'), v) for (k, v) in pkg_dict.items()])
+        # clean the dict fixing keys and dates
+        # FIXME where are we getting these dirty keys from?  can we not just
+        # fix them in the correct place or is this something that always will
+        # be needed?  For my data not changing the keys seems to not cause a
+        # problem.
+        new_dict = {}
+        for key, value in pkg_dict.items():
+            key = key.encode('ascii', 'ignore')
+            if key.endswith('_date'):
+                try:
+                    value = parse(value).isoformat() + 'Z'
+                except ValueError:
+                    continue
+            new_dict[key] = value
+        pkg_dict = new_dict
 
         for k in ('title', 'notes', 'title_string'):
             if k in pkg_dict and pkg_dict[k]:

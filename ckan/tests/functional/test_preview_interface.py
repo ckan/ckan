@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import ckan.lib.helpers as h
 import ckan.logic as l
 import ckan.model as model
@@ -74,7 +76,6 @@ class TestPluggablePreviews(base.FunctionalTestCase):
     def test_hook(self):
         testpackage = self.package
         resource_dict = model_dictize.resource_dictize(self.resource, {'model': model})
-        resource_dict['format'] = 'mock'
 
         context = {
             'model': model,
@@ -87,6 +88,14 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         result = self.app.get(preview_url, status=409)
         assert 'No preview' in result.body, result.body
 
+        # no preview for type "ümlaut", should not fail
+        resource_dict['format'] = u'ümlaut'
+        l.action.update.resource_update(context, resource_dict)
+
+        result = self.app.get(preview_url, status=409)
+        assert 'No preview' in result.body, result.body
+
+        resource_dict['format'] = 'mock'
         l.action.update.resource_update(context, resource_dict)
 
         #there should be a preview for type "json"
@@ -96,7 +105,7 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         assert 'mock-preview' in result.body
         assert 'mock-preview.js' in result.body
 
-        assert self.plugin.calls['can_preview'] == 2, self.plugin.calls
+        assert self.plugin.calls['can_preview'] == 3, self.plugin.calls
         assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 
@@ -110,7 +119,7 @@ class TestPluggablePreviews(base.FunctionalTestCase):
         assert 'mock-json-preview' in result.body
         assert 'mock-json-preview.js' in result.body
 
-        assert self.plugin.calls['can_preview'] == 3, self.plugin.calls
+        assert self.plugin.calls['can_preview'] == 4, self.plugin.calls
         assert self.plugin.calls['setup_template_variables'] == 1, self.plugin.calls
         assert self.plugin.calls['preview_templates'] == 1, self.plugin.calls
 

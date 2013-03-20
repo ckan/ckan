@@ -5,6 +5,10 @@
  * interval - The interval between requests in milliseconds (default: 1000).
  * items    - The max number of items to display (default: 10)
  * tags     - Boolean attribute if true will create a tag input.
+ * key      - A string of the key you want to be the form value to end up on
+ *            from the ajax returned results
+ * label    - A string of the label you want to appear within the dropdown for
+ *            returned results
  *
  * Examples
  *
@@ -16,6 +20,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
     /* Options for the module */
     options: {
       tags: false,
+      key: false,
+      label: false,
       items: 10,
       source: null,
       interval: 1000,
@@ -97,13 +103,22 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       var end    = parts.pop();
       var source = parts.join('?') + encodeURIComponent(string) + end;
       var client = this.sandbox.client;
-      var options = {format: client.parseCompletionsForPlugin};
+      var options = {
+        format: function(data) {
+          var completion_options = jQuery.extend(options, {objects: true});
+          return {
+            results: client.parseCompletions(data, completion_options)
+          }
+        },
+        key: this.options.key,
+        label: this.options.label
+      };
 
       return client.getCompletions(source, options, fn);
     },
 
     /* Looks up the completions for the provided text but also provides a few
-     * optimisations. It there is no search term it will automatically set
+     * optimisations. If there is no search term it will automatically set
      * an empty array. Ajax requests will also be debounced to ensure that
      * the server is not overloaded.
      *
