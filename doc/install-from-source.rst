@@ -337,7 +337,7 @@ version.
    search index by running the ``ckan search-index rebuild`` command, for
    example::
 
-    paster --plugin=ckan search-index rebuild --config=/path/to/your/ckan.ini
+    paster --plugin=ckan search-index rebuild -r --config=/path/to/your/ckan.ini
 
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
