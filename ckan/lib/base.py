@@ -20,7 +20,7 @@ from webhelpers.html import literal
 import ckan.exceptions
 import ckan
 from ckan.lib import i18n
-import lib.render
+import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
@@ -94,8 +94,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         try:
-            template_path, template_type = lib.render.template_info(template_name)
-        except lib.render.TemplateNotFound:
+            template_path, template_type = render_.template_info(template_name)
+        except render_.TemplateNotFound:
             template_type = 'genshi'
             template_path = ''
 
