@@ -46,6 +46,8 @@ class TestMemberLogic(object):
         ctx, dd = self._build_context('','package')
         res = get_action('member_list')(ctx,dd)
         assert len(res) == 2, res
+        assert (self.pkgs[0].id, 'package', 'public') in res
+        assert (self.pkgs[1].id, 'package', 'public') in res
 
         ctx, dd = self._build_context('','user', 'admin')
         res = get_action('member_list')(ctx,dd)
@@ -55,6 +57,7 @@ class TestMemberLogic(object):
         ctx, dd = self._build_context('','user', 'admin')
         res = get_action('member_list')(ctx,dd)
         assert len(res) == 1, res
+        assert (self.username, 'user', 'Admin') in res
 
 
     def test_member_delete(self):
