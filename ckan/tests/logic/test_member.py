@@ -1,3 +1,5 @@
+from nose.tools import assert_raises
+import ckan.logic as logic
 from ckan import model
 from ckan.logic import get_action
 from ckan.lib.create_test_data import CreateTestData
@@ -49,6 +51,10 @@ class TestMemberLogic(object):
         ctx, dd = self._build_context('', 'user', 'admin')
         res = get_action('member_list')(ctx, dd)
         assert len(res) == 0, res
+
+        ctx, dd = self._build_context('', 'user', 'admin')
+        dd['id'] = u'foo'
+        assert_raises(logic.NotFound, get_action('member_list'), ctx, dd)
 
         self._add_member(self.username, 'user', 'admin')
         ctx, dd = self._build_context('', 'user', 'admin')

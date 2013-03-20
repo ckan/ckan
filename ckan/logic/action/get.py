@@ -262,6 +262,9 @@ def member_list(context, data_dict=None):
     model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
+    if not group:
+        raise NotFound
+
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
