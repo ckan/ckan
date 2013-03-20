@@ -335,9 +335,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.like(q),
-            model.GroupRevision.title.like(q),
-            model.GroupRevision.description.like(q),
+            model.GroupRevision.name.ilike(q),
+            model.GroupRevision.title.ilike(q),
+            model.GroupRevision.description.ilike(q),
         ))
 
 
