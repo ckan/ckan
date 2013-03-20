@@ -269,8 +269,8 @@ def member_list(context, data_dict=None):
     _check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
-            filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active")
+        filter(model.Member.group_id == group.id).\
+        filter(model.Member.state == "active")
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
