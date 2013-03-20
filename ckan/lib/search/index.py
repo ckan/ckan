@@ -7,6 +7,8 @@ from dateutil.parser import parse
 
 import re
 
+import solr
+
 from pylons import config
 from paste.deploy.converters import asbool
 
@@ -251,9 +253,11 @@ class PackageSearchIndex(SearchIndex):
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
-        except Exception, e:
-            log.exception(e)
-            raise SearchIndexError(e)
+        except solr.core.SolrException, e:
+            msg = 'Solr returned an error: {0} {1} - {2}'.format(
+                e.httpcode, e.reason, e.body[:1000] # limit huge responses
+            )
+            raise SearchIndexError(msg)
         finally:
             conn.close()
 
