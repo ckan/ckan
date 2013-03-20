@@ -2,16 +2,22 @@
 Understand and Write Extensions
 ===============================
 
-If you want to extend CKAN core functionality, the best way to do so is by writing extensions.
+If you want to extend CKAN core functionality, the best way to do so is by
+writing extensions.
 
-Extensions allow you to customise CKAN for your own requirements, without interfering with the basic CKAN system.
+Extensions allow you to customise CKAN for your own requirements, without
+interfering with the basic CKAN system.
 
-To meet the need to customize CKAN efficiently, we have introduced the concepts of CKAN extensions and plugin
-interfaces. These work together to provide a simple mechanism to extend core CKAN functionality.
+To meet the need to customize CKAN efficiently, we have introduced the
+concepts of CKAN extensions and plugin interfaces. These work together to
+provide a simple mechanism to extend core CKAN functionality.
 
-.. warning:: This is an advanced topic. We are working to make the most popular extensions more easily available as Debian packages.
+.. warning:: This is an advanced topic. We are working to make the most
+  popular extensions more easily available as Debian packages.
 
-.. note:: The terms **extension** and **plugin interface** have very precise meanings: the use of the generic word **plugin** to describe any way in which CKAN might be extended is deprecated.
+.. note:: The terms **extension** and **plugin interface** have very precise
+  meanings: the use of the generic word **plugin** to describe any way in
+  which CKAN might be extended is deprecated.
 
 .. contents ::
 
@@ -32,14 +38,15 @@ to provide their functionality.
 Creating CKAN Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-All CKAN extensions must start with the name ``ckanext-``. You can create your
-own CKAN extension like this:
+All CKAN extensions must start with the name ``ckanext-``. You can create
+your own CKAN extension like this (you must be in your CKAN pyenv):
 
 ::
-
     (pyenv)$ paster create -t ckanext ckanext-myextension
 
-You'll get prompted to complete a number of variables which will be used in your dataset. You change these later by editing the generated ``setup.py`` file. Here's some example output:
+You'll get prompted to complete a number of variables which will be used in
+your dataset. You change these later by editing the generated ``setup.py``
+file. Here's some example output:
 
 ::
 
@@ -88,14 +95,14 @@ Once you've run this, you should now install the extension in your virtual envir
     >>>
 
 .. note::
-    Running ``python setup.py develop`` will add a ``.egg-link`` file to your python
-    site-packages directory (which is on your python path).
-    This allows your extension to be imported and used, with
-    any changes made to the extension source code showing up immediately without needing
+    Running ``python setup.py develop`` will add a ``.egg-link`` file to
+    your python site-packages directory (which is on your python path).
+    This allows your extension to be imported and used, with any changes
+    made to the extension source code showing up immediately without needing
     to be reinstalled, which is very useful during development.
 
-    To instead install a python package by copying all of the files to the site-packages directory
-    run ``python setup.py install``.
+    To instead install a python package by copying all of the files to the
+    site-packages directory run ``python setup.py install``.
 
 To build useful extensions you need to be able to "hook into" different parts
 of CKAN in order to extend its functionality. You do this using CKAN's plugin
@@ -105,21 +112,83 @@ architecture. We'll look at this in the next section.
 Plugins: An Overview
 --------------------
 
-Plugin interfaces provide a specification which extensions can implement in
-order to "hook into" core CKAN functionality.
+CKAN provides a number of plugin interfaces.  These are defined in
+`ckan/plugins/interfaces.py`.  An extension can use one or more of these
+interfaces to interact with CKAN.  Each interface specifies one or more
+methods that CKAN will call to use the extension.
 
-The CKAN plugin implementation is based on the PyUtilib_ component architecture
-(PCA). Here's a quick summary, we'll go through all this in much more detail in
-a minute:
+Currently the CKAN plugin implementation is based on the PyUtilib_ component
+architecture (PCA).
 
-#. The CKAN core contains various *plugin interfaces*, each specifying a set of methods
-   where plugins may hook into the software. For example a plugin wanting to hook into the SQLAlchemy
-   mapping layer would need to implement the ``IMapperExtension`` interface.
+Extensions are created as classes inheriting from either the `Plugin` or `SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin` base class and we advise you to use this if possible.
 
-#. A plugin is a class that derives from ``ckan.plugins.Plugin`` or more
-   commonly ``SingletonPlugin``. It must also implement one of the plugin
-   interfaces exposed in ``ckan.plugins.interfaces``. The choice interface
-   determines the functionality the plugin is expected to provide.
+Having created your class you need to inherit from one or more plugin interfaces to allow CKAN to interact with your extension.  When specifying the interfaces that will be implemented you must remember to either (a) define all methods required by the interface or (b) use the `inherits=True` parameter which will use the interfaces default methods for any that you have not defined.
+
+.. Note::
+    When writing extensions it is important to keep your code separate from
+    CKAN so that internal CKAN changes do not break your code between
+    releases.  You can however import ckan.plugins without this risk.
+
+::
+    # Example Extension
+    # This extension adds a new template helper function `hello_world` when
+    # enabled templates can `{{ h.hello_world() }}` to add this html snippet.
+
+    import ckan.plugins as p
+
+    class HelloWorldPlugin(p.SingletonPlugin):
+
+        p.implements(p.ITemplateHelpers)
+
+        @staticmethod
+        def hello_world():
+            # This is our simple helper function.
+            html = '<span>Hello World</span>'
+            return p.toolkit.literal(html)
+
+        def get_helpers(self):
+            # This method is defined in the ITemplateHelpers interface and
+            # is used to return a dict of named helper functions.
+            return {'hello_world': hello_world}
+
+
+Common Tasks
+------------
+
+Reading config options.
+
+::
+    import ckan.plugins as p
+
+    class ConfigurablePlugin(p.SingletonPlugin):
+
+        p.implements(p.IConfigurable)
+
+        def configure(self, config):
+            # Get the value from the config and store it in the plugin.
+            option = p.toolkit.asbool(config.get('my_config_option', False))
+            self.my_config_option = option
+
+
+
+Defining custom templates
+
+::
+    import ckan.plugins as p
+
+    class TemplateAddingPlugin(p.SingletonPlugin):
+
+        p.implements(p.IConfigurable)
+
+        def configure(self, config):
+            # Add the new template directory for this plugin.  Templates
+            # should either be defined under the ckanext-<extension_name> for
+            # extension specific templates or in the same relative path as a
+            # cken template if overriding existing templates.
+            p.toolkit.add_template_directory(config, 'templates')
+
+
+-------------------
 
 #. Plugin objects must be registered as setuptools entry points. The
    ``ckan.plugins`` configuration directive is searched for names of plugin entry
@@ -164,15 +233,9 @@ Here's a list of some of the more commonly used plugin interfaces:
 See the `Plugin API documentation`_ below to find a complete
 list of all interfaces and their documentation.
 
-.. .. note::
-..    The existing 'IRoutesExtension', 'IMapperExtension' and 'ISessionExtension'
-..    should be renamed in the code to not have the word 'Extension' in their names.
 
-
-.. _PyUtilib: https://software.sandia.gov/trac/pyutilib
-
-Example CKAN Extension
-----------------------
+Example CKAN Extensions
+-----------------------
 
 A example CKAN extension can be found at http://github.com/okfn/ckanext-example.
 Have a look at the README file for installation instructions.
