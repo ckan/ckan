@@ -323,38 +323,57 @@ def _link_to(text, *args, **kwargs):
     )
 
 
-def nav_link(text, controller, **kwargs):
+def nav_link(text, *args, **kwargs):
     '''
     params
     class_: pass extra class(s) to add to the <a> tag
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
-    if kwargs.pop('condition', True):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    if args:
         kwargs['controller'] = controller
-        link = _link_to(text, **kwargs)
+        log.warning('h.nav_link() please supply controller as a named '
+                    'parameter not a positional one')
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
     else:
         link = ''
     return link
 
 
-def nav_named_link(text, name, **kwargs):
-    '''Create a link for a named route.'''
-    return _link_to(text, name, **kwargs)
+@maintain.deprecated('h.nav_named_link is deprecated please '
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def nav_named_link(text, named_route, **kwargs):
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
+@maintain.deprecated('h.subnav_link is deprecated please '
+                     'use h.nav_link\nNOTE: if action is passed as the second '
+                     'parameter make sure it is passed as a named parameter '
+                     'eg. `action=\'my_action\'')
 def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.'''
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
     kwargs['action'] = action
-    return _link_to(text, **kwargs)
+    return nav_link(text, **kwargs)
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_named_link')
-def subnav_named_route(text, routename, **kwargs):
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return nav_named_link(text, routename, **kwargs)
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
 def build_nav_main(*args):
@@ -433,7 +452,7 @@ def _make_menu_item(menu_item, title, **kw):
         if need not in kw:
             raise Exception('menu item `%s` need parameter `%s`'
                             % (menu_item, need))
-    link = nav_named_link(title, menu_item, suppress_active_class=True, **item)
+    link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
