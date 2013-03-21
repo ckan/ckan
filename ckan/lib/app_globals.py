@@ -57,7 +57,6 @@ config_details = {
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.auth.create_user_via_web': {'default': 'true', 'type': 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
