@@ -143,11 +143,7 @@ def package_create(context, data_dict):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     pkg = model_save.package_dict_save(data, context)
-    admins = []
-    if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
 
-    model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
     model.Session.flush()
     data['id'] = pkg.id
@@ -503,11 +499,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
             log.debug('Group %s is made child of group %s',
                       group.name, parent_group.name)
 
-    if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
-    else:
-        admins = []
-    model.setup_default_user_roles(group, admins)
     # Needed to let extensions know the group id
     session.flush()
 
