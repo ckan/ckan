@@ -1,5 +1,7 @@
 import logging
+from pylons import config
 from pylons.i18n import _
+from paste.deploy.converters import asbool
 
 import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
@@ -889,6 +891,9 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+        return
+
     model = context['model']
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
