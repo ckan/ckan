@@ -41,7 +41,7 @@
         <nav class="account not-authed">
           <ul class="unstyled">
             <li>{% link_for _('Log in'), controller='user', action='login' %}</li>
-            {% if g['auth.create_user_via_web'] %}
+            {% if h.check_access('user_create') %}
               <li>{% link_for _('Register'), controller='user', action='register', class_='sub' %}</li>
             {% endif %}
           </ul>
