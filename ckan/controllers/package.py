@@ -19,6 +19,7 @@ from ckan.lib.base import response, redirect, gettext
 import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
 from ckan.lib.navl.dictization_functions import DataError, unflatten
+from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import (tuplize_dict,
                         clean_dict,

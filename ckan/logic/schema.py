@@ -181,8 +181,7 @@ def default_show_package_schema():
 
     schema.update({
         'tags': {
-            '__extras': [ckan.lib.navl.validators.keep_extras,
-                ckan.logic.converters.free_tags_only]
+            '__extras': [ckan.lib.navl.validators.keep_extras]
             },
         })
 
