@@ -18,6 +18,7 @@ __all__ = [
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
+    'IFacets',
 ]
 
 from inspect import isclass
@@ -204,7 +205,7 @@ class IResourcePreview(Interface):
         Return True if the extension can preview the resource. The ``data_dict``
         contains the resource and the package.
 
-        Make sure you also make sure to ckeck the ``on_same_domain`` value of the
+        Make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
         '''
@@ -398,18 +399,6 @@ class IPackageController(Interface):
 
         return search_results
 
-    def update_facet_titles(self, facet_titles):
-        '''
-            Update the dictionary mapping facet names to facet titles.
-
-            Example: {'facet_name': 'The title of the facet'}
-
-            Called after the search operation was performed and
-            before the search page will be displayed.
-            The titles show up on the search page.
-        '''
-        return facet_titles
-
     def before_index(self, pkg_dict):
         '''
              Extensions will receive what will be given to the solr for
@@ -511,134 +500,236 @@ class IAuthFunctions(Interface):
 
 
 class ITemplateHelpers(Interface):
-    """
-    Allow adding extra template functions available via h variable
-    """
+    '''Add custom template helper functions.
+
+    By implementing this plugin interface plugins can provide their own
+    template helper functions, which custom templates can then access via the
+    ``h`` variable.
+
+    See ``ckanext/example_itemplatehelpers`` for an example plugin.
+
+    '''
     def get_helpers(self):
-        """
-        Should return a dict, the keys being the name of the helper
-        function and the values being the functions themselves.
-        """
+        '''Return a dict mapping names to helper functions.
+
+        The keys of the dict should be the names with which the helper
+        functions will be made available to templates, and the values should be
+        the functions themselves. For example, a dict like:
+        ``{'example_helper': example_helper}`` allows templates to access the
+        ``example_helper`` function via ``h.example_helper()``.
+
+        Function names should start with the name of the extension providing
+        the function, to prevent name clashes between extensions.
+
+        '''
 
 
 class IDatasetForm(Interface):
-    """
-    Allows customisation of the package controller as a plugin.
+    '''Customize CKAN's dataset (package) schemas and forms.
 
-    The behaviour of the plugin is determined by 5 method hooks:
+    By implementing this interface plugins can customise CKAN's dataset schema,
+    for example to add new custom fields to datasets.
 
-     - package_form(self)
-     - form_to_db_schema(self)
-     - db_to_form_schema(self)
-     - check_data_dict(self, data_dict, schema=None)
-     - setup_template_variables(self, context, data_dict)
+    Multiple IDatasetForm plugins can be used at once, each plugin associating
+    itself with different package types using the ``package_types()`` and
+    ``is_fallback()`` methods below, and then providing different schemas and
+    templates for different types of dataset.  When a package controller action
+    is invoked, the ``type`` field of the package will determine which
+    IDatasetForm plugin (if any) gets delegated to.
 
-    Furthermore, there can be many implementations of this plugin registered
-    at once.  With each instance associating itself with 0 or more package
-    type strings.  When a package controller action is invoked, the package
-    type determines which of the registered plugins to delegate to.  Each
-    implementation must implement two methods which are used to determine the
-    package-type -> plugin mapping:
+    When implementing IDatasetForm, you can inherit from
+    ``ckan.plugins.toolkit.DefaultDatasetForm``, which provides default
+    implementations for each of the methods defined in this interface.
 
-     - is_fallback(self)
-     - package_types(self)
+    See ``ckanext/example_idatasetform`` for an example plugin.
 
-    Implementations might want to consider mixing in
-    ckan.lib.plugins.DefaultDatasetForm which provides
-    default behaviours for the 5 method hooks.
+    '''
+    def package_types(self):
+        '''Return an iterable of package types that this plugin handles.
 
-    """
+        If a request involving a package of one of the returned types is made,
+        then this plugin instance will be delegated to.
 
-    ##### These methods control when the plugin is delegated to          #####
+        There cannot be two IDatasetForm plugins that return the same package
+        type, if this happens then CKAN will raise an exception at startup.
+
+        :rtype: iterable of strings
+
+        '''
 
     def is_fallback(self):
-        """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
+        '''Return ``True`` if this plugin is the fallback plugin.
 
-        There must be exactly one fallback controller defined, any attempt to
-        register more than one will throw an exception at startup.  If there's
-        no fallback registered at startup the
-        ckan.lib.plugins.DefaultDatasetForm is used as the fallback.
-        """
+        When no IDatasetForm plugin's ``package_types()`` match the ``type`` of
+        the package being processed, the fallback plugin is delegated to
+        instead.
 
-    def package_types(self):
-        """
-        Returns an iterable of package type strings.
+        There cannot be more than one IDatasetForm plugin whose
+        ``is_fallback()`` method returns ``True``, if this happens CKAN will
+        raise an exception at startup.
 
-        If a request involving a package of one of those types is made, then
-        this plugin instance will be delegated to.
+        If no IDatasetForm plugin's ``is_fallback()`` method returns ``True``,
+        CKAN will use ``DefaultDatasetForm`` as the fallback.
 
-        There must only be one plugin registered to each package type.  Any
-        attempts to register more than one plugin instance to a given package
-        type will raise an exception at startup.
-        """
+        :rtype: boolean
 
-    ##### End of control methods
+        '''
 
-    ##### Hooks for customising the PackageController's behaviour        #####
-    ##### TODO: flesh out the docstrings a little more.                  #####
-    def new_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the new page
-        """
+    def create_package_schema(self):
+        '''Return the schema for validating new dataset dicts.
 
-    def comments_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the comments page
-        """
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when creating new datasets,
+        before entering that data into the database.
 
-    def search_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the search page (if present)
-        """
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``create_package_schema()``
+        method to get the default schema and then modify and return it.
 
-    def read_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the read page
-        """
+        CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
+        be used to convert custom fields into dataset tags or extras for
+        storing in the database.
 
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
-        """
+        See ``ckanext/example_idatasetform`` for examples.
 
-    def package_form(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered.  e.g. "package/new_package_form.html".
-        """
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
 
-    def form_to_db_schema(self):
-        """
-        Returns the schema for mapping package data from a form to a format
-        suitable for the database.
-        """
+        '''
 
-    def db_to_form_schema(self):
-        """
-        Returns the schema for mapping package data from the database into a
-        format suitable for the form (optional)
-        """
+    def update_package_schema(self):
+        '''Return the schema for validating updated dataset dicts.
 
-    def check_data_dict(self, data_dict, schema=None):
-        """
-        Check if the return data is correct.
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when updating datasets, before
+        entering that data into the database.
 
-        raise a DataError if not.
-        """
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``update_package_schema()``
+        method to get the default schema and then modify and return it.
+
+        CKAN's ``convert_to_tags()`` or ``convert_to_extras()`` functions can
+        be used to convert custom fields into dataset tags or extras for
+        storing in the database.
+
+        See ``ckanext/example_idatasetform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+
+    def show_package_schema(self):
+        '''
+        Return a schema to validate datasets before they're shown to the user.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+        If it inherits from ``ckan.plugins.toolkit.DefaultDatasetForm``, a
+        plugin can call ``DefaultDatasetForm``'s ``show_package_schema()``
+        method to get the default schema and then modify and return it.
+
+        If you have used ``convert_to_tags()`` or ``convert_to_extras()`` in
+        your ``create_package_schema()`` and ``update_package_schema()`` then
+        you should use ``convert_from_tags()`` or ``convert_from_extras()`` in
+        your ``show_package_schema()`` to convert the tags or extras in the
+        database back into your custom dataset fields.
+
+        See ``ckanext/example_idatasetform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
 
     def setup_template_variables(self, context, data_dict):
-        """
-        Add variables to c just prior to the template being rendered.
-        """
+        '''Add variables to the template context for use in templates.
 
-    ##### End of hooks                                                   #####
+        This function is called before a dataset template is rendered. If you
+        have custom dataset templates that require some additional variables,
+        you can add them to the template context ``ckan.plugins.toolkit.c``
+        here and they will be available in your templates. See
+        ``ckanext/example_idatasetform`` for an example.
+
+        '''
+
+    def new_template(self):
+        '''Return the path to the template for the new dataset page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/new.html'``.
+
+        :rtype: string
+
+        '''
+
+    def read_template(self):
+        '''Return the path to the template for the dataset read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/read.html'``.
+
+        :rtype: string
+
+        '''
+
+    def edit_template(self):
+        '''Return the path to the template for the dataset edit page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/edit.html'``.
+
+        :rtype: string
+
+        '''
+
+    def comments_template(self):
+        '''Return the path to the template for the dataset comments page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/comments.html'``.
+
+        :rtype: string
+
+        '''
+
+    def search_template(self):
+        '''Return the path to the template for use in the dataset search page.
+
+        This template is used to render each dataset that is listed in the
+        search results on the dataset search page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/search.html'``.
+
+        :rtype: string
+
+        '''
+
+    def history_template(self):
+        '''Return the path to the template for the dataset history page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/history.html'``.
+
+        :rtype: string
+
+        '''
+
+    def package_form(self):
+        '''Return the path to the template for the dataset form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/form.html'``.
+
+        :rtype: string
+
+        '''
 
 
 class IGroupForm(Interface):
@@ -761,3 +852,26 @@ class IGroupForm(Interface):
         """
 
     ##### End of hooks                                                   #####
+
+class IFacets(Interface):
+    ''' Allows specify which facets are displayed and also the names used.
+
+    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
+    to allow translatable dispaly names use _(...)
+    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    created each time the function is called.
+
+    The dict supplied is actually an ordered dict.
+    '''
+
+    def dataset_facets(self, facets_dict, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        ''' Update the facets_dict and return it. '''
+        return facets_dict

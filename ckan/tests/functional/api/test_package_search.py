@@ -476,11 +476,3 @@ class TestPackageSearchApi3(Api3TestCase, PackageSearchApiTestCase):
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
         assert res_dict['count'] == 1, res_dict
-
-
-class TestPackageSearchApiUnversioned(PackageSearchApiTestCase,
-                                      ApiUnversionedTestCase,
-                                      LegacyOptionsTestCase): pass
-
-
-

@@ -295,19 +295,23 @@ The exception to using ``plugins.load()`` is for when your plug-in is for routes
 In this case, the plugin must be configured before the WSGI app is started.
 Here is an example test set-up::
 
-    from paste.deploy import appconfig
+    from pylons import config
     import paste.fixture
     from ckan.config.middleware import make_app
-    from ckan.tests import conf_dir
 
     class TestMyRoutesPlugin(TestCase):
 
         @classmethod
         def setup_class(cls):
-            config = appconfig('config:test.ini', relative_to=conf_dir)
-            config.local_conf['ckan.plugins'] = 'my_routes_plugin'
-            wsgiapp = make_app(config.global_conf, **config.local_conf)
+            cls._original_config = config.copy()
+            config['ckan.plugins'] = 'my_routes_plugin'
+            wsgiapp = make_app(config['global_conf'], **config.local_conf)
             cls.app = paste.fixture.TestApp(wsgiapp)
+
+        @classmethod
+        def teardown_class(cls):
+            config.clear()
+            config.update(cls._original_config)
 
 At this point you should be able to write your own plugins and extensions
 together with their tests.

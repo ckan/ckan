@@ -7,7 +7,6 @@ from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase 
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase 
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase 
 
 class RelationshipsTestCase(BaseModelApiTestCase):
 
@@ -327,4 +326,3 @@ class RelationshipsTestCase(BaseModelApiTestCase):
 
 class TestRelationshipsVersion1(Version1TestCase, RelationshipsTestCase): pass
 class TestRelationshipsVersion2(Version2TestCase, RelationshipsTestCase): pass
-class TestRelationshipsUnversioned(UnversionedTestCase, RelationshipsTestCase): pass

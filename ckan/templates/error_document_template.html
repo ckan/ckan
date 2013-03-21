@@ -2,14 +2,20 @@
 
 {% block subtitle %}{{ gettext('Error %(error_code)s', error_code=c.code[0]) }}{% endblock %}
 
-{% block primary_content %}
-	{{ c.content}}
+{% block primary %}
+  <article class="module">
+    <div class="module-content">
+      {{ c.content}}
+    </div>
+  </article>
 {% endblock %}
 
 {% block breadcrumb %}
 {% endblock %}
 
 {% block flash %}
-    {# eat the flash messages caused by the 404 #}
-    {% set flash_messages = h.flash.pop_messages() %}
+  {# eat the flash messages caused by the 404 #}
+  {% set flash_messages = h.flash.pop_messages() %}
 {% endblock %}
+
+{% block secondary %}{% endblock %}

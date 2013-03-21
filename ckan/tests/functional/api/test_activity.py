@@ -13,8 +13,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pylons.test
+from pylons import config
+from paste.deploy.converters import asbool
 import paste.fixture
-from ckan.lib.helpers import json
+from nose import SkipTest
+from ckan.common import json
 
 
 ##def package_update(context, data_dict):
@@ -170,9 +173,10 @@ def find_new_activities(before, after):
 
 
 class TestActivity:
-
     @classmethod
     def setup_class(self):
+        if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+            raise SkipTest('Activity streams not enabled')
         import ckan
         import ckan.model as model
         ckan.tests.CreateTestData.create()
@@ -550,8 +554,6 @@ class TestActivity:
                 extras_after]
         assert len(deleted_extras) == 1, "%s != 1" % len(deleted_extras)
         deleted_extra = deleted_extras[0]
-        assert detail['object_id'] == deleted_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "deleted", (
@@ -646,8 +648,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "changed", (
@@ -740,8 +740,6 @@ class TestActivity:
                 extras_before]
         assert len(new_extras) == 1, "%s != 1" % len(new_extras)
         new_extra = new_extras[0]
-        assert detail['object_id'] == new_extra['id'], (
-            str(detail['object_id']))
         assert detail['object_type'] == "PackageExtra", (
             str(detail['object_type']))
         assert detail['activity_type'] == "new", (

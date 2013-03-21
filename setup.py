@@ -78,8 +78,6 @@ setup(
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     notify = ckan.lib.cli:Notification
-    rights = ckan.lib.authztool:RightsCommand
-    roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
@@ -89,7 +87,10 @@ setup(
     check-po-files = ckan.i18n.check_po_files:CheckPoFiles
     trans = ckan.lib.cli:TranslationsCommand
     minify = ckan.lib.cli:MinifyCommand
+    less = ckan.lib.cli:LessCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
+    front-end-build = ckan.lib.cli:FrontEndBuildCommand
+
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
@@ -123,6 +124,8 @@ setup(
     json_preview=ckanext.jsonpreview.plugin:JsonPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
+    example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
+    example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

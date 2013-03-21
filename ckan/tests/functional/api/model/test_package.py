@@ -10,7 +10,6 @@ from ckan.lib.search.common import SolrSettings
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
@@ -417,7 +416,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 u'key3': u'val3',
                 u'key4': u'',
                 u'key2': None,
-                u'key7': ['a','b'],
+                u'key7': '["a","b"]',
              },
             'tags': [u'tag 1.1', u'tag2', u'tag 4', u'tag5.'],
         }
@@ -481,7 +480,7 @@ class PackagesTestCase(BaseModelApiTestCase):
             self.assert_equal(len(package.extras), 4)
             for key, value in {u'key1':u'val1',
                                u'key3':u'val3',
-                               u'key7':['a','b'],
+                               u'key7':'["a","b"]',
                                u'key4':u''}.items():
                 self.assert_equal(package.extras[key], value)
             # NB: key4 set to '' creates it
@@ -825,4 +824,3 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         assert pkg.resources[0].url == pkg_vals['download_url']
 
 class TestPackagesVersion2(Version2TestCase, PackagesTestCase): pass
-class TestPackagesUnversioned(UnversionedTestCase, PackagesTestCase): pass

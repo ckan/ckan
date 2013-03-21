@@ -416,6 +416,9 @@ class UserController(base.BaseController):
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
+        # FIXME 403 error for invalid key is a non helpful page
+        # FIXME We should reset the reset key when it is used to prevent
+        # reuse of the url
         context = {'model': model, 'session': model.Session,
                    'user': c.user,
                    'keep_sensitive_data': True}
@@ -473,6 +476,7 @@ class UserController(base.BaseController):
                 raise ValueError(_('The passwords you entered'
                                  ' do not match.'))
             return password1
+        raise ValueError(_('You must provide a password'))
 
     def followers(self, id=None):
         context = {'for_view': True}
@@ -586,7 +590,9 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
         try:
             get_action('follow_user')(context, data_dict)
-            h.flash_success(_("You are now following {0}").format(id))
+            user_dict = get_action('user_show')(context, data_dict)
+            h.flash_success(_("You are now following {0}").format(
+                user_dict['display_name']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
                              or e.error_dict)
@@ -603,7 +609,9 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
         try:
             get_action('unfollow_user')(context, data_dict)
-            h.flash_success(_("You are no longer following {0}").format(id))
+            user_dict = get_action('user_show')(context, data_dict)
+            h.flash_success(_("You are no longer following {0}").format(
+                user_dict['display_name']))
         except (NotFound, NotAuthorized) as e:
             error_message = e.extra_msg or e.message
             h.flash_error(error_message)

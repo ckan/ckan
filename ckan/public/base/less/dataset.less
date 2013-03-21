@@ -11,7 +11,9 @@
 }
 
 .dataset-heading {
-  font-size: 14px;
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 8px;
   line-height: 1.3;
 }
 
@@ -24,22 +26,19 @@
   top: -1px;
 }
 
-.dataset-content {
-  font-size: 12px;
-}
-
 .dataset-private {
   margin-right: 10px;
   text-transform: uppercase;
+  .icon-lock {
+    width: 9px;
+  }
   &.pull-right {
     margin-right: 0;
   }
 }
 
 .dataset-resources {
-  font-size: 10px;
-  line-height: 14px;
-  margin-top: 5px;
+  margin-top: 8px;
 }
 
 .dataset-resources li {
@@ -54,13 +53,15 @@
   top: 0;
 }
 
-.results {
+.results,
+.is-search-title {
   margin-bottom: 20px;
   padding-bottom: 25px;
   border-bottom: 1px dotted @genericBorderColor;
 }
 
-.results strong {
+.results strong,
+.is-search-title {
   display: block;
   font-size: 24px;
   line-height: 1.3;
@@ -68,10 +69,15 @@
   margin-bottom: 10px;
 }
 
+.is-search-title {
+  margin-bottom: 20px;
+}
+
 // Use a before block to space out the area occupied by the sort select box
 // this allows the text content in the strong tag to flow correctly around
 // the input.
-.results strong:before {
+.results strong:before,
+.is-search-title:before {
   float: right;
   content: " ";
   width: 280px;
@@ -80,7 +86,6 @@
 
 .filter-list {
   color: @layoutTextColor;
-  font-weight: bold;
 }
 
 .filter-list .extra {
@@ -94,8 +99,14 @@
   position: relative;
 }
 
-.search-giant {
+.search-giant,
+.search-normal {
   position: relative;
+}
+
+.search-normal {
+  display: block;
+  margin-bottom: 0;
 }
 
 .search-giant input {
@@ -104,6 +115,29 @@
   padding: 14px 10px;
   width: 100%;
   height: auto;
+}
+
+.search-normal input {
+  .box-sizing(border-box);
+  width: 100%;
+  height: auto;
+}
+
+.search-normal button {
+  cursor: pointer;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  background: transparent;
+  border: none;
+  color: #999;
+  margin-top: -17px;
+  span {
+    display: none;
+  }
+  &:hover {
+    color: #000;
+  }
 }
 
 .search-giant button {
@@ -123,7 +157,7 @@
 
 .control-order-by {
   position: absolute;
-  bottom: -65px;
+  bottom: -73px;
   right: 0;
 }
 
@@ -134,6 +168,32 @@
 
 .control-order-by select {
   width: 160px;
+}
+
+.search-aside {
+  .control-order-by {
+    clear: both;
+    overflow: hidden;
+    display: block;
+    position: relative;
+    bottom: 0;
+    label {
+      float: left;
+      font-weight: normal;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    select {
+      float: left;
+      padding: 2px 4px;
+      margin: 0;
+      width: inherit;
+      font-size: 12px;
+      height: 20px;
+      line-height: 20px;
+      width: 120px;
+    }
+  }
 }
 
 // Resource List
@@ -220,7 +280,7 @@
 
 .tag-list {
   .unstyled;
-  padding: 10px;
+  padding: 10px 10px 5px 10px;
 }
 
 .tag-list li {

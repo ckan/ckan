@@ -4,11 +4,12 @@
 
 {% block primary_content_inner %}
   <div class="module-content">
-    <h1 class="hide-heading">{{ _('Members') }}</h1>
-    <table class="table table-bordered">
+    {% link_for _('Add Member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
+    <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
+    <table class="table table-header table-hover table-bordered">
       <col width="70" />
       <col width="40" />
-      <col width="15" />
+      <col width="20" />
       <thead>
         <tr>
           <th scope="col">{{ _('User') }}</th>
@@ -36,8 +37,5 @@
         {% endfor %}
       </tbody>
     </table>
-    <div class="form-actions">
-      {% link_for _('Add member'), controller='organization', action='member_new', id=c.group_dict.id, class_='btn btn-primary' %}
-    </div>
   </div>
 {% endblock %}

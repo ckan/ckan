@@ -19,7 +19,7 @@ package_extra_table = Table('package_extra', meta.metadata,
     # NB: only (package, key) pair is unique
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('key', types.UnicodeText),
-    Column('value', _types.JsonType),
+    Column('value', types.UnicodeText),
 )
 
 vdm.sqlalchemy.make_table_stateful(package_extra_table)

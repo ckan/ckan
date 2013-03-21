@@ -1,14 +1,11 @@
-{% extends "page.html" %}
-
-{% set pkg = c.pkg_dict %}
+{% extends "package/base.html" %}
 
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
-{% block breadcrumb_content %}
-  {% set dataset = pkg.title or pkg.name %}
-  <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-  <li class="active"><a href="" title="{{ dataset }}">{{ dataset|truncate(35) }}</a></li>
-{% endblock %}
+{% block links -%}
+    {{ super() }}
+    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+{% endblock -%}
 
 {% block actions_content %}
   {# NOTE: Not implemented in stage 1 #}
@@ -25,7 +22,7 @@
       <div class="module info">
         <p class="module-content">
           {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-          {% set url =  h.url(controller='package', action='read', id=pkg.name) %}
+          {% set url = h.url(controller='package', action='read', id=pkg.name) %}
 
           {% if c.pkg_revision_not_latest %}
             {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
@@ -38,15 +35,17 @@
   {% endblock %}
 
   <article class="module prose">
-
     {% block page_header %}
-      {% snippet 'snippets/page_header.html', items=[
-          h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name),
-          h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
-          h.build_nav_icon('related_list', _('Related'), id=pkg.name),
-        ] %}
+      <header class="module-content page-header">
+        <ul class="nav nav-tabs">
+          {% block page_header_tabs %}
+            {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
+            {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
+            {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }}
+          {% endblock %}
+        </ul>
+      </header>
     {% endblock %}
-
     {% block primary_content_inner %}{% endblock %}
   </article>
 {% endblock %}
@@ -57,22 +56,29 @@
 
   {% block package_organization %}
     {% if pkg.organization %}
-      {% snippet "snippets/organization.html", organization=pkg.organization, truncate=70, show_nums=false %}
+      {% snippet "snippets/organization.html", organization=pkg.organization %}
     {% endif %}
   {% endblock %}
 
   {% block package_groups %}
-    {% for group in pkg.groups %}
-      {% snippet "snippets/group.html", group=group, truncate=70 %}
-    {% endfor %}
+    {% if pkg.groups %}
+      <div class="module module-narrow">
+        <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
+        <ul class="nav nav-simple">
+          {% for group in pkg.groups %}
+            <li class="nav-item">
+              <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
+                {{ group.title or group.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
   {% endblock %}
 
   {% block package_social %}
     {% snippet "snippets/social.html" %}
-  {% endblock %}
-
-  {% block package_related %}
-    {% snippet "snippets/related.html", item=c.pkg.related|last, pkg_name=pkg.name %}
   {% endblock %}
 
   {% block package_license %}

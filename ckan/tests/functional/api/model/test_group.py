@@ -8,7 +8,7 @@ from nose.tools import assert_equal
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
-from ckan.tests.functional.api.base import ApiUnversionedTestCase as UnversionedTestCase
+
 
 class GroupsTestCase(BaseModelApiTestCase):
 
@@ -225,4 +225,3 @@ class GroupsTestCase(BaseModelApiTestCase):
 
 class TestGroupsVersion1(Version1TestCase, GroupsTestCase): pass
 class TestGroupsVersion2(Version2TestCase, GroupsTestCase): pass
-class TestGroupsUnversioned(UnversionedTestCase, GroupsTestCase): pass

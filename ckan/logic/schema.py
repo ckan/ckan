@@ -50,6 +50,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
 from formencode.validators import OneOf
 import ckan.model
+import ckan.lib.maintain as maintain
 
 def default_resource_schema():
 
@@ -112,10 +113,10 @@ def default_create_tag_schema():
     schema['id'] = [empty]
     return schema
 
-def default_package_schema():
 
+def default_create_package_schema():
     schema = {
-        'id': [ignore_missing, unicode, package_id_exists],
+        'id': [empty],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
@@ -130,11 +131,17 @@ def default_package_schema():
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
+        'log_message': [ignore_missing, unicode, no_http],
+        'private': [ignore_missing, boolean_validator],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
+        'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
+        'extras_validation': [duplicate_extras_key, ignore],
+        'save': [ignore],
+        'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
@@ -146,71 +153,94 @@ def default_package_schema():
     }
     return schema
 
-def default_create_package_schema():
-
-    schema = default_package_schema()
-    schema["id"] = [empty]
-
-    return schema
-
 def default_update_package_schema():
+    schema = default_create_package_schema()
 
-    schema = default_package_schema()
-    schema["id"] = [ignore_missing, package_id_not_changed]
-    schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
-    schema["title"] = [ignore_missing, unicode]
+    # Users can (optionally) supply the package id when updating a package, but
+    # only to identify the package to be updated, they cannot change the id.
+    schema['id'] = [ignore_missing, package_id_not_changed]
 
-    schema['private'] = [ignore_missing, boolean_validator]
+    # Supplying the package name when updating a package is optional (you can
+    # supply the id to identify the package instead).
+    schema['name'] = [ignore_missing, name_validator, package_name_validator,
+            unicode]
+
+    # Supplying the package title when updating a package is optional, if it's
+    # not supplied the title will not be changed.
+    schema['title'] = [ignore_missing, unicode]
+
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
+
     return schema
 
-def package_form_schema():
-    # This function is deprecated and was replaced by
-    # form_to_db_package_schema(), it remains here for backwards compatibility.
-    return form_to_db_package_schema()
+def default_show_package_schema():
+    schema = default_create_package_schema()
 
-def form_to_db_package_schema():
+    # Don't strip ids from package dicts when validating them.
+    schema['id'] = []
 
-    schema = default_package_schema()
-    ##new
-    schema['log_message'] = [ignore_missing, unicode, no_http]
-    schema['groups'] = {
-            'id': [ignore_missing, unicode],
-            '__extras': [ignore],
-    }
-    schema['tag_string'] = [ignore_missing, tag_string_convert]
-    schema['extras_validation'] = [duplicate_extras_key, ignore]
-    schema['save'] = [ignore]
-    schema['return_to'] = [ignore]
-    schema['type'] = [ignore_missing, unicode]
-
-    ##changes
-    schema.pop("id")
-    schema.pop('tags')
-    schema.pop('relationships_as_object')
-    schema.pop('revision_id')
-    schema.pop('relationships_as_subject')
-    return schema
-
-def db_to_form_package_schema():
-    schema = default_package_schema()
-    # Workaround a bug in CKAN's convert_from_tags() function.
-    # TODO: Fix this issue in convert_from_tags().
     schema.update({
-        'tags': {
-            '__extras': [ckan.lib.navl.validators.keep_extras,
-                ckan.logic.converters.free_tags_only]
-            },
-        })
-    # Workaround a bug in CKAN.
-    # TODO: Fix this elsewhere so we don't need to workaround it here.
+        'tags': {'__extras': [ckan.lib.navl.validators.keep_extras]}})
+
+    # Add several keys to the 'resources' subschema so they don't get stripped
+    # from the resource dicts by validation.
     schema['resources'].update({
         'created': [ckan.lib.navl.validators.ignore_missing],
         'position': [not_empty],
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'revision_timestamp': [],
+        'resource_group_id': [],
+        'cache_last_updated': [],
+        'webstore_last_updated': [],
+        'size': [],
+        'state': [],
+        'last_modified': [],
+        'mimetype': [],
+        'cache_url': [],
+        'name': [],
+        'webstore_url': [],
+        'mimetype_inner': [],
+        'resource_type': [],
     })
+
+    schema.update({
+        'state': [ckan.lib.navl.validators.ignore_missing],
+        'isopen': [ignore_missing],
+        'license_url': [ignore_missing],
+        })
+
+    schema['groups'].update({
+        'description': [ignore_missing],
+        })
+
+    # Remove validators for several keys from the schema so validation doesn't
+    # strip the keys from the package dicts if the values are 'missing' (i.e.
+    # None).
+    schema['author'] = []
+    schema['author_email'] = []
+    schema['maintainer'] = []
+    schema['maintainer_email'] = []
+    schema['license_id'] = []
+    schema['notes'] = []
+    schema['url'] = []
+    schema['version'] = []
+
+    # Add several keys that are missing from default_create_package_schema(), so
+    # validation doesn't strip the keys from the package dicts.
+    schema['metadata_created'] = []
+    schema['metadata_modified'] = []
+    schema['num_resources'] = []
+    schema['num_tags'] = []
+    schema['organization'] = []
+    schema['owner_org'] = []
+    schema['private'] = []
+    schema['revision_id'] = []
+    schema['revision_timestamp'] = []
+    schema['tracking_summary'] = []
+    schema['license_title'] = []
+
     return schema
 
 def default_group_schema():
