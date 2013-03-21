@@ -3,46 +3,43 @@ from urllib import urlencode
 import datetime
 
 from pylons import config
-from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
 from paste.deploy.converters import asbool
 
-from ckan.logic import get_action, check_access
-from ckan.lib.base import (request,
-                           render,
-                           BaseController,
-                           model,
-                           abort, g, c)
-from ckan.lib.base import response, redirect, gettext
+import ckan.logic as logic
+import ckan.lib.base as base
 import ckan.lib.maintain as maintain
-from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
-from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import (tuplize_dict,
-                        clean_dict,
-                        parse_params,
-                        flatten_to_string_key)
-from ckan.lib.i18n import get_lang
-import ckan.rating
-import ckan.misc
+import ckan.lib.package_saver as package_saver
+import ckan.lib.i18n as i18n
+import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.accept as accept
 import ckan.lib.helpers as h
+import ckan.model as model
 import ckan.lib.datapreview as datapreview
-import ckan.plugins as plugins
-from home import CACHE_PARAMETERS
-
-from ckan.lib.plugins import lookup_package_plugin
+import ckan.lib.plugins
 import ckan.plugins as p
 
-
-try:
-    from collections import OrderedDict # 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from ckan.common import OrderedDict, _, json, request, c, g, response
+from home import CACHE_PARAMETERS
 
 log = logging.getLogger(__name__)
 
+render = base.render
+abort = base.abort
+redirect = base.redirect
+
+NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
+ValidationError = logic.ValidationError
+check_access = logic.check_access
+get_action = logic.get_action
+tuplize_dict = logic.tuplize_dict
+clean_dict = logic.clean_dict
+parse_params = logic.parse_params
+flatten_to_string_key = logic.flatten_to_string_key
+
+lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
 def _encode_params(params):
     return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
@@ -62,7 +59,7 @@ def search_url(params, package_type=None):
     return url_with_params(url, params)
 
 
-class PackageController(BaseController):
+class PackageController(base.BaseController):
 
     def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
@@ -78,7 +75,16 @@ class PackageController(BaseController):
     def _check_data_dict(self, data_dict, package_type=None):
         '''Check if the return data is correct, mostly for checking out if
         spammers are submitting only part of the form'''
-        return lookup_package_plugin(package_type).check_data_dict(data_dict)
+
+        # check_data_dict() is deprecated. If the package_plugin has a
+        # check_data_dict() we'll call it, if it doesn't have the method we'll
+        # do nothing.
+        package_plugin = lookup_package_plugin(package_type)
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
+        if check_data_dict:
+            return check_data_dict(data_dict)
+        else:
+            return data_dict
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).\
@@ -245,7 +251,7 @@ class PackageController(BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            for plugin in plugins.PluginImplementations(plugins.IFacets):
+            for plugin in p.PluginImplementations(p.IFacets):
                 facets = plugin.dataset_facets(facets, package_type)
 
             c.facet_titles = facets
@@ -363,7 +369,7 @@ class PackageController(BaseController):
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
-        PackageSaver().render_package(c.pkg_dict, context)
+        package_saver.PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
@@ -388,7 +394,7 @@ class PackageController(BaseController):
         c.current_package_id = c.pkg.id
 
         #render the package
-        PackageSaver().render_package(c.pkg_dict)
+        package_saver.PackageSaver().render_package(c.pkg_dict)
         return render(self._comments_template(package_type))
 
     def history(self, id):
@@ -435,7 +441,7 @@ class PackageController(BaseController):
                                id=c.pkg_dict['name']),
                 description=_(u'Recent changes to CKAN Dataset: ') +
                 (c.pkg_dict['title'] or ''),
-                language=unicode(get_lang()),
+                language=unicode(i18n.get_lang()),
             )
             for revision_dict in c.pkg_revisions:
                 revision_date = h.date_str_to_datetime(
@@ -489,7 +495,7 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context, package_type=package_type)
 
-        data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+        data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
         c.resources_json = h.json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
@@ -533,7 +539,7 @@ class PackageController(BaseController):
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
         if request.method == 'POST' and not data:
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
@@ -598,7 +604,7 @@ class PackageController(BaseController):
         forms. '''
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
@@ -688,7 +694,7 @@ class PackageController(BaseController):
 
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
@@ -816,7 +822,7 @@ class PackageController(BaseController):
             data = get_action('package_show')(context, {'id': id})
             schema = self._db_to_form_schema(package_type=package_type)
             if schema:
-                data, errors = validate(data, schema)
+                data, errors = dict_fns.validate(data, schema)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
@@ -894,7 +900,7 @@ class PackageController(BaseController):
             context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if ckan_phase:
                 # prevent clearing of groups etc
@@ -943,7 +949,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
             abort(404, _('Dataset not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
             try:
@@ -969,7 +975,7 @@ class PackageController(BaseController):
         log.debug('Package save request name: %s POST: %r',
                   name_or_id, request.POST)
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
                 # we allow partial updates to not destroy existing resources
@@ -994,7 +1000,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
             abort(404, _('Dataset not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
             try:
@@ -1039,7 +1045,7 @@ class PackageController(BaseController):
     def authz(self, id):
         pkg = model.Package.get(id)
         if pkg is None:
-            abort(404, gettext('Dataset not found'))
+            abort(404, _('Dataset not found'))
         # needed to add in the tab bar to the top of the auth page
         c.pkg = pkg
         c.pkgname = pkg.name
@@ -1053,7 +1059,7 @@ class PackageController(BaseController):
         except NotAuthorized:
             c.authz_editable = False
         if not c.authz_editable:
-            abort(401, gettext('User %r not authorized to edit %s '
+            abort(401, _('User %r not authorized to edit %s '
                                'authorizations') % (c.user, id))
 
         roles = self._handle_update_of_authz(pkg)
@@ -1166,7 +1172,7 @@ class PackageController(BaseController):
         validation = fs.validate()
         if not validation:
             c.form = self._render_edit_form(fs, request.params)
-            raise ValidationException(fs)
+            raise package_saver.ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:
@@ -1414,7 +1420,7 @@ class PackageController(BaseController):
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, data_dict)
 
-            c.resource_json = h.json.dumps(c.resource)
+            c.resource_json = json.dumps(c.resource)
 
         except NotFound:
             abort(404, _('Resource not found'))
