@@ -608,7 +608,8 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
 
             # see if we have any data that we are trying to save
             data_provided = False
@@ -694,7 +695,9 @@ class PackageController(BaseController):
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
