@@ -4,32 +4,38 @@ import genshi
 import datetime
 from urllib import urlencode
 
-from ckan.lib.base import BaseController, c, model, request, render, h, g
-from ckan.lib.base import ValidationException, abort, gettext
+from pylons.i18n import get_lang
+
 import ckan.lib.base as base
-from pylons.i18n import get_lang, _
-from ckan.lib.helpers import Page
+import ckan.lib.helpers as h
 import ckan.lib.maintain as maintain
-from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
-from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import check_access, get_action
-from ckan.logic import tuplize_dict, clean_dict, parse_params
-import ckan.logic.action.get
+import ckan.lib.navl.dictization_functions as dict_fns
+import ckan.logic as logic
 import ckan.lib.search as search
-import ckan.new_authz
-
-from ckan.lib.plugins import lookup_group_plugin
+import ckan.model as model
+import ckan.new_authz as new_authz
+import ckan.lib.plugins
 import ckan.plugins as plugins
-
-try:
-    from collections import OrderedDict # 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
+from ckan.common import OrderedDict, c, g, request, _
 
 log = logging.getLogger(__name__)
 
+render = base.render
+abort = base.abort
 
-class GroupController(BaseController):
+NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
+ValidationError = logic.ValidationError
+check_access = logic.check_access
+get_action = logic.get_action
+tuplize_dict = logic.tuplize_dict
+clean_dict = logic.clean_dict
+parse_params = logic.parse_params
+
+lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
+
+
+class GroupController(base.BaseController):
 
     group_type = 'group'
 
@@ -48,7 +54,7 @@ class GroupController(BaseController):
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
         return lookup_group_plugin(group_type).\
-        setup_template_variables(context, data_dict)
+            setup_template_variables(context, data_dict)
 
     def _new_template(self, group_type):
         return lookup_group_plugin(group_type).new_template()
@@ -76,7 +82,6 @@ class GroupController(BaseController):
 
     def _bulk_process_template(self, group_type):
         return lookup_group_plugin(group_type).bulk_process_template()
-
 
     ## end hooks
     def _replace_group_org(self, string):
@@ -134,8 +139,7 @@ class GroupController(BaseController):
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
-        data_dict = {'all_fields': True,
-                     'q': q,}
+        data_dict = {'all_fields': True, 'q': q}
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
@@ -152,7 +156,7 @@ class GroupController(BaseController):
 
         results = self._action('group_list')(context, data_dict)
 
-        c.page = Page(
+        c.page = h.Page(
             collection=results,
             page=request.params.get('page', 1),
             url=h.pager_url,
@@ -192,11 +196,14 @@ class GroupController(BaseController):
 
         q = c.q = request.params.get('q', '')
         # Search within group
-        q += ' groups: "%s"' % c.group_dict.get('name')
+        if c.group_dict.get('is_organization'):
+            q += ' owner_org: "%s"' % c.group_dict.get('id')
+        else:
+            q += ' groups: "%s"' % c.group_dict.get('name')
 
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(
-            c.group_dict.get('description', ''))
+                c.group_dict.get('description', ''))
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" %\
@@ -207,7 +214,7 @@ class GroupController(BaseController):
 
         # c.group_admins is used by CKAN's legacy (Genshi) templates only,
         # if we drop support for those then we can delete this line.
-        c.group_admins = ckan.new_authz.get_group_or_org_admin_ids(c.group.id)
+        c.group_admins = new_authz.get_group_or_org_admin_ids(c.group.id)
 
         try:
             page = int(request.params.get('page', 1))
@@ -231,8 +238,7 @@ class GroupController(BaseController):
                                         action='read',
                                         id=id)
             else:
-                url = self._url_for(controller='group', action='read',
-                                id=id)
+                url = self._url_for(controller='group', action='read', id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
@@ -247,8 +253,8 @@ class GroupController(BaseController):
 
         def remove_field(key, value=None, replace=None):
             return h.remove_url_param(key, value=value, replace=replace,
-                                  controller='group', action='read',
-                                  extras=dict(id=c.group_dict.get('name')))
+                                      controller='group', action='read',
+                                      extras=dict(id=c.group_dict.get('name')))
 
         c.remove_field = remove_field
 
@@ -280,9 +286,9 @@ class GroupController(BaseController):
             facets = OrderedDict()
 
             default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+                                    'tags': _('Tags'),
+                                    'res_format': _('Formats'),
+                                    'license': _('Licence')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -299,7 +305,8 @@ class GroupController(BaseController):
                     facets = plugin.group_facets(
                         facets, self.group_type, None)
 
-            if 'capacity' in facets and (self.group_type != 'organization' or not user_member_of_orgs):
+            if 'capacity' in facets and (self.group_type != 'organization' or
+                                         not user_member_of_orgs):
                 del facets['capacity']
 
             c.facet_titles = facets
@@ -325,9 +332,8 @@ class GroupController(BaseController):
             )
 
             c.facets = query['facets']
-            maintain.deprecate_context_item(
-              'facets',
-              'Use `c.search_facets` instead.')
+            maintain.deprecate_context_item('facets',
+                                            'Use `c.search_facets` instead.')
 
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
@@ -344,15 +350,13 @@ class GroupController(BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-
-
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
 
         group_type = self._get_group_type(id.split('@')[0])
 
-        if group_type  != 'organization':
+        if group_type != 'organization':
             # FIXME: better error
             raise Exception('Must be an organization')
 
@@ -382,7 +386,8 @@ class GroupController(BaseController):
             c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
 
-        # process the action first find the datasets to perform the action on. they are prefixed by dataset_ in the form data
+        # process the action first find the datasets to perform the action on.
+        # they are prefixed by dataset_ in the form data
         datasets = []
         for param in request.params:
             if param.startswith('dataset_'):
@@ -400,8 +405,9 @@ class GroupController(BaseController):
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             abort(401, _('Not authorized to perform bulk update'))
-        base.redirect(h.url_for(controller='organization', action='bulk_process',
-                           id=id))
+        base.redirect(h.url_for(controller='organization',
+                                action='bulk_process',
+                                id=id))
 
     def new(self, data=None, errors=None, error_summary=None):
         group_type = self._guess_group_type(True)
@@ -483,7 +489,7 @@ class GroupController(BaseController):
 
     def _save_new(self, context, group_type=None):
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
@@ -496,7 +502,7 @@ class GroupController(BaseController):
             abort(401, _('Unauthorized to read group %s') % '')
         except NotFound, e:
             abort(404, _('Group not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:
             errors = e.error_dict
@@ -514,7 +520,7 @@ class GroupController(BaseController):
 
     def _save_edit(self, id, context):
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
@@ -529,7 +535,7 @@ class GroupController(BaseController):
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:
             abort(404, _('Group not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except ValidationError, e:
             errors = e.error_dict
@@ -553,8 +559,8 @@ class GroupController(BaseController):
             c.authz_editable = False
         if not c.authz_editable:
             abort(401,
-                  gettext('User %r not authorized to edit %s authorizations') %
-                         (c.user, id))
+                  _('User %r not authorized to edit %s authorizations') %
+                   (c.user, id))
 
         roles = self._handle_update_of_authz(group)
         self._prepare_authz_info_for_render(roles)
@@ -592,8 +598,9 @@ class GroupController(BaseController):
                    'user': c.user or c.author}
 
         try:
-            c.members = self._action('member_list')(context, {'id': id,
-                                                              'object_type': 'user'})
+            c.members = self._action('member_list')(
+                context, {'id': id, 'object_type': 'user'}
+            )
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
@@ -608,7 +615,7 @@ class GroupController(BaseController):
         #self._check_access('group_delete', context, {'id': id})
         try:
             if request.method == 'POST':
-                data_dict = clean_dict(unflatten(
+                data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
                 c.group_dict = self._action('group_member_create')(context, data_dict)
@@ -617,7 +624,7 @@ class GroupController(BaseController):
                 user = request.params.get('user')
                 if user:
                     c.user_dict = get_action('user_show')(context, {'id': user})
-                    c.user_role = ckan.new_authz.users_role_for_group_or_org(id, user) or 'member'
+                    c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
@@ -655,7 +662,6 @@ class GroupController(BaseController):
             abort(404, _('Group not found'))
         return self._render_template('group/confirm_delete_member.html')
 
-
     def history(self, id):
         if 'diff' in request.params or 'selected1' in request.params:
             try:
@@ -679,7 +685,7 @@ class GroupController(BaseController):
         try:
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group_revisions = self._action('group_revision_list')(context,
-                                                                  data_dict)
+                                                                    data_dict)
             #TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.group = context['group']
@@ -695,7 +701,7 @@ class GroupController(BaseController):
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
                 link=self._url_for(controller='group', action='read',
-                               id=c.group_dict['name']),
+                                   id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
                 language=unicode(get_lang()),
@@ -752,7 +758,7 @@ class GroupController(BaseController):
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
         c.group_activity_stream = get_action('group_activity_list_html')(
-                context, {'id': c.group_dict['id'], 'offset': offset})
+            context, {'id': c.group_dict['id'], 'offset': offset})
 
         #return render('group/activity_stream.html')
         return render(self._activity_template(c.group_dict['type']))
@@ -770,7 +776,7 @@ class GroupController(BaseController):
                 group_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.extra_msg)
@@ -789,7 +795,7 @@ class GroupController(BaseController):
                 group_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
             error_message = e.extra_msg or e.message
@@ -801,15 +807,14 @@ class GroupController(BaseController):
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         try:
-            c.followers = get_action('group_follower_list')(context,
-                    {'id': id})
+            c.followers = get_action('group_follower_list')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html')
 
     def admins(self, id):
         c.group_dict = self._get_group_dict(id)
-        c.admins = ckan.new_authz.get_group_or_org_admin_ids(id)
+        c.admins = new_authz.get_group_or_org_admin_ids(id)
         return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
@@ -842,7 +847,7 @@ class GroupController(BaseController):
         validation = fs.validate()
         if not validation:
             c.form = self._render_edit_form(fs)
-            raise ValidationException(fs)
+            raise base.ValidationException(fs)
 
         try:
             fs.sync()
@@ -856,7 +861,7 @@ class GroupController(BaseController):
         validation = fs.validate()
         if not validation:
             c.form = self._render_edit_form(fs)
-            raise ValidationException(fs)
+            raise base.ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:

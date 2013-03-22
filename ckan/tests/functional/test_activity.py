@@ -1,7 +1,11 @@
+from pylons import config
 from pylons.test import pylonsapp
+from paste.deploy.converters import asbool
 import paste.fixture
-import ckan
 from routes import url_for
+from nose import SkipTest
+
+import ckan
 from ckan.logic.action.create import package_create, user_create, group_create
 from ckan.logic.action.create import follow_dataset, follow_user
 from ckan.logic.action.update import package_update, resource_update
@@ -18,6 +22,8 @@ class TestActivity(HtmlCheckMethods):
     """
     @classmethod
     def setup(cls):
+        if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+            raise SkipTest('Activity streams not enabled')
         ckan.tests.CreateTestData.create()
         cls.sysadmin_user = ckan.model.User.get('testsysadmin')
         cls.app = paste.fixture.TestApp(pylonsapp)
