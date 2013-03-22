@@ -371,7 +371,7 @@ class DefaultGroupForm(object):
 
         # Resources might not exist yet (eg. Add Dataset)
         surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                               'extras_validation', 'save', 'return_to',
+                               '__extras_validation', 'save', 'return_to',
                                'resources']
 
         schema_keys = form_to_db_package_schema().keys()
