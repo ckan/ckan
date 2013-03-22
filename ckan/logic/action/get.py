@@ -1264,9 +1264,7 @@ def package_search(context, data_dict):
     schema = context.get('schema')
     if not schema:
         schema = logic.schema.default_package_search_schema()
-    # cannot use the returned data_dict because the data_dict
-    # is not properly unflattened
-    _ignore_me, errors = _validate(data_dict, schema, context)
+    data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 

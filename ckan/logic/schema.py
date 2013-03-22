@@ -45,7 +45,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
-                                   url_validator)
+                                   url_validator,
+                                   list_of_strings)
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
@@ -529,7 +530,8 @@ def default_package_search_schema():
         'facet': [ignore_missing, unicode],
         'facet.mincount': [ignore_missing, pos_int_validator],
         'facet.limit': [ignore_missing, pos_int_validator],
-        'facet.field': [ignore_missing]  # list of strings
+        'facet.field': [ignore_missing, list_of_strings],
+        'extras': []
     }
     return schema
 
