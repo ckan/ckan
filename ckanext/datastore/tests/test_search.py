@@ -196,6 +196,17 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         assert result['records'] == self.expected_records[::-1]
 
+    def test_search_invalid(self):
+        data = {'resource_id': self.data['resource_id'],
+                'sort': u'f\xfc\xfc asc'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['sort'][0] == u'field "f\xfc\xfc" not in table'
+
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 1}
