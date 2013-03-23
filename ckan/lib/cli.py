@@ -1329,9 +1329,9 @@ class Profile(CkanCommand):
 
 
 class CreateColorSchemeCommand(CkanCommand):
-    ''' Create or remove a color scheme.
+    '''Create or remove a color scheme.
 
-    less will need to generate the css files after this has been run
+    After running this, you'll need to regenerate the css files. See paster's less command for details.
 
     color               - creates a random color scheme
     color clear         - clears any color scheme
@@ -1920,7 +1920,7 @@ class LessCommand(CkanCommand):
 
 
 class FrontEndBuildCommand(CkanCommand):
-    ''' Creates and minifies css and JavaScript files
+    '''Creates and minifies css and JavaScript files
 
     Usage:
 

@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 class SetupDatastoreCommand(cli.CkanCommand):
     '''Perform commands to set up the datastore.
-    Make sure that the datastore urls are set properly before you run these commands.
+    Make sure that the datastore URLs are set properly before you run these commands.
 
     Usage::
 
@@ -16,9 +16,9 @@ class SetupDatastoreCommand(cli.CkanCommand):
 
     Where:
         SQL_SUPER_USER is the name of a postgres user with sufficient
-                         permissions to create new tables, users, and grant
-                         and revoke new permissions.  Typically, this would
-                         be the "postgres" user.
+                       permissions to create new tables, users, and grant
+                       and revoke new permissions.  Typically, this would
+                       be the "postgres" user.
 
     '''
     summary = __doc__.split('\n')[0]
