@@ -16,6 +16,7 @@ import ckan.logic.schema as schema
 import ckan.lib.captcha as captcha
 import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
+import ckan.plugins as p
 
 log = logging.getLogger(__name__)
 
@@ -293,6 +294,11 @@ class UserController(base.BaseController):
             session.save()
             return h.redirect_to(locale=str(lang), controller='user',
                                  action='login')
+
+        # Do any plugin login stuff
+        for item in p.PluginImplementations(p.IAuthenticator):
+            item.login()
+
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
@@ -351,6 +357,11 @@ class UserController(base.BaseController):
         # save our language in the session so we don't lose it
         session['lang'] = request.environ.get('CKAN_LANG')
         session.save()
+
+        # Do any plugin logout stuff
+        for item in p.PluginImplementations(p.IAuthenticator):
+            item.logout()
+
         h.redirect_to(self._get_repoze_handler('logout_handler_path'))
 
     def set_lang(self, lang):
