@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import ast
 
 from pylons import config
 from pylons.i18n import _
@@ -1264,7 +1265,13 @@ def package_search(context, data_dict):
     schema = context.get('schema')
     if not schema:
         schema = logic.schema.default_package_search_schema()
+    if isinstance(data_dict.get('facet.field'), basestring):
+        data_dict['facet.field'] = ast.literal_eval(data_dict['facet.field'])
     data_dict, errors = _validate(data_dict, schema, context)
+    # put the extras back into the data_dict so that the search can
+    # report needless parameters
+    data_dict.update(data_dict.get('__extras', {}))
+    data_dict.pop('__extras', None)
     if errors:
         raise ValidationError(errors)
 
@@ -1279,19 +1286,18 @@ def package_search(context, data_dict):
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search',False)
+    abort = data_dict.get('abort_search', False)
 
     results = []
     if not abort:
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
-
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
-        if not context.get('ignore_capacity_check',False):
+        fq = data_dict.get('fq', '')
+        if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'

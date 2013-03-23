@@ -1284,7 +1284,7 @@ class TestActionPackageSearch(WsgiAppCase):
     def test_1_basic(self):
         params = {
                 'q':'tolstoy',
-                'facet.field': ('groups', 'tags', 'res_format', 'license'),
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
                 'rows': 20,
                 'start': 0,
             }

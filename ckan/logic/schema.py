@@ -531,7 +531,7 @@ def default_package_search_schema():
         'facet.mincount': [ignore_missing, pos_int_validator],
         'facet.limit': [ignore_missing, pos_int_validator],
         'facet.field': [ignore_missing, list_of_strings],
-        'extras': []
+        'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }
     return schema
 
