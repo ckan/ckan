@@ -99,18 +99,12 @@ def rating_create(context, data_dict):
 def user_create(context, data_dict=None):
     user = context['user']
 
-    create_user_via_api = new_authz.check_config_permission(
-            'create_user_via_api')
-    create_user_via_web = new_authz.check_config_permission(
-            'create_user_via_web')
-    using_api = 'api_version' in context
+    create_user = new_authz.check_config_permission(
+            'anon_create_user')
 
-    if not create_user_via_web:
+    if not create_user:
         return {'success': False, 'msg': _('User {user} not authorized to '
             'create users').format(user=user)}
-    elif using_api and not create_user_via_api:
-        return {'success': False, 'msg': _('User {user} not authorized to '
-            'create users via the API').format(user=user)}
     else:
         return {'success': True}
 

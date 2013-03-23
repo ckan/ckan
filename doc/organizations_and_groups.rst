@@ -231,7 +231,7 @@ ckan.auth.user_create_organizations
 ckan.auth.user_create_groups
 
 ckan.auth.create_user
-ckan.auth.create_user_via_api
+ckan.auth.anon_create_user
 ckan.auth.create_dataset_if_not_in_organization
 
 ckan.auth.anon_create_dataset

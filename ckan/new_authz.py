@@ -276,8 +276,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_create_organizations': True,
     'user_delete_groups': True,
     'user_delete_organizations': True,
-    'create_user_via_api': False,
-    'create_user_via_web': True,
+    'anon_create_user': True,
 }
 
 CONFIG_PERMISSIONS = {}
