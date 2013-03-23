@@ -4874,6 +4874,7 @@ a.tag:hover {
   margin: 20px 0;
 }
 .module-heading {
+  *zoom: 1;
   margin: 0;
   padding: 7px 25px;
   font-size: 14px;
@@ -4881,6 +4882,15 @@ a.tag:hover {
   background-color: #f6f6f6;
   border-top: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
+}
+.module-heading:before,
+.module-heading:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.module-heading:after {
+  clear: both;
 }
 .module-heading .action {
   float: right;
@@ -5755,24 +5765,23 @@ textarea {
   background: #c6898b;
   margin: -3px 0 0;
   color: #ffffff;
-  width: 216px;
+  width: 208px;
 }
 .control-medium .error-block {
-  width: 326px;
+  width: 318px;
 }
 .control-full .error-block {
   width: auto;
 }
 .control-group.error .input-prepend .error-block,
 .control-custom.error .error-block {
-  margin-left: -1px;
   width: auto;
 }
 .control-custom.error .error-block {
-  width: 409px;
+  width: 401px;
 }
 .control-select.error .error-block {
-  width: 204px;
+  width: 196px;
 }
 .stages {
   margin: 0;
@@ -7833,6 +7842,9 @@ textarea {
 .context-info.editing .module-content {
   margin-top: 0;
 }
+.modal {
+  top: 50%;
+}
 .hero {
   background: url("../../../base/images/background-tile.png");
   padding: 20px 0;
@@ -8185,10 +8197,15 @@ textarea {
 .footer-links {
   margin-left: 0;
 }
-.footer-links li {
-  display: inline-block;
-  width: 44%;
-  margin-right: 5%;
+.footer-links ul {
+  float: left;
+  margin-left: 20px;
+  width: 220px;
+}
+.footer-links ul:first-child {
+  margin-left: 0;
+}
+.footer-links ul li {
   margin-bottom: 5px;
 }
 .attribution small {
