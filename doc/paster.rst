@@ -234,7 +234,7 @@ Sets the authorization roles of a specific user on a given object within the sys
 
 For example, to give the user named 'bar' the 'admin' role on the dataset 'foo'::
 
- paster --plugin=ckan rights make bar admin package:foo  --config=/etc/ckan/std/std.ini
+ paster --plugin=ckan rights make bar admin package:foo --config=/etc/ckan/std/std.ini
 
 To list all the rights currently specified::
 
@@ -279,8 +279,8 @@ won't clear the index before starting rebuilding it::
 There are other search related commands, mostly useful for debugging purposes::
 
     search-index check                  - checks for datasets not indexed
-    search-index show {dataset-name}    - shows index of a dataset
-    search-index clear [dataset-name]   - clears the search index for the provided dataset or for the whole ckan instance
+    search-index show DATASET_NAME      - shows index of a dataset
+    search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
 
