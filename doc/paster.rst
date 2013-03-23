@@ -1,8 +1,8 @@
 .. _paster:
 
-===============================
-Common CKAN Administrator Tasks
-===============================
+====================
+CKAN Paster Commands
+====================
 
 The majority of common CKAN administration tasks are carried out using the **paster** script.
 
@@ -137,14 +137,28 @@ Common Tasks Using Paster
 The following tasks are supported by paster.
 
   ================= ==========================================================
+  celeryd           Control celery daemon.
+  check-po-files    Check po files for common mistakes
+  color             Create or remove a color scheme.
   create-test-data  Create test data in the database.
+  dataset           Manage datasets.
+  datastore         Perform commands to set up the datastore.
   db                Perform various tasks on the database.
+  front-end-build   Creates and minifies css and JavaScript files
+  less              Compile all root less documents into their CSS counterparts
+  minify            Create minified versions of the given Javascript and CSS files.
+  notify            Send out modification notifications.
+  plugin-info       Provide info on installed plugins.
+  profile           Code speed profiler
   ratings           Manage the ratings stored in the db
+  rdf-export        Export active datasets as RDF.
   rights            Commands relating to per-object and system-wide access rights.
   roles             Commands relating to roles and actions.
   search-index      Creates a search index for all datasets
-  sysadmin          Gives sysadmin rights to a named user
-  user              Manage users
+  sysadmin          Gives sysadmin rights to a named user.
+  tracking          Update tracking statistics.
+  trans             Translation helper functions
+  user              Manage users.
   ================= ==========================================================
 
 
@@ -153,10 +167,72 @@ For the full list of tasks supported by paster, you can run::
  paster --plugin=ckan --help
 
 
+celeryd: Control celery daemon
+-------------------------------
+
+Usage::
+
+    celeryd <run>            - run the celery daemon
+    celeryd run concurrency  - run the celery daemon with
+                               argument 'concurrency'
+    celeryd view             - view all tasks in the queue
+    celeryd clean            - delete all tasks in the queue
+
+
+check-po-files: Check po files for common mistakes
+--------------------------------------------------
+
+Usage::
+
+    check-po-files [options] [FILE] ...
+
+
+color: Create or remove a color scheme
+--------------------------------------
+
+After running this command, you'll need to regenerate the css files. See :ref:`less` for details.
+
+Usage::
+
+    color               - creates a random color scheme
+    color clear         - clears any color scheme
+    color <'HEX'>       - uses as base color eg '#ff00ff' must be quoted.
+    color <VALUE>       - a float between 0.0 and 1.0 used as base hue
+    color <COLOR_NAME>  - html color name used for base color eg lightblue
+
+
 create-test-data: Create test data
 ----------------------------------
 
 As the name suggests, this command lets you load test data when first setting up CKAN. See :ref:`create-test-data` for details.
+
+
+dataset: Manage datasets
+------------------------
+
+Usage::
+
+    dataset DATASET_NAME|ID            - shows dataset properties
+    dataset show DATASET_NAME|ID       - shows dataset properties
+    dataset list                       - lists datasets
+    dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
+    dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
+
+
+datastore: Perform commands to set up the datastore
+---------------------------------------------------
+
+Make sure that the datastore URLs are set properly before you run these commands.
+
+Usage::
+
+    datastore set-permissions SQL_SUPER_USER
+
+    Where:
+        SQL_SUPER_USER is the name of a postgres user with sufficient
+                       permissions to create new tables, users, and grant
+                       and revoke new permissions.  Typically, this would
+                       be the "postgres" user.
 
 
 db: Manage databases
@@ -217,6 +293,72 @@ Creating dump files
 For information on using ``db`` to create dumpfiles, see :doc:`database-dumps`.
 
 
+front-end-build: Creates and minifies css and JavaScript files
+--------------------------------------------------------------
+
+Usage::
+
+    front-end-build
+
+
+.. _less:
+
+less: Compile all root less documents into their CSS counterparts
+-----------------------------------------------------------------
+
+Usage::
+
+    less
+
+
+minify: Create minified versions of the given Javascript and CSS files
+----------------------------------------------------------------------
+
+Usage::
+
+    paster minify [--clean] PATH
+
+    For example:
+
+    paster minify ckan/public/base
+    paster minify ckan/public/base/css/*.css
+    paster minify ckan/public/base/css/red.css
+
+If the --clean option is provided any minified files will be removed.
+
+
+notify: Send out modification notifications
+-------------------------------------------
+
+Usage::
+
+    notify replay    - send out modification signals. In "replay" mode,
+                       an update signal is sent for each dataset in the database.
+
+
+plugin-info: Provide info on installed plugins
+----------------------------------------------
+
+As the name suggests, this commands shows you the installed plugins, their description, and which interfaces they implement
+
+
+profile: Code speed profiler
+----------------------------
+
+Provide a ckan url and it will make the request and record how long each function call took in a file that can be read
+by runsnakerun.
+
+Usage::
+
+   profile URL
+
+The result is saved in profile.data.search. To view the profile in runsnakerun::
+
+   runsnakerun ckan.data.search.profile
+
+You may need to install the cProfile python module.
+
+
 ratings: Manage dataset ratings
 -------------------------------
 
@@ -225,6 +367,14 @@ Manages the ratings stored in the database, and can be used to count ratings, re
 For example, to remove anonymous ratings from the database::
 
  paster --plugin=ckan ratings clean-anonymous --config=/etc/ckan/std/std.ini
+
+
+rdf-export: Export datasets as RDF
+----------------------------------
+
+This command dumps out all currently active datasets as RDF into the specified folder::
+
+    paster rdf-export /path/to/store/output
 
 
 rights: Set user permissions
@@ -283,7 +433,6 @@ There are other search related commands, mostly useful for debugging purposes::
     search-index clear [DATASET_NAME]   - clears the search index for the provided dataset or for the whole ckan instance
 
 
-
 sysadmin: Give sysadmin rights
 ------------------------------
 
@@ -292,6 +441,24 @@ Gives sysadmin rights to a named user. This means the user can perform any actio
 For example, to make a user called 'admin' into a sysadmin::
 
  paster --plugin=ckan sysadmin add admin --config=/etc/ckan/std/std.ini
+
+
+tracking: Update tracking statistics
+------------------------------------
+
+Usage::
+
+    tracking update [start_date]       - update tracking stats
+    tracking export FILE [start_date]  - export tracking stats to a csv file
+
+
+trans: Translation helper functions
+-----------------------------------
+
+Usage::
+
+    trans js      - generate the javascript translations
+    trans mangle  - mangle the zh_TW translations for testing
 
 
 .. _paster-user:
