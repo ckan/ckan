@@ -144,7 +144,7 @@ class HomeController(base.BaseController):
         global dirty_cached_group_stuff
         if not dirty_cached_group_stuff:
             groups_data = []
-            groups = config.get('demo.featured_groups', '').split()
+            groups = config.get('ckan.featured_groups', '').split()
 
             for group_name in groups:
                 group = get_group(group_name)
