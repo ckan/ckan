@@ -1,8 +1,10 @@
 import copy
-import formencode as fe
 import inspect
 from pylons.i18n import _
 from pylons import config
+import formencode as fe
+fe.api.set_stdtranslation(domain="FormEncode",
+        languages=config.get('ckan.locale_order'))
 
 class Missing(object):
     def __unicode__(self):
