@@ -834,7 +834,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
-    
+
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -2702,4 +2702,11 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 
 def member_roles_list(context, data_dict):
+    '''Return the list of roles.
+
+    Return the list of roles for use in forms.
+
+    :rtype: list of dictionaries
+
+    '''
     return new_authz.roles_list()
