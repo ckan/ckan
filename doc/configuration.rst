@@ -214,6 +214,17 @@ Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss
 Defines the resource formats which should be loaded directly in an `iframe`
 tag when previewing them.
 
+ckan.featured_groups
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.featured_groups = group_one group_two
+
+Default Value: (empty)
+
+Defines a list of (upto 2) groups which are displayed on the home page along
+with 2 datasets in these groups.
+
 Authentication Settings
 -----------------------
 
