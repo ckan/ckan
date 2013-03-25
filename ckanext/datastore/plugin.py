@@ -61,17 +61,20 @@ class DatastorePlugin(p.SingletonPlugin):
                 if not ('debug' in config and config['debug']):
                     self._check_separate_db()
                 if self.legacy_mode:
-                    log.warn('Legacy mode active. The sql search will not be available.')
+                    log.warn("Legacy mode active."
+                             "The sql search will not be available.")
                 else:
                     self._check_read_permissions()
 
                 self._create_alias_table()
             else:
-                log.warn("We detected that CKAN is running on a read only database. "
-                    "Permission checks and the creation of _table_metadata are skipped.")
+                log.warn("We detected that CKAN is running on a read"
+                         "only database. Permission checks and the creation "
+                         "of _table_metadata are skipped.")
         else:
-            log.warn("We detected that you do not use a PostgreSQL database. "
-                    "The DataStore will NOT work and datastore tests will be skipped.")
+            log.warn("We detected that you do not use a PostgreSQL"
+                     "database. The DataStore will NOT work and datastore"
+                     "tests will be skipped.")
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents
@@ -118,7 +121,11 @@ class DatastorePlugin(p.SingletonPlugin):
                 if 'permission denied' in str(e) or 'read-only transaction' in str(e):
                     pass
                 else:
-                    raise
+                    log.critical("Possibly unsafe datastore. If '{0}' "
+                                 "does not mean 'permission denied', or "
+                                 "'read-only transaction' you have to double "
+                                 "check the permissions for the datastore "
+                                 "table.".format(e.message))
             else:
                 return False
             finally:
@@ -166,7 +173,10 @@ class DatastorePlugin(p.SingletonPlugin):
                     read_connection.execute(sql)
                 except ProgrammingError, e:
                     if 'permission denied' not in str(e):
-                        raise
+                        log.critical("Possibly unsafe datastore. If '{0}'"
+                                     "does not mean 'permission denied', "
+                                     "you have to double check the permissions "
+                                     "for the datastore table.".format(e.message))
                 else:
                     log.info("Connection url {0}".format(self.read_url))
                     if 'debug' in self.config and self.config['debug']:
