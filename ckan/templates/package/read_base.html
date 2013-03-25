@@ -17,23 +17,6 @@
 {% endblock %}
 
 {% block primary_content %}
-  {% block package_revision_info %}
-    {% if c.pkg_revision_id %}
-      <div class="module info">
-        <p class="module-content">
-          {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
-          {% set url = h.url(controller='package', action='read', id=pkg.name) %}
-
-          {% if c.pkg_revision_not_latest %}
-            {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
-          {% else %}
-            {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
-          {% endif %}
-        </div>
-      </div>
-    {% endif %}
-  {% endblock %}
-
   <article class="module prose">
 
     {% block page_header %}
@@ -42,6 +25,23 @@
           h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name),
           h.build_nav_icon('related_list', _('Related'), id=pkg.name),
         ] %}
+    {% endblock %}
+
+    {% block package_revision_info %}
+      {% if c.pkg_revision_id %}
+        <div class="module info">
+          <p class="module-content">
+            {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
+            {% set url = h.url(controller='package', action='read', id=pkg.name) %}
+
+            {% if c.pkg_revision_not_latest %}
+              {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
+            {% else %}
+              {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
     {% endblock %}
 
     {% block primary_content_inner %}{% endblock %}
