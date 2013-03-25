@@ -1451,6 +1451,26 @@ def resource_preview(resource, pkg_id):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+def list_dict_filter(list_, search_field, output_field, value):
+    ''' Takes a list of dicts and returns the value of a given key if the
+    item has a matching value for a supplied key
+
+    :param list_: the list to search through for matching items
+    :type list_: list of dicts
+
+    :param search_field: the key to use to find matching items
+    :type search_field: string
+
+    :param output_field: the key to use to output the value
+    :type output_field: string
+
+    :param value: the value to search for
+    '''
+
+    for item in list_:
+        if item.get(search_field) == value:
+            return item.get(output_field, value)
+    return value
 
 def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
@@ -1549,6 +1569,7 @@ __allowed_functions__ = [
            'localised_SI_number',
            'localised_nice_date',
            'localised_filesize',
+           'list_dict_filter',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
