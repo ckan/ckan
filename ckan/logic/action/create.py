@@ -1,7 +1,7 @@
 import logging
 from pylons import config
 from pylons.i18n import _
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
 import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
@@ -891,7 +891,8 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
-    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+    if not paste.deploy.converters.asbool(
+            config.get('ckan.activity_streams_enabled', 'true')):
         return
 
     model = context['model']
