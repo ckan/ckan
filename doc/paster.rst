@@ -152,8 +152,6 @@ The following tasks are supported by paster.
   profile           Code speed profiler
   ratings           Manage the ratings stored in the db
   rdf-export        Export active datasets as RDF.
-  rights            Commands relating to per-object and system-wide access rights.
-  roles             Commands relating to roles and actions.
   search-index      Creates a search index for all datasets
   sysadmin          Gives sysadmin rights to a named user.
   tracking          Update tracking statistics.
@@ -376,29 +374,6 @@ This command dumps out all currently active datasets as RDF into the specified f
 
     paster rdf-export /path/to/store/output
 
-
-rights: Set user permissions
-----------------------------
-
-Sets the authorization roles of a specific user on a given object within the system.
-
-For example, to give the user named 'bar' the 'admin' role on the dataset 'foo'::
-
- paster --plugin=ckan rights make bar admin package:foo --config=/etc/ckan/std/std.ini
-
-To list all the rights currently specified::
-
- paster --plugin=ckan rights list --config=/etc/ckan/std/std.ini
-
-For more information and examples, see :doc:`authorization`.
-
-
-roles: Manage system-wide permissions
---------------------------------------
-
-This important command gives you fine-grained control over CKAN permissions, by listing and modifying the assignment of actions to roles.
-
-The ``roles`` command has its own section: see :doc:`authorization`.
 
 .. _rebuild search index:
 
