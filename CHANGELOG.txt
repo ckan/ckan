@@ -16,6 +16,10 @@ Note: In the v2.0 changelog issue numbers with four digits refer to
 Note: v2.0 is a huge release so the changes listed here are just the
 highlights. Bug fixes are not listed.
 
+Note: This version requires a requirements upgrade on source installations
+Note: This version requires a database upgrade
+Note: This version requires a Solr schema upgrade
+
 New frontend:
 
  * CKAN's frontend has been completely redesigned, inside and out
@@ -30,9 +34,8 @@ New frontend:
      - Custom jinja tags:
        - {% ckan_extends %} (#2503)
        - {% snippet %} and {% url_for %} (#2502)
-       - {% trans %}
     - Social sharing buttons (google plus, facebook, twitter)
-    - 'Popular' badges on datasets and resources
+      (this replaces the ckanext-social extension)
     - Three-stage dataset creation form (#2501)
  * New `paster front-end-build` command does everything needed to build the
    frontend for a production CKAN site (runs `paster less` to compile the css
@@ -41,6 +44,8 @@ New frontend:
    e.g.: http://beta.ckan.org/base/test
 
 Organizations:
+
+This replaces the "Publisher Profile and Workflow" feature from CKAN 1.
 
  * CKAN's new "organizations" feature replaces the old authorization system
    with a new one based on publisher organizations
@@ -82,7 +87,6 @@ Data Preview:
  * HTML pages preview (in an iframe) (#2888)
  * New plugin extension point that allows plugins to add custom data previews
    for different data types (#2961)
- * Image files preview
  * Improved Recline Data Explorer previews (CSV files, Excel files..)
  * Plain text files preview
 
@@ -136,7 +140,7 @@ Other highlights:
    javascript files (#2774, #2750)
  * convert_to/from_extras have been fixed to not add quotes around strings (#2930)
  * Updated CKAN coding standards (#3020) and CONTRIBUTING.rst file
- * Built-in page view counting.
+ * Built-in page view counting and 'popular' badges on datasets and resources
    There's also a paster command to export the tracking data to a csv file (#195)
  * Updated CKAN Coding Standards and new CONTRIBUTING.rst file
  * You can now change the sort ordering of datasets on the dataset search page
