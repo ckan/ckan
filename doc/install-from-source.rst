@@ -121,7 +121,7 @@ config file::
     ``sqlalchemy.url`` line, filling in the database name, user and password you
     used::
 
-        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
+        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckandatabase
 
     If you're using a remote host with password authentication rather than SSL
     authentication, use::
