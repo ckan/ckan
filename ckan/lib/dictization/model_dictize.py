@@ -23,7 +23,7 @@ def group_list_dictize(obj_list, context,
     query = search.PackageSearchQuery()
 
     q = {'q': '+capacity:public' if not with_private else '*:*',
-         'fl': 'groups', 'facet.field': ['groups'],
+         'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
          'facet.limit': -1, 'rows': 1}
 
     query.run(q)
@@ -42,7 +42,10 @@ def group_list_dictize(obj_list, context,
 
         group_dict['display_name'] = obj.display_name
 
-        group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
+        if obj.is_organization:
+            group_dict['packages'] = query.facets['owner_org'].get(obj.id, 0)
+        else:
+            group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
@@ -336,7 +339,10 @@ def group_dictize(group, context):
         context)
 
     query = search.PackageSearchQuery()
-    q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    if group.is_organization:
+        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+    else:
+        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
     result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
@@ -393,15 +399,25 @@ def tag_dictize(tag, context):
     tag_dict = d.table_dictize(tag, context)
     query = search.PackageSearchQuery()
 
-    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
-         'wt': 'json', 'rows': 1000}
+    tag_query = u'+capacity:public '
+    vocab_id = tag_dict.get('vocabulary_id')
 
-    package_dicts = [h.json.loads(result['data_dict']) for result in query.run(q)['results']]
+    if vocab_id:
+        model = context['model']
+        vocab = model.Vocabulary.get(vocab_id)
+        tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
+    else:
+        tag_query += u'+tags:"{0}"'.format(tag.name)
+
+    q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+
+    package_dicts = [h.json.loads(result['data_dict'])
+                     for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
-    assert not tag_dict.has_key('display_name')
+    assert 'display_name' not in tag_dict
     tag_dict['display_name'] = tag_dict['name']
 
     if context.get('for_view'):

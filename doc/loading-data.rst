@@ -19,30 +19,48 @@ Import Data with the CKAN API
 
 You can use the `CKAN API <api.html>`_ to upload datasets directly into your CKAN instance.
 
-The Simplest Approach - ckanclient
-++++++++++++++++++++++++++++++++++
+The Simplest Approach - CKAN API
+++++++++++++++++++++++++++++++++
 
-The most basic way to automate dataset loading is with a Python script using the `ckanclient library <http://pypi.python.org/pypi/ckanclient>`_. You will need to register for an API key first. 
+The simplest way to automate dataset loading is with a Python script using
+:doc:`CKAN's API <api>`. Here's an example script to create a new dataset::
 
-You can install ckanclient with::
+    #!/usr/bin/env python
+    import urllib2
+    import urllib
+    import json
+    import pprint
 
- pip install ckanclient
+    # Put the details of the dataset we're going to create into a dict.
+    dataset_dict = {
+            'name': 'my_dataset_name',
+            'notes': 'A long description of my dataset',
+    }
 
-Here is an example script to register a new dataset::
+    # Use the json module to dump the dictionary to a string for posting.
+    data_string = urllib.quote(json.dumps(dataset_dict))
 
-  import ckanclient
-  # Instantiate the CKAN client.
-  ckan = ckanclient.CkanClient(api_key=my_api_key, base_location="http://myckaninstance.com/api")
-  # Describe the dataset.
-  dataset_entity = {
-        'name': my_dataset_name,
-        'url': my_dataset_url,
-        'download_url': my_dataset_download_url,
-        'tags': my_dataset_keywords,
-        'notes': my_dataset_long_description,
-  }
-  # Register the dataset.
-  ckan.package_register_post(dataset_entity)
+    # We'll use the package_create function to create a new dataset.
+    request = urllib2.Request(
+            'http://www.my_ckan_site.com/api/action/package_create')
+
+    # Creating a dataset requires an authorization header.
+    # Replace *** with your API key, from your user account on the CKAN site
+    # that you're creating the dataset on.
+    request.add_header('Authorization', '***')
+
+    # Make the HTTP request.
+    response = urllib2.urlopen(request, data_string)
+    assert response.code == 200
+
+    # Use the json module to load CKAN's response into a dictionary.
+    response_dict = json.loads(response.read())
+    assert response_dict['success'] is True
+
+    # package_create returns the created package as its result.
+    created_package = response_dict['result']
+    pprint.pprint(created_package)
+
 
 Loader Scripts
 ++++++++++++++

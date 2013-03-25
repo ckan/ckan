@@ -1,5 +1,6 @@
 {% import 'macros/form.html' as form %}
 
+{% block package_metadata_fields %}
 
 {% if data.owner_org %}
   <div class="control-group">
@@ -45,3 +46,5 @@
     {% set group_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/group/autocomplete?q=?', 'data-module-key': 'id', 'data-module-label': 'title'} %}
     {{ form.input(group_name, label=_('Add Group'), id="field-group", value=data[group_name], classes=['control-medium'], attrs=group_attrs) }}
   {% endblock %}
+
+{% endblock %}
