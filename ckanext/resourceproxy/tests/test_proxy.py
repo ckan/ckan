@@ -22,8 +22,8 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
-        config['ckan.plugins'] = 'resource_proxy'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
+        plugins.load('resource_proxy')
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         if not cls.serving:
@@ -37,10 +37,10 @@ class TestProxyBasic(tests.WsgiAppCase, unittest.TestCase):
 
     @classmethod
     def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
+        plugins.unload('json_preview')
+        global config
+        config = cls._original_config
         model.repo.rebuild_db()
-        plugins.reset()
 
     def set_resource_url(self, url):
         testpackage = model.Package.get('annakarenina')
