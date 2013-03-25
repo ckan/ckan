@@ -19,7 +19,7 @@ __all__ = [
     'PluginImplementations', 'implements',
     'PluginNotFoundException', 'Plugin', 'SingletonPlugin',
     'load', 'load_all', 'unload', 'unload_all',
-    'reset', 'get_pugin',
+    'reset'
 ]
 
 log = logging.getLogger(__name__)
@@ -31,7 +31,6 @@ PLUGINS_ENTRY_POINT_GROUP = "ckan.plugins"
 # not need to be explicitly enabled by the user)
 SYSTEM_PLUGINS_ENTRY_POINT_GROUP = "ckan.system_plugins"
 
-_plugins = {}
 
 class PluginNotFoundException(Exception):
     """
@@ -79,37 +78,31 @@ def _get_service(plugin):
 
         return plugin.load()(name=name)
 
-##    elif isinstance(plugin, _pca_Plugin):
-##        return plugin
-##
-##    elif isclass(plugin) and issubclass(plugin, _pca_Plugin):
-##        return plugin()
+    elif isinstance(plugin, _pca_Plugin):
+        return plugin
+
+    elif isclass(plugin) and issubclass(plugin, _pca_Plugin):
+        return plugin()
 
     else:
         raise TypeError("Expected a plugin name, class or instance", plugin)
-
-
-def get_pugin(plugin):
-    return _plugins[plugin]
 
 
 def load_all(config):
     """
     Load all plugins listed in the 'ckan.plugins' config directive.
     """
-  ##  plugins = chain(
-  ##      find_system_plugins(),
-  ##      find_user_plugins(config)
-  ##  )
-
+    plugins = chain(
+        find_system_plugins(),
+        find_user_plugins(config)
+    )
 
     # PCA default behaviour is to activate SingletonPlugins at import time. We
     # only want to activate those listed in the config, so clear
     # everything then activate only those we want.
     unload_all(update=False)
 
-   ## for plugin in plugins:
-    for plugin in config.get('ckan.plugins', '').split():
+    for plugin in plugins:
         load(plugin, update=False)
 
     # Load the synchronous search plugin, unless already loaded or
@@ -157,8 +150,6 @@ def load(plugin, update=True):
     if update:
         plugins_update()
 
-    _plugins[plugin] = service
-
     return service
 
 
@@ -166,14 +157,9 @@ def unload_all(update=True):
     """
     Unload (deactivate) all loaded plugins
     """
-  ##  for env in PluginGlobals.env_registry.values():
-  ##      for service in env.services.copy():
-  ##          unload(service, update=False)
-
-    # We copy the _plugins dict so we can delete entries
-    for plugin in _plugins.copy():
-        unload(plugin, update=False)
-
+    for env in PluginGlobals.env_registry.values():
+        for service in env.services.copy():
+            unload(service, update=False)
     if update:
         plugins_update()
 
@@ -192,37 +178,36 @@ def unload(plugin, update=True):
     for observer_plugin in observers:
         observer_plugin.after_unload(service)
 
-    del _plugins[plugin]
     if update:
         plugins_update()
 
     return service
 
 
-##def find_user_plugins(config):
-##    """
-##    Return all plugins specified by the user in the 'ckan.plugins' config
-##    directive.
-##    """
-##    plugins = []
-##    for name in config.get('ckan.plugins', '').split():
-##        entry_points = list(
-##            iter_entry_points(group=PLUGINS_ENTRY_POINT_GROUP, name=name)
-##        )
-##        if not entry_points:
-##            raise PluginNotFoundException(name)
-##        plugins.extend(ep.load() for ep in entry_points)
-##    return plugins
-##
-##
-##def find_system_plugins():
-##    """
-##    Return all plugins in the ckan.system_plugins entry point group.
-##
-##    These are essential for operation and therefore cannot be enabled/disabled
-##    through the configuration file.
-##    """
-##    return (
-##        ep.load()
-##        for ep in iter_entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)
-##    )
+def find_user_plugins(config):
+    """
+    Return all plugins specified by the user in the 'ckan.plugins' config
+    directive.
+    """
+    plugins = []
+    for name in config.get('ckan.plugins', '').split():
+        entry_points = list(
+            iter_entry_points(group=PLUGINS_ENTRY_POINT_GROUP, name=name)
+        )
+        if not entry_points:
+            raise PluginNotFoundException(name)
+        plugins.extend(ep.load() for ep in entry_points)
+    return plugins
+
+
+def find_system_plugins():
+    """
+    Return all plugins in the ckan.system_plugins entry point group.
+
+    These are essential for operation and therefore cannot be enabled/disabled
+    through the configuration file.
+    """
+    return (
+        ep.load()
+        for ep in iter_entry_points(group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP)
+    )
