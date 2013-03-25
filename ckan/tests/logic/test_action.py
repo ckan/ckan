@@ -2,6 +2,7 @@ import re
 import json
 import urllib
 from pprint import pprint
+import types
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
 from pylons import config
@@ -1554,4 +1555,22 @@ class TestBulkActions(WsgiAppCase):
         res = self.app.get('/api/action/package_search?q=*:*')
         assert json.loads(res.body)['result']['count'] == 0
 
+
+class TestDocStrings:
+
+    def test_docstrings_in_action(self):
+        func_with_no_docstring = []
+        for action_module_name in ['get', 'create', 'update', 'delete']:
+            module_path = 'ckan.logic.action.' + action_module_name
+            module = __import__(module_path)
+            for part in module_path.split('.')[1:]:
+                module = getattr(module, part)
+            for k, v in module.__dict__.items():
+                if not k.startswith('_'):
+                    # Only load functions from the action module.
+                    if isinstance(v, types.FunctionType):
+                        if v.__doc__ is None:
+                            func_with_no_docstring.append(k)
+        print func_with_no_docstring
+        assert len(func_with_no_docstring) == 0
 
