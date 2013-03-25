@@ -65,6 +65,7 @@ Activity Streams, Following & User Dashboard:
    only be retrieved via the api) (#3024)
  * Users can now follow groups (previously you could only follow users or
    datasets) (#3005)
+ * Activity streams and following are also supported for organizations (#505)
  * When you're logged into CKAN, you now get a notifications count in the
    top-right corner of the site, telling you how many new notifications you
    have on your dashboard. Clicking on the count takes you to your dashboard
@@ -79,6 +80,8 @@ Activity Streams, Following & User Dashboard:
      organization that you're following
    - New sidebar shows previews and unfollow buttons (when the activity stream
      is filtered)
+ * New ``ckan.activity_streams_enabled`` config file setting allows you to
+   disable the generation of activity streams (#654)
 
 Data Preview:
 
@@ -92,6 +95,9 @@ Data Preview:
 
 Plugins & Extensions:
 
+ * The IDatasetForm plugin interface has been redesigned (note: this breaks
+   backwards-compatibility with existing IDatasetForm plugins) (#649)
+ * Many IDatasetForm bugs were fixed
  * New example extensions in core, and better documentation for the relevant
    plugin interfaces: example_itemplatehelpers (#447),
    example_idatasetform (#2750), hopefully more to come in 2.1!
