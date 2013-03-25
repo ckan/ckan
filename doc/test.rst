@@ -58,7 +58,7 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-Starting in CKAN 2.1 tests are run in a separate postgres database by default.  You should create the test database as follows.::
+Starting in CKAN 2.1 tests are run in a separate postgres database by default.  You should create the test database as follows::
 
     sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
 
