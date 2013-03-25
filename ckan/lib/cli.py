@@ -317,13 +317,11 @@ class ManageDb(CkanCommand):
 class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
-    Usage:
-      search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
-                                                                 full search index (all datasets)
-      search-index check                                       - checks for datasets not indexed
-      search-index show DATASET_NAME                           - shows index of a dataset
-      search-index clear [dataset_name]                        - clears the search index for the provided dataset or
-                                                                 for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
+      search-index rebuild_fast                                   - reindex using multiprocessing using all cores. This acts in the same way as rubuild -r [EXPERIMENTAL]
+      search-index check                                          - checks for datasets not indexed
+      search-index show {dataset-name}                            - shows index of a dataset
+      search-index clear [dataset-name]                           - clears the search index for the provided dataset or for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
