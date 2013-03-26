@@ -43,8 +43,8 @@ class DatastorePlugin(p.SingletonPlugin):
         # that we should ignore the following tests.
         import sys
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
-            log.warn('Omitting permission checks because you are '
-                     'running paster commands.')
+            log.warn("Omitting permission checks because you are "
+                     "running paster commands.")
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
@@ -67,11 +67,13 @@ class DatastorePlugin(p.SingletonPlugin):
 
                 self._create_alias_table()
             else:
-                log.warn("We detected that CKAN is running on a read only database. "
-                    "Permission checks and the creation of _table_metadata are skipped.")
+                log.warn("We detected that CKAN is running on a read "
+                         "only database. Permission checks and the creation "
+                         "of _table_metadata are skipped.")
         else:
-            log.warn("We detected that you do not use a PostgreSQL database. "
-                    "The DataStore will NOT work and datastore tests will be skipped.")
+            log.warn("We detected that you do not use a PostgreSQL "
+                     "database. The DataStore will NOT work and datastore "
+                     "tests will be skipped.")
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents
