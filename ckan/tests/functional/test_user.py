@@ -1,4 +1,3 @@
-import paste
 from routes import url_for
 from nose.tools import assert_equal
 from pylons import config
@@ -11,7 +10,6 @@ from ckan.tests.mock_mail_server import SmtpServerHarness
 import ckan.model as model
 from base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
-import ckan.config.middleware
 
 
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
