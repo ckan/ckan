@@ -59,7 +59,7 @@ Testing with PostgreSQL
 -----------------------
 
 Starting in CKAN 2.1 tests are run in a separate postgres database by
-default.  You should create the test databases as follows.::
+default.  You should create the test databases as follows::
 
     sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
     sudo -u postgres createdb -O ckanuser ckan_test_datastore -E utf-8
