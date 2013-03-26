@@ -2137,6 +2137,9 @@ class TestActivity:
                                          json.dumps({'id': user['id']}))
         activity_response_dict = json.loads(activity_response.body)
         assert activity_response_dict['result'][0]['activity_type'] == 'new related item'
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert activity_response_dict['result'][0]['data']['related']['id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['data']['dataset'] is None
 
     def test_related_item_changed(self):
         # Create related item
@@ -2164,6 +2167,9 @@ class TestActivity:
         activity_response_dict = json.loads(activity_response.body)
         assert activity_response_dict['result'][0]['activity_type'] == 'changed related item'
         assert activity_response_dict['result'][0]['object_id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert activity_response_dict['result'][0]['data']['related']['id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['data']['dataset'] is None
 
     def test_related_item_deleted(self):
         # Create related item
@@ -2191,3 +2197,5 @@ class TestActivity:
         activity_response_dict = json.loads(activity_response.body)
         assert activity_response_dict['result'][0]['activity_type'] == 'deleted related item'
         assert activity_response_dict['result'][0]['object_id'] == response_dict['result']['id']
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert activity_response_dict['result'][0]['data']['related']['id'] == response_dict['result']['id']
