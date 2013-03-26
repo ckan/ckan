@@ -17,11 +17,10 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
-      {% if c.user_name %}
-        <h1 class="page-heading">{{ _('Edit Member:') }} {{ c.user_name }}</h1>
-      {% else %}
-        <h1 class="page-heading">{{ _('Add Member') }}</h1>
-      {% endif %}
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
+      </h1>
+      {% block form %}
       <form class="dataset-form form-horizontal" method='post'>
         {% if c.user_name %}
             <input type="hidden" name="username" value="{{ c.user_name }}" />
@@ -33,6 +32,7 @@
         {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
         <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
       </form>
+      {% endblock %}
     </div>
   </section>
 {% endblock %}
