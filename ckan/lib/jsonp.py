@@ -1,8 +1,6 @@
 import decorator
 
-from pylons import request, response
-
-from ckan.lib.helpers import json
+from ckan.common import json, request, response
 
 
 def to_jsonp(data):

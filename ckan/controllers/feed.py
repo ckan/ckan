@@ -29,7 +29,7 @@ from urllib import urlencode
 
 from ckan import model
 from ckan.lib.base import BaseController, c, request, response, json, abort, g
-from ckan.lib.helpers import date_str_to_datetime, url_for
+import ckan.lib.helpers as h
 from ckan.logic import get_action, NotFound
 
 # TODO make the item list configurable
@@ -348,18 +348,18 @@ class FeedController(BaseController):
         for pkg in results:
             feed.add_item(
                 title=pkg.get('title', ''),
-                link=self.base_url + url_for(controller='package',
+                link=self.base_url + h.url_for(controller='package',
                                              action='read',
                                              id=pkg['id']),
                 description=pkg.get('notes', ''),
-                updated=date_str_to_datetime(pkg.get('metadata_modified')),
-                published=date_str_to_datetime(pkg.get('metadata_created')),
+                updated=h.date_str_to_datetime(pkg.get('metadata_modified')),
+                published=h.date_str_to_datetime(pkg.get('metadata_created')),
                 unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
                 author_name=pkg.get('author', ''),
                 author_email=pkg.get('author_email', ''),
                 categories=[t['name'] for t in pkg.get('tags', [])],
                 enclosure=webhelpers.feedgenerator.Enclosure(
-                    self.base_url + url_for(controller='api',
+                    self.base_url + h.url_for(controller='api',
                                             register='package',
                                             action='show',
                                             id=pkg['name'],
@@ -377,7 +377,7 @@ class FeedController(BaseController):
         Constructs the url for the given action.  Encoding the query
         parameters.
         """
-        path = url_for(controller=controller, action=action, **kwargs)
+        path = h.url_for(controller=controller, action=action, **kwargs)
         query = [(k, v.encode('utf-8') if isinstance(v, basestring)
                   else str(v)) for k, v in query.items()]
 

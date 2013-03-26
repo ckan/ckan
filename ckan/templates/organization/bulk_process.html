@@ -6,7 +6,8 @@
   <div class="clearfix">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
     <div class="primary">
-      <h3>
+      {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
+      <h3 class="page-heading">
         {%- if c.page.item_count -%}
           {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
         {%- elif request.params -%}
@@ -16,7 +17,7 @@
         {%- endif -%}
       </h3>
       {% if c.page.item_count %}
-        <form method="GET">
+        <form method="POST">
           <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
             <col width="8">
             <col width="120">
@@ -84,14 +85,10 @@
       {% endif %}
     </div>
     <aside class="tertiary">
-      <form method="GET">
-        <span class="control-group search-normal">
-          <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search datasets...') }}" />
-          <button type="submit"><i class="icon-search"></i> <span>{{ _('Search') }}</span></button>
-        </span>
-      </form>
-      {{ h.snippet('snippets/facet_list.html', title='Tags', name='tags', within_tertiary=true, extras={'id':c.group_dict.name}) }}
-      {{ h.snippet('snippets/facet_list.html', title='Formats', name='res_format', within_tertiary=true, extras={'id':c.group_dict.name}) }}
+      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}
+      {% for facet in c.facet_titles %}
+        {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
+      {% endfor %}
     </aside>
   </div>
   {{ c.page.pager() }}

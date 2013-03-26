@@ -1,12 +1,13 @@
 {% import 'macros/form.html' as form %}
 
+{% block package_metadata_fields %}
 
 {% if data.owner_org %}
   <div class="control-group">
     <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
     <div class="controls">
       <select id="field-private" name="private" data-module="autocomplete">
-        {% for option in [(true, 'Private'), (false, 'Public')] %}
+        {% for option in [(true, _('Private')), (false, _('Public'))] %}
         <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
         {% endfor %}
       </select>
@@ -45,3 +46,5 @@
     {% set group_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/group/autocomplete?q=?', 'data-module-key': 'id', 'data-module-label': 'title'} %}
     {{ form.input(group_name, label=_('Add Group'), id="field-group", value=data[group_name], classes=['control-medium'], attrs=group_attrs) }}
   {% endblock %}
+
+{% endblock %}

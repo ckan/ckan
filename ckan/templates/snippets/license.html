@@ -1,7 +1,7 @@
 {% if pkg_dict.license_id %}
   {% if not text_only %}
     <section class="module module-narrow module-shallow license">
-      <h2 class="module-heading"><i class="icon-medium icon-lock"></i> License</h2>
+    <h2 class="module-heading"><i class="icon-medium icon-lock"></i> {{ _('License') }}</h2>
       <p class="module-content">
   {% endif %}
   {% if 'license_url' in pkg_dict %}
@@ -11,15 +11,13 @@
   {% endif %}
   {% if not text_only %}
       {% if pkg_dict.isopen %}
-        <a href="http://opendefinition.org/okd/" title="This dataset satisfies the Open Definition.">
+      <a href="http://opendefinition.org/okd/" title="{{ _('This dataset satisfies the Open Definition.') }}">
           <img class="open-data" src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png" alt="[Open Data]" />
         </a>
-        {% else %}
-        <span class="closed">{{ h.icon('lock') }}</span>
         {% endif %}
       </p>
     </section>
   {% endif %}
 {% elif text_only %}
-  {{ _('No Licence Provided') }}
+  {{ _('No License Provided') }}
 {% endif %}

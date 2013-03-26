@@ -32,7 +32,7 @@
           ${ h.subnav_named_route(h.icon('group_add') + _('Add a Group'), "%s_new" % h.default_group_type(), action='new')}
         </li>
         <li class="ckan-logged-out ${'active' if c.action=='new' else ''}">
-          ${h.subnav_link(h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}
+          ${h.nav_link(h.icon('group_add') + _('Login to Add a Group'), controller='group', action='new')}
         </li>
       </py:otherwise>
     </ul>

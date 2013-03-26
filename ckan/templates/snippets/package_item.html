@@ -37,7 +37,7 @@ Example:
         {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
       </h3>
       {% if banner %}
-        <span class="banner">Popular</span>
+        <span class="banner">{{ _('Popular') }}</span>
       {% endif %}
       {% if notes %}
         <div>{{ notes|urlize }}</div>
