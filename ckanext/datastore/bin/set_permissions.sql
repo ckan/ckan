@@ -14,9 +14,9 @@ To run the script, execute:
 */
 
 -- name of the main CKAN database
-\set maindb '{ckandb}'
+\set maindb "{ckandb}"
 -- the name of the datastore database
-\set datastoredb '{datastoredb}'
+\set datastoredb "{datastoredb}"
 -- username of the ckan postgres user
 \set ckanuser "{ckanuser}"
 -- username of the datastore user that can write
