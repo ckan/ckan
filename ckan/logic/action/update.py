@@ -126,10 +126,18 @@ def related_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    if not context.has_key('user'):
+        raise logic.NotAuthorized(
+                _("You must be logged in to update a related item."))
+
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
     userobj = model.User.get(user)
+    if not userobj:
+        raise logic.NotAuthorized(
+                _("You must be logged in to update a related item."))
+
     session = context['session']
 
     schema = context.get('schema') or ckan.logic.schema.default_related_schema()
