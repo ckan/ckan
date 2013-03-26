@@ -16,6 +16,7 @@
     <section class="module module-resource">
       <div class="module-content">
         <div class="actions">
+          {% block resource_actions %}
           <ul>
             {% if h.check_access('package_update', {'id':pkg.id }) %}
               <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
@@ -36,6 +37,7 @@
             {% if 'datastore' in g.plugins %}
               <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
             {% endif %}
+            {% endblock %}
           </ul>
         </div>
         {% block resource_content %}
