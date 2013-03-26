@@ -103,7 +103,7 @@ def user_create(context, data_dict=None):
             'anon_create_user')
 
     if not create_user:
-        return {'success': False, 'msg': _('User {user} not authorized to '
+        return {'success': False, 'msg': _('Not authorized to '
             'create users').format(user=user)}
     else:
         return {'success': True}
