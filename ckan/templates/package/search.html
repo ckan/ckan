@@ -38,6 +38,7 @@
         </strong>
         <div class="filter-list">
           {% for field in c.fields_grouped %}
+            {% set search_facets_items = c.search_facets.get(field)['items'] %}
             <span class="facet">{{ c.facet_titles.get(field) }}:</span>
             {% for value in c.fields_grouped[field] %}
               <span class="filtered pill">
@@ -45,6 +46,7 @@
                   {{ c.translated_fields[(field,value)] }}
                 {%- else -%}
                   {{ value }}
+                  {{ h.list_dict_filter(search_facets_items , 'name', 'display_name', value) }}
                 {%- endif %}
                 <a href="{{ c.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
               </span>
