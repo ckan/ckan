@@ -63,6 +63,11 @@ default.  You should create the test databases as follows.::
 
     sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
     sudo -u postgres createdb -O ckanuser ckan_test_datastore -E utf-8
+    # create datastore user default password `pass`
+    sudo -u postgres createuser -S -D -R -P -l readonlyuser
+    # set the permissions for readonly user
+    paster datastore set-permissions postgres -c test-core.ini
+
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
