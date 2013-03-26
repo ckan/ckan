@@ -985,37 +985,3 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          id='randomness',  # i.e. incorrect
                          key='randomness')
         res = self.app.get(offset, status=404)
-
-#   TODO: We will use the old templates in tests. These tests need to be
-#   enabled back when we start using the jinja2 templates.
-    #def test_home_page_register_button_exists(self):
-        #res = self.app.get(url_for(controller='home', action='index', id=None))
-        #assert 'Register' in res
-
-
-#class TestCreateUser(PylonsTestCase):
-    #'''Tests for the ckan.activity_streams_email_notifications config setting.
-
-    #'''
-    #@classmethod
-    #def setup_class(cls):
-        #cls._original_config = config.copy()
-        #config['ckan.auth.create_user_via_web'] = False
-        #wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                #**config)
-        #cls.app = paste.fixture.TestApp(wsgiapp)
-        #PylonsTestCase.setup_class()
-
-    #@classmethod
-    #def teardown_class(cls):
-        #config.clear()
-        #config.update(cls._original_config)
-        #PylonsTestCase.teardown_class()
-        #model.repo.rebuild_db()
-
-    #def test_home_page_register_button_hidden(self):
-        #res = self.app.get(url_for(controller='home', action='index', id=None))
-        ## TODO: Test disabled as the config change isn't working
-        #from nose import SkipTest
-        #raise SkipTest
-        #assert 'Register' not in res
