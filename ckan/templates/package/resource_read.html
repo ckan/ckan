@@ -18,6 +18,7 @@
         <div class="actions">
           {% block resource_actions %}
           <ul>
+            {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
               <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
@@ -30,7 +31,7 @@
                     <i class="icon-key"></i> {{ _('API Endpoint') }}
                   {% else %}
                     <i class="icon-download"></i> {{ _('Download') }}
-                  {%endif %}
+                  {% endif %}
                 </a>
               </li>
             {% endif %}
@@ -39,6 +40,7 @@
             {% endif %}
             {% endblock %}
           </ul>
+          {% endblock %}
         </div>
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
