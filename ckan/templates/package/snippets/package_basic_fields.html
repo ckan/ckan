@@ -46,10 +46,10 @@
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
-          <option value="">{{ _('Select an organization...') }}</option>
+          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
           {% for organization in organizations_available %}
             {# get out first org from users list only if there is not an existing org #}
-            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and organization.id == organizations_available[0].id) %}
+            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
             <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
           {% endfor %}
         </select>
