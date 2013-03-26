@@ -18,7 +18,7 @@
   <section class="module">
     <div class="module-content">
       <h1 class="page-heading">
-        {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
+        {% block page_heading %}{{ _('Edit Member') if c.user_name else _('Add Member') }}{% endblock %}
       </h1>
       {% block form %}
       <form class="dataset-form form-horizontal" method='post'>
