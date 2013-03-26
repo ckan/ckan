@@ -96,10 +96,6 @@
                 <th scope="row">{{ _('License') }}</th>
                 <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
               </tr>
-              <tr>
-                <th scope="row">{{ _('Author') }}</th>
-                <td>{{ res.author or _('unknown') }}</td>
-              </tr>
               {% for key, value in h.format_resource_items(res.items()) %}
                 <tr class="toggle-more"><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
               {% endfor %}

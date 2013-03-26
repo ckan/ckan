@@ -13,7 +13,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pylons.test
+from pylons import config
+from paste.deploy.converters import asbool
 import paste.fixture
+from nose import SkipTest
 from ckan.common import json
 
 
@@ -170,9 +173,10 @@ def find_new_activities(before, after):
 
 
 class TestActivity:
-
     @classmethod
     def setup_class(self):
+        if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+            raise SkipTest('Activity streams not enabled')
         import ckan
         import ckan.model as model
         ckan.tests.CreateTestData.create()
