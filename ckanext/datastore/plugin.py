@@ -56,9 +56,12 @@ class DatastorePlugin(p.SingletonPlugin):
                 # Make sure that the right permissions are set
                 # so that no harmful queries can be made
                 if not ('debug' in config and config['debug']):
+                    if self._same_read_and_write_url():
+                        raise DatastoreException("The write and read-only database "
+                                                 "connection url are the same.")
                     if self._same_ckan_and_datastore_db():
-                        raise Exception("The write and read-only database "
-                                        "connection url are the same.")
+                        raise DatastoreException("CKAN and DataStore database "
+                                                 "cannot be the same.")
                 if self.legacy_mode:
                     log.warn("Legacy mode active. "
                              "The sql search will not be available.")
@@ -67,8 +70,8 @@ class DatastorePlugin(p.SingletonPlugin):
                         log.critical("We have write permissions "
                                      "on the read-only database.")
                     else:
-                        raise Exception("We have write permissions "
-                                        "on the read-only database.")
+                        raise DatastoreException("We have write permissions "
+                                                 "on the read-only database.")
                 self._create_alias_table()
             else:
                 log.warn("We detected that CKAN is running on a read "
@@ -128,22 +131,20 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _same_ckan_and_datastore_db(self):
         '''
-        Make sure the datastore is on a separate db. Otherwise one could access
-        all internal tables via the api.
-
         Returns True if the CKAN and DataStore db are the same
         '''
-
-        if not self.legacy_mode:
-            if self.write_url == self.read_url:
-                return True
-
         if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):
             return True
         return False
 
     def _get_db_from_url(self, url):
         return url[url.rindex("@"):]
+
+    def _same_read_and_write_url(self):
+        # in legacy mode, this test can be ignored
+        if self.legacy_mode:
+            return True
+        return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
         '''
