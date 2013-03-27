@@ -19,11 +19,12 @@
                 <span class="username">{{ c.userobj.display_name }}</span>
               </a>
             </li>
-            <li class="notifications {% if c.new_activities > 0 %}notifications-important{% endif %}">
-              {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', c.new_activities) %}
+            {% set new_activities_count = h.new_activities_count() %}
+            <li class="notifications {% if new_activities_count > 0 %}notifications-important{% endif %}">
+              {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities_count) %}
               <a href="{{ h.url_for(controller='user', action='dashboard') }}" title="{{ notifications_tooltip }}">
                 <i class="icon-dashboard"></i>
-                <span>{{ c.new_activities }}</span>
+                <span>{{ new_activities_count }}</span>
               </a>
             </li>
             <li>
@@ -101,7 +102,6 @@
           </div>
         </form>
       {% endblock %}
-
     </div>
   </div>
 </header>

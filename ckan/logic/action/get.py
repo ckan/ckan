@@ -3,7 +3,7 @@ import logging
 import json
 import datetime
 
-from pylons import config
+from pylons import config, request
 from pylons.i18n import _
 from pylons import c
 import sqlalchemy
@@ -2590,6 +2590,10 @@ def dashboard_activity_list(context, data_dict):
     '''
     _check_access('dashboard_activity_list', context, data_dict)
 
+    # if we already have this just return it
+    if 'dashboard_activity_list' in request.environ:
+        return request.environ['dashboard_activity_list']
+
     model = context['model']
     user_id = model.User.get(context['user']).id
     offset = int(data_dict.get('offset', 0))
@@ -2615,7 +2619,8 @@ def dashboard_activity_list(context, data_dict):
         else:
             activity['is_new'] = (strptime(activity['timestamp'], fmt)
                     > last_viewed)
-
+    # cache this in the environ for this request to stop repeated calls
+    request.environ['dashboard_activity_list'] = activity_dicts
     return activity_dicts
 
 

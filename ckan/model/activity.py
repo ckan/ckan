@@ -72,8 +72,7 @@ def _activities_at_offset(q, limit, offset):
     '''Return an SQLAlchemy query for all activities at an offset with a limit.
 
     '''
-    import ckan.model as model
-    q = q.order_by(desc(model.Activity.timestamp))
+    q = q.order_by(desc(Activity.timestamp))
     if offset:
         q = q.offset(offset)
     if limit:
@@ -82,17 +81,15 @@ def _activities_at_offset(q, limit, offset):
 
 def _activities_from_user_query(user_id):
     '''Return an SQLAlchemy query for all activities from user_id.'''
-    import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.user_id == user_id)
+    q = meta.Session.query(Activity)
+    q = q.filter(Activity.user_id == user_id)
     return q
 
 
 def _activities_about_user_query(user_id):
     '''Return an SQLAlchemy query for all activities about user_id.'''
-    import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.object_id == user_id)
+    q = meta.Session.query(Activity)
+    q = q.filter(Activity.object_id == user_id)
     return q
 
 
@@ -122,8 +119,7 @@ def _package_activity_query(package_id):
     '''Return an SQLAlchemy query for all activities about package_id.
 
     '''
-    import ckan.model as model
-    q = model.Session.query(model.Activity)
+    q = meta.Session.query(Activity)
     q = q.filter_by(object_id=package_id)
     return q
 
@@ -155,16 +151,16 @@ def _group_activity_query(group_id):
     group = model.Group.get(group_id)
     if not group:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return meta.Session.query(Activity).filter("0=1")
 
     dataset_ids = [dataset.id for dataset in group.packages()]
 
-    q = model.Session.query(model.Activity)
+    q = meta.Session.query(Activity)
     if dataset_ids:
-        q = q.filter(or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
+        q = q.filter(or_(Activity.object_id == group_id,
+            Activity.object_id.in_(dataset_ids)))
     else:
-        q = q.filter(model.Activity.object_id == group_id)
+        q = q.filter(Activity.object_id == group_id)
     return q
 
 
@@ -229,7 +225,7 @@ def _activities_from_groups_followed_by_user_query(user_id):
     follower_objects = model.UserFollowingGroup.followee_list(user_id)
     if not follower_objects:
         # Return a query with no results.
-        return model.Session.query(model.Activity).filter("0=1")
+        return meta.Session.query(Activity).filter("0=1")
 
     q = _group_activity_query(follower_objects[0].object_id)
     q = q.union_all(*[_group_activity_query(follower.object_id)
@@ -258,10 +254,12 @@ def activities_from_everything_followed_by_user(user_id, limit, offset):
 
 def _dashboard_activity_query(user_id):
     '''Return an SQLAlchemy query for user_id's dashboard activity stream.'''
-    q = _user_activity_query(user_id)
-    q = q.union(_activities_from_everything_followed_by_user_query(user_id))
+    q = _activities_from_user_query(user_id)
+    q = q.union(_activities_about_user_query(user_id),
+                _activites_from_users_followed_by_user_query(user_id),
+                _activities_from_datasets_followed_by_user_query(user_id),
+                _activities_from_groups_followed_by_user_query(user_id))
     return q
-
 
 def dashboard_activity_list(user_id, limit, offset):
     '''Return the given user's dashboard activity stream.
@@ -283,9 +281,8 @@ def _changed_packages_activity_query():
     'new_package', 'changed_package', 'deleted_package'.
 
     '''
-    import ckan.model as model
-    q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.activity_type.endswith('package'))
+    q = meta.Session.query(Activity)
+    q = q.filter(Activity.activity_type.endswith('package'))
     return q
 
 
