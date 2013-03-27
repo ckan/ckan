@@ -63,9 +63,13 @@ class DatastorePlugin(p.SingletonPlugin):
                 if self.legacy_mode:
                     log.warn("Legacy mode active."
                              "The sql search will not be available.")
-                else:
-                    self._check_read_permissions()
-
+                elif not self._read_connection_has_correct_privileges():
+                    if 'debug' in self.config and self.config['debug']:
+                        log.critical("We have write permissions "
+                                     "on the read-only database.")
+                    else:
+                        raise Exception("We have write permissions "
+                                        "on the read-only database.")
                 self._create_alias_table()
             else:
                 log.warn("We detected that CKAN is running on a read "
@@ -112,24 +116,11 @@ class DatastorePlugin(p.SingletonPlugin):
     def _is_read_only_database(self):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
-                {'connection_url': url}).connect()
-            trans = connection.begin()
-            try:
-                sql = u"CREATE TABLE test_readonly(id INTEGER);"
-                connection.execute(sql)
-            except ProgrammingError, e:
-                if 'permission denied' in str(e) or 'read-only transaction' in str(e):
-                    pass
-                else:
-                    log.critical("Possibly unsafe datastore. If '{0}' "
-                                 "does not mean 'permission denied', or "
-                                 "'read-only transaction' you have to double "
-                                 "check the permissions for the datastore "
-                                 "table.".format(e.message))
-            else:
+                                        {'connection_url': url}).connect()
+            sql = u"SELECT has_schema_privilege('public', 'CREATE')"
+            is_writable = connection.execute(sql).first()[0]
+            if is_writable:
                 return False
-            finally:
-                trans.rollback()
         return True
 
     def _check_separate_db(self):
@@ -140,7 +131,8 @@ class DatastorePlugin(p.SingletonPlugin):
 
         if not self.legacy_mode:
             if self.write_url == self.read_url:
-                raise Exception("The write and read-only database connection url are the same.")
+                raise Exception("The write and read-only database "
+                                "connection url are the same.")
 
         if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):
             raise Exception("The CKAN and datastore database are the same.")
@@ -148,47 +140,32 @@ class DatastorePlugin(p.SingletonPlugin):
     def _get_db_from_url(self, url):
         return url[url.rindex("@"):]
 
-    def _check_read_permissions(self):
+    def _read_connection_has_correct_privileges(self):
         '''
         Check whether the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
         write_connection = db._get_engine(None,
             {'connection_url': self.write_url}).connect()
-        write_connection.execute(u"DROP TABLE IF EXISTS public._foo;"
-            u"CREATE TABLE public._foo (id INTEGER, name VARCHAR)")
+        write_connection.execute(
+            u"DROP TABLE IF EXISTS public._foo;",
+            u"CREATE TABLE public._foo ()")
 
         read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
 
-        statements = [
-            u"CREATE TABLE public._bar (id INTEGER, name VARCHAR)",
-            u"INSERT INTO public._foo VALUES (1, 'okfn')"
-        ]
-
         try:
-            for sql in statements:
-                read_trans = read_connection.begin()
-                try:
-                    read_connection.execute(sql)
-                except ProgrammingError, e:
-                    if 'permission denied' not in str(e):
-                        log.critical("Possibly unsafe datastore. If '{0}' "
-                                     "does not mean 'permission denied', "
-                                     "you have to double check the permissions "
-                                     "for the datastore table.".format(e.message))
-                else:
-                    log.info("Connection url {0}".format(self.read_url))
-                    if 'debug' in self.config and self.config['debug']:
-                        log.critical("We have write permissions on the read-only database.")
-                    else:
-                        raise Exception("We have write permissions on the read-only database.")
-                finally:
-                    read_trans.rollback()
+            write_connection.execute(u"CREATE TABLE public._foo ()")
+            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                sql = u"SELECT has_table_privilege('_foo', '{privilege}')".format(privilege=privilege)
+                have_privilege = read_connection.execute(sql).first()[0]
+                if have_privilege:
+                    return False
         except Exception:
             raise
         finally:
             write_connection.execute("DROP TABLE _foo")
+        return True
 
     def _create_alias_table(self):
         mapping_sql = '''
