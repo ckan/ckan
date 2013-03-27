@@ -1,9 +1,14 @@
 <form id="dataset-search" class="dataset-search clearfix" method="GET" data-module="select-switch">
+  {% block search_form_input %}
   <span class="control-group search-giant">
     <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
     <button type="submit" value="{{ _('Search') }}">Submit</button>
   </span>
+  {% endblock %}
+  {% block search_form_sortby %}
   {% snippet 'snippets/sort_by.html', sort=c.sort_by_selected %}
+  {% endblock %}
+  {% block search_form_fields %}
   {% if c.fields %}
     <span>
       {% for key, value in c.fields %}
@@ -11,12 +16,18 @@
       {% endfor %}
     </span>
   {% endif %}
+  {% endblock %}
   <div id="dataset-search-ext"></div>
 </form>
+
+{% block search_form_results %}
 <div class="results">
   <strong>
+    {% block search_form_result_text %}
     {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
+    {% endblock %}
   </strong>
+  {% block search_form_filter_list %}
   <div class="filter-list">
     {% for field in c.fields_grouped %}
       <span class="facet">{{ c.facet_titles.get(field) }}:</span>
@@ -32,8 +43,11 @@
       {% endfor %}
     {% endfor %}
   </div>
+  {% endblock %}
 </div>
+{% endblock %}
 
+{% block search_form_package_list %}
 {% if c.query_error %}
   <p>
   {% trans %}
@@ -46,3 +60,4 @@
     {{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
   {% endif %}
 {% endif %}
+{% endblock %}
