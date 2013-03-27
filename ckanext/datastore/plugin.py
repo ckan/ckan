@@ -18,9 +18,6 @@ class DatastoreException(Exception):
 
 
 class DatastorePlugin(p.SingletonPlugin):
-    '''
-    Datastore plugin.
-    '''
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
@@ -59,9 +56,11 @@ class DatastorePlugin(p.SingletonPlugin):
                 # Make sure that the right permissions are set
                 # so that no harmful queries can be made
                 if not ('debug' in config and config['debug']):
-                    self._check_separate_db()
+                    if self._same_ckan_and_datastore_db():
+                        raise Exception("The write and read-only database "
+                                        "connection url are the same.")
                 if self.legacy_mode:
-                    log.warn("Legacy mode active."
+                    log.warn("Legacy mode active. "
                              "The sql search will not be available.")
                 elif not self._read_connection_has_correct_privileges():
                     if 'debug' in self.config and self.config['debug']:
@@ -114,6 +113,10 @@ class DatastorePlugin(p.SingletonPlugin):
             logic._actions['resource_show'] = new_resource_show
 
     def _is_read_only_database(self):
+        '''
+        Returns True if no connection has CREATE privileges on the public
+        schema. This is the case if replication is enabled.
+        '''
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
                                         {'connection_url': url}).connect()
@@ -123,26 +126,28 @@ class DatastorePlugin(p.SingletonPlugin):
                 return False
         return True
 
-    def _check_separate_db(self):
+    def _same_ckan_and_datastore_db(self):
         '''
         Make sure the datastore is on a separate db. Otherwise one could access
         all internal tables via the api.
+
+        Returns True if the CKAN and DataStore db are the same
         '''
 
         if not self.legacy_mode:
             if self.write_url == self.read_url:
-                raise Exception("The write and read-only database "
-                                "connection url are the same.")
+                return True
 
         if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):
-            raise Exception("The CKAN and datastore database are the same.")
+            return True
+        return False
 
     def _get_db_from_url(self, url):
         return url[url.rindex("@"):]
 
     def _read_connection_has_correct_privileges(self):
         '''
-        Check whether the right permissions are set for the read only user.
+        Returns True if the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
         write_connection = db._get_engine(None,
@@ -161,8 +166,6 @@ class DatastorePlugin(p.SingletonPlugin):
                 have_privilege = read_connection.execute(sql).first()[0]
                 if have_privilege:
                     return False
-        except Exception:
-            raise
         finally:
             write_connection.execute("DROP TABLE _foo")
         return True
