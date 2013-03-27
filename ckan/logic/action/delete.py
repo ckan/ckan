@@ -262,6 +262,44 @@ def organization_delete(context, data_dict):
     '''
     return _group_or_org_delete(context, data_dict, is_org=True)
 
+def _group_or_org_purge(context, data_dict, is_org=False):
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+    if is_org:
+        group_or_org = 'organization'
+    else:
+        group_or_org = 'group'
+
+    group = model.Group.get(id)
+    context['group'] = group
+    if group is None:
+        raise NotFound('{group_or_org} was not found'.format(
+            group_or_org=group_or_org.capitalize()))
+
+    if is_org:
+        _check_access('organization_purge', context, data_dict)
+    else:
+        _check_access('group_purge', context, data_dict)
+
+    members = model.Session.query(model.Member)
+    members = members.filter(model.Member.group_id == group.id)
+    if members.count() > 0:
+        model.repo.new_revision()
+        for m in members.all():
+            m.delete()
+        model.repo.commit_and_remove()
+
+    group = model.Group.get(id)
+    model.repo.new_revision()
+    group.purge()
+    model.repo.commit_and_remove()
+
+def group_purge(context, data_dict):
+    return _group_or_org_purge(context, data_dict, is_org=False)
+
+def organization_purge(context, data_dict):
+    return _group_or_org_purge(context, data_dict, is_org=True)
+
 def task_status_delete(context, data_dict):
     '''Delete a task status.
 

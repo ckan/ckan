@@ -84,6 +84,14 @@ def group_delete(context, data_dict):
     else:
         return {'success': True}
 
+def group_purge():
+    # Only sysadmins are authorized to purge groups.
+    return {'success': False}
+
+def organization_purge():
+    # Only sysadmins are authorized to purge organizations.
+    return {'success': False}
+
 def organization_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
