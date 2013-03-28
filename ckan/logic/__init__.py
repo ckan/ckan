@@ -83,7 +83,7 @@ class ValidationError(ParameterError):
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
                     summary[_('Extras')] = _('Missing Value')
-                elif key == 'extras_validation':
+                elif key == '__extras_validation':
                     summary[_('Extras')] = error[0]
                 elif key == 'tags':
                     summary[_('Tags')] = error[0]

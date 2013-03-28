@@ -281,6 +281,16 @@ def _validate(data, schema, context):
                 except StopOnError:
                     break
 
+    ## extras validation run
+    for key in sorted(full_schema, key=flattened_order_key):
+        if key[-1] == '__extras_validation':
+            for converter in full_schema[key]:
+                try:
+                    convert(converter, key, converted_data, errors, context)
+                except StopOnError:
+                    break
+
+
     ## main run
     for key in sorted(full_schema, key=flattened_order_key):
         if not key[-1].startswith('__'):

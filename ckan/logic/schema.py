@@ -139,7 +139,7 @@ def default_create_package_schema():
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
-        'extras_validation': [duplicate_extras_key, ignore],
+        '__extras_validation': [duplicate_extras_key, ignore],
         'save': [ignore],
         'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
@@ -285,7 +285,7 @@ def default_group_schema():
 
 def group_form_schema():
     schema = default_group_schema()
-    #schema['extras_validation'] = [duplicate_extras_key, ignore]
+    #schema['__extras_validation'] = [duplicate_extras_key, ignore]
     schema['packages'] = {
         "name": [not_empty, unicode],
         "title": [ignore_missing],
