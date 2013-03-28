@@ -105,7 +105,6 @@ class DatastorePlugin(p.SingletonPlugin):
         if not hasattr(resource_show, '_datastore_wrapped'):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
-        self._add_is_valid_type_function()
 
     def _is_read_only_database(self):
         for url in [self.ckan_url, self.write_url, self.read_url]:
@@ -205,25 +204,6 @@ class DatastorePlugin(p.SingletonPlugin):
         connection = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
         connection.execute(create_alias_table_sql)
-
-    def _add_is_valid_type_function(self):
-        # syntax_error - may occur if someone provides a keyword as a type
-        # undefined_object - is raised if the type does not exist
-        create_func_sql = '''
-        CREATE OR REPLACE FUNCTION is_valid_type(v_type text)
-        RETURNS boolean
-        AS $$
-        BEGIN
-            PERFORM v_type::regtype;
-            RETURN true;
-        EXCEPTION WHEN undefined_object OR syntax_error THEN
-            RETURN false;
-        END;
-        $$ LANGUAGE plpgsql stable;
-        '''
-        connection = db._get_engine(None,
-            {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
-        connection.execute(create_func_sql)
 
     def get_actions(self):
         actions = {'datastore_create': action.datastore_create,
