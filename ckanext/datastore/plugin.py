@@ -142,8 +142,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _same_read_and_write_url(self):
         # in legacy mode, this test can be ignored
+        # because both URLs are set to the same url
         if self.legacy_mode:
-            return True
+            return False
         return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
