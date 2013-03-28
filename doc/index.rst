@@ -110,7 +110,6 @@ Other material
    :maxdepth: 2
 
    contrib.rst
-   user-stories
    CHANGELOG.rst
 
 Indices and tables
