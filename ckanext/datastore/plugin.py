@@ -55,7 +55,7 @@ class DatastorePlugin(p.SingletonPlugin):
             if not self._is_read_only_database():
                 # Make sure that the right permissions are set
                 # so that no harmful queries can be made
-                if not ('debug' in config and config['debug']):
+                if self.config.get('debug'):
                     if self._same_read_and_write_url():
                         raise DatastoreException("The write and read-only database "
                                                  "connection url are the same.")
@@ -66,7 +66,7 @@ class DatastorePlugin(p.SingletonPlugin):
                     log.warn("Legacy mode active. "
                              "The sql search will not be available.")
                 elif not self._read_connection_has_correct_privileges():
-                    if 'debug' in self.config and self.config['debug']:
+                    if self.config.get('debug'):
                         log.critical("We have write permissions "
                                      "on the read-only database.")
                     else:
@@ -154,22 +154,23 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_connection = db._get_engine(None,
             {'connection_url': self.write_url}).connect()
-        write_connection.execute(
-            u"DROP TABLE IF EXISTS public._foo;",
-            u"CREATE TABLE public._foo ()")
-
         read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
 
+        drop_foo_sql = u"DROP TABLE IF EXISTS _foo"
+
+        write_connection.execute(drop_foo_sql)
+
         try:
-            write_connection.execute(u"CREATE TABLE public._foo ()")
+            write_connection.execute(u"CREATE TABLE _foo ()")
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                sql = u"SELECT has_table_privilege('_foo', '{privilege}')".format(privilege=privilege)
+                test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
+                sql = test_privilege_sql.format(privilege=privilege)
                 have_privilege = read_connection.execute(sql).first()[0]
                 if have_privilege:
                     return False
         finally:
-            write_connection.execute("DROP TABLE _foo")
+            write_connection.execute(drop_foo_sql)
         return True
 
     def _create_alias_table(self):
