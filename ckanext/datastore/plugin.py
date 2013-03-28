@@ -48,39 +48,30 @@ class DatastorePlugin(p.SingletonPlugin):
         self.write_url = self.config['ckan.datastore.write_url']
         if self.legacy_mode:
             self.read_url = self.write_url
+            log.warn("Legacy mode active. "
+                     "The sql search will not be available.")
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if model.engine_is_pg():
-            if not self._is_read_only_database():
-                # Make sure that the right permissions are set
-                # so that no harmful queries can be made
-                if self.config.get('debug'):
-                    if self._same_read_and_write_url():
-                        raise DatastoreException("The write and read-only database "
-                                                 "connection url are the same.")
-                    if self._same_ckan_and_datastore_db():
-                        raise DatastoreException("CKAN and DataStore database "
-                                                 "cannot be the same.")
-                if self.legacy_mode:
-                    log.warn("Legacy mode active. "
-                             "The sql search will not be available.")
-                elif not self._read_connection_has_correct_privileges():
-                    if self.config.get('debug'):
-                        log.critical("We have write permissions "
-                                     "on the read-only database.")
-                    else:
-                        raise DatastoreException("We have write permissions "
-                                                 "on the read-only database.")
-                self._create_alias_table()
-            else:
-                log.warn("We detected that CKAN is running on a read "
-                         "only database. Permission checks and the creation "
-                         "of _table_metadata are skipped.")
-        else:
+        if not model.engine_is_pg():
             log.warn("We detected that you do not use a PostgreSQL "
-                     "database. The DataStore will NOT work and datastore "
+                     "database. The DataStore will NOT work and DataStore "
                      "tests will be skipped.")
+            return
+
+        if self._is_read_only_database():
+            log.warn("We detected that CKAN is running on a read "
+                     "only database. Permission checks and the creation "
+                     "of _table_metadata are skipped.")
+        else:
+            if self.config.get('debug'):
+                handler = log.critical
+            else:
+                def handler(message):
+                    raise DatastoreException(message)
+            self._check_urls_and_permissions(handler)
+
+            self._create_alias_table()
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents
@@ -115,6 +106,22 @@ class DatastorePlugin(p.SingletonPlugin):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
 
+    def _check_urls_and_permissions(self, handler):
+        # Make sure that the right permissions are set
+        # so that no harmful queries can be made
+
+        if not self.legacy_mode and self._same_read_and_write_url():
+            handler("The write and read-only database "
+                    "connection urls are the same.")
+
+        if self._same_ckan_and_datastore_db():
+            handler("CKAN and DataStore database "
+                    "cannot be the same.")
+
+        if not self._read_connection_has_correct_privileges():
+            handler("We have write permissions "
+                    "on the read-only database.")
+
     def _is_read_only_database(self):
         '''
         Returns True if no connection has CREATE privileges on the public
@@ -133,18 +140,12 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         Returns True if the CKAN and DataStore db are the same
         '''
-        if self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url):
-            return True
-        return False
+        return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
         return url[url.rindex("@"):]
 
     def _same_read_and_write_url(self):
-        # in legacy mode, this test can be ignored
-        # because both URLs are set to the same url
-        if self.legacy_mode:
-            return False
         return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
