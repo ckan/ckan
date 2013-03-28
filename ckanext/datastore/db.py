@@ -11,7 +11,7 @@ import distutils.version
 import logging
 import pprint
 import sqlalchemy
-from sqlalchemy.exc import ProgrammingError, IntegrityError
+from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
 import psycopg2.extras
 
 log = logging.getLogger(__name__)
@@ -156,15 +156,8 @@ def _is_valid_pg_type(context, type_name):
         return True
     else:
         connection = context['connection']
-        try:
-            connection.execute('SELECT %s::regtype', type_name)
-        except ProgrammingError, e:
-            if 'invalid type name' in str(e) or 'does not exist' in str(e):
-                return False
-            else:
-                raise
-        else:
-            return True
+        return connection.execute('SELECT is_valid_type(%s)',
+                                  type_name).first()[0]
 
 
 def _get_type(context, oid):
@@ -963,22 +956,23 @@ def create(context, data_dict):
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if ('duplicate key value violates unique constraint' in str(e)
-                or 'could not create unique index' in str(e)):
+        if int(e.orig.pgcode) == 23505:
             raise ValidationError({
-                'constraints': ['Cannot insert records or create index because of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because '
+                                'of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
             })
-        else:
-            raise
-    except Exception, e:
-        trans.rollback()
-        if 'due to statement timeout' in str(e):
+        raise
+    except DBAPIError, e:
+        if int(e.orig.pgcode) == 57014:
             raise ValidationError({
                 'query': ['Query took too long']
             })
+        raise
+    except Exception, e:
+        trans.rollback()
         raise
     finally:
         context['connection'].close()
@@ -1005,21 +999,23 @@ def upsert(context, data_dict):
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if 'duplicate key value violates unique constraint' in str(e):
+        if int(e.orig.pgcode) == 23505:
             raise ValidationError({
-                'constraints': ['Cannot insert records because of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because '
+                                'of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
             })
-        else:
-            raise
-    except Exception, e:
-        trans.rollback()
-        if 'due to statement timeout' in str(e):
+        raise
+    except DBAPIError, e:
+        if int(e.orig.pgcode) == 57014:
             raise ValidationError({
                 'query': ['Query took too long']
             })
+        raise
+    except Exception, e:
+        trans.rollback()
         raise
     finally:
         context['connection'].close()
@@ -1079,8 +1075,8 @@ def search(context, data_dict):
                     data_dict['resource_id'])]
             })
         return search_data(context, data_dict)
-    except Exception, e:
-        if 'due to statement timeout' in str(e):
+    except DBAPIError, e:
+        if int(e.orig.pgcode) == 57014:
             raise ValidationError({
                 'query': ['Search took too long']
             })
@@ -1112,10 +1108,10 @@ def search_sql(context, data_dict):
             'orig': [str(e.orig)]
          }
         })
-    except Exception, e:
-        if 'due to statement timeout' in str(e):
+    except DBAPIError, e:
+        if int(e.orig.pgcode) == 57014:
             raise ValidationError({
-                'query': ['Search took too long']
+                'query': ['Query took too long']
             })
         raise
     finally:
