@@ -8,13 +8,12 @@ from ckan.lib.dictization import (table_dictize,
                                   table_dict_save)
 
 from ckan.lib.dictization.model_dictize import (package_dictize,
-                                                group_dictize
-                                               )
-
-from ckan.lib.dictization.model_save import package_dict_save
-
-from ckan.logic.schema import default_package_schema, default_group_schema, \
-    default_tags_schema
+                                                group_dictize)
+from ckan.logic.schema import (default_create_package_schema,
+                               default_update_package_schema,
+                               default_group_schema,
+                               default_tags_schema)
+from ckan.lib.navl.dictization_functions import validate
 
 from ckan.lib.navl.dictization_functions import validate
 
@@ -69,43 +68,43 @@ class TestBasicDictize:
         del result['relationships_as_object']
         del result['relationships_as_subject']
 
-        converted_data, errors = validate(result, default_package_schema(), self.context)
+        converted_data, errors = validate(result,
+                                          default_create_package_schema(),
+                                          self.context)
 
-
-        assert converted_data == {'extras': [{'key': u'genre', 'value': u'romantic novel'},
-                                            {'key': u'original media', 'value': u'book'}],
-                                   'groups': [{u'name': u'david',
-                                               u'title': u"Dave's books"},
-                                              {u'name': u'roger',
-                                               u'title': u"Roger's books",
-                                               }],
-                                 'license_id': u'other-open',
-                                 'name': u'anna2',
-                                 'type': u'dataset',
-                                 'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-                                 'private': False,
-                                 'resources': [{'alt_url': u'alt123',
-                                                'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-                                                'format': u'plain text',
-                                                'hash': u'abc123',
-                                                'size_extra': u'123',
-                                                'tracking_summary': {'recent': 0, 'total': 0},
-                                                'url': u'http://www.annakarenina.com/download/x=1&y=2'},
-                                               {'alt_url': u'alt345',
-                                                'description': u'Index of the novel',
-                                                'format': u'JSON',
-                                                'hash': u'def456',
-                                                'size_extra': u'345',
-                                                'tracking_summary': {'recent': 0, 'total': 0},
-                                                'url': u'http://www.annakarenina.com/index.json'}],
-                                 'tags': [{'name': u'Flexible \u30a1'},
-                                          {'name': u'russian'},
-                                          {'name': u'tolstoy'}],
-                                 'title': u'A Novel By Tolstoy',
-                                 'url': u'http://www.annakarenina.com',
-                                 'version': u'0.7a'}, pformat(converted_data)
-
-
+        expected_data = {
+            'extras': [{'key': u'genre', 'value': u'romantic novel'},
+                       {'key': u'original media', 'value': u'book'}],
+            'groups': [{u'name': u'david',
+                        u'title': u"Dave's books"},
+                       {u'name': u'roger',
+                        u'title': u"Roger's books"}],
+            'license_id': u'other-open',
+            'name': u'anna2',
+            'type': u'dataset',
+            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            'private': False,
+            'resources': [{'alt_url': u'alt123',
+                           'description': u'Full text. Needs escaping: " Umlaut: \xfc',
+                           'format': u'plain text',
+                           'hash': u'abc123',
+                           'size_extra': u'123',
+                           'tracking_summary': {'recent': 0, 'total': 0},
+                           'url': u'http://www.annakarenina.com/download/x=1&y=2'},
+                          {'alt_url': u'alt345',
+                           'description': u'Index of the novel',
+                           'format': u'JSON',
+                           'hash': u'def456',
+                           'size_extra': u'345',
+                           'tracking_summary': {'recent': 0, 'total': 0},
+                           'url': u'http://www.annakarenina.com/index.json'}],
+            'tags': [{'name': u'Flexible \u30a1'},
+                     {'name': u'russian'},
+                     {'name': u'tolstoy'}],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+            'version': u'0.7a'
+        }
 
         assert not errors, errors
 
@@ -115,7 +114,9 @@ class TestBasicDictize:
         data["resources"][0]["url"] = 'fsdfafasfsaf'
         data["resources"][1].pop("url")
 
-        converted_data, errors = validate(data, default_package_schema(), self.context)
+        converted_data, errors = validate(data,
+                                          default_create_package_schema(),
+                                          self.context)
 
         assert errors == {
             'name': [u'That URL is already in use.'],
@@ -126,14 +127,19 @@ class TestBasicDictize:
 
         data["id"] = package_id
 
-        converted_data, errors = validate(data, default_package_schema(), self.context)
+        converted_data, errors = validate(data,
+                                          default_update_package_schema(),
+                                          self.context)
 
         assert errors == {
             'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)
 
         data['name'] = '????jfaiofjioafjij'
-        converted_data, errors = validate(data, default_package_schema(), self.context)
+
+        converted_data, errors = validate(data,
+                                          default_update_package_schema(),
+                                          self.context)
         assert errors == {
             'name': [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_'],
             'resources': [{}, {'url': [u'Missing value']}]
