@@ -233,6 +233,23 @@ CKAN operates a delegated authentication model based on `OpenID <http://openid.n
 
 Setting this option to False turns off OpenID for login.
 
+Activity Streams Settings
+-----------------------
+
+.. index::
+   single: ckan.activity_streams_enabled
+
+ckan.activity_streams_enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.activity_streams_enabled = False
+
+Default value:  ``True``
+
+Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+
 
 .. _config-i18n:
 
