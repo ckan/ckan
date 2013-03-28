@@ -28,7 +28,7 @@ class TestTypeGetters(unittest.TestCase):
         self.p.legacy_mode = True
         self.p.write_url = 'postgresql://u:pass@localhost/ds'
         self.p.read_url = 'postgresql://u:pass@localhost/ds'
-        assert self.p._same_read_and_write_url()
+        assert not self.p._same_read_and_write_url()
 
         self.p.legacy_mode = False
 
