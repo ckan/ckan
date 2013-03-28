@@ -109,7 +109,10 @@ def package_create(context, data_dict):
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-    schema = package_plugin.create_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.create_package_schema()
 
     _check_access('package_create', context, data_dict)
 

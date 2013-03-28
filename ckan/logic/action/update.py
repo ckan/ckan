@@ -235,7 +235,10 @@ def package_update(context, data_dict):
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    schema = package_plugin.update_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.update_package_schema()
 
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
