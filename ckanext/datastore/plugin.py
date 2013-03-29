@@ -1,6 +1,5 @@
 import logging
 import pylons
-from sqlalchemy.exc import ProgrammingError
 
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
@@ -64,12 +63,7 @@ class DatastorePlugin(p.SingletonPlugin):
                      "only database. Permission checks and the creation "
                      "of _table_metadata are skipped.")
         else:
-            if self.config.get('debug'):
-                handler = log.critical
-            else:
-                def handler(message):
-                    raise DatastoreException(message)
-            self._check_urls_and_permissions(handler)
+            self._check_urls_and_permissions(self._log_or_raise)
 
             self._create_alias_table()
 
@@ -106,21 +100,30 @@ class DatastorePlugin(p.SingletonPlugin):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
 
-    def _check_urls_and_permissions(self, handler):
+    def _log_or_raise(self, message):
+        if self.config.get('debug'):
+            log.critical(message)
+        else:
+            raise DatastoreException(message)
+
+    def _check_urls_and_permissions(self, error_handler):
         # Make sure that the right permissions are set
         # so that no harmful queries can be made
 
-        if not self.legacy_mode and self._same_read_and_write_url():
-            handler("The write and read-only database "
-                    "connection urls are the same.")
-
         if self._same_ckan_and_datastore_db():
-            handler("CKAN and DataStore database "
-                    "cannot be the same.")
+            error_handler("CKAN and DataStore database "
+                          "cannot be the same.")
 
-        if not self._read_connection_has_correct_privileges():
-            handler("We have write permissions "
-                    "on the read-only database.")
+        # in legacy mode, the read and write url are ths same (both write url)
+        # consequently the same url check and and write privilege check
+        # don't make sense
+        if not self.legacy_mode:
+            if self._same_read_and_write_url():
+                error_handler("The write and read-only database "
+                              "connection urls are the same.")
+
+            if not self._read_connection_has_correct_privileges():
+                error_handler("The read-only user has write privileges.")
 
     def _is_read_only_database(self):
         '''
