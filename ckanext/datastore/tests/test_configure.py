@@ -1,14 +1,10 @@
 import unittest
-from nose.tools import assert_equal
+from nose.tools import raises
 
 import ckanext.datastore.plugin as plugin
 
-# global variable used for callback tests
-msg = ''
-called = 0
 
-
-class TestTypeGetters(unittest.TestCase):
+class TestConfiguration(unittest.TestCase):
     def setUp(self):
         self.p = plugin.DatastorePlugin()
 
@@ -47,69 +43,62 @@ class TestTypeGetters(unittest.TestCase):
         self.p.ckan_url = 'postgresql://u:pass@localhost/ckan'
         assert not self.p._same_ckan_and_datastore_db()
 
-    def test_check_urls_and_permissions(self):
-        global msg
 
-        def handler(message):
-            global msg, called
-            msg = message
-            called += 1
+class TestCheckUrlsAndPermissions(unittest.TestCase):
+    def setUp(self):
+        self.p = plugin.DatastorePlugin()
 
+        self.p.legacy_mode = False
+
+        # initialize URLs
+        self.p.ckan_url = 'postgresql://u:pass@localhost/ckan'
+        self.p.write_url = 'postgresql://u:pass@localhost/ds'
+        self.p.read_url = 'postgresql://u2:pass@localhost/ds'
+
+        # initialize mock for privileges check
         def true_privileges_mock():
             return True
-
-        def false_privileges_mock():
-            return False
-
-        self.p.legacy_mode = False
-        self.p.ckan_url = 'postgresql://u:pass@localhost/ckan'
-        self.p.write_url = 'postgresql://u:pass@localhost/ds'
-        self.p.read_url = 'postgresql://u2:pass@localhost/ds'
         self.p._read_connection_has_correct_privileges = true_privileges_mock
 
-        # all urls are correct
-        self.p._check_urls_and_permissions(handler)
-        assert_equal(msg, '')
-        assert_equal(called, 0)
+        def raise_datastore_exception(message):
+            raise plugin.DatastoreException(message)
+        self.p._log_or_raise = raise_datastore_exception
 
-        # same url for read and write but in legacy mode
-        self.p.legacy_mode = True
-        self.p.read_url = 'postgresql://u:pass@localhost/ds'
-        self.p._check_urls_and_permissions(handler)
-        assert_equal(msg, '')
-        assert_equal(called, 0)
+    def test_everything_correct_does_not_raise(self):
+        self.p._check_urls_and_permissions()
 
-        # same url for read and write
-        self.p.legacy_mode = False
-        self.p._check_urls_and_permissions(handler)
-        assert 'urls are the same' in msg, msg
-        assert_equal(called, 1)
-
-        # same ckan and ds db
-        self.p.ckan_url = 'postgresql://u:pass@localhost/ds'
-        self.p.read_url = 'postgresql://u2:pass@localhost/ds'
-        self.p._check_urls_and_permissions(handler)
-        assert 'cannot be the same' in msg, msg
-        assert_equal(called, 2)
-
-        # have write permissions but in legacy mode
-        self.p.legacy_mode = True
-        msg = ''
+    @raises(plugin.DatastoreException)
+    def test_raises_when_ckan_and_datastore_db_are_the_same(self):
+        self.p.read_url = 'postgresql://u2:pass@localhost/ckan'
         self.p.ckan_url = 'postgresql://u:pass@localhost/ckan'
-        self.p._read_connection_has_correct_privileges = false_privileges_mock
-        self.p._check_urls_and_permissions(handler)
-        assert_equal(msg, '')
-        assert_equal(called, 2)
 
-        # have write permissions
-        self.p.legacy_mode = False
-        self.p._check_urls_and_permissions(handler)
-        assert 'user has write privileges' in msg, msg
-        assert_equal(called, 3)
+        self.p._check_urls_and_permissions()
 
-        # everything is wrong
-        self.p.ckan_url = 'postgresql://u:pass@localhost/ds'
-        self.p.write_url = 'postgresql://u:pass@localhost/ds'
+    @raises(plugin.DatastoreException)
+    def test_raises_when_same_read_and_write_url(self):
         self.p.read_url = 'postgresql://u:pass@localhost/ds'
-        self.p._check_urls_and_permissions(handler)
-        assert_equal(called, 6)
+        self.p.write_url = 'postgresql://u:pass@localhost/ds'
+
+        self.p._check_urls_and_permissions()
+
+    def test_same_read_and_write_url_in_legacy_mode(self):
+        self.p.read_url = 'postgresql://u:pass@localhost/ds'
+        self.p.write_url = 'postgresql://u:pass@localhost/ds'
+        self.p.legacy_mode = True
+
+        self.p._check_urls_and_permissions()
+
+    @raises(plugin.DatastoreException)
+    def test_raises_when_we_have_write_permissions(self):
+        def false_privileges_mock():
+            return False
+        self.p._read_connection_has_correct_privileges = false_privileges_mock
+        self.p._check_urls_and_permissions()
+
+    def test_have_write_permissions_in_legacy_mode(self):
+        def false_privileges_mock():
+            return False
+        self.p._read_connection_has_correct_privileges = false_privileges_mock
+        self.p.legacy_mode = True
+
+        self.p._check_urls_and_permissions()

@@ -63,7 +63,7 @@ class DatastorePlugin(p.SingletonPlugin):
                      "only database. Permission checks and the creation "
                      "of _table_metadata are skipped.")
         else:
-            self._check_urls_and_permissions(self._log_or_raise)
+            self._check_urls_and_permissions()
 
             self._create_alias_table()
 
@@ -106,24 +106,24 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             raise DatastoreException(message)
 
-    def _check_urls_and_permissions(self, error_handler):
+    def _check_urls_and_permissions(self):
         # Make sure that the right permissions are set
         # so that no harmful queries can be made
 
         if self._same_ckan_and_datastore_db():
-            error_handler("CKAN and DataStore database "
-                          "cannot be the same.")
+            self._log_or_raise("CKAN and DataStore database "
+                               "cannot be the same.")
 
         # in legacy mode, the read and write url are ths same (both write url)
         # consequently the same url check and and write privilege check
         # don't make sense
         if not self.legacy_mode:
             if self._same_read_and_write_url():
-                error_handler("The write and read-only database "
-                              "connection urls are the same.")
+                self._log_or_raise("The write and read-only database "
+                                   "connection urls are the same.")
 
             if not self._read_connection_has_correct_privileges():
-                error_handler("The read-only user has write privileges.")
+                self._log_or_raise("The read-only user has write privileges.")
 
     def _is_read_only_database(self):
         '''
