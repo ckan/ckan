@@ -116,6 +116,7 @@ def default_create_tag_schema():
 
 def default_create_package_schema():
     schema = {
+        '__before': [duplicate_extras_key, ignore],
         'id': [empty],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
@@ -139,7 +140,6 @@ def default_create_package_schema():
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
-        'extras_validation': [duplicate_extras_key, ignore],
         'save': [ignore],
         'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
