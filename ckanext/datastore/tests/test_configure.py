@@ -1,4 +1,5 @@
 import unittest
+import ckan.plugins as p
 from nose.tools import raises
 
 import ckanext.datastore.plugin as plugin
@@ -6,7 +7,10 @@ import ckanext.datastore.plugin as plugin
 
 class TestConfiguration(unittest.TestCase):
     def setUp(self):
-        self.p = plugin.DatastorePlugin()
+        self.p = p.load('datastore')
+
+    def tearDown(self):
+        p.unload('datastore')
 
     def test_legacy_mode_default(self):
         assert not self.p.legacy_mode
@@ -46,7 +50,7 @@ class TestConfiguration(unittest.TestCase):
 
 class TestCheckUrlsAndPermissions(unittest.TestCase):
     def setUp(self):
-        self.p = plugin.DatastorePlugin()
+        self.p = p.load('datastore')
 
         self.p.legacy_mode = False
 
@@ -63,6 +67,9 @@ class TestCheckUrlsAndPermissions(unittest.TestCase):
         def raise_datastore_exception(message):
             raise plugin.DatastoreException(message)
         self.p._log_or_raise = raise_datastore_exception
+
+    def tearDown(self):
+        p.unload('datastore')
 
     def test_everything_correct_does_not_raise(self):
         self.p._check_urls_and_permissions()
