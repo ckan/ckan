@@ -439,8 +439,8 @@ Default is false.'''
                 yield l[i*newn:i*newn+newn]
             yield l[n*newn-newn:]
 
+        processes = []
         for chunk in chunks(package_ids, mp.cpu_count()):
-            processes = []
             process = mp.Process(target=start, args=(chunk,))
             processes.append(process)
             process.daemon = True
