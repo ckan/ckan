@@ -636,7 +636,7 @@ def markdown_extract(text, extract_length=190):
     will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
-    plain = re.sub(r'<.*?>', '', markdown(text))
+    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
