@@ -38,6 +38,7 @@
         </strong>
         <div class="filter-list">
           {% for field in c.fields_grouped %}
+            {% set search_facets_items = c.search_facets.get(field)['items'] %}
             <span class="facet">{{ c.facet_titles.get(field) }}:</span>
             {% for value in c.fields_grouped[field] %}
               <span class="filtered pill">
@@ -45,6 +46,7 @@
                   {{ c.translated_fields[(field,value)] }}
                 {%- else -%}
                   {{ value }}
+                  {{ h.list_dict_filter(search_facets_items , 'name', 'display_name', value) }}
                 {%- endif %}
                 <a href="{{ c.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
               </span>
@@ -75,15 +77,15 @@
         {% set api_link = h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) %}
         {% set api_doc_link = h.link_to(_('API Docs'), 'http://docs.ckan.org/{0}/{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_doc_version)) %}
         {% if g.dumps_url -%}
-          {% trans %}
-            You can also access this registry using the {{ api_link }} (see {{ api_doc_link}}).
-          {% endtrans %}
-        {% else %}
-          {% set dump = h.link_to(_('full {format} dump').format(format=g.dumps_format), g.dumps_url) %}
+          {% set dump_link = h.link_to(_('full {format} dump').format(format=g.dumps_format), g.dumps_url) %}
           {% trans %}
             You can also access this registry using the {{ api_link }} (see {{ api_doc_link }}) or download a {{ dump_link }}.
           {% endtrans %}
-        {%- endif %}.
+        {% else %}
+          {% trans %}
+            You can also access this registry using the {{ api_link }} (see {{ api_doc_link}}).
+          {% endtrans %}
+        {%- endif %}
       </small>
     </div>
   </section>

@@ -4783,13 +4783,15 @@ a.tag:hover {
   box-shadow: inset 0 1px 0 #3d97b3;
 }
 .pill {
-  background-color: #8ca0a6;
+  display: inline-block;
+  background-color: #6f8890;
   color: #ffffff;
-  padding: 1px 5px 1px 8px;
+  padding: 2px 10px 1px 10px;
   margin-right: 5px;
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  border-radius: 7px;
+  font-weight: normal;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
 }
 .pill a {
   color: #ffffff;
@@ -4872,6 +4874,7 @@ a.tag:hover {
   margin: 20px 0;
 }
 .module-heading {
+  *zoom: 1;
   margin: 0;
   padding: 7px 25px;
   font-size: 14px;
@@ -4880,11 +4883,24 @@ a.tag:hover {
   border-top: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
 }
+.module-heading:before,
+.module-heading:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.module-heading:after {
+  clear: both;
+}
 .module-heading .action {
   float: right;
   color: #888888;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 20px;
   text-decoration: underline;
+}
+.module-heading .action:hover {
+  color: #444444;
 }
 .module-content {
   padding: 0 25px;
@@ -4928,11 +4944,16 @@ a.tag:hover {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
   border: 0;
 }
 .module .pagination li a {
   border-top: none;
   border-bottom: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 .module .pagination li:first-child a,
 .module .pagination li:last-child a {
@@ -5042,9 +5063,16 @@ a.tag:hover {
   background-color: #ffffff;
   border-bottom: 1px solid #dddddd;
   margin-top: 0;
+  margin-bottom: 0;
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
+}
+.module-resource .actions {
+  position: relative;
+  float: right;
+  top: -10px;
+  right: -15px;
 }
 .module .module-tags {
   padding-bottom: 8px;
@@ -5251,10 +5279,6 @@ ol.media-grid:after {
   overflow: hidden;
   display: block;
 }
-.nav-item [class^=icon] {
-  font-size: 1.2em;
-  margin: -1px 0 -1px -1px;
-}
 .module-narrow .nav-item > a {
   padding-left: 15px;
   padding-right: 15px;
@@ -5319,6 +5343,14 @@ ol.media-grid:after {
   -moz-border-radius: 100px;
   border-radius: 100px;
 }
+.nav-simple > .nav-btn {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+.nav-simple > .nav-btn .btn {
+  display: inline-block;
+}
 .js .js-hide {
   display: none;
 }
@@ -5339,7 +5371,6 @@ label {
 label {
   cursor: pointer;
   font-size: 14px;
-  line-height: 2;
 }
 label:after {
   content: ":";
@@ -5347,13 +5378,6 @@ label:after {
 label.radio:after,
 label.checkbox:after {
   content: "";
-}
-input,
-textarea,
-select,
-.uneditable-input {
-  font-size: 14px;
-  padding: 8px 10px;
 }
 input[type=radio],
 input[type=checkbox] {
@@ -5367,7 +5391,6 @@ input[type=checkbox].checkbox-onown {
   top: 0;
 }
 select {
-  margin-top: 6px;
   padding: 4px;
 }
 textarea {
@@ -5393,7 +5416,8 @@ textarea {
 }
 .control-large input,
 .control-large .control-label {
-  font-size: 18px;
+  font-size: 17.5px;
+  line-height: 30px;
 }
 .form-actions {
   background: none;
@@ -5417,16 +5441,6 @@ textarea {
 }
 .form-horizontal .control-label {
   width: 120px;
-  line-height: 1.3;
-  padding-top: 9px;
-}
-.form-horizontal .control-large input,
-.form-horizontal .control-large .control-label {
-  font-size: 18px;
-  line-height: 2;
-}
-.form-horizontal .control-large .control-label {
-  padding-top: 10px;
 }
 .form-horizontal .controls {
   margin-left: 130px;
@@ -5695,24 +5709,23 @@ textarea {
   background: #c6898b;
   margin: -3px 0 0;
   color: #ffffff;
-  width: 216px;
+  width: 208px;
 }
 .control-medium .error-block {
-  width: 326px;
+  width: 318px;
 }
 .control-full .error-block {
   width: auto;
 }
 .control-group.error .input-prepend .error-block,
 .control-custom.error .error-block {
-  margin-left: -1px;
   width: auto;
 }
 .control-custom.error .error-block {
-  width: 409px;
+  width: 401px;
 }
 .control-select.error .error-block {
-  width: 204px;
+  width: 196px;
 }
 .stages {
   margin: 0;
@@ -5890,7 +5903,7 @@ textarea {
   padding-left: 10px;
 }
 .select2-container {
-  margin-top: 5px;
+  margin-top: 1px;
 }
 .select2-container-multi {
   margin-top: 0;
@@ -6015,7 +6028,6 @@ textarea {
 }
 .filter-list {
   color: #444444;
-  font-weight: bold;
 }
 .filter-list .extra {
   margin-top: 10px;
@@ -7689,6 +7701,9 @@ textarea {
 .context-info.editing .module-content {
   margin-top: 0;
 }
+.modal {
+  top: 50%;
+}
 .hero {
   background: url("../../../base/images/background-tile.png");
   padding: 20px 0;
@@ -7738,15 +7753,16 @@ textarea {
 .hero .tags:after {
   clear: both;
 }
+.hero .tags h3,
 .hero .tags .tag {
   display: block;
   float: left;
   margin: 5px 10px 0 0;
 }
-.hero .tags h3.tag {
+.hero .tags h3 {
   font-size: 14px;
   line-height: 20px;
-  margin-bottom: 0;
+  padding: 2px 8px;
 }
 .hero-primary,
 .hero-secondary {
@@ -8160,6 +8176,62 @@ textarea {
 }
 .lang-dropdown .select2-result-label[data-value*="/pt_BR/"]:before {
   background-position: 0 -132px;
+}
+.table-selected td {
+  background-color: #f5f5f5;
+}
+.table-selected td .edit {
+  display: block;
+}
+.table-bulk-edit th input {
+  top: -5px;
+}
+.table-bulk-edit .table-actions .btn-group {
+  float: left;
+  margin: 0 10px 0 0;
+}
+.table-bulk-edit .context p {
+  margin-bottom: 0;
+}
+.table-header thead th {
+  background-color: #f6f6f6;
+}
+.table-edit-hover .edit {
+  display: none;
+  float: right;
+}
+.table-edit-hover tr:hover .edit {
+  display: block;
+}
+.js .table-toggle-more .toggle-more {
+  display: none;
+}
+.js .table-toggle-more .show-more {
+  display: inline;
+}
+.js .table-toggle-more .show-less {
+  display: none;
+}
+.js .table-toggle-more .toggle-seperator {
+  display: table-row;
+}
+.js .table-toggle-more .toggle-seperator td {
+  height: 11px;
+  padding: 0;
+  background-image: url("../../../base/images/table-seperator.png");
+}
+.js .table .toggle-show td {
+  background: none;
+  text-align: center;
+}
+.js .table-toggle-less .show-less {
+  display: inline;
+}
+.js .table-toggle-less .show-more {
+  display: none;
+}
+.js .table-toggle-less .toggle-seperator {
+  display: none;
 }
 .profile .empty,
 .profile .dataset-list {

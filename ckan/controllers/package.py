@@ -18,7 +18,7 @@ from ckan.lib.base import (request,
 from ckan.lib.base import response, redirect, gettext
 import ckan.lib.maintain as maintain
 from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.lib.navl.dictization_functions import DataError, unflatten, validate
+from ckan.lib.navl.dictization_functions import DataError, unflatten
 from ckan.lib.helpers import json
 from ckan.logic import NotFound, NotAuthorized, ValidationError
 from ckan.logic import (tuplize_dict,
@@ -68,19 +68,6 @@ class PackageController(BaseController):
 
     def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
-
-    def _form_to_db_schema(self, package_type=None):
-        return lookup_package_plugin(package_type).form_to_db_schema()
-
-    def _db_to_form_schema(self, package_type=None):
-        '''This is an interface to manipulate data from the database
-        into a format suitable for the form (optional)'''
-        return lookup_package_plugin(package_type).db_to_form_schema()
-
-    def _check_data_dict(self, data_dict, package_type=None):
-        '''Check if the return data is correct, mostly for checking out if
-        spammers are submitting only part of the form'''
-        return lookup_package_plugin(package_type).check_data_dict(data_dict)
 
     def _setup_template_variables(self, context, data_dict, package_type=None):
         return lookup_package_plugin(package_type).\
@@ -608,7 +595,8 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
 
             # see if we have any data that we are trying to save
             data_provided = False
@@ -694,7 +682,9 @@ class PackageController(BaseController):
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author,
+                       'extras_as_string': True}
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
@@ -811,22 +801,14 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema(
-                                    package_type=package_type),
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
-            schema = self._db_to_form_schema(package_type=package_type)
-            if schema:
-                data, errors = validate(data, schema)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
 
-        ## hack as db_to_form schema should have this
-        data['tag_string'] = ', '.join([tag['name'] for tag
-                                        in data.get('tags', [])])
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -891,9 +873,6 @@ class PackageController(BaseController):
         # this is a real new.
         is_an_update = False
         ckan_phase = request.params.get('_ckan_phase')
-        if ckan_phase:
-            # phased add dataset so use api schema for validation
-            context['api_version'] = 3
         from ckan.lib.search import SearchIndexError
         try:
             data_dict = clean_dict(unflatten(
