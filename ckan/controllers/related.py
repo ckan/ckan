@@ -67,12 +67,12 @@ class RelatedController(base.BaseController):
         try:
             logic.check_access('related_show', context, data_dict)
         except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
+            base.abort(401, base._('Not authorized to see this page'))
 
         related = model.Session.query(model.Related).\
                     filter(model.Related.id == id).first()
         if not related:
-            base.abort(404, _('The requested related item was not found'))
+            base.abort(404, base._('The requested related item was not found'))
 
         related.view_count = model.Related.view_count + 1
 
