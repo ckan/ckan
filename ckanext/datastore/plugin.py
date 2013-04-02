@@ -39,29 +39,29 @@ class DatastorePlugin(p.SingletonPlugin):
         # that we should ignore the following tests.
         import sys
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
-            log.warn("Omitting permission checks because you are "
-                     "running paster commands.")
+            log.warn('Omitting permission checks because you are '
+                     'running paster commands.')
             return
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
         if self.legacy_mode:
             self.read_url = self.write_url
-            log.warn("Legacy mode active. "
-                     "The sql search will not be available.")
+            log.warn('Legacy mode active. '
+                     'The sql search will not be available.')
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
         if not model.engine_is_pg():
-            log.warn("We detected that you do not use a PostgreSQL "
-                     "database. The DataStore will NOT work and DataStore "
-                     "tests will be skipped.")
+            log.warn('We detected that you do not use a PostgreSQL '
+                     'database. The DataStore will NOT work and DataStore '
+                     'tests will be skipped.')
             return
 
         if self._is_read_only_database():
-            log.warn("We detected that CKAN is running on a read "
-                     "only database. Permission checks and the creation "
-                     "of _table_metadata are skipped.")
+            log.warn('We detected that CKAN is running on a read '
+                     'only database. Permission checks and the creation '
+                     'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
 
@@ -111,25 +111,23 @@ class DatastorePlugin(p.SingletonPlugin):
         # so that no harmful queries can be made
 
         if self._same_ckan_and_datastore_db():
-            self._log_or_raise("CKAN and DataStore database "
-                               "cannot be the same.")
+            self._log_or_raise('CKAN and DataStore database '
+                               'cannot be the same.')
 
         # in legacy mode, the read and write url are ths same (both write url)
         # consequently the same url check and and write privilege check
         # don't make sense
         if not self.legacy_mode:
             if self._same_read_and_write_url():
-                self._log_or_raise("The write and read-only database "
-                                   "connection urls are the same.")
+                self._log_or_raise('The write and read-only database '
+                                   'connection urls are the same.')
 
             if not self._read_connection_has_correct_privileges():
-                self._log_or_raise("The read-only user has write privileges.")
+                self._log_or_raise('The read-only user has write privileges.')
 
     def _is_read_only_database(self):
-        '''
-        Returns True if no connection has CREATE privileges on the public
-        schema. This is the case if replication is enabled.
-        '''
+        ''' Returns True if no connection has CREATE privileges on the public
+        schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
                                         {'connection_url': url}).connect()
@@ -140,9 +138,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return True
 
     def _same_ckan_and_datastore_db(self):
-        '''
-        Returns True if the CKAN and DataStore db are the same
-        '''
+        '''Returns True if the CKAN and DataStore db are the same'''
         return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
@@ -152,8 +148,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
-        '''
-        Returns True if the right permissions are set for the read only user.
+        ''' Returns True if the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
         write_connection = db._get_engine(None,
@@ -161,12 +156,12 @@ class DatastorePlugin(p.SingletonPlugin):
         read_connection = db._get_engine(None,
             {'connection_url': self.read_url}).connect()
 
-        drop_foo_sql = u"DROP TABLE IF EXISTS _foo"
+        drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
         write_connection.execute(drop_foo_sql)
 
         try:
-            write_connection.execute(u"CREATE TABLE _foo ()")
+            write_connection.execute(u'CREATE TABLE _foo ()')
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
                 test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
                 sql = test_privilege_sql.format(privilege=privilege)
