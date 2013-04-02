@@ -1,9 +1,8 @@
 import logging
+
 from pylons import config
-from pylons.i18n import _
 from paste.deploy.converters import asbool
 
-import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -14,6 +13,8 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+
+from ckan.common import _
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship

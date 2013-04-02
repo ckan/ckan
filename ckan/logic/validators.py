@@ -2,27 +2,32 @@ import datetime
 from itertools import count
 import re
 
-from pylons.i18n import _
-
-from ckan.lib.navl.dictization_functions import Invalid, StopOnError, Missing, missing, unflatten
-from ckan.logic import check_access, NotAuthorized, NotFound
+import ckan.lib.navl.dictization_functions as df
+import ckan.logic as logic
 import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
-import ckan.new_authz
+import ckan.new_authz as new_authz
+
+from ckan.common import _
+
+Invalid = df.Invalid
+StopOnError = df.StopOnError
+Missing = df.Missing
+missing = df.missing
 
 def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
     if value is missing or not value:
-        if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
+        if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
-        raise StopOnError
+        raise df.StopOnError
 
     model = context['model']
     group = model.Group.get(value)
@@ -303,7 +308,7 @@ def package_version_validator(value, context):
 
 def duplicate_extras_key(key, data, errors, context):
 
-    unflattened = unflatten(data)
+    unflattened = df.unflatten(data)
     extras = unflattened.get('extras', [])
     extras_keys = []
     for extra in extras:
@@ -392,16 +397,16 @@ def ignore_not_package_admin(key, data, errors, context):
     if 'ignore_auth' in context:
         return
 
-    if user and ckan.new_authz.is_sysadmin(user):
+    if user and new_authz.is_sysadmin(user):
         return
 
     authorized = False
     pkg = context.get('package')
     if pkg:
         try:
-            check_access('package_change_state',context)
+            logic.check_access('package_change_state',context)
             authorized = True
-        except NotAuthorized:
+        except logic.NotAuthorized:
             authorized = False
 
     if (user and pkg and authorized):
@@ -419,16 +424,16 @@ def ignore_not_group_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
-    if user and ckan.new_authz.is_sysadmin(user):
+    if user and new_authz.is_sysadmin(user):
         return
 
     authorized = False
     group = context.get('group')
     if group:
         try:
-            check_access('group_change_state',context)
+            logic.check_access('group_change_state',context)
             authorized = True
-        except NotAuthorized:
+        except logic.NotAuthorized:
             authorized = False
 
     if (user and group and authorized):
@@ -590,6 +595,6 @@ def user_name_exists(user_name, context):
 
 
 def role_exists(role, context):
-    if role not in ckan.new_authz.ROLE_PERMISSIONS:
+    if role not in new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role

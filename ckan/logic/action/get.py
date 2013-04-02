@@ -4,8 +4,6 @@ import json
 import datetime
 
 from pylons import config
-from pylons.i18n import _
-from pylons import c
 import sqlalchemy
 
 import ckan.lib.dictization
@@ -20,6 +18,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
 

@@ -1,10 +1,11 @@
-from pylons.i18n import _
-from pylons import request, c, config
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+
+from ckan.common import _, request, c
 
 
 LIMIT = 25
