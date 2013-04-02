@@ -1401,19 +1401,19 @@ def html_auto_link(data):
     group:... converted to a group link
     http://... converted to a link
     '''
+
+    LINK_FNS = {
+        'tag': tag_link,
+        'group': group_link,
+        'dataset': dataset_link,
+        'package': dataset_link,
+    }
+
     def makelink(matchobj):
         obj = matchobj.group(1)
         name = matchobj.group(2)
         title = '%s:%s' % (obj, name)
-        if obj == 'tag':
-            return tag_link({'name': name.strip('"'),
-                             'title': title})
-        elif obj  == 'group':
-            return group_link({'name': name,
-                               'title': title})
-        elif obj in ['dataset', 'package']:
-            return dataset_link({'name': name,
-                                 'title': title})
+        return LINK_FNS[obj]({'name': name.strip('"'), 'title': title})
 
     def link(matchobj):
         return '<a href="%s" target="_blank" rel="nofollow">%s</a>' \
