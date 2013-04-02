@@ -5,6 +5,7 @@ import pyutilib.component.core
 import ckan.plugins
 import ckanext.datastore.plugin as plugin
 
+
 class TestConfiguration(unittest.TestCase):
     def setUp(self):
         self._original_plugin = ckan.plugins.unload('datastore')
@@ -51,13 +52,13 @@ class TestConfiguration(unittest.TestCase):
 
     def test_setup_plugin_for_check_urls_and_permissions_tests_should_leave_the_plugin_in_a_valid_state(self):
         self.setUp_plugin_for_check_urls_and_permissions_tests()
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
     def test_check_urls_and_permissions_requires_different_ckan_and_datastore_dbs(self):
         self.setUp_plugin_for_check_urls_and_permissions_tests()
 
         self.p._same_ckan_and_datastore_db = lambda: False
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
         self.p._same_ckan_and_datastore_db = lambda: True
         nose.tools.assert_raises(InvalidUrlsOrPermissionsException, self.p._check_urls_and_permissions)
@@ -67,7 +68,7 @@ class TestConfiguration(unittest.TestCase):
         self.p.legacy_mode = False
 
         self.p._same_read_and_write_url = lambda: False
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
         self.p._same_read_and_write_url = lambda: True
         nose.tools.assert_raises(InvalidUrlsOrPermissionsException, self.p._check_urls_and_permissions)
@@ -77,17 +78,17 @@ class TestConfiguration(unittest.TestCase):
         self.p.legacy_mode = True
 
         self.p._same_read_and_write_url = lambda: False
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
         self.p._same_read_and_write_url = lambda: True
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
     def test_check_urls_and_permissions_requires_read_connection_with_correct_privileges_when_not_in_legacy_mode(self):
         self.setUp_plugin_for_check_urls_and_permissions_tests()
         self.p.legacy_mode = False
 
         self.p._read_connection_has_correct_privileges = lambda: True
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
         self.p._read_connection_has_correct_privileges = lambda: False
         nose.tools.assert_raises(InvalidUrlsOrPermissionsException, self.p._check_urls_and_permissions)
@@ -97,10 +98,10 @@ class TestConfiguration(unittest.TestCase):
         self.p.legacy_mode = True
 
         self.p._read_connection_has_correct_privileges = lambda: True
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
         self.p._read_connection_has_correct_privileges = lambda: False
-        self.p._check_urls_and_permissions() # Should be OK
+        self.p._check_urls_and_permissions()  # Should be OK
 
     def setUp_plugin_for_check_urls_and_permissions_tests(self):
         def _raise_invalid_urls_or_permissions_exception(message):
@@ -112,4 +113,6 @@ class TestConfiguration(unittest.TestCase):
         self.p._read_connection_has_correct_privileges = lambda: True
         self.p._log_or_raise = _raise_invalid_urls_or_permissions_exception
 
-class InvalidUrlsOrPermissionsException(Exception): pass
+
+class InvalidUrlsOrPermissionsException(Exception):
+    pass
