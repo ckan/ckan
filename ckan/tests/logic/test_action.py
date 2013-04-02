@@ -292,7 +292,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         assert len(res_obj['result']) == 7
         assert res_obj['result'][0]['name'] == 'annafan'
-        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: http://anna.com'
         assert not 'apikey' in res_obj['result'][0]
 
     def test_05_user_show(self):
@@ -304,7 +304,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'annafan'
-        assert result['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert result['about'] == 'I love reading Annakarenina. My site: http://anna.com'
         assert 'activity' in result
         assert 'created' in result
         assert 'display_name' in result

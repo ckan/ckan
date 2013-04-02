@@ -928,7 +928,7 @@ class TestBasicDictize:
                                'title': u'simple',
                                'type': u'organization',
                                'approval_status': u'approved'}],
-                    'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
+                    'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
                               'display_name': u'annafan',
                               'capacity' : 'public',
                               'sysadmin': False,
