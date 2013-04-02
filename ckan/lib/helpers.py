@@ -960,7 +960,7 @@ def related_item_link(related_item_dict):
 
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
-    return link_to(tag['name'], url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 def group_link(group):
@@ -1371,12 +1371,76 @@ def get_request_param(parameter_name, default=None):
     return request.params.get(parameter_name, default)
 
 
-def render_markdown(data):
+# find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
+# as this would lead to linkifying links if they are urls.
+RE_MD_GET_INNER_HTML = re.compile(
+    r'(^|(?:<(?!a\b)[^>]*>))([^<]+)(?=<|$)',
+    flags=re.UNICODE
+)
+
+# find all `internal links` eg. tag:moo, dataset:1234, tag:"my tag"
+RE_MD_INTERNAL_LINK = re.compile(
+    r'\b(tag|package|dataset|group):((")?(?(3)[ \w\-.]+|[\w\-.]+)(?(3)"))',
+    flags=re.UNICODE
+)
+
+# find external links eg http://foo.com, https:/bar.org/foobar.html
+RE_MD_EXTERNAL_LINK = re.compile(r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    flags=re.UNICODE
+)
+
+# find all tags but ignore < in the strings so that we can use it correctly
+# in markdown
+RE_MD_HTML_TAGS = re.compile('<[^><]*>')
+
+def html_auto_link(data):
+    '''Linkifies HTML
+
+    tag:... converted to a tag link
+    dataset:... converted to a dataset link
+    group:... converted to a group link
+    http://... converted to a link
+    '''
+    def makelink(matchobj):
+        obj = matchobj.group(1)
+        name = matchobj.group(2)
+        title = '%s:%s' % (obj, name)
+        if obj == 'tag':
+            return tag_link({'name': name.strip('"'),
+                             'title': title})
+        elif obj  == 'group':
+            return group_link({'name': name,
+                               'title': title})
+        elif obj in ['dataset', 'package']:
+            return dataset_link({'name': name,
+                                 'title': title})
+
+    def link(matchobj):
+        return '<a href="%s" target="_blank" rel="nofollow">%s</a>' \
+            % (matchobj.group(1), matchobj.group(1))
+
+    def process(matchobj):
+        data = matchobj.group(2)
+        data = RE_MD_INTERNAL_LINK.sub(makelink, data)
+        data = RE_MD_EXTERNAL_LINK.sub(link, data)
+        return matchobj.group(1) + data
+
+    data = RE_MD_GET_INNER_HTML.sub(process, data)
+    return data
+
+
+def render_markdown(data, auto_link=True):
     ''' returns the data as rendered markdown '''
     # cope with data == None
     if not data:
         return ''
-    return literal(ckan.misc.MarkdownFormat().to_html(data))
+    data = RE_MD_HTML_TAGS.sub('', data.strip())
+    data = markdown(data, safe_mode=True)
+    # tags can be added by tag:... or tag:"...." and a link will be made
+    # from it
+    if auto_link:
+        data = html_auto_link(data)
+    return literal(data)
 
 
 def format_resource_items(items):
