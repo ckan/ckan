@@ -1047,7 +1047,7 @@ class Tracking(CkanCommand):
                               for r in total_views])
 
     def update_tracking(self, engine, summary_date):
-        PACKAGE_URL = '/dataset/'
+        PACKAGE_URL = '%/dataset/'
         # clear out existing data before adding new
         sql = '''DELETE FROM tracking_summary
                  WHERE tracking_date='%s'; ''' % summary_date
@@ -1073,7 +1073,7 @@ class Tracking(CkanCommand):
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE t.url =  %s || p.name)
+                        WHERE t.url LIKE  %s || p.name)
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
                  AND tracking_type = 'page';'''
