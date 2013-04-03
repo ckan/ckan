@@ -66,14 +66,24 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
     var actualQuery = {
       resource_id: dataset.id,
       q: queryObj.q,
+      filters: {},
       limit: queryObj.size || 10,
       offset: queryObj.from || 0
     };
+
     if (queryObj.sort && queryObj.sort.length > 0) {
       var _tmp = _.map(queryObj.sort, function(sortObj) {
         return sortObj.field + ' ' + (sortObj.order || '');
       });
       actualQuery.sort = _tmp.join(',');
+    }
+
+    if (queryObj.filters && queryObj.filters.length > 0) {
+      _.each(queryObj.filters, function(filter) {
+        if (filter.type === "term") {
+          actualQuery.filters[filter.field] = filter.term;
+        }
+      });
     }
     return actualQuery;
   };
@@ -105,15 +115,14 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   //
   // @param endpoint: CKAN api endpoint (e.g. http://datahub.io/api)
   my.DataStore = function(endpoint) { 
-    var that = {
-      endpoint: endpoint || my.API_ENDPOINT
-    };
+    var that = {endpoint: endpoint || my.API_ENDPOINT};
+
     that.search = function(data) {
       var searchUrl = that.endpoint + '/3/action/datastore_search';
       var jqxhr = jQuery.ajax({
         url: searchUrl,
-        data: data,
-        dataType: 'json'
+        type: 'POST',
+        data: JSON.stringify(data)
       });
       return jqxhr;
     };
@@ -1650,9 +1659,11 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding rendered computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValue: function(field) {
     val = this.getFieldValueUnrendered(field);
-    if (field.renderer) {
+    if (field && !_.isUndefined(field.renderer)) {
       val = field.renderer(val, field, this.toJSON());
     }
     return val;
@@ -1662,7 +1673,12 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValueUnrendered: function(field) {
+    if (!field) {
+      return '';
+    }
     var val = this.get(field.id);
     if (field.deriver) {
       val = field.deriver(val, field, this);
@@ -2092,14 +2108,19 @@ my.Flot = Backbone.View.extend({
     var xtype = xfield.get('type');
     var isDateTime = (xtype === 'date' || xtype === 'date-time' || xtype  === 'time');
 
-    if (this.model.records.models[parseInt(x, 10)]) {
-      x = this.model.records.models[parseInt(x, 10)].get(this.state.attributes.group);
-      if (isDateTime) {
-        x = new Date(x).toLocaleDateString();
-      }
-    } else if (isDateTime) {
-      x = new Date(parseInt(x, 10)).toLocaleDateString();
+    if (this.xvaluesAreIndex) {
+      x = parseInt(x, 10);
+      // HACK: deal with bar graph style cases where x-axis items were strings
+      // In this case x at this point is the index of the item in the list of
+      // records not its actual x-axis value
+      x = this.model.records.models[x].get(this.state.attributes.group);
     }
+    if (isDateTime) {
+      x = new Date(x).toLocaleDateString();
+    }
+    // } else if (isDateTime) {
+    //  x = new Date(parseInt(x, 10)).toLocaleDateString();
+    // }
 
     return x;
   },
@@ -2119,13 +2140,13 @@ my.Flot = Backbone.View.extend({
       // convert x to a string and make sure that it is not too long or the
       // tick labels will overlap
       // TODO: find a more accurate way of calculating the size of tick labels
-      var label = self._xaxisLabel(x);
+      var label = self._xaxisLabel(x) || "";
 
       if (typeof label !== 'string') {
         label = label.toString();
       }
-      if (self.state.attributes.graphType !== 'bars' && label.length > 8) {
-        label = label.slice(0, 5) + "...";
+      if (self.state.attributes.graphType !== 'bars' && label.length > 10) {
+        label = label.slice(0, 10) + "...";
       }
 
       return label;
@@ -2134,31 +2155,16 @@ my.Flot = Backbone.View.extend({
     var xaxis = {};
     xaxis.tickFormatter = tickFormatter;
 
-    // calculate the x-axis ticks
-    //
-    // the number of ticks should be a multiple of the number of points so that
-    // each tick lines up with a point
-    if (numPoints) {
-      var ticks = [],
-          maxTicks = 10,
-          x = 1,
-          i = 0;
-
-      // show all ticks in bar graphs
-      // for other graphs only show up to maxTicks ticks
-      if (self.state.attributes.graphType !== 'bars') {
-        while (x <= maxTicks) {
-          if ((numPoints / x) <= maxTicks) {
-            break;
-          }
-          x = x + 1;
-        }
+    // for labels case we only want ticks at the label intervals
+    // HACK: however we also get this case with Date fields. In that case we
+    // could have a lot of values and so we limit to max 30 (we assume)
+    if (this.xvaluesAreIndex) {
+      var numTicks = Math.min(this.model.records.length, 15);
+      var increment = this.model.records.length / numTicks;
+      var ticks = [];
+      for (i=0; i<numTicks; i++) {
+        ticks.push(parseInt(i*increment));
       }
-
-      for (i = 0; i < numPoints; i = i + x) {
-        ticks.push(i);
-      }
-
       xaxis.ticks = ticks;
     }
 
@@ -2243,9 +2249,11 @@ my.Flot = Backbone.View.extend({
 
   createSeries: function() {
     var self = this;
+    self.xvaluesAreIndex = false;
     var series = [];
     _.each(this.state.attributes.series, function(field) {
       var points = [];
+      var fieldLabel = self.model.fields.get(field).get('label');
       _.each(self.model.records.models, function(doc, index) {
         var xfield = self.model.fields.get(self.state.attributes.group);
         var x = doc.getFieldValue(xfield);
@@ -2255,16 +2263,13 @@ my.Flot = Backbone.View.extend({
         var isDateTime = (xtype === 'date' || xtype === 'date-time' || xtype  === 'time');
 
         if (isDateTime) {
-          if (self.state.attributes.graphType != 'bars' &&
-              self.state.attributes.graphType != 'columns') {
-            x = new Date(x).getTime();
-          } else {
-            x = index;
-          }
+          self.xvaluesAreIndex = true;
+          x = index;
         } else if (typeof x === 'string') {
           x = parseFloat(x);
-          if (isNaN(x)) {
+          if (isNaN(x)) { // assume this is a string label
             x = index;
+            self.xvaluesAreIndex = true;
           }
         }
 
@@ -2279,7 +2284,7 @@ my.Flot = Backbone.View.extend({
       });
       series.push({
         data: points,
-        label: field,
+        label: fieldLabel,
         hoverable: true
       });
     });
@@ -5527,3 +5532,118 @@ my.QueryEditor = Backbone.View.extend({
 
 })(jQuery, recline.View);
 
+/*jshint multistr:true */
+
+this.recline = this.recline || {};
+this.recline.View = this.recline.View || {};
+
+(function($, my) {
+
+my.ValueFilter = Backbone.View.extend({
+  className: 'recline-filter-editor well', 
+  template: ' \
+    <div class="filters"> \
+      <h3>Filters</h3> \
+      <button class="btn js-add-filter add-filter">Add filter</button> \
+      <form class="form-stacked js-add" style="display: none;"> \
+        <fieldset> \
+          <label>Field</label> \
+          <select class="fields"> \
+            {{#fields}} \
+            <option value="{{id}}">{{label}}</option> \
+            {{/fields}} \
+          </select> \
+          <button type="submit" class="btn">Add</button> \
+        </fieldset> \
+      </form> \
+      <form class="form-stacked js-edit"> \
+        {{#filters}} \
+          {{{filterRender}}} \
+        {{/filters}} \
+        {{#filters.length}} \
+        <button type="submit" class="btn update-filter">Update</button> \
+        {{/filters.length}} \
+      </form> \
+    </div> \
+  ',
+  filterTemplates: {
+    term: ' \
+      <div class="filter-{{type}} filter"> \
+        <fieldset> \
+          {{field}} \
+          <a class="js-remove-filter" href="#" title="Remove this filter" data-filter-id="{{id}}">&times;</a> \
+          <input type="text" value="{{term}}" name="term" data-filter-field="{{field}}" data-filter-id="{{id}}" data-filter-type="{{type}}" /> \
+        </fieldset> \
+      </div> \
+    '
+  },
+  events: {
+    'click .js-remove-filter': 'onRemoveFilter',
+    'click .js-add-filter': 'onAddFilterShow',
+    'submit form.js-edit': 'onTermFiltersUpdate',
+    'submit form.js-add': 'onAddFilter'
+  },
+  initialize: function() {
+    this.el = $(this.el);
+    _.bindAll(this, 'render');
+    this.model.fields.bind('all', this.render);
+    this.model.queryState.bind('change', this.render);
+    this.model.queryState.bind('change:filters:new-blank', this.render);
+    this.render();
+  },
+  render: function() {
+    var self = this;
+    var tmplData = $.extend(true, {}, this.model.queryState.toJSON());
+    // we will use idx in list as the id ...
+    tmplData.filters = _.map(tmplData.filters, function(filter, idx) {
+      filter.id = idx;
+      return filter;
+    });
+    tmplData.fields = this.model.fields.toJSON();
+    tmplData.filterRender = function() {
+      return Mustache.render(self.filterTemplates.term, this);
+    };
+    var out = Mustache.render(this.template, tmplData);
+    this.el.html(out);
+  },
+  updateFilter: function(input) {
+    var self = this;
+    var filters = self.model.queryState.get('filters');
+    var $input = $(input);
+    var filterIndex = parseInt($input.attr('data-filter-id'), 10);
+    var value = $input.val();
+    filters[filterIndex].term = value;
+  },
+  onAddFilterShow: function(e) {
+    e.preventDefault();
+    var $target = $(e.target);
+    $target.hide();
+    this.el.find('form.js-add').show();
+  },
+  onAddFilter: function(e) {
+    e.preventDefault();
+    var $target = $(e.target);
+    $target.hide();
+    var field = $target.find('select.fields').val();
+    this.model.queryState.addFilter({type: 'term', field: field});
+  },
+  onRemoveFilter: function(e) {
+    e.preventDefault();
+    var $target = $(e.target);
+    var filterId = $target.attr('data-filter-id');
+    this.model.queryState.removeFilter(filterId);
+  },
+  onTermFiltersUpdate: function(e) {
+    var self = this;
+    e.preventDefault();
+    var filters = self.model.queryState.get('filters');
+    var $form = $(e.target);
+    _.each($form.find('input'), function(input) {
+      self.updateFilter(input);
+    });
+    self.model.queryState.set({filters: filters, from: 0});
+    self.model.queryState.trigger('change');
+  }
+});
+
+})(jQuery, recline.View);
