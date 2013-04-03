@@ -155,9 +155,8 @@ Having created your class you need to inherit from one or more plugin interfaces
 Common Tasks
 ------------
 
-Reading config options.
+Reading config options.::
 
-::
     import ckan.plugins as p
 
     class ConfigurablePlugin(p.SingletonPlugin):
@@ -171,9 +170,8 @@ Reading config options.
 
 
 
-Defining custom templates
+Defining custom templates.::
 
-::
     import ckan.plugins as p
 
     class TemplateAddingPlugin(p.SingletonPlugin):
