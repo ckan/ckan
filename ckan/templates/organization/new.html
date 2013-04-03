@@ -4,9 +4,7 @@
 
 {% block breadcrumb_link %}{{ h.nav_link(_('Create an Organization'), controller='organization', action='edit', id=c.organization.name) }}{% endblock %}
 
-{% block page_heading %}
-  <h1 class="page-heading">{{ _('Create an Organization') }}</h1>
-{% endblock %}
+{% block page_heading %}{{ _('Create an Organization') }}{% endblock %}
 
 {% block page_header %}{% endblock %}
 

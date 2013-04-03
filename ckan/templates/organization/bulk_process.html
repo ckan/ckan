@@ -8,6 +8,7 @@
     <div class="primary">
       {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
       <h3 class="page-heading">
+        {% block page_heading %}
         {%- if c.page.item_count -%}
           {{ c.page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=c.q) if c.q }}
         {%- elif request.params -%}
@@ -15,7 +16,9 @@
         {%- else -%}
           {{ _('Datasets') }}
         {%- endif -%}
+        {% endblock %}
       </h3>
+      {% block form %}
       {% if c.page.item_count %}
         <form method="POST">
           <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
@@ -83,12 +86,15 @@
       {% else %}
         <p class="empty">{{ _('This organization has no datasets associated to it') }}</p>
       {% endif %}
+      {% endblock %}
     </div>
     <aside class="tertiary">
+      {% block tertiary_content %}
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}
       {% for facet in c.facet_titles %}
         {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
       {% endfor %}
+      {% endblock %}
     </aside>
   </div>
   {{ c.page.pager() }}

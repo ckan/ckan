@@ -57,7 +57,7 @@ def _pluck(field, arr):
 
 
 def _get_list(input, strip=True):
-    """Transforms a string or list to a list"""
+    '''Transforms a string or list to a list'''
     if input is None:
         return
     if input == '':
@@ -106,7 +106,7 @@ def _validate_int(i, field_name, non_negative=False):
 
 
 def _get_engine(context, data_dict):
-    'Get either read or write engine.'
+    '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
@@ -173,10 +173,8 @@ def _get_type(context, oid):
 
 
 def _rename_json_field(data_dict):
-    '''
-    rename json type to a corresponding type for the datastore since
-    pre 9.2 postgres versions do not support native json
-    '''
+    '''Rename json type to a corresponding type for the datastore since
+    pre 9.2 postgres versions do not support native json'''
     return _rename_field(data_dict, 'json', 'nested')
 
 
@@ -193,7 +191,8 @@ def _rename_field(data_dict, term, replace):
 
 
 def _guess_type(field):
-    'Simple guess type of field, only allowed are integer, numeric and text'
+    '''Simple guess type of field, only allowed are
+    integer, numeric and text'''
     data_types = set([int, float])
     if isinstance(field, (dict, list)):
         return 'nested'
@@ -252,7 +251,7 @@ def json_get_values(obj, current_list=None):
 
 
 def check_fields(context, fields):
-    'Check if field types are valid.'
+    '''Check if field types are valid.'''
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
@@ -281,7 +280,7 @@ def convert(data, type_name):
 
 
 def create_table(context, data_dict):
-    'Create table from combination of fields and first row of data.'
+    '''Create table from combination of fields and first row of data.'''
 
     datastore_fields = [
         {'id': '_id', 'type': 'serial primary key'},
@@ -331,7 +330,7 @@ def create_table(context, data_dict):
 
 
 def _get_aliases(context, data_dict):
-    ''' Get a list of aliases for a resource. '''
+    '''Get a list of aliases for a resource.'''
     res_id = data_dict['resource_id']
     alias_sql = sqlalchemy.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
@@ -340,8 +339,8 @@ def _get_aliases(context, data_dict):
 
 
 def _get_resources(context, alias):
-    ''' Get a list of resources for an alias. There could be more than one alias
-    in a resource_dict. '''
+    '''Get a list of resources for an alias. There could be more than one alias
+    in a resource_dict.'''
     alias_sql = sqlalchemy.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
@@ -700,7 +699,7 @@ def _to_full_text(fields, record):
 
 
 def _where(field_ids, data_dict):
-    'Return a SQL WHERE clause from data_dict filters and q'
+    '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
@@ -786,9 +785,8 @@ def _sort(context, data_dict, field_ids):
 
 
 def _insert_links(data_dict, limit, offset):
-    ''' Adds link to the next/prev part (same limit, offset=offset+limit)
-    and the resource page.
-    '''
+    '''Adds link to the next/prev part (same limit, offset=offset+limit)
+    and the resource page.'''
     data_dict['_links'] = {}
 
     # get the url from the request
