@@ -184,17 +184,12 @@ Defining custom templates
             # Add the new template directory for this plugin.  Templates
             # should either be defined under the ckanext-<extension_name> for
             # extension specific templates or in the same relative path as a
-            # cken template if overriding existing templates.
+            # ckan template if overriding existing templates.
             p.toolkit.add_template_directory(config, 'templates')
 
 
--------------------
-
-#. Plugin objects must be registered as setuptools entry points. The
-   ``ckan.plugins`` configuration directive is searched for names of plugin entry
-   points to load and activate.
-
-
+Common Interfaces
+-----------------
 
 Here's a list of some of the more commonly used plugin interfaces:
 
@@ -213,7 +208,8 @@ Here's a list of some of the more commonly used plugin interfaces:
 .. warning :: This interface is currently deprecated, use ITemplateHelpers instead.
 
 :class:`~ckan.plugins.interfaces.IResourcePreview`
-    Add custom previews. The preview extensions can make use of the resoucre proxy extension, if enabled.
+    Add custom previews. The preview extensions can make use of the resource
+    proxy extension, if enabled.
 
 :class:`~ckan.plugins.interfaces.IDomainObjectModification`
     Listens for changes to CKAN domain objects.
@@ -232,13 +228,6 @@ Here's a list of some of the more commonly used plugin interfaces:
 
 See the `Plugin API documentation`_ below to find a complete
 list of all interfaces and their documentation.
-
-
-Example CKAN Extensions
------------------------
-
-A example CKAN extension can be found at http://github.com/okfn/ckanext-example.
-Have a look at the README file for installation instructions.
 
 
 Publishing Extensions
@@ -262,9 +251,6 @@ the Python Package Index:
 
 You'll then see your extension at http://pypi.python.org/pypi. Others will
 be able to install your plugin with ``pip``.
-
-Finally, please also add a summary of your extension and its entry points to the Extensions page at
-http://wiki.ckan.org/Extensions.
 
 
 Writing a Plugin Interface
@@ -425,8 +411,6 @@ Guidelines for writing extensions:
 - No foreign key constraints into core as these cause problems.
 
 .. Did we decide upon this, this seems like quite a restriction?
-
-- The ``Session`` object is available through the toolkit.
 
 .. todo:: Anything else?
 
