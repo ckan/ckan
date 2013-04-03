@@ -1161,8 +1161,9 @@ def package_search(context, data_dict):
     :param rows: the number of matching rows to return.
     :type rows: int
     :param sort: sorting of the search results.  Optional.  Default:
-        "score desc, name asc".  As per the solr documentation, this is a
-        comma-separated string of field names and sort-orderings.
+        'relevance asc, metadata_modified desc'.  As per the solr
+        documentation, this is a comma-separated string of field names and
+        sort-orderings.
     :type sort: string
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
@@ -1258,6 +1259,9 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        if data_dict.get('sort') in (None, 'rank'):
+            data_dict['sort'] = 'relevance asc, metadata_modified desc'
+
         query = search.query_for(model.Package)
         query.run(data_dict)
 
@@ -1298,7 +1302,8 @@ def package_search(context, data_dict):
     search_results = {
         'count': count,
         'facets': facets,
-        'results': results
+        'results': results,
+        'sort': data_dict['sort']
     }
 
     # Transform facets into a more useful data structure.
