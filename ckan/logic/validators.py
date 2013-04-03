@@ -6,7 +6,7 @@ from pylons.i18n import _
 
 from ckan.lib.navl.dictization_functions import Invalid, StopOnError, Missing, missing, unflatten
 from ckan.logic import check_access, NotAuthorized, NotFound
-from ckan.lib.helpers import date_str_to_datetime
+import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
@@ -18,7 +18,7 @@ def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
-    if value is missing or value is None:
+    if value is missing or not value:
         if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
@@ -67,7 +67,7 @@ def isodate(value, context):
     if value == '':
         return None
     try:
-        date = date_str_to_datetime(value)
+        date = h.date_str_to_datetime(value)
     except (TypeError, ValueError), e:
         raise Invalid(_('Date format incorrect'))
     return date

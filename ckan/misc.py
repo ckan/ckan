@@ -35,8 +35,8 @@ class MarkdownFormat(TextFormat):
     normal_link = re.compile('<(http:[^>]+)>')
 
     html_whitelist = 'b center li ol p table td tr ul'.split(' ')
-    whitelist_elem = re.compile(r'<(\/?(%s)[^>]*)>' % "|".join(html_whitelist), re.IGNORECASE)
-    whitelist_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(html_whitelist), re.IGNORECASE)
+    whitelist_elem = re.compile(r'<(\/?((%s)(\s[^>]*)?))>' % "|".join(html_whitelist), re.IGNORECASE)
+    whitelist_escp = re.compile(r'\\xfc\\xfd(\/?((%s)(\s[^>]*?)?))\\xfd\\xfc' % "|".join(html_whitelist), re.IGNORECASE)
     normal_link = re.compile(r'<a[^>]*?href="([^"]*?)"[^>]*?>', re.IGNORECASE)
     abbrev_link = re.compile(r'<(http://[^>]*)>', re.IGNORECASE)
     any_link = re.compile(r'<a[^>]*?>', re.IGNORECASE)

@@ -1,29 +1,38 @@
 {% import 'macros/form.html' as form %}
 
+{% block package_metadata_fields %}
 
+{% block package_metadata_fields_visibility %}
 {% if data.owner_org %}
   <div class="control-group">
     <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
     <div class="controls">
       <select id="field-private" name="private" data-module="autocomplete">
-        {% for option in [(true, 'Private'), (false, 'Public')] %}
+        {% for option in [(true, _('Private')), (false, _('Public'))] %}
         <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
         {% endfor %}
       </select>
     </div>
   </div>
 {% endif %}
+{% endblock %}
 
+{% block package_metadata_author %}
 {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
 {{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
+{% endblock %}
 
+{% block package_metadata_fields_maintainer %}
 {{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium']) }}
 
 {{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium']) }}
+{% endblock %}
 
+{% block package_metadata_fields_custom %}
 {% block custom_fields %}
   {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
+{% endblock %}
 {% endblock %}
 
 
@@ -45,3 +54,5 @@
     {% set group_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/group/autocomplete?q=?', 'data-module-key': 'id', 'data-module-label': 'title'} %}
     {{ form.input(group_name, label=_('Add Group'), id="field-group", value=data[group_name], classes=['control-medium'], attrs=group_attrs) }}
   {% endblock %}
+
+{% endblock %}

@@ -1,9 +1,14 @@
 <form id="dataset-search" class="dataset-search clearfix" method="GET" data-module="select-switch">
+  {% block search_form_input %}
   <span class="control-group search-giant">
     <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
     <button type="submit" value="{{ _('Search') }}">Submit</button>
   </span>
+  {% endblock %}
+  {% block search_form_sortby %}
   {% snippet 'snippets/sort_by.html', sort=c.sort_by_selected %}
+  {% endblock %}
+  {% block search_form_fields %}
   {% if c.fields %}
     <span>
       {% for key, value in c.fields %}
@@ -11,18 +16,18 @@
       {% endfor %}
     </span>
   {% endif %}
+  {% endblock %}
   <div id="dataset-search-ext"></div>
 </form>
+
+{% block search_form_results %}
 <div class="results">
   <strong>
-    {% if request.params and c.page.item_count %}
-      {{ c.page.item_count }} datasets{% if c.q %} found for &#147;{{ c.q }}&#148;{% endif %}
-    {% elif request.params and c.page.item_count == 0 %}
-      Sorry no datasets found{% if c.q %} for &#147;{{ c.q }}&#148;{% endif %}
-    {% else %}
-      All datasets
-    {% endif %}
+    {% block search_form_result_text %}
+    {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
+    {% endblock %}
   </strong>
+  {% block search_form_filter_list %}
   <div class="filter-list">
     {% for field in c.fields_grouped %}
       <span class="facet">{{ c.facet_titles.get(field) }}:</span>
@@ -37,15 +42,22 @@
         </span>
       {% endfor %}
     {% endfor %}
-    {% if request.params and c.q and c.page.item_count == 0 %}
-      <p class="extra">Try another search term,
-      browse the datasets below or <a href="{{ h.url_for(action='new', id=None) }}">add your own data</a>.</p>
-    {% endif %}
   </div>
+  {% endblock %}
 </div>
+{% endblock %}
 
+{% block search_form_package_list %}
 {% if c.query_error %}
-  <p><strong>There was an error while searching.</strong> Please try again.</p>
-{% endif %}
+  <p>
+  {% trans %}
+    <strong>There was an error while searching.</strong> Please try again.
+  {% endtrans %}
+  </p>
 
-{{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
+{% else %}
+  {% if c.page.items %}
+    {{ h.snippet('snippets/package_list.html', packages=c.page.items, bulk_processing=c.bulk_processing) }}
+  {% endif %}
+{% endif %}
+{% endblock %}

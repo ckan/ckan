@@ -30,10 +30,6 @@ from routes import url_for as _routes_default_url_for
 from alphabet_paginate import AlphaPage
 import i18n
 import ckan.exceptions
-from pylons import request
-from pylons import session
-from pylons import c, g
-from pylons.i18n import _, ungettext
 
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.model as model
@@ -41,22 +37,14 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 
+from ckan.common import (
+    _, ungettext, g, c, request, session, json, OrderedDict
+)
+
 get_available_locales = i18n.get_available_locales
 get_locales_dict = i18n.get_locales_dict
 
 log = logging.getLogger(__name__)
-
-try:
-    from collections import OrderedDict  # from python 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-_log = logging.getLogger(__name__)
 
 
 def redirect_to(*args, **kw):
@@ -335,38 +323,57 @@ def _link_to(text, *args, **kwargs):
     )
 
 
-def nav_link(text, controller, **kwargs):
+def nav_link(text, *args, **kwargs):
     '''
     params
     class_: pass extra class(s) to add to the <a> tag
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
-    if kwargs.pop('condition', True):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    if args:
         kwargs['controller'] = controller
-        link = _link_to(text, **kwargs)
+        log.warning('h.nav_link() please supply controller as a named '
+                    'parameter not a positional one')
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
     else:
         link = ''
     return link
 
 
-def nav_named_link(text, name, **kwargs):
-    '''Create a link for a named route.'''
-    return _link_to(text, name, **kwargs)
+@maintain.deprecated('h.nav_named_link is deprecated please '
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def nav_named_link(text, named_route, **kwargs):
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
+@maintain.deprecated('h.subnav_link is deprecated please '
+                     'use h.nav_link\nNOTE: if action is passed as the second '
+                     'parameter make sure it is passed as a named parameter '
+                     'eg. `action=\'my_action\'')
 def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.'''
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
     kwargs['action'] = action
-    return _link_to(text, **kwargs)
+    return nav_link(text, **kwargs)
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_named_link')
-def subnav_named_route(text, routename, **kwargs):
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return nav_named_link(text, routename, **kwargs)
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
 def build_nav_main(*args):
@@ -445,7 +452,7 @@ def _make_menu_item(menu_item, title, **kw):
         if need not in kw:
             raise Exception('menu item `%s` need parameter `%s`'
                             % (menu_item, need))
-    link = nav_named_link(title, menu_item, suppress_active_class=True, **item)
+    link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
@@ -548,15 +555,33 @@ def _search_url(params):
     return _url_with_params(url, params)
 
 
-def sorted_extras(list_):
-    ''' Used for outputting package extras '''
+def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
+    ''' Used for outputting package extras
+
+    :param package_extras: the package extras
+    :type package_extras: dict
+    :param auto_clean: If true capitalize and replace -_ with spaces
+    :type auto_clean: bool
+    :param subs: substitutes to use instead of given keys
+    :type subs: dict {'key': 'replacement'}
+    :param exclude: keys to exclude
+    :type exclude: list of strings
+    '''
+
+    # If exclude is not supplied use values defined in the config
+    if not exclude:
+        exclude = g.package_hide_extras
     output = []
-    for extra in sorted(list_, key=lambda x: x['key']):
+    for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
-        if k in g.package_hide_extras:
+        if k in exclude:
             continue
+        if subs and k in subs:
+            k = subs[k]
+        elif auto_clean:
+            k = k.replace('_', ' ').replace('-', ' ').title()
         if isinstance(v, (list, tuple)):
             v = ", ".join(map(unicode, v))
         output.append((k, v))
@@ -613,7 +638,7 @@ def markdown_extract(text, extract_length=190):
         return ''
     plain = re.sub(r'<.*?>', '', markdown(text))
     if not extract_length or len(plain) < extract_length:
-        return plain
+        return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
 
 
@@ -900,7 +925,6 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
-    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -909,11 +933,8 @@ def resource_display_name(resource_dict):
         if len(description) > max_len:
             description = description[:max_len] + '...'
         return description
-    elif url:
-        return url
     else:
-        noname_string = _('no name')
-        return '[%s] %s' % (noname_string, resource_dict['id'])
+        return _("Unnamed resource")
 
 
 def resource_link(resource_dict, package_id):
@@ -1110,13 +1131,16 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None, alternative_url=None):
-    ''' Remove a key from the current parameters. A specific key/value
-    pair can be removed by passing a second value argument otherwise all
-    pairs matching the key will be removed. If replace is given then a
-    new param key=replace will be added.
+    ''' Remove one or multiple keys from the current parameters.
+    The first parameter can be either a string with the name of the key to
+    remove or a list of keys to remove.
+    A specific key/value pair can be removed by passing a second value
+    argument otherwise all pairs matching the key will be removed. If replace
+    is given then a new param key=replace will be added.
+    Note that the value and replace parameters only apply to the first key
+    provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
@@ -1125,14 +1149,20 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     This can be overriden providing an alternative_url, which will be used
     instead.
     '''
+    if isinstance(key, basestring):
+      keys = [key]
+    else:
+      keys = key
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
-        params.remove((key, value))
+        params.remove((keys[0], value))
     else:
-        [params.remove((k, v)) for (k, v) in params[:] if k == key]
+        for key in keys:
+          [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
-        params.append((key, replace))
+        params.append((keys[0], replace))
 
     if alternative_url:
         return _url_with_params(alternative_url, params)
@@ -1391,10 +1421,9 @@ def resource_preview(resource, pkg_id):
     data_dict = {'resource': resource, 'package': c.package}
 
     if not resource['url']:
-        log.info('No url for resource {0} defined.'.format(resource['id']))
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
-                       reason='No valid resource url has been defined.')
+                       reason=_(u'The resource url is not specified.'))
     direct_embed = config.get('ckan.preview.direct', '').split()
     if not direct_embed:
         direct_embed = datapreview.DEFAULT_DIRECT_EMBED
@@ -1411,10 +1440,15 @@ def resource_preview(resource, pkg_id):
     elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
-        log.info(
-            'No preview handler for resource type {0}'.format(format_lower)
-        )
+        reason = None
+        if format_lower:
+            log.info(
+                _(u'No preview handler for resource of type {0}'.format(format_lower))
+            )
+        else:
+            reason = _(u'The resource format is not specified.')
         return snippet("dataviewer/snippets/no_preview.html",
+                       reason=reason,
                        resource_type=format_lower)
 
     return snippet("dataviewer/snippets/data_preview.html",
@@ -1422,6 +1456,26 @@ def resource_preview(resource, pkg_id):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+def list_dict_filter(list_, search_field, output_field, value):
+    ''' Takes a list of dicts and returns the value of a given key if the
+    item has a matching value for a supplied key
+
+    :param list_: the list to search through for matching items
+    :type list_: list of dicts
+
+    :param search_field: the key to use to find matching items
+    :type search_field: string
+
+    :param output_field: the key to use to output the value
+    :type output_field: string
+
+    :param value: the value to search for
+    '''
+
+    for item in list_:
+        if item.get(search_field) == value:
+            return item.get(output_field, value)
+    return value
 
 def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
@@ -1432,6 +1486,11 @@ def SI_number_span(number):
         output = literal('<span title="' + formatters.localised_number(number) + '">')
     return output + formatters.localised_SI_number(number) + literal('<span>')
 
+# add some formatter functions
+localised_number = formatters.localised_number
+localised_SI_number = formatters.localised_SI_number
+localised_nice_date = formatters.localised_nice_date
+localised_filesize = formatters.localised_filesize
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1511,6 +1570,11 @@ __allowed_functions__ = [
            'format_resource_items',
            'resource_preview',
            'SI_number_span',
+           'localised_number',
+           'localised_SI_number',
+           'localised_nice_date',
+           'localised_filesize',
+           'list_dict_filter',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

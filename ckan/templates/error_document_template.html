@@ -2,8 +2,6 @@
 
 {% block subtitle %}{{ gettext('Error %(error_code)s', error_code=c.code[0]) }}{% endblock %}
 
-{% block wrapper_class %} no-nav{% endblock %}
-
 {% block primary %}
   <article class="module">
     <div class="module-content">
@@ -19,3 +17,5 @@
   {# eat the flash messages caused by the 404 #}
   {% set flash_messages = h.flash.pop_messages() %}
 {% endblock %}
+
+{% block secondary %}{% endblock %}

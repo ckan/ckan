@@ -10,7 +10,7 @@ from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 from ckan import model
 import ckan.lib.search as search
-from ckan.lib.helpers import url_for
+import ckan.lib.helpers as h
 
 class TestSearch(FunctionalTestCase):
     # 'penguin' is in all test search packages
@@ -84,7 +84,7 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @search_related
     def test_search(self):
-        offset = url_for(controller='package', action='search')
+        offset = h.url_for(controller='package', action='search')
         print offset
         res = self.app.get(offset)
         assert 'Search - ' in res
@@ -97,7 +97,7 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @search_related
     def test_search_foreign_chars(self):
-        offset = url_for(controller='package', action='search')
+        offset = h.url_for(controller='package', action='search')
         res = self.app.get(offset)
         assert 'Search - ' in res
         self._check_search_results(res, u'th\xfcmb', ['<strong>1</strong>'])
@@ -106,7 +106,7 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
     @search_related
     def test_search_escape_chars(self):
         payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
-        offset = url_for(controller='package', action='search') + payload
+        offset = h.url_for(controller='package', action='search') + payload
         results_page = self.app.get(offset)
         assert 'Search - ' in results_page, results_page
         results_page = self.main_div(results_page)
@@ -154,7 +154,7 @@ class TestNonActivePackages(FunctionalTestCase):
 
     @search_related
     def test_search(self):
-        offset = url_for(controller='package', action='search')
+        offset = h.url_for(controller='package', action='search')
         res = self.app.get(offset)
         assert 'Search - ' in res
         form = res.forms['dataset-search']

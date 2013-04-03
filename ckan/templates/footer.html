@@ -1,15 +1,19 @@
 <footer class="site-footer">
   <div class="container">
     {% block footer_content %}
-      <nav class="footer-links row-fluid">
+      <nav class="footer-links">
         {% block footer_nav %}
-          <ul class="unstyled row-fluid">
+          <ul class="unstyled">
             {% block footer_links %}
-              {% set api_url = 'http://docs.ckan.org/{0}/ckan-{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_base_version) %}
-              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}'.format( g.site_title)) }}</a></li>
+              <li><a href="{{ h.url_for(controller='home', action='about') }}">{{ _('About {0}').format(g.site_title) }}</a></li>
+            {% endblock %}
+          </ul>
+          <ul class="unstyled">
+            {% block footer_links_ckan %}
+              {% set api_url = 'http://docs.ckan.org/{0}/{1}/api.html'.format(request.environ.CKAN_LANG, g.ckan_doc_version) %}
               <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
-              <li><a href="http://www.opendefinition.org/okd/"><img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
               <li><a href="http://www.okfn.org/">{{ _('Open Knowledge Foundation') }}</a></li>
+              <li><a href="http://www.opendefinition.org/okd/"><img src="http://assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
             {% endblock %}
           </ul>
         {% endblock %}

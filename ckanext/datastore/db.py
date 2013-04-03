@@ -5,6 +5,9 @@ import os
 import urllib
 import urllib2
 import urlparse
+import random
+import string
+import distutils.version
 import logging
 import pprint
 import sqlalchemy
@@ -54,8 +57,8 @@ def _pluck(field, arr):
 
 
 def _get_list(input, strip=True):
-    """Transforms a string or list to a list"""
-    if input == None:
+    '''Transforms a string or list to a list'''
+    if input is None:
         return
     if input == '':
         return []
@@ -103,7 +106,7 @@ def _validate_int(i, field_name, non_negative=False):
 
 
 def _get_engine(context, data_dict):
-    'Get either read or write engine.'
+    '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
@@ -123,12 +126,7 @@ def _cache_types(context):
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
         if 'nested' not in _type_names:
-            native_json = False
-            try:
-                version = connection.execute('select version();').fetchone()
-                native_json = map(int, version[0].split()[1].split(".")[:2]) >= [9, 2]
-            except Exception:
-                pass
+            native_json = _pg_version_is_at_least(connection, '9.2')
 
             connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
                 .format('json' if native_json else 'text'))
@@ -140,6 +138,17 @@ def _cache_types(context):
             return _cache_types(context)
 
         psycopg2.extras.register_composite('nested', connection.connection, True)
+
+
+def _pg_version_is_at_least(connection, version):
+    try:
+        v = distutils.version.LooseVersion(version)
+        pg_version = connection.execute('select version();').fetchone()
+        pg_version_number = pg_version[0].split()[1]
+        pv = distutils.version.LooseVersion(pg_version_number)
+        return v <= pv
+    except ValueError:
+        return False
 
 
 def _is_valid_pg_type(context, type_name):
@@ -164,10 +173,8 @@ def _get_type(context, oid):
 
 
 def _rename_json_field(data_dict):
-    '''
-    rename json type to a corresponding type for the datastore since
-    pre 9.2 postgres versions do not support native json
-    '''
+    '''Rename json type to a corresponding type for the datastore since
+    pre 9.2 postgres versions do not support native json'''
     return _rename_field(data_dict, 'json', 'nested')
 
 
@@ -184,7 +191,8 @@ def _rename_field(data_dict, term, replace):
 
 
 def _guess_type(field):
-    'Simple guess type of field, only allowed are integer, numeric and text'
+    '''Simple guess type of field, only allowed are
+    integer, numeric and text'''
     data_types = set([int, float])
     if isinstance(field, (dict, list)):
         return 'nested'
@@ -243,7 +251,7 @@ def json_get_values(obj, current_list=None):
 
 
 def check_fields(context, fields):
-    'Check if field types are valid.'
+    '''Check if field types are valid.'''
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
@@ -272,7 +280,7 @@ def convert(data, type_name):
 
 
 def create_table(context, data_dict):
-    'Create table from combination of fields and first row of data.'
+    '''Create table from combination of fields and first row of data.'''
 
     datastore_fields = [
         {'id': '_id', 'type': 'serial primary key'},
@@ -322,7 +330,7 @@ def create_table(context, data_dict):
 
 
 def _get_aliases(context, data_dict):
-    ''' Get a list of aliases for a resource. '''
+    '''Get a list of aliases for a resource.'''
     res_id = data_dict['resource_id']
     alias_sql = sqlalchemy.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
@@ -331,8 +339,8 @@ def _get_aliases(context, data_dict):
 
 
 def _get_resources(context, alias):
-    ''' Get a list of resources for an alias. There could be more than one alias
-    in a resource_dict. '''
+    '''Get a list of resources for an alias. There could be more than one alias
+    in a resource_dict.'''
     alias_sql = sqlalchemy.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
@@ -372,10 +380,10 @@ def create_indexes(context, data_dict):
 
     # index and primary key could be [],
     # which means that indexes should be deleted
-    if indexes == None and primary_key == None:
+    if indexes is None and primary_key is None:
         return
 
-    sql_index_skeletton = u'CREATE {unique} INDEX ON "{res_id}"'
+    sql_index_skeletton = u'CREATE {unique} INDEX {name} ON "{res_id}"'
     sql_index_string_method = sql_index_skeletton + u' USING {method}({fields})'
     sql_index_string = sql_index_skeletton + u' ({fields})'
     sql_index_strings = []
@@ -384,17 +392,28 @@ def create_indexes(context, data_dict):
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
-    if indexes != None:
+    def generate_index_name():
+        # pg 9.0+ do not require an index name
+        if _pg_version_is_at_least(context['connection'], '9.0'):
+            return ''
+        else:
+            source = string.ascii_letters + string.digits
+            random_string = ''.join([random.choice(source) for n in xrange(10)])
+            return 'idx_' + random_string
+
+    if indexes is not None:
         _drop_indexes(context, data_dict, False)
 
         # create index for faster full text search (indexes: gin or gist)
         sql_index_strings.append(sql_index_string_method.format(
-            res_id=data_dict['resource_id'], unique='',
+            res_id=data_dict['resource_id'],
+            unique='',
+            name=generate_index_name(),
             method='gist', fields='_full_text'))
     else:
         indexes = []
 
-    if primary_key != None:
+    if primary_key is not None:
         _drop_indexes(context, data_dict, True)
         indexes.append(primary_key)
 
@@ -417,6 +436,7 @@ def create_indexes(context, data_dict):
         sql_index_strings.append(sql_index_string.format(
                 res_id=data_dict['resource_id'],
                 unique='unique' if index == primary_key else '',
+                name=generate_index_name(),
                 fields=fields_string))
 
     map(context['connection'].execute, sql_index_strings)
@@ -679,7 +699,7 @@ def _to_full_text(fields, record):
 
 
 def _where(field_ids, data_dict):
-    'Return a SQL WHERE clause from data_dict filters and q'
+    '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
@@ -765,9 +785,8 @@ def _sort(context, data_dict, field_ids):
 
 
 def _insert_links(data_dict, limit, offset):
-    ''' Adds link to the next/prev part (same limit, offset=offset+limit)
-    and the resource page.
-    '''
+    '''Adds link to the next/prev part (same limit, offset=offset+limit)
+    and the resource page.'''
     data_dict['_links'] = {}
 
     # get the url from the request

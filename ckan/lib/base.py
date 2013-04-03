@@ -24,8 +24,8 @@ import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
-from ckan.lib.helpers import json
 import ckan.model as model
+from ckan.common import json
 
 log = logging.getLogger(__name__)
 

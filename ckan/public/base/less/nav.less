@@ -40,11 +40,6 @@
   display:block;
 }
 
-.nav-item [class^=icon] {
-  font-size: 1.2em;
-  margin: -1px 0 -1px -1px;
-}
-
 .module-narrow .nav-item > a {
   padding-left:  @gutterSmallX;
   padding-right: @gutterSmallX;
@@ -141,5 +136,14 @@
     top: 50%;
     right: 5px;
     margin-top: -8px;
+  }
+}
+
+.nav-simple > .nav-btn {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  .btn {
+    display: inline-block;
   }
 }

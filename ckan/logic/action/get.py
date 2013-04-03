@@ -11,6 +11,7 @@ import sqlalchemy
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -261,6 +262,9 @@ def member_list(context, data_dict=None):
     model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
+    if not group:
+        raise NotFound
+
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
@@ -268,33 +272,23 @@ def member_list(context, data_dict=None):
     _check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
-            filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active")
+        filter(model.Member.group_id == group.id).\
+        filter(model.Member.state == "active")
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    lookup = {}
-    def type_lookup(name):
-        if name in lookup:
-            return lookup[name]
-        if hasattr(model, name.title()):
-            lookup[name] = getattr(model,name.title())
-            return lookup[name]
-        return None
-
     trans = new_authz.roles_trans()
+
     def translated_capacity(capacity):
         try:
             return trans[capacity]
         except KeyError:
             return capacity
 
-    return [(m.table_id,
-             type_lookup(m.table_name),
-             translated_capacity(m.capacity),)
+    return [(m.table_id, m.table_name, translated_capacity(m.capacity))
             for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
@@ -334,9 +328,9 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.like(q),
-            model.GroupRevision.title.like(q),
-            model.GroupRevision.description.like(q),
+            model.GroupRevision.name.ilike(q),
+            model.GroupRevision.title.ilike(q),
+            model.GroupRevision.description.ilike(q),
         ))
 
 
@@ -480,7 +474,7 @@ def organization_list_for_user(context, data_dict):
 
     if sysadmin:
         # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
+        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -506,7 +500,7 @@ def organization_list_for_user(context, data_dict):
 
     q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name} for org in q.all()]
+    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -737,13 +731,7 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    try:
-        schema = package_plugin.db_to_form_schema_options({
-            'type':'show',
-            'api': 'api_version' in context,
-            'context': context })
-    except AttributeError:
-        schema = package_plugin.db_to_form_schema()
+    schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
@@ -1323,7 +1311,7 @@ def package_search(context, data_dict):
         for key_, value_ in value.items():
             new_facet_dict = {}
             new_facet_dict['name'] = key_
-            if key == 'groups':
+            if key in ('groups', 'organization'):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
@@ -2583,19 +2571,19 @@ def group_followee_list(context, data_dict):
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
-    Unlike the activity dictionaries returned by other *_activity_list actions,
-    these activity dictionaries have an extra boolean value with key 'is_new'
-    that tells you whether the activity happened since the user last viewed her
-    dashboard ('is_new': True) or not ('is_new': False).
+    Unlike the activity dictionaries returned by other ``*_activity_list``
+    actions, these activity dictionaries have an extra boolean value with key
+    ``is_new`` that tells you whether the activity happened since the user last
+    viewed her dashboard (``'is_new': True``) or not (``'is_new': False``).
 
-    The user's own activities are always marked 'is_new': False.
+    The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        ``ckan.activity_list_limit`` setting)
 
     :rtype: list of activity dictionaries
 
