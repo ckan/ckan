@@ -222,8 +222,9 @@ Example::
 
 Default Value: (empty)
 
-Defines a list of (upto 2) group names or group ids. This setting is used to
-display two groups and two datasets from each group on the home page.
+Defines a list of group names or group ids. This setting is used to display
+groups and datasets from each group on the home page in the default templates
+(2 groups and 2 datasets for each group are displayed).
 
 Authentication Settings
 -----------------------
