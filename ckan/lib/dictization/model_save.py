@@ -229,7 +229,8 @@ def package_membership_list_save(group_dicts, package, context):
             group = session.query(model.Group).get(id)
         else:
             group = session.query(model.Group).filter_by(name=name).first()
-        groups.add(group)
+        if group:
+            groups.add(group)
 
     ## need to flush so we can get out the package id
     model.Session.flush()
