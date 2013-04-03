@@ -16,9 +16,6 @@ class TestConfiguration(unittest.TestCase):
         ckan.plugins.unload('datastore')
         pyutilib.component.core.PluginGlobals.singleton_services()[plugin.DatastorePlugin] = self._original_plugin
 
-    def test_legacy_mode_default(self):
-        assert not self.p.legacy_mode
-
     def test_set_legacy_mode(self):
         c = {
             'sqlalchemy.url': 'bar',
