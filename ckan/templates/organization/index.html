@@ -15,11 +15,16 @@
 {% block primary_content %}
   <div class="module">
     <div class="module-content">
-      <h1 class="hide-heading">{{ _('Organizations') }}</h1>
+      <h1 class="hide-heading">{% block page_heading %}{{ _('Organizations') }}{% endblock %}</h1>
+      {% block organizations_search_form %}
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
+      {% endblock %}
       <h2 class="is-search-title">
+        {% block organizations_search_result_text %}
         {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='organization' %}
+        {% endblock %}
       </h2>
+      {% block organizations_list %}
       {% if c.page.items or request.params %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
       {% else %}
@@ -30,8 +35,11 @@
           {% endif %}
         </p>
       {% endif %}
+      {% endblock %}
     </div>
+    {% block page_pagination %}
     {{ c.page.pager() }}
+    {% endblock %}
   </div>
 {% endblock %}
 

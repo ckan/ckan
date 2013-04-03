@@ -925,7 +925,6 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
-    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -934,11 +933,8 @@ def resource_display_name(resource_dict):
         if len(description) > max_len:
             description = description[:max_len] + '...'
         return description
-    elif url:
-        return url
     else:
-        noname_string = _('no name')
-        return '[%s] %s' % (noname_string, resource_dict['id'])
+        return _("Unnamed resource")
 
 
 def resource_link(resource_dict, package_id):
@@ -1135,13 +1131,16 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None, alternative_url=None):
-    ''' Remove a key from the current parameters. A specific key/value
-    pair can be removed by passing a second value argument otherwise all
-    pairs matching the key will be removed. If replace is given then a
-    new param key=replace will be added.
+    ''' Remove one or multiple keys from the current parameters.
+    The first parameter can be either a string with the name of the key to
+    remove or a list of keys to remove.
+    A specific key/value pair can be removed by passing a second value
+    argument otherwise all pairs matching the key will be removed. If replace
+    is given then a new param key=replace will be added.
+    Note that the value and replace parameters only apply to the first key
+    provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
@@ -1150,14 +1149,20 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     This can be overriden providing an alternative_url, which will be used
     instead.
     '''
+    if isinstance(key, basestring):
+      keys = [key]
+    else:
+      keys = key
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
-        params.remove((key, value))
+        params.remove((keys[0], value))
     else:
-        [params.remove((k, v)) for (k, v) in params[:] if k == key]
+        for key in keys:
+          [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
-        params.append((key, replace))
+        params.append((keys[0], replace))
 
     if alternative_url:
         return _url_with_params(alternative_url, params)
@@ -1451,6 +1456,26 @@ def resource_preview(resource, pkg_id):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+def list_dict_filter(list_, search_field, output_field, value):
+    ''' Takes a list of dicts and returns the value of a given key if the
+    item has a matching value for a supplied key
+
+    :param list_: the list to search through for matching items
+    :type list_: list of dicts
+
+    :param search_field: the key to use to find matching items
+    :type search_field: string
+
+    :param output_field: the key to use to output the value
+    :type output_field: string
+
+    :param value: the value to search for
+    '''
+
+    for item in list_:
+        if item.get(search_field) == value:
+            return item.get(output_field, value)
+    return value
 
 def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
@@ -1549,6 +1574,7 @@ __allowed_functions__ = [
            'localised_SI_number',
            'localised_nice_date',
            'localised_filesize',
+           'list_dict_filter',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',
