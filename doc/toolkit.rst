@@ -46,6 +46,10 @@ The following functions, classes and exceptions are provided by the toolkit.
   Base class for building paster functions.
 
 
+*class* **DefaultDatasetForm**
+  base class for IDatasetForm.
+
+
 *exception* **CkanVersionException**
   Exception raised if required ckan version is not available.
 
@@ -63,15 +67,23 @@ The following functions, classes and exceptions are provided by the toolkit.
   it contains details of the error that occurred.
 
 
+*exception* **UnknownConverter**
+  Exception raised when a converter cannot be found.
+
+
+*exception* **UnknownValidator**
+  Exception raised when a validator cannot be found.
+
+
 **_** (*value*)
   Mark a string for translation. Returns the localized unicode
   string of value.
-  
+
   Mark a string to be localized as follows::
-  
+
   _('This should be in lots of languages')
-  
-  
+
+
 
 
 **add_public_directory** (*config, relative_path*)
@@ -110,22 +122,16 @@ The following functions, classes and exceptions are provided by the toolkit.
   Get the requested action function.
 
 
-*class* **literal**
-  Represents an HTML literal.
-  
-  This subclass of unicode has a ``.__html__()`` method that is
-  detected by the ``escape()`` function.
-  
-  Also, if you add another string to this string, the other string
-  will be quoted and you will get back another literal object.  Also
-  ``literal(...) % obj`` will quote any value(s) from ``obj``.  If
-  you do something like ``literal(...) + literal(...)``, neither
-  string will be changed because ``escape(literal(...))`` doesn't
-  change the original literal.
-  
-  Changed in WebHelpers 1.2: the implementation is now now a subclass of
-  ``markupsafe.Markup``.  This brings some new methods: ``.escape`` (class
-  method), ``.unescape``, and ``.striptags``.
+**get_converter** (*coverter*)
+  Get the requested converter function.
+
+
+**get_validator** (*validator*)
+  Get the requested validator function.
+
+
+**literal** (*html*)
+  Treat the html as a literal that will not get escaped.
 
 
 **render** (*template_name, data=None*)
