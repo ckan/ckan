@@ -75,6 +75,9 @@ You can retrieve datasets most-popular-first from the
       "total": 15
   },
 
+ This can be used, for example, by custom templates to show the number of views
+ next to datasets and resources.
+
 
 .. note::
 
