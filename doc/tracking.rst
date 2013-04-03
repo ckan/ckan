@@ -3,8 +3,14 @@ Page View Tracking
 ==================
 
 CKAN can track visits to pages of your site and use this tracking data to sort
-your datasets by popularity. You can also export the tracking data to a CSV
-file.
+datasets by popularity, highlight popular datasets and resources, show view
+counts next to datasets and resources, return a list of the most popular
+datasets, etc. You can also export the tracking data to a CSV file.
+
+.. seealso::
+
+ `ckanext-googleanalytics <https://github.com/okfn/ckanext-googleanalytics>`_
+    A CKAN extension that integrates Google Analytics into CKAN.
 
 
 Enabling Page View Tracking
