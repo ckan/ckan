@@ -22,6 +22,7 @@ class TestJsonPreview(tests.WsgiAppCase):
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.JsonPreview()
+        cls.p.proxy_is_enabled = False
 
         # create test resource
         CreateTestData.create()

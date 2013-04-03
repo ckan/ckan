@@ -22,6 +22,7 @@ class TestPdfPreview(tests.WsgiAppCase):
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.PdfPreview()
+        cls.p.proxy_is_enabled = False
 
         # create test resource
         CreateTestData.create()
