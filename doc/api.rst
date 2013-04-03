@@ -1,7 +1,7 @@
 .. _action-api:
 
-The Action API
-==============
+Action API
+==========
 
 CKAN's Action API is a powerful, RPC-style API that exposes all of CKAN's core
 features to API clients. All of a CKAN website's core functionality (everything
