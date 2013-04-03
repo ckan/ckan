@@ -66,8 +66,9 @@ You can retrieve datasets most-popular-first from the
 
 .. tip::
 
- Tracking summary data for datasets is available in the dataset dictionaries
- returned by, for example, the ``package_show()`` API::
+ Tracking summary data for datasets and resources is available in the dataset
+ and resource dictionaries returned by, for example, the ``package_show()``
+ API::
 
   "tracking_summary": {
       "recent": 5,
@@ -79,6 +80,18 @@ You can retrieve datasets most-popular-first from the
 
  Repeatedly visiting the same page will not increase the page's view count!
  Page view counting is limited to one view per user per page per day.
+
+
+Highlighting Popular Datasets and Resources
+===========================================
+
+Once you've enabled page view tracking on your CKAN site, popular datasets and
+resources (those with more than 10 views) will be highlighted with a "popular"
+badge and a tooltip showing the number of views:
+
+.. image:: images/popular-dataset.png
+
+.. image:: images/popular-resource.png
 
 
 Exporting Tracking Data
