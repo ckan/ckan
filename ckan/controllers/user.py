@@ -573,8 +573,8 @@ class UserController(base.BaseController):
             context, {'id': c.userobj.id, 'q': q})
         c.dashboard_activity_stream_context = self._get_dashboard_context(
             filter_type, filter_id, q)
-        c.dashboard_activity_stream = h.dashboard_activity_stream(
-            id, filter_type, filter_id, offset)
+        c.dashboard_activity_stream = h.dashboard_activity_stream(filter_type,
+                filter_id, offset)
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.
