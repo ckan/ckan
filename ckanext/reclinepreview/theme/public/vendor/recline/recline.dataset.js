@@ -309,9 +309,11 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding rendered computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValue: function(field) {
     val = this.getFieldValueUnrendered(field);
-    if (field.renderer) {
+    if (field && !_.isUndefined(field.renderer)) {
       val = field.renderer(val, field, this.toJSON());
     }
     return val;
@@ -321,7 +323,12 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValueUnrendered: function(field) {
+    if (!field) {
+      return '';
+    }
     var val = this.get(field.id);
     if (field.deriver) {
       val = field.deriver(val, field, this);
