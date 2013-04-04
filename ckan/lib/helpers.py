@@ -1287,7 +1287,7 @@ def user_in_org_or_group(group_id):
     return len(query.all()) != 0
 
 
-def dashboard_activity_stream(filter_type=None, filter_id=None,
+def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         offset=0):
     '''Return the dashboard activity stream of the current user.
 
