@@ -279,10 +279,6 @@ def update_config():
     helpers = _Helpers(h)
     config['pylons.h'] = helpers
 
-    helpers = config['pylons.h']
-    if helpers:
-        helpers._setup()
-
     ## redo template setup to use genshi.search_path
     ## (so remove std template setup)
     legacy_templates_path = os.path.join(root, 'templates_legacy')
