@@ -335,7 +335,7 @@ class TestDashboard(object):
     def test_10_dashboard_activity_list_html(self):
         '''Test that dashboard activity list html call works.'''
 
-        params = json.dumps({'name': 'irrelevant_dataset'})
+        params = json.dumps({'name': 'irrelevant_dataset1'})
         response = self.app.post('/api/action/package_create', params=params,
             extra_environ={'Authorization': str(self.annafan['apikey'])})
         assert response.json['success'] is True
