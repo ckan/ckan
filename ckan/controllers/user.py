@@ -35,7 +35,6 @@ unflatten = dictization_functions.unflatten
 
 
 class UserController(base.BaseController):
-
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
         try:
@@ -238,7 +237,7 @@ class UserController(base.BaseController):
 
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % '')
-        except NotFound, e:
+        except NotFound:
             abort(404, _('User not found'))
 
         user_obj = context.get('user_obj')
@@ -507,8 +506,7 @@ class UserController(base.BaseController):
 
         return render('user/activity_stream.html')
 
-    def _get_dashboard_context(self, filter_type=None, filter_id=None,
-            q=None):
+    def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
         '''Return a dict needed by the dashboard view to determine context.'''
 
         def display_name(followee):
@@ -520,8 +518,10 @@ class UserController(base.BaseController):
             return display_name or fullname or title or name
 
         if (filter_type and filter_id):
-            context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+            context = {
+                'model': model, 'session': model.Session,
+                'user': c.user or c.author, 'for_view': True
+            }
             data_dict = {'id': filter_id}
             followee = None
 
@@ -529,8 +529,9 @@ class UserController(base.BaseController):
                 'dataset': 'package_show',
                 'user': 'user_show',
                 'group': 'group_show'
-                }
-            action_function = logic.get_action(action_functions.get(filter_type))
+            }
+            action_function = logic.get_action(
+                action_functions.get(filter_type))
             # Is this a valid type?
             if action_function is None:
                 raise abort(404, _('Follow item not found'))
