@@ -80,8 +80,8 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    from ckan.lib.plugins import register_package_plugins
-    from ckan.lib.plugins import register_group_plugins
+    import ckan.lib.plugins as lib_plugins
+    lib_plugins.reset_package_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -321,8 +321,8 @@ def make_map():
                   action='members', ckan_icon='group')
         m.connect('organization_bulk_process', '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    register_package_plugins(map)
-    register_group_plugins(map)
+    lib_plugins.register_package_plugins(map)
+    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')

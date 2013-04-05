@@ -2,7 +2,6 @@ import logging
 
 from pylons import c
 from ckan.lib import base
-from ckan.lib.navl import dictization_functions
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -19,6 +18,17 @@ _default_package_plugin = None
 _group_plugins = {}
 # The fallback behaviour
 _default_group_plugin = None
+
+
+def reset_package_plugins():
+    global _default_package_plugin
+    _default_package_plugin = None
+    global _package_plugins
+    _package_plugins = {}
+    global _default_group_plugin
+    _default_group_plugin = None
+    global _group_plugins
+    _group_plugins = {}
 
 
 def lookup_package_plugin(package_type=None):
