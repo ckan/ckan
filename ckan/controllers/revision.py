@@ -11,7 +11,6 @@ import ckan.lib.helpers as h
 
 
 class RevisionController(base.BaseController):
-
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
 
@@ -55,7 +54,7 @@ class RevisionController(base.BaseController):
             revision_query = model.repo.history()
             revision_query = revision_query.filter(
                 model.Revision.timestamp >= since_when).filter(
-                    model.Revision.id != None)
+                    model.Revision.id is None)
             revision_query = revision_query.limit(maxresults)
             for revision in revision_query:
                 package_indications = []
