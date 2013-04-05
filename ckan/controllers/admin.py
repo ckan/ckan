@@ -12,7 +12,7 @@ _ = base._
 
 
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin is True)
+    q = model.Session.query(model.User).filter(model.User.sysadmin == True)
     return q.all()
 
 
@@ -27,29 +27,19 @@ class AdminController(base.BaseController):
 
     def _get_config_form_items(self):
         # Styles for use in the form.select() macro.
-        styles = [
-            {'text': 'Default', 'value': '/base/css/main.css'},
-            {'text': 'Red', 'value': '/base/css/red.css'},
-            {'text': 'Green', 'value': '/base/css/green.css'},
-            {'text': 'Maroon', 'value': '/base/css/maroon.css'},
-            {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'},
-        ]
+        styles = [{'text': 'Default', 'value': '/base/css/main.css'},
+                  {'text': 'Red', 'value': '/base/css/red.css'},
+                  {'text': 'Green', 'value': '/base/css/green.css'},
+                  {'text': 'Maroon', 'value': '/base/css/maroon.css'},
+                  {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
         items = [
-            {'name': 'ckan.site_title', 'control': 'input',
-             'label': _('Site Title'), 'placeholder': _('')},
-            {'name': 'ckan.main_css', 'control': 'select', 'options': styles,
-             'label': _('Style'), 'placeholder': _('')},
-            {'name': 'ckan.site_description', 'control': 'input',
-             'label': _('Site Tag Line'), 'placeholder': _('')},
-            {'name': 'ckan.site_logo', 'control': 'input',
-             'label': _('Site Tag Logo'), 'placeholder': _('')},
-            {'name': 'ckan.site_about', 'control': 'markdown',
-             'label': _('About'), 'placeholder': _('About page text')},
-            {'name': 'ckan.site_intro_text', 'control': 'markdown',
-             'label': _('Intro Text'), 'placeholder': _('Text on home page')},
-            {'name': 'ckan.site_custom_css', 'control': 'textarea',
-             'label': _('Custom CSS'),
-             'placeholder': _('Customisable css inserted into the page header')},
+            {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': _('')},
+            {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': _('')},
+            {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': _('')},
+            {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': _('')},
+            {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
+            {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+            {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
         ]
         return items
 
@@ -99,9 +89,8 @@ class AdminController(base.BaseController):
             model.Revision).filter_by(state=model.State.DELETED)
         c.deleted_packages = model.Session.query(
             model.Package).filter_by(state=model.State.DELETED)
-        if not request.params \
-                or (len(request.params) == 1
-                    and '__no_cache__' in request.params):
+        if not request.params or (len(request.params) == 1 and '__no_cache__'
+                                  in request.params):
             return base.render('admin/trash.html')
         else:
             # NB: we repeat retrieval of of revisions
@@ -110,8 +99,8 @@ class AdminController(base.BaseController):
             # purge packages) of form: "this object already exists in the
             # session"
             msgs = []
-            if ('purge-packages' in request.params) \
-                    or ('purge-revisions' in request.params):
+            if ('purge-packages' in request.params) or ('purge-revisions' in
+                                                        request.params):
                 if 'purge-packages' in request.params:
                     revs_to_purge = []
                     for pkg in c.deleted_packages:

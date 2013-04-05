@@ -54,7 +54,7 @@ class RevisionController(base.BaseController):
             revision_query = model.repo.history()
             revision_query = revision_query.filter(
                 model.Revision.timestamp >= since_when).filter(
-                    model.Revision.id is None)
+                    model.Revision.id != None)
             revision_query = revision_query.limit(maxresults)
             for revision in revision_query:
                 package_indications = []
