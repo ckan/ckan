@@ -134,7 +134,7 @@ def load_environment(global_conf, app_conf):
 
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
+    if not 'synchronous_search' in config.get('ckan.plugins', []) and \
             asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
@@ -295,7 +295,6 @@ def load_environment(global_conf, app_conf):
     #                                                               #
     #################################################################
 
-
     # Create Jinja2 environment
     env = lib.jinja_extensions.Environment(
         loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
@@ -343,7 +342,6 @@ def load_environment(global_conf, app_conf):
 
     if not model.meta.engine:
         model.init_model(engine)
-
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
