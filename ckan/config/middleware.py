@@ -55,6 +55,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # The Pylons WSGI app
     app = PylonsApp()
+
     # set pylons globals
     app_globals.reset()
 
@@ -67,7 +68,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     app = CacheMiddleware(app, config)
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-    #app = QueueLogMiddleware(app)
+    # app = QueueLogMiddleware(app)
 
     # Fanstatic
     if asbool(config.get('debug', False)):
@@ -86,6 +87,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             'bottom': True,
             'bundle': True,
         }
+
     app = Fanstatic(app, **fanstatic_config)
 
     if asbool(full_stack):
@@ -109,12 +111,15 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         # Monkey patches for repoze.who.openid
         # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
         from ckan.lib import repoze_patch
-        OpenIdIdentificationPlugin.identify = repoze_patch.identify
+
+        OpenIdIdentificationPlugin.identify = \
+            repoze_patch.identify
         OpenIdIdentificationPlugin.redirect_to_logged_in = \
             repoze_patch.redirect_to_logged_in
         OpenIdIdentificationPlugin._redirect_to_loginform = \
             repoze_patch._redirect_to_loginform
-        OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
+        OpenIdIdentificationPlugin.challenge = \
+            repoze_patch.challenge
 
         who_parser.identifiers = [
             i for i in who_parser.identifiers if
@@ -150,7 +155,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
         static_app = StaticURLParser(
             config['pylons.paths']['static_files'],
-            cache_max_age=static_max_age)
+            cache_max_age=static_max_age
+        )
         static_parsers = [static_app, app]
 
         # Configurable extra static file paths
@@ -160,7 +166,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 extra_static_parsers.append(
                     StaticURLParser(
                         public_path.strip(),
-                        cache_max_age=static_max_age)
+                        cache_max_age=static_max_age
+                    )
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
@@ -178,6 +185,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 class I18nMiddleware(object):
     """I18n Middleware selects the language based on the url
     eg /fr/home is French"""
+
     def __init__(self, app, config):
         self.app = app
         self.default_locale = config.get('ckan.locale_default', 'en')
@@ -240,7 +248,6 @@ class PageCacheMiddleware(object):
         self.redis_connection = None
 
     def __call__(self, environ, start_response):
-
         def _start_response(status, response_headers, exc_info=None):
             # This wrapper allows us to get the status and headers.
             environ['CKAN_PAGE_STATUS'] = status
@@ -324,7 +331,6 @@ class PageCacheMiddleware(object):
 
 
 class TrackingMiddleware(object):
-
     def __init__(self, app, config):
         self.app = app
         self.engine = sa.create_engine(config.get('sqlalchemy.url'))
