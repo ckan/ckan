@@ -3,7 +3,6 @@ import copy
 from nose.tools import assert_equal, assert_raises
 
 from ckan.lib.create_test_data import CreateTestData
-from ckan import plugins
 import ckan.lib.search as search
 from ckan.lib.search.common import SolrSettings
 
@@ -268,7 +267,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
-            plugins.load('synchronous_search')
             SolrSettings.init(bad_solr_url)
 
             assert not self.get_package_by_name(self.package_fixture_data['name'])
@@ -659,14 +657,12 @@ class PackagesTestCase(BaseModelApiTestCase):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
-            plugins.load('synchronous_search')
             SolrSettings.init(bad_solr_url)
 
             assert_raises(
                 search.SearchIndexError, self.assert_package_update_ok, 'name', 'post'
             )
         finally:
-            plugins.unload('synchronous_search')
             SolrSettings.init(original_settings)
 
     def test_package_update_delete_resource(self):

@@ -1,6 +1,5 @@
 # After editing this file run python setup.py egg_info in this directory
 from setuptools import setup, find_packages
-import sys, os
 
 version = '0.0'
 
@@ -30,6 +29,11 @@ setup(name='ckantestplugin',
             'test_observer_plugin=ckantestplugin:PluginObserverPlugin',
             'action_plugin=ckantestplugin:ActionPlugin',
             'auth_plugin=ckantestplugin:AuthPlugin',
+            'test_group_plugin=ckantestplugin:MockGroupControllerPlugin',
+            'test_package_controller_plugin=ckantestplugin:MockPackageControllerPlugin',
+            'test_resource_preview=ckantestplugin:MockResourcePreviewExtension',
+            'test_json_resource_preview=ckantestplugin:JsonMockResourcePreviewExtension',
+
         ]
     }
 )

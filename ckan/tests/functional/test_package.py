@@ -1,12 +1,8 @@
-import cgi
 import datetime
 
-from paste.fixture import AppError
-from pylons import config
-from pylons import c
+from pylons import config, c
 from genshi.core import escape as genshi_escape
 from difflib import unified_diff
-from nose.plugins.skip import SkipTest
 from nose.tools import assert_equal
 
 from ckan.tests import *
@@ -15,77 +11,11 @@ from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
-import ckan.lib.helpers as h
-import ckan.lib.search as search
 from ckan.logic.action import get, update
-from ckan.controllers.package import PackageController
-from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan import plugins
-from ckan.rating import set_rating
 from ckan.lib.search.common import SolrSettings
 
 
-class MockPackageControllerPlugin(SingletonPlugin):
-    implements(IPackageController)
-
-    def __init__(self):
-        from collections import defaultdict
-        self.calls = defaultdict(int)
-
-    def read(self, entity):
-        self.calls['read'] += 1
-
-    def create(self, entity):
-        self.calls['create'] += 1
-
-    def edit(self, entity):
-        self.calls['edit'] += 1
-
-    def authz_add_role(self, object_role):
-        self.calls['authz_add_role'] += 1
-
-    def authz_remove_role(self, object_role):
-        self.calls['authz_remove_role'] += 1
-
-    def delete(self, entity):
-        self.calls['delete'] += 1
-
-    def before_search(self, search_params):
-        self.calls['before_search'] += 1
-        return search_params
-
-    def after_search(self, search_results, search_params):
-        self.calls['after_search'] += 1
-        return search_results
-
-    def before_index(self, data_dict):
-        self.calls['before_index'] += 1
-        return data_dict
-
-    def before_view(self, data_dict):
-        self.calls['before_view'] += 1
-        return data_dict
-
-    def after_create(self, context, data_dict):
-        self.calls['after_create'] += 1
-        self.id_in_dict = 'id' in data_dict
-
-        return data_dict
-
-    def after_update(self, context, data_dict):
-        self.calls['after_update'] += 1
-        return data_dict
-
-    def after_delete(self, context, data_dict):
-        self.calls['after_delete'] += 1
-        return data_dict
-
-    def after_show(self, context, data_dict):
-        self.calls['after_show'] += 1
-        return data_dict
-
-    def update_facet_titles(self, facet_titles):
-        return facet_titles
 
 
 existing_extra_html = ('<label class="field_opt" for="Package-%(package_id)s-extras-%(key)s">%(capitalized_key)s</label>', '<input id="Package-%(package_id)s-extras-%(key)s" name="Package-%(package_id)s-extras-%(key)s" size="20" type="text" value="%(value)s">')
@@ -386,15 +316,15 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert name in res
 
     def test_read_plugin_hook(self):
-        plugin = MockPackageControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_package_controller_plugin')
+        plugin = plugins.get_plugin('test_package_controller_plugin')
         name = u'annakarenina'
         offset = url_for(controller='package', action='read', id=name)
         res = self.app.get(offset)
 
         assert plugin.calls['read'] == 1, plugin.calls
         assert plugin.calls['after_show'] == 1, plugin.calls
-        plugins.unload(plugin)
+        plugins.unload('test_package_controller_plugin')
 
     def test_resource_list(self):
         # TODO restore this test. It doesn't make much sense with the
@@ -934,8 +864,8 @@ class TestEdit(TestPackageForm):
     def test_edit_plugin_hook(self):
         # just the absolute basics
         try:
-            plugin = MockPackageControllerPlugin()
-            plugins.load(plugin)
+            plugins.load('test_package_controller_plugin')
+            plugin = plugins.get_plugin('test_package_controller_plugin')
             res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             new_name = u'new-name'
             new_title = u'New Title'
@@ -946,15 +876,15 @@ class TestEdit(TestPackageForm):
             res = fv.submit('save', extra_environ=self.extra_environ_admin)
             # get redirected ...
             assert plugin.calls['edit'] == 1, plugin.calls
-            plugins.unload(plugin)
+            plugins.unload('test_package_controller_plugin')
         finally:
             self._reset_data()
 
     def test_after_update_plugin_hook(self):
         # just the absolute basics
         try:
-            plugin = MockPackageControllerPlugin()
-            plugins.load(plugin)
+            plugins.load('test_package_controller_plugin')
+            plugin = plugins.get_plugin('test_package_controller_plugin')
             res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             new_name = u'new-name'
             new_title = u'New Title'
@@ -966,7 +896,7 @@ class TestEdit(TestPackageForm):
             # get redirected ...
             assert plugin.calls['after_update'] == 1, plugin.calls
             assert plugin.calls['after_create'] == 0, plugin.calls
-            plugins.unload(plugin)
+            plugins.unload('test_package_controller_plugin')
         finally:
             self._reset_data()
 
@@ -1023,16 +953,13 @@ class TestEdit(TestPackageForm):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
-            plugins.load('synchronous_search')
             SolrSettings.init(bad_solr_url)
 
             fv = self.res.forms['dataset-edit']
-            prefix = ''
             fv['log_message'] = u'Test log message'
             res = fv.submit('save', status=500, extra_environ=self.extra_environ_admin)
             assert 'Unable to update search index' in res, res
         finally:
-            plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
     def test_edit_pkg_with_relationships(self):
@@ -1085,8 +1012,8 @@ class TestDelete(TestPackageForm):
         model.repo.rebuild_db()
 
     def test_delete(self):
-        plugin = MockPackageControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_package_controller_plugin')
+        plugin = plugins.get_plugin('test_package_controller_plugin')
 
         offset = url_for(controller='package', action='delete',
                 id='warandpeace')
@@ -1099,8 +1026,7 @@ class TestDelete(TestPackageForm):
 
         assert plugin.calls['delete'] == 1
         assert plugin.calls['after_delete'] == 1
-
-        plugins.unload(plugin)
+        plugins.unload('test_package_controller_plugin')
 
 
 class TestNew(TestPackageForm):
@@ -1296,8 +1222,8 @@ class TestNew(TestPackageForm):
         self._assert_form_errors(res)
 
     def test_new_plugin_hook(self):
-        plugin = MockPackageControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_package_controller_plugin')
+        plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         new_name = u'plugged'
@@ -1308,11 +1234,11 @@ class TestNew(TestPackageForm):
         # get redirected ...
         assert plugin.calls['edit'] == 0, plugin.calls
         assert plugin.calls['create'] == 1, plugin.calls
-        plugins.unload(plugin)
+        plugins.unload('test_package_controller_plugin')
 
     def test_after_create_plugin_hook(self):
-        plugin = MockPackageControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_package_controller_plugin')
+        plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for(controller='package', action='new')
         res = self.app.get(offset, extra_environ=self.extra_environ_tester)
         new_name = u'plugged2'
@@ -1325,14 +1251,12 @@ class TestNew(TestPackageForm):
         assert plugin.calls['after_create'] == 1, plugin.calls
 
         assert plugin.id_in_dict
-
-        plugins.unload(plugin)
+        plugins.unload('test_package_controller_plugin')
 
     def test_new_indexerror(self):
         bad_solr_url = 'http://127.0.0.1/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
-            plugins.load('synchronous_search')
             SolrSettings.init(bad_solr_url)
             new_package_name = u'new-package-missing-solr'
 
@@ -1348,7 +1272,6 @@ class TestNew(TestPackageForm):
             res = fv.submit('save', status=500, extra_environ=self.extra_environ_tester)
             assert 'Unable to add package to search index' in res, res
         finally:
-            plugins.unload('synchronous_search')
             SolrSettings.init(solr_url)
 
     def test_change_locale(self):
@@ -1374,14 +1297,14 @@ class TestSearch(TestPackageForm):
         model.repo.rebuild_db()
 
     def test_search_plugin_hooks(self):
-        plugin = MockPackageControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_package_controller_plugin')
+        plugin = plugins.get_plugin('test_package_controller_plugin')
         offset = url_for(controller='package', action='search')
         res = self.app.get(offset)
         # get redirected ...
         assert plugin.calls['before_search'] == 1, plugin.calls
         assert plugin.calls['after_search'] == 1, plugin.calls
-        plugins.unload(plugin)
+        plugins.unload('test_package_controller_plugin')
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'

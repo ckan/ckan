@@ -4,8 +4,7 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.helpers as h
 from ckan.tests import WsgiAppCase
-# ensure that test_tag_vocab_plugin is added as a plugin in the testing .ini file
-from ckanext.test_tag_vocab_plugin import MockVocabTagsPlugin
+import ckan.plugins as plugins
 
 TEST_VOCAB_NAME = 'test-vocab'
 
@@ -72,7 +71,7 @@ class Select(paste.fixture.Field):
 class TestWUI(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        MockVocabTagsPlugin().set_active(True)
+        plugins.load('test_tag_vocab_plugin')
         CreateTestData.create(package_type='mock_vocab_tags_plugin')
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.dset = model.Package.get('warandpeace')
@@ -105,7 +104,7 @@ class TestWUI(WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        MockVocabTagsPlugin().set_active(False)
+        plugins.unload('test_tag_vocab_plugin')
         paste.fixture.Field.classes['select'] = cls.old_select
         model.repo.rebuild_db()
 
@@ -141,7 +140,7 @@ class TestWUI(WsgiAppCase):
         self._add_vocab_tag_to_dataset(self.dset.id, vocab_id, self.tag1_name)
         response = self.app.get(h.url_for(controller='package', action='read',
             id=self.dset.id))
-        assert self.tag1_name in response.body
+        assert self.tag1_name in response.body, self.tag1_name
         self._remove_vocab_tags(self.dset.id, vocab_id, self.tag1_name)
 
     def test_02_dataset_edit_add_vocab_tag(self):
