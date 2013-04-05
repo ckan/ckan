@@ -39,7 +39,6 @@ CONTENT_TYPES = {
 
 
 class ApiController(base.BaseController):
-
     _actions = {}
 
     def __call__(self, environ, start_response):
@@ -56,8 +55,8 @@ class ApiController(base.BaseController):
             context = {'model': model, 'user': c.user or c.author}
             logic.check_access('site_read', context)
         except NotAuthorized:
-            response_msg = self._finish(403,
-                                        _('Not authorized to see this page'))
+            response_msg = self._finish(
+                403, _('Not authorized to see this page'))
             # Call start_response manually instead of the parent __call__
             # because we want to end the request instead of continuing.
             response_msg = response_msg.encode('utf8')
@@ -311,7 +310,6 @@ class ApiController(base.BaseController):
 
     def create(self, ver=None, register=None, subregister=None,
                id=None, id2=None):
-
         action_map = {
             'group': 'group_create_rest',
             'dataset': 'package_create_rest',
@@ -346,8 +344,8 @@ class ApiController(base.BaseController):
                 location = str('%s/%s' % (request.path.replace('package',
                                                                'dataset'),
                                           data_dict.get("id")))
-            return self._finish_ok(response_data,
-                                   resource_location=location)
+            return self._finish_ok(
+                response_data, resource_location=location)
         except NotAuthorized:
             return self._finish_not_authz()
         except NotFound, e:
@@ -359,14 +357,16 @@ class ApiController(base.BaseController):
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
             #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            return self._finish(
+                400, _(u'Integrity Error') + ': %s - %s' %
+                (e.error, request_data)
+            )
         except search.SearchIndexError:
             log.error('Unable to add package to search index: %s' %
                       request_data)
-            return self._finish(500,
-                                _(u'Unable to add package to search index') %
-                                request_data)
+            return self._finish(
+                500, _(u'Unable to add package to search index') % request_data
+            )
         except:
             model.Session.rollback()
             raise
@@ -454,7 +454,6 @@ class ApiController(base.BaseController):
             return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
-
         log.debug('search %s params: %r' % (register, request.params))
         if register == 'revision':
             since_time = None
@@ -646,10 +645,9 @@ class ApiController(base.BaseController):
         return out
 
     def is_slug_valid(self):
-
         def package_exists(val):
             if model.Session.query(model.Package) \
-                .autoflush(False).filter_by(name=val).count():
+                    .autoflush(False).filter_by(name=val).count():
                 return True
             return False
 
