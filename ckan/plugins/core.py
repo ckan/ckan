@@ -24,12 +24,20 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 # Entry point group.
-PLUGINS_ENTRY_POINT_GROUP = "ckan.plugins"
+PLUGINS_ENTRY_POINT_GROUP = 'ckan.plugins'
 
 # Entry point group for system plugins (those that are part of core ckan and
 # do not need to be explicitly enabled by the user)
-SYSTEM_PLUGINS_ENTRY_POINT_GROUP = "ckan.system_plugins"
+SYSTEM_PLUGINS_ENTRY_POINT_GROUP = 'ckan.system_plugins'
 
+# Entry point for test plugins.
+TEST_PLUGINS_ENTRY_POINT_GROUP = 'ckan.test_plugins'
+
+GROUPS = [
+    PLUGINS_ENTRY_POINT_GROUP,
+    SYSTEM_PLUGINS_ENTRY_POINT_GROUP,
+    TEST_PLUGINS_ENTRY_POINT_GROUP,
+]
 # These lists are used to ensure that the correct extensions are enabled.
 _PLUGINS = []
 _PLUGINS_CLASS = []
@@ -147,7 +155,7 @@ def load(*plugins):
 
         if interfaces.IGenshiStreamFilter in service.__interfaces__:
             log.warn("Plugin '%s' is using deprecated interface "
-                     "IGenshiStreamFilter" % plugin)
+                     'IGenshiStreamFilter' % plugin)
 
         _PLUGINS.append(plugin)
         _PLUGINS_CLASS.append(service.__class__)
@@ -217,33 +225,30 @@ def find_system_plugins():
     return eps
 
 
-def _get_service(plugin):
+def _get_service(plugin_name):
     '''
     Return a service (ie an instance of a plugin class).
 
-    :param plugin: the name of a plugin entry point
-    :type plugin: string
+    :param plugin_name: the name of a plugin entry point
+    :type plugin_name: string
 
     :return: the service object
     '''
 
-    if isinstance(plugin, basestring):
-        try:
-            name = plugin
-            (plugin,) = iter_entry_points(
-                group=PLUGINS_ENTRY_POINT_GROUP,
-                name=name
-            )
-        except ValueError:
+    if isinstance(plugin_name, basestring):
+        for group in GROUPS:
+            print group
             try:
-                name = plugin
                 (plugin,) = iter_entry_points(
-                    group=SYSTEM_PLUGINS_ENTRY_POINT_GROUP,
-                    name=name
+                    group=group,
+                    name=plugin_name
                 )
+                break
             except ValueError:
+                pass
+            else:
                 raise PluginNotFoundException(plugin)
 
-        return plugin.load()(name=name)
+        return plugin.load()(name=plugin_name)
     else:
         raise TypeError('Expected a plugin name', plugin)
