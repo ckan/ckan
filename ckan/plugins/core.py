@@ -237,7 +237,6 @@ def _get_service(plugin_name):
 
     if isinstance(plugin_name, basestring):
         for group in GROUPS:
-            print group
             try:
                 (plugin,) = iter_entry_points(
                     group=group,
