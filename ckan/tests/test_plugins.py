@@ -1,13 +1,10 @@
 """
 Tests for plugin loading via PCA
 """
-import os
-
 from nose.tools import raises
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
 from pylons import config
-from pkg_resources import working_set, Distribution, PathMetadata
 
 import ckan.logic as logic
 import ckan.new_authz as new_authz
@@ -16,21 +13,8 @@ from ckan.plugins.core import find_system_plugins
 from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
-import ckantestplugin
+import ckan.tests.ckantestplugins as ckantestplugins
 
-
-def install_ckantestplugin():
-    # Create the ckantestplugin setuptools distribution
-    mydir = os.path.dirname(__file__)
-    egg_info = os.path.join(mydir, 'ckantestplugin', 'ckantestplugin.egg-info')
-    base_dir = os.path.dirname(egg_info)
-    metadata = PathMetadata(base_dir, egg_info)
-    dist_name = os.path.splitext(os.path.basename(egg_info))[0]
-    ckantestplugin_dist = Distribution(
-        base_dir, project_name=dist_name, metadata=metadata)
-    working_set.add(ckantestplugin_dist)
-    # We have messed up the pluginns so lets clean up
-    plugins.plugins_update()
 
 def _make_calls(*args):
     out = []

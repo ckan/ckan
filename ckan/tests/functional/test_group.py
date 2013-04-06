@@ -2,22 +2,18 @@ import re
 
 from nose.tools import assert_equal
 
-from ckan.tests import setup_test_search_index
-from ckan.plugins import SingletonPlugin, implements, IGroupController
-from ckan import plugins
+import ckan.tests.test_plugins as test_plugins
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
-from ckan.logic import check_access, NotAuthorized, get_action
 import ckan.lib.search as search
 
-from pylons import config
-
-from ckan.tests import *
 from ckan.tests import setup_test_search_index
+from ckan import plugins
+from ckan.lib.create_test_data import CreateTestData
+from ckan.logic import get_action
+from ckan.tests import *
 from base import FunctionalTestCase
-from ckan.tests import search_related, is_search_supported
+from ckan.tests import is_search_supported
 
-import ckan.tests.test_plugins as test_plugins
 
 
 class TestGroup(FunctionalTestCase):
@@ -27,7 +23,6 @@ class TestGroup(FunctionalTestCase):
         search.clear()
         model.Session.remove()
         CreateTestData.create()
-        test_plugins.install_ckantestplugin()
 
     @classmethod
     def teardown_class(self):
