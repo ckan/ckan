@@ -1244,6 +1244,9 @@ def package_search(context, data_dict):
     # the query
     abort = data_dict.get('abort_search',False)
 
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'relevance asc, metadata_modified desc'
+
     results = []
     if not abort:
         # return a list of package ids
@@ -1258,9 +1261,6 @@ def package_search(context, data_dict):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
-
-        if data_dict.get('sort') in (None, 'rank'):
-            data_dict['sort'] = 'relevance asc, metadata_modified desc'
 
         query = search.query_for(model.Package)
         query.run(data_dict)
