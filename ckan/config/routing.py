@@ -10,11 +10,9 @@ import re
 from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
-from ckan.plugins import PluginImplementations, IRoutes
+import ckan.plugins as p
 
 named_routes = {}
-
-routing_plugins = PluginImplementations(IRoutes)
 
 
 class Mapper(_Mapper):
@@ -96,7 +94,7 @@ def make_map():
     map.connect('*url', controller='home', action='cors_options', conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
 
     map.connect('home', '/', controller='home', action='index')
@@ -415,7 +413,7 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
 
     # sometimes we get requests for favicon.ico we should redirect to

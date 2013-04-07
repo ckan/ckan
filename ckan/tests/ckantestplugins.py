@@ -148,6 +148,9 @@ class MockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
     def __init__(self, *args, **kw):
         self.calls = defaultdict(int)
 
+    def setup_template_variables(self, context, data_dict):
+        self.calls['setup_template_variables'] += 1
+
     def can_preview(self, data_dict):
         assert(isinstance(data_dict['resource'], dict))
         assert(isinstance(data_dict['package'], dict))
@@ -155,9 +158,6 @@ class MockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
 
         self.calls['can_preview'] += 1
         return data_dict['resource']['format'].lower() == 'mock'
-
-    def setup_template_variables(self, context, data_dict):
-        self.calls['setup_template_variables'] += 1
 
     def preview_template(self, context, data_dict):
         assert(isinstance(data_dict['resource'], dict))
@@ -167,13 +167,20 @@ class MockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
         return 'tests/mock_resource_preview_template.html'
 
 
-class JsonMockResourcePreviewExtension(MockResourcePreviewExtension):
+class JsonMockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
+    p.implements(p.IResourcePreview)
+
+    def __init__(self, *args, **kw):
+        self.calls = defaultdict(int)
+
+    def setup_template_variables(self, context, data_dict):
+        self.calls['setup_template_variables'] += 1
+
     def can_preview(self, data_dict):
-        super(JsonMockResourcePreviewExtension, self).can_preview(data_dict)
+        self.calls['can_preview'] += 1
         return data_dict['resource']['format'].lower() == 'json'
 
     def preview_template(self, context, data_dict):
-        super(JsonMockResourcePreviewExtension, self).preview_template(context, data_dict)
         self.calls['preview_templates'] += 1
         return 'tests/mock_json_resource_preview_template.html'
 

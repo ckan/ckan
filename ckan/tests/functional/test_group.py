@@ -256,7 +256,6 @@ class TestEdit(FunctionalTestCase):
         model.repo.new_revision()
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
-        test_plugins.install_ckantestplugin()
 
 
     @classmethod

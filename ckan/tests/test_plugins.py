@@ -10,7 +10,6 @@ import ckan.logic as logic
 import ckan.new_authz as new_authz
 import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
-from ckan.plugins import Interface, implements
 from ckan.lib.create_test_data import CreateTestData
 
 import ckan.tests.ckantestplugins as ckantestplugins
@@ -23,21 +22,21 @@ def _make_calls(*args):
     return out
 
 
-class IFoo(Interface):
+class IFoo(plugins.Interface):
     pass
 
-class IBar(Interface):
+class IBar(plugins.Interface):
     pass
 
 class FooImpl(object):
-    implements(IFoo)
+    plugins.implements(IFoo)
 
 class BarImpl(object):
-    implements(IBar)
+    plugins.implements(IBar)
 
 class FooBarImpl(object):
-    implements(IFoo)
-    implements(IBar)
+    plugins.implements(IFoo)
+    plugins.implements(IBar)
 
 class TestInterface(TestCase):
 
@@ -89,11 +88,6 @@ class TestIPluginObserverPlugin(object):
 class TestPlugins(object):
 
 
-    @classmethod
-    def setup(cls):
-        install_ckantestplugin()
-
-
     def test_plugins_load(self):
 
         config_plugins = config['ckan.plugins']
@@ -108,15 +102,16 @@ class TestPlugins(object):
         plugins.load_all(config)
 
     def test_only_configured_plugins_loaded(self):
+        # FIXME This test is screwed it passes if all tests are run but not
+        # if just this file.  I think there is flawed logic -TD
 
-        from ckan.model.extension import PluginMapperExtension
-        from ckan.config.routing import routing_plugins
+        import ckan.model.extension as model_ext
         with plugins.use_plugin('mapper_plugin'):
             # MapperPlugin should be loaded as it is listed in
-            assert ckantestplugin.MapperPlugin() in iter(PluginMapperExtension.observers)
+            assert ckantestplugins.MapperPlugin() in iter(model_ext.PluginMapperExtension.observers)
             # MapperPlugin2 and RoutesPlugin should NOT be loaded
-            assert ckantestplugin.MapperPlugin2() not in iter(PluginMapperExtension.observers)
-            assert ckantestplugin.RoutesPlugin() not in routing_plugins
+            assert ckantestplugins.MapperPlugin2() not in iter(model_ext.PluginMapperExtension.observers)
+            assert ckantestplugins.RoutesPlugin() not in plugins.PluginImplementations(plugins.IRoutes)
 
     def test_plugin_loading_order(self):
         """
