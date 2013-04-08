@@ -40,7 +40,7 @@ class TestJsonPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        plugins.load('recline_preview')
+        plugins.unload('recline_preview')
         CreateTestData.delete()
 
     def test_can_preview(self):
