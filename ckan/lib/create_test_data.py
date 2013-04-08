@@ -148,15 +148,15 @@ class CreateTestData(object):
         new_group_names = set()
         new_groups = {}
 
-        rev = model.repo.new_revision()
-        rev.author = cls.author
-        rev.message = u'Creating test packages.'
 
         admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
+                rev = model.repo.new_revision()
+                rev.author = cls.author
+                rev.message = u'Creating test packages.'
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
                     if item.has_key(field):
@@ -245,7 +245,7 @@ class CreateTestData(object):
                 model.setup_default_user_roles(pkg, admins=[])
                 for admin in admins:
                     admins_list[item['name']].append(admin)
-            model.repo.commit_and_remove()
+                model.repo.commit_and_remove()
 
         needs_commit = False
 
