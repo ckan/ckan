@@ -137,7 +137,6 @@ def load_environment(global_conf, app_conf):
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
 
-
     #################################################################
     #                                                               #
     #                   HORRIBLE GENSHI HACK                        #
@@ -310,7 +309,6 @@ def update_config():
     # Create the Genshi TemplateLoader
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
         template_paths, auto_reload=True, callback=template_loaded)
-
 
     # Create Jinja2 environment
     env = lib.jinja_extensions.Environment(
