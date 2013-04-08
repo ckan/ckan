@@ -2,74 +2,34 @@
   "": {
     "domain": "ckan",
     "lang": "zh_TW",
-    "plural-forms": "nplurals=1; plural=0\n"
+    "plural-forms": "nplurals=1; plural=0"
   },
-  "An Error Occurred": [
-    null,
-    "-----------------"
-  ],
-  "Are you sure you want to delete this item?": [
-    null,
-    "------------------------------------------"
-  ],
   "Cancel": [
     null,
-    "------"
-  ],
-  "Confirm": [
-    null,
-    "-------"
+    "取消"
   ],
   "Edit": [
     null,
-    "----"
+    "編輯"
   ],
-  "Failed to load data API information": [
+  "Follow": [
     null,
-    "-----------------------------------"
+    "跟隨"
   ],
-  "Input is too short, must be at least one character": [
+  "Loading...": [
     null,
-    "--------------------------------------------------"
+    "讀取中..."
   ],
-  "No matches found": [
+  "URL": [
     null,
-    "----------------"
+    "網址"
   ],
-  "Please Confirm Action": [
+  "Unfollow": [
     null,
-    "---------------------"
-  ],
-  "Resource uploaded": [
-    null,
-    "-----------------"
-  ],
-  "Start typing…": [
-    null,
-    "---------------"
-  ],
-  "There are unsaved modifications to this form": [
-    null,
-    "--------------------------------------------"
-  ],
-  "There is no API data to load for this resource": [
-    null,
-    "----------------------------------------------"
-  ],
-  "Unable to authenticate upload": [
-    null,
-    "-----------------------------"
-  ],
-  "Unable to get data for uploaded file": [
-    null,
-    "------------------------------------"
-  ],
-  "Unable to upload file": [
-    null,
-    "---------------------"
+    "取消追蹤"
   ],
   "Upload a file": [
     null,
-    "-------------"
+    "上傳檔案"
   ]
 }
