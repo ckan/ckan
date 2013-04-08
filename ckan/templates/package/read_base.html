@@ -32,7 +32,7 @@
 
     {% block package_revision_info %}
       {% if c.pkg_revision_id %}
-        <div class="module info">
+        <div class="module info alert alert-info">
           <p class="module-content">
             {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
             {% set url = h.url(controller='package', action='read', id=pkg.name) %}
