@@ -13,7 +13,7 @@
         <li class="${'active' if c.action=='edit' else ''}"><a href="${h.url_for(controller='user', action='edit')}">Edit Profile</a></li>
         <li><a href="${h.url_for('/user/logout')}">Log out</a></li>
         <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
-          ${h.subnav_link(
+          ${h.nav_link(
             h.icon('followers') + _('My Followers ({num_followers})').format(num_followers=h.follow_count('user', c.user_dict.id)),
             controller='user',
             action='followers',
@@ -24,7 +24,7 @@
         <py:if test="c.id">
           <li class="${'active' if c.action=='read' else ''}"><a href="${h.url_for(controller='user', action='read', id=c.user_dict.name)}">View Profile</a></li>
           <li style="float:right;" class="${'active' if c.action=='followers' else ''}">
-            ${h.subnav_link(
+            ${h.nav_link(
               h.icon('followers') + _('Followers ({num_followers})').format(num_followers=h.follow_count('user', c.user_dict.id)),
               controller='user',
               action='followers',

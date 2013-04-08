@@ -22,10 +22,16 @@
   margin-left: 0;
 }
 
-.footer-links li {
-  display: inline-block;
-  width: 44%;
-  margin-right: 5%;
+.footer-links ul {
+  float: left;
+  .makeColumn(3);
+}
+
+.footer-links ul:first-child {
+  margin-left: 0;
+}
+
+.footer-links ul li {
   margin-bottom: 5px;
 }
 

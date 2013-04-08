@@ -18,7 +18,7 @@ def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
-    if value is missing or value is None:
+    if value is missing or not value:
         if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
