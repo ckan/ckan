@@ -291,6 +291,9 @@ def package_update(context, data_dict):
 
     return_id_only = context.get('return_id_only', False)
 
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
+
     # we could update the dataset so we should still be able to read it.
     context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
