@@ -120,7 +120,7 @@ def package_create(context, data_dict):
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll
         # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_datadict', None)
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
         if check_data_dict:
             try:
                 check_data_dict(data_dict, schema)
