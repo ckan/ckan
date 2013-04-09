@@ -13,6 +13,9 @@
 {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs) }}
 {% endblock %}
 
+{% block package_basic_fields_custom %}
+{% endblock %}
+
 {% block package_basic_fields_description %}
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
 {% endblock %}
