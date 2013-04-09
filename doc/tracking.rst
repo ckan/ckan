@@ -32,11 +32,10 @@ To enable page view tracking:
 
 2. Setup a cron job to update the tracking summary data.
 
-   When sorting datasets by popularity or exporting tracking data to file, CKAN
-   uses a summarised version of the tracking data, not the raw tracking data
-   that is recorded "live" as page views happen. The ``paster tracking update``
-   and ``paster search-index rebuild`` commands need to be run periodicially to
-   update this tracking summary data.
+   For operations based on the tracking data CKAN uses a summarised version of
+   the data, not the raw tracking data that is recorded "live" as page views
+   happen. The ``paster tracking update`` and ``paster search-index rebuild``
+   commands need to be run periodicially to update this tracking summary data.
 
    You can setup a cron job to run these commands. On most UNIX systems you can
    setup a cron job by running ``crontab -e`` in a shell to edit your crontab
