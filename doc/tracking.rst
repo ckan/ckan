@@ -2,10 +2,13 @@
 Page View Tracking
 ==================
 
-CKAN can track visits to pages of your site and use this tracking data to sort
-datasets by popularity, highlight popular datasets and resources, show view
-counts next to datasets and resources, return a list of the most popular
-datasets, etc. You can also export the tracking data to a CSV file.
+CKAN can track visits to pages of your site and use this tracking data to:
+
+* Sort datasets by popularity
+* Highlight popular datasets and resources
+* Show view counts next to datasets and resources
+* Show a list of the most popular datasets
+* Export page-view data to a CSV file
 
 .. seealso::
 
@@ -51,6 +54,32 @@ To enable page view tracking:
    ``@monthly``.
 
 
+Retrieving Tracking Data
+========================
+
+Tracking summary data for datasets and resources is available in the dataset
+and resource dictionaries returned by, for example, the ``package_show()``
+API::
+
+  "tracking_summary": {
+      "recent": 5,
+      "total": 15
+  },
+
+This can be used, for example, by custom templates to show the number of views
+next to datasets and resources.  A dataset or resource's ``recent`` count is
+its number of views in the last 14 days, the ``total`` count is all of its
+tracked views (including recent ones).
+
+You can also export tracking data for all datasets to a CSV file using the
+``paster tracking export`` command. For details, run ``paster tracking -h``.
+
+.. note::
+
+ Repeatedly visiting the same page will not increase the page's view count!
+ Page view counting is limited to one view per user per page per day.
+
+
 Sorting Datasets by Popularity
 ==============================
 
@@ -59,6 +88,8 @@ most-popular-first by selecting ``Popular`` from the ``Order by:`` dropdown on
 the dataset search page:
 
 .. image:: images/sort-datasets-by-popularity.png
+
+The datasets are sorted by their number of recent views.
 
 You can retrieve datasets most-popular-first from the
 :doc:`CKAN API </api>` by passing ``'sort': 'views_recent desc'`` to the
@@ -70,26 +101,6 @@ template to show a list of the most popular datasets on the site's front page.
  You can also sort datasets by total views rather than recent views. Pass
  ``'sort': 'views_total desc'`` to the ``package_search()`` API, or use the
  URL ``/dataset?q=&sort=views_total+desc`` in the web interface.
-
-.. tip::
-
- Tracking summary data for datasets and resources is available in the dataset
- and resource dictionaries returned by, for example, the ``package_show()``
- API::
-
-  "tracking_summary": {
-      "recent": 5,
-      "total": 15
-  },
-
- This can be used, for example, by custom templates to show the number of views
- next to datasets and resources.
-
-
-.. note::
-
- Repeatedly visiting the same page will not increase the page's view count!
- Page view counting is limited to one view per user per page per day.
 
 
 Highlighting Popular Datasets and Resources
@@ -104,8 +115,3 @@ badge and a tooltip showing the number of views:
 .. image:: images/popular-resource.png
 
 
-Exporting Tracking Data
-=======================
-
-You can export CKAN's page view tracking data to a CSV file using the
-``paster tracking export`` command. For details, run ``paster tracking -h``.
