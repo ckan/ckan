@@ -1145,7 +1145,7 @@ class TestAction(WsgiAppCase):
                 name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
                     {'key': 'foo', 'value': 'gar'}])
         assert error['__type'] == 'Validation Error'
-        assert error['extras_validation'] == 'Duplicate key "foo"'
+        assert error['extras_validation'] == ['Duplicate key "foo"']
 
     def test_package_update_duplicate_extras_error(self):
         import ckan.tests
@@ -1164,7 +1164,7 @@ class TestAction(WsgiAppCase):
         error = ckan.tests.call_action_api(app, 'package_update',
                 apikey=self.sysadmin_user.apikey, status=409, **package)
         assert error['__type'] == 'Validation Error'
-        assert error['extras_validation'] == 'Duplicate key "foo"'
+        assert error['extras_validation'] == ['Duplicate key "foo"']
 
 class TestActionTermTranslation(WsgiAppCase):
 
