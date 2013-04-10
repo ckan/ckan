@@ -7,7 +7,7 @@ Contributing to CKAN
 .. _docs.ckan.org: http://docs.ckan.org
 
 (This section is about contributing code, if you want to contribute
-documentation see `Contributing to CKAN's Documentation`_.)
+documentation see `Contributing to the CKAN Documentation`_.)
 
 CKAN is a free software project and code contributions are welcome. To
 contribute code to CKAN you should fork CKAN to your own GitHub account, push
@@ -124,7 +124,7 @@ When submitting a pull request:
   `CHANGELOG file <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
   briefly summarising your code changes.
 - Your branch should contain new or updated documentation for any new or
-  updated code, see `Contributing to CKAN's Documentation`_.
+  updated code, see `Contributing to the CKAN Documentation`_.
 - Your branch should be up to date with the master branch of the central
   CKAN repo, see `Keeping Up with master`_.
 - All the CKAN tests should pass on your branch, see
@@ -139,9 +139,9 @@ When merging a feature or bug branch into master:
 - Use the ``--no-ff`` option in the ``git merge`` command,
 
 
-====================================
-Contributing to CKAN's Documentation
-====================================
+======================================
+Contributing to the CKAN Documentation
+======================================
 
 Note: getting started with contributing to `docs.ckan.org`_ is a little
 complicated.  An easier way to contribute documentation to CKAN is to
