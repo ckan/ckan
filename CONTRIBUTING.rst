@@ -15,6 +15,13 @@ your code to a feature branch on your fork, then make a pull request for your
 branch on the central CKAN repo. We'll go through each step in detail below...
 
 
+Coding Standards
+----------------
+
+When writing code for CKAN, try to follow our
+`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
+
+
 Fork CKAN on GitHub
 -------------------
 
@@ -130,13 +137,6 @@ Merging
 When merging a feature or bug branch into master:
 
 - Use the ``--no-ff`` option in the ``git merge`` command,
-
-
-Coding Standards
-----------------
-
-When writing code for CKAN, try to follow our
-`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
 
 
 ====================================
