@@ -16,9 +16,9 @@ log = logging.getLogger(__name__)
 _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
-    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf',
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
-    'extras' # Not used by Solr, but useful for extensions
+    'extras', 'fq_list', 'tie', 'defType', 'mm'
 ])
 
 # for (solr) package searches, this specifies the fields that are searched
@@ -332,7 +332,10 @@ class PackageSearchQuery(SearchQuery):
         # filter for package status
         if not '+state:' in fq:
             fq += " +state:active"
-        query['fq'] = fq
+        query['fq'] = [fq]
+
+        fq_list = query.get('fq_list', [])
+        query['fq'].extend(fq_list)
 
         # faceting
         query['facet'] = query.get('facet', 'true')
@@ -346,12 +349,13 @@ class PackageSearchQuery(SearchQuery):
         query['wt'] = query.get('wt', 'json')
 
         # If the query has a colon in it then consider it a fielded search and do use dismax.
-        if ':' not in query['q']:
-            query['defType'] = 'dismax'
-            query['tie'] = '0.1'
+        defType = query.get('defType', 'dismax')
+        if ':' not in query['q'] or defType == 'edismax':
+            query['defType'] = defType
+            query['tie'] = query.get('tie', '0.1')
             # this minimum match is explained
             # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
-            query['mm'] = '2<-1 5<80%'
+            query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
         conn = make_connection()
