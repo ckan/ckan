@@ -418,10 +418,11 @@ def member_create(context, data_dict=None):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
+        rev.message = _(u'REST API: Create member object %s') % data_dict.get('name', '')
 
-    group = model.Group.get(data_dict.get('id', ''))
-    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
+    group_id, obj_id, obj_type, capacity = _get_or_bust(data_dict, ['id', 'object', 'object_type', 'capacity'])
+
+    group = model.Group.get(group_id)
 
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
@@ -431,15 +432,14 @@ def member_create(context, data_dict=None):
             filter(model.Member.table_name == obj_type).\
             filter(model.Member.table_id == obj_id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state == "active").first()
-    if member:
-        member.capacity = capacity
-    else:
+            filter(model.Member.state == 'active').first()
+    if not member:
         member = model.Member(table_name = obj_type,
                               table_id = obj_id,
                               group_id = group.id,
-                              state = 'active',
-                              capacity=capacity)
+                              state = 'active')
+
+    member.capacity = capacity
 
     model.Session.add(member)
     model.repo.commit()
