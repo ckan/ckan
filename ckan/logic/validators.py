@@ -313,7 +313,9 @@ def duplicate_extras_key(key, data, errors, context):
     for extra_key in set(extras_keys):
         extras_keys.remove(extra_key)
     if extras_keys:
-        errors['extras_validation'].append(_('Duplicate key "%s"') % extras_keys[0])
+        key_ = ('extras_validation',)
+        assert key_ not in errors
+        errors[key_] = _('Duplicate key "%s"') % extras_keys[0]
 
 def group_name_validator(key, data, errors, context):
     model = context['model']
