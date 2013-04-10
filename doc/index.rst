@@ -93,6 +93,7 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 1
 
+   contributing
    architecture
    python-coding-standards
    javascript-coding-standards
