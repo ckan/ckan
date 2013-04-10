@@ -5,8 +5,8 @@ import ckan.new_authz as new_authz
 
 
 def package_create(context, data_dict=None):
-    user = context['user']
-    if not new_authz.auth_is_registered_user():
+    user = context.get('user')
+    if not user:
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
@@ -23,8 +23,8 @@ def package_create(context, data_dict=None):
     return {'success': True}
 
 def file_upload(context, data_dict=None):
-    user = context['user']
-    if not new_authz.auth_is_registered_user():
+    user = context.get('user')
+    if not user:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 
@@ -96,10 +96,10 @@ def rating_create(context, data_dict):
     return {'success': True}
 
 def user_create(context, data_dict=None):
-    user = context['user']
 
     if ('api_version' in context
             and not new_authz.check_config_permission('create_user_via_api')):
+        user = context['user']
         return {'success': False, 'msg': _('User %s not authorized to create users') % user}
     else:
         return {'success': True}

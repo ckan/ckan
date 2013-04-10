@@ -773,7 +773,7 @@ def user_create(context, data_dict):
 
     activity_create_context = {
         'model': model,
-        'user': context['user'],
+        'user': context.get('user'),
         'defer_commit': True,
         'session': session
     }
