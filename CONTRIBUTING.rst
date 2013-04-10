@@ -120,9 +120,6 @@ When submitting a pull request:
   see `Feature Branches`_.
 - Your branch should contain new or changed tests for any new or changed
   code.
-- Your branch should contain updates to the
-  `CHANGELOG file <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
-  briefly summarising your code changes.
 - Your branch should contain new or updated documentation for any new or
   updated code, see `Contributing to the CKAN Documentation`_.
 - Your branch should be up to date with the master branch of the central
