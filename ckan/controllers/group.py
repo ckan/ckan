@@ -166,10 +166,11 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'schema': self._db_to_form_schema(group_type=group_type),
-                   'for_view': True}
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author,
+            'schema': self._db_to_form_schema(group_type=group_type),
+            'for_view': True}
         data_dict = {'id': id}
 
         # unicode format (decoded from utf8)
@@ -189,10 +190,11 @@ class GroupController(base.BaseController):
     def _read(self, id, limit):
         ''' This is common code used by both read and bulk_process'''
         group_type = self._get_group_type(id.split('@')[0])
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'schema': self._db_to_form_schema(group_type=group_type),
-                   'for_view': True, 'extras_as_string': True}
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author,
+            'schema': self._db_to_form_schema(group_type=group_type),
+            'for_view': True, 'extras_as_string': True}
 
         q = c.q = request.params.get('q', '')
         # Search within group
@@ -205,7 +207,7 @@ class GroupController(base.BaseController):
             description_formatted = ckan.misc.MarkdownFormat().to_html(
                 c.group_dict.get('description', ''))
             c.description_formatted = genshi.HTML(description_formatted)
-        except Exception, e:
+        except Exception:
             error_msg = "<span class='inline-warning'>%s</span>" %\
                         _("Cannot render description")
             c.description_formatted = genshi.HTML(error_msg)
@@ -218,7 +220,7 @@ class GroupController(base.BaseController):
 
         try:
             page = int(request.params.get('page', 1))
-        except ValueError, e:
+        except ValueError:
             abort(400, ('"page" parameter must be an integer'))
 
         # most search operations should reset the page counter:
@@ -285,10 +287,11 @@ class GroupController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                                    'tags': _('Tags'),
-                                    'res_format': _('Formats'),
-                                    'license': _('Licence')}
+            default_facet_titles = {
+                'groups': _('Groups'),
+                'tags': _('Tags'),
+                'res_format': _('Formats'),
+                'license': _('Licence')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -362,10 +365,11 @@ class GroupController(base.BaseController):
 
         # check we are org admin
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'schema': self._db_to_form_schema(group_type=group_type),
-                   'for_view': True, 'extras_as_string': True}
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author,
+            'schema': self._db_to_form_schema(group_type=group_type),
+            'for_view': True, 'extras_as_string': True}
         data_dict = {'id': id}
 
         try:
@@ -414,10 +418,12 @@ class GroupController(base.BaseController):
         if data:
             data['type'] = group_type
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'save': 'save' in request.params,
-                   'parent': request.params.get('parent', None)}
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author,
+            'save': 'save' in request.params,
+            'parent': request.params.get('parent', None)
+        }
         try:
             self._check_access('group_create', context)
         except NotAuthorized:
@@ -439,12 +445,13 @@ class GroupController(base.BaseController):
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._get_group_type(id.split('@')[0])
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
-                   'save': 'save' in request.params,
-                   'for_edit': True,
-                   'parent': request.params.get('parent', None)
-                   }
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author,
+            'save': 'save' in request.params,
+            'for_edit': True,
+            'parent': request.params.get('parent', None)
+        }
         data_dict = {'id': id}
 
         if context['save'] and not data:
@@ -466,7 +473,7 @@ class GroupController(base.BaseController):
 
         try:
             self._check_access('group_update', context)
-        except NotAuthorized, e:
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
@@ -596,7 +603,6 @@ class GroupController(base.BaseController):
     def members(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
-
         try:
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
@@ -611,20 +617,23 @@ class GroupController(base.BaseController):
     def member_new(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
-
         #self._check_access('group_delete', context, {'id': id})
         try:
             if request.method == 'POST':
                 data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
-                c.group_dict = self._action('group_member_create')(context, data_dict)
+                c.group_dict = \
+                    self._action('group_member_create')(context, data_dict)
                 self._redirect_to(controller='group', action='members', id=id)
             else:
                 user = request.params.get('user')
                 if user:
-                    c.user_dict = get_action('user_show')(context, {'id': user})
-                    c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
+                    c.user_dict = \
+                        get_action('user_show')(context, {'id': user})
+                    c.user_role = \
+                        new_authz.users_role_for_group_or_org(id, user) \
+                        or 'member'
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
@@ -639,9 +648,10 @@ class GroupController(base.BaseController):
         if 'cancel' in request.params:
             self._redirect_to(controller='group', action='members', id=id)
 
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
+        context = {
+            'model': model, 'session': model.Session,
+            'user': c.user or c.author
+        }
         try:
             self._check_access('group_member_delete', context, {'id': id})
         except NotAuthorized:
@@ -650,7 +660,9 @@ class GroupController(base.BaseController):
         try:
             user_id = request.params.get('user')
             if request.method == 'POST':
-                self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
+                self._action('group_member_delete')(context, {
+                    'id': id, 'user_id': user_id
+                })
                 h.flash_notice(_('Group member has been deleted.'))
                 self._redirect_to(controller='group', action='members', id=id)
             c.user_dict = self._action('user_show')(context, {'id': user_id})
@@ -669,7 +681,7 @@ class GroupController(base.BaseController):
                           'diff': request.params.getone('selected1'),
                           'oldid': request.params.getone('selected2'),
                           }
-            except KeyError, e:
+            except KeyError:
                 if 'group_name' in dict(request.params):
                     id = request.params.getone('group_name')
                 c.error = \
@@ -807,7 +819,8 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         try:
-            c.followers = get_action('group_follower_list')(context, {'id': id})
+            c.followers = \
+                get_action('group_follower_list')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html')
@@ -851,7 +864,7 @@ class GroupController(base.BaseController):
 
         try:
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:
@@ -864,7 +877,7 @@ class GroupController(base.BaseController):
             raise base.ValidationException(fs)
         try:
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:

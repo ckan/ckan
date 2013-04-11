@@ -11,7 +11,6 @@ import ckan.lib.helpers as h
 
 
 class RevisionController(base.BaseController):
-
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
 

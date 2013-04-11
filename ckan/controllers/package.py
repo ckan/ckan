@@ -41,6 +41,7 @@ flatten_to_string_key = logic.flatten_to_string_key
 
 lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
+
 def _encode_params(params):
     return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
             for k, v in params]
@@ -110,7 +111,6 @@ class PackageController(base.BaseController):
 
         return pt
 
-
     def search(self):
         from ckan.lib.search import SearchError
 
@@ -127,7 +127,7 @@ class PackageController(base.BaseController):
         c.query_error = False
         try:
             page = int(request.params.get('page', 1))
-        except ValueError, e:
+        except ValueError:
             abort(400, ('"page" parameter must be an integer'))
         limit = g.datasets_per_page
 
@@ -144,7 +144,7 @@ class PackageController(base.BaseController):
 
         def remove_field(key, value=None, replace=None):
             return h.remove_url_param(key, value=value, replace=replace,
-                                  controller='package', action='search')
+                                      controller='package', action='search')
 
         c.remove_field = remove_field
 
@@ -212,15 +212,18 @@ class PackageController(base.BaseController):
             else:
                 # Unless changed via config options, don't show non standard
                 # dataset types on the default search page
-                if not asbool(config.get('ckan.search.show_all_types', 'False')):
+                if not asbool(
+                        config.get('ckan.search.show_all_types', 'False')):
                     fq += ' +dataset_type:dataset'
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                'groups': _('Groups'),
+                'tags': _('Tags'),
+                'res_format': _('Formats'),
+                'license': _('Licence'),
+            }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -267,10 +270,9 @@ class PackageController(base.BaseController):
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
 
-
         maintain.deprecate_context_item(
-          'facets',
-          'Use `c.search_facets` instead.')
+            'facets',
+            'Use `c.search_facets` instead.')
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
@@ -331,7 +333,7 @@ class PackageController(base.BaseController):
             abort(400, _('Invalid revision format: %r') %
                   'Too many "@" symbols')
 
-        #check if package exists
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
@@ -359,7 +361,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
-        #check if package exists
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             c.pkg = context['package']
@@ -371,7 +373,7 @@ class PackageController(base.BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
-        #render the package
+        # render the package
         package_saver.PackageSaver().render_package(c.pkg_dict)
         return render(self._comments_template(package_type))
 
@@ -384,7 +386,7 @@ class PackageController(base.BaseController):
                           'diff': request.params.getone('selected1'),
                           'oldid': request.params.getone('selected2'),
                           }
-            except KeyError, e:
+            except KeyError:
                 if 'pkg_name' in dict(request.params):
                     id = request.params.getone('pkg_name')
                 c.error = \
@@ -400,7 +402,7 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
                                                                   data_dict)
-            #TODO: remove
+            # TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
 
@@ -517,8 +519,8 @@ class PackageController(base.BaseController):
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
         if request.method == 'POST' and not data:
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
+            data = data or clean_dict(dict_fns.unflatten(
+                tuplize_dict(parse_params(request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
 
@@ -543,22 +545,27 @@ class PackageController(base.BaseController):
             redirect(h.url_for(controller='package', action='resource_read',
                                id=id, resource_id=resource_id))
 
-
-        context = {'model': model, 'session': model.Session,
-                   'api_version': 3,
-                   'user': c.user or c.author,}
+        context = {
+            'model': model, 'session': model.Session,
+            'api_version': 3,
+            'user': c.user or c.author,
+        }
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
-            resource_dict = get_action('resource_show')(context, {'id': resource_id})
-            fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+            resource_dict = \
+                get_action('resource_show')(context, {'id': resource_id})
+            fields = [
+                'url', 'resource_type', 'format', 'name', 'description', 'id'
+            ]
             data = {}
             for field in fields:
                 data[field] = resource_dict[field]
             return self.new_resource(id, data=data)
         # resource is fully created
         try:
-            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            resource_dict = \
+                get_action('resource_show')(context, {'id': resource_id})
         except NotFound:
             abort(404, _('Resource not found'))
         c.pkg_dict = pkg_dict
@@ -575,15 +582,13 @@ class PackageController(base.BaseController):
                 'error_summary': error_summary, 'action': 'new'}
         return render('package/resource_edit.html', extra_vars=vars)
 
-
-
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
+            data = data or clean_dict(dict_fns.unflatten(
+                tuplize_dict(parse_params(request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
             resource_id = data['id']
@@ -672,8 +677,8 @@ class PackageController(base.BaseController):
 
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
+            data = data or clean_dict(dict_fns.unflatten(
+                tuplize_dict(parse_params(request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
 
@@ -756,7 +761,7 @@ class PackageController(base.BaseController):
 
         try:
             check_access('package_update', context)
-        except NotAuthorized, e:
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
@@ -895,7 +900,8 @@ class PackageController(base.BaseController):
                                         id=pkg_dict['name'])
                     redirect(url)
                 # Make sure we don't index this dataset
-                if request.params['save'] not in ['go-resource', 'go-metadata']:
+                if request.params['save'] \
+                        not in ['go-resource', 'go-metadata']:
                     data_dict['state'] = 'draft'
                 # allow the state to be changed
                 context['allow_state_change'] = True
@@ -911,7 +917,8 @@ class PackageController(base.BaseController):
                                 id=pkg_dict['name'])
                 redirect(url)
 
-            self._form_save_redirect(pkg_dict['name'], 'new', package_type=package_type)
+            self._form_save_redirect(
+                pkg_dict['name'], 'new', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
@@ -962,7 +969,8 @@ class PackageController(base.BaseController):
             c.pkg = context['package']
             c.pkg_dict = pkg
 
-            self._form_save_redirect(pkg['name'], 'edit', package_type=package_type)
+            self._form_save_redirect(
+                pkg['name'], 'edit', package_type=package_type)
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
@@ -994,9 +1002,11 @@ class PackageController(base.BaseController):
             url = url.replace('<NAME>', pkgname)
         else:
             if package_type is None or package_type == 'dataset':
-                url = h.url_for(controller='package', action='read', id=pkgname)
+                url = h.url_for(
+                    controller='package', action='read', id=pkgname)
             else:
-                url = h.url_for('{0}_read'.format(package_type), id=pkgname)
+                url = h.url_for(
+                    '{0}_read'.format(package_type), id=pkgname)
         redirect(url)
 
     def _adjust_license_id_options(self, pkg, fs):
@@ -1027,7 +1037,7 @@ class PackageController(base.BaseController):
             c.authz_editable = False
         if not c.authz_editable:
             abort(401, _('User %r not authorized to edit %s '
-                               'authorizations') % (c.user, id))
+                         'authorizations') % (c.user, id))
 
         roles = self._handle_update_of_authz(pkg)
         self._prepare_authz_info_for_render(roles)
@@ -1064,7 +1074,8 @@ class PackageController(base.BaseController):
     def resource_delete(self, id, resource_id):
 
         if 'cancel' in request.params:
-            h.redirect_to(controller='package', action='resource_edit', resource_id=resource_id, id=id)
+            h.redirect_to(controller='package', action='resource_edit',
+                          resource_id=resource_id, id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -1079,7 +1090,8 @@ class PackageController(base.BaseController):
                 get_action('resource_delete')(context, {'id': resource_id})
                 h.flash_notice(_('Resource has been deleted.'))
                 h.redirect_to(controller='package', action='read', id=id)
-            c.resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            c.resource_dict = \
+                get_action('resource_show')(context, {'id': resource_id})
             c.pkg_id = id
         except NotAuthorized:
             abort(401, _('Unauthorized to delete resource %s') % '')
@@ -1142,7 +1154,7 @@ class PackageController(base.BaseController):
             raise package_saver.ValidationException(fs)
         try:
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:
@@ -1172,7 +1184,8 @@ class PackageController(base.BaseController):
             c.package['isopen'] = False
 
         # TODO: find a nicer way of doing this
-        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
+        c.datastore_api = '%s/api/action' % \
+            config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')
@@ -1210,7 +1223,7 @@ class PackageController(base.BaseController):
                 package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
             h.flash_error(e.extra_msg)
@@ -1229,7 +1242,7 @@ class PackageController(base.BaseController):
                 package_dict['title']))
         except ValidationError as e:
             error_message = (e.extra_msg or e.message or e.error_summary
-                    or e.error_dict)
+                             or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
             error_message = e.extra_msg or e.message
@@ -1243,8 +1256,8 @@ class PackageController(base.BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-            c.followers = get_action('dataset_follower_list')(context,
-                    {'id': c.pkg_dict['id']})
+            c.followers = get_action('dataset_follower_list')(
+                context, {'id': c.pkg_dict['id']})
 
             c.related_count = c.pkg.related_count
         except NotFound:
@@ -1264,8 +1277,8 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
             c.package_activity_stream = get_action(
-                    'package_activity_list_html')(context,
-                            {'id': c.pkg_dict['id']})
+                'package_activity_list_html')(
+                    context, {'id': c.pkg_dict['id']})
             c.related_count = c.pkg.related_count
         except NotFound:
             abort(404, _('Dataset not found'))
@@ -1283,7 +1296,6 @@ class PackageController(base.BaseController):
         """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
-
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
@@ -1291,8 +1303,8 @@ class PackageController(base.BaseController):
             c.resource_json = h.json.dumps(c.resource)
 
             # double check that the resource belongs to the specified package
-            if not c.resource['id'] in [r['id']
-                                        for r in c.package['resources']]:
+            if not c.resource['id'] \
+                    in [r['id'] for r in c.package['resources']]:
                 raise NotFound
 
         except NotFound:
@@ -1335,8 +1347,10 @@ class PackageController(base.BaseController):
         # previous versions of recline setup used elasticsearch_url attribute
         # for data api url - see http://trac.ckan.org/ticket/2639
         # fix by relocating this to url attribute which is the default location
-        if 'dataset' in recline_state and 'elasticsearch_url' in recline_state['dataset']:
-            recline_state['dataset']['url'] = recline_state['dataset']['elasticsearch_url']
+        if 'dataset' in recline_state \
+                and 'elasticsearch_url' in recline_state['dataset']:
+            recline_state['dataset']['url'] = \
+                recline_state['dataset']['elasticsearch_url']
 
         # Ensure only the currentView is available
         # default to grid view if none specified
@@ -1353,8 +1367,8 @@ class PackageController(base.BaseController):
         Embeded page for a resource data-preview.
 
         Depending on the type, different previews are loaded.
-        This could be an img tag where the image is loaded directly or an iframe that
-        embeds a webpage, recline or a pdf preview.
+        This could be an img tag where the image is loaded directly or an
+        iframe that embeds a webpage, recline or a pdf preview.
         '''
         context = {
             'model': model,
@@ -1363,8 +1377,8 @@ class PackageController(base.BaseController):
         }
 
         try:
-            c.resource = get_action('resource_show')(context,
-                                                     {'id': resource_id})
+            c.resource = get_action('resource_show')(
+                context, {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
@@ -1376,13 +1390,15 @@ class PackageController(base.BaseController):
             # extensu=ions in my opinion also just make it look nice and be
             # readable grrrrrr
             plugins = p.PluginImplementations(p.IResourcePreview)
-            plugins_that_can_preview = [plugin for plugin in plugins
-                                    if plugin.can_preview(data_dict)]
+            plugins_that_can_preview = [
+                plugin for plugin in plugins
+                if plugin.can_preview(data_dict)
+            ]
             if len(plugins_that_can_preview) == 0:
                 abort(409, _('No preview has been defined.'))
             if len(plugins_that_can_preview) > 1:
                 log.warn('Multiple previews are possible. {0}'.format(
-                                            plugins_that_can_preview))
+                    plugins_that_can_preview))
 
             plugin = plugins_that_can_preview[0]
             plugin.setup_template_variables(context, data_dict)

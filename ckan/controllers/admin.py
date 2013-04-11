@@ -10,8 +10,9 @@ c = base.c
 request = base.request
 _ = base._
 
+
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin==True)
+    q = model.Session.query(model.User).filter(model.User.sysadmin == True)
     return q.all()
 
 
@@ -58,7 +59,6 @@ class AdminController(base.BaseController):
         return base.render('admin/confirm_reset.html')
 
     def config(self):
-
         items = self._get_config_form_items()
         data = request.POST
         if 'save' in data:
@@ -76,15 +76,13 @@ class AdminController(base.BaseController):
             data[name] = config.get(name)
 
         vars = {'data': data, 'errors': {}, 'form_items': items}
-        return base.render('admin/config.html',
-                           extra_vars = vars)
+        return base.render('admin/config.html', extra_vars=vars)
 
     def index(self):
         #now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
 
         return base.render('admin/index.html')
-
 
     def trash(self):
         c.deleted_revisions = model.Session.query(
