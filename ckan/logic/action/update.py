@@ -235,7 +235,10 @@ def package_update(context, data_dict):
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    schema = package_plugin.update_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.update_package_schema()
 
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
@@ -287,6 +290,9 @@ def package_update(context, data_dict):
     log.debug('Updated object %s' % str(pkg.name))
 
     return_id_only = context.get('return_id_only', False)
+
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
 
     # we could update the dataset so we should still be able to read it.
     context['ignore_auth'] = True
