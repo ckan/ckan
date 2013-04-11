@@ -134,7 +134,7 @@ def load_environment(global_conf, app_conf):
 
     # Load the synchronous search plugin, unless already loaded or
     # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
+    if not 'synchronous_search' in config.get('ckan.plugins', []) and \
             asbool(config.get('ckan.search.automatic_indexing', True)):
         log.debug('Loading the synchronous search plugin')
         p.load('synchronous_search')
@@ -295,19 +295,21 @@ def load_environment(global_conf, app_conf):
     #                                                               #
     #################################################################
 
-
     # Create Jinja2 environment
     env = lib.jinja_extensions.Environment(
         loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
-        extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    lib.jinja_extensions.SnippetExtension,
-                    lib.jinja_extensions.CkanExtend,
-                    lib.jinja_extensions.CkanInternationalizationExtension,
-                    lib.jinja_extensions.LinkForExtension,
-                    lib.jinja_extensions.ResourceExtension,
-                    lib.jinja_extensions.UrlForStaticExtension,
-                    lib.jinja_extensions.UrlForExtension]
+        extensions=[
+            'jinja2.ext.do',
+            'jinja2.ext.with_',
+            lib.jinja_extensions.SnippetExtension,
+            lib.jinja_extensions.CkanExtend,
+            lib.jinja_extensions.CkanInternationalizationExtension,
+            lib.jinja_extensions.LinkForExtension,
+            lib.jinja_extensions.ResourceExtension,
+            lib.jinja_extensions.UrlForStaticExtension,
+            lib.jinja_extensions.UrlForExtension,
+        ]
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
@@ -320,10 +322,12 @@ def load_environment(global_conf, app_conf):
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
-    msgs = ['^Unicode type received non-unicode bind param value',
-            "^Did not recognize type 'BIGINT' of column 'size'",
-            "^Did not recognize type 'tsvector' of column 'search_vector'"
-            ]
+    msgs = [
+        '^Unicode type received non-unicode bind param value',
+        "^Did not recognize type 'BIGINT' of column 'size'",
+        "^Did not recognize type 'tsvector' of column 'search_vector'"
+    ]
+
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
@@ -334,6 +338,7 @@ def load_environment(global_conf, app_conf):
 
     # for postgresql we want to enforce utf-8
     sqlalchemy_url = config.get('sqlalchemy.url', '')
+
     if sqlalchemy_url.startswith('postgresql://'):
         extras = {'client_encoding': 'utf8'}
     else:
@@ -343,7 +348,6 @@ def load_environment(global_conf, app_conf):
 
     if not model.meta.engine:
         model.init_model(engine)
-
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
