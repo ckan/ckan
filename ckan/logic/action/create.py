@@ -424,17 +424,12 @@ def member_create(context, data_dict=None):
 
     group = model.Group.get(group_id)
     if not group:
-        raise NotFound(_('Group was not found.'))
+        raise NotFound('Group was not found.')
 
-    try:
-        obj_class_name = obj_type.title()
-        obj_class = getattr(model, obj_class_name)
-    except AttributeError:
-        raise ValidationError(_("%s isn't a valid object_type" % obj_type))
-
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
     obj = obj_class.get(obj_id)
     if not obj:
-        raise NotFound(_('%s was not found.' % obj_class_name))
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
