@@ -4860,8 +4860,6 @@ a.tag:hover {
 }
 .box {
   background-color: #FFF;
-  margin-left: -1px;
-  margin-right: -1px;
   border: 1px solid #cccccc;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -7659,8 +7657,6 @@ textarea {
 .wrapper {
   *zoom: 1;
   background-color: #FFF;
-  margin-left: -1px;
-  margin-right: -1px;
   border: 1px solid #cccccc;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -7700,8 +7696,7 @@ textarea {
   border-top-width: 1px;
 }
 [role=main] .primary {
-  width: 719px;
-  margin-left: 1px;
+  width: 717px;
   float: right;
 }
 [role=main] .secondary {
