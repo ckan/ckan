@@ -1272,8 +1272,14 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # Pop these ones as Solr does not need them
+        extras = data_dict.pop('extras', None)
+
         query = search.query_for(model.Package)
         query.run(data_dict)
+
+        # Add them back so extensions can use them on after_search
+        data_dict['extras'] = extras
 
         for package in query.results:
             # get the package object
