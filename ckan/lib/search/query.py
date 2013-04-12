@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
-    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf',
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
     'extras', 'fq_list', 'tie', 'defType', 'mm'
 ])
