@@ -6513,6 +6513,11 @@ textarea {
   -moz-border-radius-bottomright: 2px;
   border-bottom-right-radius: 2px;
 }
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .ckan-icon {
   *margin-right: .3em;
   display: inline-block;
