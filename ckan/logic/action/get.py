@@ -1153,25 +1153,21 @@ def package_search(context, data_dict):
 
     This action accepts a *subset* of solr's search query parameters:
 
+
     :param q: the solr query.  Optional.  Default: `"*:*"`
     :type q: string
     :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
         is added to this string prior to the query being executed.
     :type fq: string
-    :param rows: the number of matching rows to return.
-    :type rows: int
     :param sort: sorting of the search results.  Optional.  Default:
         "score desc, name asc".  As per the solr documentation, this is a
         comma-separated string of field names and sort-orderings.
     :type sort: string
+    :param rows: the number of matching rows to return.
+    :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
     :type start: int
-    :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation
-        <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
-        for further details.
-    :type qf: string
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1183,6 +1179,18 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
+
+
+    The following advanced Solr parameters are supported as well. Note that
+    some of these are only available on particular Solr versions. See Solr's
+    `dismax`_ and `edismax`_ documentation for further details on them:
+
+    ``qf``, ``wt``, ``bf``, ``boost``, ``tie``, ``defType``, ``mm``
+
+
+    .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
+    .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
+
 
     **Results:**
 
