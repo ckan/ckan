@@ -1,5 +1,7 @@
 import logging
+from pylons import config
 from pylons.i18n import _
+from paste.deploy.converters import asbool
 
 import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
@@ -107,7 +109,10 @@ def package_create(context, data_dict):
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-    schema = package_plugin.create_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.create_package_schema()
 
     _check_access('package_create', context, data_dict)
 
@@ -115,7 +120,7 @@ def package_create(context, data_dict):
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll
         # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_datadict', None)
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
         if check_data_dict:
             try:
                 check_data_dict(data_dict, schema)
@@ -170,6 +175,9 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
+
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -889,6 +897,9 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+        return
+
     model = context['model']
 
     # Any revision_id that the caller attempts to pass in the activity_dict is

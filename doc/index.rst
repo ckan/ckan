@@ -92,6 +92,7 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 1
 
+   contributing
    architecture
    python-coding-standards
    javascript-coding-standards
@@ -107,8 +108,6 @@ Other material
 .. toctree::
    :maxdepth: 2
 
-   contrib.rst
-   user-stories
    CHANGELOG.rst
 
 Indices and tables

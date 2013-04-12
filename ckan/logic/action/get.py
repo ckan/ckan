@@ -262,6 +262,9 @@ def member_list(context, data_dict=None):
     model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
+    if not group:
+        raise NotFound
+
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
@@ -269,33 +272,23 @@ def member_list(context, data_dict=None):
     _check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
-            filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active")
+        filter(model.Member.group_id == group.id).\
+        filter(model.Member.state == "active")
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    lookup = {}
-    def type_lookup(name):
-        if name in lookup:
-            return lookup[name]
-        if hasattr(model, name.title()):
-            lookup[name] = getattr(model,name.title())
-            return lookup[name]
-        return None
-
     trans = new_authz.roles_trans()
+
     def translated_capacity(capacity):
         try:
             return trans[capacity]
         except KeyError:
             return capacity
 
-    return [(m.table_id,
-             type_lookup(m.table_name),
-             translated_capacity(m.capacity),)
+    return [(m.table_id, m.table_name, translated_capacity(m.capacity))
             for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
@@ -738,7 +731,10 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    schema = package_plugin.show_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)

@@ -1,5 +1,5 @@
 from pylons.i18n import _
-from pylons import request, c
+from pylons import request, c, config
 
 import ckan.logic as logic
 import ckan.model as model
@@ -65,4 +65,8 @@ class TagController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Tag not found'))
 
-        return base.render('tag/read.html')
+        if h.asbool(config.get('ckan.legacy_templates', False)):
+            return base.render('tag/read.html')
+        else:
+            h.redirect_to(controller='package', action='search',
+                          tags=c.tag.get('name'))

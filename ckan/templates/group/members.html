@@ -16,7 +16,8 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Members') }}</h1>
+      <h1 class="page-heading">{% block page_heading %}{{ _('Members') }}{% endblock %}</h1>
+      {% block members_list %}
       <table class="table table-bordered">
         {% for user_id, user, role in c.members %}
         <tr>
@@ -28,6 +29,7 @@
         </tr>
         {% endfor %}
       </table>
+      {% endblock %}
     </div>
   </section>
 {% endblock %}
