@@ -319,11 +319,6 @@ class PackageSearchQuery(SearchQuery):
             rows_to_query = rows_to_return
         query['rows'] = rows_to_query
 
-        # order by score if no 'sort' term given
-        order_by = query.get('sort')
-        if order_by == 'rank' or order_by is None:
-            query['sort'] = 'score desc, name asc'
-
         # show only results from this CKAN instance
         fq = query.get('fq', '')
         if not '+site_id:' in fq:

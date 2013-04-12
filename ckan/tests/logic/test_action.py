@@ -1272,7 +1272,7 @@ class TestActionPackageSearch(WsgiAppCase):
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 2)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
+        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
 
         # Test GET request
         res = self.app.get('/api/action/package_search')
@@ -1280,7 +1280,7 @@ class TestActionPackageSearch(WsgiAppCase):
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 2)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
+        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
 
     def test_2_bad_param(self):
         postparams = '%s=1' % json.dumps({
