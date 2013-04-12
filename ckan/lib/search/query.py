@@ -358,6 +358,9 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
+        # Pop these ones are Solr does not need them
+        query.pop('extras', None)
+
         conn = make_connection()
         log.debug('Package query: %r' % query)
         try:
