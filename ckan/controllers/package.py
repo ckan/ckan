@@ -607,9 +607,16 @@ class PackageController(base.BaseController):
                     abort(401, _('Unauthorized to update dataset'))
                 if not len(data_dict['resources']):
                     # no data so keep on page
-                    h.flash_error(_('You must add at least one data resource'))
-                    redirect(h.url_for(controller='package',
-                                       action='new_resource', id=id))
+                    msg = _('You must add at least one data resource')
+                    # On new templates do not use flash message
+                    if g.legacy_templates:
+                        h.flash_error(msg)
+                        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+                    else:
+                        errors = {}
+                        error_summary = {_('Error'): msg}
+                        return self.new_resource(id, data, errors, error_summary)
                 # we have a resource so let them add metadata
                 redirect(h.url_for(controller='package',
                                    action='new_metadata', id=id))
