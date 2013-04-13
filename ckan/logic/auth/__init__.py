@@ -8,18 +8,19 @@ import ckan.logic as logic
 def _get_object(context, data_dict, name, class_name):
     # return the named item if in the data_dict, or get it from
     # model.class_name
-    if not data_dict:
-        data_dict = {}
-
-    if not name in context:
+    try:
+        return context[name]
+    except KeyError:
         model = context['model']
+        if not data_dict:
+            data_dict = {}
         id = data_dict.get('id', None)
         obj = getattr(model, class_name).get(id)
         if not obj:
             raise logic.NotFound
-    else:
-        obj = context[name]
-    return obj
+        # Save in case we need this again during the request
+        context[name] = obj
+        return obj
 
 
 def get_related_object(context, data_dict=None):
