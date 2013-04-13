@@ -30,7 +30,7 @@ Example:
       <p class="empty">{{ _('This organization has no description') }}</p>
     {% endif %}
     {% if organization.packages %}
-      <a class="btn btn-small btn-primary" href="{{ url }}">{{ ungettext('{num} Dataset', '{num} Datasets', organization.packages).format(num=organization.packages) }}</a>
+      <a class="btn btn-small btn-primary" href="{{ url }}">{{ ungettext('{num} Dataset', '{num} Datasets', organization.packages).format(num=organization.package_count) }}</a>
     {% else %}
     <span class="btn btn-small disabled">{{ _('0 Datasets') }}</span>
     {% endif %}
