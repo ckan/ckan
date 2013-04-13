@@ -141,6 +141,12 @@ class UserController(base.BaseController):
                       id=user_ref)
 
     def register(self, data=None, errors=None, error_summary=None):
+        context = {'model': model, 'session': model.Session, 'user': c.user}
+        try:
+            check_access('user_create', context)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to register as a user.'))
+
         return self.new(data, errors, error_summary)
 
     def new(self, data=None, errors=None, error_summary=None):
@@ -213,6 +219,8 @@ class UserController(base.BaseController):
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'save': 'save' in request.params,
                    'schema': self._edit_form_to_db_schema(),
+                   'model': model, 'session': model.Session,
+                   'user': c.user,
                    }
         if id is None:
             if c.userobj:
@@ -220,6 +228,11 @@ class UserController(base.BaseController):
             else:
                 abort(400, _('No user specified'))
         data_dict = {'id': id}
+
+        try:
+            check_access('user_update', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit a user.'))
 
         if (context['save']) and not data:
             return self._save_edit(id, context)
@@ -381,6 +394,13 @@ class UserController(base.BaseController):
         return render('user/logout.html')
 
     def request_reset(self):
+        context = {'model': model, 'session': model.Session, 'user': c.user}
+        data_dict = {'id': request.params.get('user')}
+        try:
+            check_access('request_reset', context)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to request reset password.'))
+
         if request.method == 'POST':
             id = request.params.get('user')
 
@@ -434,6 +454,11 @@ class UserController(base.BaseController):
                    'keep_sensitive_data': True}
 
         data_dict = {'id': id}
+
+        try:
+            check_access('user_reset', context)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to reset password.'))
 
         try:
             user_dict = get_action('user_show')(context, data_dict)
