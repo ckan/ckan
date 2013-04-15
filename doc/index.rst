@@ -39,7 +39,6 @@ Customizing and Extending
    extensions
    writing-extensions
    toolkit
-   forms
    tag-vocabularies
    form-integration
    linked-data-and-rdf
@@ -108,8 +107,6 @@ Other material
 .. toctree::
    :maxdepth: 2
 
-   contrib.rst
-   user-stories
    CHANGELOG.rst
 
 Indices and tables

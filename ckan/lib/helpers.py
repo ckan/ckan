@@ -323,38 +323,57 @@ def _link_to(text, *args, **kwargs):
     )
 
 
-def nav_link(text, controller, **kwargs):
+def nav_link(text, *args, **kwargs):
     '''
     params
     class_: pass extra class(s) to add to the <a> tag
     icon: name of ckan icon to use within the link
     condition: if False then no link is returned
     '''
-    if kwargs.pop('condition', True):
+    if len(args) > 1:
+        raise Exception('Too many unnamed parameters supplied')
+    if args:
         kwargs['controller'] = controller
-        link = _link_to(text, **kwargs)
+        log.warning('h.nav_link() please supply controller as a named '
+                    'parameter not a positional one')
+    named_route = kwargs.pop('named_route', '')
+    if kwargs.pop('condition', True):
+        if named_route:
+            link = _link_to(text, named_route, **kwargs)
+        else:
+            link = _link_to(text, **kwargs)
     else:
         link = ''
     return link
 
 
-def nav_named_link(text, name, **kwargs):
-    '''Create a link for a named route.'''
-    return _link_to(text, name, **kwargs)
+@maintain.deprecated('h.nav_named_link is deprecated please '
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def nav_named_link(text, named_route, **kwargs):
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
+@maintain.deprecated('h.subnav_link is deprecated please '
+                     'use h.nav_link\nNOTE: if action is passed as the second '
+                     'parameter make sure it is passed as a named parameter '
+                     'eg. `action=\'my_action\'')
 def subnav_link(text, action, **kwargs):
-    '''Create a link for a named route.'''
+    '''Create a link for a named route.
+    Deprecated in ckan 2.0 '''
     kwargs['action'] = action
-    return _link_to(text, **kwargs)
+    return nav_link(text, **kwargs)
 
 
 @maintain.deprecated('h.subnav_named_route is deprecated please '
-                     'use h.nav_named_link')
-def subnav_named_route(text, routename, **kwargs):
+                     'use h.nav_link\nNOTE: you will need to pass the '
+                     'route_name as a named parameter')
+def subnav_named_route(text, named_route, **kwargs):
     '''Generate a subnav element based on a named route
     Deprecated in ckan 2.0 '''
-    return nav_named_link(text, routename, **kwargs)
+    return nav_link(text, named_route=named_route, **kwargs)
 
 
 def build_nav_main(*args):
@@ -433,7 +452,7 @@ def _make_menu_item(menu_item, title, **kw):
         if need not in kw:
             raise Exception('menu item `%s` need parameter `%s`'
                             % (menu_item, need))
-    link = nav_named_link(title, menu_item, suppress_active_class=True, **item)
+    link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
         return literal('<li class="active">') + link + literal('</li>')
     return literal('<li>') + link + literal('</li>')
@@ -906,7 +925,6 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
-    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -915,11 +933,8 @@ def resource_display_name(resource_dict):
         if len(description) > max_len:
             description = description[:max_len] + '...'
         return description
-    elif url:
-        return url
     else:
-        noname_string = _('no name')
-        return '[%s] %s' % (noname_string, resource_dict['id'])
+        return _("Unnamed resource")
 
 
 def resource_link(resource_dict, package_id):
@@ -1116,13 +1131,16 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None, alternative_url=None):
-    ''' Remove a key from the current parameters. A specific key/value
-    pair can be removed by passing a second value argument otherwise all
-    pairs matching the key will be removed. If replace is given then a
-    new param key=replace will be added.
+    ''' Remove one or multiple keys from the current parameters.
+    The first parameter can be either a string with the name of the key to
+    remove or a list of keys to remove.
+    A specific key/value pair can be removed by passing a second value
+    argument otherwise all pairs matching the key will be removed. If replace
+    is given then a new param key=replace will be added.
+    Note that the value and replace parameters only apply to the first key
+    provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
@@ -1131,14 +1149,20 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     This can be overriden providing an alternative_url, which will be used
     instead.
     '''
+    if isinstance(key, basestring):
+      keys = [key]
+    else:
+      keys = key
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
-        params.remove((key, value))
+        params.remove((keys[0], value))
     else:
-        [params.remove((k, v)) for (k, v) in params[:] if k == key]
+        for key in keys:
+          [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
-        params.append((key, replace))
+        params.append((keys[0], replace))
 
     if alternative_url:
         return _url_with_params(alternative_url, params)
@@ -1432,6 +1456,26 @@ def resource_preview(resource, pkg_id):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+def list_dict_filter(list_, search_field, output_field, value):
+    ''' Takes a list of dicts and returns the value of a given key if the
+    item has a matching value for a supplied key
+
+    :param list_: the list to search through for matching items
+    :type list_: list of dicts
+
+    :param search_field: the key to use to find matching items
+    :type search_field: string
+
+    :param output_field: the key to use to output the value
+    :type output_field: string
+
+    :param value: the value to search for
+    '''
+
+    for item in list_:
+        if item.get(search_field) == value:
+            return item.get(output_field, value)
+    return value
 
 def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
@@ -1530,6 +1574,7 @@ __allowed_functions__ = [
            'localised_SI_number',
            'localised_nice_date',
            'localised_filesize',
+           'list_dict_filter',
            # imported into ckan.lib.helpers
            'literal',
            'link_to',

@@ -9,11 +9,10 @@
 {% block primary_content_inner %}
   <div class="module-content">
     {% link_for _('Back to all members'), controller='organization', action='members', id=organization.name, class_='btn pull-right', icon='arrow-left' %}
-    {% if user %}
-      <h1 class="page-heading">{{ _('Edit Member') }}</h1>
-    {% else %}
-      <h1 class="page-heading">{{ _('Add Member') }}</h1>
-    {% endif %}
+    <h1 class="page-heading">
+      {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
+    </h1>
+    {% block form %}
     <form class="dataset-form form-horizontal" method='post'>
       {% if user %}
         <input type="hidden" name="username" value="{{ user.name }}" />
@@ -39,6 +38,7 @@
         {% endif %}        
       </div>
     </form>
+    {% endblock %}
   </div>
 {% endblock %}
 

@@ -3,7 +3,10 @@
 {% block subtitle %}{{ user.display_name }}{% endblock %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ _('Datasets') }}</h2>
+  <h2 class="hide-heading">
+    {% block page_heading %}{{ _('Datasets') }}{% endblock %}
+  </h2>
+  {% block package_list %}
   {% if user.datasets %}
     {% snippet 'snippets/package_list.html', packages=user.datasets %}
   {% else %}
@@ -20,6 +23,6 @@
         {{ _('User hasn\'t created any datasets.') }}
       </p>
     {% endif %}
-
   {% endif %}
+  {% endblock %}
 {% endblock %}
