@@ -531,6 +531,12 @@ class ApiController(base.BaseController):
                         params = search.\
                             convert_legacy_parameters_to_solr(params)
                     query = search.query_for(model.Package)
+
+                    # Remove any existing fq param and set the capacity to
+                    # public
+                    if 'fq' in params:
+                        del params['fq']
+                    params['fq'] = '+capacity:public'
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError, e:
