@@ -258,6 +258,10 @@ class PackageSearchIndex(SearchIndex):
                 e.httpcode, e.reason, e.body[:1000] # limit huge responses
             )
             raise SearchIndexError(msg)
+        except socket.error, e:
+            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
+            log.error(err)
+            raise SearchIndexError(err)
         finally:
             conn.close()
 
