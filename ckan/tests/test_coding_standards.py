@@ -19,6 +19,7 @@ import sys
 import os
 import re
 import cStringIO
+import inspect
 
 import pep8
 
@@ -625,6 +626,74 @@ NASTY_STR_BLACKLIST_FILES = [
     'ckanext/resourceproxy/controller.py',
 ]
 
+ACTION_FN_SIGNATURES_BLACKLIST_FILES = [
+    'create: activity_create',
+    'create: tag_create',
+]
+
+ACTION_NO_AUTH_BLACKLIST_FILES = [
+    'create: follow_dataset',
+    'create: follow_group',
+    'create: follow_user',
+    'create: member_create',
+    'create: package_relationship_create_rest',
+    'delete: member_delete',
+    'delete: package_relationship_delete_rest',
+    'delete: unfollow_dataset',
+    'delete: unfollow_group',
+    'delete: unfollow_user',
+    'get: activity_detail_list',
+    'get: am_following_dataset',
+    'get: am_following_group',
+    'get: am_following_user',
+    'get: dashboard_activity_list_html',
+    'get: dataset_followee_count',
+    'get: dataset_follower_count',
+    'get: followee_count',
+    'get: group_activity_list',
+    'get: group_activity_list_html',
+    'get: group_followee_count',
+    'get: group_follower_count',
+    'get: group_package_show',
+    'get: member_list',
+    'get: organization_activity_list',
+    'get: organization_activity_list_html',
+    'get: package_activity_list',
+    'get: package_activity_list_html',
+    'get: recently_changed_packages_activity_list',
+    'get: recently_changed_packages_activity_list_html',
+    'get: related_list',
+    'get: resource_search',
+    'get: roles_show',
+    'get: status_show',
+    'get: tag_search',
+    'get: term_translation_show',
+    'get: user_activity_list',
+    'get: user_activity_list_html',
+    'get: user_followee_count',
+    'get: user_follower_count',
+    'get: vocabulary_list',
+    'get: vocabulary_show',
+    'update: package_relationship_update_rest',
+    'update: task_status_update_many',
+    'update: term_translation_update_many',
+    'update: user_role_bulk_update',
+    'update: user_role_update',
+]
+
+AUTH_NO_ACTION_BLACKLIST_FILES = [
+    'create: file_upload',
+    'delete: revision_delete',
+    'delete: revision_undelete',
+    'get: group_autocomplete',
+    'get: group_list_available',
+    'get: sysadmin',
+    'update: group_change_state',
+    'update: group_edit_permissions',
+    'update: package_change_state',
+    'update: revision_change_state',
+]
+
 file_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(file_path, '..', '..'))
 
@@ -830,3 +899,77 @@ class TestPep8(object):
                 line_no = location.split(':')[1]
                 errors.append('%s ln:%s %s' % (error, line_no, desc))
         return errors
+
+
+class TestActionAuth(object):
+
+    done = False
+
+    @classmethod
+    def setup(cls):
+        if not cls.done:
+            cls.process()
+        cls.done = True
+
+    @classmethod
+    def process(cls):
+        def get_functions(module_root):
+            fns = {}
+            for auth_module_name in ['get', 'create', 'update', 'delete']:
+                module_path = '%s.%s' % (module_root, auth_module_name,)
+                try:
+                    module = __import__(module_path)
+                except ImportError:
+                    print ('No auth module for action "%s"' % auth_module_name)
+
+                for part in module_path.split('.')[1:]:
+                    module = getattr(module, part)
+
+                for key, v in module.__dict__.items():
+                    if not hasattr(v, '__call__'):
+                        continue
+                    if v.__module__ != module_path:
+                        continue
+                    if not key.startswith('_'):
+                        name = '%s: %s' % (auth_module_name, key)
+                        fns[name] = v
+            return fns
+        cls.actions = get_functions('logic.action')
+        cls.auths = get_functions('logic.auth')
+
+    def test_actions_have_auth_fn(self):
+        actions_no_auth = set(self.actions.keys()) - set(self.auths.keys())
+        actions_no_auth -= set(ACTION_NO_AUTH_BLACKLIST_FILES)
+        assert not actions_no_auth, 'These actions have no auth function\n%s' \
+            % '\n'.join(sorted(list(actions_no_auth)))
+
+    def test_actions_have_auth_fn_blacklist(self):
+        actions_no_auth = set(self.actions.keys()) & set(self.auths.keys())
+        actions_no_auth &= set(ACTION_NO_AUTH_BLACKLIST_FILES)
+        assert not actions_no_auth, 'These actions blacklisted but ' + \
+            'shouldn\'t be \n%s' % '\n'.join(sorted(list(actions_no_auth)))
+
+    def test_auths_have_action_fn(self):
+        auths_no_action = set(self.auths.keys()) - set(self.actions.keys())
+        auths_no_action -= set(AUTH_NO_ACTION_BLACKLIST_FILES)
+        assert not auths_no_action, 'These auth functions have no action\n%s' \
+            % '\n'.join(sorted(list(auths_no_action)))
+
+    def test_auths_have_action_fn_blacklist(self):
+        auths_no_action = set(self.auths.keys()) & set(self.actions.keys())
+        auths_no_action &= set(AUTH_NO_ACTION_BLACKLIST_FILES)
+        assert not auths_no_action, 'These auths functions blacklisted but' + \
+            ' shouldn\'t be \n%s' % '\n'.join(sorted(list(auths_no_action)))
+
+    def test_fn_signatures(self):
+        errors = []
+        for name, fn in self.actions.iteritems():
+            args_info = inspect.getargspec(fn)
+            if (args_info.args != ['context', 'data_dict']
+                    or args_info.varargs is not None
+                    or args_info.keywords is not None):
+                if name not in ACTION_FN_SIGNATURES_BLACKLIST_FILES:
+                    errors.append(name)
+        assert not errors, 'These action functions have the wrong function' + \
+            ' signature, should be (context, data_dict)\n%s' \
+            % '\n'.join(sorted(errors))
