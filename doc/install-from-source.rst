@@ -100,9 +100,10 @@ prompted::
 
     sudo -u postgres createuser -S -D -R -P ckanuser
 
-Create the database (owned by ``ckanuser``), which we'll call ``ckantest``::
+Create the database (owned by ``ckanuser``), which we'll call ``ckan_dev``::
 
-    sudo -u postgres createdb -O ckanuser ckantest -E utf-8
+    sudo -u postgres createdb -O ckanuser ckan_dev -E utf-8
+
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +121,7 @@ config file::
     ``sqlalchemy.url`` line, filling in the database name, user and password you
     used::
 
-        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
+        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
 
     If you're using a remote host with password authentication rather than SSL
     authentication, use::

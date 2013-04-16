@@ -1,8 +1,9 @@
 import copy
 import formencode as fe
 import inspect
-from pylons.i18n import _
 from pylons import config
+
+from ckan.common import _
 
 class Missing(object):
     def __unicode__(self):

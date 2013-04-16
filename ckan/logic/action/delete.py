@@ -1,9 +1,11 @@
-from pylons.i18n import _
 
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
+
+from ckan.common import _
+
 validate = ckan.lib.navl.dictization_functions.validate
 
 # Define some shortcuts

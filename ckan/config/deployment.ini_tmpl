@@ -65,7 +65,7 @@ ckan.plugins = stats json_preview recline_preview
 # Specify the database for SQLAlchemy to use:
 # * Postgres is currently required for a production CKAN deployment
 # * Sqlite (memory or file) can be used as a quick alternative for testing
-sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckantest
+sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
