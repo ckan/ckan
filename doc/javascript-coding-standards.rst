@@ -298,7 +298,7 @@ JavaScript after the page has loaded. It's then not part of the HTML document
 and can submit any data format it pleases.
 
 Ajax
-````````
+````
 
 Ajax requests can be used to improve the experience of submitting forms and
 other actions that require server interactions. Nearly all requests will

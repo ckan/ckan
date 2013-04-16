@@ -48,6 +48,11 @@ We pass in the module name and a factory function that should return our
 module object. This factory gets passed a local jQuery object and a
 translation object.
 
+.. Note::
+    In order to include a module for page render inclusion within an
+    extension it is recommended that you use ``{% resource %}`` within
+    your templates. See the `Resource Documentation <./resources.html>`_
+
 Initialisation
 ~~~~~~~~~~~~~~
 
