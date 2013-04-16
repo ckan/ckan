@@ -37,12 +37,13 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
 
   // ### fetch
   my.fetch = function(dataset) {
+    var wrapper;
     if (dataset.endpoint) {
-      var wrapper = my.DataStore(dataset.endpoint);
+      wrapper = my.DataStore(dataset.endpoint);
     } else {
       var out = my._parseCkanResourceUrl(dataset.url);
       dataset.id = out.resource_id;
-      var wrapper = my.DataStore(out.endpoint);
+      wrapper = my.DataStore(out.endpoint);
     }
     var dfd = new Deferred();
     var jqxhr = wrapper.search({resource_id: dataset.id, limit: 0});
@@ -89,12 +90,13 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
   };
 
   my.query = function(queryObj, dataset) {
+    var wrapper;
     if (dataset.endpoint) {
-      var wrapper = my.DataStore(dataset.endpoint);
+      wrapper = my.DataStore(dataset.endpoint);
     } else {
       var out = my._parseCkanResourceUrl(dataset.url);
       dataset.id = out.resource_id;
-      var wrapper = my.DataStore(out.endpoint);
+      wrapper = my.DataStore(out.endpoint);
     }
     var actualQuery = my._normalizeQuery(queryObj, dataset);
     var dfd = new Deferred();
@@ -485,8 +487,8 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
         useMemoryStore: true
       });
     })
-    .fail(function(arguments) {
-      dfd.reject(arguments);
+    .fail(function(args) {
+      dfd.reject(args);
     });
     return dfd.promise();
   };
@@ -503,17 +505,17 @@ this.recline.Backend.DataProxy = this.recline.Backend.DataProxy || {};
         message: 'Request Error: Backend did not respond after ' + (my.timeout / 1000) + ' seconds'
       });
     }, my.timeout);
-    ourFunction.done(function(arguments) {
+    ourFunction.done(function(args) {
         clearTimeout(timer);
-        dfd.resolve(arguments);
+        dfd.resolve(args);
       })
-      .fail(function(arguments) {
+      .fail(function(args) {
         clearTimeout(timer);
-        dfd.reject(arguments);
+        dfd.reject(args);
       })
       ;
     return dfd.promise();
-  }
+  };
 
 }(this.recline.Backend.DataProxy));
 this.recline = this.recline || {};
@@ -1405,8 +1407,8 @@ my.Dataset = Backbone.Model.extend({
     if (this.backend !== recline.Backend.Memory) {
       this.backend.fetch(this.toJSON())
         .done(handleResults)
-        .fail(function(arguments) {
-          dfd.reject(arguments);
+        .fail(function(args) {
+          dfd.reject(args);
         });
     } else {
       // special case where we have been given data directly
@@ -1429,8 +1431,8 @@ my.Dataset = Backbone.Model.extend({
         .done(function() {
           dfd.resolve(self);
         })
-        .fail(function(arguments) {
-          dfd.reject(arguments);
+        .fail(function(args) {
+          dfd.reject(args);
         });
     }
 
@@ -1548,9 +1550,9 @@ my.Dataset = Backbone.Model.extend({
         self.trigger('query:done');
         dfd.resolve(self.records);
       })
-      .fail(function(arguments) {
-        self.trigger('query:fail', arguments);
-        dfd.reject(arguments);
+      .fail(function(args) {
+        self.trigger('query:fail', args);
+        dfd.reject(args);
       });
     return dfd.promise();
   },
@@ -1800,7 +1802,7 @@ my.Field = Backbone.Model.extend({
         if (val && typeof val === 'string') {
           val = val.replace(/(https?:\/\/[^ ]+)/g, '<a href="$1">$1</a>');
         }
-        return val
+        return val;
       }
     }
   }
@@ -2157,13 +2159,13 @@ my.Flot = Backbone.View.extend({
 
     // for labels case we only want ticks at the label intervals
     // HACK: however we also get this case with Date fields. In that case we
-    // could have a lot of values and so we limit to max 30 (we assume)
+    // could have a lot of values and so we limit to max 15 (we assume)
     if (this.xvaluesAreIndex) {
       var numTicks = Math.min(this.model.records.length, 15);
       var increment = this.model.records.length / numTicks;
       var ticks = [];
       for (i=0; i<numTicks; i++) {
-        ticks.push(parseInt(i*increment));
+        ticks.push(parseInt(i*increment, 10));
       }
       xaxis.ticks = ticks;
     }
@@ -3018,12 +3020,12 @@ my.Grid = Backbone.View.extend({
     var numFields = this.fields.length;
     // compute field widths (-20 for first menu col + 10px for padding on each col and finally 16px for the scrollbar)
     var fullWidth = self.el.width() - 20 - 10 * numFields - this.scrollbarDimensions.width;
-    var width = parseInt(Math.max(50, fullWidth / numFields));
+    var width = parseInt(Math.max(50, fullWidth / numFields), 10);
     // if columns extend outside viewport then remainder is 0 
     var remainder = Math.max(fullWidth - numFields * width,0);
     _.each(this.fields, function(field, idx) {
       // add the remainder to the first field width so we make up full col
-      if (idx == 0) {
+      if (idx === 0) {
         field.set({width: width+remainder});
       } else {
         field.set({width: width});
@@ -4301,13 +4303,14 @@ my.MultiView = Backbone.View.extend({
 // This inverts the state serialization process in Multiview
 my.MultiView.restore = function(state) {
   // hack-y - restoring a memory dataset does not mean much ... (but useful for testing!)
+  var datasetInfo;
   if (state.backend === 'memory') {
-    var datasetInfo = {
+    datasetInfo = {
       backend: 'memory',
       records: [{stub: 'this is a stub dataset because we do not restore memory datasets'}]
     };
   } else {
-    var datasetInfo = _.extend({
+    datasetInfo = _.extend({
         url: state.url,
         backend: state.backend
       },
@@ -4320,7 +4323,7 @@ my.MultiView.restore = function(state) {
     state: state
   });
   return explorer;
-}
+};
 
 // ## Miscellaneous Utilities
 var urlPathRegex = /^([^?]+)(\?.*)?/;
@@ -4436,7 +4439,7 @@ my.SlickGrid = Backbone.View.extend({
     this.model.records.bind('add', this.render);
     this.model.records.bind('reset', this.render);
     this.model.records.bind('remove', this.render);
-    this.model.records.bind('change', this.onRecordChanged, this)
+    this.model.records.bind('change', this.onRecordChanged, this);
 
     var state = _.extend({
         hiddenColumns: [],
@@ -4449,7 +4452,6 @@ my.SlickGrid = Backbone.View.extend({
       }, modelEtc.state
 
     );
-//      this.grid_options = modelEtc.options;
     this.state = new recline.Model.ObjectState(state);
   },
 
@@ -4492,32 +4494,32 @@ my.SlickGrid = Backbone.View.extend({
       } else {
         return value;
       }
-    }
+    };
     _.each(this.model.fields.toJSON(),function(field){
       var column = {
-        id:field['id'],
-        name:field['label'],
-        field:field['id'],
+        id: field.id,
+        name: field.label,
+        field: field.id,
         sortable: true,
         minWidth: 80,
         formatter: formatter
       };
 
-      var widthInfo = _.find(self.state.get('columnsWidth'),function(c){return c.column == field.id});
+      var widthInfo = _.find(self.state.get('columnsWidth'),function(c){return c.column === field.id;});
       if (widthInfo){
-        column['width'] = widthInfo.width;
+        column.width = widthInfo.width;
       }
 
-      var editInfo = _.find(self.state.get('columnsEditor'),function(c){return c.column == field.id});
+      var editInfo = _.find(self.state.get('columnsEditor'),function(c){return c.column === field.id;});
       if (editInfo){
-        column['editor'] = editInfo.editor;
+        column.editor = editInfo.editor;
       }
       columns.push(column);
     });
 
     // Restrict the visible columns
     var visibleColumns = columns.filter(function(column) {
-      return _.indexOf(self.state.get('hiddenColumns'), column.id) == -1;
+      return _.indexOf(self.state.get('hiddenColumns'), column.id) === -1;
     });
 
     // Order them if there is ordering info on the state
@@ -4534,7 +4536,7 @@ my.SlickGrid = Backbone.View.extend({
     // column picker
     var tempHiddenColumns = [];
     for (var i = columns.length -1; i >= 0; i--){
-      if (_.indexOf(_.pluck(visibleColumns,'id'),columns[i].id) == -1){
+      if (_.indexOf(_.pluck(visibleColumns,'id'),columns[i].id) === -1){
         tempHiddenColumns.push(columns.splice(i,1)[0]);
       }
     }
@@ -4556,18 +4558,18 @@ my.SlickGrid = Backbone.View.extend({
       this.push = function(model, row) {
         models.push(model);
         rows.push(row);
-      }
-
-      this.getLength = function() { return rows.length; }
-      this.getItem = function(index) { return rows[index];}
-      this.getItemMetadata= function(index) { return {};}
-      this.getModel= function(index) { return models[index]; }
-      this.getModelRow = function(m) { return models.indexOf(m);}
-      this.updateItem = function(m,i) { 
-        rows[i] = toRow(m);
-        models[i] = m
       };
-    };
+
+      this.getLength = function() {return rows.length; };
+      this.getItem = function(index) {return rows[index];};
+      this.getItemMetadata = function(index) {return {};};
+      this.getModel = function(index) {return models[index];};
+      this.getModelRow = function(m) {return models.indexOf(m);};
+      this.updateItem = function(m,i) {
+        rows[i] = toRow(m);
+        models[i] = m;
+      };
+    }
 
     var data = new RowSet();
 
@@ -4581,7 +4583,7 @@ my.SlickGrid = Backbone.View.extend({
     var sortInfo = this.model.queryState.get('sort');
     if (sortInfo){
       var column = sortInfo[0].field;
-      var sortAsc = !(sortInfo[0].order == 'desc');
+      var sortAsc = sortInfo[0].order !== 'desc';
       this.grid.setSortColumn(column, sortAsc);
     }
 
@@ -4615,7 +4617,7 @@ my.SlickGrid = Backbone.View.extend({
       //
       var grid = args.grid;
       var model = data.getModel(args.row);
-      var field = grid.getColumns()[args.cell]['id'];
+      var field = grid.getColumns()[args.cell].id;
       var v = {};
       v[field] = args.item[field];
       model.set(v);
@@ -4676,7 +4678,7 @@ my.SlickGrid = Backbone.View.extend({
       $menu = $('<ul class="dropdown-menu slick-contextmenu" style="display:none;position:absolute;z-index:20;" />').appendTo(document.body);
 
       $menu.bind('mouseleave', function (e) {
-        $(this).fadeOut(options.fadeSpeed)
+        $(this).fadeOut(options.fadeSpeed);
       });
       $menu.bind('click', updateColumn);
 
@@ -4693,7 +4695,7 @@ my.SlickGrid = Backbone.View.extend({
         $input = $('<input type="checkbox" />').data('column-id', columns[i].id).attr('id','slick-column-vis-'+columns[i].id);
         columnCheckboxes.push($input);
 
-        if (grid.getColumnIndex(columns[i].id) != null) {
+        if (grid.getColumnIndex(columns[i].id) !== null) {
           $input.attr('checked', 'checked');
         }
         $input.appendTo($li);
@@ -4720,10 +4722,12 @@ my.SlickGrid = Backbone.View.extend({
     }
 
     function updateColumn(e) {
-      if ($(e.target).data('option') == 'autoresize') {
+      var checkbox;
+
+      if ($(e.target).data('option') === 'autoresize') {
         var checked;
         if ($(e.target).is('li')){
-            var checkbox = $(e.target).find('input').first();
+            checkbox = $(e.target).find('input').first();
             checked = !checkbox.is(':checked');
             checkbox.attr('checked',checked);
         } else {
@@ -4743,7 +4747,7 @@ my.SlickGrid = Backbone.View.extend({
       if (($(e.target).is('li') && !$(e.target).hasClass('divider')) ||
             $(e.target).is('input')) {
         if ($(e.target).is('li')){
-            var checkbox = $(e.target).find('input').first();
+            checkbox = $(e.target).find('input').first();
             checkbox.attr('checked',!checkbox.is(':checked'));
         }
         var visibleColumns = [];
@@ -4755,7 +4759,6 @@ my.SlickGrid = Backbone.View.extend({
             hiddenColumnsIds.push(columns[i].id);
           }
         });
-
 
         if (!visibleColumns.length) {
           $(e.target).attr('checked', 'checked');
@@ -4812,7 +4815,8 @@ my.Timeline = Backbone.View.extend({
     });
     var stateData = _.extend({
         startField: null,
-        endField: null
+        endField: null,
+        timelineJSOptions: {}
       },
       options.state
     );
@@ -4845,9 +4849,8 @@ my.Timeline = Backbone.View.extend({
     if (width) {
       $timeline.width(width);
     }
-    var config = {};
     var data = this._timelineJSON();
-    this.timeline.init(data, this.elementId, config);
+    this.timeline.init(data, this.elementId, this.state.get("timelineJSOptions"));
     this._timelineIsInitialized = true
   },
 
