@@ -57,14 +57,14 @@ class TestFormatText:
 
     def test_internal_tag_with_no_opening_quote_only_matches_single_word(self):
         """Asserts that without an opening quote only one word is matched"""
-        instr = 'tag:test tag" foobar' # should match 'tag:test'
+        instr = 'tag:test tag" foobar'  # should match 'tag:test'
         exp = '<a href="/tag/test">tag:test</a> tag" foobar'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
     def test_internal_tag_with_no_opening_quote_wont_match_the_closing_quote(self):
         """Asserts that 'tag:test" tag' is matched, but to 'tag:test'"""
-        instr = 'tag:test" foobar' # should match 'tag:test'
+        instr = 'tag:test" foobar'  # should match 'tag:test'
         exp = '<a href="/tag/test">tag:test</a>" foobar'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
@@ -108,6 +108,16 @@ class TestFormatText:
     def test_normal_link(self):
         instr = 'http://somelink/'
         exp = '<a href="http://somelink/" target="_blank" rel="nofollow">http://somelink/</a>'
+        out = h.render_markdown(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+        instr = 'http://somelink.com/#anchor'
+        exp = '<a href="http://somelink.com/#anchor" target="_blank" rel="nofollow">http://somelink.com/#anchor</a>'
+        out = h.render_markdown(instr)
+        assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
+
+        instr = 'http://www.somelink.com/#anchor'
+        exp = '<a href="http://www.somelink.com/#anchor" target="_blank" rel="nofollow">http://www.somelink.com/#anchor</a>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
