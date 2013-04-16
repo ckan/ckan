@@ -1384,14 +1384,16 @@ RE_MD_INTERNAL_LINK = re.compile(
     flags=re.UNICODE
 )
 
-# find external links eg http://foo.com, https:/bar.org/foobar.html
-RE_MD_EXTERNAL_LINK = re.compile(r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+# find external links eg http://foo.com, https://bar.org/foobar.html
+RE_MD_EXTERNAL_LINK = re.compile(
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
     flags=re.UNICODE
 )
 
 # find all tags but ignore < in the strings so that we can use it correctly
 # in markdown
 RE_MD_HTML_TAGS = re.compile('<[^><]*>')
+
 
 def html_auto_link(data):
     '''Linkifies HTML
@@ -1431,7 +1433,6 @@ def html_auto_link(data):
 
 def render_markdown(data, auto_link=True):
     ''' returns the data as rendered markdown '''
-    # cope with data == None
     if not data:
         return ''
     data = RE_MD_HTML_TAGS.sub('', data.strip())
