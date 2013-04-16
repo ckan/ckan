@@ -359,6 +359,7 @@ class TestBasicDictize:
     def test_08_package_save(self):
 
         context = {"model": model,
+                   "user": 'testsysadmin',
                    "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
