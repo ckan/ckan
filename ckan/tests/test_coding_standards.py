@@ -734,7 +734,7 @@ def show_passing(msg, errors):
 
 
 class TestNastyString(object):
-
+    ''' Look for a common coding problem in ckan '..%s..' % str(x) '''
     fails = {}
     passes = []
     done = False
@@ -774,6 +774,7 @@ class TestNastyString(object):
 
 
 class TestImportFromCkan(object):
+    ''' Find files using from ckan import ... style imports '''
 
     fails = {}
     passes = []
@@ -812,6 +813,7 @@ class TestImportFromCkan(object):
 
 
 class TestImportStar(object):
+    ''' Find files using from xxx import * '''
 
     fails = {}
     passes = []
@@ -851,6 +853,7 @@ class TestImportStar(object):
 
 
 class TestPep8(object):
+    ''' Check that .py files are pep8 compliant '''
 
     fails = {}
     passes = []
@@ -902,6 +905,10 @@ class TestPep8(object):
 
 
 class TestActionAuth(object):
+    ''' These tests check the logic auth/action functions are compliant. The
+    main tests are that each action has a corresponding auth function and
+    that each auth function has an action.  We check the function only
+    accepts (context, data_dict) as parameters. '''
 
     done = False
 
