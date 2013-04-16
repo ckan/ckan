@@ -1,15 +1,14 @@
+import urllib
+
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as df
 
-import pylons.i18n as i18n
+from ckan.common import _, c
 
-_ = i18n._
-import urllib
 
-c = base.c
 abort = base.abort
 _get_action = logic.get_action
 
