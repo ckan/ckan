@@ -828,7 +828,7 @@ class TestImportStar(object):
     @classmethod
     def process(cls):
         blacklist = IMPORT_STAR_BLACKLIST_FILES
-        re_import_star = re.compile(r'^from\s+.*\simport\s+\*')
+        re_import_star = re.compile(r'^\s*from\s+.*\simport\s+\*')
         for path, filename in process_directory(base_path):
             f = open(path, 'r')
             count = 1
