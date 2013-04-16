@@ -58,6 +58,7 @@ config_details = {
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
     'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
+    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},

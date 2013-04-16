@@ -174,7 +174,6 @@ class PackageController(base.BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
-        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -245,6 +244,7 @@ class PackageController(base.BaseController):
             }
 
             query = get_action('package_search')(context, data_dict)
+            c.sort_by_selected = query['sort']
 
             c.page = h.Page(
                 collection=query['results'],

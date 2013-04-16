@@ -49,6 +49,7 @@ Customizing and Extending
    geospatial
    multilingual
    email-notifications
+   tracking
 
 Publishing Datasets
 ===================
