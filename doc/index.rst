@@ -35,6 +35,8 @@ Customizing and Extending
 
    theming
    frontend-development
+   templating
+   resources
    apps-ideas
    commenting
    extensions

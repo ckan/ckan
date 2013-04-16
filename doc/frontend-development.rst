@@ -3,14 +3,18 @@ Front-end Documenation
 
 The following is an index of other front-end CKAN documentation.
 
--  `Coding Standards`_: The CKAN project coding standards.
+-  `HTML Coding Standards`_: The CKAN project HTML coding standards.
+-  `CSS Coding Standards`_: The CKAN project CSS coding standards.
+-  `JavaScript Coding Standards`_: The CKAN project JavaScript coding standards.
 -  `Templating`_: A guide to the templating within CKAN.
 -  `Resources`_: Documentation on how static resources get included in pages.
 -  `Extension Templating`_: A quick guide to templating extensions.
 -  `Basic Template Tutorial`_: A quick guide to creating a page.
 -  `JavaScript Modules`_: A tutorial on building a CKAN JavaScript module.
 
-.. _Coding Standards: ./coding-standards.html
+.. _HTML Coding Standards: ./html-coding-standards.html
+.. _CSS Coding Standards: ./css-coding-standards.html
+.. _JavaScript Coding Standards: ./javascript-coding-standards.html
 .. _Templating: ./templating.html
 .. _Resources: ./resources.html
 .. _Extension Templating: ./extension-templating.html
