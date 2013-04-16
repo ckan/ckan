@@ -6,44 +6,11 @@ Authorization
 
 Authorization in CKAN is controlled in a number of ways.
 
+* Organizations
 * Config settings
 * Authorization functions
-* Organizations
 
 This document aims to explain them.
-
-Config Settings
----------------
-
-Several .ini config options can be set to change the behavior of CKAN.
-These include
-
-* `ckan.auth.anon_create_dataset` - allows non registered users to create datasets, default: False
-* `ckan.auth.create_dataset_if_not_in_organization` users not in organizations can create datasets, default: True
-* `ckan.auth.create_unowned_dataset` allow the creation of datasets not owned by an organization, default: True
-* `ckan.auth.user_create_groups` allow registered users to create their own group, default: True
-* `ckan.auth.user_create_organizations` allow registered users to create their own organization, default: True
-* `ckan.auth.user_delete_groups` allow non system administrator users to delete groups, default: True
-* `ckan.auth.user_delete_organizations` allow non system administrator users to delete organizations, default: True
-* `ckan.auth.create_user_via_api` allow non system administrator users to be created via the API, default: False
-
-
-Authorization functions
------------------------
-
-Each logic function in CKAN has a corresponding authorization function.
-These functions are in files in the `ckan/logic/auth` directory.  These
-functions are used to determine if the user has the permission to perform
-the given action.  Because CKAN allows these functions to be redefined by
-extensions it is important never to directly call these functions but to
-call them via the `ckan.logic.check_access()` function.  If the user does
-not have permission a `NotAuthorized` exception is raised.
-
-.. note:: extensions should access both `check_access` and `NotAuthorized`
-via the plugins toolkit - see the section on Extensions for more details.
-
-Templates can access authorization functions via the `h.check_access()`
-template helper function.
 
 Organizations
 -------------
@@ -72,3 +39,52 @@ Currently the roles available are.
 
 When a user creates an organization (assuming they have permission to do
 this) then they are made an Admin of that organization.
+
+
+Config Settings
+---------------
+
+Several .ini config options can be set to change the behavior of CKAN.
+These include
+
+``ckan.auth.anon_create_dataset``
+  allows non registered users to create datasets, default: False
+
+``ckan.auth.create_dataset_if_not_in_organization``
+  users not in organizations can create datasets, default: True
+
+``ckan.auth.create_unowned_dataset``
+  allow the creation of datasets not owned by an organization, default: True
+
+``ckan.auth.user_create_groups``
+  allow registered users to create their own group, default: True
+
+``ckan.auth.user_create_organizations``
+  allow registered users to create their own organization, default: True
+
+``ckan.auth.user_delete_groups``
+  allow non system administrator users to delete groups, default: True
+
+``ckan.auth.user_delete_organizations``
+  allow non system administrator users to delete organizations, default: True
+
+``ckan.auth.create_user_via_api``
+  allow non system administrator users to be created via the API, default: False
+
+
+Authorization functions
+-----------------------
+
+Each logic function in CKAN has a corresponding authorization function.
+These functions are in files in the `ckan/logic/auth` directory.  These
+functions are used to determine if the user has the permission to perform
+the given action.  Because CKAN allows these functions to be redefined by
+extensions it is important never to directly call these functions but to
+call them via the `ckan.logic.check_access()` function.  If the user does
+not have permission a `NotAuthorized` exception is raised.
+
+.. note:: extensions should access both `check_access` and `NotAuthorized`
+via the plugins toolkit - see the section on Extensions for more details.
+
+Templates can access authorization functions via the `h.check_access()`
+template helper function.
