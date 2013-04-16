@@ -4,37 +4,38 @@ Front-end Documenation
 The following is an index of other front-end CKAN documentation.
 
 -  `Coding Standards`_: The CKAN project coding standards.
--  `Templating`_: A guide to the Jinja templating system.
+-  `Templating`_: A guide to the templating within CKAN.
+-  `Resources`_: Documentation on how static resources get included in pages.
 -  `Extension Templating`_: A quick guide to templating extensions.
 -  `Basic Template Tutorial`_: A quick guide to creating a page.
--  `CKAN Modules`_: A tutorial on building a CKAN JavaScript module.
+-  `JavaScript Modules`_: A tutorial on building a CKAN JavaScript module.
 
-.. _Coding Standards: ./coding-standards.rst
-.. _Templating: ./templating.rst
-.. _Extension Templating: ./extension-templating.rst
-.. _Basic Template Tutorial: ./template-tutorial.rst
-.. _CKAN Modules: ./javascript-module-tutorial.rst
+.. _Coding Standards: ./coding-standards.html
+.. _Templating: ./templating.html
+.. _Resources: ./resources.html
+.. _Extension Templating: ./extension-templating.html
+.. _Basic Template Tutorial: ./template-tutorial.html
+.. _JavaScript Modules: ./javascript-module-tutorial.html
 
 Install front end dependencies
-==============================
+------------------------------
 
 The front end stylesheets are written using
-`LESS <http://lesscss.org/>`_. This depends on
-`node <http://nodejs.org/>`_ being installed on the system.
+`LESS <http://lesscss.org/>`_ (this depends on
+`node.js <http://nodejs.org/>`_ being installed on the system)
 
-Instructions for installing node can be found on the `project
-website <http://nodejs.org/>`_.
-
-On ubuntu node can be installed using the following commands:
+Instructions for installing node can be found on the `node.js
+website <http://nodejs.org/>`_. On Ubuntu node.js (and npm node.js's package
+manager) can be installed using the following command:
 
 ::
 
-    $ sudo apt-get install nodejs
-    $ sudo apt-get install npm    # node package manager
+    $ sudo apt-get install nodejs npm
 
 LESS can then be installed via the node package manager which is bundled
-with node (or installed with apt as it is not bundled with node on Ubuntu).
-We also need nodewatch.
+with node (or installed with apt as it is not bundled with node.js on
+Ubuntu). We also use ``nodewatch`` to make our LESS compiler a watcher
+style script.
 
 ``cd`` into the ``pyenv/src/ckan`` and run:
 
@@ -42,29 +43,8 @@ We also need nodewatch.
 
     $ npm install less nodewatch
 
-A watcher script can then be used to compile the CSS whenever the LESS
-changes:
-
-::
-
-    $ ./bin/less
-
-This will generate a main.debug.css file. To build the production CSS to
-commit into the repository run:
-
-::
-
-    $ ./bin/less --production
-
-This will generate the main.css file that should be committed for use in
-packaged versions of CKAN. (This command will actually start a watch
-script so you'll have to exit it with ``ctrl-c`` to actually commit the
-file.)
-
-(If someone could move this into a paster script that would be great)
-
 File Structure
-==============
+--------------
 
 All front-end files to be served via a web server are located in the
 ``public`` directory (in the case of the new CKAN base theme it's
@@ -77,15 +57,18 @@ All front-end files to be served via a web server are located in the
     less/
       main.less
       ckan.less
+      ...
     javascript/
       main.js
       utils.js
       components/
+      ...
     vendor/
       jquery.js
       jquery.plugin.js
       underscore.js
       bootstrap.css
+      ...
     test/
       index.html
       spec/
@@ -95,6 +78,7 @@ All front-end files to be served via a web server are located in the
         mocha.js
         mocha.css
         chai.js
+      ...
 
 All files and directories should be lowercase with hyphens used to
 separate words.
@@ -123,7 +107,7 @@ test
     Each test file should be the filename with *.spec* appended.
 
 Stylesheets
-===========
+-----------
 
 Because all the stylesheets are using LESS we need to compile them
 before beginning development. In production CKAN will look for the
@@ -136,43 +120,48 @@ generate by running:
     $ ./bin/less
 
 This will watch for changes to all of the less files and automatically
-rebuild the CSS for you. To quit the script press ``ctrl-c``.
+rebuild the CSS for you. To quit the script press ``ctrl-c``. There is also
+``--production`` flag for compiling the production ``main.css``.
 
-There are many LESS scripts which attempt to group the styles in useful
-groups.
+There are many LESS files which attempt to group the styles in useful
+groups. The main two are:
 
-The main two are:
+main.less:
+    This contains *all* the styles for the website including
+    dependancies and local styles. The only files that are excluded here
+    are those that are conditionally loaded such as IE only CSS and large
+    external apps (like recline) that only appear on a single page.
+ckan.less:
+    This includes all the local ckan stylesheets.
 
--  main.less: This contains *all* the styles for the website including
-   dependancies and local styles. The only files that are excluded here
-   are those that are conditionally loaded such as IE only CSS and large
-   external apps (like recline) that only appear on a single page.
--  ckan.less: This includes all the local ckan stylesheets.
+.. Note::
+    Whenever a CSS change effects ``main.less`` it's important than after
+    the merge into master that a ``$ ./bin/less --production`` should be
+    run and commited.
 
-There is a very basic pattern primer available at:
-
-::
-
-    http://localhost:5000/test/primer/
-
-This should contain common components and slowly be expanded to provide
-documentation on the CKAN markup and styles. But for the moment it
-serves as useful unit tests for the CSS.
+There is a basic pattern primer available at: 
+http://localhost:5000/testing/primer/ that shows all the main page
+elements that make up the CKAN core interface.
 
 JavaScript
-==========
+----------
 
 The core of the CKAN JavaScript is split up into three areas.
 
 -  Core (such as i18n, pub/sub and API clients)
--  Modules (small HTML components or widgets)
+-  `JavaScript Modules`_ (small HTML components or widgets)
 -  jQuery Plugins (very small reusable components)
 
 Core
-----
+~~~~
 
 Everything in the CKAN application lives on the ``ckan`` namespace.
 Currently there are four main components that make up the core.
+
+- Modules
+- Pub/Sub
+- Client
+- i18n/Jed
 
 Modules
 ~~~~~~~
@@ -185,19 +174,7 @@ The idea is to create small isolated components that can easily be
 tested. They should ideally not use any global objects, all
 functionality should be provided to them via a "sandbox" object.
 
-There is a global factory that can be used to create new modules.
-
-::
-
-    ckan.module('my-module', {
-      initialize: function () {
-        // Called when a module is created.
-      },
-      teardown: function () {
-        // Called before a module is removed from the page.
-      }
-    });
-
+There is a global factory that can be used to create new modules and
 jQuery and Localisation methods are available via
 ``this.sandbox.jQuery`` and ``this.sandbox.translate()`` respectively.
 To save typing these two common objects we can take advantage of
@@ -206,7 +183,7 @@ factory function.
 
 ::
 
-    ckan.module('my-module', function (jQuery, translate) {
+    ckan.module('my-module', function (jQuery, _) {
       return {
         initialize: function () {
           // Called when a module is created.
@@ -218,6 +195,10 @@ factory function.
       }
     });
 
+.. Note::
+    A guide on creating your own modules is located in the
+    `JavaScript Modules`_ guide.
+
 Pub/Sub
 ~~~~~~~
 
@@ -225,6 +206,32 @@ There is a simple pub/sub module included under ``ckan.pubsub`` it's
 methods are available to modules via
 ``this.sandbox.publish/subscribe/unsubscribe``. This can be used to
 publish messages between modules.
+
+Modules should use the publish/subscribe methods to talk to each other
+and allow different areas of the UI to update where relevant.
+
+::
+
+    ckan.module('language-picker', function (jQuery, _) {
+      return {
+        initialize: function () {
+          var sandbox = this.sandbox;
+          this.el.on('change', function () {
+            sandbox.publish('change:lang', this.selected);
+          });
+        }
+      }
+    });
+
+    ckan.module('language-notifier', function (jQuery, _) {
+      return {
+        initialize: function () {
+          this.sandbox.subscribe('change:lang', function (lang) {
+            alert('language is now ' + lang);
+          });
+        }
+      }
+    });
 
 Client
 ~~~~~~
@@ -234,9 +241,11 @@ CKAN API, all functionality should be provided via the client object.
 
 ::
 
-    ckan.module('my-module', {
-      initialize: function () {
-        this.sandbox.client.getCompletions(this.options.completionsUrl);
+    ckan.module('my-module', function (jQuery, _) {
+      return {
+        initialize: function () {
+          this.sandbox.client.getCompletions(this.options.completionsUrl);
+        }
       }
     });
 
@@ -250,19 +259,8 @@ strings. An instance of Jed is available on the ``ckan.i18n`` object.
 Modules get access to the ``translate()`` function via both the initial
 factory function and the ``this.sandbox.translate()`` object.
 
-::
-
-    ckan.module('my-module', function (jQuery, translate) {
-      return {/* my module */};
-    });
-
-    ckan.module('my-module', {
-      initialize: function () {
-        this.sandbox.translate('my string');
-      }
-    });
-
-String interpolation can be provided using the `sprintf formatting <http://www.diveintojavascript.com/projects/javascript-sprintf>`_.
+String interpolation can be provided using the
+`sprintf formatting <http://www.diveintojavascript.com/projects/javascript-sprintf>`_.
 We always use the named arguments to keep in line with the Python translations.
 And we name the translate function passed into ``ckan.module()`` ``_``.
 
@@ -271,6 +269,9 @@ And we name the translate function passed into ``ckan.module()`` ``_``.
     ckan.module('my-module', function (jQuery, _) {
       return {
         initialize: function () {
+          // Through sandbox translation
+          this.sandbox.translate('my string');
+
           // Keyword arguments
           _('Hello %(name)s').fetch({name: 'Bill'}); // Hello Bill
 
@@ -285,15 +286,12 @@ And we name the translate function passed into ``ckan.module()`` ``_``.
       };
     });
 
-Modules
--------
-
 Life Cycle
 ~~~~~~~~~~
 
-CKAN modules are intialised on document ready. The
-``ckan.module.initialize()`` will look for all elements on the page with
-a ``data-module`` attribute and attempt to create an instance.
+CKAN modules are intialised on dom ready. The ``ckan.module.initialize()``
+will look for all elements on the page with a ``data-module`` attribute and
+attempt to create an instance.
 
 ::
 
@@ -309,31 +307,6 @@ Modules should also provide a ``teardown()`` method this isn't used at
 the moment except in the unit tests to restore state but may become
 useful in the future.
 
-Talking to each other
-~~~~~~~~~~~~~~~~~~~~~
-
-Modules should use the publish/subscribe methods to talk to each other
-and allow different areas of the UI to update where relevant.
-
-::
-
-    ckan.module('language-picker', {
-      initialize: function () {
-        var sandbox = this.sandbox;
-        this.el.on('change', function () {
-          sandbox.publish('change:lang', this.selected);
-        });
-      }
-    });
-
-    ckan.module('language-notifier', {
-      initialize: function () {
-        this.sandbox.subscribe('change:lang', function (lang) {
-          alert('language is now ' + lang);
-        });
-      }
-    });
-
 Internationalisation
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -347,42 +320,8 @@ retrieving them.
       return {
         options: {
           i18n: {
-            hello: _('Hello')
-          }
-        },
-        initialize: function () {
-          this.i18n('hello'); // "Hello"
-        }
-      }
-    });
-
-String interpolation can be provided by passing extra arguments.
-
-::
-
-    ckan.module('language-picker', function (jQuery, _) {
-      return {
-        options: {
-          i18n: {
-            hello: _('Hello %(name)s')
-          }
-        },
-        initialize: function () {
-          var name = 'Dave';
-          this.i18n('hello', {name: name}); // "Hello Dave"
-        }
-      }
-    });
-
-Plural versions can also be provided using a function and the chained
-Jed API.
-
-::
-
-    ckan.module('language-picker', function (jQuery, _) {
-      return {
-        options: {
-          i18n: {
+            hello_1: _('Hello'),
+            hello_2: _('Hello %(name)s'),
             apples: function (params) {
               var n = params.num;
               return _('I have %(num)d apple').isPlural(n, 'I have %(num)d apples');
@@ -390,12 +329,21 @@ Jed API.
           }
         },
         initialize: function () {
+          // Standard example
+          this.i18n('hello_1'); // "Hello"
+
+          // String interpolation example
+          var name = 'Dave';
+          this.i18n('hello_2', {name: name}); // "Hello Dave"
+
+          // Plural example
           var total = 1;
           this.i18n('apples', {num: total}); // "I have 1 apple"
           this.i18n('apples', {num: 3});     // "I have 3 apples"
         }
       }
     });
+
 
 jQuery Plug-ins
 ---------------
@@ -412,18 +360,11 @@ Unit Tests
 ----------
 
 There is currently a test suite available at:
-
-::
-
-    http://localhost:5000/base/test/index.html
+http://localhost:5000/base/test/index.html
 
 Every core component, module and plugin should have a set of unit tests.
 Tests can be filtered using the ``grep={regexp}`` query string
 parameter.
-
-::
-
-    http://localhost:5000/base/test/index.html?grep=^jQuery
 
 The libraries used for the tests are as follows.
 

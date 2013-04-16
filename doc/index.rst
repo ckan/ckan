@@ -34,6 +34,7 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   frontend-development
    apps-ideas
    commenting
    extensions
