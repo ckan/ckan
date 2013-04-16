@@ -1,5 +1,4 @@
-from pylons.i18n import _
-from pylons import g, c, config, cache
+from pylons import config, cache
 import sqlalchemy.exc
 
 import ckan.logic as logic
@@ -8,6 +7,8 @@ import ckan.lib.search as search
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
+
+from ckan.common import _, g, c
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 

@@ -1,8 +1,7 @@
 import logging
 from urllib import quote
 
-from pylons import session, c, g, request, config
-from pylons.i18n import _
+from pylons import config
 import genshi
 
 import ckan.lib.i18n as i18n
@@ -16,6 +15,8 @@ import ckan.logic.schema as schema
 import ckan.lib.captcha as captcha
 import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
+
+from ckan.common import _, session, c, g, request
 
 log = logging.getLogger(__name__)
 
