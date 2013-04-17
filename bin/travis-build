@@ -2,9 +2,16 @@
 
 PYTHON_VERSION=`python -c "import sys;v = sys.version_info; print '%s.%s' % (v[0], v[1])"`
 
+echo ==========================================================
+echo
 echo Python:   $PYTHON_VERSION
 echo Postgres: $PGVERSION
 echo Branch:   $TRAVIS_BRANCH
+echo TRAVIS_COMMIT $TRAVIS_COMMIT
+echo TRAVIS_PYTHON_VERSION $TRAVIS_PYTHON_VERSION
+echo
+echo ==========================================================
+
 
 # Drop Travis' postgres cluster if we're building using a different pg version
 TRAVIS_PGVERSION='9.1'
