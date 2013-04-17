@@ -10,7 +10,7 @@
     <div id="dataset-overview">
 
       <!-- Description -->
-      <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+      <div class="notes" py:if="c.pkg_notes_formatted">
         <div id="notes-extract">
           ${c.pkg_notes_formatted}
         </div>
