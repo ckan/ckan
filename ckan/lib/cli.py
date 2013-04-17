@@ -5,9 +5,7 @@ import datetime
 import sys
 from pprint import pprint
 import re
-import ckan.include.rjsmin as rjsmin
-import ckan.include.rcssmin as rcssmin
-import ckan.lib.fanstatic_resources as fanstatic_resources
+import cloghandler
 
 import paste.script
 from paste.registry import Registry
@@ -2398,6 +2396,10 @@ class MinifyCommand(CkanCommand):
         :param path: The path to the .js or .css file to minify
 
         '''
+        import ckan.include.rjsmin as rjsmin
+        import ckan.include.rcssmin as rcssmin
+        import ckan.lib.fanstatic_resources as fanstatic_resources
+
         path_only, extension = os.path.splitext(path)
 
         if path_only.endswith('.min'):

@@ -80,6 +80,7 @@ setup(
     notify = ckan.lib.cli:Notification
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
+    tags =  ckan.lib.cli:TagCmd
     tracking = ckan.lib.cli:Tracking
     plugin-info = ckan.lib.cli:PluginInfo
     profile = ckan.lib.cli:Profile
@@ -90,7 +91,7 @@ setup(
     less = ckan.lib.cli:LessCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
     front-end-build = ckan.lib.cli:FrontEndBuildCommand
-
+    cache-reports = ckan.lib.cli:CachedReports
 
     [console_scripts]
     ckan-admin = bin.ckan_admin:Command
