@@ -331,3 +331,20 @@ class TestDashboard(object):
         after = self.dashboard_activity_list(self.new_user)
 
         assert before == after
+
+    def test_10_dashboard_activity_list_html_does_not_crash(self):
+
+        params = json.dumps({'name': 'irrelevant_dataset1'})
+        response = self.app.post('/api/action/package_create', params=params,
+            extra_environ={'Authorization': str(self.annafan['apikey'])})
+        assert response.json['success'] is True
+
+        params = json.dumps({'name': 'another_irrelevant_dataset'})
+        response = self.app.post('/api/action/package_create', params=params,
+            extra_environ={'Authorization': str(self.annafan['apikey'])})
+        assert response.json['success'] is True
+
+        res = self.app.get('/api/3/action/dashboard_activity_list_html',
+                extra_environ={'Authorization':
+                    str(self.annafan['apikey'])})
+        assert res.json['success'] is True

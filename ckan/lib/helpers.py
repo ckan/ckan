@@ -1289,7 +1289,7 @@ def user_in_org_or_group(group_id):
 
 def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         offset=0):
-    '''Return the dashboard activity stream of the given user.
+    '''Return the dashboard activity stream of the current user.
 
     :param user_id: the id of the user
     :type user_id: string
@@ -1317,7 +1317,7 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
         return logic.get_action('dashboard_activity_list_html')(
-            context, {'id': user_id, 'offset': offset})
+            context, {'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
