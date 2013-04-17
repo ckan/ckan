@@ -880,12 +880,12 @@ def search_data(context, data_dict):
     sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
-            select=select_columns,
-            rank=rank_column,
-            resource=data_dict['resource_id'],
-            ts_query=ts_query,
-            where=where_clause,
-            sort=sort, limit=limit, offset=offset)
+                select=select_columns,
+                rank=rank_column,
+                resource=data_dict['resource_id'],
+                ts_query=ts_query,
+                where=where_clause,
+                sort=sort, limit=limit, offset=offset)
     results = context['connection'].execute(sql_string, [where_values])
 
     _insert_links(data_dict, limit, offset)
@@ -1080,7 +1080,7 @@ def search(context, data_dict):
         id = data_dict['resource_id']
         result = context['connection'].execute(
             u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
-             u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
+            u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise ValidationError({
@@ -1114,12 +1114,12 @@ def search_sql(context, data_dict):
 
     except ProgrammingError, e:
         raise ValidationError({
-         'query': [str(e)],
-         'info': {
-            'statement': [e.statement],
-            'params': [e.params],
-            'orig': [str(e.orig)]
-         }
+            'query': [str(e)],
+            'info': {
+                'statement': [e.statement],
+                'params': [e.params],
+                'orig': [str(e.orig)]
+            }
         })
     except DBAPIError, e:
         if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:

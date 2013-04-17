@@ -8,6 +8,8 @@ import sqlalchemy
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
+WHITELISTED_RESOURCES = ['_table_metadata']
+
 
 def datastore_create(context, data_dict):
     '''Adds a new table to the datastore.
@@ -224,19 +226,24 @@ def datastore_search(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
-            pylons.config['ckan.datastore.write_url'])
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
 
-    resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
+    resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
+                                        WHERE name = :id''')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
-    res_exists = results.rowcount > 0
 
-    if not res_exists:
+    if not results.rowcount > 0:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    p.toolkit.check_access('datastore_search', context, data_dict)
+    if not data_dict['resource_id'] in WHITELISTED_RESOURCES:
+        # replace potential alias with real id to simplify access checks
+        resource_id = results.fetchone()[0]
+        if resource_id:
+            data_dict['resource_id'] = resource_id
+
+        p.toolkit.check_access('datastore_search', context, data_dict)
 
     result = db.search(context, data_dict)
     result.pop('id', None)
