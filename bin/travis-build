@@ -1,16 +1,37 @@
 #!/bin/sh
 
-PYTHON_VERSION=`python -c "import sys;v = sys.version_info; print '%s.%s' % (v[0], v[1])"`
+# get the commit message of the last commit on the branch
+COMMIT=`git log -n1 --oneline`
 
 echo ==========================================================
 echo
-echo Python:   $PYTHON_VERSION
+echo Python:   $TRAVIS_PYTHON_VERSION
 echo Postgres: $PGVERSION
 echo Branch:   $TRAVIS_BRANCH
-echo TRAVIS_COMMIT $TRAVIS_COMMIT
-echo TRAVIS_PYTHON_VERSION $TRAVIS_PYTHON_VERSION
 echo
 echo ==========================================================
+
+# Are we on a branch that we need to do full testing
+MAJOR_BRANCH=`echo $TRAVIS_BRANCH | egrep release\|master`
+
+if [ $MAJOR_BRANCH != '' ]
+then
+    # If commit message ends in ++ we will run all the tests
+    IS_PLUS=`echo $COMMIT | grep \+\+$`
+    if [ "$IS_PLUS" = '' ]
+    then
+        # Don't test under python 2.6
+        if [ $TRAVIS_PYTHON_VERSION = '2.6' ]
+        then
+            exit 0
+        fi
+        # Don't test on Postgres 8.4
+        if [ $PGVERSION = '8.4' ]
+        then
+            exit 0
+        fi
+    fi
+fi
 
 
 # Drop Travis' postgres cluster if we're building using a different pg version
