@@ -1,5 +1,11 @@
 #!/bin/sh
 
+PYTHON_VERSION=`python -c "import sys;v = sys.version_info; print '%s.%s' % (v[0], v[1])"`
+
+echo Python:   $PYTHON_VERSION
+echo Postgres: $PGVERSION
+echo Branch:   $TRAVIS_BRANCH
+
 # Drop Travis' postgres cluster if we're building using a different pg version
 TRAVIS_PGVERSION='9.1'
 if [ $PGVERSION != $TRAVIS_PGVERSION ]
@@ -12,16 +18,13 @@ fi
 # Install postgres and solr
 # We need this ppa so we can install postgres-8.4
 sudo add-apt-repository -yy ppa:pitti/postgresql
-sudo apt-get update -qq
-sudo apt-get install -qq solr-jetty postgresql-$PGVERSION
+sudo apt-get -qq update
+sudo apt-get -qq install solr-jetty postgresql-$PGVERSION
 
 # Don't require a password to access DB
 #sudo sed -i -e 's/ident/trust/g' /etc/postgresql/$PGVERSION/main/pg_hba.conf
 
 sudo service postgresql reload
-
-pip install -r pip-requirements.txt --use-mirrors
-pip install -r pip-requirements-test.txt --use-mirrors
 
 # make users
 sudo -u postgres psql -c "CREATE USER ckanuser WITH PASSWORD 'pass';"
@@ -32,6 +35,10 @@ sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
 # Check postgres version
 psql -U ckanuser ckan_test -c 'SELECT version();'
+
+exit 0
+pip install -r pip-requirements.txt --use-mirrors
+pip install -r pip-requirements-test.txt --use-mirrors
 
 python setup.py develop
 
