@@ -332,8 +332,7 @@ class TestDashboard(object):
 
         assert before == after
 
-    def test_10_dashboard_activity_list_html(self):
-        '''Test that dashboard activity list html call works.'''
+    def test_10_dashboard_activity_list_html_does_not_crash(self):
 
         params = json.dumps({'name': 'irrelevant_dataset1'})
         response = self.app.post('/api/action/package_create', params=params,
@@ -348,5 +347,4 @@ class TestDashboard(object):
         res = self.app.get('/api/3/action/dashboard_activity_list_html',
                 extra_environ={'Authorization':
                     str(self.annafan['apikey'])})
-        print res.json['result']
         assert res.json['success'] is True
