@@ -18,14 +18,21 @@ Installation
 See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
 
 
-Community
----------
+Support
+-------
 
-* Developer mailing list: `ckan-dev@lists.okfn.org <http://lists.okfn.org/mailman/listinfo/ckan-dev>`_
-* Developer IRC channel: `#ckan on irc.freenode.net <http://webchat.freenode.net/?channels=ckan>`_
-* `Issue tracker <https://github.com/okfn/ckan/issues>`_
-* `CKAN tag on StackOverflow <http://stackoverflow.com/questions/tagged/ckan>`_
-* `Wiki <https://github.com/okfn/ckan/wiki>`_
+If you need help with CKAN or want to ask a question about CKAN, use either the
+`ckan-discuss`_ mailing list or the `CKAN tag on Stack Overflow`_ (try
+searching the Stack Overflow and ckan-discuss archives for an answer to your
+question first).
+
+If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
+searching first to see if there's already an issue for your bug).
+
+
+.. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
+.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+.. _GitHub Issues: https://github.com/okfn/ckan/issues
 
 
 Contributing to CKAN
@@ -33,6 +40,17 @@ Contributing to CKAN
 
 For contributing to CKAN or its documentation, see
 `CONTRIBUTING <https://github.com/okfn/ckan/blob/master/CONTRIBUTING.rst>`_.
+
+If you want to talk about CKAN development say hi to the CKAN developers on the
+`ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
+
+If you've figured out how to do something with CKAN and want to document it for
+others.  make a new page on the `CKAN wiki`_, and tell us about it on
+`ckan-dev`_.
+
+.. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
+.. _#ckan: http://webchat.freenode.net/?channels=ckan
+.. _CKAN Wiki: https://github.com/okfn/ckan/wiki
 
 
 Copying and License
