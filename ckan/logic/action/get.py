@@ -4,8 +4,6 @@ import json
 import datetime
 
 from pylons import config
-from pylons.i18n import _
-from pylons import c
 import sqlalchemy
 
 import ckan.lib.dictization
@@ -20,6 +18,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
 
@@ -731,7 +731,10 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    schema = package_plugin.show_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
@@ -1161,8 +1164,9 @@ def package_search(context, data_dict):
     :param rows: the number of matching rows to return.
     :type rows: int
     :param sort: sorting of the search results.  Optional.  Default:
-        "score desc, name asc".  As per the solr documentation, this is a
-        comma-separated string of field names and sort-orderings.
+        'relevance asc, metadata_modified desc'.  As per the solr
+        documentation, this is a comma-separated string of field names and
+        sort-orderings.
     :type sort: string
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
@@ -1243,6 +1247,9 @@ def package_search(context, data_dict):
     # the query
     abort = data_dict.get('abort_search',False)
 
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_created desc'
+
     results = []
     if not abort:
         # return a list of package ids
@@ -1298,7 +1305,8 @@ def package_search(context, data_dict):
     search_results = {
         'count': count,
         'facets': facets,
-        'results': results
+        'results': results,
+        'sort': data_dict['sort']
     }
 
     # Transform facets into a more useful data structure.

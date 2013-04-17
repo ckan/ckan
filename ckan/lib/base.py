@@ -6,12 +6,12 @@ import logging
 import time
 
 from paste.deploy.converters import asbool
-from pylons import c, cache, config, g, request, response, session
+from pylons import cache, config, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify, validate
-from pylons.i18n import _, ungettext, N_, gettext, ngettext
+from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
@@ -25,7 +25,11 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter
 import ckan.model as model
-from ckan.common import json
+
+# These imports are for legacy usages and will be removed soon these should
+# be imported directly from ckan.common for internal ckan code and via the
+# plugins.toolkit for extensions.
+from ckan.common import json, _, ungettext, c, g, request, response
 
 log = logging.getLogger(__name__)
 
