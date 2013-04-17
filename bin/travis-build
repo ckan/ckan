@@ -14,7 +14,7 @@ echo ==========================================================
 # Are we on a branch that we need to do full testing
 MAJOR_BRANCH=`echo $TRAVIS_BRANCH | egrep release\|master`
 
-if [ $MAJOR_BRANCH != '' ]
+if [ "$MAJOR_BRANCH" = '' ]
 then
     # If commit message ends in ++ we will run all the tests
     IS_PLUS=`echo $COMMIT | grep \+\+$`
@@ -23,11 +23,13 @@ then
         # Don't test under python 2.6
         if [ $TRAVIS_PYTHON_VERSION = '2.6' ]
         then
+            echo No need to test this branch under python 2.6
             exit 0
         fi
         # Don't test on Postgres 8.4
         if [ $PGVERSION = '8.4' ]
         then
+            echo No need to test this branch under postgres 8.4
             exit 0
         fi
     fi
