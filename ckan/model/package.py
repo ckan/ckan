@@ -17,7 +17,6 @@ import domain_object
 import activity
 import extension
 
-import ckan.misc
 import ckan.lib.dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
@@ -216,7 +215,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             if self.metadata_modified else None
         _dict['metadata_created'] = self.metadata_created.isoformat() \
             if self.metadata_created else None
-        _dict['notes_rendered'] = ckan.misc.MarkdownFormat().to_html(self.notes)
+        import ckan.lib.helpers as h
+        _dict['notes_rendered'] = h.render_markdown(self.notes)
         _dict['type'] = self.type or u'dataset'
         #tracking
         import ckan.model as model

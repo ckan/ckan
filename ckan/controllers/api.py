@@ -571,7 +571,7 @@ class ApiController(base.BaseController):
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
-        results = ckan.misc.MarkdownFormat().to_html(raw_markdown)
+        results = h.render_markdown(raw_markdown)
 
         return self._finish_ok(results)
 

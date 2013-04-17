@@ -2,11 +2,9 @@ import logging
 from urllib import quote
 
 from pylons import config
-import genshi
 
 import ckan.lib.i18n as i18n
 import ckan.lib.base as base
-import ckan.misc as misc
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.new_authz as new_authz
@@ -73,7 +71,7 @@ class UserController(base.BaseController):
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
-        c.about_formatted = self._format_about(user_dict['about'])
+        c.about_formatted = h.render_markdown(user_dict['about'])
 
     ## end hooks
 
@@ -622,13 +620,3 @@ class UserController(base.BaseController):
                              or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
-
-    def _format_about(self, about):
-        about_formatted = misc.MarkdownFormat().to_html(about)
-        try:
-            html = genshi.HTML(about_formatted)
-        except genshi.ParseError, e:
-            log.error('Could not print "about" field Field: %r Error: %r',
-                      about, e)
-            html = _('Error: Could not parse About text')
-        return html
