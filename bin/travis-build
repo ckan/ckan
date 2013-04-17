@@ -33,10 +33,7 @@ sudo -u postgres psql -c "CREATE USER readonlyuser WITH PASSWORD 'pass';"
 # make databases psql
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
-# Check postgres version
-psql -U ckanuser ckan_test -c 'SELECT version();'
 
-exit 0
 pip install -r pip-requirements.txt --use-mirrors
 pip install -r pip-requirements-test.txt --use-mirrors
 
