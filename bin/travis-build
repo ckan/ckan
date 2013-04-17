@@ -8,6 +8,7 @@ echo
 echo Python:   $TRAVIS_PYTHON_VERSION
 echo Postgres: $PGVERSION
 echo Branch:   $TRAVIS_BRANCH
+echo Commit:   $COMMIT
 echo
 echo ==========================================================
 
@@ -34,7 +35,6 @@ then
         fi
     fi
 fi
-
 
 # Drop Travis' postgres cluster if we're building using a different pg version
 TRAVIS_PGVERSION='9.1'
