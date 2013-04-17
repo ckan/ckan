@@ -216,10 +216,13 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license': _('Licence'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
