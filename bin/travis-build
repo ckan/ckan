@@ -13,7 +13,7 @@ fi
 # We need this ppa so we can install postgres-8.4
 sudo add-apt-repository -yy ppa:pitti/postgresql
 sudo apt-get update -qq
-sudo apt-get install solr-jetty postgresql-$PGVERSION
+sudo apt-get install -qq solr-jetty postgresql-$PGVERSION
 
 # Don't require a password to access DB
 #sudo sed -i -e 's/ident/trust/g' /etc/postgresql/$PGVERSION/main/pg_hba.conf
@@ -24,12 +24,12 @@ pip install -r pip-requirements.txt --use-mirrors
 pip install -r pip-requirements-test.txt --use-mirrors
 
 # make users
-psql -u postgres -c "CREATE USER ckanuser WITH PASSWORD 'pass';"
-psql -u postgres -c "CREATE USER readonlyuser WITH PASSWORD 'pass';"
+sudo -u postgres psql -c "CREATE USER ckanuser WITH PASSWORD 'pass';"
+sudo -u postgres psql -c "CREATE USER readonlyuser WITH PASSWORD 'pass';"
 
-# make databases
-psql -u postgres -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
-psql -u postgres -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
+# make databases psql
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
 # Check postgres version
 psql -U ckanuser ckan_test -c 'SELECT version();'
 
