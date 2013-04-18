@@ -102,22 +102,34 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         context = {
             'user': self.sysadmin_user.name,
             'model': model}
-        p.toolkit.get_action('bulk_update_private')(
+        package = p.toolkit.get_action('package_create')(
             context,
-            {'datasets': [self.dataset.id],
-             'org_id': group.id})
-        p.toolkit.get_action('member_delete')(
+            {'name': 'privatedataset',
+             'private': True,
+             'title': "A private dataset that the normal user can't see",
+             'groups': [{
+                 'id': group.id
+             }]})
+        resource = p.toolkit.get_action('resource_create')(
             context,
-            {'object': self.normal_user.id,
-             'id': group.id,
-             'object_type': 'user'})
-        #self.dataset = model.Package.get('annakarenina')
-        #print self.dataset
-        data = {'resource_id': self.data['resource_id']}
+            {'name': 'privateresource',
+             'url': 'https://www.example.com/',
+             'package_id': package['id']})
+
+        postparams = '%s=1' % json.dumps({
+            'resource_id': resource['id'],
+        })
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        data = {'resource_id': resource['id']}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
-                            extra_environ=auth)
+                            extra_environ=auth, status=403)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
