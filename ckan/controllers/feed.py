@@ -152,7 +152,6 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
 
 class FeedController(BaseController):
-
     base_url = config.get('ckan.site_url')
 
     def _alternate_url(self, params, **kwargs):
@@ -207,7 +206,6 @@ class FeedController(BaseController):
                                 navigation_urls=navigation_urls)
 
     def tag(self, id):
-
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'tags:"%s"' % id
 
@@ -323,7 +321,6 @@ class FeedController(BaseController):
 
     def output_feed(self, results, feed_title, feed_description,
                     feed_link, feed_url, navigation_urls, feed_guid):
-
         author_name = config.get('ckan.feeds.author_name', '').strip() or \
             config.get('ckan.site_id', '').strip()
         author_link = config.get('ckan.feeds.author_link', '').strip() or \
@@ -349,8 +346,8 @@ class FeedController(BaseController):
             feed.add_item(
                 title=pkg.get('title', ''),
                 link=self.base_url + h.url_for(controller='package',
-                                             action='read',
-                                             id=pkg['id']),
+                                               action='read',
+                                               id=pkg['id']),
                 description=pkg.get('notes', ''),
                 updated=h.date_str_to_datetime(pkg.get('metadata_modified')),
                 published=h.date_str_to_datetime(pkg.get('metadata_created')),
@@ -360,10 +357,10 @@ class FeedController(BaseController):
                 categories=[t['name'] for t in pkg.get('tags', [])],
                 enclosure=webhelpers.feedgenerator.Enclosure(
                     self.base_url + h.url_for(controller='api',
-                                            register='package',
-                                            action='show',
-                                            id=pkg['name'],
-                                            ver='2'),
+                                              register='package',
+                                              action='show',
+                                              id=pkg['name'],
+                                              ver='2'),
                     unicode(len(json.dumps(pkg))),   # TODO fix this
                     u'application/json')
             )
@@ -433,7 +430,6 @@ class FeedController(BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:

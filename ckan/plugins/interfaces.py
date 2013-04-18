@@ -19,6 +19,7 @@ __all__ = [
     'ITagController',
     'ITemplateHelpers',
     'IFacets',
+    'IAuthenticator',
 ]
 
 from inspect import isclass
@@ -875,3 +876,20 @@ class IFacets(Interface):
     def organization_facets(self, facets_dict, organization_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
+
+
+class IAuthenticator(Interface):
+    '''EXPERIMENTAL'''
+
+    def identify(self):
+        '''called to identify the user.'''
+
+    def login(self):
+        '''called at login.'''
+
+    def logout(self):
+        '''called at logout.'''
+
+    def abort(self, status_code, detail, headers, comment):
+        '''called on abort.'''
+        return (status_code, detail, headers, comment)

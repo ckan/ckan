@@ -820,8 +820,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
     def test_user_edit_unknown_user(self):
         offset = url_for(controller='user', action='edit', id='unknown_person')
-        res = self.app.get(offset, status=404)
-        assert 'User not found' in res, res
+        res = self.app.get(offset, status=302) # redirect to login page
+        res = res.follow()
+        assert 'Login' in res, res
 
     def test_user_edit_not_logged_in(self):
         # create user

@@ -262,3 +262,11 @@ def dataset_followee_list(context, data_dict):
 
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
+
+
+def user_reset(context, data_dict):
+    return {'success': True}
+
+
+def request_reset(context, data_dict):
+    return {'success': True}
