@@ -97,10 +97,34 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == len(self.data['records'])
         assert result['records'] == self.expected_records, result['records']
 
+    def test_search_private_dataset(self):
+        group = self.dataset.get_groups()[0]
+        context = {
+            'user': self.sysadmin_user.name,
+            'model': model}
+        p.toolkit.get_action('bulk_update_private')(
+            context,
+            {'datasets': [self.dataset.id],
+             'org_id': group.id})
+        p.toolkit.get_action('member_delete')(
+            context,
+            {'object': self.normal_user.id,
+             'id': group.id,
+             'object_type': 'user'})
+        #self.dataset = model.Package.get('annakarenina')
+        #print self.dataset
+        data = {'resource_id': self.data['resource_id']}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_search_alias(self):
         data = {'resource_id': self.data['aliases']}
         postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
         res_dict_alias = json.loads(res.body)
