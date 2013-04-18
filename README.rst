@@ -45,7 +45,7 @@ If you want to talk about CKAN development say hi to the CKAN developers on the
 `ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
 
 If you've figured out how to do something with CKAN and want to document it for
-others.  make a new page on the `CKAN wiki`_, and tell us about it on
+others, make a new page on the `CKAN wiki`_, and tell us about it on
 `ckan-dev`_.
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
@@ -56,7 +56,7 @@ others.  make a new page on the `CKAN wiki`_, and tell us about it on
 Copying and License
 -------------------
 
-This material is copyright (c) 2006-2011 Open Knowledge Foundation.
+This material is copyright (c) 2006-2013 Open Knowledge Foundation.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
