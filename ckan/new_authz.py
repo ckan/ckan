@@ -58,12 +58,15 @@ def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
-    # sysadmins can do anything
-    if is_sysadmin(context.get('user')):
-        return {'success': True}
-
     auth_function = _get_auth_function(action)
     if auth_function:
+        # sysadmins can do anything unless the auth_sysadmins_check
+        # decorator was used in which case they are treated like all other
+        # users.
+        if is_sysadmin(context.get('user')):
+            if not getattr(auth_function, 'auth_sysadmins_check', False):
+                return {'success': True}
+
         return auth_function(context, data_dict)
     else:
         raise ValueError(_('Authorization function not found: %s' % action))

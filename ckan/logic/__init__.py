@@ -383,6 +383,18 @@ def side_effect_free(action):
     return wrapper
 
 
+def auth_sysadmins_check(action):
+    ''' Prevent sysadmins from automatically being authenticated.  Instead
+    they are treated like any other user and the auth function is called.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_sysadmins_check = True
+    return wrapper
+
+
+
 class UnknownValidator(Exception):
     pass
 
