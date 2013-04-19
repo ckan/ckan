@@ -81,7 +81,7 @@ List existing databases::
 
     sudo -u postgres psql -l
 
-Check that the encoding of databases is 'UTF8', if not internationalisation may
+Check that the encoding of databases is 'UTF-8', if not internationalisation may
 be a problem. Since changing the encoding of PostgreSQL may mean deleting
 existing databases, it is suggested that this is fixed before continuing with
 the CKAN install.
@@ -207,7 +207,7 @@ is specified by the ``cache_dir`` setting in your CKAN config file.
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file. So if your config file is not in
 ``~/pyenv/src/ckan``, then cd to the directory with your config file and create a
-symbolic link to ``who.ini``. e.g.::
+symbolic link to ``who.ini``. E.g.::
 
     ln -s ~/pyenv/src/ckan/who.ini
 
