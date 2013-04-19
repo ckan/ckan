@@ -40,7 +40,8 @@ alternative_url
   <section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
     <h2 class="module-heading">
       <i class="icon-medium icon-filter"></i>
-      {{ title or h.get_facet_title(name) }}
+      {% set title = title or h.get_facet_title(name) %}
+      {{ title }}
       <a href="{{ h.remove_url_param(name, extras=extras, alternative_url=alternative_url) }}" class="action">{{ _('Clear All') }}</a>
     </h2>
     {% if items %}
@@ -60,13 +61,13 @@ alternative_url
       </nav>
       <p class="module-footer">
         {% if h.get_param_int('_%s_limit' % name) %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet}').format(facet=title) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
         {% else %}
-          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet}').format(facet=title) }}</a>
+          <a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
         {% endif %}
       </p>
     {% else %}
-      <p class="module-content empty">{{ _('There are no filters for this search') }}</p>
+      <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
     {% endif %}
   </section>
 {% endwith %}
