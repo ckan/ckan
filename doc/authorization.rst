@@ -29,15 +29,18 @@ searches but are shown in dataset searches within the organization.
 Organizations have members.  The members of an organization have a role.
 Currently the roles available are.
 
-* Admin:  Administrators of an organization can add or remove members of the
+``Admin``
+  Administrators of an organization can add or remove members of the
   organization.  They can add, edit, view and delete datasets owned by the
   organization.  Admins can also make owned datasets public or private.
 
-* Editor: Editors of an organization can view, edit and delete datasets as
-  well as view any owned datasets.
+``Editor``
+  Editors of an organization can view, edit and delete datasets as well as
+  view any owned datasets.
 
-* Member: Members of an organization can view datasets belonging to an
-  organization including private datasets.
+``Member``
+  Members of an organization can view datasets belonging to an organization
+  including private datasets.
 
 When a user creates a new organization, they automatically become the first
 administrator of that organization.
