@@ -1,5 +1,6 @@
 import ckan.controllers.group as group
 
+
 class OrganizationController(group.GroupController):
     ''' The organization controller is pretty much just the group
     controller. It has a few templates defined that are different and sets

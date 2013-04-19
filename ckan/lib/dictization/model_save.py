@@ -239,7 +239,7 @@ def package_membership_list_save(group_dicts, package, context):
     for group in set(group_member.keys()) - groups:
         member_obj = group_member[group]
         if member_obj and member_obj.state == 'deleted':
-                continue
+            continue
         if new_authz.has_user_permission_for_group_or_org(
                 member_obj.group_id, user, 'read'):
             member_obj.capacity = capacity
@@ -250,7 +250,7 @@ def package_membership_list_save(group_dicts, package, context):
     for group in groups:
         member_obj = group_member.get(group)
         if member_obj and member_obj.state == 'active':
-                continue
+            continue
         if new_authz.has_user_permission_for_group_or_org(
                 group.id, user, 'read'):
             member_obj = group_member.get(group)
