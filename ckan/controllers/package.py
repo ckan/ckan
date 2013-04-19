@@ -27,7 +27,6 @@ from ckan.logic import (tuplize_dict,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
 import ckan.rating
-import ckan.misc
 import ckan.lib.accept as accept
 import ckan.lib.helpers as h
 import ckan.lib.datapreview as datapreview
