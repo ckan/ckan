@@ -32,12 +32,16 @@ class TestMemberLogic(object):
         assert final['capacity'] == u'private'
 
     def test_member_create_raises_if_user_is_unauthorized_to_update_group(self):
-        ctx, dd = self._build_context(self.pkgs[0].id, 'package', user='unauthorized_user')
-        assert_raises(logic.NotAuthorized, logic.get_action('member_create'), ctx, dd)
+        ctx, dd = self._build_context(self.pkgs[0].id, 'package',
+                                      user='unauthorized_user')
+        assert_raises(logic.NotAuthorized,
+                      logic.get_action('member_create'), ctx, dd)
 
     def test_member_create_accepts_group_name_or_id(self):
-        by_name = self._member_create_in_group(self.pkgs[0].id, 'package', 'public', self.group.name)
-        by_id = self._member_create_in_group(self.pkgs[0].id, 'package', 'public', self.group.id)
+        by_name = self._member_create_in_group(self.pkgs[0].id, 'package',
+                                               'public', self.group.name)
+        by_id = self._member_create_in_group(self.pkgs[0].id, 'package',
+                                             'public', self.group.id)
         assert by_name['id'] == by_id['id']
 
     def test_member_create_accepts_object_name_or_id(self):
@@ -54,16 +58,23 @@ class TestMemberLogic(object):
         for key in dd.keys():
             new_dd = dd.copy()
             del new_dd[key]
-            assert_raises(logic.ValidationError, logic.get_action('member_create'), ctx, new_dd)
+            assert_raises(logic.ValidationError,
+                          logic.get_action('member_create'), ctx, new_dd)
 
     def test_member_create_raises_if_group_wasnt_found(self):
-        assert_raises(logic.NotFound, self._member_create_in_group, self.pkgs[0].id, 'package', 'public', 'inexistent_group')
+        assert_raises(logic.NotFound,
+                      self._member_create_in_group,
+                      self.pkgs[0].id, 'package', 'public', 'inexistent_group')
 
     def test_member_create_raises_if_object_wasnt_found(self):
-        assert_raises(logic.NotFound, self._member_create, 'inexistent_package', 'package', 'public')
+        assert_raises(logic.NotFound,
+                      self._member_create,
+                      'inexistent_package', 'package', 'public')
 
     def test_member_create_raises_if_object_type_is_invalid(self):
-        assert_raises(logic.ValidationError, self._member_create, 'obj_id', 'invalid_obj_type', 'public')
+        assert_raises(logic.ValidationError,
+                      self._member_create,
+                      'obj_id', 'invalid_obj_type', 'public')
 
     def test_member_list(self):
         self._member_create(self.pkgs[0].id, 'package', 'public')
@@ -75,7 +86,8 @@ class TestMemberLogic(object):
         res = self._member_list('user', 'admin')
         assert len(res) == 0, res
 
-        assert_raises(logic.NotFound, self._member_list, 'user', 'admin', 'inexistent_group')
+        assert_raises(logic.NotFound,
+                      self._member_list, 'user', 'admin', 'inexistent_group')
 
         self._member_create(self.user.id, 'user', 'admin')
         res = self._member_list('user', 'admin')
@@ -100,24 +112,31 @@ class TestMemberLogic(object):
             assert (self.user.id, 'user', 'Admin') not in res, res
 
     def test_member_delete_raises_if_user_is_unauthorized_to_update_group(self):
-        ctx, dd = self._build_context(self.pkgs[0].id, 'package', user='unauthorized_user')
-        assert_raises(logic.NotAuthorized, logic.get_action('member_delete'), ctx, dd)
+        ctx, dd = self._build_context(self.pkgs[0].id, 'package',
+                                      user='unauthorized_user')
+        assert_raises(logic.NotAuthorized,
+                      logic.get_action('member_delete'), ctx, dd)
 
     def test_member_delete_raises_if_any_required_parameter_isnt_defined(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package')
         for key in ['id', 'object', 'object_type']:
             new_dd = dd.copy()
             del new_dd[key]
-            assert_raises(logic.ValidationError, logic.get_action('member_delete'), ctx, new_dd)
+            assert_raises(logic.ValidationError,
+                          logic.get_action('member_delete'), ctx, new_dd)
 
     def test_member_delete_raises_if_group_wasnt_found(self):
-        assert_raises(logic.NotFound, self._member_delete_in_group, self.pkgs[0].id, 'package', 'inexistent_group')
+        assert_raises(logic.NotFound,
+                      self._member_delete_in_group,
+                      self.pkgs[0].id, 'package', 'inexistent_group')
 
     def test_member_delete_raises_if_object_wasnt_found(self):
-        assert_raises(logic.NotFound, self._member_delete, 'unexistent_package', 'package')
+        assert_raises(logic.NotFound,
+                      self._member_delete, 'unexistent_package', 'package')
 
     def test_member_delete_raises_if_object_type_is_invalid(self):
-        assert_raises(logic.ValidationError, self._member_delete, 'obj_id', 'invalid_obj_type')
+        assert_raises(logic.ValidationError,
+                      self._member_delete, 'obj_id', 'invalid_obj_type')
 
     def _member_create(self, obj, obj_type, capacity):
         ctx, dd = self._build_context(obj, obj_type, capacity)
