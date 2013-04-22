@@ -192,21 +192,6 @@ Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss
 Defines the resource formats which should be loaded directly in an `iframe`
 tag when previewing them.
 
-rdf_packages
-^^^^^^^^^^^^
-
-Example::
-
- rdf_packages = http://semantic.ckan.net/record/
-
-Configure this if you have an RDF store of the same datasets as are in your CKAN instance. It will provide three sorts of links from each dataset page to the equivalent RDF URL given in `rdf_packages`:
-
-1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/dataset/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/dataset/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``
-
-2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
-
-3. A visible RDF link on the page. e.g. `<a href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
-
 ckan.dumps_url & ckan.dumps_format
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -229,10 +214,6 @@ Example::
 Setting both these options according to an established Recaptcha account adds captcha to the user registration form. This has been effective at preventing bots registering users and creating spam packages.
 
 To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
-
-And there is an option for the default expiry time if not specified::
-
- ckan.cache.default_expires = 600
 
 ckan.feeds.author_name
 ^^^^^^^^^^^^^^^^^^^^^^
