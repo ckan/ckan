@@ -1,4 +1,3 @@
-from pylons import c, session
 from pylons.i18n import set_lang
 
 from ckan.lib.create_test_data import CreateTestData
@@ -9,6 +8,8 @@ from ckan.tests import *
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests import search_related, setup_test_search_index
+
+from ckan.common import c, session
 
 class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
     @classmethod
