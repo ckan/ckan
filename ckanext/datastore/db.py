@@ -1117,8 +1117,8 @@ def search_sql(context, data_dict):
             'query': [str(e)],
             'info': {
                 'statement': [e.statement],
-                'params': [e.params],
-                'orig': [str(e.orig)]
+                'orig': [str(e.orig)],
+                'pgcode': e.orig.pgcode
             }
         })
     except DBAPIError, e:
