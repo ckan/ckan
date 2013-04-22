@@ -2,7 +2,8 @@
 Authorization
 =============
 
-.. note:: Authorization in ckan 2.0 works differently from previous versions.
+.. versionchanged:: 2.0
+   Previous versions of CKAN used a completely different authorization system.
 
 Authorization in CKAN is controlled in a number of ways.
 
