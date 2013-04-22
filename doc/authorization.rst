@@ -5,6 +5,11 @@ Authorization
 .. versionchanged:: 2.0
    Previous versions of CKAN used a different authorization system.
 
+CKAN's authorization system controls which users are allowed to carry out which
+actions on the site. All actions that users can carry out on a CKAN site are
+controlled by the authorization system. For example, who can register new user
+accounts, delete user accounts, or create, edit and delete datasets, groups and
+organizations.
 
 Authorization in CKAN can be controlled in three ways:
 
