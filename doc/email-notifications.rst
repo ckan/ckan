@@ -1,3 +1,5 @@
+.. _email-notifications:
+
 =================================
 Send Email Notifications to Users
 =================================
