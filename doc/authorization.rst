@@ -33,6 +33,8 @@ Currently the roles available are.
   Administrators of an organization can add or remove members of the
   organization.  They can add, edit, view and delete datasets owned by the
   organization.  Admins can also make owned datasets public or private.
+  When a user creates a new organization, they automatically become the
+  first administrator of that organization.
 
 ``Editor``
   Editors of an organization can view, edit and delete datasets as well as
@@ -42,20 +44,19 @@ Currently the roles available are.
   Members of an organization can view datasets belonging to an organization
   including private datasets.
 
-When a user creates a new organization, they automatically become the first
-administrator of that organization.
 
 Config Settings
 ---------------
 
-Several .ini config options can be set to change the behavior of CKAN.
+Several configuration file options can be set to change the behavior of CKAN.
 These include
 
 ``ckan.auth.anon_create_dataset``
   allows non registered users to create datasets, default: False
 
 ``ckan.auth.create_dataset_if_not_in_organization``
-  users not in organizations can create datasets, default: True
+  allow users who are not a member of any organization create datasets.
+  This depends on option ``create_unowned_dataset``, default: True
 
 ``ckan.auth.create_unowned_dataset``
   allow the creation of datasets not owned by an organization, default: True
