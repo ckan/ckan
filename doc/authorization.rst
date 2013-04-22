@@ -5,13 +5,13 @@ Authorization
 .. versionchanged:: 2.0
    Previous versions of CKAN used a completely different authorization system.
 
-Authorization in CKAN is controlled in a number of ways.
+Authorization in CKAN can be controlled in three ways:
 
-* Organizations
-* Config settings
-* Authorization functions
+1. Organizations
+2. Config settings
+3. Authorization functions
 
-This document aims to explain them.
+The following sections explain each of the three methods in turn.
 
 Organizations
 -------------
