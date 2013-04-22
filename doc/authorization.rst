@@ -5,6 +5,7 @@ Authorization
 .. versionchanged:: 2.0
    Previous versions of CKAN used a different authorization system.
 
+
 Authorization in CKAN can be controlled in three ways:
 
 1. Organizations
@@ -13,8 +14,18 @@ Authorization in CKAN can be controlled in three ways:
 
 The following sections explain each of the three methods in turn.
 
+.. note::
+
+   An **organization admin** in CKAN is an administrator of a particular
+   organization within the site, with control over that organization and its
+   members and datasets. A **sysadmin** is an administrator of the site itself.
+   Sysadmins can always do everything, including adding, editing and deleting
+   datasets, organizations and groups, regardless of the organization roles and
+   configuration options described below.
+
 Organizations
 -------------
+
 
 Organizations are the primary way to control who can see, create and update
 datasets in CKAN. Each dataset can belong to a single organization, and each
@@ -81,12 +92,6 @@ authorization behavior:
 
 ``ckan.auth.create_user_via_api``
   Allow new user accounts to be created via the API, default: false.
-
-.. note::
-
-  *Sysadmin* users can always do everything, including adding, editing and
-  deleting datasets, organizations and groups, regardless of the configuration
-  options above.
 
 
 Authorization Functions
