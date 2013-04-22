@@ -44,7 +44,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'CKAN Data Management System Documentation'
+project = u'CKAN Documentation'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2012, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
     Licensed under <a

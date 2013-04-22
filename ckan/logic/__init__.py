@@ -3,14 +3,12 @@ import logging
 import types
 import re
 
-from pylons.i18n import _
-
-import ckan.lib.base as base
 import ckan.model as model
-from ckan.new_authz import is_authorized
-from ckan.lib.navl.dictization_functions import flatten_dict, DataError
-from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IActions
+import ckan.new_authz as new_authz
+import ckan.lib.navl.dictization_functions as df
+import ckan.plugins as p
+
+from ckan.common import _, c
 
 log = logging.getLogger(__name__)
 
@@ -174,7 +172,7 @@ def tuplize_dict(data_dict):
                 try:
                     key_list[num] = int(key)
                 except ValueError:
-                    raise DataError('Bad key')
+                    raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
     return tuplized_dict
 
@@ -190,7 +188,7 @@ def untuplize_dict(tuplized_dict):
 
 def flatten_to_string_key(dict):
 
-    flattented = flatten_dict(dict)
+    flattented = df.flatten_dict(dict)
     return untuplize_dict(flattented)
 
 
@@ -205,7 +203,7 @@ def check_access(action, context, data_dict=None):
         #    # TODO Check the API key is valid at some point too!
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
-        logic_authorization = is_authorized(action, context, data_dict)
+        logic_authorization = new_authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
@@ -290,7 +288,7 @@ def get_action(action):
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}
-    for plugin in PluginImplementations(IActions):
+    for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
             if name in resolved_action_plugins:
                 raise Exception(
@@ -317,7 +315,7 @@ def get_action(action):
                 context.setdefault('model', model)
                 context.setdefault('session', model.Session)
                 try:
-                    context.setdefault('user', base.c.user or base.c.author)
+                    context.setdefault('user', c.user or c.author)
                 except TypeError:
                     # c not registered
                     pass

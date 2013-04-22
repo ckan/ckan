@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
-    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf',
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
     'extras', 'fq_list', 'tie', 'defType', 'mm'
 ])
@@ -319,11 +319,6 @@ class PackageSearchQuery(SearchQuery):
             rows_to_query = rows_to_return
         query['rows'] = rows_to_query
 
-        # order by score if no 'sort' term given
-        order_by = query.get('sort')
-        if order_by == 'rank' or order_by is None:
-            query['sort'] = 'score desc, name asc'
-
         # show only results from this CKAN instance
         fq = query.get('fq', '')
         if not '+site_id:' in fq:
@@ -357,6 +352,7 @@ class PackageSearchQuery(SearchQuery):
             # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
+
 
         conn = make_connection()
         log.debug('Package query: %r' % query)

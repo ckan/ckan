@@ -4,7 +4,6 @@ import urlparse
 from pylons import config
 from sqlalchemy.sql import select
 
-import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
@@ -530,7 +529,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = misc.MarkdownFormat().to_html(pkg.notes)
+    dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)
     if site_url:
