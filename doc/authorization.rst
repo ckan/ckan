@@ -3,12 +3,12 @@ Authorization
 =============
 
 .. versionchanged:: 2.0
-   Previous versions of CKAN used a completely different authorization system.
+   Previous versions of CKAN used a different authorization system.
 
 Authorization in CKAN can be controlled in three ways:
 
 1. Organizations
-2. Config settings
+2. Configuration file options
 3. Authorization functions
 
 The following sections explain each of the three methods in turn.
@@ -16,68 +16,80 @@ The following sections explain each of the three methods in turn.
 Organizations
 -------------
 
-From version 2.0 CKAN uses organizations as the primary way to control
-access to datasets as well as giving permissions to users to perform actions
-on datasets. Each dataset in CKAN can belong to a single organization.  The
-organization that the dataset belongs to controls the permissions for all
-datasets that it owns.
+Organizations are the primary way to control who can see, create and update
+datasets in CKAN. Each dataset can belong to a single organization, and each
+organization controls access to its datasets.
 
 Datasets can be marked as public or private.  Public datasets are visible to
-all users. Private datasets can only be seen by members of the organization
-that owns the dataset.  Private datasets are not shown in general dataset
-searches but are shown in dataset searches within the organization.
+everyone. Private datasets can only be seen by logged-in users who are members
+of the dataset's organization.  Private datasets are not shown in general
+dataset searches but are shown in dataset searches within the organization.
 
-Organizations have members.  The members of an organization have a role.
-Currently the roles available are.
+When a user joins an organization, an organization admin gives them one of
+three roles: member, editor or admin.
 
-``Admin``
-  Administrators of an organization can add or remove members of the
-  organization.  They can add, edit, view and delete datasets owned by the
-  organization.  Admins can also make owned datasets public or private.
+An organization **admin** can:
 
-``Editor``
-  Editors of an organization can view, edit and delete datasets as well as
-  view any owned datasets.
+* View the organization's private datasets
+* Edit and delete the organization's datasets
+* Add new datasets to the organization
+* Make  datasets public or private.
+* Add users to the organization, and choose whether to make the new user an
+  member, editor or admin
+* Change the role of any user in the organization, including other admin users
+* Remove members, editors or other admins from the organization
 
-``Member``
-  Members of an organization can view datasets belonging to an organization
-  including private datasets.
+An **editor** can:
+
+* View the organization's private datasets
+* Edit and delete the organization's datasets
+
+A **member** of an organization can view the organization's private datasets.
 
 When a user creates a new organization, they automatically become the first
-administrator of that organization.
+admin of that organization.
 
-Config Settings
----------------
+Configuration File Options
+--------------------------
 
-Several .ini config options can be set to change the behavior of CKAN.
-These include
+The following configuration file options can be used to customize CKAN's
+authorization behavior:
 
 ``ckan.auth.anon_create_dataset``
-  allows non registered users to create datasets, default: False
-
-``ckan.auth.create_dataset_if_not_in_organization``
-  users not in organizations can create datasets, default: True
+  Allow users to create datasets without registering and logging in,
+  default: false.
 
 ``ckan.auth.create_unowned_dataset``
-  allow the creation of datasets not owned by an organization, default: True
+  Allow the creation of datasets not owned by any organization, default: true.
+
+``ckan.auth.create_dataset_if_not_in_organization``
+  Allow users who are not members of any organization to create datasets,
+  default: true. ``create_unowned_dataset`` must also be true, otherwise
+  setting ``create_dataset_if_not_in_organization`` to true is meaningless.
 
 ``ckan.auth.user_create_groups``
-  allow registered users to create their own group, default: True
+  Allow users to create groups, default: true.
 
 ``ckan.auth.user_create_organizations``
-  allow registered users to create their own organization, default: True
+  Allow users to create organizations, default: true.
 
 ``ckan.auth.user_delete_groups``
-  allow non system administrator users to delete groups, default: True
+  Allow users to delete groups, default: true.
 
 ``ckan.auth.user_delete_organizations``
-  allow non system administrator users to delete organizations, default: True
+  Allow users to delete organizations, default: true.
 
 ``ckan.auth.create_user_via_api``
-  allow non system administrator users to be created via the API, default: False
+  Allow new user accounts to be created via the API, default: false.
+
+.. note::
+
+  *Sysadmin* users can always do everything, including adding, editing and
+  deleting datasets, organizations and groups, regardless of the configuration
+  options above.
 
 
-Authorization functions
+Authorization Functions
 -----------------------
 
 Each logic function in CKAN has a corresponding authorization function.
@@ -89,7 +101,7 @@ call them via the `ckan.logic.check_access()` function.  If the user does
 not have permission a `NotAuthorized` exception is raised.
 
 .. note:: extensions should access both `check_access` and `NotAuthorized`
-via the plugins toolkit - see the section on Extensions for more details.
+  via the plugins toolkit - see the section on Extensions for more details.
 
 Templates can access authorization functions via the `h.check_access()`
 template helper function.
