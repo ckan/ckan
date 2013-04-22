@@ -201,7 +201,9 @@ class DatastorePlugin(p.SingletonPlugin):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search}
+                   'datastore_search': action.datastore_search,
+                   'datastore_make_private': action.datastore_make_private,
+                   'datastore_make_public': action.datastore_make_public}
         if not self.legacy_mode:
             actions['datastore_search_sql'] = action.datastore_search_sql
         return actions
@@ -210,4 +212,5 @@ class DatastorePlugin(p.SingletonPlugin):
         return {'datastore_create': auth.datastore_create,
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
-                'datastore_search': auth.datastore_search}
+                'datastore_search': auth.datastore_search,
+                'datastore_change_permissions': auth.datastore_change_permissions}

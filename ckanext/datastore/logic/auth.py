@@ -32,3 +32,7 @@ def datastore_delete(context, data_dict):
 
 def datastore_search(context, data_dict):
     return _datastore_auth(context, data_dict, 'resource_show')
+
+
+def datastore_change_permissions(context, data_dict):
+    return _datastore_auth(context, data_dict)

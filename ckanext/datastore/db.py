@@ -13,6 +13,7 @@ import pprint
 import sqlalchemy
 from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
 import psycopg2.extras
+import ckan.lib.cli as cli
 
 log = logging.getLogger(__name__)
 
@@ -1129,3 +1130,39 @@ def search_sql(context, data_dict):
         raise
     finally:
         context['connection'].close()
+
+
+def _get_read_only_user(data_dict):
+    parsed = cli.parse_db_config('ckan.datastore.read_url')
+    return parsed['db_user']
+
+
+def _change_privilege(context, data_dict, what):
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    read_only_user = _get_read_only_user(data_dict)
+    assert(what in ['REVOKE', 'GRANT'])
+    if what == 'REVOKE':
+        sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
+            data_dict['resource_id'],
+            read_only_user)
+    elif what == 'GRANT':
+        sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
+            data_dict['resource_id'],
+            read_only_user)
+    try:
+        context['connection'].execute(sql)
+    except ProgrammingError, e:
+        log.critical("Error making resource private. {0}".format(e.message))
+        raise ValidationError({
+            'privileges': [u'cannot make "{0}" private'.format(
+                           data_dict['resource_id'])],
+        })
+
+
+def make_private(context, data_dict):
+    _change_privilege(context, data_dict, 'REVOKE')
+
+
+def make_public(context, data_dict):
+    _change_privilege(context, data_dict, 'GRANT')
