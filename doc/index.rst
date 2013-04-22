@@ -57,7 +57,7 @@ Publishing Datasets
    :maxdepth: 2
 
    publishing-datasets
-   loading-data
+   importing-datasets
    authorization
    publisher-profile
    data-viewer
