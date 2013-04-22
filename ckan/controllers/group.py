@@ -176,14 +176,7 @@ class GroupController(BaseController):
         else:
             q += ' groups: "%s"' % c.group_dict.get('name')
 
-        try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(
-            c.group_dict.get('description', ''))
-            c.description_formatted = genshi.HTML(description_formatted)
-        except Exception, e:
-            error_msg = "<span class='inline-warning'>%s</span>" %\
-                        _("Cannot render description")
-            c.description_formatted = genshi.HTML(error_msg)
+        c.description_formatted = h.render_markdown(c.group_dict.get('description'))
 
         context['return_query'] = True
 
@@ -590,7 +583,7 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
-                   'schema': self._form_to_db_schema()}
+                   'schema': self._db_to_form_schema()}
         data_dict = {'id': id}
         try:
             c.group_dict = self._action('group_show')(context, data_dict)

@@ -5,7 +5,6 @@ Contributing to CKAN
 .. _CKAN repo on GitHub: https://github.com/okfn/ckan
 .. _CKAN issue tracker: https://github.com/okfn/ckan/issues
 .. _docs.ckan.org: http://docs.ckan.org
-.. _Contributing to CKAN's Documentation: https://github.com/okfn/ckan/blob/master/CONTRIBUTING.rst#contributing-to-ckans-documentation
 
 (This section is about contributing code, if you want to contribute
 documentation see `Contributing to CKAN's Documentation`_.)
@@ -14,6 +13,13 @@ CKAN is a free software project and code contributions are welcome. To
 contribute code to CKAN you should fork CKAN to your own GitHub account, push
 your code to a feature branch on your fork, then make a pull request for your
 branch on the central CKAN repo. We'll go through each step in detail below...
+
+
+Coding Standards
+----------------
+
+When writing code for CKAN, try to follow our
+`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
 
 
 Fork CKAN on GitHub
@@ -131,13 +137,6 @@ Merging
 When merging a feature or bug branch into master:
 
 - Use the ``--no-ff`` option in the ``git merge`` command,
-
-
-Coding Standards
-----------------
-
-When writing code for CKAN, try to follow our
-`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
 
 
 ====================================

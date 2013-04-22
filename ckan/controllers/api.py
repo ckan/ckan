@@ -532,6 +532,12 @@ class ApiController(base.BaseController):
                         params = search.\
                             convert_legacy_parameters_to_solr(params)
                     query = search.query_for(model.Package)
+
+                    # Remove any existing fq param and set the capacity to
+                    # public
+                    if 'fq' in params:
+                        del params['fq']
+                    params['fq'] = '+capacity:public'
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError, e:
@@ -566,7 +572,7 @@ class ApiController(base.BaseController):
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
-        results = ckan.misc.MarkdownFormat().to_html(raw_markdown)
+        results = h.render_markdown(raw_markdown)
 
         return self._finish_ok(results)
 

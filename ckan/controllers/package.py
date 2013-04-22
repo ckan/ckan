@@ -27,7 +27,6 @@ from ckan.logic import (tuplize_dict,
                         flatten_to_string_key)
 from ckan.lib.i18n import get_lang
 import ckan.rating
-import ckan.misc
 import ckan.lib.accept as accept
 import ckan.lib.helpers as h
 import ckan.lib.datapreview as datapreview
@@ -179,7 +178,6 @@ class PackageController(BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
-        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -222,10 +220,13 @@ class PackageController(BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license': _('Licence'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -250,6 +251,7 @@ class PackageController(BaseController):
             }
 
             query = get_action('package_search')(context, data_dict)
+            c.sort_by_selected = query['sort']
 
             c.page = h.Page(
                 collection=query['results'],
