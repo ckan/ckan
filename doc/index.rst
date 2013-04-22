@@ -35,7 +35,6 @@ Customizing and Extending
 
    theming
    apps-ideas
-   commenting
    extensions
    writing-extensions
    toolkit
