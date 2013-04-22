@@ -10,6 +10,7 @@ The file is well-documented, but we recommend reading this section in full to le
 
 .. note:: The CKAN config file also includes general Pylons options. All CKAN-specific settings are in the `[app:main]` section.
 
+
 Database Settings
 -----------------
 
@@ -33,7 +34,7 @@ ckan.site_title
 
 Example::
 
- ckan.site_title=Open Data Scotland
+ ckan.site_title = Open Data Scotland
 
 Default value:  ``CKAN``
 
@@ -66,7 +67,7 @@ ckan.site_about
 
 Example::
 
- ckan.site_about=A _community-driven_ catalogue of _open data_ for the Greenfield area.
+ ckan.site_about = A _community-driven_ catalogue of _open data_ for the Greenfield area.
 
 Default value::
 
@@ -132,7 +133,6 @@ Default value:  ``20``
 
 This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
 
-
 package_hide_extras
 ^^^^^^^^^^^^^^^^^^^
 
@@ -169,7 +169,6 @@ Example::
 Default value: ``infinite``
 
 This controls the number of activities to show in the Activity Stream. By default, it shows everything.
-
 
 ckan.preview.direct
 ^^^^^^^^^^^^^^^^^^^
@@ -234,7 +233,6 @@ To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 And there is an option for the default expiry time if not specified::
 
  ckan.cache.default_expires = 600
-
 
 ckan.feeds.author_name
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -304,6 +302,7 @@ This controls if the legacy genshi templates are used.
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
+
 Activity Streams Settings
 -------------------------
 
@@ -318,7 +317,6 @@ Default value:  ``True``
 
 Turns on and off the activity streams used to track changes on datasets, groups, users, etc
 
-
 ckan.activity_streams_email_notifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -331,6 +329,7 @@ Default value:  ``False``
 Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
 the emails. For more information, visit :ref:`email-notifications`.
 
+
 .. _config-i18n:
 
 Internationalisation Settings
@@ -341,7 +340,7 @@ ckan.locale_default
 
 Example::
 
- ckan.locale_default=de
+ ckan.locale_default = de
 
 Default value:  ``en`` (English)
 
@@ -354,7 +353,7 @@ ckan.locales_offered
 
 Example::
 
- ckan.locales_offered=en de fr
+ ckan.locales_offered = en de fr
 
 Default value: (none)
 
@@ -365,7 +364,7 @@ ckan.locales_filtered_out
 
 Example::
 
- ckan.locales_filtered_out=pl ru
+ ckan.locales_filtered_out = pl ru
 
 Default value: (none)
 
@@ -376,7 +375,7 @@ ckan.locale_order
 
 Example::
 
- ckan.locale_order=fr de
+ ckan.locale_order = fr de
 
 Default value: (none)
 
@@ -511,7 +510,7 @@ extra_template_paths
 
 Example::
 
- extra_template_paths=/home/okfn/brazil_ckan_config/templates
+ extra_template_paths = /home/okfn/brazil_ckan_config/templates
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
@@ -567,7 +566,6 @@ If integrating the Edit Dataset and New Dataset forms into a third-party interfa
 
 The ``<NAME>`` string is replaced with the name of the dataset edited. Full details of this process are given in :doc:`form-integration`.
 
-
 licenses_group_url
 ^^^^^^^^^^^^^^^^^^
 
@@ -597,7 +595,7 @@ carrot_messaging_library
 
 Example::
 
- carrot_messaging_library=pyamqplib
+ carrot_messaging_library = pyamqplib
 
 This is the messaging library backend to use. Options::
 
@@ -611,17 +609,18 @@ This is the messaging library backend to use. Options::
 
 See the `Carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
-amqp_hostname, amqp_port, amqp_user_id, amqp_password
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+amqp_hostname & amqp_port & amqp_user_id & amqp_password
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- amqp_hostname=localhost
- amqp_port=5672
- amqp_user_id=guest
- amqp_password=guest
+ amqp_hostname = localhost
+ amqp_port = 5672
+ amqp_user_id = guest
+ amqp_password = guest
 
 These are the setup parameters for AMQP messaging. These only apply if the messaging library has been set to use AMQP (see `carrot_messaging_library`_). The values given above are the default values.
+
 
 Search Settings
 ---------------
@@ -702,7 +701,6 @@ Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
 
-
 ckan.search.show_all_types
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -725,7 +723,7 @@ ckan.site_url
 
 Example::
 
- ckan.site_url=http://scotdata.ckan.net
+ ckan.site_url = http://scotdata.ckan.net
 
 Default value:  (none)
 
@@ -736,7 +734,7 @@ ckan.api_url
 
 Example::
 
- ckan.api_url=http://scotdata.ckan.net/api
+ ckan.api_url = http://scotdata.ckan.net/api
 
 Default value:  ``/api``
 
@@ -843,6 +841,7 @@ This configs if the debug information showing the controller and action
 receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
+
 
 Plugin Settings
 ---------------
