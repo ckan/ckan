@@ -174,7 +174,6 @@ class PackageController(base.BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
-        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -217,10 +216,13 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license': _('Licence'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -245,6 +247,7 @@ class PackageController(base.BaseController):
             }
 
             query = get_action('package_search')(context, data_dict)
+            c.sort_by_selected = query['sort']
 
             c.page = h.Page(
                 collection=query['results'],
@@ -607,9 +610,16 @@ class PackageController(base.BaseController):
                     abort(401, _('Unauthorized to update dataset'))
                 if not len(data_dict['resources']):
                     # no data so keep on page
-                    h.flash_error(_('You must add at least one data resource'))
-                    redirect(h.url_for(controller='package',
-                                       action='new_resource', id=id))
+                    msg = _('You must add at least one data resource')
+                    # On new templates do not use flash message
+                    if g.legacy_templates:
+                        h.flash_error(msg)
+                        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+                    else:
+                        errors = {}
+                        error_summary = {_('Error'): msg}
+                        return self.new_resource(id, data, errors, error_summary)
                 # we have a resource so let them add metadata
                 redirect(h.url_for(controller='package',
                                    action='new_metadata', id=id))
