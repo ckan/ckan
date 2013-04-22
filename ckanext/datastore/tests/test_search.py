@@ -473,22 +473,27 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
-                                  u'_id': 1,
-                                  u'author': u'tolstoy',
-                                  u'b\xfck': u'annakarenina',
-                                  u'nested': [u'b', {u'moo': u'moo'}],
-                                  u'published': u'2005-03-01T00:00:00'},
-                                 {u'_full_text': u"'b':3 'tolstoy':2 'warandpeac':1",
-                                  u'_id': 2,
-                                  u'author': u'tolstoy',
-                                  u'b\xfck': u'warandpeace',
-                                  u'nested': {u'a': u'b'},
-                                  u'published': None}]
+                                 u'_id': 1,
+                                 u'author': u'tolstoy',
+                                 u'b\xfck': u'annakarenina',
+                                 u'nested': [u'b', {u'moo': u'moo'}],
+                                 u'published': u'2005-03-01T00:00:00'},
+                                {u'_full_text': u"'b':3 'tolstoy':2 'warandpeac':1",
+                                 u'_id': 2,
+                                 u'author': u'tolstoy',
+                                 u'b\xfck': u'warandpeace',
+                                 u'nested': {u'a': u'b'},
+                                 u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
+
+        import pylons
+        engine = db._get_engine(None,
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
+        cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
-        model.repo.rebuild_db()
+        rebuild_all_dbs(cls.Session)
         p.unload('datastore')
 
     def test_is_single_statement(self):
@@ -508,7 +513,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             assert db._is_single_statement(multiple) is False
 
     def test_invalid_statement(self):
-        query = 'SELECT ** FROM public.foobar'
+        query = 'SELECT ** FROM foobar'
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
@@ -518,7 +523,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert res_dict['success'] is False
 
     def test_select_basic(self):
-        query = 'SELECT * FROM public."{0}"'.format(self.data['resource_id'])
+        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
@@ -530,7 +535,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert result['records'] == self.expected_records
 
         # test alias search
-        query = 'SELECT * FROM public."{0}"'.format(self.data['aliases'])
+        query = 'SELECT * FROM "{0}"'.format(self.data['aliases'])
         data = {'sql': query}
         postparams = json.dumps(data)
         res = self.app.post('/api/action/datastore_search_sql', params=postparams,
