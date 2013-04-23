@@ -359,7 +359,7 @@ def _get_resources(context, alias):
 
 def create_alias(context, data_dict):
     aliases = _get_list(data_dict.get('aliases'))
-    if aliases != None:
+    if aliases is not None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
@@ -977,7 +977,8 @@ def create(context, data_dict):
                 'constraints': ['Cannot insert records or create index because '
                                 'of uniqueness constraint'],
                 'info': {
-                    'details': str(e)
+                    'orig': str(e.orig),
+                    'pgcode': e.orig.pgcode
                 }
             })
         raise
@@ -1020,7 +1021,8 @@ def upsert(context, data_dict):
                 'constraints': ['Cannot insert records or create index because '
                                 'of uniqueness constraint'],
                 'info': {
-                    'details': str(e)
+                    'orig': str(e.orig),
+                    'pgcode': e.orig.pgcode
                 }
             })
         raise
@@ -1119,8 +1121,8 @@ def search_sql(context, data_dict):
         raise ValidationError({
             'query': [str(e)],
             'info': {
-                'statement': [e.statement],
-                'orig': [str(e.orig)],
+                'statement': e.statement,
+                'orig': str(e.orig),
                 'pgcode': e.orig.pgcode
             }
         })
