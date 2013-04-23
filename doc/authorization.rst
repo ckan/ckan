@@ -7,9 +7,9 @@ Authorization
 
 CKAN's authorization system controls which users are allowed to carry out which
 actions on the site. All actions that users can carry out on a CKAN site are
-controlled by the authorization system. For example, who can register new user
-accounts, delete user accounts, or create, edit and delete datasets, groups and
-organizations.
+controlled by the authorization system. For example, the authorization system
+controls who can register new user accounts, delete user accounts, or create,
+edit and delete datasets, groups and organizations.
 
 Authorization in CKAN can be controlled in three ways:
 
@@ -47,19 +47,22 @@ three roles: member, editor or admin.
 An organization **admin** can:
 
 * View the organization's private datasets
-* Edit and delete the organization
-* Edit and delete the organization's datasets
 * Add new datasets to the organization
+* Edit or delete any of the organization's datasets
 * Make  datasets public or private.
-* Add users to the organization, and choose whether to make the new user an
+* Add users to the organization, and choose whether to make the new user a
   member, editor or admin
 * Change the role of any user in the organization, including other admin users
 * Remove members, editors or other admins from the organization
+* Edit the organization itself (for example: change the organization's title,
+  description or image)
+* Delete the organization
 
 An **editor** can:
 
 * View the organization's private datasets
-* Add, edit and delete the organization's datasets
+* Add new datasets to the organization
+* Edit or delete any of the organization's datasets
 
 A **member** can:
 
@@ -103,4 +106,9 @@ authorization behavior:
 Extensions
 ----------
 
-CKAN allows extensions to change the authorization rules used.  Please see individual extensions for details.
+CKAN allows extensions to change the authorization rules used.  Please see
+individual extensions for details.
+
+.. todo::
+
+  Insert cross-reference to ``IAuthFunctions`` docs.
