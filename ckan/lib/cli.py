@@ -1851,7 +1851,7 @@ class LessCommand(CkanCommand):
 
     custom_css = {
         'fuchsia': '''
-            @layoutLinkColor: #8B49A7;
+            @layoutLinkColor: #E73892;
             @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
             @footerLinkColor: @footerTextColor;
             @mastheadBackgroundColor: @layoutLinkColor;
