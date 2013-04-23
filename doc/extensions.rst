@@ -56,22 +56,62 @@ restarting CKAN.
 Plugins are processed in the order they are defined in the config.
 
 
+==================
 Writing Extensions
 ==================
 
-Extensions are implemented as *namespace packages* under the ``ckanext``
-package which means that they can be imported like this:
+Plugins: An Overview
+--------------------
 
-::
+CKAN provides a number of plugin interfaces.  An extension can use one or
+more of these interfaces to interact with CKAN.  Each interface specifies
+one or more methods that CKAN will call to use the extension.
 
-    $ python
-    >>> import ckanext.example
+Extensions are created as classes inheriting from either the `Plugin` or
+`SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
+base class and we advise you to use this if possible.
 
-Individual CKAN *extensions* may implement one or more *plugin interfaces*
-to provide their functionality.
+Having created your class you need to inherit from one or more plugin
+interfaces to allow CKAN to interact with your extension.  When specifying
+the interfaces that will be implemented you must remember to either (a)
+define all methods required by the interface or (b) use the `inherits=True`
+parameter which will use the interfaces default methods for any that you
+have not defined.
+
+.. Note::
+    When writing extensions it is important to keep your code separate from
+    CKAN by not importing ckan modules, so that internal CKAN changes do not
+    break your code between releases.  You can however import ckan.plugins
+    without this risk.
+
+Libraries Available To Extensions
+---------------------------------
+
+As well as using the variables made available to them by implementing
+various plugin hooks, extensions will likely want to be able to use parts of
+the CKAN core library.  To allow this, CKAN provides a stable set of modules
+that extensions can use safe in the knowledge the interface will remain
+stable, backward-compatible and with clear deprecation guidelines as
+development of CKAN core progresses.  This interface is available in
+:doc:`toolkit`.
+
+Guidelines for writing extensions:
+----------------------------------
+
+- Use the plugins toolkit, described above.
+
+- Extensions should use actions where possible via ``get_action()``. This
+  function is available in the toolkit.
+
+- No foreign key constraints into core as these cause problems.
+
+.. Did we decide upon this, this seems like quite a restriction?
+
+.. todo:: Anything else?
+
 
 Creating CKAN Extensions
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 All CKAN extensions must start with the name ``ckanext-``. You can create
 your own CKAN extension like this (you must be in your CKAN pyenv):
@@ -100,31 +140,6 @@ Once you've run this, you should now install the extension in your virtual envir
 
     To instead install a python package by copying all of the files to the
     site-packages directory run ``python setup.py install``.
-
-
-Plugins: An Overview
---------------------
-
-CKAN provides a number of plugin interfaces.  An extension can use one or
-more of these interfaces to interact with CKAN.  Each interface specifies
-one or more methods that CKAN will call to use the extension.
-
-Extensions are created as classes inheriting from either the `Plugin` or
-`SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
-base class and we advise you to use this if possible.
-
-Having created your class you need to inherit from one or more plugin
-interfaces to allow CKAN to interact with your extension.  When specifying
-the interfaces that will be implemented you must remember to either (a)
-define all methods required by the interface or (b) use the `inherits=True`
-parameter which will use the interfaces default methods for any that you
-have not defined.
-
-.. Note::
-    When writing extensions it is important to keep your code separate from
-    CKAN by not importing ckan modules, so that internal CKAN changes do not
-    break your code between releases.  You can however import ckan.plugins
-    without this risk.
 
 
 Testing
@@ -188,31 +203,6 @@ together with their tests.
 
 Plugin API Documentation
 ========================
-
-Libraries Available To Extensions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As well as using the variables made available to them by implementing
-various plugin hooks, extensions will likely want to be able to use parts of
-the CKAN core library.  To allow this, CKAN provides a stable set of modules
-that extensions can use safe in the knowledge the interface will remain
-stable, backward-compatible and with clear deprecation guidelines as
-development of CKAN core progresses.  This interface is available in
-:doc:`toolkit`.
-
-Guidelines for writing extensions:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Use the plugins toolkit, described above.
-
-- Extensions should use actions where possible via ``get_action()``. This
-  function is available in the toolkit.
-
-- No foreign key constraints into core as these cause problems.
-
-.. Did we decide upon this, this seems like quite a restriction?
-
-.. todo:: Anything else?
 
 Core Plugin Reference
 ~~~~~~~~~~~~~~~~~~~~~
