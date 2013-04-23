@@ -958,7 +958,7 @@ def create(context, data_dict):
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         result = context['connection'].execute(
             u'SELECT * FROM pg_tables WHERE tablename = %s',
-             data_dict['resource_id']
+            data_dict['resource_id']
         ).fetchone()
         if not result:
             create_table(context, data_dict)
@@ -967,6 +967,8 @@ def create(context, data_dict):
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         create_alias(context, data_dict)
+        if data_dict.get('private'):
+            _change_privilege(context, data_dict, 'REVOKE')
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
@@ -1045,7 +1047,7 @@ def delete(context, data_dict):
         trans = context['connection'].begin()
         result = context['connection'].execute(
             u'SELECT 1 FROM pg_tables WHERE tablename = %s',
-             data_dict['resource_id']
+            data_dict['resource_id']
         ).fetchone()
         if not result:
             raise ValidationError({
@@ -1138,10 +1140,6 @@ def _get_read_only_user(data_dict):
 
 
 def _change_privilege(context, data_dict, what):
-    log.info('Changing permissions of resource {0} with {1}'.format(
-        data_dict['resource_id'], what))
-    engine = _get_engine(context, data_dict)
-    context['connection'] = engine.connect()
     read_only_user = _get_read_only_user(data_dict)
     assert(what in ['REVOKE', 'GRANT'])
     if what == 'REVOKE':
@@ -1160,17 +1158,29 @@ def _change_privilege(context, data_dict, what):
             'privileges': [u'cannot make "{0}" private'.format(
                            data_dict['resource_id'])],
             'info': {
-                'orig': [str(e.orig)],
+                'orig': str(e.orig),
                 'pgcode': e.orig.pgcode
             }
         })
+
+
+def make_private(context, data_dict):
+    log.info('Making resource {0} privtae'.format(
+        data_dict['resource_id']))
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    try:
+        _change_privilege(context, data_dict, 'REVOKE')
     finally:
         context['connection'].close()
 
 
-def make_private(context, data_dict):
-    _change_privilege(context, data_dict, 'REVOKE')
-
-
 def make_public(context, data_dict):
-    _change_privilege(context, data_dict, 'GRANT')
+    log.info('Making resource {0} public'.format(
+        data_dict['resource_id']))
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    try:
+        _change_privilege(context, data_dict, 'GRANT')
+    finally:
+        context['connection'].close()

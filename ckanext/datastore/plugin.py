@@ -20,6 +20,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IDomainObjectModification, inherit=True)
 
     legacy_mode = False
 
@@ -99,6 +100,26 @@ class DatastorePlugin(p.SingletonPlugin):
         if not hasattr(resource_show, '_datastore_wrapped'):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
+
+    def notify(self, entity, operation):
+        if not isinstance(entity, model.Package) or self.legacy_mode:
+            return
+        # if a resource is new, it cannot have a datastore resource, yet
+        if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True, 'validate': False}
+            if entity.private:
+                func = p.toolkit.get_action('datastore_make_private')
+            else:
+                func = p.toolkit.get_action('datastore_make_public')
+            for resource in entity.resources:
+                try:
+                    func(context, {
+                        'connection_url': self.write_url,
+                        'resource_id': resource.id})
+                except p.toolkit.ObjectNotFound:
+                    pass
+        elif operation == model.domain_object.DomainObjectOperation.deleted:
+            pass  # TODO: delete datastore resource
 
     def _log_or_raise(self, message):
         if self.config.get('debug'):

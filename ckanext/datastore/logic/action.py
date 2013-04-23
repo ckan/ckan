@@ -71,8 +71,14 @@ def datastore_create(context, data_dict):
                 'alias': ['{0} is not a valid alias name'.format(alias)]
             })
 
+    # create a private datastore resource, if necessary
+    resource = model.Resource.get(res_id)
+    if resource.resource_group.package.private:
+        data_dict['private'] = True
+
     result = db.create(context, data_dict)
     result.pop('id', None)
+    result.pop('private', None)
     result.pop('connection_url')
     return result
 
