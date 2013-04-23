@@ -1143,7 +1143,6 @@ def _get_read_only_user(data_dict):
 
 def _change_privilege(context, data_dict, what):
     read_only_user = _get_read_only_user(data_dict)
-    assert(what in ['REVOKE', 'GRANT'])
     if what == 'REVOKE':
         sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
             data_dict['resource_id'],
@@ -1152,6 +1151,9 @@ def _change_privilege(context, data_dict, what):
         sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
             data_dict['resource_id'],
             read_only_user)
+    else:
+        raise ValidationError({
+            'privileges': 'Can only GRANT or REVOKE but not {0}'.format(what)})
     try:
         context['connection'].execute(sql)
     except ProgrammingError, e:
