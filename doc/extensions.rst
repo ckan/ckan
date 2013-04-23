@@ -29,8 +29,8 @@ Non-Core Extensions
 
 Many other extensions are available and may be used with CKAN.  These will
 need to be installed.  Every extension should include instructions on how to
-install and configure it.  `Extension listing on the CKAN
- -wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
+install and configure it.  `Extension listing on the CKAN-wiki
+<https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
 
 
 Enabling a Plugin
@@ -126,7 +126,7 @@ have not defined.
 
 
 Testing
--------
+=======
 
 Testing CKAN Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,7 +185,7 @@ together with their tests.
 
 
 Plugin API Documentation
-------------------------
+========================
 
 Libraries Available To Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
