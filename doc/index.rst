@@ -38,7 +38,6 @@ Customizing and Extending
    templating
    resources
    apps-ideas
-   commenting
    extensions
    writing-extensions
    toolkit
