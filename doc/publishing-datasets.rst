@@ -16,7 +16,7 @@ Dataset
     Datasets contain resources.
 
 Resource
-    A resource represent individual data items in a dataset.
+    A resource represents individual data items in a dataset.
     For example: a ``csv`` file, the URL of an API, etc.
 
 Both datasets and resources can have information (metadata) associated with
@@ -33,7 +33,7 @@ that represent the same underlying data in different formats
 Storing data in CKAN and external resources
 ===========================================
 
-A CKAN resource be simply a URL that links to a data item that resides on a
+A CKAN resource may be simply a URL that links to a data item that resides on a
 different server (for example: a link to an online ``csv`` file).
 These resources are said to be *external* as they are not actually part of
 the CKAN site.
