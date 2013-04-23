@@ -571,15 +571,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             'resource_id': self.data['resource_id'],
             'connection_url': config['ckan.datastore.write_url']}
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
-        '''
-        data = {'resource_id': self.data['resource_id']}
-        postparams = json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_make_private', params=postparams,
-                            extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
-        '''
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}
         postparams = json.dumps(data)
@@ -589,3 +580,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Authorization Error'
+
+        # make it public for the other tests
+        p.toolkit.get_action('datastore_make_public')(context, data_dict)

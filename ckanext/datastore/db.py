@@ -1146,6 +1146,7 @@ def _get_read_only_user(data_dict):
 
 
 def _change_privilege(context, data_dict, what):
+    ''' We need a transaction for this code to work '''
     read_only_user = _get_read_only_user(data_dict)
     if what == 'REVOKE':
         sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
@@ -1177,8 +1178,10 @@ def make_private(context, data_dict):
         data_dict['resource_id']))
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    trans = context['connection'].begin()
     try:
         _change_privilege(context, data_dict, 'REVOKE')
+        trans.commit()
     finally:
         context['connection'].close()
 
@@ -1188,7 +1191,9 @@ def make_public(context, data_dict):
         data_dict['resource_id']))
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
+    trans = context['connection'].begin()
     try:
         _change_privilege(context, data_dict, 'GRANT')
+        trans.commit()
     finally:
         context['connection'].close()
