@@ -8,7 +8,6 @@ Authorization in CKAN is controlled in a number of ways.
 
 * Organizations
 * Config settings
-* Authorization functions
 
 This document aims to explain them.
 
@@ -31,14 +30,15 @@ Currently the roles available are.
 
 ``Admin``
   Administrators of an organization can add or remove members of the
-  organization.  They can add, edit, view and delete datasets owned by the
-  organization.  Admins can also make owned datasets public or private.
-  When a user creates a new organization, they automatically become the
-  first administrator of that organization.
+  organization, as well as edit or delete the organization itself.  They can
+  add, edit, view and delete datasets owned by the organization.  Admins can
+  also make owned datasets public or private.  When a user creates a new
+  organization, they automatically become the first administrator of that
+  organization.
 
 ``Editor``
-  Editors of an organization can view, edit and delete datasets as well as
-  view any owned datasets.
+  Editors of an organization can view, edit, add and delete datasets as well
+  as view any owned datasets.
 
 ``Member``
   Members of an organization can view datasets belonging to an organization
@@ -75,21 +75,3 @@ These include
 
 ``ckan.auth.create_user_via_api``
   allow non system administrator users to be created via the API, default: False
-
-
-Authorization functions
------------------------
-
-Each logic function in CKAN has a corresponding authorization function.
-These functions are in files in the `ckan/logic/auth` directory.  These
-functions are used to determine if the user has the permission to perform
-the given action.  Because CKAN allows these functions to be redefined by
-extensions it is important never to directly call these functions but to
-call them via the `ckan.logic.check_access()` function.  If the user does
-not have permission a `NotAuthorized` exception is raised.
-
-.. note:: extensions should access both `check_access` and `NotAuthorized`
-via the plugins toolkit - see the section on Extensions for more details.
-
-Templates can access authorization functions via the `h.check_access()`
-template helper function.
