@@ -6,6 +6,7 @@ The following is an index of other front-end CKAN documentation.
 -  `HTML Coding Standards`_: The CKAN project HTML coding standards.
 -  `CSS Coding Standards`_: The CKAN project CSS coding standards.
 -  `JavaScript Coding Standards`_: The CKAN project JavaScript coding standards.
+-  `Front End Testing`_: A guide for front end testing and browser support.
 -  `Templating`_: A guide to the templating within CKAN.
 -  `Resources`_: Documentation on how static resources get included in pages.
 -  `Extension Templating`_: A quick guide to templating extensions.
@@ -15,6 +16,7 @@ The following is an index of other front-end CKAN documentation.
 .. _HTML Coding Standards: ./html-coding-standards.html
 .. _CSS Coding Standards: ./css-coding-standards.html
 .. _JavaScript Coding Standards: ./javascript-coding-standards.html
+.. _Front End Testing: ./frontend-testing.html
 .. _Templating: ./templating.html
 .. _Resources: ./resources.html
 .. _Extension Templating: ./extension-templating.html
