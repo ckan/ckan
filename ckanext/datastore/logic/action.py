@@ -121,14 +121,14 @@ def datastore_upsert(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
-
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
 
     result = db.upsert(context, data_dict)
     result.pop('id', None)
@@ -155,14 +155,14 @@ def datastore_delete(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
-
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
 
     result = db.delete(context, data_dict)
     result.pop('id', None)
