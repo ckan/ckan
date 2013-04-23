@@ -15,7 +15,7 @@ Authorization in CKAN can be controlled in three ways:
 
 1. Organizations
 2. Configuration file options
-3. Authorization functions
+3. Extensions
 
 The following sections explain each of the three methods in turn.
 
@@ -61,7 +61,9 @@ An **editor** can:
 * View the organization's private datasets
 * Add, edit and delete the organization's datasets
 
-A **member** of an organization can view the organization's private datasets.
+A **member** can:
+
+* View the organization's private datasets.
 
 
 Configuration File Options
@@ -98,19 +100,7 @@ authorization behavior:
   Allow new user accounts to be created via the API, default: false.
 
 
-Authorization Functions
------------------------
+Extensions
+----------
 
-Each logic function in CKAN has a corresponding authorization function.
-These functions are in files in the `ckan/logic/auth` directory.  These
-functions are used to determine if the user has the permission to perform
-the given action.  Because CKAN allows these functions to be redefined by
-extensions it is important never to directly call these functions but to
-call them via the `ckan.logic.check_access()` function.  If the user does
-not have permission a `NotAuthorized` exception is raised.
-
-.. note:: extensions should access both `check_access` and `NotAuthorized`
-  via the plugins toolkit - see the section on Extensions for more details.
-
-Templates can access authorization functions via the `h.check_access()`
-template helper function.
+CKAN allows extensions to change the authorization rules used.  Please see individual extensions for details.
