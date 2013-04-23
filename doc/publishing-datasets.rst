@@ -2,42 +2,67 @@
 Publishing Datasets
 ===================
 
-This tutorial provides a walk-through of publishing data on CKAN.
+.. note: CKAN instances will often have a custom publishing workflow.
+         The tutorial presented here assumes the standard (default) workflow.
 
-.. note: Often, a given CKAN instance will have a custom publishing workflow.
-         The tutorial presented here assumes the standard, default, workflow as
-         deployed on e.g. the DataHub_.
-         
-.. _DataHub: http://thedatahub.org/
 
-Quickstart Tutorial
-===================
+Datasets and resources
+======================
 
-.. raw:: html
+CKAN organizes data using the concepts of *datasets* and *resources*.
 
-    <iframe src="https://docs.google.com/presentation/embed?id=1hIvpwY0oA6A7W2I_FCM7wy9KEkPqPGQNhh3L0NyiLUM&start=false&loop=false&delayms=3000" frameborder="0" width="480" height="389" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+Dataset
+    A dataset is the primary object - a "set of data".
+    Datasets contain resources.
 
-Step-by-Step Tutorial (In Progress)
-===================================
+Resource
+    A resource represent individual data items in a dataset.
+    For example: a ``csv`` file, the URL of an API, etc.
 
-Step 0 - Identify Some Data to Use
-----------------------------------
+Both datasets and resources can have information (metadata) associated with
+them.
 
-For the purposes of this tutorial you will want to have some data which you
-want to publish on your CKAN instance (we will be using the DataHub_ in our
-examples but please replace with your own instance). If you don't have one to
-hand we suggest you just use some of the raw data from this `Gold Prices
-Dataset`_ on the DataHub (just pretend you dug it up somewhere on the
-Internet!).
+Although datasets may contain any number of resources, they will generally
+consist of a relatively small number of resources that are grouped together
+because the resource content is similar in some way.
+For example, a dataset may contain multiple resources
+that represent the same underlying data in different formats
+(for example: ``csv`` and ``xls`` files).
 
-.. _Gold Prices Dataset: http://thedatahub.org/dataset/gold-prices
 
-Walkthroughs
-============
+Storing data in CKAN and external resources
+===========================================
 
-Walkthrough of publishing some data and uploading it to the FileStore:
-http://ckan.org/2011/09/26/ux-improvements-file-uploading/
+A CKAN resource be simply a URL that links to a data item that resides on a
+different server (for example: a link to an online ``csv`` file).
+These resources are said to be *external* as they are not actually part of
+the CKAN site.
+The data can be changed without any update to the CKAN resource.
 
-Walkthrough of publishing a dataset and uploading data to both FileStore and
-the DataStore: http://ckan.org/2012/03/27/ckan-datastore-and-data-api/
+Data can also be stored directly in a CKAN site. There are two ways to do this:
 
+1. Using the `FileStore <filestore.html>`_.
+2. Using the `DataStore <datastore.html>`_.
+
+
+Publishing a dataset: a brief tutorial
+======================================
+
+
+* Select some data to use.
+  For the purposes of this tutorial you will want to have some data to publish
+  on a CKAN site. If you don't have any, we suggest that you just use some
+  of the raw data from this `Gold Prices dataset`_ on the DataHub.
+* Log in to the CKAN site (or sign up if you don't have an account yet).
+* Click on "Datasets" in the menu at the top.
+* Click on "Add Dataset" at the top right (below the search box).
+* Fill in the fields in the form and click "Next: Add Data".
+* Add a link to your data or upload a file. More than one resource can be
+  added by clicking "Save & add another". When you are finished adding
+  resources, click "Next: Additional Info".
+* Add any additional information that you have and then click "Finish".
+
+You should now be redirected to the page for your new dataset. You can come
+back and edit this dataset at any time.
+
+.. _Gold Prices Dataset: http://datahub.io/dataset/gold-prices
