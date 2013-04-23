@@ -46,11 +46,14 @@ def datastore_create(context, data_dict):
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     '''
-    model = _get_or_bust(context, 'model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+
+    # Resource only has to exist in CKAN
+    model = _get_or_bust(context, 'model')
     if not model.Resource.get(res_id):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
@@ -108,12 +111,11 @@ def datastore_upsert(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(res_id):
+    if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
@@ -143,12 +145,11 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    model = _get_or_bust(context, 'model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(res_id):
+    if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
@@ -224,13 +225,14 @@ def datastore_search(context, data_dict):
                                         WHERE name = :id''')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
 
+    # Resource only has to exist in the datastore (because it could be an alias)
     if not results.rowcount > 0:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
 
     if not data_dict['resource_id'] in WHITELISTED_RESOURCES:
-        # replace potential alias with real id to simplify access checks
+        # Replace potential alias with real id to simplify access checks
         resource_id = results.fetchone()[0]
         if resource_id:
             data_dict['resource_id'] = resource_id
@@ -290,12 +292,11 @@ def datastore_search_sql(context, data_dict):
 
 
 def datastore_make_private(context, data_dict):
-    model = _get_or_bust(context, 'model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(res_id):
+    if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
@@ -307,12 +308,11 @@ def datastore_make_private(context, data_dict):
 
 
 def datastore_make_public(context, data_dict):
-    model = _get_or_bust(context, 'model')
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    if not model.Resource.get(res_id):
+    if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
@@ -321,3 +321,16 @@ def datastore_make_public(context, data_dict):
 
     data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
     db.make_public(context, data_dict)
+
+
+def _resource_exists(context, data_dict):
+    # Returns true if the resource exists in CKAN and in the datastore
+    model = _get_or_bust(context, 'model')
+    res_id = _get_or_bust(data_dict, 'resource_id')
+    if not model.Resource.get(res_id):
+        return False
+
+    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
+                                        WHERE name = :id AND alias_of IS NULL''')
+    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    return results.rowcount > 0
