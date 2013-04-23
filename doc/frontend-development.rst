@@ -1,5 +1,5 @@
-Front End Documenation
-======================
+Front End Documentation
+=======================
 
 The following is an index of other front-end CKAN documentation.
 
