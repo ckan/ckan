@@ -63,6 +63,8 @@ config_details = {
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
     'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
+    'search.facets.default': {'default': '10', 'type': 'int',
+                             'name': 'facets_default_number'},
 }
 
 
