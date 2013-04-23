@@ -1173,7 +1173,7 @@ def _change_privilege(context, data_dict, what):
 
 
 def make_private(context, data_dict):
-    log.info('Making resource {0} privtae'.format(
+    log.info('Making resource {0} private'.format(
         data_dict['resource_id']))
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
