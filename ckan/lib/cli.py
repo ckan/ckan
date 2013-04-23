@@ -1851,35 +1851,39 @@ class LessCommand(CkanCommand):
 
     custom_css = {
         'fuchsia': '''
-            @layoutLinkColor: #b509b5;
-            @mastheadBackgroundColorStart: #dc0bdc;
-            @mastheadBackgroundColorEnd: #f31df3;
-            @btnPrimaryBackground: #f544f5;
-            @btnPrimaryBackgroundHighlight: #f76bf7;
+            @layoutLinkColor: #8B49A7;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'green': '''
-            @layoutLinkColor: #045b04;
-            @mastheadBackgroundColorStart: #068106;
-            @mastheadBackgroundColorEnd: #08a808;
-            @btnPrimaryBackground: #0acf0a;
-            @btnPrimaryBackgroundHighlight: #10f210
+            @layoutLinkColor: #2F9B45;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'red': '''
-            @layoutLinkColor: #b50909;
-            @mastheadBackgroundColorStart: #dc0b0b;
-            @mastheadBackgroundColorEnd: #f31d1d;
-            @btnPrimaryBackground: #f54444;
-            @btnPrimaryBackgroundHighlight: #f76b6b;
+            @layoutLinkColor: #C14531;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'maroon': '''
-            @layoutLinkColor: #5b0404;
-            @mastheadBackgroundColorStart: #810606;
-            @mastheadBackgroundColorEnd: #a80808;
-            @btnPrimaryBackground: #cf0a0a;
-            @btnPrimaryBackgroundHighlight: #f21010;
+            @layoutLinkColor: #810606;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
     }
     def less(self):
