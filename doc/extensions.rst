@@ -2,9 +2,8 @@
 Extensions
 ==========
 
-CKAN can be customised with 'extensions'. These are a simple way to extend
-core CKAN functionality.  Extensions allow you to customise CKAN for your
-own requirements, without interfering with the basic CKAN system.
+CKAN extensions are a powerful way to extend and customize core CKAN
+functionality, without modifying or interfering with CKAN core itself.
 
 Core Extensions
 ---------------
@@ -25,54 +24,34 @@ Non-Core Extensions
 
 Many other extensions are available and may be used with CKAN.  These will
 need to be installed.  Every extension should include instructions on how to
-install and configure it.
+install and configure it.  `Extension listing on the CKAN
+ -wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
 
-Enabling an Extension
----------------------
+
+Enabling a Plugin
+-----------------
 
 1. Add the names of the extension's plugins to the CKAN config file in the
-   '[app:main]' section under 'ckan.plugins'. If your extension implements
+   ``[app:main]`` section under ``ckan.plugins``. If your extension implements
    multiple different plugin interfaces, separate them with spaces e.g.::
 
        [app:main]
        ckan.plugins = stats jsonpreview
 
-2. To have this configuration change take effect it may be necessary to
-   restart CKAN, which usually means restarting Apache::
+2. To have this configuration change take effect it CKAN should be
+   restarted, which usually means restarting Apache::
 
        sudo /etc/init.d/apache2 restart
 
 Your extension should now be enabled. You can disable it at any time by
-removing it from the list of ckan.plugins in the config file and restarting
-CKAN.
+removing it from the list of ``ckan.plugins`` in the config file and
+restarting CKAN.
 
-Extensions are run in the order defined in the config.
+Plugins are processed in the order defined in the config.
 
 
-Understand and Write Extensions
-===============================
-
-If you want to extend CKAN core functionality, the best way to do so is by
-writing extensions.
-
-Extensions allow you to customise CKAN for your own requirements, without
-interfering with the basic CKAN system.
-
-To meet the need to customize CKAN efficiently, we have introduced the
-concepts of CKAN extensions and plugin interfaces. These work together to
-provide a simple mechanism to extend core CKAN functionality.
-
-.. warning:: This is an advanced topic. We are working to make the most
-  popular extensions more easily available as Debian packages.
-
-.. note:: The terms **extension** and **plugin interface** have very precise
-  meanings: the use of the generic word **plugin** to describe any way in
-  which CKAN might be extended is deprecated.
-
-.. contents ::
-
-CKAN Extensions
----------------
+Writing Extensions
+==================
 
 Extensions are implemented as *namespace packages* under the ``ckanext``
 package which means that they can be imported like this:
@@ -96,40 +75,7 @@ your own CKAN extension like this (you must be in your CKAN pyenv):
 
 You'll get prompted to complete a number of variables which will be used in
 your dataset. You change these later by editing the generated ``setup.py``
-file. Here's some example output:
-
-::
-
-    Selected and implied templates:
-      ckan#ckanext  CKAN extension project template
-
-    Variables:
-      egg:      ckanext_myextension
-      package:  ckanextmyextension
-      project:  ckanext-myextension
-    Enter version (Version (like 0.1)) ['']: 0.4
-    Enter description (One-line description of the package) ['']: Great extension package
-    Enter author (Author name) ['']: James Gardner
-    Enter author_email (Author email) ['']: james.gardner@okfn.org
-    Enter url (URL of homepage) ['']: http://jimmyg.org
-    Enter license_name (License name) ['']: GPL
-    Creating template ckanext
-    Creating directory ./ckanext-myextension
-      Directory ./ckanext-myextension exists
-      Skipping hidden file pyenv/src/ckan/ckan/pastertemplates/template/.setup.py_tmpl.swp
-      Recursing into ckanext
-        Creating ./ckanext-myextension/ckanext/
-        .svn/ does not exist; cannot add directory
-        Recursing into +project+
-          Creating ./ckanext-myextension/ckanext/myextension/
-          .svn/ does not exist; cannot add directory
-          Copying __init__.py to ./ckanext-myextension/ckanext/myextension/__init__.py
-          .svn/ does not exist; cannot add file
-        Copying __init__.py to ./ckanext-myextension/ckanext/__init__.py
-        .svn/ does not exist; cannot add file
-      Copying setup.py_tmpl to ./ckanext-myextension/setup.py
-      .svn/ does not exist; cannot add file
-    Running pyenv/bin/python setup.py egg_info
+file.
 
 Once you've run this, you should now install the extension in your virtual environment:
 
@@ -154,8 +100,8 @@ Once you've run this, you should now install the extension in your virtual envir
     To instead install a python package by copying all of the files to the
     site-packages directory run ``python setup.py install``.
 
-To build useful extensions you need to be able to "hook into" different parts
-of CKAN in order to extend its functionality. You do this using CKAN's plugin
+To build extensions you need to be able to "hook into" different parts of
+CKAN in order to extend its functionality. You do this using CKAN's plugin
 architecture. We'll look at this in the next section.
 
 
@@ -167,138 +113,15 @@ CKAN provides a number of plugin interfaces.  These are defined in
 interfaces to interact with CKAN.  Each interface specifies one or more
 methods that CKAN will call to use the extension.
 
-Currently the CKAN plugin implementation is based on the PyUtilib_ component
-architecture (PCA).
-
 Extensions are created as classes inheriting from either the `Plugin` or `SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin` base class and we advise you to use this if possible.
 
 Having created your class you need to inherit from one or more plugin interfaces to allow CKAN to interact with your extension.  When specifying the interfaces that will be implemented you must remember to either (a) define all methods required by the interface or (b) use the `inherits=True` parameter which will use the interfaces default methods for any that you have not defined.
 
 .. Note::
     When writing extensions it is important to keep your code separate from
-    CKAN so that internal CKAN changes do not break your code between
-    releases.  You can however import ckan.plugins without this risk.
-
-::
-    # Example Extension
-    # This extension adds a new template helper function `hello_world` when
-    # enabled templates can `{{ h.hello_world() }}` to add this html snippet.
-
-    import ckan.plugins as p
-
-    class HelloWorldPlugin(p.SingletonPlugin):
-
-        p.implements(p.ITemplateHelpers)
-
-        @staticmethod
-        def hello_world():
-            # This is our simple helper function.
-            html = '<span>Hello World</span>'
-            return p.toolkit.literal(html)
-
-        def get_helpers(self):
-            # This method is defined in the ITemplateHelpers interface and
-            # is used to return a dict of named helper functions.
-            return {'hello_world': hello_world}
-
-
-Common Tasks
-------------
-
-Reading config options.::
-
-    import ckan.plugins as p
-
-    class ConfigurablePlugin(p.SingletonPlugin):
-
-        p.implements(p.IConfigurable)
-
-        def configure(self, config):
-            # Get the value from the config and store it in the plugin.
-            option = p.toolkit.asbool(config.get('my_config_option', False))
-            self.my_config_option = option
-
-
-
-Defining custom templates.::
-
-    import ckan.plugins as p
-
-    class TemplateAddingPlugin(p.SingletonPlugin):
-
-        p.implements(p.IConfigurable)
-
-        def configure(self, config):
-            # Add the new template directory for this plugin.  Templates
-            # should either be defined under the ckanext-<extension_name> for
-            # extension specific templates or in the same relative path as a
-            # ckan template if overriding existing templates.
-            p.toolkit.add_template_directory(config, 'templates')
-
-
-Common Interfaces
------------------
-
-Here's a list of some of the more commonly used plugin interfaces:
-
-
-:class:`~ckan.plugins.interfaces.IDatasetForm`
-    Provide a custom dataset form and schema.
-
-:class:`~ckan.plugins.interfaces.IMapper`
-    Listens and react to every database change.
-
-:class:`~ckan.plugins.interfaces.IRoutes`
-    Provide an implementation to handle a particular URL.
-
-:class:`~ckan.plugins.interfaces.IGenshiStreamFilter`
-    Intercept template rendering to modify the output.
-.. warning :: This interface is currently deprecated, use ITemplateHelpers instead.
-
-:class:`~ckan.plugins.interfaces.IResourcePreview`
-    Add custom previews. The preview extensions can make use of the resource
-    proxy extension, if enabled.
-
-:class:`~ckan.plugins.interfaces.IDomainObjectModification`
-    Listens for changes to CKAN domain objects.
-
-:class:`~ckan.plugins.interfaces.IGroupController`
-    Plugins for in the groups controller. These will
-    usually be called just before committing or returning the
-    respective object, i.e. all validation, synchronization
-    and authorization setup are complete.
-
-:class:`~ckan.plugins.interfaces.IConfigurable`
-    Pass configuration to plugins and extensions.
-
-:class:`~ckan.plugins.interfaces.IAuthorizer`
-    Allows customisation of the default Authorization behaviour.
-
-See the `Plugin API documentation`_ below to find a complete
-list of all interfaces and their documentation.
-
-
-Publishing Extensions
----------------------
-
-At this point you might want to share your extension with the public.
-
-First check you have chosen an open source licence (e.g. the `MIT
-<http://opensource.org/licenses/mit-license.html>`_ licence) and then
-update the ``long_description`` variable in ``setup.py`` to
-explain what the extension does and which entry point names a user of the
-extension will need to add to their ``ckan.plugins`` configuration.
-
-Once you are happy, run the following commands to register your extension on
-the Python Package Index:
-
-::
-
-    python setup.py register
-    python setup.py sdist upload
-
-You'll then see your extension at http://pypi.python.org/pypi. Others will
-be able to install your plugin with ``pip``.
+    CKAN by not importing ckan modules, so that internal CKAN changes do not
+    break your code between releases.  You can however import ckan.plugins
+    without this risk.
 
 
 Writing a Plugin Interface
@@ -358,14 +181,6 @@ CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN `
     cd ckanext-dgu
     nosetests ckanext/dgu/tests --ckan
     nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
-
-To test your changes you'll need to use the ``paster serve`` command from the ``ckan`` directory:
-
-::
-
-    paster serve --reload -c <path to your CKAN config file>
-
-You should also make sure that your CKAN installation passes the developer tests, as described in :doc:`test`.
 
 
 Testing Plugins
@@ -429,6 +244,7 @@ CKAN core progresses.  This interface is available in
 ``ckan.plugins.toolkit.toolkit``.
 
 Guidelines for writing extensions:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Use the plugins toolkit, described above.
 
