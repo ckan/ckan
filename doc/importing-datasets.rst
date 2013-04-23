@@ -2,27 +2,26 @@
 Importing Datasets
 ==================
 
-You can create individual datasets using the CKAN front-end.
-However, when importing multiple datasets it is generally more efficient to
-automate this process in some way.
-There are two common approaches to importing datasets in CKAN:
+You can add datasets using CKAN's web interface, but when importing many
+datasets it's usually more efficient to automate the process in some way.
+Common approaches to automatically importing datasets into CKAN include:
 
-* :ref:`load-data-api`. Using the `CKAN API <api.html>`_.
-
-* :ref:`load-data-harvester`. Using the
+* :ref:`Importing datasets with the CKAN API <import-data-api>`.
+* Importing datasets with the
   `CKAN harvester extension <https://github.com/okfn/ckanext-harvest/>`_.
-  This provides web and command-line interfaces for larger import tasks.
+  The harvester extension provides web and command-line interfaces for managing
+  larger import tasks.
 
-.. note :: If loading your data requires scraping a web page regularly, you
-  may find it best to write a scraper on
-  `ScraperWiki <http://www.scraperwiki.com>`_ and combine this with either of
-  the methods above.
+.. tip ::
 
+  If loading your data requires scraping a web page regularly, you may find it
+  best to write a scraper on `ScraperWiki <http://www.scraperwiki.com>`_ and
+  combine this with one of the methods above.
 
-.. _load-data-api:
+.. _import-data-api:
 
-Import Data with the CKAN API
------------------------------
+Importing Datasets with the CKAN API
+------------------------------------
 
 You can use the `CKAN API <api.html>`_ to upload datasets directly into your
 CKAN instance. Here's an example script that creates a new dataset::
@@ -62,22 +61,3 @@ CKAN instance. Here's an example script that creates a new dataset::
     # package_create returns the created package as its result.
     created_package = response_dict['result']
     pprint.pprint(created_package)
-
-
-.. _load-data-harvester:
-
-Import Data with the Harvester Extension
-----------------------------------------
-
-The `CKAN harvester extension <https://github.com/okfn/ckanext-harvest/>`_
-provides useful tools for more advanced data imports.
-
-These include a command-line interface and a web user interface for running
-harvesting jobs.
-
-To use the harvester extension, create a class that implements the
-`harvester interface <https://github.com/okfn/ckanext-harvest/blob/master/ckanext/harvest/interfaces.py>`
-derived from the
-`base class of the harvester extension <https://github.com/okfn/ckanext-harvest/blob/master/ckanext/harvest/harvesters/base.py>`_.
-
-For more information on working with extensions, see :doc:`extensions`.
