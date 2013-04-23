@@ -5,11 +5,16 @@ Extensions
 CKAN extensions are a powerful way to extend and customize core CKAN
 functionality, without modifying or interfering with CKAN core itself.
 
+An extension can provide one or more plugins that are enabled to modify CKAN.
+
 Core Extensions
 ---------------
 
 CKAN comes with some extensions built-in.  We call these `Core Extensions`
-and you can just enable them.  There is no need to install them first.
+and you can just enable the plugins they provide.  There is no need to
+install them first.
+
+These are the available plugins
 
 * datastore - ???
 * jsonpreview - Preview json resources
@@ -47,7 +52,7 @@ Your extension should now be enabled. You can disable it at any time by
 removing it from the list of ``ckan.plugins`` in the config file and
 restarting CKAN.
 
-Plugins are processed in the order defined in the config.
+Plugins are processed in the order they are defined in the config.
 
 
 Writing Extensions
@@ -83,12 +88,6 @@ Once you've run this, you should now install the extension in your virtual envir
 
     (pyenv)$ cd ckanext-myextension
     (pyenv)$ python setup.py develop
-    (pyenv)$ python
-    Python 2.6.6 (r266:84292, Oct  6 2010, 16:19:55)
-    [GCC 4.1.2 20080704 (Red Hat 4.1.2-48)] on linux2
-    Type "help", "copyright", "credits" or "license" for more information.
-    >>> import ckanext.myextension
-    >>>
 
 .. note::
     Running ``python setup.py develop`` will add a ``.egg-link`` file to
@@ -100,22 +99,24 @@ Once you've run this, you should now install the extension in your virtual envir
     To instead install a python package by copying all of the files to the
     site-packages directory run ``python setup.py install``.
 
-To build extensions you need to be able to "hook into" different parts of
-CKAN in order to extend its functionality. You do this using CKAN's plugin
-architecture. We'll look at this in the next section.
-
 
 Plugins: An Overview
 --------------------
 
-CKAN provides a number of plugin interfaces.  These are defined in
-`ckan/plugins/interfaces.py`.  An extension can use one or more of these
-interfaces to interact with CKAN.  Each interface specifies one or more
-methods that CKAN will call to use the extension.
+CKAN provides a number of plugin interfaces.  An extension can use one or
+more of these interfaces to interact with CKAN.  Each interface specifies
+one or more methods that CKAN will call to use the extension.
 
-Extensions are created as classes inheriting from either the `Plugin` or `SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin` base class and we advise you to use this if possible.
+Extensions are created as classes inheriting from either the `Plugin` or
+`SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
+base class and we advise you to use this if possible.
 
-Having created your class you need to inherit from one or more plugin interfaces to allow CKAN to interact with your extension.  When specifying the interfaces that will be implemented you must remember to either (a) define all methods required by the interface or (b) use the `inherits=True` parameter which will use the interfaces default methods for any that you have not defined.
+Having created your class you need to inherit from one or more plugin
+interfaces to allow CKAN to interact with your extension.  When specifying
+the interfaces that will be implemented you must remember to either (a)
+define all methods required by the interface or (b) use the `inherits=True`
+parameter which will use the interfaces default methods for any that you
+have not defined.
 
 .. Note::
     When writing extensions it is important to keep your code separate from
@@ -248,7 +249,8 @@ Guidelines for writing extensions:
 
 - Use the plugins toolkit, described above.
 
-- Extensions should use actions where possible via ``get_action()``.
+- Extensions should use actions where possible via ``get_action()``. This
+  function is available in the toolkit.
 
 - No foreign key constraints into core as these cause problems.
 
