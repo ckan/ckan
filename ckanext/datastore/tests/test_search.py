@@ -585,6 +585,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         postparams = json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search_sql', params=postparams,
-                            extra_environ=auth)
+                            extra_environ=auth, status=403)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'

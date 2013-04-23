@@ -14,12 +14,12 @@ import sqlalchemy
 from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
 import psycopg2.extras
 import ckan.lib.cli as cli
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
     import paste.deploy.converters as converters
-    import ckan.plugins.toolkit as toolkit
     ValidationError = toolkit.ValidationError
 else:
     log.warn("Running datastore without CKAN")
@@ -37,7 +37,8 @@ _PG_ERR_CODE = {
     'unique_violation': 23505,
     'query_canceled': 57014,
     'undefined_object': 42704,
-    'syntax_error': 42601
+    'syntax_error': 42601,
+    'permission_denied': 42501
 }
 
 _date_formats = ['%Y-%m-%d',
@@ -799,7 +800,6 @@ def _insert_links(data_dict, limit, offset):
     data_dict['_links'] = {}
 
     # get the url from the request
-    import ckan.plugins.toolkit as toolkit
     urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
 
     # change the offset in the url
@@ -1118,6 +1118,10 @@ def search_sql(context, data_dict):
         return format_results(context, results, data_dict)
 
     except ProgrammingError, e:
+        if int(e.orig.pgcode) == _PG_ERR_CODE['permission_denied']:
+            raise toolkit.NotAuthorized({
+                'permissions': ['Not authorized to read resource.']
+            })
         raise ValidationError({
             'query': [str(e)],
             'info': {
