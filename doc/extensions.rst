@@ -5,7 +5,8 @@ Extensions
 CKAN extensions are a powerful way to extend and customize core CKAN
 functionality, without modifying or interfering with CKAN core itself.
 
-An extension can provide one or more plugins that are enabled to modify CKAN.
+An extension can provide one or more plugins that can be enabled to modify
+CKAN.
 
 Core Extensions
 ---------------
@@ -76,6 +77,7 @@ All CKAN extensions must start with the name ``ckanext-``. You can create
 your own CKAN extension like this (you must be in your CKAN pyenv):
 
 ::
+
     (pyenv)$ paster create -t ckanext ckanext-myextension
 
 You'll get prompted to complete a number of variables which will be used in
