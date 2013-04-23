@@ -1,4 +1,4 @@
-Front-end Documenation
+Front End Documenation
 ======================
 
 The following is an index of other front-end CKAN documentation.
@@ -163,7 +163,7 @@ Everything in the CKAN application lives on the ``ckan`` namespace.
 Currently there are four main components that make up the core.
 
 - Modules
-- Pub/Sub
+- Publisher/Subscriber
 - Client
 - i18n/Jed
 
@@ -172,7 +172,11 @@ Modules
 
 Modules are the core of the CKAN website, every component that is
 interactive on the page should be a module. These are then initialized
-by including a ``data-module`` attribute on an element on the page.
+by including a ``data-module`` attribute on an element on the page. For
+example:
+
+::
+    <select name="format" data-module="autocomplete"></select>
 
 The idea is to create small isolated components that can easily be
 tested. They should ideally not use any global objects, all
@@ -203,8 +207,8 @@ factory function.
     A guide on creating your own modules is located in the
     `JavaScript Modules`_ guide.
 
-Pub/Sub
-~~~~~~~
+Publisher/Subscriber
+~~~~~~~~~~~~~~~~~~~~
 
 There is a simple pub/sub module included under ``ckan.pubsub`` it's
 methods are available to modules via
@@ -299,9 +303,9 @@ attempt to create an instance.
 
 ::
 
-    <select name="format" data-module="autocomplete"></select>
+    <select name="format" data-module="autocomplete" data-module-key="id"></select>
 
-The module will be created with the element, an options object extracted
+The module will be created with the element, any options object extracted
 from ``data-module-*`` attributes and a new sandbox instance.
 
 Once created the modules ``initialize()`` method will be called allowing
