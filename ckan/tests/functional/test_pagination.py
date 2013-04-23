@@ -59,25 +59,25 @@ class TestPaginationPackage(TestController):
         res = self.app.get(url_for(controller='package', action='search', q='groups:group_00'))
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=2"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], pkg_numbers)
+        assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_package_search_p2(self):
         res = self.app.get(url_for(controller='package', action='search', q='groups:group_00', page=2))
         assert 'href="/dataset?q=groups%3Agroup_00&amp;page=1"' in res
         pkg_numbers = scrape_search_results(res, 'dataset')
-        assert_equal(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39'], pkg_numbers)
+        assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 
     def test_group_datasets_read_p1(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00'))
         assert 'href="/group/group_00?page=2' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
-        assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'], pkg_numbers)
+        assert_equal(['50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40', '39', '38', '37', '36', '35', '34', '33', '32', '31'], pkg_numbers)
 
     def test_group_datasets_read_p2(self):
         res = self.app.get(url_for(controller='group', action='read', id='group_00', page=2))
         assert 'href="/group/group_00?page=1' in res, res
         pkg_numbers = scrape_search_results(res, 'group_dataset')
-        assert_equal(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39'], pkg_numbers)
+        assert_equal(['30', '29', '28', '27', '26', '25', '24', '23', '22', '21', '20', '19', '18', '17', '16', '15', '14', '13', '12', '11'], pkg_numbers)
 
 class TestPaginationGroup(TestController):
     @classmethod

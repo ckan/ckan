@@ -8946,21 +8946,6 @@ iframe {
 .ie7 .masthead .account .dropdown-menu {
   z-index: 10000;
 }
-.ie7 .footer-links {
-  *zoom: 1;
-}
-.ie7 .footer-links:before,
-.ie7 .footer-links:after {
-  display: table;
-  content: "";
-  line-height: 0;
-}
-.ie7 .footer-links:after {
-  clear: both;
-}
-.ie7 .footer-links li {
-  float: left;
-}
 .ie7 .module-narrow .nav-item.image {
   *zoom: 1;
 }

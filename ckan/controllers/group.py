@@ -201,14 +201,7 @@ class GroupController(base.BaseController):
         else:
             q += ' groups:"%s"' % c.group_dict.get('name')
 
-        try:
-            description_formatted = ckan.misc.MarkdownFormat().to_html(
-                c.group_dict.get('description', ''))
-            c.description_formatted = genshi.HTML(description_formatted)
-        except Exception, e:
-            error_msg = "<span class='inline-warning'>%s</span>" %\
-                        _("Cannot render description")
-            c.description_formatted = genshi.HTML(error_msg)
+        c.description_formatted = h.render_markdown(c.group_dict.get('description'))
 
         context['return_query'] = True
 
@@ -338,7 +331,8 @@ class GroupController(base.BaseController):
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
             for facet in c.facets.keys():
-                limit = int(request.params.get('_%s_limit' % facet, 10))
+                limit = int(request.params.get('_%s_limit' % facet,
+                                               g.facets_default_number))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
 

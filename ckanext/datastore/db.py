@@ -777,8 +777,8 @@ def _sort(context, data_dict, field_ids):
 
         if field not in field_ids:
             raise ValidationError({
-                'sort': [u'field "{0}" not it table'.format(
-                    unicode(field, 'utf-8'))]
+                'sort': [u'field "{0}" not in table'.format(
+                    field)]
             })
         if sort.lower() not in ('asc', 'desc'):
             raise ValidationError({
@@ -1080,7 +1080,7 @@ def search(context, data_dict):
         id = data_dict['resource_id']
         result = context['connection'].execute(
             u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
-             u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
+            u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise ValidationError({
