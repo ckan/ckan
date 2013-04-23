@@ -121,7 +121,7 @@ def datastore_upsert(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -155,7 +155,7 @@ def datastore_delete(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -225,7 +225,7 @@ def datastore_search(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
@@ -302,7 +302,7 @@ def datastore_make_private(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
@@ -319,7 +319,7 @@ def datastore_make_public(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
