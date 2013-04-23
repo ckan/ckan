@@ -1138,6 +1138,8 @@ def _get_read_only_user(data_dict):
 
 
 def _change_privilege(context, data_dict, what):
+    log.info('Changing permissions of resource {0} with {1}'.format(
+        data_dict['resource_id'], what))
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
     read_only_user = _get_read_only_user(data_dict)
@@ -1157,7 +1159,13 @@ def _change_privilege(context, data_dict, what):
         raise ValidationError({
             'privileges': [u'cannot make "{0}" private'.format(
                            data_dict['resource_id'])],
+            'info': {
+                'orig': [str(e.orig)],
+                'pgcode': e.orig.pgcode
+            }
         })
+    finally:
+        context['connection'].close()
 
 
 def make_private(context, data_dict):

@@ -296,6 +296,8 @@ def datastore_make_private(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
@@ -303,7 +305,6 @@ def datastore_make_private(context, data_dict):
 
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
     db.make_private(context, data_dict)
 
 
@@ -312,12 +313,12 @@ def datastore_make_public(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
+    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             'Resource "{0}" was not found.'.format(res_id)
         ))
-
-    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
     data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
     db.make_public(context, data_dict)
