@@ -208,8 +208,7 @@ def get_user_id_for_username(user_name, allow_none=False):
         return None
     raise Exception('Not logged in user')
 
-def _get_auth_function(action, profile=None):
-    from pylons import config
+def _get_auth_function(action):
 
     if action in AuthFunctions._functions:
         return AuthFunctions._functions.get(action)
@@ -220,17 +219,7 @@ def _get_auth_function(action, profile=None):
     # to load anything from ckan.auth that looks like it might
     # be an authorisation function
 
-    # We will load the auth profile from settings
     module_root = 'ckan.logic.auth'
-    if profile is not None:
-        auth_profile = profile
-    else:
-        auth_profile = config.get('ckan.auth.profile', '')
-
-    if auth_profile:
-        module_root = '%s.%s' % (module_root, auth_profile)
-
-    log.debug('Using auth profile at %s' % module_root)
 
     for auth_module_name in ['get', 'create', 'update','delete']:
         module_path = '%s.%s' % (module_root, auth_module_name,)
