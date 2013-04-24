@@ -43,8 +43,8 @@ CKAN Release Process Overview
 -----------------------------
 
 When the development team thinks master is at a good point to start the
-release process a new branch will be created with the name `release-v{version
-number}`. This is the beta branch for this release, and it will be deployed to
+release process a new branch will be created with the name *release-v{version
+number}*. This is the beta branch for this release, and it will be deployed to
 the beta staging site (http://beta.ckan.org). During the next two-three weeks
 changes will be allowed to stabilize the code, update i18n and documentation,
 etc. During the last week, only critical bug fixes are allowed.
@@ -61,5 +61,9 @@ branch).
 To ensure that the release guidelines are enforced one of the CKAN core
 developers will act as Release Manager. He or she has the final say on what is
 merged into the release branches.
+
+The actual process followed by CKAN developers can be found in
+:doc:`release-process`.
+
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
