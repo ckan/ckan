@@ -51,6 +51,17 @@ Default value:  (none)
 
 This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
 
+ckan.site_intro_text
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.site_intro_text = Nice introductory paragraph about CKAN or the site in general.
+
+Default value:  (none)
+
+This is for an introductory text used in the default template's index page.
+
 ckan.site_logo
 ^^^^^^^^^^^^^^
 
@@ -373,6 +384,22 @@ Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
 
+.. _ckan_root_path:
+
+ckan.root_path
+^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.root_path = /my/custom/path/{{LANG}}/foo
+
+Default value: (none)
+
+By default, the URLs are formatted as ``/some/url``, when using the default
+locale, or ``/de/some/url`` when using the "de" locale, for example. This
+lets you change this. You can use any path that you want, adding ``{{LANG}}``
+where you want the locale code to go.
+
 
 Storage Settings
 ----------------
@@ -606,17 +633,6 @@ These are the setup parameters for AMQP messaging. These only apply if the messa
 Search Settings
 ---------------
 
-ckan.simple_search
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.simple_search = true
-
-Default value:  ``false``
-
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
-
 ckan.site_id
 ^^^^^^^^^^^^
 
@@ -629,6 +645,17 @@ CKAN instance using the same `solr_url`_, they will each have a separate search 
 a single CKAN instance then this can be ignored.
 
 Note, if you change this value, you need to rebuild the search index.
+
+ckan.simple_search
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.simple_search = true
+
+Default value:  ``false``
+
+Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
 
 .. _solr-url:
 
@@ -671,17 +698,6 @@ Default value:  ``true``
 
 Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
 
-ckan.extra_resource_fields
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.extra_resource_fields = alt_url
-
-Default value: ``None``
-
-List of the extra resource fields that would be used when searching.
-
 ckan.search.show_all_types
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -692,8 +708,29 @@ Example::
 Default value:  ``false``
 
 Controls whether the default search page (``/dataset``) should show only
-standard datasets or also custom dataset types. Default is to show only
-standard datasets.
+standard datasets or also custom dataset types.
+
+search.facet.limits
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ search.facet.limits = 100
+
+Default value:  ``50``
+
+Sets the default number of searched facets returned in a query.
+
+ckan.extra_resource_fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.extra_resource_fields = alt_url
+
+Default value: ``None``
+
+List of the extra resource fields that would be used when searching.
 
 
 Site Settings
@@ -777,6 +814,17 @@ Example::
 Default value: (none)
 
 This controls if new datasets will require moderation approval before going public.
+
+ckan.tracking_enabled
+---------------------
+
+Example::
+
+  ckan.tracking_enabled = True
+
+Default value: ``False``
+
+This controls if CKAN will track the site usage.
 
 
 Authorization Settings
