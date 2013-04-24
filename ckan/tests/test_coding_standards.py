@@ -833,12 +833,12 @@ class TestActionAuth(object):
     that each auth function has an action.  We check the function only
     accepts (context, data_dict) as parameters. '''
 
-    ACTION_FN_SIGNATURES_BLACKLIST= [
+    ACTION_FN_SIGNATURES_BLACKLIST = [
         'create: activity_create',
         'create: tag_create',
     ]
 
-    ACTION_NO_AUTH_BLACKLIST= [
+    ACTION_NO_AUTH_BLACKLIST = [
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
@@ -888,7 +888,7 @@ class TestActionAuth(object):
         'update: user_role_update',
     ]
 
-    AUTH_NO_ACTION_BLACKLIST= [
+    AUTH_NO_ACTION_BLACKLIST = [
         'create: file_upload',
         'delete: revision_delete',
         'delete: revision_undelete',
@@ -901,8 +901,7 @@ class TestActionAuth(object):
         'update: revision_change_state',
     ]
 
-
-    ACTION_NO_DOC_STR_BLACKLIST= [
+    ACTION_NO_DOC_STR_BLACKLIST = [
         'create: group_create_rest',
         'create: group_member_create',
         'create: organization_member_create',
