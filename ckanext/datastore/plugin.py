@@ -222,11 +222,12 @@ class DatastorePlugin(p.SingletonPlugin):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search,
-                   'datastore_make_private': action.datastore_make_private,
-                   'datastore_make_public': action.datastore_make_public}
+                   'datastore_search': action.datastore_search}
         if not self.legacy_mode:
-            actions['datastore_search_sql'] = action.datastore_search_sql
+            actions.update({
+                'datastore_search_sql': action.datastore_search_sql,
+                'datastore_make_private': action.datastore_make_private,
+                'datastore_make_public': action.datastore_make_public})
         return actions
 
     def get_auth_functions(self):
