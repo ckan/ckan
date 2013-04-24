@@ -106,7 +106,7 @@ class DatastorePlugin(p.SingletonPlugin):
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
-            context = {'model': model, 'ignore_auth': True, 'validate': False}
+            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
@@ -118,8 +118,6 @@ class DatastorePlugin(p.SingletonPlugin):
                         'resource_id': resource.id})
                 except p.toolkit.ObjectNotFound:
                     pass
-        elif operation == model.domain_object.DomainObjectOperation.deleted:
-            pass  # TODO: delete datastore resource
 
     def _log_or_raise(self, message):
         if self.config.get('debug'):

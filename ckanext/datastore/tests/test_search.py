@@ -640,8 +640,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
              'package_id': package['id']})
 
         postparams = '%s=1' % json.dumps({
-            'resource_id': resource['id'],
-        })
+            'resource_id': resource['id']})
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth)
