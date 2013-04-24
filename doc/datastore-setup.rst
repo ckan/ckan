@@ -112,7 +112,7 @@ Copy the ``set_permissions.sql`` file to the server that the database runs on. M
 3. Test the set-up
 ==================
 
-The DataStore is now set-up. To test the set-up you can list all resources that are in the DataStore::
+The DataStore is now set-up. To test the set-up, (re)start CKAN and run the following command to list all resources that are in the DataStore::
 
  curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
 
