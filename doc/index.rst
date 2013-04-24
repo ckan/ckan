@@ -104,6 +104,7 @@ For CKAN Developers
    i18n
    test
    release-cycle
+   release-process
 
 Other material
 ==============
