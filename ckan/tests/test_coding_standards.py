@@ -999,3 +999,63 @@ class TestActionAuth(object):
                     errors.append(name)
         assert not errors, 'These action functions need docstrings\n%s' \
             % '\n'.join(sorted(errors))
+
+
+class TestBadExceptions(object):
+    ''' Look for a common coding problem in ckan Exception(_'...') '''
+
+    # Exceptions should not on the whole be translated as they are for
+    # brogrammers to read in trace backs or log files.  However some like
+    # Invalid used in validation functions do get passed back up to the user
+    # and so should be translated.
+
+    NASTY_EXCEPTION_BLACKLIST_FILES = [
+        'ckan/controllers/api.py',
+        'ckan/controllers/user.py',
+        'ckan/lib/mailer.py',
+        'ckan/logic/action/create.py',
+        'ckan/logic/action/delete.py',
+        'ckan/logic/action/get.py',
+        'ckan/logic/action/update.py',
+        'ckan/logic/auth/create.py',
+        'ckan/logic/auth/delete.py',
+        'ckan/logic/auth/get.py',
+        'ckan/new_authz.py',
+        'ckanext/datastore/logic/action.py',
+    ]
+    fails = {}
+    passes = []
+    done = False
+
+    @classmethod
+    def setup(cls):
+        if not cls.done:
+            cls.process()
+        cls.done = True
+
+    @classmethod
+    def process(cls):
+        blacklist = cls.NASTY_EXCEPTION_BLACKLIST_FILES
+        re_import_star = re.compile(
+            r'''raise\W+(?![^I]*Invalid\().*_\('''
+        )
+        for path, filename in process_directory(base_path):
+            f = open(path, 'r')
+            count = 1
+            errors = []
+            for line in f:
+                if re_import_star.search(line):
+                    errors.append('ln:%s \t%s' % (count, line[:-1]))
+                count += 1
+            if errors and not filename in blacklist:
+                cls.fails[filename] = output_errors(filename, errors)
+            elif not errors and filename in blacklist:
+                cls.passes.append(filename)
+
+    def test_good(self):
+        msg = 'The following files passed nasty str() rules'
+        show_passing(msg, self.passes)
+
+    def test_bad(self):
+        msg = 'The following files have nasty str() issues that need resolving'
+        show_fails(msg, self.fails)
