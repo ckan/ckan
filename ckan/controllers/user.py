@@ -533,7 +533,7 @@ class UserController(base.BaseController):
                 action_functions.get(filter_type))
             # Is this a valid type?
             if action_function is None:
-                raise abort(404, _('Follow item not found'))
+                abort(404, _('Follow item not found'))
             try:
                 followee = action_function(context, data_dict)
             except NotFound:
