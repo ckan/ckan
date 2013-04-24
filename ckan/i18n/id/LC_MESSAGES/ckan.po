@@ -1,23 +1,23 @@
-# Indonesian translations for ckan.
-# Copyright (C) 2012 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
-# Sukma Budi <sukmabudi@yahoo.com>, 2013.
+# demank <sukmabudi@yahoo.com>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-02-07 09:34+0000\n"
-"Last-Translator: demank <sukmabudi@yahoo.com>\n"
-"Language-Team: Indonesian "
-"(http://www.transifex.com/projects/p/ckan/language/id/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2013-03-11 14:01+0000\n"
+"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"Language-Team: Indonesian (http://www.transifex.com/projects/p/ckan/language/id/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: id\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/new_authz.py:73
 #, python-format
@@ -100,9 +100,7 @@ msgstr ""
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Tidak dapat membersihkan paket %s yang berasosiasi dengan revisi %s yang "
-"menyertakan paket tak-terhapus %s"
+msgstr "Tidak dapat membersihkan paket %s yang berasosiasi dengan revisi %s yang menyertakan paket tak-terhapus %s"
 
 #: ckan/controllers/admin.py:144
 #, python-format
@@ -402,34 +400,25 @@ msgstr "Situs ini sedang luring. Basisdata tidak diinisialisasikan."
 
 #: ckan/controllers/home.py:93
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"Silahkan <a href=\"{link}\">perbarui profil anda</a> dan tambahkan alamat"
-" email anda dan nama lengkap anda. {site} menggunakan alamat email anda "
-"bila anda memerlukan untuk menyetel ulang password anda."
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "Silahkan <a href=\"{link}\">perbarui profil anda</a> dan tambahkan alamat email anda dan nama lengkap anda. {site} menggunakan alamat email anda bila anda memerlukan untuk menyetel ulang password anda."
 
 #: ckan/controllers/home.py:96
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
-"Silahkan <a href=\"%s\">perbarui profil anda</a> dan tambahkan alamat "
-"email anda. "
+msgstr "Silahkan <a href=\"%s\">perbarui profil anda</a> dan tambahkan alamat email anda. "
 
 #: ckan/controllers/home.py:98
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
-"%s menggunakan alamat email anda jika anda memerlukan untuk menyetel "
-"ulang password anda."
+msgstr "%s menggunakan alamat email anda jika anda memerlukan untuk menyetel ulang password anda."
 
 #: ckan/controllers/home.py:102
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
-"Silahkan <a href=\"%s\">perbarui profil anda</a> dan tambahkan nama "
-"lengkap anda."
+msgstr "Silahkan <a href=\"%s\">perbarui profil anda</a> dan tambahkan nama lengkap anda."
 
 #: ckan/controllers/package.py:345 ckan/controllers/package.py:347
 #: ckan/controllers/package.py:349
@@ -687,9 +676,7 @@ msgstr "Captcha salah. Silahkan coba lagi."
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
-"Pengguna \"%s\" sekarang terdaftar tetapu anda masih masuk sebagai \"%s\""
-" dari sebelumnya"
+msgstr "Pengguna \"%s\" sekarang terdaftar tetapu anda masih masuk sebagai \"%s\" dari sebelumnya"
 
 #: ckan/controllers/user.py:221
 msgid "No user specified"
@@ -721,9 +708,7 @@ msgstr "Gagal masuk. Username atau password tidak benar."
 
 #: ckan/controllers/user.py:342
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-msgstr ""
-"(Atau bila menggunakan OpenID, itu tidak diasosiasikan dengan akun "
-"pengguna.)"
+msgstr "(Atau bila menggunakan OpenID, itu tidak diasosiasikan dengan akun pengguna.)"
 
 #: ckan/controllers/user.py:401
 #, python-format
@@ -1068,13 +1053,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   %(reset_link)s\n"
-msgstr ""
-"Anda telah meminta password anda pada %(site_title)s untuk disetel ulang."
-"\n"
-"\n"
-"Silahkan klik tautan berikut ini untuk mengkonfirmasi permintaan ini:\n"
-"\n"
-"   %(reset_link)s\n"
+msgstr "Anda telah meminta password anda pada %(site_title)s untuk disetel ulang.\n\nSilahkan klik tautan berikut ini untuk mengkonfirmasi permintaan ini:\n\n   %(reset_link)s\n"
 
 #: ckan/lib/mailer.py:133 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
@@ -1236,9 +1215,7 @@ msgstr "Nama maksimal hingga %i karakter panjangnya"
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Url harus murni huruf kecil karakter alfanumerik (ascii) dan simbol ini: "
-"-_"
+msgstr "Url harus murni huruf kecil karakter alfanumerik (ascii) dan simbol ini: -_"
 
 #: ckan/logic/validators.py:285
 msgid "That URL is already in use."
@@ -1308,9 +1285,7 @@ msgstr "Password yang anda masukkan tidak cocok"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Pengeditan tidak diperkenankan karena mirip spam. Silahkan abaikan tautan"
-" pada deskripsi anda."
+msgstr "Pengeditan tidak diperkenankan karena mirip spam. Silahkan abaikan tautan pada deskripsi anda."
 
 #: ckan/logic/validators.py:509
 msgid "That vocabulary name is already in use."
@@ -1554,9 +1529,7 @@ msgstr "Pengguna %s tidak punya izin untuk menghapus item terkait %s"
 #: ckan/logic/auth/delete.py:29 ckan/logic/auth/get.py:130
 #: ckan/logic/auth/update.py:49
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
-"Tidak ada paket ditemukan untuk sumberdaya ini, tidak dapat memeriksa "
-"otorisasi."
+msgstr "Tidak ada paket ditemukan untuk sumberdaya ini, tidak dapat memeriksa otorisasi."
 
 #: ckan/logic/auth/delete.py:35
 #, python-format
@@ -1652,9 +1625,7 @@ msgstr "Hanya pemilik yang dapat memperbarui item terkait"
 
 #: ckan/logic/auth/update.py:107
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr ""
-"Anda harus menjadi sysadmin untuk mengubah field item terkait yang "
-"istimewa."
+msgstr "Anda harus menjadi sysadmin untuk mengubah field item terkait yang istimewa."
 
 #: ckan/logic/auth/update.py:120
 #, python-format
@@ -2039,8 +2010,9 @@ msgstr "Daftar"
 #: ckan/templates/related/base_form_page.html:4
 #: ckan/templates/snippets/organization.html:42
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:6
-#: ckan/templates/user/read_base.html:27 ckan/templates/user/read_base.html:62
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:6 ckan/templates/user/read_base.html:27
+#: ckan/templates/user/read_base.html:62
 #: ckan/templates_legacy/group/edit_form.html:10
 #: ckan/templates_legacy/group/new_group_form.html:101
 #: ckan/templates_legacy/group/read.html:45
@@ -2104,7 +2076,8 @@ msgstr ""
 msgid "Config"
 msgstr ""
 
-#: ckan/templates/admin/config.html:9 ckan/templates/admin/confirm_reset.html:7
+#: ckan/templates/admin/config.html:9
+#: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
 msgstr ""
 
@@ -2123,19 +2096,18 @@ msgstr ""
 #: ckan/templates/admin/config.html:26
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
 msgstr ""
 
@@ -2150,8 +2122,8 @@ msgstr ""
 
 #: ckan/templates/admin/index.html:19
 msgid ""
-" <p>A sysadmin is someone that has full control over a CKAN instance. You"
-" can only add CKAN sysadmins via the <code>sysadmin</code> paster "
+" <p>A sysadmin is someone that has full control over a CKAN instance. You "
+"can only add CKAN sysadmins via the <code>sysadmin</code> paster "
 "command.</p> "
 msgstr ""
 
@@ -2358,7 +2330,8 @@ msgstr "Tambah Grup"
 msgid "There are currently no groups for this site"
 msgstr ""
 
-#: ckan/templates/group/index.html:25 ckan/templates/organization/index.html:25
+#: ckan/templates/group/index.html:25
+#: ckan/templates/organization/index.html:25
 #: ckanext/organizations/templates/organizations/index.html:23
 msgid "How about creating one?"
 msgstr ""
@@ -2370,13 +2343,14 @@ msgstr ""
 #: ckan/templates/group/index.html:41
 msgid ""
 " <p>Groups allow you to group together datasets under a community (for "
-"example, Civil Liberty data) or topic (e.g. Transport, Health, "
-"Environment) to make it easier for users to browse datasets by theme. "
-"Datasets can be part of a group, but do not belong to the group for "
-"editing or authorisation purposes.</p> "
+"example, Civil Liberty data) or topic (e.g. Transport, Health, Environment) "
+"to make it easier for users to browse datasets by theme. Datasets can be "
+"part of a group, but do not belong to the group for editing or authorisation"
+" purposes.</p> "
 msgstr ""
 
-#: ckan/templates/group/member_new.html:13 ckan/templates/group/members.html:19
+#: ckan/templates/group/member_new.html:13
+#: ckan/templates/group/members.html:19
 #: ckan/templates/organization/edit_base.html:34
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/members.html:3
@@ -2390,7 +2364,8 @@ msgstr "Anggota"
 msgid "Edit Member:"
 msgstr ""
 
-#: ckan/templates/group/member_new.html:23 ckan/templates/group/members.html:12
+#: ckan/templates/group/member_new.html:23
+#: ckan/templates/group/members.html:12
 #: ckan/templates/organization/member_new.html:15
 msgid "Add Member"
 msgstr ""
@@ -2579,8 +2554,8 @@ msgstr ""
 
 #: ckan/templates/home/index.html:33
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
 msgstr ""
 
 #: ckan/templates/home/index.html:45
@@ -2604,14 +2579,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2624,8 +2598,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:120
 msgid ""
-"You can use <a "
-"href=\"http://daringfireball.net/projects/markdown/syntax\" "
+"You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
 "target=\"_blank\">Markdown formatting</a> here"
 msgstr ""
 
@@ -2703,13 +2676,12 @@ msgstr ""
 
 #: ckan/templates/organization/index.html:41
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and "
-"authorisation its members, giving individual users the right to publish "
-"datasets from that particular organisation (e.g. Office of National "
-"Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorisation its members, giving"
+" individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/member_new.html:11
@@ -2737,8 +2709,8 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
 msgstr ""
 
 #: ckan/templates/organization/members.html:40
@@ -2801,9 +2773,8 @@ msgstr ""
 
 #: ckan/templates/package/base_form_page.html:17
 msgid ""
-" Datasets are simply used to group related pieces of data. These can then"
-" be found under a single url with a description and licensing "
-"information. "
+" Datasets are simply used to group related pieces of data. These can then be"
+" found under a single url with a description and licensing information. "
 msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:10
@@ -2847,8 +2818,8 @@ msgstr ""
 #: ckan/templates/package/read.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:9
 #: ckan/templates/snippets/package_item.html:28
-#: ckan/templates/snippets/private.html:3 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:92
+#: ckan/templates/snippets/private.html:3
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:119
 msgid "Private"
 msgstr "Privat"
@@ -2861,14 +2832,14 @@ msgstr ""
 #: ckan/templates/package/read_base.html:28
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
 
 #: ckan/templates/package/read_base.html:30
 #, python-format
-msgid "This is the current revision of this dataset, as edited at %(timestamp)s."
+msgid ""
+"This is the current revision of this dataset, as edited at %(timestamp)s."
 msgstr ""
 
 #: ckan/templates/package/related_list.html:7
@@ -3087,8 +3058,8 @@ msgstr "API data"
 
 #: ckan/templates/package/snippets/data_api_button.html:12
 msgid ""
-"Data API is unavailable for this resource as no data has been pushed to "
-"it yet"
+"Data API is unavailable for this resource as no data has been pushed to it "
+"yet"
 msgstr ""
 
 #: ckan/templates/package/snippets/info.html:15
@@ -3142,8 +3113,8 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"Important: By submitting content, you agree to release your contributions"
-" under the Open Database License."
+"Important: By submitting content, you agree to release your contributions "
+"under the Open Database License."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:37
@@ -3296,7 +3267,8 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_item.html:28
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
-#: ckan/templates_legacy/_util.html:12 ckan/templates_legacy/js_strings.html:16
+#: ckan/templates_legacy/_util.html:12
+#: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/importer/importer.html:26
 #: ckan/templates_legacy/package/resource_read.html:148
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:27
@@ -3311,12 +3283,13 @@ msgstr ""
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a> "
 msgstr ""
 
 #: ckan/templates/package/snippets/search_form.html:39
-msgid " <strong>There was an error while searching.</strong> Please try again. "
+msgid ""
+" <strong>There was an error while searching.</strong> Please try again. "
 msgstr ""
 
 #: ckan/templates/package/snippets/stages.html:32
@@ -3341,10 +3314,10 @@ msgstr ""
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
 msgstr ""
 
 #: ckan/templates/related/confirm_delete.html:10
@@ -3381,8 +3354,8 @@ msgstr ""
 
 #: ckan/templates/related/dashboard.html:40
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
 msgstr ""
 
 #: ckan/templates/related/dashboard.html:48
@@ -3695,8 +3668,7 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:15
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr ""
 
 #: ckan/templates/user/edit_base.html:5 ckan/templates/user/edit_base.html:8
@@ -3931,8 +3903,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr ""
 
 #: ckan/templates/user/snippets/back_to_user_action.html:1
@@ -4010,9 +3982,7 @@ msgstr "belum ada peringkat"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    beri peringkat sekarang"
+msgstr "–\n    beri peringkat sekarang"
 
 #: ckan/templates_legacy/error_document_template.html:5
 msgid "Error"
@@ -4046,9 +4016,7 @@ msgstr "Gagal menyimpan, mungkin karena data cacat"
 msgid ""
 "You have unsaved changes. Make sure to click 'Save Changes' below before "
 "leaving this page."
-msgstr ""
-"Anda punya perubahan yang belum disimpan. Pastikan untuk mengklik 'Simpan"
-" Perubahan' di bawah ini sebelum meninggalkan laman ini."
+msgstr "Anda punya perubahan yang belum disimpan. Pastikan untuk mengklik 'Simpan Perubahan' di bawah ini sebelum meninggalkan laman ini."
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "(no name)"
@@ -4064,9 +4032,7 @@ msgstr "Pratayang tidak tersedia untuk tipe data:"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-msgstr ""
-"Gagal mendapatkan data kredensial untuk penyimpanan unggahan. "
-"Pengunggahan tidak dapat dilanjutkan"
+msgstr "Gagal mendapatkan data kredensial untuk penyimpanan unggahan. Pengunggahan tidak dapat dilanjutkan"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Checking upload permissions ..."
@@ -4177,10 +4143,9 @@ msgstr "Anda dapat menggunakan %aformat Markdown%b di sini."
 
 #: ckan/templates_legacy/js_strings.html:16
 #, python-format
-msgid "Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
-msgstr ""
-"Tanggal dalam %aFormat ISO%b — misal %c2012-12-25%d atau "
-"%c2010-05-31T14:30%d."
+msgid ""
+"Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
+msgstr "Tanggal dalam %aFormat ISO%b — misal %c2012-12-25%d atau %c2010-05-31T14:30%d."
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Data File (Uploaded)"
@@ -4429,16 +4394,11 @@ msgstr "Apakah Grup itu?"
 
 #: ckan/templates_legacy/group/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove datasets from it."
-msgstr ""
-"Sementara tag sangat bagus untuk menghimpun kumpulan data secara bersama-"
-"sama, namun adakalanya anda ingin membatasi pengguna dari pengeditan "
-"sebuah koleksi. Sebuah [1:grup] dapat disetel untuk menspesifikasikan "
-"pengguna yang mana yang mendapat izin untuk menambah atau menghapus "
-"kumpulan data darinya."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. A [1:group] can "
+"be set-up to specify which users have permission to add or remove datasets "
+"from it."
+msgstr "Sementara tag sangat bagus untuk menghimpun kumpulan data secara bersama-sama, namun adakalanya anda ingin membatasi pengguna dari pengeditan sebuah koleksi. Sebuah [1:grup] dapat disetel untuk menspesifikasikan pengguna yang mana yang mendapat izin untuk menambah atau menghapus kumpulan data darinya."
 
 #: ckan/templates_legacy/group/layout.html:13
 #: ckan/templates_legacy/package/layout.html:38
@@ -4484,9 +4444,7 @@ msgstr "Galat pada formulir"
 #: ckanext/organizations/templates_legacy/organizations/form.html:35
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:54
 msgid "Warning: URL is very long. Consider changing it to something shorter."
-msgstr ""
-"Peringatan: URL sangat panjang. Pertimbangkan untuk mengubahnya lebih "
-"ringkas."
+msgstr "Peringatan: URL sangat panjang. Pertimbangkan untuk mengubahnya lebih ringkas."
 
 #: ckan/templates_legacy/group/new_group_form.html:36
 #: ckan/templates_legacy/package/new_package_form.html:57
@@ -4564,41 +4522,27 @@ msgstr "Kondisi:"
 #: ckanext/organizations/templates_legacy/organizations/read.html:73
 #, python-format
 msgid "[1:You searched for \"%(query)s\". ]%(number_of_results)s datasets found."
-msgstr ""
-"[1:Pencarian anda untuk \"%(query)s\". ]%(number_of_results)s kumpulan "
-"data ditemukan."
+msgstr "[1:Pencarian anda untuk \"%(query)s\". ]%(number_of_results)s kumpulan data ditemukan."
 
 #: ckan/templates_legacy/home/about.html:14
 msgid ""
 "What was the [1:average price] of a house in the UK in 1935? When will "
-"India's projected population [2:overtake] that of China? Where can you "
-"see [3:publicly-funded art] in Seattle? Data to answer many, many "
-"questions like these is out there on the Internet somewhere - but it is "
-"not always easy to find."
-msgstr ""
-"Berapakah [1:harga rata-rata] rumah di Inggris pada tahun 1935? Kapan "
-"India akan memproteksikan populasinya [2:mengambil alih] Cina? Di mana "
-"anda bisa melihat [3:kesenian didanai-publik] di Seattle? Data yang dapat"
-" menjawab banyak, dan banyak pertanyaan seperti ini di luar sana di "
-"internet - tetapi itu tidak akan selalu mudah untuk ditemukan."
+"India's projected population [2:overtake] that of China? Where can you see "
+"[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
+" these is out there on the Internet somewhere - but it is not always easy to"
+" find."
+msgstr "Berapakah [1:harga rata-rata] rumah di Inggris pada tahun 1935? Kapan India akan memproteksikan populasinya [2:mengambil alih] Cina? Di mana anda bisa melihat [3:kesenian didanai-publik] di Seattle? Data yang dapat menjawab banyak, dan banyak pertanyaan seperti ini di luar sana di internet - tetapi itu tidak akan selalu mudah untuk ditemukan."
 
 #: ckan/templates_legacy/home/about.html:16
 #, python-format
 msgid ""
-"%(site_title)s is a community-run catalogue of useful sets of data on the"
-" Internet. You can collect links here to data from around the web for "
-"yourself and others to use, or search for data that others have "
-"collected. Depending on the type of data (and its conditions of use), "
-"%(site_title)s may also be able to store a copy of the data or host it in"
-" a database, and provide some basic visualisation tools."
-msgstr ""
-"%(site_title)s adalah sebuah komunitas yang menjalankan katalog kumpulan "
-"data yang berguna di internet. Anda dapat mengkoleksi tautan di sini "
-"untuk data dari seluruh web untuk digunakan oleh anda sendiri dan orang "
-"lain, atau mencari data yang orang lain kumpulkan. Tergantung dari tipe "
-"datanya (dan kondisi penggunaannya), %(site_title)s juga dapat berfungsi "
-"untuk menyimpan salinan dari data atau host-nya dalam sebuah basisdata, "
-"dan menyediakan beberapa perangkat visualisasi dasar."
+"%(site_title)s is a community-run catalogue of useful sets of data on the "
+"Internet. You can collect links here to data from around the web for "
+"yourself and others to use, or search for data that others have collected. "
+"Depending on the type of data (and its conditions of use), %(site_title)s "
+"may also be able to store a copy of the data or host it in a database, and "
+"provide some basic visualisation tools."
+msgstr "%(site_title)s adalah sebuah komunitas yang menjalankan katalog kumpulan data yang berguna di internet. Anda dapat mengkoleksi tautan di sini untuk data dari seluruh web untuk digunakan oleh anda sendiri dan orang lain, atau mencari data yang orang lain kumpulkan. Tergantung dari tipe datanya (dan kondisi penggunaannya), %(site_title)s juga dapat berfungsi untuk menyimpan salinan dari data atau host-nya dalam sebuah basisdata, dan menyediakan beberapa perangkat visualisasi dasar."
 
 #: ckan/templates_legacy/home/about.html:23
 msgid "How it works"
@@ -4607,40 +4551,24 @@ msgstr "Cara kerjanya"
 #: ckan/templates_legacy/home/about.html:25
 msgid ""
 "This site is running a powerful piece of open-source data cataloguing "
-"software called [1:CKAN], written and maintained by the [2:Open Knowledge"
-" Foundation]. Each 'dataset' record on CKAN contains a description of the"
-" data and other useful information, such as what formats it is available "
-"in, who owns it and whether it is freely available, and what subject "
-"areas the data is about. Other users can improve or add to this "
-"information (CKAN keeps a fully versioned history)."
-msgstr ""
-"Situs ini menggunakan perangkat lunak terbuka katalog data bernama "
-"[1:CKAN], ditulis dan dipelihara oleh [2:Open Knowledge Foundation]. "
-"Setiap rekod 'kumpulan data' pada CKAN mengandung sebuah deskripsi "
-"tentang data dan informasi berguna lainnya, seperti format apa yang "
-"tersedia di dalamnya, siapa yang memilikinya dan apakah tersedia secara "
-"bebas, dan area subjek apa yang dibahas dari data tersebut. Pengguna lain"
-" dapat meningkatkan atau menambahkan ke informasi ini (CKAN memelihara "
-"riwayat versi dengan lengkap)."
+"software called [1:CKAN], written and maintained by the [2:Open Knowledge "
+"Foundation]. Each 'dataset' record on CKAN contains a description of the "
+"data and other useful information, such as what formats it is available in, "
+"who owns it and whether it is freely available, and what subject areas the "
+"data is about. Other users can improve or add to this information (CKAN "
+"keeps a fully versioned history)."
+msgstr "Situs ini menggunakan perangkat lunak terbuka katalog data bernama [1:CKAN], ditulis dan dipelihara oleh [2:Open Knowledge Foundation]. Setiap rekod 'kumpulan data' pada CKAN mengandung sebuah deskripsi tentang data dan informasi berguna lainnya, seperti format apa yang tersedia di dalamnya, siapa yang memilikinya dan apakah tersedia secara bebas, dan area subjek apa yang dibahas dari data tersebut. Pengguna lain dapat meningkatkan atau menambahkan ke informasi ini (CKAN memelihara riwayat versi dengan lengkap)."
 
 #: ckan/templates_legacy/home/about.html:27
 msgid ""
-"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub]"
-" is an openly editable open data catalogue, in the style of Wikipedia. "
-"The UK Government uses CKAN to run [2:data.gov.uk], which currently lists"
-" 8,000 government datasets. Official public data from most European "
-"countries is listed in a CKAN catalogue at [3:publicdata.eu]. There is a "
-"comprehensive list of catalogues like these around the world at "
-"[4:datacatalogs.org], which is itself powered by CKAN."
-msgstr ""
-"CKAN membantu memperkuat sejumlah katalog data di internet [1:The Data "
-"Hub] adalah sebuah katalog data terbuka yang terbuka untuk diedit, dalam "
-"gaya Wikipedia. Pemerintah Inggris menggunakan CKAN untuk menjalankan "
-"situs [2:data.gov.uk], yang saat ini telah mencapai 8,000 kumpulan data "
-"pemerintah. Data publik resmi dari kebanyakan negara-negara Eropa telah "
-"terdaftar pada sebuah katalog CKAN di [3:publicdata.eu]. Terdapat daftar "
-"komprehensif dari katalog seperti ini di seluruh dunia di "
-"[4:datacatalogs.org], yang mana menggunakan CKAN."
+"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub] is"
+" an openly editable open data catalogue, in the style of Wikipedia. The UK "
+"Government uses CKAN to run [2:data.gov.uk], which currently lists 8,000 "
+"government datasets. Official public data from most European countries is "
+"listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
+"list of catalogues like these around the world at [4:datacatalogs.org], "
+"which is itself powered by CKAN."
+msgstr "CKAN membantu memperkuat sejumlah katalog data di internet [1:The Data Hub] adalah sebuah katalog data terbuka yang terbuka untuk diedit, dalam gaya Wikipedia. Pemerintah Inggris menggunakan CKAN untuk menjalankan situs [2:data.gov.uk], yang saat ini telah mencapai 8,000 kumpulan data pemerintah. Data publik resmi dari kebanyakan negara-negara Eropa telah terdaftar pada sebuah katalog CKAN di [3:publicdata.eu]. Terdapat daftar komprehensif dari katalog seperti ini di seluruh dunia di [4:datacatalogs.org], yang mana menggunakan CKAN."
 
 #: ckan/templates_legacy/home/about.html:30
 msgid "Open data and the Open Knowledge Foundation"
@@ -4650,38 +4578,22 @@ msgstr "Data terbuka dan Open Knowledge Foundation"
 #, python-format
 msgid ""
 "Most of the data indexed at %(site_title)s is openly licensed, meaning "
-"anyone is free to use or re-use it however they like. Perhaps someone "
-"will take that nice dataset of a city's public art that you found, and "
-"add it to a tourist map - or even make a neat app for your phone that'll "
-"help you find artworks when you visit the city. Open data means more "
-"enterprise, collaborative science and transparent government. You can "
-"read more about open data in the [1:Open Data Handbook]."
-msgstr ""
-"Kebanyakan dari indeks data pada %(site_title)s adalah dengan lisensi "
-"terbuka, artinya setiap orang bebas untuk menggunakannya atau menggunakan"
-" ulang sesuai yang mereka sukai. Mungkin seseorang akan mengambil "
-"kumpulan data yang bagus tersebut untuk kesenian publik kota yang anda "
-"temukan, dan menambahkannya ke peta turis - atau bahkan membuat sebuah "
-"aplikasi untuk telepon anda yang dapat membantu anda untuk menemukan "
-"karya seni yang bagus saat anda mengunjungi kota tersebut. Data terbuka "
-"dimaksudkan untuk bisa berskala besar, kolaborasi antar sains dan "
-"pemerintahan yang transparan. Anda dapat membacanya lebih lengkap pada "
-"[1:Buku Pegangan Data Terbuka]."
+"anyone is free to use or re-use it however they like. Perhaps someone will "
+"take that nice dataset of a city's public art that you found, and add it to "
+"a tourist map - or even make a neat app for your phone that'll help you find"
+" artworks when you visit the city. Open data means more enterprise, "
+"collaborative science and transparent government. You can read more about "
+"open data in the [1:Open Data Handbook]."
+msgstr "Kebanyakan dari indeks data pada %(site_title)s adalah dengan lisensi terbuka, artinya setiap orang bebas untuk menggunakannya atau menggunakan ulang sesuai yang mereka sukai. Mungkin seseorang akan mengambil kumpulan data yang bagus tersebut untuk kesenian publik kota yang anda temukan, dan menambahkannya ke peta turis - atau bahkan membuat sebuah aplikasi untuk telepon anda yang dapat membantu anda untuk menemukan karya seni yang bagus saat anda mengunjungi kota tersebut. Data terbuka dimaksudkan untuk bisa berskala besar, kolaborasi antar sains dan pemerintahan yang transparan. Anda dapat membacanya lebih lengkap pada [1:Buku Pegangan Data Terbuka]."
 
 #: ckan/templates_legacy/home/about.html:34
 msgid ""
-"The [1:Open Knowledge Foundation] is a non-profit organisation "
-"[2:promoting] open knowledge: writing and improving CKAN is one of the "
-"ways we do that. If you want to get involved with its design or code, "
-"join the discussion or development [3:mailing lists], or take a look at "
-"the [4:OKFN] site to find out about our other projects."
-msgstr ""
-"[1:Open Knowledge Foundation] adalah organisasi non-profit "
-"[2:mempromosikan] open knowledge: menulis dan meningkatkan CKAN adalah "
-"salah satu langkah yang kami lakukan. Bila anda ingin ikut terlibat dalam"
-" desain atau kodenya, bergabunglah dalam [3:mailing lists] diskusi atau "
-"pengembangannya, atau lihatlah pada situs [4:OKFN] untuk mengetahui lebih"
-" lanjut tentang proyek kami."
+"The [1:Open Knowledge Foundation] is a non-profit organisation [2:promoting]"
+" open knowledge: writing and improving CKAN is one of the ways we do that. "
+"If you want to get involved with its design or code, join the discussion or "
+"development [3:mailing lists], or take a look at the [4:OKFN] site to find "
+"out about our other projects."
+msgstr "[1:Open Knowledge Foundation] adalah organisasi non-profit [2:mempromosikan] open knowledge: menulis dan meningkatkan CKAN adalah salah satu langkah yang kami lakukan. Bila anda ingin ikut terlibat dalam desain atau kodenya, bergabunglah dalam [3:mailing lists] diskusi atau pengembangannya, atau lihatlah pada situs [4:OKFN] untuk mengetahui lebih lanjut tentang proyek kami."
 
 #: ckan/templates_legacy/home/index.html:13
 msgid "Welcome to"
@@ -4703,9 +4615,7 @@ msgstr "kumpulan data"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr ""
-"anda bisa \n"
-"            meramban, belajar tentang dan mengunduh."
+msgstr "anda bisa \n            meramban, belajar tentang dan mengunduh."
 
 #: ckan/templates_legacy/home/index.html:32
 msgid "Share data"
@@ -4715,10 +4625,7 @@ msgstr "Berbagi data"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "          to find other people interested in your data."
-msgstr ""
-"Tambahkan kumpulan data anda sendiri untuk membagikan mereka dengan yang "
-"lain dan\n"
-"          untuk menemukan orang lain yang berminat pada data anda."
+msgstr "Tambahkan kumpulan data anda sendiri untuk membagikan mereka dengan yang lain dan\n          untuk menemukan orang lain yang berminat pada data anda."
 
 #: ckan/templates_legacy/home/index.html:38
 msgid "Create a dataset »"
@@ -4736,10 +4643,7 @@ msgstr "Kolaborasikan"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
-"Temukan lebih banyak bagaimana bekerja dengan data terbuka dengan "
-"menjelajah \n"
-"          sumberdaya ini:"
+msgstr "Temukan lebih banyak bagaimana bekerja dengan data terbuka dengan menjelajah \n          sumberdaya ini:"
 
 #: ckan/templates_legacy/home/index.html:54
 msgid "GetTheData.org"
@@ -4806,9 +4710,7 @@ msgstr ""
 #: ckan/templates_legacy/importer/preview.html:28
 #: ckan/templates_legacy/package/edit_form.html:13
 msgid "Edit summary (briefly describe the changes you have made)"
-msgstr ""
-"Edit ringkasan (deskripsi singkat tentang perubahan yang telah anda "
-"lakukan)"
+msgstr "Edit ringkasan (deskripsi singkat tentang perubahan yang telah anda lakukan)"
 
 #: ckan/templates_legacy/importer/preview.html:30
 #: ckan/templates_legacy/package/edit_form.html:17
@@ -4866,13 +4768,9 @@ msgstr "sebelum menyimpan (buka dalam jendela baru)"
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:317
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
-"contributions under the [2:Open Database License]. Please [3:refrain] "
-"from editing this page if you are [4:not] happy to do this."
-msgstr ""
-"[1:Penting:] Dengan mengirimkan konten, anda setuju untuk merilis "
-"kontribusi anda di bawah naungan [2:Lisensi Basisdata Terbuka]. Mohon "
-"[3:tahan dulu] dari keinginan untuk mengedit laman ini bila anda "
-"[4:tidak] menyukai untuk melakukan hal ini."
+"contributions under the [2:Open Database License]. Please [3:refrain] from "
+"editing this page if you are [4:not] happy to do this."
+msgstr "[1:Penting:] Dengan mengirimkan konten, anda setuju untuk merilis kontribusi anda di bawah naungan [2:Lisensi Basisdata Terbuka]. Mohon [3:tahan dulu] dari keinginan untuk mengedit laman ini bila anda [4:tidak] menyukai untuk melakukan hal ini."
 
 #: ckan/templates_legacy/package/editresources.html:6
 msgid "- Edit Resources - Datasets"
@@ -4968,9 +4866,7 @@ msgstr "misalnya http://www.example.com/growth-figures.html"
 msgid ""
 "(Don't worry if you don't know which license the data has been released "
 "under)."
-msgstr ""
-"(Tidak perlu khawatir bila anda tidak tahu lisensi yang mana dari data "
-"tersebut dirilis)"
+msgstr "(Tidak perlu khawatir bila anda tidak tahu lisensi yang mana dari data tersebut dirilis)"
 
 #: ckan/templates_legacy/package/new_package_form.html:96
 msgid "Member of:"
@@ -4987,12 +4883,9 @@ msgstr "Tidak dapat menambahkan grup apapun."
 #: ckan/templates_legacy/package/new_package_form.html:122
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:134
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see [1:this wiki page]."
-msgstr ""
-"Istilah comma-separated mungkin mengaitkan kumpulan data ini ke yang "
-"serupa dengannya. Untuk informasi lebih lanjut mengenai ketetapan ini, "
-"lihat [1:laman wiki ini]."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see [1:this wiki page]."
+msgstr "Istilah comma-separated mungkin mengaitkan kumpulan data ini ke yang serupa dengannya. Untuk informasi lebih lanjut mengenai ketetapan ini, lihat [1:laman wiki ini]."
 
 #: ckan/templates_legacy/package/new_package_form.html:123
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:135
@@ -5007,11 +4900,8 @@ msgstr "Tambah Sumberdaya"
 #: ckan/templates_legacy/package/new_package_form.html:132
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:144
 msgid ""
-"Upload or link data files, APIs and other materials related to your "
-"dataset."
-msgstr ""
-"Unggah atau tautkan file data, API dan material lainnya yang terkait "
-"dengan kumpulan data anda."
+"Upload or link data files, APIs and other materials related to your dataset."
+msgstr "Unggah atau tautkan file data, API dan material lainnya yang terkait dengan kumpulan data anda."
 
 #: ckan/templates_legacy/package/new_package_form.html:139
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:151
@@ -5036,11 +4926,9 @@ msgstr "URL API"
 #: ckan/templates_legacy/package/new_package_form.html:193
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:205
 msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
-msgstr ""
-"Nama dari kontak utama, untuk pertanyaan mengenai kumpulan data ini, "
-"menggunakan alamat email tersebut di field berikut."
+"The name of the main contact, for enquiries about this particular dataset, "
+"using the e-mail address in the following field."
+msgstr "Nama dari kontak utama, untuk pertanyaan mengenai kumpulan data ini, menggunakan alamat email tersebut di field berikut."
 
 #: ckan/templates_legacy/package/new_package_form.html:198
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:210
@@ -5050,12 +4938,9 @@ msgstr "Email pembuat"
 #: ckan/templates_legacy/package/new_package_form.html:208
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:220
 msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
-msgstr ""
-"Bila masih terdapat orang penghubung lainnya yang penting (sebagai "
-"tambahan untuk seseorang dalam field Pembuat) maka sediakan rinciannya di"
-" sini."
+"If there is another important contact person (in addition to the person in "
+"the Author field) then provide details here."
+msgstr "Bila masih terdapat orang penghubung lainnya yang penting (sebagai tambahan untuk seseorang dalam field Pembuat) maka sediakan rinciannya di sini."
 
 #: ckan/templates_legacy/package/new_package_form.html:213
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:225
@@ -5075,12 +4960,9 @@ msgstr "misalnya 1.2.0"
 #: ckan/templates_legacy/package/new_package_form.html:230
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:242
 msgid ""
-"Adding custom fields to the dataset such as \"location:uk\" can help "
-"users find it in the search engine. This data will also appear under"
-msgstr ""
-"Menambahkan field sesuaian untuk kumpulan data seperti \"location:uk\" "
-"dapat membantu pengguna untuk menemukannya di mesin pencari. Data ini "
-"akan juga muncul di bawah"
+"Adding custom fields to the dataset such as \"location:uk\" can help users "
+"find it in the search engine. This data will also appear under"
+msgstr "Menambahkan field sesuaian untuk kumpulan data seperti \"location:uk\" dapat membantu pengguna untuk menemukannya di mesin pencari. Data ini akan juga muncul di bawah"
 
 #: ckan/templates_legacy/package/new_package_form.html:230
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:242
@@ -5117,19 +4999,16 @@ msgstr "Deskripsi singkat perubahan yang anda lakukan..."
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr ""
-"Karena anda tidak masuk maka ini akan menjadi alamat IP anda.\n"
-"    [1:Klik di sini untuk masuk] sebelum menyimpan (buka di jendela baru)."
+msgstr "Karena anda tidak masuk maka ini akan menjadi alamat IP anda.\n    [1:Klik di sini untuk masuk] sebelum menyimpan (buka di jendela baru)."
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "Important:"
 msgstr "Penting:"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
-msgid "By submitting content, you agree to release your contributions under the"
-msgstr ""
-"Dengan mengirimkan konten, anda setuju untuk merilis kontribusi anda di "
-"bawah"
+msgid ""
+"By submitting content, you agree to release your contributions under the"
+msgstr "Dengan mengirimkan konten, anda setuju untuk merilis kontribusi anda di bawah"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid ". Please"
@@ -5220,9 +5099,7 @@ msgstr "Panen Sumber"
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr ""
-"[1:Laman kumpulan data] pada \n"
-"            [2:%(harvest_catalogue_name)s]"
+msgstr "[1:Laman kumpulan data] pada \n            [2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates_legacy/package/resource_embedded_dataviewer.html:87
 #: ckan/templates_legacy/package/resource_read.html:58
@@ -5231,9 +5108,7 @@ msgstr "- Kumpulan data - Sumberdaya"
 
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API is unavailable for this resource as DataStore is disabled"
-msgstr ""
-"API data tidak tersedia untuk sumberdaya ini sebagaimana DataStore "
-"dinonaktifkan"
+msgstr "API data tidak tersedia untuk sumberdaya ini sebagaimana DataStore dinonaktifkan"
 
 #: ckan/templates_legacy/package/resource_read.html:113
 msgid "License unknown"
@@ -5293,9 +5168,7 @@ msgstr "dump"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr ""
-"[1:Terdapat masalah saat mencari.] \n"
-"            Silahkan coba lagi."
+msgstr "[1:Terdapat masalah saat mencari.] \n            Silahkan coba lagi."
 
 #: ckan/templates_legacy/package/search.html:54
 #, python-format
@@ -5411,9 +5284,7 @@ msgstr "Riwayat Revisi"
 msgid ""
 "Track the most recent changes to the system, with most recent\n"
 "    changes first."
-msgstr ""
-"Melacak perubahan terbaru pada sistem, dengan perubahan\n"
-"    yang paling baru lebih dulu."
+msgstr "Melacak perubahan terbaru pada sistem, dengan perubahan\n    yang paling baru lebih dulu."
 
 #: ckan/templates_legacy/revision/read.html:6
 msgid "Revision:"
@@ -5452,9 +5323,7 @@ msgstr "Kumpulan data -"
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"      Tag -"
+msgstr ",\n      Tag -"
 
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:19
 msgid "Embed this view"
@@ -5476,10 +5345,7 @@ msgstr "Entitas"
 msgid ""
 "This upload form is valid for a limited time (usually 1h or so). If the\n"
 "    form expires please reload the page."
-msgstr ""
-"Formulir unggah ini sah untuk waktu yang terbatas (biasanya 1 jam atau "
-"lebih). Bila\n"
-"    formulir kadaluarsa silahkan muat ulang laman tersebut."
+msgstr "Formulir unggah ini sah untuk waktu yang terbatas (biasanya 1 jam atau lebih). Bila\n    formulir kadaluarsa silahkan muat ulang laman tersebut."
 
 #: ckan/templates_legacy/storage/index.html:33
 msgid "File:"
@@ -5594,11 +5460,9 @@ msgstr "Ubah username anda"
 
 #: ckan/templates_legacy/user/edit_user_form.html:66
 msgid ""
-"Changing your username will log you out, and require you to log back in "
-"with the new username"
-msgstr ""
-"Mengubah username anda akan mengeluarkan anda, dan anda perlu untuk "
-"mengulang masuk lagi dengan username yang baru"
+"Changing your username will log you out, and require you to log back in with"
+" the new username"
+msgstr "Mengubah username anda akan mengeluarkan anda, dan anda perlu untuk mengulang masuk lagi dengan username yang baru"
 
 #: ckan/templates_legacy/user/followers.html:6
 msgid "- Followers - User"
@@ -5676,11 +5540,9 @@ msgstr "Masuk menggunakan Open ID"
 
 #: ckan/templates_legacy/user/login.html:62
 msgid ""
-"NB: To set-up your OpenID for this site, you first need to [1:Register] "
-"and then edit your Profile to provide your OpenID."
-msgstr ""
-"NB: Untuk menyetel OpenID anda untuk situs ini, sebelumnya anda harus "
-"[1:Mendaftar] dan mengedit Profil anda untuk menyediakan OpenID anda."
+"NB: To set-up your OpenID for this site, you first need to [1:Register] and "
+"then edit your Profile to provide your OpenID."
+msgstr "NB: Untuk menyetel OpenID anda untuk situs ini, sebelumnya anda harus [1:Mendaftar] dan mengedit Profil anda untuk menyediakan OpenID anda."
 
 #: ckan/templates_legacy/user/login.html:64
 msgid "Please click your account provider:"
@@ -5699,17 +5561,9 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
 "          about OpenID] and [2:how to get an\n"
-"          OpenID enabled account]. Probably the simplest way is sign up "
-"with a\n"
+"          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID adalah layanan yang memungkinkan andang untuk masuk ke banyak "
-"situs berbeda\n"
-"          menggunakan identitas tunggal. Temukan [1:lebih lanjut\n"
-"          mengenai OpenID] dan [2:bagaimana mendapatkan\n"
-"          akun OpenID yang aktif]. Mungkin cara praktis adalah dengan "
-"mendaftar dengan sebuah\n"
-"          penyedia gratis OpenID seperti [3:https://www.myopenid.com/]."
+msgstr "OpenID adalah layanan yang memungkinkan andang untuk masuk ke banyak situs berbeda\n          menggunakan identitas tunggal. Temukan [1:lebih lanjut\n          mengenai OpenID] dan [2:bagaimana mendapatkan\n          akun OpenID yang aktif]. Mungkin cara praktis adalah dengan mendaftar dengan sebuah\n          penyedia gratis OpenID seperti [3:https://www.myopenid.com/]."
 
 #: ckan/templates_legacy/user/login.html:83
 msgid "Sign in with OpenID"
@@ -5844,9 +5698,7 @@ msgstr ""
 msgid ""
 "There was a problem with your submission,                              "
 "please correct it and try again"
-msgstr ""
-"Terdapat masalah dengan pendaftaran anda,                              "
-"silahkan perbaiki dan coba lagi"
+msgstr "Terdapat masalah dengan pendaftaran anda,                              silahkan perbaiki dan coba lagi"
 
 #: ckanext/organizations/controllers.py:44
 #: ckanext/organizations/controllers.py:65
@@ -5858,7 +5710,8 @@ msgid "Your application has been submitted"
 msgstr "Aplikasi anda telah dikirimkan"
 
 #: ckanext/organizations/controllers.py:99
-msgid "There was a problem with your submission, please correct it and try again"
+msgid ""
+"There was a problem with your submission, please correct it and try again"
 msgstr "Terdapat masalah dengan pendaftaran anda, silahkan perbaiki dan coba lagi"
 
 #: ckanext/organizations/forms.py:31
@@ -5871,10 +5724,7 @@ msgid ""
 "Dear administrator,\n"
 "\n"
 "A request has been made for membership of your organization"
-msgstr ""
-"Yang terhormat administrator,\n"
-"\n"
-"Sebuah permintaan telah dibuat untuk keanggotaan organisasi anda"
+msgstr "Yang terhormat administrator,\n\nSebuah permintaan telah dibuat untuk keanggotaan organisasi anda"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:3
@@ -5896,37 +5746,26 @@ msgid ""
 "The reason given for the request was:\n"
 "\n"
 "\""
-msgstr ""
-"){% end %}\n"
-"\n"
-"Alasan yang diberikan untuk permintaan adalah:\n"
-"\n"
-"\""
+msgstr "){% end %}\n\nAlasan yang diberikan untuk permintaan adalah:\n\n\""
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:7
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:7
 msgid ""
 "\"\n"
 "\n"
-"Please contact the user to verify and then if you would like to add this "
-"user you can do so by visiting"
-msgstr ""
-"\"\n"
-"\n"
-"Silahkan hubungi pengguna untuk memverifikasi dan bila anda ingin "
-"menambahkan pengguna ini anda dapat melakukannya dengan mengunjungi"
+"Please contact the user to verify and then if you would like to add this user you can do so by visiting"
+msgstr "\"\n\nSilahkan hubungi pengguna untuk memverifikasi dan bila anda ingin menambahkan pengguna ini anda dapat melakukannya dengan mengunjungi"
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:9
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:9
-msgid "If you do not wish to add this user you can safely disregard this email."
-msgstr ""
-"Bila anda tidak ingin menambahkan pengguna ini anda dapat dengan aman "
-"mengabaikan email ini."
+msgid ""
+"If you do not wish to add this user you can safely disregard this email."
+msgstr "Bila anda tidak ingin menambahkan pengguna ini anda dapat dengan aman mengabaikan email ini."
 
 #: ckanext/organizations/templates/organizations/index.html:36
 msgid ""
-" <p>Organizations allow you to add both users and datasets to it in order"
-" to control who can access and manage your datasets</p> "
+" <p>Organizations allow you to add both users and datasets to it in order to"
+" control who can access and manage your datasets</p> "
 msgstr ""
 
 #: ckanext/organizations/templates/organizations/new.html:3
@@ -5936,8 +5775,8 @@ msgstr ""
 
 #: ckanext/organizations/templates/organizations/new.html:13
 msgid ""
-" <p>An organization can be set-up to specify which users have permission "
-"to add or remove datasets from it.</p> "
+" <p>An organization can be set-up to specify which users have permission to "
+"add or remove datasets from it.</p> "
 msgstr ""
 
 #: ckanext/organizations/templates/organizations/read.html:12
@@ -5958,11 +5797,9 @@ msgstr "Alasan"
 
 #: ckanext/organizations/templates_legacy/organizations/apply_form.html:37
 msgid ""
-"Please explain to the owner your reasons for wishing to become an editor "
-"of this organization"
-msgstr ""
-"Silahkan jelaskan kepada pemilik alasan anda untuk menjadi editor "
-"organisasi ini"
+"Please explain to the owner your reasons for wishing to become an editor of "
+"this organization"
+msgstr "Silahkan jelaskan kepada pemilik alasan anda untuk menjadi editor organisasi ini"
 
 #: ckanext/organizations/templates_legacy/organizations/apply_form.html:44
 msgid "Send request"
@@ -5998,15 +5835,11 @@ msgstr "Apakah Organisasi Itu?"
 
 #: ckanext/organizations/templates_legacy/organizations/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. An "
-"[1:organization] can be set-up to specify which users have permission to "
-"add or remove datasets from it."
-msgstr ""
-"Memang tag sangat bagus untuk menghimpun kumpulan data secara bersamaan, "
-"namun adakalanya anda ingin membatasi pengguna dari pengeditan koleksi. "
-"Sebuah [1:organisasi] dapat disetel untuk menspesifikasikan pengguna mana"
-" yang punya izin untuk menambah atau menghapus kumpulan data darinya."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. An "
+"[1:organization] can be set-up to specify which users have permission to add"
+" or remove datasets from it."
+msgstr "Memang tag sangat bagus untuk menghimpun kumpulan data secara bersamaan, namun adakalanya anda ingin membatasi pengguna dari pengeditan koleksi. Sebuah [1:organisasi] dapat disetel untuk menspesifikasikan pengguna mana yang punya izin untuk menambah atau menghapus kumpulan data darinya."
 
 #: ckanext/organizations/templates_legacy/organizations/layout.html:28
 msgid "Join"
@@ -6027,9 +5860,7 @@ msgstr "Tambah organisasi"
 
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:125
 msgid "Cannot add to any organizations. Please join an organization"
-msgstr ""
-"Tidak dapat menambahkan ke organisasi apapun. Silahkan gabung sebuah "
-"organisasi."
+msgstr "Tidak dapat menambahkan ke organisasi apapun. Silahkan gabung sebuah organisasi."
 
 #: ckanext/organizations/templates_legacy/organizations/users.html:5
 #: ckanext/organizations/templates_legacy/organizations/users.html:6
@@ -6070,21 +5901,17 @@ msgstr ""
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
@@ -6215,526 +6042,10 @@ msgstr "Leaderboard Kumpulan data"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"Pilih sebuah atribut kumpulan data dan temukan kategori mana pada area "
-"tersebut yang paling banyak memiliki kumpulan data. Misalnya tag, grup, "
-"lisensi, res_format, negara."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "Pilih sebuah atribut kumpulan data dan temukan kategori mana pada area tersebut yang paling banyak memiliki kumpulan data. Misalnya tag, grup, lisensi, res_format, negara."
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
 msgstr "Pilih area"
-
-#~ msgid "Changes Saved"
-#~ msgstr "Perubahan Disimpan"
-
-#~ msgid "User Added"
-#~ msgstr "Pengguna Ditambahkan"
-
-#~ msgid "unknown authorization group:"
-#~ msgstr "grup otorisasi tidak dikenal:"
-
-#~ msgid "Authorization Group Added"
-#~ msgstr "Grup Otorisasi Ditambahkan"
-
-#~ msgid "Not authorized to read %s"
-#~ msgstr "Tidak punya izin untuk membaca %s"
-
-#~ msgid "<strong>Unique identifier</strong> for group."
-#~ msgstr "<strong>Identitas unik</strong> untuk grup."
-
-#~ msgid "Details"
-#~ msgstr "Rincian"
-
-#~ msgid ""
-#~ "Name must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-#~ msgstr "Nama harus murni karakter alfanumerik (ascii) dan simbol ini: -_"
-
-#~ msgid "Dataset name already exists in database"
-#~ msgstr "Nama kumpulan data sudah ada dalam basisdata"
-
-#~ msgid "Value does not match required format: %s"
-#~ msgstr "Nilai tidak cocok dengan format yang diperlukan: %s"
-
-#~ msgid "Dataset resource(s) incomplete."
-#~ msgstr "Sumberdaya(s) kumpulan data tidak lengkap."
-
-#~ msgid "Tag \"%s\" must not contain any quotation marks: \""
-#~ msgstr "Tag \"%s\" tidakk boleh mengandung tanda kutip: \""
-
-#~ msgid "Extra key-value pair: key is not set for value \"%s\"."
-#~ msgstr "Pasangan ekstra nilai-kunci: kunci bukan setelan untuk nilai \"%s\"."
-
-#~ msgid ""
-#~ "Can't derived new group selection from"
-#~ " serialized value structured like this: "
-#~ "%s"
-#~ msgstr ""
-#~ "Seleksi grup baru tidak bisa diturunkan"
-#~ " dari nilai serial terstruktur seperti "
-#~ "ini: %s"
-
-#~ msgid "other - please specify"
-#~ msgstr "lainnya - silahkan spesifikasikan"
-
-#~ msgid "Package"
-#~ msgstr "Paket"
-
-#~ msgid "Add packages"
-#~ msgstr "Tambah paket"
-
-#~ msgid "A short descriptive title for the data set."
-#~ msgstr "Judul deskripsi singkat untuk kumpulan data."
-
-#~ msgid ""
-#~ "It should not be a description "
-#~ "though - save that for the Notes"
-#~ " field. Do not give a trailing "
-#~ "full stop."
-#~ msgstr ""
-#~ "Ini seharusnya bukanlah sebuah deskripsi "
-#~ "meskipun - menyimpannya untuk field "
-#~ "Catatan tersebut. Jangan memberikan tanda "
-#~ "titik berulang."
-
-#~ msgid "A unique identifier for the package."
-#~ msgstr "Sebuah identitas unik untuk paket."
-
-#~ msgid ""
-#~ "It should be broadly humanly readable,"
-#~ " in the spirit of Semantic Web "
-#~ "URIs. Only use an acronym if it"
-#~ " is widely recognised. Renaming is "
-#~ "possible but discouraged."
-#~ msgstr ""
-#~ "Ini seharusnya dapat dibaca mudah secara"
-#~ " luas, dalam semangat URI Web "
-#~ "Semantik. Hanya gunakan sebuah akronim "
-#~ "bila itu dikenal secara luas. Mengganti"
-#~ " nama sangatlah mungkin namun tidak "
-#~ "disarankan."
-
-#~ msgid "The licence under which the dataset is released."
-#~ msgstr "Lisensi berada dalam naungan kapan kumpulan data ini dirilis."
-
-#~ msgid ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see <a"
-#~ " href=\"%s\">this wiki page</a>."
-#~ msgstr ""
-#~ "Istilah comma-separated yang mungkin "
-#~ "terkait dengan kumpulan data ini dan "
-#~ "yang serupa dengannya. Untuk informasi "
-#~ "lebih lanjut mengenai ketetapan ini, "
-#~ "lihat <a href=\"%s\">laman wiki ini</a>."
-
-#~ msgid "The files containing the data or address of the APIs for accessing it."
-#~ msgstr "File tersebut mengandung data atau alamat dari API untuk mengaksesnya."
-
-#~ msgid ""
-#~ "<br />These can be repeated as "
-#~ "required. For example if the data "
-#~ "is being supplied in multiple formats,"
-#~ " or split into different areas or "
-#~ "time periods, each file is a "
-#~ "different 'resource' which should be "
-#~ "described differently. They will all "
-#~ "appear on the dataset page on CKAN"
-#~ " together.<br /><br /> <b>URL:</b> This "
-#~ "is the Internet link directly to "
-#~ "the data - by selecting this link"
-#~ " in a web browser, the user "
-#~ "will immediately download the full data"
-#~ " set. Note that datasets are not "
-#~ "hosted on this site, but by the"
-#~ " publisher of the data. Alternatively "
-#~ "the URL can point to an API "
-#~ "server such as a SPARQL endpoint "
-#~ "or JSON-P service.<br /> <b>Format:</b> "
-#~ "This should give the file format "
-#~ "in which the data is supplied. <br"
-#~ " /><b>Description</b> Any information you "
-#~ "want to add to describe the "
-#~ "resource.<br />"
-#~ msgstr ""
-#~ "<br />Ini dapat diulang sesuai "
-#~ "kebutuhan. Sebagai contoh bila data "
-#~ "disediakan dalam banyak format, atau "
-#~ "dibagi dalam beberapa area berbeda atau"
-#~ " periode waktu, maka setiap file-nya"
-#~ " merupakan 'sumberdaya' berbeda yang mana"
-#~ " harus dideskripsikan masing-masing. Mereka"
-#~ " semuanya akan muncul dalam laman "
-#~ "kumpulan data pada CKAN secara "
-#~ "bersamaan.<br /><br /> <b>URL:</b> Ini "
-#~ "adalah tautan internet yang langsung "
-#~ "menuju data - dengan memilih tautan "
-#~ "ini dalam peramban web, pengguna akan"
-#~ " segera mengunduhnya dalam bentuk kumpulan"
-#~ " data penuh. Catatan bahwasannya kumpulan"
-#~ " data tersebut tidak di-host pada "
-#~ "situs ini, melainkan oleh si penerbit"
-#~ " dari data tersebut. Sebagai alternatifnya"
-#~ " URL dapat merujuk pada sebuah server"
-#~ " API seperti berupa SPARQL endpoint "
-#~ "atau JSON-P service.<br /> <b>Format:</b> "
-#~ "Ini seharusnya memberi file sebuah "
-#~ "bentuk bagaimana data tersebut akan "
-#~ "disajikan. <br /><b>Deskripsi</b> Semua "
-#~ "informasi yang ingin anda tambahkan "
-#~ "untuk menggambarkan sumberdaya tersebut.<br />"
-
-#~ msgid ""
-#~ "Format choices: CSV | RDF | XML"
-#~ " | XBRL | SDMX | HTML+RDFa |"
-#~ " Other as appropriate"
-#~ msgstr ""
-#~ "Pilihan format: CSV | RDF | XML"
-#~ " | XBRL | SDMX | HTML+RDFa |"
-#~ " Lainnya yang sesuai"
-
-#~ msgid "Notes"
-#~ msgstr "Catatan"
-
-#~ msgid "The main description of the dataset"
-#~ msgstr "Deskripsi utama dari kumpulan data"
-
-#~ msgid ""
-#~ "It is often displayed with the "
-#~ "package title. In particular, it should"
-#~ " start with a short sentence that "
-#~ "describes the data set succinctly, "
-#~ "because the first few words alone "
-#~ "may be used in some views of "
-#~ "the data sets."
-#~ msgstr ""
-#~ "Seringkali ditampilkan bersama dengan judul"
-#~ " paket. Khususnya, hal itu harus "
-#~ "dimulai dengan kalimat pendek yang "
-#~ "menggambarkan dengan ringkas dan jelas "
-#~ "tentang kumpulan data tersebut, karena "
-#~ "beberapa kata pertama saja dapat "
-#~ "digunakan dalam ragam pandangan terhadap "
-#~ "kumpulan data tersebut."
-
-#~ msgid "You can use %sMarkdown formatting%s here."
-#~ msgstr "Anda dapat menggunakan %sformat Markdown%s di sini."
-
-#~ msgid "Basic information"
-#~ msgstr "Informasi dasar"
-
-#~ msgid "Detail"
-#~ msgstr "Rincian"
-
-#~ msgid "Resource should be a dictionary: %r"
-#~ msgstr "Sumberdaya harus berupa sebuah kamus: %r"
-
-#~ msgid "Key unknown: %s"
-#~ msgstr "Kunci tidak dikenal: %s"
-
-#~ msgid "Key blank"
-#~ msgstr "Kunci kosong"
-
-#~ msgid "Updated"
-#~ msgstr "Diperbarui"
-
-#~ msgid "User role(s) added"
-#~ msgstr "Peran(s) pengguna ditambahkan"
-
-#~ msgid "Please supply a user name"
-#~ msgstr "Silahkan sediakan sebuah nama pengguna"
-
-#~ msgid "You are already following {id}"
-#~ msgstr "Anda sudah mengikuti {id}"
-
-#~ msgid "Could not find follower {follower} -> {object}"
-#~ msgstr "Tidak dapat menemukan pengikut {follower} -> {object}"
-
-#~ msgid "You must be logged in to create a resource"
-#~ msgstr "Anda harus masuk dulu untuk membuat sebuah sumberdaya"
-
-#~ msgid "User %s not authorized to create authorization groups"
-#~ msgstr "Pengguna %s tidak punya izin untuk membuat grup otorisasi"
-
-#~ msgid "User %s not authorized to read group %s"
-#~ msgstr "Pengguna %s tidak punya izin untuk membaca grup %s"
-
-#~ msgid "User %s not authorized to read edit %s"
-#~ msgstr "Pengguna %s tidak punya izin untuk membaca mengedit %s"
-
-#~ msgid "User %s not authorized to edit permissions of package %s"
-#~ msgstr "Pengguna %s tidak punya izin untuk mengedit perizinan dari paket %s"
-
-#~ msgid "User %s not authorized to edit permissions of authorization group %s"
-#~ msgstr ""
-#~ "Pengguna %s tidak punya izin untuk "
-#~ "mengedit perizinan dari grup otorisasi "
-#~ "%s"
-
-#~ msgid "You must be logged in and be within a group to create a package"
-#~ msgstr ""
-#~ "Anda harus masuk dulu dan berada "
-#~ "di dalam grup untuk membuat sebuah "
-#~ "paket"
-
-#~ msgid "You do not have permission to create an item"
-#~ msgstr "Anda tidak punya izin untuk membuat item"
-
-#~ msgid "Two package IDs are required"
-#~ msgstr "ID dua paket diperlukan"
-
-#~ msgid "User is not authorized to create groups"
-#~ msgstr "Pengguna tidak punya izin untuk membuat grup"
-
-#~ msgid "Authorization groups not implemented in this profile"
-#~ msgstr "Grup otorisasi tidak diimplementasikan pada profil ini"
-
-#~ msgid "User %s not authorized to delete packages in these group"
-#~ msgstr "Pengguna %s tidak punya izin untuk menghapus paket pada grup ini"
-
-#~ msgid "Only members of this group are authorized to delete this group"
-#~ msgstr "Hanya anggota dari grup ini yang diizinkan untuk menghapus grup ini"
-
-#~ msgid "User not authorized to read package %s"
-#~ msgstr "Pengguna tidak punya izin untuk membaca paket %s"
-
-#~ msgid "User %s not authorized to show group %s"
-#~ msgstr "Pengguna %s tidak punya izin untuk menampilkan grup %s"
-
-#~ msgid "User %s not authorized to edit packages in these groups"
-#~ msgstr "Pengguna %s tidak punya izin untuk mengedit paket dalam grup ini"
-
-#~ msgid "User %s not authorized to edit resources in this package"
-#~ msgstr "Pengguna %s tidak punya izin untuk mengedit sumberdaya paket ini"
-
-#~ msgid "Package edit permissions is not available"
-#~ msgstr "Perizinan pengeditan paket tidak tersedia"
-
-#~ msgid "Only members of this group are authorized to edit this group"
-#~ msgstr "Hanya anggota dari grup ini yang diizinkan untuk mengedit grup ini"
-
-#~ msgid "Could not find user %s"
-#~ msgstr "Tidak dapat menemukan pengguna %s"
-
-#~ msgid "User %s not authorized to edit this group"
-#~ msgstr "Pengguna %s tidak punya izin untuk mengedit grup ini"
-
-#~ msgid "Group edit permissions is not implemented"
-#~ msgstr "Perizinan pengeditan grup tidak diimplementasikan"
-
-#~ msgid "Authorization group update not implemented"
-#~ msgstr "Perbaruan grup otorisasi tidak diimplementasikan"
-
-#~ msgid "Number of members"
-#~ msgstr "Jumlah anggota"
-
-#~ msgid "User Group"
-#~ msgstr "Grup Pengguna"
-
-#~ msgid "{actor} added the tag {object} to the dataset {target}"
-#~ msgstr "{actor} menambahkan tag {object} ke kumpulan data {target}"
-
-#~ msgid "{actor} updated the group {object}"
-#~ msgstr "{actor} memperbarui grup {object}"
-
-#~ msgid "{actor} updated the dataset {object}"
-#~ msgstr "{actor} memperbarui kumpulan data {object}"
-
-#~ msgid "{actor} changed the extra {object} of the dataset {target}"
-#~ msgstr "{actor} mengubah {object} ekstra dari kumpulan data {target}"
-
-#~ msgid "{actor} updated the resource {object} in the dataset {target}"
-#~ msgstr "{actor} memperbarui sumberdaya {object} pada kumpulan data {target}"
-
-#~ msgid "{actor} deleted the group {object}"
-#~ msgstr "{actor} menghapus grup {object}"
-
-#~ msgid "{actor} deleted the dataset {object}"
-#~ msgstr "{actor} menghapus kumpulan data {object}"
-
-#~ msgid "{actor} deleted the extra {object} from the dataset {target}"
-#~ msgstr "{actor} menghapus {object} ekstra dari kumpulan data {target}"
-
-#~ msgid "{actor} deleted the related item {object}"
-#~ msgstr "{actor} menghapus item terkait {object}"
-
-#~ msgid "{actor} deleted the resource {object} from the dataset {target}"
-#~ msgstr "{actor} menghapus sumberdaya {object} dari kumpulan data {target}"
-
-#~ msgid "{actor} started following {object}"
-#~ msgstr "{actor} menyalakan {object} berikut"
-
-#~ msgid "{actor} created the group {object}"
-#~ msgstr "{actor} membuat grup {object}"
-
-#~ msgid "{actor} created the dataset {object}"
-#~ msgstr "{actor} membuat kumpulan data {object}"
-
-#~ msgid "{actor} added the extra {object} to the dataset {target}"
-#~ msgstr "{actor} menambahkan {object} ekstra ke kumpulan data {target}"
-
-#~ msgid "{actor} created the link to related %s {object}"
-#~ msgstr "{actor} membuat tautan ke {object} %s terkait"
-
-#~ msgid "{actor} added the resource {object} to the dataset {target}"
-#~ msgstr "{actor} menambahkan sumberdaya {object} ke kumpulan data {target}"
-
-#~ msgid "{actor} removed the tag {object} from the dataset {target}"
-#~ msgstr "{actor} menghapus tag {object} dari kumpulan data {target}"
-
-#~ msgid "Existing Roles for Authorization Groups"
-#~ msgstr "Peran yang Ada untuk Grup Otorisasi"
-
-#~ msgid "Add Roles for Any Authorization Group"
-#~ msgstr "Tambah Peran untuk Semua Grup Otorisasi"
-
-#~ msgid "You can change sysadmins on the"
-#~ msgstr "Anda dapat mengubah sysadmin pada"
-
-#~ msgid "authorization page"
-#~ msgstr "laman otorisasi"
-
-#~ msgid "Authorization"
-#~ msgstr "Otorisasi"
-
-#~ msgid "- Authorization - AuthorizationGroups"
-#~ msgstr "- Otorisasi - AuthorizationGroups"
-
-#~ msgid ""
-#~ "Warning: Authorization groups are deprecated"
-#~ " and no longer supported. They will"
-#~ " be removed\n"
-#~ "        completely on the next CKAN release."
-#~ msgstr ""
-#~ "Peringatan: Grup otorisasi sudah usang "
-#~ "dan tidak lagi didukung. Mereka akan "
-#~ "dihapuskan\n"
-#~ "        secara penuh pada rilis CKAN selanjutnya."
-
-#~ msgid "- Edit - Authorization Groups"
-#~ msgstr "- Edit - Grup Otorisasi"
-
-#~ msgid "There are no users currently in this group."
-#~ msgstr "Tidak ada pengguna saat ini dalam grup ini"
-
-#~ msgid "Authorization Groups"
-#~ msgstr "Grup Otorisasi"
-
-#~ msgid "There are [1:%(item_count)s] authorization groups."
-#~ msgstr "Terdapat [1:%(item_count)s] grup otorisasi."
-
-#~ msgid ""
-#~ "Instead of specifying the privileges of"
-#~ " specific users on a dataset or "
-#~ "group,\n"
-#~ "          you can also specify a "
-#~ "set of users that will share the"
-#~ " same rights. To do that, an    \n"
-#~ ""
-#~ "          [1:authorization group] can be "
-#~ "set-up and users can be added "
-#~ "to it."
-#~ msgstr ""
-#~ "Ketimbang menentukan hak istimewa pengguna "
-#~ "tertentu pada dataset atau kelompok,\n"
-#~ "          anda dapat pula menspesifikasi "
-#~ "sebuah kumpulan dari pengguna yang akan"
-#~ " berbagi hak yang sama. Untuk "
-#~ "melakukan hal itu, sebuah    \n"
-#~ "          [1:grup otorisasi] dapat disetel "
-#~ "dan pengguna dapat ditambahkan padanya."
-
-#~ msgid "To create a new authorization group, please first [1:login]."
-#~ msgstr "Untuk membuat grup otorisasi baru, silahkan [1:masuk] dulu."
-
-#~ msgid "Create a new authorization group"
-#~ msgstr "Buat grup otorisasi baru"
-
-#~ msgid "New - Authorization Groups"
-#~ msgstr "Baru - Grup Otorisasi"
-
-#~ msgid "New Authorization Group"
-#~ msgstr "Grup Otorisasi Baru"
-
-#~ msgid "- Authorization Groups"
-#~ msgstr "- Grup Otorisasi"
-
-#~ msgid "There are %(item_count)s users in this authorization group."
-#~ msgstr "Terdapat %(item_count)s pengguna dalam grup otorisasi ini."
-
-#~ msgid "Update Existing Roles for Authorization Groups"
-#~ msgstr "Perbarui Peran Yang Ada untuk Grup Otorisasi"
-
-#~ msgid "Someresources"
-#~ msgstr "Beberapa sumberdaya"
-
-#~ msgid "Publisher"
-#~ msgstr "Penerbit"
-
-#~ msgid "Resources: the files and APIs associated with this dataset"
-#~ msgstr "Sumberdaya: file dan API diasosiasikan dengan kumpulan data ini"
-
-#~ msgid "Add a resource:"
-#~ msgstr "Tambahkan sebuah sumberdaya:"
-
-#~ msgid "Publisher name"
-#~ msgstr "Nama penerbit"
-
-#~ msgid "2+ chars, lowercase, using only 'a-z0-9' and '-_'"
-#~ msgstr "2+ karakter, hurufkecil, hanya menggunakan 'a-z0-9' dan '-_'"
-
-#~ msgid "Publisher Description"
-#~ msgstr "Deskripsi Penerbit"
-
-#~ msgid "Parent publisher"
-#~ msgstr "Penerbit induk"
-
-#~ msgid "No parent publisher"
-#~ msgstr "Tidak ada penerbit induk"
-
-#~ msgid "There are no datasets currently in this publisher."
-#~ msgstr "Tidak ada kumpulan data untuk saat ini pada penerbit ini."
-
-#~ msgid "Publishers of Datasets"
-#~ msgstr "Penerbit Kumpulan data"
-
-#~ msgid "What Are Publishers?"
-#~ msgstr "Apakah Penerbit itu?"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A "
-#~ "[1:publisher] can be set-up to "
-#~ "specify which users have permission to"
-#~ " add or remove datasets from it."
-#~ msgstr ""
-#~ "Sementara tag sangat bagus untuk "
-#~ "menghimpun kumpulan data secara bersamaan, "
-#~ "namun terkadang anda ingin membatasi "
-#~ "pengguna dari pengeditan koleksi. [1:Penerbit]"
-#~ " dapat disetel untuk menspesifikasikan "
-#~ "pengguna mana yang mempunyai izin untuk"
-#~ " menambah atau menghapus kumpulan data "
-#~ "darinya."
-
-#~ msgid "List Publishers"
-#~ msgstr "Daftar Penerbit"
-
-#~ msgid "Add a Publisher"
-#~ msgstr "Tambah Penerbit"
-
-#~ msgid "Login to Add a Publisher"
-#~ msgstr "Masuk untuk Menambahkan Penerbit"
-
-#~ msgid "Add A Publisher"
-#~ msgstr "Tambah Penerbit"
-
-#~ msgid "CKAN Dataset Leaderboard"
-#~ msgstr "Leaderboard Kumpulan data CKAN"
-
