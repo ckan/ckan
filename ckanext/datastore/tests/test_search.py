@@ -620,3 +620,65 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
         assert res_dict['error']['__type'] == 'Authorization Error'
+
+    def test_making_resource_private_makes_datastore_private(self):
+        group = self.dataset.get_groups()[0]
+        context = {
+            'user': self.sysadmin_user.name,
+            'model': model}
+        package = p.toolkit.get_action('package_create')(
+            context,
+            {'name': 'privatedataset2',
+             'private': False,
+             'groups': [{
+                 'id': group.id
+             }]})
+        resource = p.toolkit.get_action('resource_create')(
+            context,
+            {'name': 'privateresource2',
+             'url': 'https://www.example.co.uk/',
+             'package_id': package['id']})
+
+        postparams = '%s=1' % json.dumps({
+            'resource_id': resource['id'],
+        })
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        # Test public resource
+        query = 'SELECT * FROM "{0}"'.format(resource['id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        # Make resource private
+        package = p.toolkit.get_action('package_show')(
+            context, {'id': package.get('id')})
+        package['private'] = True
+        package = p.toolkit.get_action('package_update')(context, package)
+
+        # Test private
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth, status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'
+
+        # Make resource public
+        package = p.toolkit.get_action('package_show')(
+            context, {'id': package.get('id')})
+        package['private'] = False
+        package = p.toolkit.get_action('package_update')(context, package)
+
+        # Test public again
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
