@@ -575,7 +575,9 @@ class PackageController(BaseController):
                                   action='resource_edit',
                                   resource_id=resource_id,
                                   id=id)
-        data = resource_dict
+        if not data:
+            data = resource_dict
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
