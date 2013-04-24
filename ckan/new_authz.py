@@ -1,4 +1,5 @@
 import sys
+import re
 from logging import getLogger
 
 from pylons import config
@@ -17,6 +18,12 @@ class AuthFunctions:
 
 def clear_auth_functions_cache():
     AuthFunctions._functions.clear()
+
+
+def clean_action_name(action_name):
+    ''' Used to convert old style action names into new style ones '''
+    return re.sub('package', 'dataset', action_name)
+
 
 def is_sysadmin(username):
     ''' returns True is username is a sysadmin '''
@@ -62,6 +69,7 @@ def is_authorized(action, context, data_dict=None):
     if is_sysadmin(context.get('user')):
         return {'success': True}
 
+    action = clean_action_name(action)
     auth_function = _get_auth_function(action)
     if auth_function:
         return auth_function(context, data_dict)
@@ -234,6 +242,7 @@ def _get_auth_function(action):
 
         for key, v in module.__dict__.items():
             if not key.startswith('_'):
+                key = clean_action_name(key)
                 AuthFunctions._functions[key] = v
 
     # Then overwrite them with any specific ones in the plugins:
@@ -241,6 +250,7 @@ def _get_auth_function(action):
     fetched_auth_functions = {}
     for plugin in p.PluginImplementations(p.IAuthFunctions):
         for name, auth_function in plugin.get_auth_functions().items():
+            name = clean_action_name(name)
             if name in resolved_auth_function_plugins:
                 raise Exception(
                     'The auth function %r is already implemented in %r' % (
