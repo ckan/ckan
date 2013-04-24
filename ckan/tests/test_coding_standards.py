@@ -900,6 +900,27 @@ class TestActionAuth(object):
         'update: package_change_state',
         'update: revision_change_state',
     ]
+
+
+    ACTION_NO_DOC_STR_BLACKLIST= [
+        'create: group_create_rest',
+        'create: group_member_create',
+        'create: organization_member_create',
+        'create: package_create_rest',
+        'create: package_relationship_create_rest',
+        'delete: group_member_delete',
+        'delete: organization_member_delete',
+        'delete: package_relationship_delete_rest',
+        'get: get_site_user',
+        'get: group_show_rest',
+        'get: member_roles_list',
+        'get: package_show_rest',
+        'get: tag_show_rest',
+        'update: group_update_rest',
+        'update: package_relationship_update_rest',
+        'update: package_update_rest',
+    ]
+
     done = False
 
     @classmethod
@@ -969,4 +990,13 @@ class TestActionAuth(object):
                     errors.append(name)
         assert not errors, 'These action functions have the wrong function' + \
             ' signature, should be (context, data_dict)\n%s' \
+            % '\n'.join(sorted(errors))
+
+    def test_fn_docstrings(self):
+        errors = []
+        for name, fn in self.actions.iteritems():
+            if not getattr(fn, '__doc__', None):
+                if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
+                    errors.append(name)
+        assert not errors, 'These action functions need docstrings\n%s' \
             % '\n'.join(sorted(errors))
