@@ -1,6 +1,7 @@
 import json
 import nose
 
+import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -25,7 +26,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        import pylons
         engine = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
@@ -37,11 +37,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def _configure_iconfigurable_plugins(cls):
-        import pylons.config as config
         from ckan.plugins import PluginImplementations
         from ckan.plugins.interfaces import IConfigurable
         for plugin in PluginImplementations(IConfigurable):
-            plugin.configure(config)
+            plugin.configure(pylons.config)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]

@@ -62,7 +62,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'author': u'tolstoy',
                                  u'characters': None}]
 
-        import pylons
         engine = db._get_engine(
                 None,
                 {'connection_url': pylons.config['ckan.datastore.write_url']}
@@ -487,7 +486,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        import pylons
         engine = db._get_engine(None,
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
