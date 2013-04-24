@@ -42,16 +42,98 @@ Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (use
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
+Naming Conventions and Filesystem Layout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2. Install CKAN into a Python virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Especially when managing many sites, it's useful to decide on a naming
+convention and stick to it.  In this example, we'll create a fictional CKAN
+website ``http://masaq.ckanhosted.com`` (an online datahub for the citizens of
+Masaq). We'll use the site's name ``masaq`` throughout the
+setup: as the names of the site's database and database user, as the
+``ckan.site_id`` in the site's configuration file, as the site's WSGI process
+name and group, etc.
 
-a. Create a Python virtual environment (virtualenv) to install CKAN into (in
-   this example we create a virtualenv called ``pyenv`` in our home
-   directory), and activate it::
+The site's name is also used as the directory names for the site's
+virtualenv and config files directories. As you'll see, the directories
+created by the commands given in these instructions are layed out like this:
 
-       virtualenv --no-site-packages ~/pyenv
-       . ~/pyenv/bin/activate
+``/usr/lib/ckan/masaq/``
+  The directory containing the site's virtualenv.
+
+``/etc/ckan/masaq/``
+  The directory containing the site's configuration files.
+
+``/etc/apache2/sites-available/masaq``
+  The site's Apache config file.
+
+``/var/log/apache2/masaq.error.log``
+  The site's Apache error log file.
+
+This recommended filesystem layout allows more virtualenvs for more CKAN
+sites to be created later, if you want to install more CKAN sites on the
+same machine. The virtualenvs and config files for further sites would be created in
+subdirectories named after those sites, for example::
+
+  /usr/lib/ckan/
+    masaq/      <-- virtualenv for masaq.ckanhosted.com
+      ...
+    chiark/     <-- virtualenv for chiark.ckanhosted.com
+      ...
+  /etc/ckan/
+    masaq/      <-- Config files for masaq.ckanhosted.com
+      apache.wsgi
+      development.ini
+      production.ini
+    chiark/     <-- Config files for chiark.ckanhosted.com
+      apache.wsgi
+      development.ini
+      production.ini
+  /etc/apache2/sites-available/
+    masaq      <-- Apache config file for masaq.ckanhosted.com
+    chiark     <-- Apache config file for chiark.ckanhosted.com
+  /var/log/apache2/
+    masaq.error.log      <-- Error log for masaq.ckanhosted.com
+    chiark.error.log     <-- Error log for chiark.ckanhosted.com
+
+
+2. Install CKAN into a virtual environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+a. Create a Python virtual environment (virtualenv) to install CKAN into, and
+activate it. In the second command, replace ``seanh`` with your own username::
+
+       sudo mkdir /usr/lib/ckan
+       sudo chown seanh /usr/lib/ckan/
+       virtualenv --no-site-packages /usr/lib/ckan/masaq
+       . /usr/lib/ckan/masaq/bin/activate
+
+.. important::
+
+   The final command above activates your virtualenv. The virtualenv has to
+   remain active for the rest of the installation and deployment process,
+   or commands will fail. You can tell when the virtualenv is active because
+   its name appears in front of your shell prompt, something like this::
+
+     (masaq) $ _
+
+   For example, if you logout and login again, or if you close your terminal
+   window and open it again, your virtualenv will no longer be activated. You
+   can always reactivate the virtualenv with this command::
+
+     . /usr/lib/ckan/masaq/bin/activate
+
+.. tip::
+
+   If you're installing CKAN for development and want it to be installed in
+   your home directory, you can symlink the directories used in this
+   documentation to your home directory. This way, you can copy-paste the
+   example commands from this documentation without having to modify them, and
+   still have CKAN installed in your home directory::
+
+     mkdir -p ~/ckan/lib
+     sudo ln -s ~/ckan/lib /usr/lib/ckan
+     mkdir -p ~/ckan/etc
+     sudo ln -s ~/ckan/etc /etc/ckan
 
 b. Install the CKAN source code into your virtualenv. To install the latest
    development version of CKAN (the most recent commit on the master branch of
@@ -59,20 +141,21 @@ b. Install the CKAN source code into your virtualenv. To install the latest
 
        pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
 
-   Alternatively, to install a specific version such as CKAN 1.7.1 run::
+   Alternatively, to install a specific version such as CKAN 2.0, run::
 
-       pip install -e 'git+https://github.com/okfn/ckan.git@ckan-1.7.1#egg=ckan'
+       pip install -e 'git+https://github.com/okfn/ckan.git@ckan-2.0#egg=ckan'
 
 c. Install the Python modules that CKAN requires into your virtualenv::
 
-       pip install -r ~/pyenv/src/ckan/pip-requirements.txt
+       pip install -r /usr/lib/ckan/masaq/src/ckan/pip-requirements.txt
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies::
 
     deactivate
-    . ~/pyenv/bin/activate
+    . /usr/lib/ckan/masaq/bin/activate
+
 
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,91 +171,91 @@ the CKAN install.
 
 Next you'll need to create a database user if one doesn't already exist.
 
-.. tip ::
+Create a new PostgreSQL database user called ``masaq``, and
+enter a password for the account when prompted. You'll need this password
+later::
 
-    If you choose a database name, user or password which are different from
-    the example values suggested below then you'll need to change the
-    sqlalchemy.url value accordingly in the CKAN configuration file that you'll
-    create in the next step.
+    sudo -u postgres createuser -S -D -R -P masaq
 
-Create a user called ``ckanuser``, and enter ``pass`` for the password when
-prompted::
+Create a new PostgreSQL database, also called ``masaq``, owned
+by the database user you just created::
 
-    sudo -u postgres createuser -S -D -R -P ckanuser
-
-Create the database (owned by ``ckanuser``), which we'll call ``ckan_dev``::
-
-    sudo -u postgres createdb -O ckanuser ckan_dev -E utf-8
+    sudo -u postgres createdb -O masaq masaq -E utf-8
 
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With your virtualenv activated, change to the ckan directory and create a CKAN
-config file::
+Create a directory to contain the site's config files. In the second command,
+replace ``seanh`` with your own username::
 
-    cd ~/pyenv/src/ckan
-    paster make-config ckan development.ini
+    sudo mkdir -p /etc/ckan/masaq
+    sudo chown -R seanh /etc/ckan/
 
-.. tip ::
+Change to the ``ckan`` directory and create a CKAN config file::
 
-    If you used a different database name or password when creating the database in
-    step 6 you'll need to now edit ``development.ini`` and change the
-    ``sqlalchemy.url`` line, filling in the database name, user and password you
-    used::
+    cd /usr/lib/ckan/masaq/src/ckan
+    paster make-config ckan /etc/ckan/masaq/development.ini
 
-        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
+.. tip::
 
-    If you're using a remote host with password authentication rather than SSL
-    authentication, use::
+   In this example we created a CKAN config file named ``development.ini``.
+   This config file name is conventionally used when running CKAN for
+   development. When deploying a production website with CKAN, it's
+   conventional to create another config file called ``production.ini`` (with
+   the command: ``paster make-config ckan production.ini``).
 
-        sqlalchemy.url = postgresql://<user>:<password>@<remotehost>/ckan?sslmode=disable
+Edit the ``development.ini`` file in a text editor, changing the following
+options::
 
-.. tip ::
+sqlalchemy.url
+  This should refer to the database we created in `3. Setup a PostgreSQL
+  database`_ above::
 
-  Legacy installs of CKAN may have the config file in the pyenv directory, e.g.
-  ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find
-  your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for
-  the line ``who.config_file = %(here)s/who.ini`` and change it to
-  ``who.config_file = who.ini``.
+    sqlalchemy.url = postgresql://masaq:pass@localhost/masaq
+
+  Replace ``pass`` with the password that you created in `3. Setup a
+  PostgreSQL database`_ above.
+
+  .. tip ::
+
+     If you're using a remote host with password authentication rather than SSL
+     authentication, use::
+
+       sqlalchemy.url = postgresql://masaq:pass@<remotehost>/masaq?sslmode=disable
+
+site_id
+  Each CKAN site should have a unique ``site_id``, for example::
+
+   ckan.site_id = masaq
 
 
 5. Setup Solr
 ~~~~~~~~~~~~~
 
 Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr, set appropriate values for the ``ckan.site_id`` and ``solr_url``
-config variables in your CKAN config file:
+setup Solr, then change the ``solr_url`` option in your CKAN config file to
+point to your Solr server, for example::
 
-::
-
-       ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
 
 6. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you have a configuration file that has the correct settings for your
-database, you'll need to create the tables. Make sure you are still in an
-activated environment with ``(pyenv)`` at the front of the command prompt and
-then from the ``~/pyenv/src/ckan`` directory run this command::
+database, you can create the database tables::
 
-    paster --plugin=ckan db init
+    cd /usr/lib/ckan/masaq/src/ckan
+    paster --plugin=ckan db init -c /etc/ckan/masaq/development.ini
 
 You should see ``Initialising DB: SUCCESS``.
 
-.. tip ::
+.. tip::
 
-    If the command prompts for a password it is likely you haven't set up the
-    database configuration correctly in step 6.
+    If the command prompts for a password it's likely you haven't set the 
+    ``sqlalchemy.url`` option in your CKAN configuration file properly.
+    See `4. Create a CKAN config file`_.
 
-.. tip ::
-
-    If your config file is not called ``development.ini`` you must give the
-    ``--config`` option, for example with a config file called
-    ``test.ckan.net.ini`` you would use::
-
-        paster --plugin=ckan db init --config=test.ckan.net.ini
 
 7. Set up the DataStore
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,14 +269,14 @@ Follow the instructions in :doc:`datastore-setup` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+
 8. Create the data and sstore directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create the ``data`` and ``sstore`` directories, in the same directory that
-contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
+contains your CKAN config file::
 
-    mkdir data sstore
-
+    mkdir /etc/ckan/masaq/data /etc/ckan/masaq/sstore
 
 The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
 OpenID session directory, is specified by the ``store_file_path`` setting in
@@ -202,15 +285,14 @@ the ``who.ini`` file.
 The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
 is specified by the ``cache_dir`` setting in your CKAN config file.
 
+
 9. Link to who.ini
 ~~~~~~~~~~~~~~~~~~
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file. So if your config file is not in
-``~/pyenv/src/ckan``, then cd to the directory with your config file and create a
-symbolic link to ``who.ini``. E.g.::
+same directory as your CKAN config file, so create a symlink to it::
 
-    ln -s ~/pyenv/src/ckan/who.ini
+    ln -s /usr/lib/ckan/masaq/src/ckan/who.ini /etc/ckan/masaq/who.ini
 
 10. Run CKAN in the development web server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,14 +305,11 @@ Apache or nginx (see :doc:`post-installation`).
 With your virtualenv activated, run this command from the ``~/pyenv/src/ckan``
 directory::
 
-    paster serve development.ini
+    cd /usr/lib/ckan/masaq/src/ckan
+    paster serve /etc/ckan/masaq/development.ini
 
 Open http://127.0.0.1:5000/ in your web browser, and you should see the CKAN
 front page.
-
-.. tip:: If you installed CKAN on a remote machine then you'll need to run
- the web browser on that same machine. For example run the textual web browser
- `w3m` in a separate ssh session to the one running `paster serve`.
 
 
 11. Run the CKAN Tests
@@ -264,17 +343,17 @@ Upgrade a source install
 
 1. Activate your virtualenv and switch to the ckan source directory, e.g.::
 
-        . ~/pyenv/bin/activate
-        cd ~/pyenv/src/ckan
+        . /usr/lib/ckan/masaq/bin/activate
+        cd /usr/lib/ckan/masaq/src/ckan
 
 2. Backup your CKAN database using the ``ckan db dump`` command, for
    example::
 
-    paster --plugin=ckan db dump --config=/path/to/your/ckan.ini my_ckan_database.pg_dump
+    paster db dump -c /etc/ckan/masaq/development.ini masaq_2013-04-24.sql
 
-   This will create a file called ``my_ckan_database.pg_dump``, if something
-   goes wrong with the CKAN upgrade you can use this file to restore the
-   database to its pre-upgrade state. See :ref:`dumping and loading` for
+   This will create a file called ``masaq_2013-04-24.sql``, if
+   something goes wrong with the CKAN upgrade you can use this file to restore
+   the database to its pre-upgrade state. See :ref:`dumping and loading` for
    details of the `ckan db dump` and `ckan db load` commands.
 
 3. Checkout the new CKAN version from git, for example::
@@ -296,14 +375,14 @@ Upgrade a source install
 
    When :ref:`setting up solr` you created a symlink
    ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
-   ``/path/to/your/pyenv/ckan/ckan/config/solr/schema-1.4.xml``. This symlink
-   should be updated to point to the latest schema file in
-   ``~/pyenv/ckan/ckan/config/solr/``, if it doesn't already.
+   ``/usr/lib/ckan/masaq/src/ckan/ckan/config/solr/schema-2.0.xml``.
+   This symlink should be updated to point to the latest schema file in
+   ``ckan/ckan/config/solr/``, if it doesn't already.
 
    For example, to update the symlink::
 
-     sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
-     sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+     sudo rm /etc/solr/conf/schema.xml
+     sudo ln -s /usr/lib/ckan/masaq/src/ckan/ckan/config/solr/schema-2.1.xml /etc/solr/conf/schema.xml
 
 6. If you are upgrading to a new major version of CKAN (for example if you
    are upgrading to CKAN 2.0, 2.1 etc.), update your CKAN database's schema
@@ -317,7 +396,7 @@ Upgrade a source install
 
    For example::
 
-    paster --plugin=ckan db upgrade --config=/path/to/your/ckan.ini
+    paster db upgrade -c /etc/ckan/masaq/development.ini
 
    See :ref:`upgrade migration` for details of the ``ckan db upgrade``
    command.
@@ -325,7 +404,7 @@ Upgrade a source install
 7. Rebuild your search index by running the ``ckan search-index rebuild``
    command::
 
-    paster --plugin=ckan search-index rebuild -r --config=/path/to/your/ckan.ini
+    paster search-index rebuild -r -c /etc/ckan/masaq/development.ini
 
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.

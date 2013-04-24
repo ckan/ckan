@@ -15,19 +15,20 @@ Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at ``~/pyenv/ckan/development.ini``, then activate your
 virtual environment::
 
-    . ~/pyenv/bin/activate
+    . /usr/lib/ckan/masaq/bin/activate
 
 Install nose and other test-specific CKAN dependencies into your virtual
 environment::
 
-    pip install -r ~/pyenv/src/ckan/pip-requirements-test.txt
+    pip install -r /usr/lib/ckan/masaq/src/ckan/pip-requirements-test.txt
+
 
 Testing with SQLite
 -------------------
 
 To run the CKAN tests using SQLite as the database library::
 
-    cd ~/pyenv/src/ckan
+    cd /usr/lib/ckan/masaq/src/ckan
     nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
@@ -61,8 +62,8 @@ Testing with PostgreSQL
 Starting in CKAN 2.1 tests are run in a separate postgres database by
 default.  You should create the test databases as follows::
 
-    sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
-    sudo -u postgres createdb -O ckanuser ckan_test_datastore -E utf-8
+    sudo -u postgres createdb -O masaq ckan_test -E utf-8
+    sudo -u postgres createdb -O masaq ckan_test_datastore -E utf-8
     # create datastore user default password `pass`
     sudo -u postgres createuser -S -D -R -P -l readonlyuser
     # set the permissions for readonly user
