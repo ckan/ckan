@@ -833,12 +833,12 @@ class TestActionAuth(object):
     that each auth function has an action.  We check the function only
     accepts (context, data_dict) as parameters. '''
 
-    ACTION_FN_SIGNATURES_BLACKLIST_FILES = [
+    ACTION_FN_SIGNATURES_BLACKLIST= [
         'create: activity_create',
         'create: tag_create',
     ]
 
-    ACTION_NO_AUTH_BLACKLIST_FILES = [
+    ACTION_NO_AUTH_BLACKLIST= [
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
@@ -888,7 +888,7 @@ class TestActionAuth(object):
         'update: user_role_update',
     ]
 
-    AUTH_NO_ACTION_BLACKLIST_FILES = [
+    AUTH_NO_ACTION_BLACKLIST= [
         'create: file_upload',
         'delete: revision_delete',
         'delete: revision_undelete',
@@ -936,25 +936,25 @@ class TestActionAuth(object):
 
     def test_actions_have_auth_fn(self):
         actions_no_auth = set(self.actions.keys()) - set(self.auths.keys())
-        actions_no_auth -= set(self.ACTION_NO_AUTH_BLACKLIST_FILES)
+        actions_no_auth -= set(self.ACTION_NO_AUTH_BLACKLIST)
         assert not actions_no_auth, 'These actions have no auth function\n%s' \
             % '\n'.join(sorted(list(actions_no_auth)))
 
     def test_actions_have_auth_fn_blacklist(self):
         actions_no_auth = set(self.actions.keys()) & set(self.auths.keys())
-        actions_no_auth &= set(self.ACTION_NO_AUTH_BLACKLIST_FILES)
+        actions_no_auth &= set(self.ACTION_NO_AUTH_BLACKLIST)
         assert not actions_no_auth, 'These actions blacklisted but ' + \
             'shouldn\'t be \n%s' % '\n'.join(sorted(list(actions_no_auth)))
 
     def test_auths_have_action_fn(self):
         auths_no_action = set(self.auths.keys()) - set(self.actions.keys())
-        auths_no_action -= set(self.AUTH_NO_ACTION_BLACKLIST_FILES)
+        auths_no_action -= set(self.AUTH_NO_ACTION_BLACKLIST)
         assert not auths_no_action, 'These auth functions have no action\n%s' \
             % '\n'.join(sorted(list(auths_no_action)))
 
     def test_auths_have_action_fn_blacklist(self):
         auths_no_action = set(self.auths.keys()) & set(self.actions.keys())
-        auths_no_action &= set(self.AUTH_NO_ACTION_BLACKLIST_FILES)
+        auths_no_action &= set(self.AUTH_NO_ACTION_BLACKLIST)
         assert not auths_no_action, 'These auths functions blacklisted but' + \
             ' shouldn\'t be \n%s' % '\n'.join(sorted(list(auths_no_action)))
 
@@ -965,7 +965,7 @@ class TestActionAuth(object):
             if (args_info.args != ['context', 'data_dict']
                     or args_info.varargs is not None
                     or args_info.keywords is not None):
-                if name not in self.ACTION_FN_SIGNATURES_BLACKLIST_FILES:
+                if name not in self.ACTION_FN_SIGNATURES_BLACKLIST:
                     errors.append(name)
         assert not errors, 'These action functions have the wrong function' + \
             ' signature, should be (context, data_dict)\n%s' \
