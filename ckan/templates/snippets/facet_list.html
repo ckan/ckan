@@ -61,7 +61,7 @@ within_tertiary
               {% set label_truncated = h.truncate(label, 22) if not label_function else label %}
               {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
                 <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
-                  <a href="{{ href }}" title="{{ label }}">
+                  <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
                     <span>{{ label_truncated }} {{ count }}</span>
                   </a>
                 </li>
