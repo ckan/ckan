@@ -437,6 +437,17 @@ def get_converter(converter):
         raise UnknownConverter('Converter `%s` does not exist' % converter)
 
 
+def model_name_to_class(model_module, model_name):
+    '''Return the class in model_module that has the same name as the received string.
+
+    Raises AttributeError if there's no model in model_module named model_name.
+    '''
+    try:
+        model_class_name = model_name.title()
+        return getattr(model_module, model_class_name)
+    except AttributeError:
+        raise ValidationError("%s isn't a valid model" % model_class_name)
+
 def _import_module_functions(module_path):
     '''Import a module and get the functions and return them in a dict'''
     functions_dict = {}

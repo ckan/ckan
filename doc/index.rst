@@ -34,8 +34,10 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   frontend-development
+   templating
+   resources
    apps-ideas
-   commenting
    extensions
    writing-extensions
    toolkit
@@ -58,7 +60,7 @@ Publishing Datasets
    :maxdepth: 2
 
    publishing-datasets
-   loading-data
+   importing-datasets
    authorization
    publisher-profile
    data-viewer

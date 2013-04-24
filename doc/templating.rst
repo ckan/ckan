@@ -1,9 +1,9 @@
-Jinja Templating
-================
+Templating
+==========
 
-We have recently moved over to using Jinja from Genshi for the default
-templating engine within CKAN. This was done to provide a more flexible,
-extensible and most importantly easy to understand templating language.
+Within CKAN 2.0 we moved out templating to use Jinja from Genshi. This was
+done to provide a more flexible, extensible and most importantly easy to
+understand templating language.
 
 Some useful links to get you started.
 
@@ -128,7 +128,8 @@ Includes
 ~~~~~~~~
 
 .. Note::
-    Includes should be avoided as they are not portable use {% snippet %} tags whenever possible.
+    Includes should be avoided as they are not portable use {% snippet %}
+    tags whenever possible.
 
 Snippets of text that are included using ``{% include %}`` should be
 kept in a directory called _snippets_. This should be kept in the same
@@ -170,7 +171,7 @@ specifically for the instance. This has been done to intentionally keep
 everything very declarative and to allow the most flexibility in the
 simplest way.
 
-Please see the `Extension Templating <./extension-templating.rst>`_
+Please see the `Extension Templating <./extension-templating.html>`_
 document for more information.
 
 Custom Control Structures

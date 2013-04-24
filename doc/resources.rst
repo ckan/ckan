@@ -6,12 +6,17 @@ Resources
     and above.
 
 Resources are .css and .js files that may be included in an html page.
-Resources are included in the page by using the ``{% resource %}`` tag::
+Resources are included in the page by using the ``{% resource %}`` tag and
+CKAN uses `Fanstatic <http://www.fanstatic.org/en/latest/>`_ to serve these resources.
+
+::
 
  {% resource 'library_name/resource_name' %}
 
 Resources are grouped into libraries and the full resource name consists of
-``<library name>/<resource name>``. For example::
+``<library name>/<resource name>``. For example:
+
+::
 
  {% resource 'my_fanstatic_library/my_javascript_file.js' %}
 
@@ -20,8 +25,24 @@ defined by the resources, not in the location of the ``{% resource %}`` tag.
 Duplicate resources will not be added and any dependencies will be included as
 well as the resources, all in the correct order (see below for details).
 
-Libraries can be added to CKAN from extensions using the toolkit helper
-function ``add_resource(path, name)``::
+Libraries can be added to CKAN from extensions using a helper function
+within the toolkit. See below.
+
+In debug mode resources are served un-minified and unbundled (each resource is
+served separately). In non-debug mode the files are served minified and bundled
+(where allowed).
+
+.. Important::
+    .js and .css resources must be supplied as un-minified files.  Minified
+    files will be created.  It is advised to include a .gitignore file to
+    prevent minified files being added to the repository.
+
+Resources within extensions
+---------------------------
+
+To add a resource within a extension helper function ``add_resource(path, name)``:
+
+::
 
  ckan.plugins.toolkit.add_resource('path/to/my/fanstatic/library/dir',
         'my_fanstatic_library')
@@ -36,15 +57,6 @@ in the directory or it's subfolders. The resource name being the name of the
 file including any path needed to get to it from the resource directory.  For
 greater control of the creation a ``resource.config`` file can be created and
 placed in the resource directory (see below for details).
-
-In debug mode resources are served un-minified and unbundled (each resource is
-served separately). In non-debug mode the files are served minified and bundled
-(where allowed).
-
-.. Important::
-    .js and .css resources must be supplied as un-minified files.  Minified
-    files will be created.  It is advised to include a .gitignore file to
-    prevent minified files being added to the repository.
 
 resource.config
 ---------------

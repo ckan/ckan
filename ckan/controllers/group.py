@@ -331,7 +331,8 @@ class GroupController(base.BaseController):
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
             for facet in c.facets.keys():
-                limit = int(request.params.get('_%s_limit' % facet, 10))
+                limit = int(request.params.get('_%s_limit' % facet,
+                                               g.facets_default_number))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
 
