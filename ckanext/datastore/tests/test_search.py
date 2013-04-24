@@ -2,6 +2,7 @@ import json
 import nose
 import pprint
 
+import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -106,7 +107,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             context,
             {'name': 'privatedataset',
              'private': True,
-             'title': "A private dataset that the normal user can't see",
              'groups': [{
                  'id': group.id
              }]})
@@ -444,12 +444,14 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
+        plugin.configure(pylons.config)
         if plugin.legacy_mode:
             raise nose.SkipTest("SQL tests are not supported in legacy mode")
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        resource = model.Package.get('annakarenina').resources[0]
+        cls.dataset = model.Package.get('annakarenina')
+        resource = cls.dataset.resources[0]
         cls.data = {
             'resource_id': resource.id,
             'aliases': 'books4',
@@ -462,8 +464,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                         'nested': ['b', {'moo': 'moo'}]},
                         {u'b\xfck': 'warandpeace',
                         'author': 'tolstoy',
-                        'nested': {'a':'b'}}
-                       ]
+                        'nested': {'a': 'b'}}]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
@@ -563,13 +564,12 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         assert result['records'] == self.expected_join_results
 
     def test_read_private(self):
-        from pylons import config
         context = {
             'user': self.sysadmin_user.name,
             'model': model}
         data_dict = {
             'resource_id': self.data['resource_id'],
-            'connection_url': config['ckan.datastore.write_url']}
+            'connection_url': pylons.config['ckan.datastore.write_url']}
         p.toolkit.get_action('datastore_make_private')(context, data_dict)
         query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
         data = {'sql': query}
@@ -583,3 +583,42 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
         # make it public for the other tests
         p.toolkit.get_action('datastore_make_public')(context, data_dict)
+
+    def test_new_datastore_table_from_private_resource(self):
+        # make a private CKAN resource
+        group = self.dataset.get_groups()[0]
+        context = {
+            'user': self.sysadmin_user.name,
+            'model': model}
+        package = p.toolkit.get_action('package_create')(
+            context,
+            {'name': 'privatedataset',
+             'private': True,
+             'groups': [{
+                 'id': group.id
+             }]})
+        resource = p.toolkit.get_action('resource_create')(
+            context,
+            {'name': 'privateresource',
+             'url': 'https://www.example.com/',
+             'package_id': package['id']})
+
+        postparams = '%s=1' % json.dumps({
+            'resource_id': resource['id'],
+        })
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        # new resource should be private
+        query = 'SELECT * FROM "{0}"'.format(resource['id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth, status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'
