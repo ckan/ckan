@@ -162,7 +162,7 @@ To edit these docs:
 2. Install the Python dependencies necessary for building the CKAN docs into
    your virtualenv::
 
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+    pip install -r pyenv/src/ckan/dev-requirements.txt
 
 3. Fetch the git submodule that contains CKAN's custom Sphinx theme::
 

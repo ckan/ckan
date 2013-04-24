@@ -65,7 +65,7 @@ b. Install the CKAN source code into your virtualenv. To install the latest
 
 c. Install the Python modules that CKAN requires into your virtualenv::
 
-       pip install -r ~/pyenv/src/ckan/pip-requirements.txt
+       pip install -r ~/pyenv/src/ckan/requirements.txt
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
@@ -288,7 +288,7 @@ Upgrade a source install
 
 4. Update CKAN's dependencies::
 
-     pip install --upgrade -r pip-requirements.txt
+     pip install --upgrade -r requirements.txt
 
 5. If you are upgrading to a new major version of CKAN (for example if you are
    upgrading to CKAN 2.0, 2.1 etc.), then you need to update your Solr schema

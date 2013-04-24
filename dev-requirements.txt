@@ -1,0 +1,7 @@
+# These are packages that required when running ckan tests
+-e git+https://github.com/okfn/ckanclient@a315a72eef74dda4831acd022ef84a1246803c73#egg=ckanclient-dev
+docutils==0.8.1
+httpretty==0.5
+nose==1.2.1
+pip-tools==0.3.1
+Sphinx==1.2b1
