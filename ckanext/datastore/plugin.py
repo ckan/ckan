@@ -182,7 +182,7 @@ class DatastorePlugin(p.SingletonPlugin):
         write_connection.execute(drop_foo_sql)
 
         try:
-            write_connection.execute(u'CREATE TABLE _foo ()')
+            write_connection.execute(u'CREATE TABLE _foo ()').close()
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
                 test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
                 sql = test_privilege_sql.format(privilege=privilege)
@@ -191,6 +191,8 @@ class DatastorePlugin(p.SingletonPlugin):
                     return False
         finally:
             write_connection.execute(drop_foo_sql)
+            write_connection.close()
+            read_connection.close()
         return True
 
     def _create_alias_table(self):
