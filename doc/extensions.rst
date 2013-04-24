@@ -2,26 +2,21 @@
 Extensions
 ==========
 
-CKAN extensions are a powerful way to extend and customize core CKAN
-functionality, without modifying or interfering with CKAN core itself.
+Extensions customize CKAN or add new features. A CKAN extension is a Python
+package that contains one or more CKAN plugins that can be enabled.
 
-An extension can provide one or more plugins that can be enabled to modify
-CKAN.
+Officially-supported Extensions
+-------------------------------
 
-Core Extensions
----------------
-
-CKAN comes with some extensions built-in.  We call these `Core Extensions`
-and you can just enable the plugins they provide.  There is no need to
-install them first.
-
-These are the available plugins
+CKAN comes with several officially-supported extensions:
 
 * datastore - ???
-* jsonpreview - Preview json resources
+  :doc:`datastore`
 * multilingual - ???
-* pdfpreview - Preview pdf resources via JavaScript library
-* reclinepreview - Preview resources via recline library, graphs etc
+* Data Preview Extensions
+    - pdfpreview - Preview pdf resources via JavaScript library
+    - reclinepreview - Preview resources via recline library, graphs etc
+    - jsonpreview - Preview json resources
 * resourceproxy - ????
 * stats - Show stats and visuals about datasets
 
@@ -32,28 +27,6 @@ Many other extensions are available and may be used with CKAN.  These will
 need to be installed.  Every extension should include instructions on how to
 install and configure it.  `Extension listing on the CKAN-wiki
 <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
-
-
-Enabling a Plugin
------------------
-
-1. Add the names of the extension's plugins to the CKAN config file in the
-   ``[app:main]`` section under ``ckan.plugins``. If your extension implements
-   multiple different plugin interfaces, separate them with spaces e.g.::
-
-       [app:main]
-       ckan.plugins = stats jsonpreview
-
-2. To have this configuration change take effect it CKAN should be
-   restarted, which usually means restarting Apache::
-
-       sudo /etc/init.d/apache2 restart
-
-Your extension should now be enabled. You can disable it at any time by
-removing it from the list of ``ckan.plugins`` in the config file and
-restarting CKAN.
-
-Plugins are processed in the order they are defined in the config.
 
 
 ==================
