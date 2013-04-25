@@ -105,10 +105,10 @@ Example Extension
 Guidelines for writing extensions:
 ----------------------------------
 
-- Use the plugins toolkit, described above.
+- Use the plugins :doc:`toolkit`.
 
-- Extensions should use actions where possible via ``get_action()``. This
-  function is available in the toolkit.
+- Extensions should use actions via ``get_action()``. This function is
+  available in the toolkit.
 
 - No foreign key constraints into core as these cause problems.
 
@@ -215,7 +215,7 @@ Core Plugin Reference
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: ckan.plugins.core
-        :members:
+        :members:  SingletonPlugin, Plugin, implements
 
 CKAN Interface Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~
