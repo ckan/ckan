@@ -33,14 +33,15 @@ install and configure it.  `Extension listing on the CKAN-wiki
 Writing Extensions
 ==================
 
+.. note::
+
+    An `extension` defines one or more `plugins`.  Each of this plugins implements one or more `plugin interfaces`.
+
+
 Plugins: An Overview
 --------------------
 
-CKAN provides a number of plugin interfaces.  An extension can use one or
-more of these interfaces to interact with CKAN.  Each interface specifies
-one or more methods that CKAN will call to use the extension.
-
-Extensions are created as classes inheriting from either the `Plugin` or
+Plugins are created as classes inheriting from either the `Plugin` or
 `SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
 base class and we advise you to use this if possible.
 
@@ -124,8 +125,8 @@ Testing CKAN Extensions
 CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
 
     cd ckanext-dgu
-    nosetests ckanext/dgu/tests --ckan
-    nosetests ckanext/dgu/tests --ckan --with-pylons=test-core.ini
+    nosetests ckanext/stats/tests --ckan
+    nosetests ckanext/stats/tests --ckan --with-pylons=test-core.ini
 
 
 Testing Plugins
