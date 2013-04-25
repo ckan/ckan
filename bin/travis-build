@@ -15,41 +15,38 @@ sudo add-apt-repository -yy ppa:pitti/postgresql
 sudo apt-get update -qq
 sudo apt-get install solr-jetty postgresql-$PGVERSION
 
-# Don't require a password to access DB
-sudo sed -i -e 's/ident/trust/g' /etc/postgresql/$PGVERSION/main/pg_hba.conf 
-
 sudo service postgresql reload
+
+# Setup postgres' users and databases
+sudo -u postgres psql -c "CREATE USER ckanuser WITH PASSWORD 'pass';"
+sudo -u postgres psql -c "CREATE USER readonlyuser WITH PASSWORD 'pass';"
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
 
 pip install -r pip-requirements.txt --use-mirrors
 pip install -r pip-requirements-test.txt --use-mirrors
 
-psql -c 'CREATE DATABASE ckantest;' -U postgres
-psql -c 'CREATE DATABASE datastore;' -U postgres
-
 python setup.py develop
-
-# Configure CKAN's configuration file
-paster make-config ckan development.ini --no-interactive
-sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
-sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' development.ini
-sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/postgres@\/ckantest/' development.ini
-sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/postgres@\/datastore/' development.ini
 
 # Configure Solr
 echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
+# FIXME the solr schema cannot be hardcoded as it is dependent on the ckan version
 sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
 sudo service jetty restart
 
-paster --plugin=ckan db init
+paster db init -c test-core.ini
 
 # If Postgres >= 9.0, we don't need to use datastore's legacy mode.
 if [ $PGVERSION != '8.4' ]
 then
   psql -c 'CREATE USER readonlyuser;' -U postgres
-  sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@\/datastore/' development.ini
-  paster datastore set-permissions postgres
+  sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@\/ckan_test_datastore/' test-core.ini
+  paster datastore set-permissions postgres -c test-core.ini
+else
+  sed -i -e 's/.*datastore.read_url.*//' test-core.ini
 fi
 
+cat test-core.ini
 
 # And finally, run the tests
 nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext

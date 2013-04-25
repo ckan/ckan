@@ -4,7 +4,6 @@ import urlparse
 from pylons import config
 from sqlalchemy.sql import select
 
-import ckan.misc as misc
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
@@ -399,15 +398,25 @@ def tag_dictize(tag, context):
     tag_dict = d.table_dictize(tag, context)
     query = search.PackageSearchQuery()
 
-    q = {'q': '+tags:"%s" +capacity:public' % tag.name, 'fl': 'data_dict',
-         'wt': 'json', 'rows': 1000}
+    tag_query = u'+capacity:public '
+    vocab_id = tag_dict.get('vocabulary_id')
 
-    package_dicts = [h.json.loads(result['data_dict']) for result in query.run(q)['results']]
+    if vocab_id:
+        model = context['model']
+        vocab = model.Vocabulary.get(vocab_id)
+        tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
+    else:
+        tag_query += u'+tags:"{0}"'.format(tag.name)
+
+    q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+
+    package_dicts = [h.json.loads(result['data_dict'])
+                     for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
-    assert not tag_dict.has_key('display_name')
+    assert 'display_name' not in tag_dict
     tag_dict['display_name'] = tag_dict['name']
 
     if context.get('for_view'):
@@ -520,7 +529,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = misc.MarkdownFormat().to_html(pkg.notes)
+    dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
     site_url = config.get('ckan.site_url', None)
     if site_url:

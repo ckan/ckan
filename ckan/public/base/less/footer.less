@@ -68,107 +68,62 @@
   width: auto;
 }
 
+.flag-background-position(@position) {
+  background-position: 0 ( 0 - ( @position * 11px ) );
+}
+
 // Apply flags to the items in browsers that support :before
 .lang-dropdown .select2-result-label {
   &[data-value]:before {
     content: "";
     display: inline-block;
-    background-image: url("@{imagePath}/flags.png");
+    background-image: url("@{imagePath}/flags.png?1");
     background-repeat: no-repeat;
     background-position: 0 11px;
-    width: 17px;
+    width: 16px;
     height: 11px;
     position: relative;
     top: 1px;
   }
 
-  &[data-value*="/en/"]:before {
-    background-position: 0 0;
-  }
+  &[data-value*="/sq/"]:before { .flag-background-position(0); }
+  &[data-value*="/bg/"]:before { .flag-background-position(1); }
+  &[data-value*="/my_MM/"]:before { .flag-background-position(2); }
+  &[data-value*="/ca/"]:before { .flag-background-position(3); }
+  &[data-value*="/zh_CN/"]:before { .flag-background-position(4); }
+  &[data-value*="/zh_TW/"]:before { .flag-background-position(5); }
+  &[data-value*="/cs_CZ/"]:before { .flag-background-position(6); }
+  &[data-value*="/dv/"]:before { .flag-background-position(7); }
+  &[data-value*="/nl/"]:before { .flag-background-position(8); }
+  &[data-value*="/en_GB/"]:before { .flag-background-position(9); }
+  &[data-value*="/en/"]:before { .flag-background-position(10); }
+  &[data-value*="/fi/"]:before { .flag-background-position(11); }
+  &[data-value*="/fr/"]:before { .flag-background-position(12); }
+  &[data-value*="/de/"]:before { .flag-background-position(13); }
+  &[data-value*="/el/"]:before { .flag-background-position(14); }
+  &[data-value*="/hu/"]:before { .flag-background-position(15); }
+  &[data-value*="/is/"]:before { .flag-background-position(16); }
+  &[data-value*="/id/"]:before { .flag-background-position(17); }
+  &[data-value*="/it/"]:before { .flag-background-position(18); }
+  &[data-value*="/ja/"]:before { .flag-background-position(19); }
+  &[data-value*="/ko_KR/"]:before { .flag-background-position(20); }
+  &[data-value*="/lv/"]:before { .flag-background-position(21); }
+  &[data-value*="/lt/"]:before { .flag-background-position(22); }
+  &[data-value*="/no/"]:before { .flag-background-position(23); }
+  &[data-value*="/fa_IR/"]:before { .flag-background-position(24); }
+  &[data-value*="/pl/"]:before { .flag-background-position(25); }
+  &[data-value*="/pt_BR/"]:before { .flag-background-position(26); }
+  &[data-value*="/ro/"]:before { .flag-background-position(27); }
+  &[data-value*="/ru/"]:before { .flag-background-position(28); }
+  &[data-value*="/sr/"]:before { .flag-background-position(29); }
+  &[data-value*="/sr_Latn/"]:before { .flag-background-position(30); }
+  &[data-value*="/sk/"]:before { .flag-background-position(31); }
+  &[data-value*="/sl/"]:before { .flag-background-position(32); }
+  &[data-value*="/es/"]:before { .flag-background-position(33); }
+  &[data-value*="/es_AR/"]:before { .flag-background-position(34); }
+  &[data-value*="/sv/"]:before { .flag-background-position(35); }
+  &[data-value*="/tr/"]:before { .flag-background-position(36); }
+  &[data-value*="/uk_UA/"]:before { .flag-background-position(37); }
 
-  &[data-value*="/de/"]:before {
-    background-position: 0 -11px;
-  }
 
-  &[data-value*="/fr/"]:before {
-    background-position: 0 -22px;
-  }
-
-  &[data-value*="/it/"]:before {
-    background-position: 0 -33px;
-  }
-
-  &[data-value*="/es/"]:before {
-    background-position: 0 -44px;
-  }
-
-  &[data-value*="/pl/"]:before {
-    background-position: 0 -55px;
-  }
-
-  &[data-value*="/ru/"]:before {
-    background-position: 0 -66px;
-  }
-
-  &[data-value*="/nl/"]:before {
-    background-position: 0 -77px;
-  }
-
-  &[data-value*="/sv/"]:before {
-    background-position: 0 -88px;
-  }
-
-  &[data-value*="/no/"]:before {
-    background-position: 0 -99px;
-  }
-
-  &[data-value*="/cs/"]:before,
-  &[data-value*="/cs_CZ/"]:before {
-    background-position: 0 -110px;
-  }
-
-  &[data-value*="/hu/"]:before {
-    background-position: 0 -121px;
-  }
-
-  &[data-value*="/pt_BR/"]:before {
-    background-position: 0 -132px;
-  }
-
-  &[data-value*="/fi/"]:before {
-    background-position: 0 -143px;
-  }
-
-  &[data-value*="/bg/"]:before {
-    background-position: 0 -154px;
-  }
-
-  &[data-value*="/ca/"]:before {
-    background-position: 0 -165px;
-  }
-
-  &[data-value*="/sq/"]:before {
-    background-position: 0 -176px;
-  }
-
-  &[data-value*="/sr/"]:before,
-  &[data-value*="/sr_Latn/"]:before {
-    background-position: 0 -187px;
-  }
-
-  &[data-value*="/zh_TW/"]:before {
-    background-position: 0 -198px;
-  }
-
-  &[data-value*="/lv/"]:before {
-    background-position: 0 -209px;
-  }
-
-  &[data-value*="/sk/"]:before {
-    background-position: 0 -220px;
-  }
-
-  &[data-value*="/pt_BR/"]:before {
-    background-position: 0 -132px;
-  }
 }

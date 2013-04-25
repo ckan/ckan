@@ -270,6 +270,21 @@ Default value: ``(none)``
 
 A string representing the default date on which the authority_name is owned by the publisher of the feed.
 
+ckan.featured_groups
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.featured_groups = group_one group_two
+
+Default Value: (empty)
+
+Defines a list of group names or group ids. This setting is used to display
+groups and datasets from each group on the home page in the default templates
+(2 groups and 2 datasets for each group are displayed).
+
+Authentication Settings
+-----------------------
+
 ckan.gravatar_default
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -946,3 +961,21 @@ Example::
   ckan.backup_dir = /var/backups/ckan/
 
 This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
+
+search.facets.default
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  search.facets.default = 10
+
+Default number of facets shown in search results.  Default 10.
+
+search.facets.limit
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  search.facets.limit = 50
+
+Highest number of facets shown in search results.  Default 50.

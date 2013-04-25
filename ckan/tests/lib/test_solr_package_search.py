@@ -363,7 +363,7 @@ class TestGeographicCoverage(TestController):
     def _do_search(self, q, expected_pkgs, count=None):
         query = {
             'q': q,
-            'sort': 'rank'
+            'sort': 'score desc, name asc'
         }
         result = search.query_for(model.Package).run(query)
         pkgs = result['results']
@@ -472,7 +472,7 @@ class TestRank(TestController):
     def _do_search(self, q, wanted_results):
         query = {
             'q': q,
-            'sort': 'rank'
+            'sort': 'score desc, name asc',
         }
         result = search.query_for(model.Package).run(query)
         results = result['results']

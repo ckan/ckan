@@ -1,9 +1,9 @@
-from pylons.i18n import _
-from ckan import model
-from ckan.lib.navl.dictization_functions import Invalid
-from ckan.lib.field_types import DateType, DateConvertError
-from ckan.logic.validators import tag_length_validator, tag_name_validator, \
-    tag_in_vocabulary_validator
+import ckan.model as model
+import ckan.lib.navl.dictization_functions as df
+import ckan.lib.field_types as field_types
+import ckan.logic.validators as validators
+
+from ckan.common import _
 
 def convert_to_extras(key, data, errors, context):
     extras = data.get(('extras',), [])
@@ -20,16 +20,16 @@ def convert_from_extras(key, data, errors, context):
 
 def date_to_db(value, context):
     try:
-        value = DateType.form_to_db(value)
-    except DateConvertError, e:
-        raise Invalid(str(e))
+        value = field_types.DateType.form_to_db(value)
+    except field_types.DateConvertError, e:
+        raise df.Invalid(str(e))
     return value
 
 def date_to_form(value, context):
     try:
-        value = DateType.db_to_form(value)
-    except DateConvertError, e:
-        raise Invalid(str(e))
+        value = field_types.DateType.db_to_form(value)
+    except field_types.DateConvertError, e:
+        raise df.Invalid(str(e))
     return value
 
 def free_tags_only(key, data, errors, context):
@@ -56,11 +56,11 @@ def convert_to_tags(vocab):
 
         v = model.Vocabulary.get(vocab)
         if not v:
-            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+            raise df.Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
         context['vocabulary'] = v
 
         for tag in new_tags:
-            tag_in_vocabulary_validator(tag, context)
+            validators.tag_in_vocabulary_validator(tag, context)
 
         for num, tag in enumerate(new_tags):
             data[('tags', num + n, 'name')] = tag
@@ -71,7 +71,7 @@ def convert_from_tags(vocab):
     def callable(key, data, errors, context):
         v = model.Vocabulary.get(vocab)
         if not v:
-            raise Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
+            raise df.Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
 
         tags = []
         for k in data.keys():
@@ -103,7 +103,7 @@ def convert_user_name_or_id_to_id(user_name_or_id, context):
         result = session.query(model.User).filter_by(
                 name=user_name_or_id).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise df.Invalid('%s: %s' % (_('Not found'), _('User')))
     return result.id
 
 def convert_package_name_or_id_to_id(package_name_or_id, context):
@@ -128,7 +128,7 @@ def convert_package_name_or_id_to_id(package_name_or_id, context):
         result = session.query(model.Package).filter_by(
                 name=package_name_or_id).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise df.Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return result.id
 
 def convert_group_name_or_id_to_id(group_name_or_id, context):
@@ -153,5 +153,5 @@ def convert_group_name_or_id_to_id(group_name_or_id, context):
         result = session.query(model.Group).filter_by(
                 name=group_name_or_id).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
+        raise df.Invalid('%s: %s' % (_('Not found'), _('Group')))
     return result.id

@@ -24,7 +24,7 @@ First create an admin account from the command line (you must be root, ``sudo -s
 
 ::
 
-    paster --plugin=ckan user add admin --config=/etc/ckan/std/std.ini
+    paster --plugin=ckan user add admin email=admin@example.com --config=development.ini
 
 When prompted, enter a password - this is the password you will use to log in to CKAN. In the resulting output, note that you will also get assigned a CKAN API key.
 
@@ -37,7 +37,7 @@ this:
 
 ::
 
-    paster --plugin=ckan sysadmin add admin --config=/etc/ckan/std/std.ini
+    paster --plugin=ckan sysadmin add admin --config=development.ini
 
 You can now login to the CKAN frontend with the username ``admin`` and the password you set up.
 
