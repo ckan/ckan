@@ -10,15 +10,21 @@ Officially-supported Extensions
 
 CKAN comes with several officially-supported extensions:
 
-* datastore - ???
-  :doc:`datastore`
-* multilingual - ???
-* Data Preview Extensions
-    - pdfpreview - Preview pdf resources via JavaScript library
-    - reclinepreview - Preview resources via recline library, graphs etc
-    - jsonpreview - Preview json resources
-* resourceproxy - ????
-* stats - Show stats and visuals about datasets
+* :doc:`datastore` -- a database for structured storage of data
+
+* :doc:`multilingual` -- translate datasets, groups and tags into multiple
+  languages
+
+* Data preview extensions -- preview resources in the CKAN web interface:
+
+  * ``pdfpreview`` - Preview PDF files
+  * ``reclinepreview`` - Preview Google Documents, CSV files, Excel files,
+    etc. via the Recline.js library
+  * ``jsonpreview`` - Preview json files
+
+* ``resourceproxy`` - ????
+
+* ``stats`` - Show stats and visuals about your site's datasets
 
 Non-Core Extensions
 -------------------
