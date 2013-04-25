@@ -12,12 +12,12 @@ WHITELISTED_RESOURCES = ['_table_metadata']
 
 
 def datastore_create(context, data_dict):
-    '''Adds a new table to the datastore.
+    '''Adds a new table to the DataStore.
 
-    The datastore_create action allows a user to post JSON data to be
+    The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called multiple
-    times to ininially insert more data, add fields, change the aliases or indexes
+    times to initially insert more data, add fields, change the aliases or indexes
     as well as the primary keys.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
@@ -85,10 +85,10 @@ def datastore_create(context, data_dict):
 
 
 def datastore_upsert(context, data_dict):
-    '''Updates or inserts into a table in the datastore
+    '''Updates or inserts into a table in the DataStore
 
-    The datastore_upsert API action allows a user to add or edit records to
-    an existing dataStore resource. In order for the *upsert* and *update*
+    The datastore_upsert API action allows you to add or edit records to
+    an existing DataStore resource. In order for the *upsert* and *update*
     methods to work, a unique key has to be defined via the datastore_create
     action. The available methods are:
 
@@ -108,7 +108,7 @@ def datastore_upsert(context, data_dict):
     :type resource_id: string
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
     :type records: list of dictionaries
-    :param method: the method to use to put the data into the datastore.
+    :param method: The method to use to put the data into the datastore.
                    Possible options are: upsert (default), insert, update
     :type method: string
 
@@ -138,7 +138,7 @@ def datastore_upsert(context, data_dict):
 
 
 def datastore_delete(context, data_dict):
-    '''Deletes a table or a set of records from the datastore.
+    '''Deletes a table or a set of records from the DataStore.
 
     :param resource_id: resource id that the data will be deleted from.
     :type resource_id: string
@@ -173,11 +173,14 @@ def datastore_delete(context, data_dict):
 
 @logic.side_effect_free
 def datastore_search(context, data_dict):
-    '''Search a datastore table.
+    '''Search a DataStore resource.
 
-    The datastore_search action allows a user to search data in a resource.
+    The datastore_search action allows you to search data in a resource.
+    DataStore resources that belong to private CKAN resource can only be
+    read by you if you have access to the CKAN resource and send the appropriate
+    authorization.
 
-    :param resource_id: id or alias of the resource to be searched against.
+    :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
     :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"}
     :type filters: dictionary
@@ -205,7 +208,7 @@ def datastore_search(context, data_dict):
 
     **Results:**
 
-    The result of this action is a dict with the following keys:
+    The result of this action is a dictionary with the following keys:
 
     :rtype: A dictionary with the following keys
     :param fields: fields/columns and their extra metadata
@@ -254,23 +257,25 @@ def datastore_search(context, data_dict):
 
 @logic.side_effect_free
 def datastore_search_sql(context, data_dict):
-    '''Execute SQL queries on the datastore.
+    '''Execute SQL queries on the DataStore.
 
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
     `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
+    DataStore resource that belong to a private CKAN resource cannot be searched with
+    this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
 
     .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
         It is not available in :ref:`legacy mode<legacy_mode>`.
 
-    :param sql: a single sql select statement
+    :param sql: a single SQL select statement
     :type sql: string
 
     **Results:**
 
-    The result of this action is a dict with the following keys:
+    The result of this action is a dictionary with the following keys:
 
     :rtype: A dictionary with the following keys
     :param fields: fields/columns and their extra metadata
@@ -299,6 +304,16 @@ def datastore_search_sql(context, data_dict):
 
 
 def datastore_make_private(context, data_dict):
+    ''' Deny access to the DataStore table through
+    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
+
+    This action is called automatically when a CKAN dataset becomes
+    private or a new DataStore table is created for a CKAN resource
+    that belongs to a private dataset.
+
+    :param resource_id: if of resource that should become private
+    :type resource_id: string
+    '''
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
@@ -316,6 +331,15 @@ def datastore_make_private(context, data_dict):
 
 
 def datastore_make_public(context, data_dict):
+    ''' Allow access to the DataStore table through
+    :meth:`~ckanext.datastore.logic.action.datastore_search_sql`.
+
+    This action is called automatically when a CKAN dataset becomes
+    public.
+
+    :param resource_id: if of resource that should become public
+    :type resource_id: string
+    '''
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')

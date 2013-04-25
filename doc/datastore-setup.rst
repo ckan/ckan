@@ -5,8 +5,6 @@ Setting up the DataStore
 
 .. note:: The DataStore requires PostgreSQL 9.0 or later. It is possible to use the DataStore on versions prior to 9.0 (for example 8.4). However, the :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be available and the set-up is slightly different. Make sure, you read :ref:`legacy_mode` for more details.
 
-.. warning:: The DataStore does not support hiding resources in a private dataset.
-
 1. Enable the extension
 =======================
 

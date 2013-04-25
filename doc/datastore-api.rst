@@ -141,6 +141,7 @@ The DataStore supports querying with multiple API endpoints. They are similar bu
 **Flexibility**                 Low                                                       High                                                          Medium
 **Query language**              Custom (JSON)                                             SQL                                                           HTSQL
 **Join resources**              No                                                        Yes                                                           No
+**Search private resources**    Yes (if authorized)                                       No                                                            No
 ==============================  ========================================================  ============================================================  =============================
 
 
