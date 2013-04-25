@@ -80,6 +80,7 @@ Example Extension
 -----------------
 
 ::
+
     # Example Extension
     # This extension adds a new template helper function `hello_world` when
     # enabled templates can `{{ h.hello_world() }}` to add this html snippet.
