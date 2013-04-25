@@ -29,6 +29,8 @@ This defines the database that CKAN is to use. The format is::
 Front-End Settings
 ------------------
 
+.. _ckan-site-title:
+
 ckan.site_title
 ^^^^^^^^^^^^^^^
 
@@ -235,7 +237,7 @@ Example::
 
 Default value: ``(none)``
 
-This controls the feed author's name. If unspecified, it'll use ckan.site_id.
+This controls the feed author's name. If unspecified, it'll use :ref:`ckan-site-id`.
 
 ckan.feeds.author_link
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -246,7 +248,7 @@ Example::
 
 Default value: ``(none)``
 
-This controls the feed author's link. If unspecified, it'll use ckan.site_url.
+This controls the feed author's link. If unspecified, it'll use :ref:`ckan-site-url`.
 
 ckan.feeds.authority_name
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -257,7 +259,7 @@ Example::
 
 Default value: ``(none)``
 
-The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use ckan.site_url.
+The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan-site-url`.
 
 ckan.feeds.date
 ^^^^^^^^^^^^^^^
@@ -323,6 +325,8 @@ Example::
 Default value:  ``True``
 
 Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+
+.. _ckan-activity-streams-email-notifications:
 
 ckan.activity_streams_email_notifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -648,6 +652,8 @@ These are the setup parameters for AMQP messaging. These only apply if the messa
 Search Settings
 ---------------
 
+.. _ckan-site-id:
+
 ckan.site_id
 ^^^^^^^^^^^^
 
@@ -751,16 +757,22 @@ List of the extra resource fields that would be used when searching.
 Site Settings
 -------------
 
+.. _ckan-site-url:
+
 ckan.site_url
 ^^^^^^^^^^^^^
 
 Example::
 
- ckan.site_url = http://scotdata.ckan.net
+  ckan.site_url = http://scotdata.ckan.net
 
 Default value:  (none)
 
 The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
+
+.. warning::
+
+  This setting should not have a trailing / on the end.
 
 ckan.api_url
 ^^^^^^^^^^^^
@@ -785,17 +797,6 @@ Example::
 Default value: ``X-CKAN-API-Key`` & ``Authorization``
 
 This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
-
-email_to
-^^^^^^^^
-
-Example::
-
-  email_to = you@yourdomain.com
-
-Default value: ``None``
-
-This controls where the error messages will be sent to.
 
 ckan.cache_expires
 ^^^^^^^^^^^^^^^^^^
@@ -830,8 +831,10 @@ Default value: (none)
 
 This controls if new datasets will require moderation approval before going public.
 
+.. _ckan-tracking-enabled:
+
 ckan.tracking_enabled
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
@@ -839,11 +842,82 @@ Example::
 
 Default value: ``False``
 
-This controls if CKAN will track the site usage.
+This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
 
 
-Authorization Settings
-----------------------
+.. _email-settings:
+
+E-mail Settings
+---------------
+
+smtp.server
+^^^^^^^^^^^
+
+Example::
+
+  smtp.server = smtp.gmail.com:587
+
+Default value: ``None``
+
+The SMTP server to connect to when sending emails with optional port.
+
+smtp.starttls
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.starttls = True
+
+Default value: ``None``
+
+Whether or not to use STARTTLS when connecting to the SMTP server.
+
+smtp.user
+^^^^^^^^^
+
+Example::
+
+  smtp.user = your_username@gmail.com
+
+Default value: ``None``
+
+The username used to authenticate with the SMTP server.
+
+smtp.password
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.password = yourpass
+
+Default value: ``None``
+
+The password used to authenticate with the SMTP server.
+
+.. _smtp-mail-from:
+
+smtp.mail_from
+^^^^^^^^^^^^^^
+
+Example::
+
+  smtp.mail_from = you@yourdomain.com
+
+Default value: ``None``
+
+The email address that emails sent by CKAN will come from. Note that, if left blank, the
+SMTP server may insert its own.
+
+email_to
+^^^^^^^^
+
+Example::
+
+  email_to = you@yourdomain.com
+
+Default value: ``None``
+
+This controls where the error messages will be sent to.
 
 error_email_from
 ^^^^^^^^^^^^^^^^
@@ -856,6 +930,10 @@ Default value: ``None``
 
 This controls from which email the error messages will come from.
 
+
+Authorization Settings
+----------------------
+
 debug
 ^^^^^
 
@@ -863,7 +941,7 @@ Example::
 
   debug = False
 
-Default value: False
+Default value: ``False``
 
 This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
 files, and enables CKAN templates' debugging features.
@@ -879,7 +957,7 @@ Example::
 
   ckan.debug_supress_header = False
 
-Default value: False
+Default value: ``False``
 
 This configs if the debug information showing the controller and action
 receiving the request being is shown in the header.
