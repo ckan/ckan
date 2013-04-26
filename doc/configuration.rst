@@ -1,6 +1,3 @@
-.. index::
-   single: config file
-
 =====================================
 Reference: CKAN Configuration Options
 =====================================
@@ -13,11 +10,9 @@ The file is well-documented, but we recommend reading this section in full to le
 
 .. note:: The CKAN config file also includes general Pylons options. All CKAN-specific settings are in the `[app:main]` section.
 
+
 Database Settings
 -----------------
-
-.. index::
-   single: sqlalchemy.url
 
 sqlalchemy.url
 ^^^^^^^^^^^^^^
@@ -34,26 +29,43 @@ This defines the database that CKAN is to use. The format is::
 Front-End Settings
 ------------------
 
+.. _ckan-site-title:
 
-.. index::
-   single: site_description
-
-site_description
-^^^^^^^^^^^^^^^^
+ckan.site_title
+^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.site_description=
+ ckan.site_title = Open Data Scotland
+
+Default value:  ``CKAN``
+
+This sets the name of the site, as displayed in the CKAN web interface.
+
+ckan.site_description
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.site_description = The easy way to get, use and share data
 
 Default value:  (none)
 
 This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
 
-.. index::
-   single: site_logo
+ckan.site_intro_text
+^^^^^^^^^^^^^^^^^^^^
 
-site_logo
-^^^^^^^^^
+Example::
+
+ ckan.site_intro_text = Nice introductory paragraph about CKAN or the site in general.
+
+Default value:  (none)
+
+This is for an introductory text used in the default template's index page.
+
+ckan.site_logo
+^^^^^^^^^^^^^^
 
 Example::
 
@@ -63,15 +75,57 @@ Default value:  (none)
 
 This sets the logo used in the title bar.
 
-.. index::
-   single: site_url
+ckan.site_about
+^^^^^^^^^^^^^^^
 
+Example::
 
-.. index::
-   single: package_hide_extras
+ ckan.site_about = A _community-driven_ catalogue of _open data_ for the Greenfield area.
 
-favicon
-^^^^^^^
+Default value::
+
+  <p>CKAN is the world’s leading open-source data portal platform.</p>
+
+  <p>CKAN is a complete out-of-the-box software solution that makes data
+  accessible and usable – by providing tools to streamline publishing, sharing,
+  finding and using data (including storage of data and provision of robust data
+  APIs). CKAN is aimed at data publishers (national and regional governments,
+  companies and organizations) wanting to make their data open and available.</p>
+
+  <p>CKAN is used by governments and user groups worldwide and powers a variety
+  of official and community data portals including portals for local, national
+  and international government, such as the UK’s <a href="http://data.gov.uk">data.gov.uk</a>
+  and the European Union’s <a href="http://publicdata.eu/">publicdata.eu</a>,
+  the Brazilian <a href="http://dados.gov.br/">dados.gov.br</a>, Dutch and
+  Netherland government portals, as well as city and municipal sites in the US,
+  UK, Argentina, Finland and elsewhere.</p>
+
+  <p>CKAN: <a href="http://ckan.org/">http://ckan.org/</a><br />
+  CKAN Tour: <a href="http://ckan.org/tour/">http://ckan.org/tour/</a><br />
+  Features overview: <a href="http://ckan.org/features/">http://ckan.org/features/</a></p>
+
+Format tips:
+
+ * multiline strings can be used by indenting following lines
+
+ * the format is Markdown
+
+.. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
+          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming`.
+
+ckan.main_css
+^^^^^^^^^^^^^
+
+Example::
+
+  ckan.main_css = /base/css/my-custom.css
+
+Default value: ``/base/css/main.css``
+
+With this option, instead of using the default `main.css`, you can use your own.
+
+ckan.favicon
+^^^^^^^^^^^^
 
 Example::
 
@@ -81,30 +135,16 @@ Default value: ``/images/icons/ckan.ico``
 
 This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
 
-site_about
-^^^^^^^^^^
+ckan.datasets_per_page
+^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.site_about=${g.site_title} is a community-driven catalogue of open data for the Greenfield area.
+ ckan.datasets_per_page = 10
 
-Default value::
+Default value:  ``20``
 
- What was the <a href="http://thedatahub.org/dataset/house-prices-uk-from-1930">average price</a> of a house in the UK in 1935? When will India's projected population <a href="http://thedatahub.org/dataset/guardian-population-unitednations">overtake</a> that of China? Where can you see <a href="http://thedatahub.org/dataset/seattle-public-art">publicly-funded art</a> in Seattle? Data to answer many, many questions like these is out there on the Internet somewhere - but it is not always easy to find.</p>
-
-  <p i18n:msg="">${g.site_title} is a community-run catalogue of useful sets of data on the Internet. You can collect links here to data from around the web for yourself and others to use, or search for data that others have collected. Depending on the type of data (and its conditions of use), ${g.site_title} may also be able to store a copy of the data or host it in a database, and provide some basic visualisation tools.
-
-This changes the text about the site on the 'About' page. i.e. replaces the text in the "About <site_name" section. The other sections of the About page are not affected.
-
-Format tips:
-
- * multiline strings can be used by indenting following lines
-
- * the format is basically HTML, but with Genshi-format strings
-
- * the about text will be automatically be placed with-in paragraph tags ``<p>...</p>`` but you can start new paragraphs within that by using ``</p><p>``
-
-.. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
+This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
 
 package_hide_extras
 ^^^^^^^^^^^^^^^^^^^
@@ -119,9 +159,6 @@ This sets a space-separated list of extra field key values which will not be sho
 
 .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
 
-.. index::
-   single: rdf_packages
-
 .. _config-apps-ideas:
 
 ckan.dataset.show_apps_ideas
@@ -135,62 +172,16 @@ Default value:  true
 
 When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
 
-rdf_packages
-^^^^^^^^^^^^
-
-Example::
-
- rdf_packages = http://semantic.ckan.net/record/
-
-Configure this if you have an RDF store of the same datasets as are in your CKAN instance. It will provide three sorts of links from each dataset page to the equivalent RDF URL given in `rdf_packages`:
-
-1. 303 redirects for clients that content-negotiate rdf-xml or turtle. e.g. client GETs `http://ckan.net/dataset/pollution-2008` with accept header `application/rdf+xml` ``curl -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``. CKAN's response is a 303 redirect to `http://semantic.ckan.net/dataset/pollution-2008` which can be obtained with: ``curl -L -H "Accept: application/rdf+xml" http://ckan.net/dataset/pollution-2008``
-
-2. Embedded links for browsers that are aware. e.g. `<link rel="alternate" type="application/rdf+xml" href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
-
-3. A visible RDF link on the page. e.g. `<a href="http://semantic.ckan.net/record/b410e678-8a96-40cf-8e46-e8bd4bf02684.rdf">`
-
-.. index::
-   single: dumps_url, dumps_format
-
-dumps_url & dumps_format
+ckan.activity_list_limit
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.dumps_url = http://ckan.net/dump/
-  ckan.dumps_format = CSV/JSON
+  ckan.activity_list_limit = 31
 
-If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. ``dumps_format`` is just a string for display.
+Default value: ``infinite``
 
-For more information on using dumpfiles, see :doc:`database-dumps`.
-
-recaptcha
-^^^^^^^^^
-
-Example::
- ckan.recaptcha.publickey = 6Lc...-KLc
- ckan.recaptcha.privatekey = 6Lc...-jP
-
-Setting both these options according to an established Recaptcha account adds captcha to the user registration form. This has been effective at preventing bots registering users and creating spam packages.
-
-To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
-
-And there is an option for the default expiry time if not specified::
-
- ckan.cache.default_expires = 600
-
-
-datasets_per_page
-^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.datasets_per_page = 10
-
-Default value:  ``20``
-
-This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
+This controls the number of activities to show in the Activity Stream. By default, it shows everything.
 
 ckan.preview.direct
 ^^^^^^^^^^^^^^^^^^^
@@ -214,6 +205,73 @@ Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss
 Defines the resource formats which should be loaded directly in an `iframe`
 tag when previewing them.
 
+ckan.dumps_url & ckan.dumps_format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.dumps_url = http://ckan.net/dump/
+  ckan.dumps_format = CSV/JSON
+
+If there is a page which allows you to download a dump of the entire catalogue then specify the URL and the format here, so that it can be advertised in the web interface. ``dumps_format`` is just a string for display.
+
+For more information on using dumpfiles, see :doc:`database-dumps`.
+
+ckan.recaptcha.publickey & ckan.recaptcha.privatekey
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.recaptcha.publickey = 6Lc...-KLc
+ ckan.recaptcha.privatekey = 6Lc...-jP
+
+Setting both these options according to an established Recaptcha account adds captcha to the user registration form. This has been effective at preventing bots registering users and creating spam packages.
+
+To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
+
+ckan.feeds.author_name
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.feeds.author_name = Michael Jackson
+
+Default value: ``(none)``
+
+This controls the feed author's name. If unspecified, it'll use :ref:`ckan-site-id`.
+
+ckan.feeds.author_link
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.feeds.author_link = http://okfn.org
+
+Default value: ``(none)``
+
+This controls the feed author's link. If unspecified, it'll use :ref:`ckan-site-url`.
+
+ckan.feeds.authority_name
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.feeds.authority_name = http://okfn.org
+
+Default value: ``(none)``
+
+The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan-site-url`.
+
+ckan.feeds.date
+^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.feeds.date = 2012-03-22
+
+Default value: ``(none)``
+
+A string representing the default date on which the authority_name is owned by the publisher of the feed.
+
 ckan.featured_groups
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -229,27 +287,33 @@ groups and datasets from each group on the home page in the default templates
 Authentication Settings
 -----------------------
 
-.. index::
-   single: openid_enabled
-
-openid_enabled
-^^^^^^^^^^^^^^
+ckan.gravatar_default
+^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- openid_enabled = False
+  ckan.gravatar_default = monsterid
 
-Default value:  ``True``
+Default value: ``identicon``
 
-CKAN operates a delegated authentication model based on `OpenID <http://openid.net/>`_.
+This controls the default gravatar avatar, in case the user has none.
 
-Setting this option to False turns off OpenID for login.
+ckan.legacy_templates
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.legacy_templates = True
+
+Default value: ``False``
+
+This controls if the legacy genshi templates are used.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 
 Activity Streams Settings
------------------------
-
-.. index::
-   single: ckan.activity_streams_enabled
+-------------------------
 
 ckan.activity_streams_enabled
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,21 +326,32 @@ Default value:  ``True``
 
 Turns on and off the activity streams used to track changes on datasets, groups, users, etc
 
+.. _ckan-activity-streams-email-notifications:
+
+ckan.activity_streams_email_notifications
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.activity_streams_email_notifications = False
+
+Default value:  ``False``
+
+Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
+the emails. For more information, visit :ref:`email-notifications`.
+
 
 .. _config-i18n:
 
 Internationalisation Settings
 -----------------------------
 
-.. index::
-   single: ckan.locale_default
-
 ckan.locale_default
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.locale_default=de
+ ckan.locale_default = de
 
 Default value:  ``en`` (English)
 
@@ -289,18 +364,18 @@ ckan.locales_offered
 
 Example::
 
- ckan.locales_offered=en de fr
+ ckan.locales_offered = en de fr
 
 Default value: (none)
 
-By default, all locales found in the ckan/i18n directory will be offered to the user. To only offer a subset of these, list them under this option. The ordering of the locales is preserved when offered to the user.
+By default, all locales found in the ``ckan/i18n`` directory will be offered to the user. To only offer a subset of these, list them under this option. The ordering of the locales is preserved when offered to the user.
 
 ckan.locales_filtered_out
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.locales_filtered_out=pl ru
+ ckan.locales_filtered_out = pl ru
 
 Default value: (none)
 
@@ -311,18 +386,42 @@ ckan.locale_order
 
 Example::
 
- ckan.locale_order=fr de
+ ckan.locale_order = fr de
 
 Default value: (none)
 
 If you want to specify the ordering of all or some of the locales as they are offered to the user, then specify them here in the required order. Any locales that are available but not specified in this option, will still be offered at the end of the list.
 
+ckan.i18n_directory
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n_directory = /opt/locales/i18n/
+
+Default value: (none)
+
+By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
+
+.. _ckan_root_path:
+
+ckan.root_path
+^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.root_path = /my/custom/path/{{LANG}}/foo
+
+Default value: (none)
+
+By default, the URLs are formatted as ``/some/url``, when using the default
+locale, or ``/de/some/url`` when using the "de" locale, for example. This
+lets you change this. You can use any path that you want, adding ``{{LANG}}``
+where you want the locale code to go.
+
 
 Storage Settings
 ----------------
-
-.. index::
-   single: ckan.storage.bucket, ofs.storage_dir
 
 ckan.storage.bucket
 ^^^^^^^^^^^^^^^^^^^
@@ -335,6 +434,28 @@ Default value:  ``None``
 
 This setting will change the bucket name for the uploaded files.
 
+ckan.storage.key_prefix
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.key_prefix = ckan-file/
+
+Default value: ``file/``
+
+This setting will change the prefix for the uploaded files.
+
+ckan.storage.max_content_length
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.max_content_length = 500000
+
+Default value: ``50000000``
+
+This defines the maximum content size, in bytes, for uploads.
+
 ofs.storage_dir
 ^^^^^^^^^^^^^^^
 
@@ -346,41 +467,34 @@ Default value:  ``None``
 
 Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
+ckan.cache_enabled
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cache_enabled = True
+
+Default value: ``None``
+
+Controls if we're caching CKAN's static files, if it's serving them.
+
+ckan.static_max_age
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.static_max_age = 2592000
+
+Default value: ``3600``
+
+Controls CKAN static files' cache max age, if we're serving and caching them.
 
 
 Theming Settings
 ----------------
 
-.. index::
-   single: extra_template_paths
-
-extra_template_paths
-^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- extra_template_paths=/home/okfn/brazil_ckan_config/templates
-
-To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
-
-For more information on theming, see :doc:`theming`.
-
-.. index::
-   single: extra_public_paths
-
-extra_public_paths
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- extra_public_paths = /home/okfn/brazil_ckan_config/public
-
-To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
-
-For more information on theming, see :doc:`theming`.
-
-template_head_end
-^^^^^^^^^^^^^^^^^
+ckan.template_head_end
+^^^^^^^^^^^^^^^^^^^^^^
 
 HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
 
@@ -394,8 +508,10 @@ You can also have multiline strings. Just indent following lines. e.g.::
   <link rel="stylesheet" href="/css/extra1.css" type="text/css">
   <link rel="stylesheet" href="/css/extra2.css" type="text/css">
 
-template_footer_end
-^^^^^^^^^^^^^^^^^^^
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+ckan.template_footer_end
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
 
@@ -414,12 +530,37 @@ Example (showing insertion of Google Analytics code)::
     </script>
     <!-- /Google Analytics -->
 
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+extra_template_paths
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ extra_template_paths = /home/okfn/brazil_ckan_config/templates
+
+To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
+
+For more information on theming, see :doc:`theming`.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+extra_public_paths
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ extra_public_paths = /home/okfn/brazil_ckan_config/public
+
+To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
+
+For more information on theming, see :doc:`theming`.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 
 Form Settings
 -------------
-
-.. index::
-   single: package_form
 
 package_form
 ^^^^^^^^^^^^
@@ -438,9 +579,6 @@ The value for this setting can be a Formalchemy form defined in the core CKAN co
 
 For more information on forms, see :doc:`forms`.
 
-.. index::
-   single: package_new_return_url, package_edit_return_url
-
 .. _config-package-urls:
 
 package_new_return_url & package_edit_return_url
@@ -454,10 +592,6 @@ Example::
 If integrating the Edit Dataset and New Dataset forms into a third-party interface, setting these options allows you to set the return address. When the user has completed the form and presses 'commit', the user is redirected to the URL specified.
 
 The ``<NAME>`` string is replaced with the name of the dataset edited. Full details of this process are given in :doc:`form-integration`.
-
-
-.. index::
-   single: licenses_group_url
 
 licenses_group_url
 ^^^^^^^^^^^^^^^^^^
@@ -483,15 +617,12 @@ Examples::
 Messaging Settings
 ------------------
 
-.. index::
-   single: carrot_messaging_library
-
 carrot_messaging_library
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- carrot_messaging_library=pyamqplib
+ carrot_messaging_library = pyamqplib
 
 This is the messaging library backend to use. Options::
 
@@ -505,26 +636,23 @@ This is the messaging library backend to use. Options::
 
 See the `Carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
 
-.. index::
-   single: amqp_hostname, amqp_port, amqp_user_id, amqp_password
-
-amqp_hostname, amqp_port, amqp_user_id, amqp_password
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+amqp_hostname & amqp_port & amqp_user_id & amqp_password
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- amqp_hostname=localhost
- amqp_port=5672
- amqp_user_id=guest
- amqp_password=guest
+ amqp_hostname = localhost
+ amqp_port = 5672
+ amqp_user_id = guest
+ amqp_password = guest
 
 These are the setup parameters for AMQP messaging. These only apply if the messaging library has been set to use AMQP (see `carrot_messaging_library`_). The values given above are the default values.
+
 
 Search Settings
 ---------------
 
-.. index::
-   single: ckan.site_id
+.. _ckan-site-id:
 
 ckan.site_id
 ^^^^^^^^^^^^
@@ -539,17 +667,25 @@ a single CKAN instance then this can be ignored.
 
 Note, if you change this value, you need to rebuild the search index.
 
-.. index::
-   single: solr_url
+ckan.simple_search
+^^^^^^^^^^^^^^^^^^
 
-.. _solr_url:
+Example::
+
+ ckan.simple_search = true
+
+Default value:  ``false``
+
+Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
+
+.. _solr-url:
 
 solr_url
 ^^^^^^^^
 
 Example::
 
- solr_url = http://solr.okfn.org:8983/solr/ckan-schema-1.3
+ solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
 
 Default value:  ``http://solr.okfn.org:8983/solr``
 
@@ -558,9 +694,6 @@ This configures the Solr server used for search. The Solr schema found at that U
 Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
 
 Note, if you change this value, you need to rebuild the search index.
-
-.. index::
-   single: ckan.search.automatic_indexing
 
 ckan.search.automatic_indexing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -596,61 +729,57 @@ Example::
 Default value:  ``false``
 
 Controls whether the default search page (``/dataset``) should show only
-standard datasets or also custom dataset types. Default is to show only
-standard datasets.
+standard datasets or also custom dataset types.
 
-simple_search
-^^^^^^^^^^^^^
+search.facet.limits
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.simple_search = true
+ search.facet.limits = 100
 
-Default value:  ``false``
+Default value:  ``50``
 
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
+Sets the default number of searched facets returned in a query.
+
+ckan.extra_resource_fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.extra_resource_fields = alt_url
+
+Default value: ``None``
+
+List of the extra resource fields that would be used when searching.
 
 
 Site Settings
 -------------
 
-.. index::
-   single: site_title
+.. _ckan-site-url:
 
-site_title
-^^^^^^^^^^
-
-Example::
-
- ckan.site_title=Open Data Scotland
-
-Default value:  ``CKAN``
-
-This sets the name of the site, as displayed in the CKAN web interface.
-
-.. index::
-   single: site_url
-
-site_url
-^^^^^^^^
+ckan.site_url
+^^^^^^^^^^^^^
 
 Example::
 
- ckan.site_url=http://scotdata.ckan.net
+  ckan.site_url = http://scotdata.ckan.net
 
 Default value:  (none)
 
 The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
 
-.. index::
-   single: api_url
+.. warning::
 
-api_url
-^^^^^^^
+  This setting should not have a trailing / on the end.
+
+ckan.api_url
+^^^^^^^^^^^^
 
 Example::
 
- ckan.api_url=http://scotdata.ckan.net/api
+ ckan.api_url = http://scotdata.ckan.net/api
 
 Default value:  ``/api``
 
@@ -669,36 +798,178 @@ Default value: ``X-CKAN-API-Key`` & ``Authorization``
 
 This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
 
-Authorization Settings
-----------------------
-
-.. index::
-   single: default_roles, auth_profile
-
-default_roles
-^^^^^^^^^^^^^
-
-This allows you to set the default authorization roles (i.e. permissions) for new objects. Currently this extends to new datasets, groups, authorization groups and the ``system`` object. For full details of these, see :doc:`authorization`.
-
-The value is a strict JSON dictionary of user names ``visitor`` (any user who is not logged in)  and ``logged_in`` (any user who is logged in) with lists of their roles.
+ckan.cache_expires
+^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.default_roles.Package = {"visitor": ["editor"], "logged_in": ["editor"]}
- ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
+  ckan.cache_expires = 2592000
 
-With this example setting, visitors and logged-in users can only read datasets that get created.
+Default value: ''
 
-Defaults: see in ``ckan/model/authz.py`` for: ``default_default_user_roles``
+This sets ``Cache-Control`` header's max-age value.
+
+ckan.page_cache_enable
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.page_cache_enable = True
+
+Default value: ''
+
+This enables the page caching.
+
+moderated
+^^^^^^^^^
+
+Example::
+
+  moderated = True
+
+Default value: (none)
+
+This controls if new datasets will require moderation approval before going public.
+
+.. _ckan-tracking-enabled:
+
+ckan.tracking_enabled
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.tracking_enabled = True
+
+Default value: ``False``
+
+This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
+
+
+.. _email-settings:
+
+E-mail Settings
+---------------
+
+smtp.server
+^^^^^^^^^^^
+
+Example::
+
+  smtp.server = smtp.gmail.com:587
+
+Default value: ``None``
+
+The SMTP server to connect to when sending emails with optional port.
+
+smtp.starttls
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.starttls = True
+
+Default value: ``None``
+
+Whether or not to use STARTTLS when connecting to the SMTP server.
+
+smtp.user
+^^^^^^^^^
+
+Example::
+
+  smtp.user = your_username@gmail.com
+
+Default value: ``None``
+
+The username used to authenticate with the SMTP server.
+
+smtp.password
+^^^^^^^^^^^^^
+
+Example::
+
+  smtp.password = yourpass
+
+Default value: ``None``
+
+The password used to authenticate with the SMTP server.
+
+.. _smtp-mail-from:
+
+smtp.mail_from
+^^^^^^^^^^^^^^
+
+Example::
+
+  smtp.mail_from = you@yourdomain.com
+
+Default value: ``None``
+
+The email address that emails sent by CKAN will come from. Note that, if left blank, the
+SMTP server may insert its own.
+
+email_to
+^^^^^^^^
+
+Example::
+
+  email_to = you@yourdomain.com
+
+Default value: ``None``
+
+This controls where the error messages will be sent to.
+
+error_email_from
+^^^^^^^^^^^^^^^^
+
+Example::
+
+  error_email_from = paste@localhost
+
+Default value: ``None``
+
+This controls from which email the error messages will come from.
+
+
+Authorization Settings
+----------------------
+
+debug
+^^^^^
+
+Example::
+
+  debug = False
+
+Default value: ``False``
+
+This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
+files, and enables CKAN templates' debugging features.
+
+.. warning:: THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT.
+             Debug mode will enable the interactive debugging tool, allowing ANYONE to
+             execute malicious code after an exception is raised.
+
+ckan.debug_supress_header
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.debug_supress_header = False
+
+Default value: ``False``
+
+This configs if the debug information showing the controller and action
+receiving the request being is shown in the header.
+
+.. note:: This info only shows if debug is set to True.
+
 
 Plugin Settings
 ---------------
 
-.. index::
-   single: plugins
-
-plugins
-^^^^^^^
+ckan.plugins
+^^^^^^^^^^^^
 
 Example::
 
@@ -710,16 +981,36 @@ Specify which CKAN extensions are to be enabled.
 
 Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
 
+ckan.datastore.enabled
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datastore.enabled = True
+
+Default value: ``False``
+
+Controls if the Data API link will appear in Dataset's Resource page.
+
+.. note:: This setting only applies to the legacy templates.
+
+ckanext.stats.cache_enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckanext.stats.cache_enabled = True
+
+Default value:  ``True``
+
+This controls if we'll use the 1 day cache for stats.
 
 
 Directory Settings
 ------------------
 
-.. index::
-   single: log_dir
-
-log_dir
-^^^^^^^
+ckan.log_dir
+^^^^^^^^^^^^
 
 Example::
 
@@ -729,11 +1020,8 @@ This is the directory to which CKAN cron scripts (if there are any installed) sh
 
 .. note::  This setting is nothing to do with the main CKAN log file, whose filepath is set in the ``[handler_file]`` args.
 
-.. index::
-   single: dump_dir
-
-dump_dir
-^^^^^^^^
+ckan.dump_dir
+^^^^^^^^^^^^^
 
 Example::
 
@@ -743,11 +1031,8 @@ This is the directory to which JSON or CSV dumps of the database are to be writt
 
 .. note::  It is usual to set up the Apache config to serve this directory.
 
-.. index::
-   single: backup_dir
-
-backup_dir
-^^^^^^^^^^
+ckan.backup_dir
+^^^^^^^^^^^^^^^
 
 Example::
 
