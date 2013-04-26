@@ -79,9 +79,6 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# Location of RDF versions of datasets
-#rdf_packages = http://semantic.ckan.net/record/
-
 # Location of licenses group (defaults to cached local version of ckan group)
 #licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
 
