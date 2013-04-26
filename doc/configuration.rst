@@ -161,6 +161,118 @@ Default value: ``False``
 This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
 
 
+.. _config-authorization:
+
+Authorization Settings
+----------------------
+
+More information about how authorization works in CKAN can be found the
+:doc:`authorization` section.
+
+.. start_config-authorization
+
+ckan.auth.anon_create_dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.anon_create_dataset = False
+
+Default value: ``False``
+
+Allow users to create datasets without registering and logging in.
+
+
+
+ckan.auth.create_unowned_dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_unowned_dataset = False
+
+Default value: ``True``
+
+
+Allow the creation of datasets not owned by any organization.
+
+ckan.auth.create_dataset_if_not_in_organization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_dataset_if_not_in_organization = False
+
+Default value: ``True``
+
+
+Allow users who are not members of any organization to create datasets,
+default: true. ``create_unowned_dataset`` must also be True, otherwise
+setting ``create_dataset_if_not_in_organization`` to True is meaningless.
+
+ckan.auth.user_create_groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.user_create_groups = False
+
+Default value: ``True``
+
+
+Allow users to create groups.
+
+ckan.auth.user_create_organizations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.user_create_organizations = False
+
+Default value: ``True``
+
+
+Allow users to create organizations.
+
+ckan.auth.user_delete_groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.user_delete_groups = False
+
+Default value: ``True``
+
+
+Allow users to delete groups.
+
+ckan.auth.user_delete_organizations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.user_delete_organizations = False
+
+Default value: ``True``
+
+
+Allow users to delete organizations.
+
+ckan.auth.create_user_via_api
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_user_via_api = False
+
+Default value: ``False``
+
+
+Allow new user accounts to be created via the API.
+
+.. end_config-authorization
+
+
 Search Settings
 ---------------
 
