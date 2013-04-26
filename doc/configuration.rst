@@ -11,6 +11,26 @@ The file is well-documented, but we recommend reading this section in full to le
 .. note:: The CKAN config file also includes general Pylons options. All CKAN-specific settings are in the `[app:main]` section.
 
 
+General Settings
+----------------
+
+debug
+^^^^^
+
+Example::
+
+  debug = False
+
+Default value: ``False``
+
+This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
+files, and enables CKAN templates' debugging features.
+
+.. warning:: THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT.
+             Debug mode will enable the interactive debugging tool, allowing ANYONE to
+             execute malicious code after an exception is raised.
+
+
 Database Settings
 -----------------
 
@@ -24,6 +44,285 @@ Example::
 This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
+
+Site Settings
+-------------
+
+.. _ckan-site-url:
+
+ckan.site_url
+^^^^^^^^^^^^^
+
+Example::
+
+  ckan.site_url = http://scotdata.ckan.net
+
+Default value:  (none)
+
+The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
+
+.. warning::
+
+  This setting should not have a trailing / on the end.
+
+ckan.api_url
+^^^^^^^^^^^^
+
+Example::
+
+ ckan.api_url = http://scotdata.ckan.net/api
+
+Default value:  ``/api``
+
+The URL that resolves to the CKAN API part of the site. This is useful if the
+API is hosted on a different domain, for example when a third-party site uses
+the forms API.
+
+.. note:: This option is deprecated and no longer used.
+
+apikey_header_name
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ apikey_header_name = API-KEY
+
+Default value: ``X-CKAN-API-Key`` & ``Authorization``
+
+This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
+
+ckan.cache_expires
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cache_expires = 2592000
+
+Default value: ''
+
+This sets ``Cache-Control`` header's max-age value.
+
+ckan.page_cache_enable
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.page_cache_enable = True
+
+Default value: ''
+
+This enables the page caching.
+
+ckan.cache_enabled
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cache_enabled = True
+
+Default value: ``None``
+
+Controls if we're caching CKAN's static files, if it's serving them.
+
+ckan.static_max_age
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.static_max_age = 2592000
+
+Default value: ``3600``
+
+Controls CKAN static files' cache max age, if we're serving and caching them.
+
+moderated
+^^^^^^^^^
+
+Example::
+
+  moderated = True
+
+Default value: (none)
+
+This controls if new datasets will require moderation approval before going public.
+
+.. _ckan-tracking-enabled:
+
+ckan.tracking_enabled
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.tracking_enabled = True
+
+Default value: ``False``
+
+This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
+
+
+Search Settings
+---------------
+
+.. _ckan-site-id:
+
+ckan.site_id
+^^^^^^^^^^^^
+
+Example::
+
+ ckan.site_id = my_ckan_instance
+
+CKAN uses Solr to index and search packages. The search index is linked to the value of the ``ckan.site_id``, so if you have more than one
+CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
+a single CKAN instance then this can be ignored.
+
+Note, if you change this value, you need to rebuild the search index.
+
+ckan.simple_search
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.simple_search = true
+
+Default value:  ``false``
+
+Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
+
+.. _solr-url:
+
+solr_url
+^^^^^^^^
+
+Example::
+
+ solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
+
+Default value:  ``http://solr.okfn.org:8983/solr``
+
+This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
+
+Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
+
+.. note::  If you change this value, you need to rebuild the search index.
+
+ckan.search.automatic_indexing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.automatic_indexing = 1
+
+Make all changes immediately available via the search after editing or
+creating a dataset. Default is true. If for some reason you need the indexing
+to occur asynchronously, set this option to 0.
+
+.. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
+
+ckan.search.solr_commit
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.solr_commit = false
+
+Default value:  ``true``
+
+Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
+
+ckan.search.show_all_types
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.show_all_types = true
+
+Default value:  ``false``
+
+Controls whether the default search page (``/dataset``) should show only
+standard datasets or also custom dataset types.
+
+search.facet.limits
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ search.facet.limits = 100
+
+Default value:  ``50``
+
+Sets the default number of searched facets returned in a query.
+
+search.facets.default
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  search.facets.default = 10
+
+Default number of facets shown in search results.  Default 10.
+
+search.facets.limit
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  search.facets.limit = 50
+
+Highest number of facets shown in search results.  Default 50.
+
+ckan.extra_resource_fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.extra_resource_fields = alt_url
+
+Default value: ``None``
+
+List of the extra resource fields that would be used when searching.
+
+
+Plugins Settings
+----------------
+
+ckan.plugins
+^^^^^^^^^^^^
+
+Example::
+
+  ckan.plugins = disqus datapreview googleanalytics follower
+
+Specify which CKAN extensions are to be enabled.
+
+.. warning::  If you specify an extension but have not installed the code,  CKAN will not start.
+
+Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
+
+ckan.datastore.enabled
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.datastore.enabled = True
+
+Default value: ``False``
+
+Controls if the Data API link will appear in Dataset's Resource page.
+
+.. note:: This setting only applies to the legacy templates.
+
+ckanext.stats.cache_enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckanext.stats.cache_enabled = True
+
+Default value:  ``True``
+
+This controls if we'll use the 1 day cache for stats.
 
 
 Front-End Settings
@@ -135,6 +434,19 @@ Default value: ``/images/icons/ckan.ico``
 
 This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
 
+ckan.legacy_templates
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.legacy_templates = True
+
+Default value: ``False``
+
+This controls if the legacy genshi templates are used.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 ckan.datasets_per_page
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -175,16 +487,6 @@ When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on t
 .. note::  This only applies to the legacy Genshi-based templates
 
 
-ckan.activity_list_limit
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.activity_list_limit = 31
-
-Default value: ``infinite``
-
-This controls the number of activities to show in the Activity Stream. By default, it shows everything.
 
 ckan.preview.direct
 ^^^^^^^^^^^^^^^^^^^
@@ -231,6 +533,206 @@ Setting both these options according to an established Recaptcha account adds ca
 
 To get a Recaptcha account, sign up at: http://www.google.com/recaptcha
 
+
+ckan.featured_groups
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+ ckan.featured_groups = group_one group_two
+
+Default Value: (empty)
+
+Defines a list of group names or group ids. This setting is used to display
+groups and datasets from each group on the home page in the default templates
+(2 groups and 2 datasets for each group are displayed).
+
+
+ckan.gravatar_default
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.gravatar_default = monsterid
+
+Default value: ``identicon``
+
+This controls the default gravatar avatar, in case the user has none.
+
+ckan.debug_supress_header
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.debug_supress_header = False
+
+Default value: ``False``
+
+This configs if the debug information showing the controller and action
+receiving the request being is shown in the header.
+
+.. note:: This info only shows if debug is set to True.
+
+Theming Settings
+----------------
+
+ckan.template_head_end
+^^^^^^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
+
+Example::
+
+  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
+
+You can also have multiline strings. Just indent following lines. e.g.::
+
+ ckan.template_head_end =
+  <link rel="stylesheet" href="/css/extra1.css" type="text/css">
+  <link rel="stylesheet" href="/css/extra2.css" type="text/css">
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+ckan.template_footer_end
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
+
+.. note:: you can have multiline strings (just indent following lines)
+
+Example (showing insertion of Google Analytics code)::
+
+  ckan.template_footer_end = <!-- Google Analytics -->
+    <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
+    <script type="text/javascript">
+    try {
+    var pageTracker = _gat._getTracker("XXXXXXXXX");
+    pageTracker._setDomainName(".ckan.net");
+    pageTracker._trackPageview();
+    } catch(err) {}
+    </script>
+    <!-- /Google Analytics -->
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+extra_template_paths
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ extra_template_paths = /home/okfn/brazil_ckan_config/templates
+
+To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
+
+For more information on theming, see :doc:`theming`.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+extra_public_paths
+^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ extra_public_paths = /home/okfn/brazil_ckan_config/public
+
+To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
+
+For more information on theming, see :doc:`theming`.
+
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
+Storage Settings
+----------------
+
+ckan.storage.bucket
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.bucket = ckan
+
+Default value:  ``None``
+
+This setting will change the bucket name for the uploaded files.
+
+ckan.storage.key_prefix
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.key_prefix = ckan-file/
+
+Default value: ``file/``
+
+This setting will change the prefix for the uploaded files.
+
+ckan.storage.max_content_length
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.max_content_length = 500000
+
+Default value: ``50000000``
+
+This defines the maximum content size, in bytes, for uploads.
+
+ofs.storage_dir
+^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.storage_dir = /data/uploads/
+
+Default value:  ``None``
+
+Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+
+
+Activity Streams Settings
+-------------------------
+
+ckan.activity_streams_enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.activity_streams_enabled = False
+
+Default value:  ``True``
+
+Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+
+.. _ckan-activity-streams-email-notifications:
+
+ckan.activity_streams_email_notifications
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.activity_streams_email_notifications = False
+
+Default value:  ``False``
+
+Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
+the emails. For more information, visit :ref:`email-notifications`.
+
+ckan.activity_list_limit
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.activity_list_limit = 31
+
+Default value: ``infinite``
+
+This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+
+
+.. _config-feeds:
+
+Feeds Settings
+--------------
+
 ckan.feeds.author_name
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -274,74 +776,6 @@ Example::
 Default value: ``(none)``
 
 A string representing the default date on which the authority_name is owned by the publisher of the feed.
-
-ckan.featured_groups
-^^^^^^^^^^^^^^^^^^^^
-
-Example::
- ckan.featured_groups = group_one group_two
-
-Default Value: (empty)
-
-Defines a list of group names or group ids. This setting is used to display
-groups and datasets from each group on the home page in the default templates
-(2 groups and 2 datasets for each group are displayed).
-
-Authentication Settings
------------------------
-
-ckan.gravatar_default
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.gravatar_default = monsterid
-
-Default value: ``identicon``
-
-This controls the default gravatar avatar, in case the user has none.
-
-ckan.legacy_templates
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.legacy_templates = True
-
-Default value: ``False``
-
-This controls if the legacy genshi templates are used.
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
-
-Activity Streams Settings
--------------------------
-
-ckan.activity_streams_enabled
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.activity_streams_enabled = False
-
-Default value:  ``True``
-
-Turns on and off the activity streams used to track changes on datasets, groups, users, etc
-
-.. _ckan-activity-streams-email-notifications:
-
-ckan.activity_streams_email_notifications
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.activity_streams_email_notifications = False
-
-Default value:  ``False``
-
-Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
-the emails. For more information, visit :ref:`email-notifications`.
 
 
 .. _config-i18n:
@@ -423,143 +857,9 @@ lets you change this. You can use any path that you want, adding ``{{LANG}}``
 where you want the locale code to go.
 
 
-Storage Settings
-----------------
-
-ckan.storage.bucket
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.bucket = ckan
-
-Default value:  ``None``
-
-This setting will change the bucket name for the uploaded files.
-
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-This setting will change the prefix for the uploaded files.
-
-ckan.storage.max_content_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.max_content_length = 500000
-
-Default value: ``50000000``
-
-This defines the maximum content size, in bytes, for uploads.
-
-ofs.storage_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.storage_dir = /data/uploads/
-
-Default value:  ``None``
-
-Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
-
-ckan.cache_enabled
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.cache_enabled = True
-
-Default value: ``None``
-
-Controls if we're caching CKAN's static files, if it's serving them.
-
-ckan.static_max_age
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.static_max_age = 2592000
-
-Default value: ``3600``
-
-Controls CKAN static files' cache max age, if we're serving and caching them.
 
 
-Theming Settings
-----------------
 
-ckan.template_head_end
-^^^^^^^^^^^^^^^^^^^^^^
-
-HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
-
-Example::
-
-  ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
-
-You can also have multiline strings. Just indent following lines. e.g.::
-
- ckan.template_head_end =
-  <link rel="stylesheet" href="/css/extra1.css" type="text/css">
-  <link rel="stylesheet" href="/css/extra2.css" type="text/css">
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
-ckan.template_footer_end
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
-
-.. note:: you can have multiline strings (just indent following lines)
-
-Example (showing insertion of Google Analytics code)::
-
-  ckan.template_footer_end = <!-- Google Analytics -->
-    <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-    <script type="text/javascript">
-    try {
-    var pageTracker = _gat._getTracker("XXXXXXXXX");
-    pageTracker._setDomainName(".ckan.net");
-    pageTracker._trackPageview();
-    } catch(err) {}
-    </script>
-    <!-- /Google Analytics -->
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
-extra_template_paths
-^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- extra_template_paths = /home/okfn/brazil_ckan_config/templates
-
-To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
-
-For more information on theming, see :doc:`theming`.
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
-extra_public_paths
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- extra_public_paths = /home/okfn/brazil_ckan_config/public
-
-To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
-
-For more information on theming, see :doc:`theming`.
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
 
 
 Form Settings
@@ -598,203 +898,6 @@ Examples::
 
  licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
  licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
-
-
-Search Settings
----------------
-
-.. _ckan-site-id:
-
-ckan.site_id
-^^^^^^^^^^^^
-
-Example::
-
- ckan.site_id = my_ckan_instance
-
-CKAN uses Solr to index and search packages. The search index is linked to the value of the ``ckan.site_id``, so if you have more than one
-CKAN instance using the same `solr_url`_, they will each have a separate search index as long as their ``ckan.site_id`` values are different. If you are only running
-a single CKAN instance then this can be ignored.
-
-Note, if you change this value, you need to rebuild the search index.
-
-ckan.simple_search
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.simple_search = true
-
-Default value:  ``false``
-
-Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
-
-.. _solr-url:
-
-solr_url
-^^^^^^^^
-
-Example::
-
- solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
-
-Default value:  ``http://solr.okfn.org:8983/solr``
-
-This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
-
-Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
-
-.. note::  If you change this value, you need to rebuild the search index.
-
-ckan.search.automatic_indexing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.search.automatic_indexing = 1
-
-Make all changes immediately available via the search after editing or
-creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to 0.
-
-.. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
-
-ckan.search.solr_commit
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.search.solr_commit = false
-
-Default value:  ``true``
-
-Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
-
-ckan.search.show_all_types
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.search.show_all_types = true
-
-Default value:  ``false``
-
-Controls whether the default search page (``/dataset``) should show only
-standard datasets or also custom dataset types.
-
-search.facet.limits
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- search.facet.limits = 100
-
-Default value:  ``50``
-
-Sets the default number of searched facets returned in a query.
-
-ckan.extra_resource_fields
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.extra_resource_fields = alt_url
-
-Default value: ``None``
-
-List of the extra resource fields that would be used when searching.
-
-
-Site Settings
--------------
-
-.. _ckan-site-url:
-
-ckan.site_url
-^^^^^^^^^^^^^
-
-Example::
-
-  ckan.site_url = http://scotdata.ckan.net
-
-Default value:  (none)
-
-The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
-
-.. warning::
-
-  This setting should not have a trailing / on the end.
-
-ckan.api_url
-^^^^^^^^^^^^
-
-Example::
-
- ckan.api_url = http://scotdata.ckan.net/api
-
-Default value:  ``/api``
-
-The URL that resolves to the CKAN API part of the site. This is useful if the
-API is hosted on a different domain, for example when a third-party site uses
-the forms API.
-
-apikey_header_name
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
- apikey_header_name = API-KEY
-
-Default value: ``X-CKAN-API-Key`` & ``Authorization``
-
-This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
-
-ckan.cache_expires
-^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.cache_expires = 2592000
-
-Default value: ''
-
-This sets ``Cache-Control`` header's max-age value.
-
-ckan.page_cache_enable
-^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.page_cache_enable = True
-
-Default value: ''
-
-This enables the page caching.
-
-moderated
-^^^^^^^^^
-
-Example::
-
-  moderated = True
-
-Default value: (none)
-
-This controls if new datasets will require moderation approval before going public.
-
-.. _ckan-tracking-enabled:
-
-ckan.tracking_enabled
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.tracking_enabled = True
-
-Default value: ``False``
-
-This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
-
 
 .. _email-settings:
 
@@ -880,97 +983,3 @@ Example::
 Default value: ``None``
 
 This controls from which email the error messages will come from.
-
-
-Authorization Settings
-----------------------
-
-debug
-^^^^^
-
-Example::
-
-  debug = False
-
-Default value: ``False``
-
-This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-files, and enables CKAN templates' debugging features.
-
-.. warning:: THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT.
-             Debug mode will enable the interactive debugging tool, allowing ANYONE to
-             execute malicious code after an exception is raised.
-
-ckan.debug_supress_header
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.debug_supress_header = False
-
-Default value: ``False``
-
-This configs if the debug information showing the controller and action
-receiving the request being is shown in the header.
-
-.. note:: This info only shows if debug is set to True.
-
-
-Plugin Settings
----------------
-
-ckan.plugins
-^^^^^^^^^^^^
-
-Example::
-
-  ckan.plugins = disqus datapreview googleanalytics follower
-
-Specify which CKAN extensions are to be enabled.
-
-.. warning::  If you specify an extension but have not installed the code,  CKAN will not start.
-
-Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
-
-ckan.datastore.enabled
-^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.datastore.enabled = True
-
-Default value: ``False``
-
-Controls if the Data API link will appear in Dataset's Resource page.
-
-.. note:: This setting only applies to the legacy templates.
-
-ckanext.stats.cache_enabled
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckanext.stats.cache_enabled = True
-
-Default value:  ``True``
-
-This controls if we'll use the 1 day cache for stats.
-
-
-search.facets.default
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  search.facets.default = 10
-
-Default number of facets shown in search results.  Default 10.
-
-search.facets.limit
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  search.facets.limit = 50
-
-Highest number of facets shown in search results.  Default 50.
