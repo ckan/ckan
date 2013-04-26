@@ -172,6 +172,9 @@ Default value:  true
 
 When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
 
+.. note::  This only applies to the legacy Genshi-based templates
+
+
 ckan.activity_list_limit
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -191,7 +194,7 @@ Example::
 
 Default value: ``png jpg gif``
 
-Defines the resource formats which should be embedded directly in an `img` tag
+Defines the resource formats which should be embedded directly in an ``img`` tag
 when previewing them.
 
 ckan.preview.loadable
@@ -202,7 +205,7 @@ Example::
 
 Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
 
-Defines the resource formats which should be loaded directly in an `iframe`
+Defines the resource formats which should be loaded directly in an ``iframe``
 tag when previewing them.
 
 ckan.dumps_url & ckan.dumps_format
@@ -562,23 +565,6 @@ For more information on theming, see :doc:`theming`.
 Form Settings
 -------------
 
-package_form
-^^^^^^^^^^^^
-
-Example::
-
- package_form = ca
-
-Default value:  ``standard``
-
-This sets the name of the Formalchemy form to use when editing a dataset.
-
-.. note:: This setting only applies to the deprecated Formalchemy forms. For enabling forms defined with a Navl schema, see :doc:`forms`.
-
-The value for this setting can be a Formalchemy form defined in the core CKAN code or in another setuputils-managed python module. The only requirement is that the ``setup.py`` file has an entry point for the form defined in the ``ckan.forms`` section.
-
-For more information on forms, see :doc:`forms`.
-
 .. _config-package-urls:
 
 package_new_return_url & package_edit_return_url
@@ -612,41 +598,6 @@ Examples::
 
  licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
  licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
-
-
-Messaging Settings
-------------------
-
-carrot_messaging_library
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- carrot_messaging_library = pyamqplib
-
-This is the messaging library backend to use. Options::
-
- * ``pyamqplib`` - AMQP (e.g. for RabbitMQ)
-
- * ``pika`` - alternative AMQP
-
- * ``stomp`` - python-stomp
-
- * ``queue`` - native Python Queue (default) - NB this doesn't work inter-process
-
-See the `Carrot documentation <http://packages.python.org/carrot/index.html>`_ for details.
-
-amqp_hostname & amqp_port & amqp_user_id & amqp_password
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- amqp_hostname = localhost
- amqp_port = 5672
- amqp_user_id = guest
- amqp_password = guest
-
-These are the setup parameters for AMQP messaging. These only apply if the messaging library has been set to use AMQP (see `carrot_messaging_library`_). The values given above are the default values.
 
 
 Search Settings
@@ -693,7 +644,7 @@ This configures the Solr server used for search. The Solr schema found at that U
 
 Optionally, ``solr_user`` and ``solr_password`` can also be configured to specify HTTP Basic authentication details for all Solr requests.
 
-Note, if you change this value, you need to rebuild the search index.
+.. note::  If you change this value, you need to rebuild the search index.
 
 ckan.search.automatic_indexing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -706,7 +657,7 @@ Make all changes immediately available via the search after editing or
 creating a dataset. Default is true. If for some reason you need the indexing
 to occur asynchronously, set this option to 0.
 
-Note, this is equivalent to explicitly load the `synchronous_search` plugin.
+.. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
 ckan.search.solr_commit
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1005,40 +956,6 @@ Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
 
-
-Directory Settings
-------------------
-
-ckan.log_dir
-^^^^^^^^^^^^
-
-Example::
-
-  ckan.log_dir = /var/log/ckan/
-
-This is the directory to which CKAN cron scripts (if there are any installed) should write log files.
-
-.. note::  This setting is nothing to do with the main CKAN log file, whose filepath is set in the ``[handler_file]`` args.
-
-ckan.dump_dir
-^^^^^^^^^^^^^
-
-Example::
-
-  ckan.dump_dir = /var/lib/ckan/dump/
-
-This is the directory to which JSON or CSV dumps of the database are to be written, assuming a script has been installed to do this.
-
-.. note::  It is usual to set up the Apache config to serve this directory.
-
-ckan.backup_dir
-^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.backup_dir = /var/backups/ckan/
-
-This is a directory where SQL database backups are to be written, assuming a script has been installed to do this.
 
 search.facets.default
 ^^^^^^^^^^^^^^^^^^^^^
