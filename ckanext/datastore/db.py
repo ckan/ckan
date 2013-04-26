@@ -1108,7 +1108,7 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         results = context['connection'].execute(
-            data_dict['sql']
+            data_dict['sql'].replace('%', '%%')
         )
         return format_results(context, results, data_dict)
 

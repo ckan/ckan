@@ -513,6 +513,18 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
         assert result['records'] == res_dict_alias['result']['records']
 
+    def test_select_where_like_with_percent(self):
+        query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['records'] == self.expected_records
+
     def test_self_join(self):
         query = '''
             select a._id as first, b._id as second
