@@ -43,26 +43,25 @@ notifications for a CKAN site, a sysadmin must:
 
 2. CKAN will not send out any email notifications, nor show the email
    notifications preference to users, unless the
-   :ref:`ckan-activity-streams-email-notifications` option is set to ``True``, so
+   :ref:`ckan.activity_streams_email_notifications` option is set to ``True``, so
    put this line in the ``[app:main]`` section of your CKAN config file::
 
     ckan.activity_streams_email_notifications = True
 
 
-3. Make sure that :ref:`ckan-site-url` is set correctly in the ``[app:main]``
+3. Make sure that :ref:`ckan.site_url` is set correctly in the ``[app:main]``
    section of your CKAN configuration file. This is used to generate links in
    the bodies of the notification emails. For example::
 
     ckan.site_url = http://publicdata.eu
 
-
-4. Make sure that :ref:`smtp-mail-from` is set correctly in the ``[app:main]``
+4. Make sure that :ref:`smtp.mail_from` is set correctly in the ``[app:main]``
    section of your CKAN configuration file. This is the email address that
    CKAN's email notifications will appear to come from. For example::
 
     smtp.mail_from = mailman@publicdata.eu
 
-   This is combined with your :ref:`ckan-site-title` to form the ``From:`` header
+   This is combined with your :ref:`ckan.site_title` to form the ``From:`` header
    of the email that are sent, for example::
 
     From: PublicData.eu <mailmain@publicdata.eu>

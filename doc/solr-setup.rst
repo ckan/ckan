@@ -261,4 +261,4 @@ When a new version of the schema becomes available, a new core is created, with 
 latest schema.xml file in the CKAN source. That way, CKAN instances that use an older version
 of the schema can still point to the core that uses it, while more recent versions can point
 to the latest one. When old versions of CKAN are updated, they only need to change their
-:ref:`solr-url` setting to point to the suitable Solr core.
+:ref:`solr_url` setting to point to the suitable Solr core.
