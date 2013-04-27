@@ -49,7 +49,7 @@ This defines the database that CKAN is to use. The format is::
 Site Settings
 -------------
 
-.. _ckan-site-url:
+.. _ckan.site_url:
 
 ckan.site_url
 ^^^^^^^^^^^^^
@@ -147,7 +147,7 @@ Default value: (none)
 
 This controls if new datasets will require moderation approval before going public.
 
-.. _ckan-tracking-enabled:
+.. _ckan.tracking_enabled:
 
 ckan.tracking_enabled
 ^^^^^^^^^^^^^^^^^^^^^
@@ -276,7 +276,7 @@ Allow new user accounts to be created via the API.
 Search Settings
 ---------------
 
-.. _ckan-site-id:
+.. _ckan.site_id:
 
 ckan.site_id
 ^^^^^^^^^^^^
@@ -302,7 +302,7 @@ Default value:  ``false``
 
 Switching this on tells CKAN search functionality to just query the database, (rather than using Solr). In this setup, search is crude and limited, e.g. no full-text search, no faceting, etc. However, this might be very useful for getting up and running quickly with CKAN.
 
-.. _solr-url:
+.. _solr_url:
 
 solr_url
 ^^^^^^^^
@@ -440,7 +440,7 @@ This controls if we'll use the 1 day cache for stats.
 Front-End Settings
 ------------------
 
-.. _ckan-site-title:
+.. _ckan.site_title:
 
 ckan.site_title
 ^^^^^^^^^^^^^^^
@@ -583,7 +583,7 @@ This sets a space-separated list of extra field key values which will not be sho
 
 .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
 
-.. _config-apps-ideas:
+.. _ckan.dataset.show_apps_ideas:
 
 ckan.dataset.show_apps_ideas
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -814,7 +814,7 @@ Default value:  ``True``
 
 Turns on and off the activity streams used to track changes on datasets, groups, users, etc
 
-.. _ckan-activity-streams-email-notifications:
+.. _ckan.activity_streams_email_notifications:
 
 ckan.activity_streams_email_notifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -854,7 +854,7 @@ Example::
 
 Default value: ``(none)``
 
-This controls the feed author's name. If unspecified, it'll use :ref:`ckan-site-id`.
+This controls the feed author's name. If unspecified, it'll use :ref:`ckan.site_id`.
 
 ckan.feeds.author_link
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -865,7 +865,7 @@ Example::
 
 Default value: ``(none)``
 
-This controls the feed author's link. If unspecified, it'll use :ref:`ckan-site-url`.
+This controls the feed author's link. If unspecified, it'll use :ref:`ckan.site_url`.
 
 ckan.feeds.authority_name
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -876,7 +876,7 @@ Example::
 
 Default value: ``(none)``
 
-The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan-site-url`.
+The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan.site_url`.
 
 ckan.feeds.date
 ^^^^^^^^^^^^^^^
@@ -952,7 +952,7 @@ Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
 
-.. _ckan_root_path:
+.. _ckan.root_path:
 
 ckan.root_path
 ^^^^^^^^^^^^^^
@@ -1060,7 +1060,7 @@ Default value: ``None``
 
 The password used to authenticate with the SMTP server.
 
-.. _smtp-mail-from:
+.. _smtp.mail_from:
 
 smtp.mail_from
 ^^^^^^^^^^^^^^
