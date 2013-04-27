@@ -1,7 +1,7 @@
 CKAN Release Cycle
 ==================
 
-CKAN follows a standardized release process in order to ensure that releases
+CKAN follows a standardized release process to ensure that releases
 are stable and backwards compatible, and to allow external developers to
 oversee the development process and plan future upgrades.
 
@@ -20,15 +20,15 @@ types of releases:
 * **Point Releases**
     These increment the second version number (eg *2.1*) and
     represent stable lines among CKAN releases. Although not as disruptive as on
-    major releases, bacwards incompatible changes may be introduced on point
-    releases. The CHANGELOG will describe which are these incompatible changes.
-    We aim to do a Point release roughly every three months.
+    major releases, backwards incompatible changes may be introduced on point
+    releases. The :doc:`CHANGELOG` will describe which are these incompatible changes.
+    We aim to do a point release roughly every three months.
 
-* **Point point Releases**
+* **Point-point Releases**
     These increment the third version number (eg *2.1.3*)
     and don't break compatibility. That means for example that an application
     running CKAN 1.8 or 1.8.1 can be safely upgraded to 1.8.2 or 1.8.3. These
-    releases are branched from their Point release or from the last Point point
+    releases are branched from their point release or from the last point-point
     release if any. They only include bug fixes and non-breaking optimizations or
     small features. They must not include:
 
@@ -45,7 +45,7 @@ CKAN Release Process Overview
 When the development team thinks master is at a good point to start the
 release process a new branch will be created with the name *release-v{version
 number}*. This is the beta branch for this release, and it will be deployed to
-the beta staging site (http://beta.ckan.org). During the next two-three weeks
+`beta.ckan.org <http://beta.ckan.org>`_. During the next two-three weeks
 changes will be allowed to stabilize the code, update i18n and documentation,
 etc. During the last week, only critical bug fixes are allowed.
 
@@ -59,7 +59,7 @@ cherry-picked from master (or merged from special branches based on the release
 branch).
 
 To ensure that the release guidelines are enforced one of the CKAN core
-developers will act as Release Manager. He or she has the final say on what is
+developers will act as Release Manager. They have the final say on what is
 merged into the release branches.
 
 The actual process followed by CKAN developers can be found in
