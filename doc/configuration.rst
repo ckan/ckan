@@ -1,14 +1,41 @@
-=====================================
-Reference: CKAN Configuration Options
-=====================================
+===================
+Config File Options
+===================
 
-You can change many important CKAN settings in the CKAN config file. This is the file called ``std.ini`` that you first encountered in :ref:`create-admin-user`. It is usually located at ``/etc/ckan/std/std.ini``.
+You can set many important options in the CKAN config file. By default, the
+configuration file is located at ``/etc/ckan/development.ini`` or
+``/etc/ckan/production.ini``. This section documents all of the config file
+settings, for reference.
 
-The file is well-documented, but we recommend reading this section in full to learn about the CKAN config options available to you.
+.. todo::
 
-.. note:: After editing this file, you will need to restart Apache for the changes to take effect.
+   Insert cross-ref to section about location of config file?
 
-.. note:: The CKAN config file also includes general Pylons options. All CKAN-specific settings are in the `[app:main]` section.
+.. note:: After editing your config file, you need to restart your webserver
+   for the changes to take effect.
+
+.. note:: Unless otherwise noted, all configuration options should be set inside
+   the ``[app:main]`` section of the config file (i.e. after the ``[app:main]``
+   line)::
+
+        [DEFAULT]
+
+        ...
+
+        [server:main]
+        use = egg:Paste#http
+        host = 0.0.0.0
+        port = 5000
+
+        # This setting will not work, because it's outside of [app:main].
+        ckan.site_logo = /images/masaq.png
+
+        [app:main]
+        # This setting will work.
+        ckan.plugins = stats json_preview recline_preview
+
+   If the same option is set more than once in your config file, the last
+   setting given in the file will override the others.
 
 
 General Settings
