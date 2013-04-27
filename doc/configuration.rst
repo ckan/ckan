@@ -103,6 +103,9 @@ The primary URL used by this site. Used in the API to provide datasets with link
 ckan.api_url
 ^^^^^^^^^^^^
 
+.. deprecated:: 2
+   No longer used.
+
 Example::
 
  ckan.api_url = http://scotdata.ckan.net/api
@@ -112,8 +115,6 @@ Default value:  ``/api``
 The URL that resolves to the CKAN API part of the site. This is useful if the
 API is hosted on a different domain, for example when a third-party site uses
 the forms API.
-
-.. note:: This option is deprecated and no longer used.
 
 .. _apikey_header_name:
 
