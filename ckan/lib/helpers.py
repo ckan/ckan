@@ -1484,7 +1484,6 @@ def resource_preview(resource, pkg_id):
     data_dict = {'resource': resource, 'package': c.package}
 
     if not resource['url']:
-        log.info('No url for resource {0} defined.'.format(resource['id']))
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
                        reason='No valid resource url has been defined.')
@@ -1504,9 +1503,6 @@ def resource_preview(resource, pkg_id):
     elif format_lower in loadable_in_iframe:
         url = resource['url']
     else:
-        log.info(
-            'No preview handler for resource type {0}'.format(format_lower)
-        )
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower)
 
