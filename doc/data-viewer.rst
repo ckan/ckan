@@ -7,11 +7,11 @@ This works by either:
 
 1. Embedding the data into the page, either directly or by loading the data
    in an iframe.
-2. Using a custom widget (such as `Recline <http://github.com/okfn/recline>`_)
+2. Using a custom widget (such as `Recline <http://okfnlabs.org/recline>`_)
    to view the data.
 
-The decision as to which action to take is determined by the type of resource
-being viewed.
+Generally, the decision as to which action to take is determined by the type of
+resource being viewed.
 In general, images will be directly embedded, unstructured or plain text
 files will be loaded in an iframe, and more complex data types will need to
 use a custom widget.
@@ -48,6 +48,9 @@ the resource read page:
 * ``jpg``
 * ``gif``
 
+The types of resources that are embedded directly can be specified in the
+CKAN config file. See :ref:`_ckan_preview_direct` for more information.
+
 The following types of resources will be loaded in an iframe:
 
 * ``plain``
@@ -63,14 +66,19 @@ The following types of resources will be loaded in an iframe:
 * ``atom``
 * ``rss``
 
+The types of resources that are loaded in an iframe can be specified in the
+CKAN config file. See :ref:`_ckan_preview_loadable` for more information.
+
 
 Viewing structured data: the Data Explorer
 ------------------------------------------
 
+.. versionadded:: 2.0
+   the ``recline_preview`` extension is new in CKAN 2.0.
+
 .. versionchanged:: 2.0
-   The ``recline_preview`` extension did not exist in previous versions of
-   CKAN. The ability to embed Recline previews is not supported in the
-   current version of CKAN.
+   The ability to embed data explorer previews in external sites is
+   not supported in CKAN 2.0.
 
 **Configuration required:** The ``recline_preview`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
@@ -79,7 +87,7 @@ This extension is part of CKAN and so does not need to be installed separately.
 **Resource formats:** DataStore, ``csv``, ``xls``.
 
 Structured data can be previewed using the
-`Recline <http://github.com/okfn/recline>`_ Data Explorer.
+`Recline <http://okfnlabs.org/recline>`_ Data Explorer.
 The Data Explorer provides a rich, queryable view of the data, and allows the
 data to be filtered, graphed and mapped.
 
@@ -137,3 +145,4 @@ This extension is part of CKAN and so does not need to be installed separately.
 The ``pdf_preview`` extension provides previews of any ``pdf`` documents
 that have been added to a CKAN instance (and so are stored in
 the `Filestore <filestore.html>`_) as well as any external ``pdf`` documents.
+This extension uses Mozilla's `pdf.js <http://mozilla.github.io/pdf.js>`_ library.
