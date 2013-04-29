@@ -23,6 +23,7 @@ the following sections:
 * `Viewing structured data: the Data Explorer`_
 * `Viewing JSON data`_
 * `Viewing PDF documents`_
+* `Embedding Previews In Other Web Pages`_
 
 These sections list the resource formats that each extension can preview and
 provide instructions for how to enable each extension.
@@ -75,10 +76,6 @@ Viewing structured data: the Data Explorer
 
 .. versionadded:: 2.0
    the ``recline_preview`` extension is new in CKAN 2.0.
-
-.. versionchanged:: 2.0
-   The ability to embed data explorer previews in external sites is
-   not supported in CKAN 2.0.
 
 **Configuration required:** The ``recline_preview`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
@@ -146,3 +143,17 @@ The ``pdf_preview`` extension provides previews of any ``pdf`` documents
 that have been added to a CKAN instance (and so are stored in
 the `Filestore <filestore.html>`_) as well as any external ``pdf`` documents.
 This extension uses Mozilla's `pdf.js <http://mozilla.github.io/pdf.js>`_ library.
+
+
+Embedding Previews In Other Web Pages
+-------------------------------------
+
+.. versionchanged:: 2.0
+   The URL that is used to obtain the contents of the resource preview has
+   changed from ``/dataset/{name}/resource/{resource_id}/embed``
+   to ``/dataset/{name}/resource/{resource_id}/preview``.
+
+For each resource, the preview content can be viewed at
+``/dataset/{dataset id}/resource/{resource id}/preview``.
+The preview content can therefore be embedded in other web pages by loading
+the contents of this URL in an iframe.
