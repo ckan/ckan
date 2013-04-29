@@ -865,6 +865,19 @@ Example (showing insertion of Google Analytics code)::
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
+.. _ckan.template_title_deliminater:
+
+ckan.template_title_deliminater
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.template_title_deliminater = |
+
+Default value:  ``-``
+
+This sets the delimiter between the site's subtitle (if there's one) and its title, in HTML's ``<title>``.
+
 .. _extra_template_paths:
 
 extra_template_paths
