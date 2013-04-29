@@ -740,6 +740,7 @@ ckan.preview.direct
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
+
  ckan.preview.direct = png jpg gif
 
 Default value: ``png jpg gif``
@@ -753,6 +754,7 @@ ckan.preview.loadable
 ^^^^^^^^^^^^^^^^^^^^^
 
 Example::
+
  ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
 
 Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
