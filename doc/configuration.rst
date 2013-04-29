@@ -490,11 +490,11 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
-Specify which CKAN extensions are to be enabled.
+Specify which CKAN plugins are to be enabled.
 
-.. warning::  If you specify an extension but have not installed the code,  CKAN will not start.
+.. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the extension names. The extension name is the key in the [ckan.plugins] section of the extension's ``setup.py``. For more information on extensions, see :doc:`extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions`.
 
 .. _ckan.datastore.enabled:
 
