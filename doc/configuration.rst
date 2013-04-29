@@ -91,7 +91,8 @@ Example::
 
 Default value:  (none)
 
-The primary URL used by this site. Used in the API to provide datasets with links to themselves in the web UI.
+The URL of your CKAN site. Many CKAN features that need an absolute URL to your
+site use this setting.
 
 .. warning::
 
