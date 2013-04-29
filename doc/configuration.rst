@@ -608,9 +608,9 @@ Default value::
 
 Format tips:
 
- * multiline strings can be used by indenting following lines
+* multiline strings can be used by indenting following lines
 
- * the format is Markdown
+* the format is Markdown
 
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
           For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming`.
@@ -780,6 +780,7 @@ ckan.featured_groups
 ^^^^^^^^^^^^^^^^^^^^
 
 Example::
+
  ckan.featured_groups = group_one group_two
 
 Default Value: (empty)
