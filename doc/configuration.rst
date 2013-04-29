@@ -138,7 +138,7 @@ Example::
 
   ckan.cache_expires = 2592000
 
-Default value: ''
+Default value: 0
 
 This sets ``Cache-Control`` header's max-age value.
 
