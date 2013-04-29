@@ -142,18 +142,22 @@ Default value: 0
 
 This sets ``Cache-Control`` header's max-age value.
 
-.. _ckan.page_cache_enable:
+.. _ckan.page_cache_enabled:
 
-ckan.page_cache_enable
-^^^^^^^^^^^^^^^^^^^^^^
+ckan.page_cache_enabled
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.page_cache_enable = True
+  ckan.page_cache_enabled = True
 
-Default value: ''
+Default value: ``False``
 
-This enables the page caching.
+This enables CKAN's built-in page caching.
+
+.. warning::
+
+   Page caching is an experimental feature.
 
 .. _ckan.cache_enabled:
 
