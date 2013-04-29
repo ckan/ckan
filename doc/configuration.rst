@@ -429,14 +429,14 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
-.. _search.facet.limits:
+.. _search.facets.limits:
 
-search.facet.limits
+search.facets.limits
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- search.facet.limits = 100
+ search.facets.limits = 100
 
 Default value:  ``50``
 
