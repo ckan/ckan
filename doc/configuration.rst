@@ -55,10 +55,9 @@ Default value: ``False``
 This enables Pylons' interactive debugging tool, makes Fanstatic serve unminified JS and CSS
 files, and enables CKAN templates' debugging features.
 
-.. warning:: THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT.
-             Debug mode will enable the interactive debugging tool, allowing ANYONE to
-             execute malicious code after an exception is raised.
-
+.. warning:: This option should be set to ``False`` for a public site.
+   With debug mode enabled, a visitor to your site could execute malicious
+   commands.
 
 
 Database Settings
