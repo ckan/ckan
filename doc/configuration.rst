@@ -127,7 +127,7 @@ Example::
 
 Default value: ``X-CKAN-API-Key`` & ``Authorization``
 
-This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure block the Authorization header and ``X-CKAN-API-Key`` is not suitable.
+This allows another http header to be used to provide the CKAN API key. This is useful if network infrastructure blocks the Authorization header and ``X-CKAN-API-Key`` is not suitable.
 
 .. _ckan.cache_expires:
 
