@@ -6,7 +6,7 @@ Internationalize CKAN
 
 CKAN is used in many countries, and adding a new language to the web interface is a simple process. 
 
-CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in french.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths the ``ckan.root_path`` config option can be used and is of the form ``/path/from/root/with/{{LANG}}/substitution``.
+CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in french.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths check the :ref:`ckan.root_path` config option.
 
 .. Note: Storing metadata field values in more than one language is a separate topic. This is achieved by storing the translations in extra fields. A custom dataset form and dataset display template are recommended. Ask the CKAN team for more information.
 
