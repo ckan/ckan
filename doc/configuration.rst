@@ -192,6 +192,9 @@ Default value:  ``20``
 
 This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
 
+
+.. _ckan_preview_direct:
+
 ckan.preview.direct
 ^^^^^^^^^^^^^^^^^^^
 
@@ -202,6 +205,9 @@ Default value: ``png jpg gif``
 
 Defines the resource formats which should be embedded directly in an `img` tag
 when previewing them.
+
+
+.. _ckan_preview_loadable:
 
 ckan.preview.loadable
 ^^^^^^^^^^^^^^^^^^^^^
