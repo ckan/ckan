@@ -863,8 +863,6 @@ Example (showing insertion of Google Analytics code)::
     </script>
     <!-- /Google Analytics -->
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. _ckan.template_title_deliminater:
 
 ckan.template_title_deliminater
