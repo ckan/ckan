@@ -5,10 +5,10 @@ Extensions
 Extensions customize CKAN or add new features. A CKAN extension is a Python
 package that contains one or more CKAN plugins that can be enabled.
 
-Officially-supported Extensions
--------------------------------
+Built-in Extensions
+-------------------
 
-CKAN comes with several officially-supported extensions:
+CKAN comes with several pre-installed extensions:
 
 * :doc:`datastore` -- a database for structured storage of data
 
@@ -26,13 +26,13 @@ CKAN comes with several officially-supported extensions:
 
 * ``stats`` - Show stats and visuals about your site's datasets
 
-Non-Core Extensions
+External Extensions
 -------------------
 
-Many other extensions are available and may be used with CKAN.  These will
-need to be installed.  Every extension should include instructions on how to
-install and configure it.  `Extension listing on the CKAN-wiki
-<https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
+Many other extensions are available to use with CKAN. These must be downloaded
+and installed separately. Each extension should come with its own instructions
+for how to install and configure it. For a list of external extensions, see the
+`list of extensions the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
 
 
 ==================
