@@ -162,18 +162,6 @@ for creating common form fields.
 They should generally be avoided as they are hard to extend and
 customise.
 
-CKAN Extensions
----------------
-
-Currently extensions cannot automatically insert content into the CKAN
-website instead they require a new "theme" extension to be created
-specifically for the instance. This has been done to intentionally keep
-everything very declarative and to allow the most flexibility in the
-simplest way.
-
-Please see the `Extension Templating <./extension-templating.html>`_
-document for more information.
-
 Custom Control Structures
 -------------------------
 
