@@ -28,6 +28,8 @@ def convert_from_extras(key, data, errors, context):
             and data_value == key[-1]):
             data[key] = data[('extras', data_key[1], 'value')]
             break
+    else:
+        return
     remove_from_extras(data, data_key[1])
 
 def date_to_db(value, context):
