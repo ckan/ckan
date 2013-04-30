@@ -17,9 +17,8 @@ Edit CKAN config options
 ------------------------
 
 This method is best if you simply want to change the logo, title and perhaps
-add a little custom CSS. You can edit your CKAN config options at
-http://localhost:5000/ckan-admin/config (assuming you are logged within a 
-sysadmin account).
+add a little custom CSS. When you login to CKAN as a sysadmin user, you'll see
+a link to the Administration page where you can edit your CKAN config options.
 
 Here are the basic config options you can change:
 
@@ -29,14 +28,14 @@ Here are the basic config options you can change:
 
 - **Site Tag Logo:** This is the logo that appears in the header of all the CKAN instance templates. If you want to add a custom logo we recommened you do it here.
 
-- **About:** This text will appear on this CKAN instances about page. We support markdown within this field.
+- **About:** This text will appear on this CKAN instance's about page. We support `markdown`_ within this field.
 
-- **Intro Text:** This text will appear on this CKAN instances home page as a welcome to visitors. Again markdown is supported here.
+- **Intro Text:** This text will appear on this CKAN instance's home page as a welcome to visitors. Again `markdown`_ is supported here.
 
 - **Custom CSS:** This is a block of CSS that appears in ``<head>`` tag of every page. If you wish to customize the templates more fully we recommend using the extension method of customizing your CKAN instance.
 
 .. Note::
-    You can also change your ``site_title`` within your development.ini.
+    You can also change your ``site_title`` within your CKAN config file.
     However changing the 'Site Title' within the ckan admin interface will
     override this setting.
 
@@ -44,7 +43,7 @@ Here are the basic config options you can change:
 Create Custom Extension
 -----------------------
 
-This method is best for if you want to customize the HTML templates of you CKAN
+This method is best for you want to customize the HTML templates of you CKAN
 instance. It's also more extensible and means you can make sure you keep your
 custom theme as seperate from CKAN core as possible.
 
@@ -55,8 +54,8 @@ a custom extension in order to customize your CKAN instance.
 Customizing the HTML
 ~~~~~~~~~~~~~~~~~~~~
 
-The main templates within CKAN use the templating language `Jinja`_. Jinja has
-template inheritance which means that you don't have to re-write a whole
+The main templates within CKAN use the templating language `Jinja2`_. Jinja2
+has template inheritance which means that you don't have to re-write a whole
 template in order to change small elements within templates.
 
 For more information on how to exactly change the HTML of your CKAN instance: 
@@ -95,23 +94,24 @@ please read the `Building a JavaScript Module`_ documentation.
 Customizing the CSS
 ~~~~~~~~~~~~~~~~~~~
 
-To customize your CSS all you really need to know is how to add one as a
-fanstatic resource. Beyond that it's purely writing your own CSS and making
+To customize your CSS all you really need to know is how to add a stylesheet as
+a fanstatic resource. Beyond that it's purely writing your own CSS and making
 sure it's included on the correct pages.
 
 For more information on how CSS works in CKAN core: please read the
 `Front End Documentation > Stylesheets`_ documentation.
 
 .. Note::
-    In CKAN core we use `LESS`_ to pre-process our main CSS document. We do this
-    to make the core CSS more maintainable (as well as to offer different
+    In CKAN core we use `LESS`_ to pre-process our main CSS document. We do
+    this to make the core CSS more maintainable (as well as to offer different
     basic colour styles on our default theme). It's not necessary that you do
     the same, but we'd recommend using something like it if you plan on
     customizing your CKAN instance heavily.
 
 
 .. _Bootstrap: http://getbootstrap.com/
-.. _Jinja: http://jinja.pocoo.org/
+.. _Jinja2: http://Jinja2.pocoo.org/
+.. _markdown: http://daringfireball.net/projects/markdown/
 .. _Fanstatic: http://fanstatic.org/
 .. _LESS: http://lesscss.org/
 .. _Templating > CKAN Extensions: ./templating.html#ckan-extensions
