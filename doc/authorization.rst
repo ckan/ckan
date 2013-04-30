@@ -75,33 +75,9 @@ Configuration File Options
 The following configuration file options can be used to customize CKAN's
 authorization behavior:
 
-``ckan.auth.anon_create_dataset``
-  Allow users to create datasets without registering and logging in,
-  default: false.
-
-``ckan.auth.create_unowned_dataset``
-  Allow the creation of datasets not owned by any organization, default: true.
-
-``ckan.auth.create_dataset_if_not_in_organization``
-  Allow users who are not members of any organization to create datasets,
-  default: true. ``create_unowned_dataset`` must also be true, otherwise
-  setting ``create_dataset_if_not_in_organization`` to true is meaningless.
-
-``ckan.auth.user_create_groups``
-  Allow users to create groups, default: true.
-
-``ckan.auth.user_create_organizations``
-  Allow users to create organizations, default: true.
-
-``ckan.auth.user_delete_groups``
-  Allow users to delete groups, default: true.
-
-``ckan.auth.user_delete_organizations``
-  Allow users to delete organizations, default: true.
-
-``ckan.auth.create_user_via_api``
-  Allow new user accounts to be created via the API, default: false.
-
+.. include:: /configuration.rst
+    :start-after: start_config-authorization
+    :end-before: end_config-authorization
 
 Extensions
 ----------
