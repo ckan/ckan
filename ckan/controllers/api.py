@@ -228,7 +228,7 @@ class ApiController(base.BaseController):
         except search.SearchIndexError, e:
             return_dict['error'] = {'__type': 'Search Index Error',
                     'message': 'Unable to add package to search index: %s' %
-                    request_data}
+                    str(e)}
             return_dict['success'] = False
             return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
