@@ -4,7 +4,7 @@ Plugins Toolkit
 
 To allow a safe way for extensions to interact with ckan a toolkit is
 provided. We aim to keep this toolkit stable across ckan versions so
-that extensions will work across diferent versions of ckan.
+that extensions will work across different versions of ckan.
 
 .. Note::
 

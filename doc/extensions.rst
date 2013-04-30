@@ -41,7 +41,9 @@ Writing Extensions
 
 .. note::
 
-    An `extension` defines one or more `plugins`.  Each of this plugins implements one or more `plugin interfaces`.
+    A CKAN **extension** is a Python package that contains one or more
+    **plugins**. A plugin is a class that implements one or more of CKAN's
+    **plugin interfaces**.
 
 
 Plugins: An Overview
