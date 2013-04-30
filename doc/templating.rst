@@ -162,6 +162,14 @@ for creating common form fields.
 They should generally be avoided as they are hard to extend and
 customise.
 
+Templating within extensions
+----------------------------
+
+When you need to add or customize a template from within an extension you need
+to tell CKAN that there is a template directory that it can call from. Within
+your ``update_config`` method for the extension you'll need to add a
+``extra_template_paths`` to the ``config``.
+
 Custom Control Structures
 -------------------------
 

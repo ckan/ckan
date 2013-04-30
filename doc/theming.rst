@@ -77,7 +77,7 @@ has template inheritance which means that you don't have to re-write a whole
 template in order to change small elements within templates.
 
 For more information on how to exactly change the HTML of your CKAN instance: 
-please read the `Templating`_ documentation.
+please read the `Templating > Templating within extensions`_ documentation.
 
 
 Including custom Stylesheets, JavaScript and images
@@ -131,7 +131,7 @@ For more information on how CSS works in CKAN core: please read the
 .. _Jinja2: http://Jinja2.pocoo.org/
 .. _markdown: http://daringfireball.net/projects/markdown/
 .. _LESS: http://lesscss.org/
-.. _Templating: ./templating.html
+.. _Templating > Templating within extensions: ./templating.html#templating-within-extensions
 .. _Resources > Resources within extensions: ./resources.html#resources-within-extensions
 .. _Building a JavaScript Module: ./javascript-module-tutorial.html
 .. _Front End Documentation > Stylesheets: ./frontend-development.html#stylesheets
