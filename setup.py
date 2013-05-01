@@ -133,6 +133,7 @@ setup(
     [ckan.test_plugins]
     routes_plugin=tests.ckantestplugins:RoutesPlugin
     mapper_plugin=tests.ckantestplugins:MapperPlugin
+    session_plugin=tests.ckantestplugins:SessionPlugin
     mapper_plugin2=tests.ckantestplugins:MapperPlugin2
     authorizer_plugin=tests.ckantestplugins:AuthorizerPlugin
     test_observer_plugin=tests.ckantestplugins:PluginObserverPlugin

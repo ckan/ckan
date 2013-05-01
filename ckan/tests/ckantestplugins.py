@@ -20,6 +20,19 @@ class MapperPlugin(p.SingletonPlugin):
 class MapperPlugin2(MapperPlugin):
     p.implements(p.IMapper)
 
+class SessionPlugin(p.SingletonPlugin):
+    p.implements(p.ISession, inherit=True)
+
+    def __init__(self, *args, **kw):
+        self.added = []
+        self.deleted = []
+
+    def before_insert(self, mapper, conn, instance):
+        self.added.append(instance)
+
+    def before_delete(self, mapper, conn, instance):
+        self.deleted.append(instance)
+
 class RoutesPlugin(p.SingletonPlugin):
     p.implements(p.IRoutes, inherit=True)
 
