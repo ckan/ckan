@@ -1028,7 +1028,7 @@ def convert_to_dict(object_type, objs):
                'groups': process_names(revision.groups),
                'message': revision.message, }
         return rev
-    import lib.dictization.model_dictize as md
+    import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize,
                   'revisions': dictize_revision_list}
     converter = converters[object_type]
