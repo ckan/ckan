@@ -37,7 +37,6 @@ Customizing and Extending
    apps-ideas
    commenting
    extensions
-   writing-extensions
    toolkit
    tag-vocabularies
    form-integration
@@ -45,8 +44,6 @@ Customizing and Extending
    filestore
    datastore
    background-tasks
-   harvesting
-   geospatial
    multilingual
    email-notifications
 

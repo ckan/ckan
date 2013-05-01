@@ -7,7 +7,7 @@ Background Tasks
 CKAN allows you to create tasks that run in the 'background', that is
 asynchronously and without blocking the main application (these tasks can also
 be automatically retried in the case of transient failures). Such tasks can be
-created in :doc:`Extensions <writing-extensions>` or in core CKAN.
+created in :ref:`Extensions <writing-extensions>` or in core CKAN.
 
 Background tasks can be essential to providing certain kinds of functionality,
 for example:
