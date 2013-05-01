@@ -47,7 +47,7 @@ config_details = {
     'ckan.api_url': {},
 
     # split string
-    'search.facets': {'default': 'organization groups tags res_format license',
+    'search.facets': {'default': 'organization groups tags res_format license_id',
                       'type': 'split',
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
