@@ -36,6 +36,7 @@ import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
+import ckan.logic as logic
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -589,17 +590,14 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 
 def check_access(action, data_dict=None):
-    from ckan.logic import check_access as check_access_logic, NotAuthorized
-
     context = {'model': model,
                 'user': c.user or c.author}
     if not data_dict:
         data_dict = {}
-
     try:
-        check_access_logic(action, context, data_dict)
+        logic.check_access(action, context, data_dict)
         authorized = True
-    except NotAuthorized:
+    except logic.NotAuthorized:
         authorized = False
 
     return authorized
@@ -1061,7 +1059,6 @@ def follow_button(obj_type, obj_id):
     :rtype: string
 
     '''
-    import ckan.logic as logic
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
@@ -1088,7 +1085,6 @@ def follow_count(obj_type, obj_id):
     :rtype: int
 
     '''
-    import ckan.logic as logic
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
@@ -1255,7 +1251,6 @@ def popular(type_, number, min=1, title=None):
 
 def groups_available():
     ''' return a list of available groups '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author}
     data_dict = {'available_only': True}
@@ -1264,7 +1259,6 @@ def groups_available():
 
 def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user}
     data_dict = {'permission': permission}
@@ -1304,7 +1298,6 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
     :rtype: string
 
     '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     if filter_type:
@@ -1321,7 +1314,6 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
 
 
 def recently_changed_packages_activity_stream():
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
             context, {})
