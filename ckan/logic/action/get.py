@@ -1345,6 +1345,12 @@ def package_search(context, data_dict):
                     new_facet_dict['display_name'] = group.display_name
                 else:
                     new_facet_dict['display_name'] = key_
+            elif key == 'license_id':
+                license = model.Package.get_license_register().get(key_)
+                if license:
+                    new_facet_dict['display_name'] = license.title
+                else:
+                    new_facet_dict['display_name'] = key_
             else:
                 new_facet_dict['display_name'] = key_
             new_facet_dict['count'] = value_
