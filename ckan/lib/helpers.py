@@ -1,10 +1,10 @@
 # coding=UTF-8
 
-"""Helper functions
+'''Helper functions
 
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
-"""
+'''
 import email.utils
 import datetime
 import logging
@@ -57,16 +57,16 @@ def redirect_to(*args, **kw):
 
 
 def url(*args, **kw):
-    """Create url adding i18n information if selected
-    wrapper for pylons.url"""
+    '''Create url adding i18n information if selected
+    wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
 def url_for(*args, **kw):
-    """Create url adding i18n information if selected
-    wrapper for routes.url_for"""
+    '''Create url adding i18n information if selected
+    wrapper for routes.url_for'''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -83,9 +83,9 @@ def url_for(*args, **kw):
 
 
 def url_for_static(*args, **kw):
-    """Create url for static content that does not get translated
+    '''Create url for static content that does not get translated
     eg css, js
-    wrapper for routes.url_for"""
+    wrapper for routes.url_for'''
     # make sure that if we specify the url that it is not unicode
     if args:
         args = (str(args[0]),) + args[1:]
@@ -182,14 +182,14 @@ def lang_native_name(lang=None):
 
 
 class Message(object):
-    """A message returned by ``Flash.pop_messages()``.
+    '''A message returned by ``Flash.pop_messages()``.
 
     Converting the message to a string returns the message text. Instances
     also have the following attributes:
 
     * ``message``: the message text.
     * ``category``: the category specified when the message was created.
-    """
+    '''
 
     def __init__(self, category, message, allow_html):
         self.category = category
@@ -818,7 +818,7 @@ def date_str_to_datetime(date_str):
 
 
 def parse_rfc_2822_date(date_str, assume_utc=True):
-    """
+    '''
     Parse a date string of the form specified in RFC 2822, and return a
     datetime.
 
@@ -836,7 +836,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
     datetime is 'aware', ie - it has an associated tz_info object.
 
     Returns None if the string cannot be parsed as a valid datetime.
-    """
+    '''
     time_tuple = email.utils.parsedate_tz(date_str)
 
     # Not parsable
@@ -854,7 +854,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
 
 class _RFC2282TzInfo(datetime.tzinfo):
-    """
+    '''
     A datetime.tzinfo implementation used by parse_rfc_2822_date() function.
 
     In order to return timezone information, a concrete implementation of
@@ -862,23 +862,23 @@ class _RFC2282TzInfo(datetime.tzinfo):
     about it's offset from UTC, has no knowledge of daylight savings time, and
     no knowledge of the timezone name.
 
-    """
+    '''
 
     def __init__(self, offset):
-        """
+        '''
         offset from UTC in seconds.
-        """
+        '''
         self.offset = datetime.timedelta(seconds=offset)
 
     def utcoffset(self, dt):
         return self.offset
 
     def dst(self, dt):
-        """
+        '''
         Dates parsed from an RFC 2822 string conflate timezone and dst, and so
         it's not possible to determine whether we're in DST or not, hence
         returning None.
-        """
+        '''
         return None
 
     def tzname(self, dt):
