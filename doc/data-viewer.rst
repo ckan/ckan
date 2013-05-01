@@ -50,7 +50,7 @@ the resource read page:
 * ``gif``
 
 The types of resources that are embedded directly can be specified in the
-CKAN config file. See :ref:`_ckan_preview_direct` for more information.
+CKAN config file. See :ref:`ckan.preview.direct` for more information.
 
 The following types of resources will be loaded in an iframe:
 
@@ -68,7 +68,7 @@ The following types of resources will be loaded in an iframe:
 * ``rss``
 
 The types of resources that are loaded in an iframe can be specified in the
-CKAN config file. See :ref:`_ckan_preview_loadable` for more information.
+CKAN config file. See :ref:`ckan.preview.loadable` for more information.
 
 
 Viewing structured data: the Data Explorer
