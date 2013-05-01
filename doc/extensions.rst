@@ -21,8 +21,8 @@ CKAN comes with several pre-installed extensions:
   * ``reclinepreview`` - Preview Google Documents, CSV files, Excel files,
     etc. via the Recline.js library
   * ``jsonpreview`` - Preview json files
+  * ``resourceproxy`` - Allow remotly hosted content to be viewed
 
-* ``resourceproxy`` - ????
 
 * ``stats`` - Show stats and visuals about your site's datasets
 
@@ -34,6 +34,8 @@ and installed separately. Each extension should come with its own instructions
 for how to install and configure it. For a list of external extensions, see the
 `list of extensions the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
 
+
+.. _writing-extensions:
 
 ==================
 Writing Extensions
