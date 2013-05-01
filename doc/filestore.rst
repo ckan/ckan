@@ -18,8 +18,10 @@ line in your CKAN config file::
    ckan.storage.bucket = my-bucket-name
 
    ## Optional
-   ## maximum content size for uploads in bytes, defaults to 1Gb
-   # ckanext.storage.max_content_length = 1000000000
+   ## prefix for uploaded files' keys
+   # ckan.storage.key_prefix = ckan-file/
+   ## maximum content size for uploads in bytes, defaults to 50 GB
+   # ckan.storage.max_content_length = 1000000000
 
 Local File Storage
 ------------------

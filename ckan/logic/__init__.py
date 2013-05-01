@@ -260,6 +260,10 @@ def get_action(action):
     :rtype: callable
 
     '''
+
+    # clean the action names
+    action = new_authz.clean_action_name(action)
+
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
@@ -278,6 +282,7 @@ def get_action(action):
             if not k.startswith('_'):
                 # Only load functions from the action module.
                 if isinstance(v, types.FunctionType):
+                    k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
@@ -290,6 +295,7 @@ def get_action(action):
     fetched_actions = {}
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
+            name = new_authz.clean_action_name(name)
             if name in resolved_action_plugins:
                 raise Exception(
                     'The action %r is already implemented in %r' % (
@@ -436,6 +442,17 @@ def get_converter(converter):
     except KeyError:
         raise UnknownConverter('Converter `%s` does not exist' % converter)
 
+
+def model_name_to_class(model_module, model_name):
+    '''Return the class in model_module that has the same name as the received string.
+
+    Raises AttributeError if there's no model in model_module named model_name.
+    '''
+    try:
+        model_class_name = model_name.title()
+        return getattr(model_module, model_class_name)
+    except AttributeError:
+        raise ValidationError("%s isn't a valid model" % model_class_name)
 
 def _import_module_functions(module_path):
     '''Import a module and get the functions and return them in a dict'''

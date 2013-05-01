@@ -33,10 +33,10 @@ _engines = {}
 
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
-    'unique_violation': 23505,
-    'query_canceled': 57014,
-    'undefined_object': 42704,
-    'syntax_error': 42601
+    'unique_violation': '23505',
+    'query_canceled': '57014',
+    'undefined_object': '42704',
+    'syntax_error': '42601'
 }
 
 _date_formats = ['%Y-%m-%d',
@@ -167,7 +167,7 @@ def _is_valid_pg_type(context, type_name):
         try:
             connection.execute('SELECT %s::regtype', type_name)
         except ProgrammingError, e:
-            if int(e.orig.pgcode) in [_PG_ERR_CODE['undefined_object'],
+            if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
                                       _PG_ERR_CODE['syntax_error']]:
                 return False
             raise
@@ -777,8 +777,8 @@ def _sort(context, data_dict, field_ids):
 
         if field not in field_ids:
             raise ValidationError({
-                'sort': [u'field "{0}" not it table'.format(
-                    unicode(field, 'utf-8'))]
+                'sort': [u'field "{0}" not in table'.format(
+                    field)]
             })
         if sort.lower() not in ('asc', 'desc'):
             raise ValidationError({
@@ -969,7 +969,7 @@ def create(context, data_dict):
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['unique_violation']:
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
                 'constraints': ['Cannot insert records or create index because '
                                 'of uniqueness constraint'],
@@ -979,7 +979,7 @@ def create(context, data_dict):
             })
         raise
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1012,7 +1012,7 @@ def upsert(context, data_dict):
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['unique_violation']:
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
                 'constraints': ['Cannot insert records or create index because '
                                 'of uniqueness constraint'],
@@ -1022,7 +1022,7 @@ def upsert(context, data_dict):
             })
         raise
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1080,7 +1080,7 @@ def search(context, data_dict):
         id = data_dict['resource_id']
         result = context['connection'].execute(
             u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
-             u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
+            u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise ValidationError({
@@ -1089,7 +1089,7 @@ def search(context, data_dict):
             })
         return search_data(context, data_dict)
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
             })
@@ -1108,7 +1108,7 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         results = context['connection'].execute(
-            data_dict['sql']
+            data_dict['sql'].replace('%', '%%')
         )
         return format_results(context, results, data_dict)
 
@@ -1122,7 +1122,7 @@ def search_sql(context, data_dict):
          }
         })
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
