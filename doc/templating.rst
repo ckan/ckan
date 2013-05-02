@@ -411,6 +411,7 @@ matching labels to inputs, selected item and error messages.
 Examples:
 
 ::
+
     {% import 'macros/form.html' as form %}
     {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
