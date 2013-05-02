@@ -13,9 +13,17 @@ Example:
 {% set placeholder_map = {
 'application':'/base/images/placeholder-application.png'
 } %}
-<li class="related-item media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}" data-module="related-item">
-  <a class="media-image" href="{{ related.url }}">
-    <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" />
+{% set tooltip = _('Go to {type}').format(type=related.type|replace('_', ' ')|title) %}
+<li class="related-item media-item" data-module="related-item">
+  <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" class="media-image">
+  <h3 class="media-heading">{{ related.title }}</h3>
+  {% if related.description %}
+    <div class="prose">{{ h.render_markdown(related.description) }}</div>
+  {% else %}
+    <p class="empty">{{ _('This item has no description') }}</p>
+  {% endif %}
+  <a class="media-view" href="{{ related.url }}" target="_blank" title="{{ tooltip }}">
+    <span>{{ tooltip }}</span>
     <span class="banner">
       {%- if related.type == 'application' -%}
         app
@@ -26,20 +34,7 @@ Example:
       {%- endif -%}
     </span>
   </a>
-  <div class="media-content">
-    <h3 class="media-heading">
-      <a href="{{ related.url }}" title="{{ _('View {name}').format(name=related.title) }}">
-        {{ related.title }}
-      </a>
-    </h3>
-    {% if related.description %}
-      <div class="prose">{{ h.render_markdown(related.description) }}</div>
-    {% else %}
-      <p class="empty">{{ _('This item has no description') }}</p>
-    {% endif %}
-    <a class="btn btn-small btn-primary" href="{{ related.url }}" target="_blank">{{ _('Go to {type}').format(type=related.type|replace('_', ' ')|title) }}</a>
-    {% if pkg_id %}
-      {{ h.nav_link(_('Edit'), controller='related', action='edit', id=pkg_id, related_id=related.id, class_='btn btn-small') }}
-    {% endif %}
-  </div>
+  {% if pkg_id %}
+    {{ h.nav_link(_('Edit'), controller='related', action='edit', id=pkg_id, related_id=related.id, class_='btn btn-primary btn-small media-edit') }}
+  {% endif %}
 </li>

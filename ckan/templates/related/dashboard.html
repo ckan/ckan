@@ -6,7 +6,7 @@
 {% block subtitle %}{{ _('Apps & Ideas') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ _('Apps & Ideas') }}</li>
+  <li>{{ _('Apps & Ideas') }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -31,7 +31,9 @@
       {% endblock %}
 
       {% block related_list %}
+      {% if page.items %}
       {% snippet "related/snippets/related_list.html", related_items=page.items %}
+      {% endif %}
       {% endblock %}
     </div>
 
