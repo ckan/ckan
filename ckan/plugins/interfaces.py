@@ -879,10 +879,21 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    '''EXPERIMENTAL'''
+    '''EXPERIMENTAL
+
+    Allows custom authentication methods to be integrated into CKAN.
+    Currently it is experimental and the interface may change.'''
+
 
     def identify(self):
-        '''called to identify the user.'''
+        '''called to identify the user.
+
+        If the user is identfied then it should set
+        c.user: The id of the user
+        c.userobj: The actual user object (this may be removed as a
+        requirement in a later release so that access to the model is not
+        required)
+        '''
 
     def login(self):
         '''called at login.'''
@@ -891,5 +902,6 @@ class IAuthenticator(Interface):
         '''called at logout.'''
 
     def abort(self, status_code, detail, headers, comment):
-        '''called on abort.'''
+        '''called on abort.  This allows aborts due to authorization issues
+        to be overriden'''
         return (status_code, detail, headers, comment)
