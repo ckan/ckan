@@ -1,92 +1,228 @@
-==============
-Add Extensions
-==============
+==========
+Extensions
+==========
 
-This is where it gets interesting! The CKAN software can be customised with 'extensions'. These are a simple way to extend core CKAN functions. 
+Extensions customize CKAN or add new features. A CKAN extension is a Python
+package that contains one or more CKAN plugins that can be enabled.
 
-Extensions allow you to customise CKAN for your own requirements, without interfering with the basic CKAN system.
-
-.. warning:: This is an advanced topic.
-
-Choosing Extensions
+Built-in Extensions
 -------------------
 
-All CKAN extensions are listed on the official `Extension listing on the CKAN
-wiki <http://wiki.ckan.net/List_of_Extensions>`_.
+CKAN comes with several pre-installed extensions:
 
-Some popular extensions include:
+* :doc:`datastore` -- a database for structured storage of data
+
+* :doc:`multilingual` -- translate datasets, groups and tags into multiple
+  languages
+
+* Data preview extensions -- preview resources in the CKAN web interface:
+
+  * ``pdfpreview`` - Preview PDF files
+  * ``reclinepreview`` - Preview Google Documents, CSV files, Excel files,
+    etc. via the Recline.js library
+  * ``jsonpreview`` - Preview json files
+  * ``resourceproxy`` - Allow remotely hosted content to be viewed
+
+
+* ``stats`` - Show stats and visuals about your site's datasets
+
+External Extensions
+-------------------
+
+Many other extensions are available to use with CKAN. These must be downloaded
+and installed separately. Each extension should come with its own instructions
+for how to install and configure it. For a list of external extensions, see the
+`list of extensions the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
+
+
+.. _writing-extensions:
+
+==================
+Writing Extensions
+==================
 
 .. note::
 
-   Those marked with (x) are 'core' extensions and are shipped as part of the core CKAN distribution
+    A CKAN **extension** is a Python package that contains one or more
+    **plugins**. A plugin is a class that implements one or more of CKAN's
+    **plugin interfaces**.
 
-* ckanext-stats (x): Statistics (and visuals) about the datasets in a CKAN instance.
-* `ckanext-apps <https://github.com/okfn/ckanext-apps>`_: Apps and ideas catalogue extension for CKAN.
-* `ckanext-disqus <https://github.com/okfn/ckanext-disqus>`_: Allows users to comment on dataset pages with Disqus. 
-* `ckanext-follower <https://github.com/okfn/ckanext-follower>`_: Allow users to follow datasets.
-* `ckanext-googleanalytics <https://github.com/okfn/ckanext-googleanalytics>`_: Integrates Google Analytics data into CKAN. Gives download stats on dataset pages, list * of most popular datasets, etc.
-* `ckanext-qa <https://github.com/okfn/ckanext-qa>`_: Provides link checker, 5 stars of openness and other Quality Assurance features.
-* `ckanext-rdf <https://github.com/okfn/ckanext-rdf>`_: Consolidated handling of RDF export and import for CKAN. 
-* `ckanext-wordpresser <https://github.com/okfn/ckanext-wordpresser>`_: CKAN plugin / WSGI middleware for combining CKAN with a Wordpress site. 
-* `ckanext-spatial <https://github.com/okfn/ckanext-spatial>`_: Adds geospatial capabilities to CKAN datasets, including a spatial search API. 
 
-Installing an Extension
------------------------
+Plugins: An Overview
+--------------------
 
-You can install an extension on a CKAN instance as follows.
+Plugins are created as classes inheriting from either the `Plugin` or
+`SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
+base class and we advise you to use this if possible.
+
+Having created your class you need to inherit from one or more plugin
+interfaces to allow CKAN to interact with your extension.  When specifying
+the interfaces that will be implemented you must remember to either (a)
+define all methods required by the interface or (b) use the `inherits=True`
+parameter which will use the interfaces default methods for any that you
+have not defined.
+
+.. Note::
+    When writing extensions it is important to keep your code separate from
+    CKAN by not importing ckan modules, so that internal CKAN changes do not
+    break your code between releases.  You can however import ckan.plugins
+    without this risk.
+
+Libraries Available To Extensions
+---------------------------------
+
+As well as using the variables made available to them by implementing
+various plugin hooks, extensions will likely want to be able to use parts of
+the CKAN core library.  To allow this, CKAN provides a stable set of modules
+that extensions can use safe in the knowledge the interface will remain
+stable, backward-compatible and with clear deprecation guidelines as
+development of CKAN core progresses.  This interface is available in
+:doc:`toolkit`.
+
+
+Example Extension
+-----------------
+
+::
+
+    # Example Extension
+    # This extension adds a new template helper function `hello_world` when
+    # enabled templates can `{{ h.hello_world() }}` to add this html snippet.
+
+    import ckan.plugins as p
+
+    class HelloWorldPlugin(p.SingletonPlugin):
+
+        p.implements(p.ITemplateHelpers)
+
+        @staticmethod
+        def hello_world():
+            # This is our simple helper function.
+            html = '<span>Hello World</span>'
+            return p.toolkit.literal(html)
+
+        def get_helpers(self):
+            # This method is defined in the ITemplateHelpers interface and
+            # is used to return a dict of named helper functions.
+            return {'hello_world': hello_world}
+
+Guidelines for writing extensions:
+----------------------------------
+
+- Use the plugins :doc:`toolkit`.
+
+- Extensions should use actions via ``get_action()``. This function is
+  available in the toolkit.
+
+- No foreign key constraints into core as these cause problems.
+
+.. Did we decide upon this, this seems like quite a restriction?
+
+.. todo:: Anything else?
+
+
+Creating CKAN Extensions
+------------------------
+
+All CKAN extensions must start with the name ``ckanext-``. You can create
+your own CKAN extension like this (you must be in your CKAN pyenv):
+
+::
+
+    (pyenv)$ paster create -t ckanext ckanext-myextension
+
+You'll get prompted to complete a number of variables which will be used in
+your dataset. You change these later by editing the generated ``setup.py``
+file.
+
+Once you've run this, you should now install the extension in your virtual environment:
+
+::
+
+    (pyenv)$ cd ckanext-myextension
+    (pyenv)$ python setup.py develop
 
 .. note::
+    Running ``python setup.py develop`` will add a ``.egg-link`` file to
+    your python site-packages directory (which is on your python path).
+    This allows your extension to be imported and used, with any changes
+    made to the extension source code showing up immediately without needing
+    to be reinstalled, which is very useful during development.
 
-  'Core' extensions do not need to be installed -- just enabled (see below).
-
-#. Locate your CKAN virtual environment (pyenv) in your filesystem. It is usually in a directory similar to this: ``/var/lib/ckan/INSTANCE_NAME/pyenv``
-
-If it is not here, to get the definitive answer, check your CKAN Apache configuration (``/etc/apache2/sites-enabled``) for your WSGIScriptAlias (e.g. ``/var/lib/ckan/colorado/wsgi.py``) which has an ``execfile`` instruction. The first parameter is the pyenv directory plus ``/bin/activate_this.py``. e.g. ``/var/lib/ckan/colorado/pyenv/bin/activate_this.py`` means the pyenv dir is: ``/var/lib/ckan/colorado/pyenv``.
-
-#. Install the extension package code into your pyenv using ``pip``.
-
- For example, to install the Disqus extension, which allows users to comment on datasets (replacing "INSTANCE_NAME" with the name of your CKAN instance)::
-
-       sudo -u ckanINSTANCE_NAME /var/lib/ckan/INSTANCE_NAME/pyenv/bin/pip install -E /var/lib/ckan/INSTANCE_NAME/pyenv -e git+https://github.com/okfn/ckanext-disqus.git#egg=ckanext-disqus --log=/tmp/pip-log.txt
-
- Prefix the source URL with the repo type (``hg+`` for Mercurial, ``git+`` for Git).
- 
- The dependency you've installed will appear in the ``src/`` directory under your Python environment. 
-
-Now the extension is installed, so now you can enable it.
+    To instead install a python package by copying all of the files to the
+    site-packages directory run ``python setup.py install``.
 
 
-Enabling an Extension
----------------------
+Testing
+=======
 
-1. Add the names of the extension's plugins to the CKAN config file in the '[app:main]' section under 'ckan.plugins'. e.g.::
+Testing CKAN Extensions
+~~~~~~~~~~~~~~~~~~~~~~~
 
-       [app:main]
-       ckan.plugins = disqus
+CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
 
-   If your extension implements multiple different plugin interfaces, separate them with spaces::
-
-       ckan.plugins = disqus amqp myplugin
-
-   .. note::
-
-     Finding out the name of an extension's plugins: this information should
-     usually be provided in the extension's documentation, but you can also
-     find this information in the plugin's ``setup.py`` file under
-     ``[ckan.plugins]``.
-   
-2. To have this configuration change take effect it may be necessary to restart
-   WSGI, which usually means restarting Apache::
-
-       sudo /etc/init.d/apache2 restart
-
-Your extension should now be enabled. You can disable it at any time by
-removing it from the list of ckan.plugins in the config file.
+    cd ckanext-dgu
+    nosetests ckanext/stats/tests --ckan
+    nosetests ckanext/stats/tests --ckan --with-pylons=test-core.ini
 
 
-Enabling an Extension with Background Tasks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Testing Plugins
+~~~~~~~~~~~~~~~
 
-Some extensions need to run tasks in the background. See
-:doc:`background-tasks` for how to enable background tasks.
+When writing tests for your plugin code you will need setup and teardown code
+similar to the following to ensure that your plugin is loaded while testing::
 
+    from ckan import plugins
+
+    class TestMyPlugin(TestCase):
+
+       @classmethod
+       def setup_class(cls):
+           # Use the entry point name of your plugin as declared
+           # in your package's setup.py
+           plugins.load('my_plugin')
+
+       @classmethod
+       def teardown_class(cls):
+           plugins.reset()
+
+The exception to using ``plugins.load()`` is for when your plug-in is for routes.
+In this case, the plugin must be configured before the WSGI app is started.
+Here is an example test set-up::
+
+    from pylons import config
+    import paste.fixture
+    from ckan.config.middleware import make_app
+
+    class TestMyRoutesPlugin(TestCase):
+
+        @classmethod
+        def setup_class(cls):
+            cls._original_config = config.copy()
+            config['ckan.plugins'] = 'my_routes_plugin'
+            wsgiapp = make_app(config['global_conf'], **config.local_conf)
+            cls.app = paste.fixture.TestApp(wsgiapp)
+
+        @classmethod
+        def teardown_class(cls):
+            config.clear()
+            config.update(cls._original_config)
+
+At this point you should be able to write your own plugins and extensions
+together with their tests.
+
+
+Plugin API Documentation
+========================
+
+Core Plugin Reference
+~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: ckan.plugins.core
+        :members:  SingletonPlugin, Plugin, implements
+
+CKAN Interface Reference
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: ckan.plugins.interfaces
+        :members:
