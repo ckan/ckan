@@ -134,8 +134,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             return render_jinja2(template_name, globs)
 
         # Genshi templates
-        template = globs['app_globals'].genshi_loader.load(template_name,
-                                                           cls=loader_class)
+        template = globs['app_globals'].genshi_loader.load(
+            template_name.encode('utf-8'), cls=loader_class
+        )
         stream = template.generate(**globs)
 
         for item in PluginImplementations(IGenshiStreamFilter):
