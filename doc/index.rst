@@ -23,6 +23,7 @@ Installation
    install-from-package
    install-from-source
    post-installation
+   common-error-messages
    deployment
    solr-setup
    datastore-setup
@@ -87,7 +88,6 @@ General Administration
    paster
    database-dumps
    configuration
-   common-error-messages
 
 For CKAN Developers
 ===================
