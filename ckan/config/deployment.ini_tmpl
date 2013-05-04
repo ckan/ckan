@@ -46,7 +46,14 @@ use = egg:ckan
 full_stack = true
 cache_dir = %(here)s/data
 beaker.session.key = ckan
+
+# This is the secret token that the beaker library uses to hash the cookie sent
+# to the client. `paster make-config` generates a unique value for this each
+# time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
+
+# `paster make-config` generates a unique value for this each time it generates
+# a config file.
 app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
@@ -299,24 +306,24 @@ ckan.debug_supress_header = false
 keys = root, ckan, ckanext
 
 [handlers]
-keys = console, file
+keys = console
 
 [formatters]
 keys = generic
 
 [logger_root]
 level = WARNING
-handlers = console, file
+handlers = console
 
 [logger_ckan]
 level = INFO
-handlers = console, file
+handlers = console
 qualname = ckan
 propagate = 0
 
 [logger_ckanext]
 level = DEBUG
-handlers = console, file
+handlers = console
 qualname = ckanext
 propagate = 0
 
@@ -326,11 +333,11 @@ args = (sys.stderr,)
 level = NOTSET
 formatter = generic
 
-[handler_file]
-class = logging.handlers.RotatingFileHandler
-formatter = generic
-level = NOTSET
-args = ("ckan.log", "a", 20000000, 9)
+#[handler_file]
+#class = logging.handlers.RotatingFileHandler
+#formatter = generic
+#level = NOTSET
+#args = ("ckan.log", "a", 20000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s

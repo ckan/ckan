@@ -32,17 +32,12 @@ Create users and databases
 
 .. tip::
 
- As is done in the example commands below, we recommend reusing your existing
- CKAN database user (``ckanuser`` in :doc:`install-from-source`) as the
- readwrite user for your datastore database.
+ If your CKAN database and DataStore databases are on different servers, then
+ you need to create a new database user on the server where the DataStore
+ database will be created. As in :doc:`install-from-source` we'll name the
+ database user ``masaq``, after the site we're creating::
 
- However, this might not be possible if the CKAN database and the DataStore
- database are on different servers. In this case, you should create a new
- database user on the server with the DataStore database::
-
-   sudo -u postgres createuser -S -D -R -P -l writeuser
-
- Then in the commands below, replace ``ckanuser`` with ``writeuser``.
+   sudo -u postgres createuser -S -D -R -P -l masaq
 
 Create a database user called ``readonlyuser``. This user will be given
 read-only access to your DataStore database in the `Set Permissions`_ step
@@ -50,19 +45,24 @@ below::
 
  sudo -u postgres createuser -S -D -R -P -l readonlyuser
 
-Create the database (owned by ``ckanuser``), which we'll call ``datastore``::
+Create the database (owned by ``masaq``), which we'll call
+``masaq-datastore``::
 
- sudo -u postgres createdb -O ckanuser datastore -E utf-8
+ sudo -u postgres createdb -O masaq masaq-datastore -E utf-8
 
 Set URLs
 --------
 
-Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` lines in your CKAN config file and edit them if necessary::
+Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url``
+lines in your CKAN config file and edit them, for example::
 
  # Datastore
  # Uncommment to set the datastore urls
- ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
- ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+ ckan.datastore.write_url = postgresql://masaq:pass@localhost/masaq-datastore
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/masaq-datastore
+
+Replace ``pass`` with the passwords you created for your ``masaq`` and
+``readonlyuser`` database users.
 
 Set Permissions
 ---------------
@@ -78,7 +78,7 @@ This option is preferred if CKAN and PostgreSQL are on the same server.
 
 To set the permissions, use this paster command after you've set the database URLs (make sure to have your virtualenv activated)::
 
- paster datastore set-permissions postgres
+  paster datastore set-permissions postgres -c /etc/ckan/masaq/development.ini
 
 The ``postgres`` at the end of this command should be the name of a postgres
 user with permission to create new tables and users, grant permissions, etc.

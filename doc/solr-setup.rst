@@ -39,8 +39,8 @@ To install Solr (if you are following the :doc:`install-from-source` or
 
  sudo apt-get install solr-jetty openjdk-6-jdk
 
-You'll need to edit the Jetty configuration file (`/etc/default/jetty`) with the
-suitable values::
+You'll need to edit the Jetty configuration file (``/etc/default/jetty``) with
+the suitable values::
 
  NO_START=0            # (line 4)
  JETTY_HOST=127.0.0.1  # (line 15)
@@ -72,28 +72,29 @@ and the admin site::
 
         JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
 
-Now run::
-
-       sudo service jetty start
-
-
 This default setup will use the following locations in your file system:
 
-* `/usr/share/solr`: Solr home, with a symlink pointing to the configuration dir in `/etc`.
-* `/etc/solr/conf`: Solr configuration files. The more important ones are `schema.xml` and  `solrconfig.xml`.
-* `/var/lib/solr/data/`: This is where the index files are physically stored.
+``/usr/share/solr``
+  Solr home, with a symlink pointing to the configuration dir in ``/etc``.
 
-You will obviously need to replace the default `schema.xml` file with the CKAN one. To do
-so, create a symbolic link to the schema file in the config folder. Use the latest schema version
-supported by the CKAN version you are installing (it will generally be the highest one)::
+``/etc/solr/conf``
+  Solr configuration files. The more important ones are ``schema.xml`` and
+  ``solrconfig.xml``.
+
+``/var/lib/solr/data/``
+  This is where the index files are physically stored.
+
+You will obviously need to replace the default ``schema.xml`` file with the
+CKAN one. To do so, create a symbolic link to the schema file in the config
+folder. Use the latest schema version supported by the CKAN version you are
+installing (it will generally be the highest one)::
 
  sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
- sudo ln -s ~/pyenv/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+ sudo ln -s /usr/lib/ckan/masaq/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
 
 Now restart jetty::
 
- sudo /etc/init.d/jetty stop
- sudo /etc/init.d/jetty start
+ sudo /etc/init.d/jetty restart
 
 And check that Solr is running by browsing http://localhost:8983/solr/ which should offer the Administration link.
 

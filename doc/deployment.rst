@@ -19,18 +19,17 @@ deployment configurations including:
 * Nginx_ with paster and reverse proxy
 * Nginx_ with uwsgi
 
-.. note:: below, we will only be able to give a few example of setups and many
-          other ones are possible.
-
 .. _Apache: http://httpd.apache.org/
 .. _Nginx: http://wiki.nginx.org/Main
 
-Deploying CKAN on an Ubuntu Server using Apache and modwsgi
-===========================================================
 
-These instructions have been tested on Ubuntu 10.04 with CKAN 1.7.
+Deploying CKAN on Ubuntu using Apache and modwsgi
+=================================================
 
-This is the standard way to deploy CKAN.
+Once you've installed CKAN on your Ubuntu server by following the instructions
+in :doc:`install-from-source`, you can follow these instructions to deploy your
+site using Apache and modwsgi.
+
 
 Install Apache and modwsgi
 --------------------------
@@ -42,28 +41,34 @@ support to Apache)::
 
 .. _modwsgi: https://code.google.com/p/modwsgi/ 
 
-Install CKAN
-------------
 
-The following assumes you have installed to ``/usr/local/demo.ckan.net`` with your virtualenv at ``/usr/local/demo.ckan.net/pyenv``.
+Create the ``production.ini`` File
+----------------------------------
+
+We'll continue with the ``http://masaq.ckanhosted.com`` example from
+:doc:`install-from-source`. Create your site's ``production.ini`` file, by
+copying the ``development.ini`` file you created in :doc:`install-from-source`
+earlier::
+
+   cp /etc/ckan/masaq/development.ini /etc/ckan/masaq/production.ini
+
 
 Create the WSGI Script File
 ---------------------------
 
-Create the WSGI script file for your CKAN instance,
-``/usr/local/demo.ckan.net/pyenv/bin/demo.ckan.net.py``::
+Create your site's WSGI script file
+``/etc/ckan/masaq/apache.wsgi`` with the following contents::
 
     import os
-    instance_dir = '/usr/local/demo.ckan.net'
-    config_file = '/usr/local/demo.ckan.net/pyenv/src/ckan/development.ini'
-    pyenv_bin_dir = os.path.join(instance_dir, 'pyenv', 'bin')
-    activate_this = os.path.join(pyenv_bin_dir, 'activate_this.py')
+    activate_this = os.path.join('/usr/lib/ckan/masaq/bin/activate_this.py')
     execfile(activate_this, dict(__file__=activate_this))
+
     from paste.deploy import loadapp
-    config_filepath = os.path.join(instance_dir, config_file)
+    config_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'production.ini')
     from paste.script.util.logging_config import fileConfig
     fileConfig(config_filepath)
     application = loadapp('config:%s' % config_filepath)
+
 
 The modwsgi Apache module will redirect requests to your web server to this
 WSGI script file. The script file then handles those requests by directing them
@@ -73,66 +78,53 @@ CKAN to run in).
 Create the Apache Config File
 -----------------------------
 
-Create the Apache config file for your CKAN instance by copying the default
-Apache config file:
+Create your site's Apache config file at
+``/etc/apache2/sites-available/masaq``, with the following
+contents::
 
-    cd /etc/apache2/sites-available
-    sudo cp default demo.ckan.net
+    <VirtualHost 0.0.0.0:8080>
+        ServerName masaq.ckanhosted.com
+        ServerAlias www.masaq.ckanhosted.com
+        WSGIScriptAlias / /etc/ckan/masaq/apache.wsgi
 
-Edit ``/etc/apache2/sites-available/demo.ckan.net``, before the last line
-(``</VirtualHost>``) add these lines::
+        # Pass authorization info on (needed for rest api).
+        WSGIPassAuthorization On
 
-    ServerName demo.ckan.net
-    ServerAlias demo.ckan.net
-    WSGIScriptAlias / /usr/local/demo.ckan.net/pyenv/bin/demo.ckan.net.py
+        # Deploy as a daemon (avoids conflicts between CKAN instances).
+        WSGIDaemonProcess masaq display-name=masaq processes=2 threads=15
 
-    # pass authorization info on (needed for rest api)
-    WSGIPassAuthorization On
-    ErrorLog /var/log/apache2/demo.ckan.net.error.log
-    CustomLog /var/log/apache2/demo.ckan.net.custom.log combined
+        WSGIProcessGroup masaq
+
+        ErrorLog /var/log/apache2/masaq.error.log
+        CustomLog /var/log/apache2/masaq.custom.log combined
+    </VirtualHost>
 
 This tells the Apache modwsgi module to redirect any requests to the web server
-to the CKAN WSGI script that you created above (``demo.ckan.net.py``). Your
-WSGI script in turn directs the requests to your CKAN instance.
+to the CKAN WSGI script that you created above (``masaq.py``).
+Your WSGI script in turn directs the requests to your CKAN instance.
 
 
-Create Directories for CKAN's Temporary Files
----------------------------------------------
+Set the ``data`` and ``sstore`` Directory Permissions
+-----------------------------------------------------
 
-Make the data and sstore directories and give them the right permissions::
+Make sure that Apache's user (``www-data`` on Ubuntu) has permission to write to
+the site's ``data`` and ``sstore`` directories::
 
-    cd /usr/local/demo.ckan.net/pyenv/src/ckan/
-    mkdir data sstore
-    chmod g+w -R data sstore
-    sudo chgrp -R www-data data sstore
+    chmod g+w -R /etc/ckan/masaq/data /etc/ckan/masaq/sstore
+    sudo chgrp -R www-data /etc/ckan/masaq/data /etc/ckan/masaq/sstore
 
-CKAN Log File
--------------
-
-Edit your CKAN config file (e.g.
-``/usr/local/demo.ckan.net/pyenv/src/ckan/development.ini``), find this line::
-
-    args = ("ckan.log", "a", 20000000, 9)
-
-and change it to set the ckan.log file location to somewhere that CKAN can write to, e.g.::
-
-    args = ("/var/log/ckan/demo.ckan.net/ckan.log", "a", 20000000, 9)
-
-Then create that directory and give it the right permissions::
-
-    sudo mkdir -p /var/log/ckan/demo.ckan.net
-    sudo chown www-data /var/log/ckan/demo.ckan.net
 
 Enable Your CKAN Site
 ---------------------
 
 Finally, enable your CKAN site in Apache::
 
-    sudo a2ensite demo.ckan.net   
-    sudo /etc/init.d/apache2 restart
+    sudo a2ensite masaq
+    sudo /etc/init.d/apache2 reload
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
+
 
 Troubleshooting
 ---------------
@@ -144,8 +136,8 @@ If you see a default Apache welcome page where your CKAN front page should be,
 it may be because the default Apache config file is overriding your CKAN config
 file (both use port 80), so disable it and restart Apache::
 
-    $ sudo a2dissite default
-    $ sudo /etc/init.d/apache2 restart
+    sudo a2dissite default
+    sudo /etc/init.d/apache2 reload
 
 403 Forbidden and 500 Internal Server Error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,10 +145,9 @@ file (both use port 80), so disable it and restart Apache::
 If you see a 403 Forbidden or 500 Internal Server Error page where your CKAN
 front page should be, you may have a problem with your unix file permissions.
 The Apache web server needs to have permission to access your WSGI script file
-(e.g. ``/usr/local/demo.ckan.net/pyenv/bin/demo.ckan.net.py``) ''and all of its
-parent directories''. The permissions of the file should look like
-``-rw-r--r--`` and the permissions of each of its parent directories should
-look like ``drwxr-xr-x``.
+and all of its parent directories''. The permissions of the file should look
+like ``-rw-r--r--`` and the permissions of each of its parent directories
+should look like ``drwxr-xr-x``.
 
 IOError: sys.stdout access restricted by mod_wsgi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,8 +175,7 @@ Log Files
 ~~~~~~~~~
 
 In general, if it's not working look in the log files in ``/var/log/apache2``
-for error messages. ``demo.ckan.net.error.log`` should be particularly
-interesting.
+for error messages. Your ``*.error.log`` should be particularly interesting.
 
 modwsgi wiki
 ~~~~~~~~~~~~
@@ -207,29 +197,4 @@ CKAN (since version 1.6) can run mounted at a 'sub-directory' URL, such as
 http://mysite.com/data/. This is achieved by changing the WSGIScriptAlias first
 parameter (in the Apache site config). e.g.::
 
-  WSGIScriptAlias /data /home/dread/etc/ckan-pylons.py
-
-CORS
-====
-
-**As of CKAN v1.5 CORS is built in to CKAN so for CKAN >= 1.5 no modifications
-to your webserver config are needed.**
-
-CORS = Cross Origin Resource Sharing. It is away to allow browsers (and hence
-javascript in browsers) make requests to domains other than the one the browser
-is currently on.
-
-In Apache you can enable CORS for you CKAN site by setting the following in
-your config::
-
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "X-CKAN-API-KEY, Content-Type"
-
-    # Respond to all OPTIONS requests with 200 OK
-    # This could be done in the webapp
-    # This is need for pre-flighted requests (POSTs/PUTs)
-    RewriteEngine On
-    RewriteCond %{REQUEST_METHOD} OPTIONS
-    RewriteRule ^(.*)$ $1 [R=200,L]
-
+  WSGIScriptAlias /data /etc/ckan/masaq/apache.wsgi
