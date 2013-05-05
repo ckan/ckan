@@ -12,22 +12,28 @@ Installing Additional Dependencies
 ----------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at ``~/pyenv/ckan/development.ini``, then activate your
-virtual environment::
+created a config file at |development.ini|, then activate your
+virtual environment:
 
-    . ~/pyenv/bin/activate
+.. parsed-literal::
+
+    |activate|
 
 Install nose and other test-specific CKAN dependencies into your virtual
-environment::
+environment:
 
-    pip install -r ~/pyenv/src/ckan/pip-requirements-test.txt
+.. parsed-literal::
+
+    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
 
 Testing with SQLite
 -------------------
 
-To run the CKAN tests using SQLite as the database library::
+To run the CKAN tests using SQLite as the database library:
 
-    cd ~/pyenv/src/ckan
+.. parsed-literal::
+
+    cd |virtualenv|/src/ckan
     nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
@@ -58,8 +64,20 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-First, make sure you have specified a PostgreSQL database with the
-``sqlalchemy.url`` parameter in your ``development.ini`` file.
+.. versionchanged:: 2.1
+   Previously |postgres| tests used the databases defined in your
+   ``development.ini`` file, instead of using their own test databases.
+
+Create test databases:
+
+.. parsed-literal::
+
+    sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
+    sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
+    paster datastore set-permissions postgres -c test-core.ini
+
+This database connection is specified in the ``test-core.ini`` file by the
+``sqlalchemy.url`` parameter.
 
 CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
 database library (it also sets ``faster_db_test_hacks``). To run the tests more
@@ -150,9 +168,11 @@ nosetests
 
          pip install --ignore-installed nose
 
-   If ``nose --version`` still fails, ensure that ckan is installed in your environment::
+   If ``nose --version`` still fails, ensure that ckan is installed in your environment:
 
-         cd pyenv/src/ckan
+   .. parsed-literal::
+
+         cd |virtualenv|/src/ckan
          python setup.py develop
 
    One final check - the version of nose should be at least 1.0. Check with::

@@ -24,6 +24,26 @@ import sys, os
 # General configuration
 # ---------------------
 
+rst_epilog = '''
+
+.. |virtualenv_parent_dir| replace:: /usr/lib/ckan
+.. |virtualenv| replace:: |virtualenv_parent_dir|/default
+.. |activate| replace:: . |virtualenv|/bin/activate
+.. |config_parent_dir| replace:: /etc/ckan
+.. |config_dir| replace:: |config_parent_dir|/default
+.. |production.ini| replace:: |config_dir|/production.ini
+.. |development.ini| replace:: |config_dir|/development.ini
+.. |git_url| replace:: https://github.com/okfn/ckan.git
+.. |postgres| replace:: PostgreSQL
+.. |database| replace:: ckan_default
+.. |database_user| replace:: ckan_default
+.. |datastore| replace:: datastore_default
+.. |datastore_user| replace:: datastore_default
+.. |test_database| replace:: ckan_test
+.. |test_datastore| replace:: datastore_test
+
+'''
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo']
