@@ -18,10 +18,10 @@ sudo apt-get install solr-jetty postgresql-$PGVERSION
 sudo service postgresql reload
 
 # Setup postgres' users and databases
-sudo -u postgres psql -c "CREATE USER ckanuser WITH PASSWORD 'pass';"
-sudo -u postgres psql -c "CREATE USER readonlyuser WITH PASSWORD 'pass';"
-sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckanuser;'
-sudo -u postgres psql -c 'CREATE DATABASE ckan_test_datastore WITH OWNER ckanuser;'
+sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
+sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
+sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
 
 pip install -r pip-requirements.txt --use-mirrors
 pip install -r pip-requirements-test.txt --use-mirrors
@@ -39,8 +39,8 @@ paster db init -c test-core.ini
 # If Postgres >= 9.0, we don't need to use datastore's legacy mode.
 if [ $PGVERSION != '8.4' ]
 then
-  psql -c 'CREATE USER readonlyuser;' -U postgres
-  sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/readonlyuser@\/ckan_test_datastore/' test-core.ini
+  psql -c 'CREATE USER datastore_default;' -U postgres
+  sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/datastore_default@\/datastore_test/' test-core.ini
   paster datastore set-permissions postgres -c test-core.ini
 else
   sed -i -e 's/.*datastore.read_url.*//' test-core.ini
