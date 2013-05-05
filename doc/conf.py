@@ -47,6 +47,7 @@ rst_epilog = '''
 .. |sstore| replace:: |config_dir|/sstore
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
+.. |restart_apache| replace:: sudo service apache2 reload
 
 '''
 

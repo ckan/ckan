@@ -248,7 +248,7 @@ ckan.feeds.author_link =
 
 # To enable local file storage:
 #ofs.impl = pairtree
-#ofs.storage_dir = /my/path/to/storage/root/directory
+#ofs.storage_dir = /var/lib/ckan/default
 
 # To enable Google cloud storage:
 #ofs.impl = google
