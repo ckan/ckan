@@ -3,11 +3,11 @@ Option 2: Install from Source
 =============================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 10.04. Installing
-CKAN from source works with Ubuntu 10.04, with other versions of Ubuntu (e.g.
-12.04) and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
-you install CKAN from source on your own operating system, please share your
-experiences on our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+:doc:`install-from-package` is simpler, it requires Ubuntu 12.04. Installing
+CKAN from source works with other versions of Ubuntu and with other operating
+systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
+on your own operating system, please share your experiences on our
+`How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
@@ -33,7 +33,7 @@ Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v2.6 or 2.7 <http://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
-libpq                  `The C programmer's interface to |postgres| <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
+libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
@@ -211,7 +211,7 @@ database, you can create the database tables:
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
-    paster --plugin=ckan db init -c |development.ini|
+    paster db init -c |development.ini|
 
 You should see ``Initialising DB: SUCCESS``.
 
@@ -233,14 +233,14 @@ Follow the instructions in :doc:`datastore-setup` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
-8. Create the data and sstore directories
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8. Create the ``data`` and ``sstore`` directories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create the ``data`` and ``sstore`` directories:
 
 .. parsed-literal::
 
-    mkdir |config_dir|/data |config_dir|/sstore
+    mkdir |data_dir| |sstore|
 
 The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
 OpenID session directory, is specified by the ``store_file_path`` setting in
@@ -249,8 +249,8 @@ the ``who.ini`` file.
 The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
 is specified by the ``cache_dir`` setting in your CKAN config file.
 
-9. Link to who.ini
-~~~~~~~~~~~~~~~~~~
+9. Link to ``who.ini``
+~~~~~~~~~~~~~~~~~~~~~~
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file, so create a symlink to it:
@@ -265,7 +265,7 @@ same directory as your CKAN config file, so create a symlink to it:
 You can use the Paste development server to serve CKAN from the command-line.
 This is a simple and lightweight way to serve CKAN that is useful for
 development and testing. For production it's better to serve CKAN using
-Apache or nginx (see :doc:`post-installation`).
+Apache or Nginx (see :doc:`post-installation`).
 
 .. parsed-literal::
 
@@ -367,7 +367,7 @@ Upgrade a source install
 
    .. parsed-literal::
 
-    paster --plugin=ckan db upgrade --config=\ |development.ini|
+    paster db upgrade --config=\ |development.ini|
 
    See :ref:`upgrade migration` for details of the ``ckan db upgrade``
    command.
