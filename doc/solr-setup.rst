@@ -72,11 +72,6 @@ and the admin site::
 
         JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
 
-Now run::
-
-       sudo service jetty start
-
-
 This default setup will use the following locations in your file system:
 
 ``/usr/share/solr``
@@ -99,7 +94,7 @@ installing (it will generally be the highest one):
 
 Now restart jetty::
 
- sudo /etc/init.d/jetty restart
+ sudo service jetty restart
 
 And check that Solr is running by browsing http://localhost:8983/solr/ which should offer the Administration link.
 
@@ -181,7 +176,7 @@ to be ckan-schema-1.3:
 
 Now restart jetty::
 
- sudo /etc/init.d/jetty restart
+ sudo service jetty restart
 
 And check that Solr is listing all the cores when browsing http://localhost:8983/solr/
 
