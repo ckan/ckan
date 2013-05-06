@@ -52,6 +52,7 @@ Customizing and Extending
    multilingual
    email-notifications
    tracking
+   stats
 
 Publishing Datasets
 ===================
