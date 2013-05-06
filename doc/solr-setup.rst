@@ -124,11 +124,11 @@ This is how cores are defined::
 
     <solr persistent="true" sharedLib="lib">
         <cores adminPath="/admin/cores">
-            <core name="ckan-schema-1.2" instanceDir="core0">
-                <property name="dataDir" value="/var/lib/solr/data/core0" />
+            <core name="ckan-schema-1.4" instanceDir="ckan-schema-1.4">
+                <property name="dataDir" value="/var/lib/solr/data/ckan-schema-1.4" />
             </core>
-            <core name="ckan-schema-1.3" instanceDir="core1">
-                <property name="dataDir" value="/var/lib/solr/data/core1" />
+            <core name="ckan-schema-2.0" instanceDir="ckan-schema-2.0"> 
+                <property name="dataDir" value="/var/lib/solr/data/ckan-schema-2.0" />
             </core>
         </cores>
     </solr>
@@ -137,21 +137,21 @@ Adjust the names to match the CKAN schema versions you want to run.
 
 Note that each core is configured with its own data directory. This is really important to prevent conflicts between cores. Now create them like this::
 
-    sudo -u jetty mkdir /var/lib/solr/data/core0
-    sudo -u jetty mkdir /var/lib/solr/data/core1
+    sudo -u jetty mkdir /var/lib/solr/data/ckan-schema-1.4
+    sudo -u jetty mkdir /var/lib/solr/data/ckan-schema-2.0
 
 For each core, we will create a folder in ``/usr/share/solr``,
 with a symbolic link to a specific configuration folder in ``/etc/solr/``.
 Copy the existing conf directory to the core directory and link it from
 the home dir like this::
 
-    sudo mkdir /etc/solr/core0
-    sudo mv /etc/solr/conf /etc/solr/core0/
+    sudo mkdir /etc/solr/ckan-schema-1.4
+    sudo mv /etc/solr/conf /etc/solr/ckan-schema-1.4/
 
-    sudo mkdir /usr/share/solr/core0
-    sudo ln -s /etc/solr/core0/conf /usr/share/solr/core0/conf
+    sudo mkdir /usr/share/solr/ckan-schema-1.4
+    sudo ln -s /etc/solr/ckan-schema-1.4/conf /usr/share/solr/ckan-schema-1.4/conf
 
-Now configure the core to use the data directory you have created. Edit ``/etc/solr/core0/conf/solrconfig.xml`` and change the ``<dataDir>`` to this variable::
+Now configure the core to use the data directory you have created. Edit ``/etc/solr/ckan-schema-1.4/conf/solrconfig.xml`` and change the ``<dataDir>`` to this variable::
 
     <dataDir>${dataDir}</dataDir>
 
@@ -160,19 +160,19 @@ This will ensure the core uses the data directory specified earlier in ``solr.xm
 Once you have your first core configured, to create new ones, you just need to
 add them to the ``solr.xml`` file and copy the existing configuration dir::
 
-    sudo mkdir /etc/solr/core1
-    sudo cp -R /etc/solr/core0/conf /etc/solr/core1
+    sudo mkdir /etc/solr/ckan-schema-2.0
+    sudo cp -R /etc/solr/ckan-schema-1.4/conf /etc/solr/ckan-schema-2.0
 
-    sudo mkdir /usr/share/solr/core1
-    sudo ln -s /etc/solr/core1/conf /usr/share/solr/core1/conf
+    sudo mkdir /usr/share/solr/ckan-schema-2.0
+    sudo ln -s /etc/solr/ckan-schema-2.0/conf /usr/share/solr/ckan-schema-2.0/conf
 
-Remember to ensure each core points to the correct CKAN schema. To change core1
-to be ckan-schema-1.3:
+Remember to ensure that each core points to the correct CKAN schema. To link
+each schema to the relevant file on the CKAN source use the following:
 
 .. parsed-literal::
 
-    sudo rm /etc/solr/core1/conf/schema.xml
-    sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-1.3.xml /etc/solr/core1/conf/schema.xml
+    sudo rm /etc/solr/ckan-schema-2.0/conf/schema.xml 
+    sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/ckan-schema-2.0/conf/schema.xml
 
 Now restart jetty::
 
@@ -222,7 +222,7 @@ Some problems that can be found during the install:
 
      sudo apt-get install openjdk-6-jdk
 
-  and restart SOLR.
+  and restart Solr.
 
 Handling changes in the CKAN schema
 -----------------------------------
@@ -246,17 +246,18 @@ CKAN uses the following conventions for supporting different schemas:
 
     ckan/config/solr/schema-1.2.xml
     ckan/config/solr/schema-1.3.xml
+    ckan/config/solr/schema-2.0.xml
 
 * Each new version of the schema file must include its version in the main `<schema>` tag::
 
-    <schema name="ckan" version="1.3">
+    <schema name="ckan" version="2.0">
 
 * Solr servers used by more than one CKAN instance should be configured as multiple cores,
   and provide a core for each schema version needed. The cores should be named following the
   convention `schema-<version>`, e.g.::
 
-    http://<solr-server>/solr/ckan-schema-1.2/
-    http://<solr-server>/solr/ckan-schema-1.3/
+    http://<solr-server>/solr/ckan-schema-1.4/
+    http://<solr-server>/solr/ckan-schema-2.0/
 
 When a new version of the schema becomes available, a new core is created, with a link to the
 latest schema.xml file in the CKAN source. That way, CKAN instances that use an older version
