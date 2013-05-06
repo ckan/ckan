@@ -209,15 +209,3 @@ Some pages on the modwsgi wiki have some useful information for troubleshooting 
 * http://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines
 * http://code.google.com/p/modwsgi/wiki/FrequentlyAskedQuestions
 * http://code.google.com/p/modwsgi/wiki/ConfigurationIssues
-
-
-Mounting CKAN at a non-root URL
-===============================
-
-CKAN can run mounted at a 'sub-directory' URL, such as http://mysite.com/data/.
-This is achieved by changing the ``WSGIScriptAlias`` first parameter in
-|apache_config_file|:
-
-.. parsed-literal::
-
-    WSGIScriptAlias /data |apache.wsgi|
