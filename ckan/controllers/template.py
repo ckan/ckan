@@ -29,11 +29,11 @@ class TemplateController(base.BaseController):
         """
         try:
             return base.render(url)
-        except TemplateNotFound:
+        except (TemplateNotFound, UnicodeEncodeError):
             if url.endswith('.html'):
                 base.abort(404)
             url += '.html'
             try:
                 return base.render(url)
-            except TemplateNotFound:
+            except (TemplateNotFound, UnicodeEncodeError):
                 base.abort(404)
