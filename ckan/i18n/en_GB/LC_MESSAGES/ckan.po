@@ -3,8 +3,8 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-#  <darwinpeltan@gmail.com>, 2013.
-# Sean Hammond <sean.hammond@okfn.org>, 2013.
+# darwinp <darwinpeltan@gmail.com>, 2013
+# Sean Hammond <sean.hammond@okfn.org>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

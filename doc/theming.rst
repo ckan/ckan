@@ -2,140 +2,139 @@
 Theming and Customizing Appearance
 ==================================
 
-After installing CKAN, the next step is probably to re-theme the site with your own logo, site name, and CSS. 
+After installing CKAN, the next step is probably to re-theme the site. There
+are a few different ways you can do this. Ranging from simply changing the logo
+and adding some simple CSS to writing a extension that will fully customize
+the look and feel of your instance.
 
-Site Name and Description
-=========================
+Here are the two main ways you can customize the appearance of CKAN:
 
-You can change the name and logo of the site by setting options in the CKAN config file. 
-
-This is the file called ``std.ini`` that you first encountered in :ref:`create-admin-user`. It is usually located at ``/etc/ckan/std/std.ini``.
-
-Open this file, and change the following options::
-
- ckan.site_title = My CKAN Site
- ckan.site_description = The easy way to get, use and share data
-
-After you've edited these options, restart Apache::
-
- sudo /etc/init.d/apache2 restart
-
-Refresh your home page (clearing the cache if necessary) and you should see your new title and description. 
+1. `Edit CKAN config options`_
+2. `Create Custom Extension`_
 
 
-Adding CSS, Javascript and other HTML using Config Options
-==========================================================
+Edit CKAN config options
+------------------------
 
-CKAN provides two config options that allow you to add material directly into templates::
+This method is best if you simply want to change the logo, title, add a little
+custom CSS and perhaps customize a few templates. There are two types of config
+options you can set to customize your instance. You can set options within
+your `CKAN config file`_ or edit your `Instance sysadmin settings`_.
 
-  ckan.template_head_end = ...
-  ckan.template_footer_end = ...
+CKAN config file
+~~~~~~~~~~~~~~~~
 
-The first of these allows you to specify content that will be inserted just before ``</head>`` tag while the second allows you to insert content just before the ``</body>``. You can use html in both of these as well as provide multiline values by indenting lines.
+You can change both some of your front end settings and template settings from
+within your CKAN config file.
 
-Adding CSS
-----------
+If you wish to change the site title, description, logo, favicon, etc, then you
+should consult the `CKAN Configuration Options > Front-End Settings`_
+documentation.
 
-For example, by referencing an external CSS stylesheet::
+If you wish add images, customize templates or add extra stylesheets then you
+should read the `CKAN Configuration Options > Theming Settings`_ documentation.
 
-  ckan.template_head_end = <link rel="stylesheet" href="http://some-other-site.org/custom.css" type="text/css"> 
+.. Note::
+    If you are planning on customizing you CKAN instance beyond the settings
+    provided here it is recommended that you read the
+    `Create Custom Extension`_ documentation.
 
-.. note::
+Instance sysadmin settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  This requires you have a css file uploaded elsewhere. You may want your css to be part of your CKAN site. CKAN provides an easy way to do this -- see ``extra_public_paths`` below.
+When you login to CKAN as a sysadmin user, you'll see a link to the
+Administration page where you can edit your CKAN config options. Here are the
+basic config options you can change on the Administation page:
 
-Alternatively you can provide CSS directly in a style tag (note how we indent lines to provide a multiline value to a config option)::
+- **Site Title:** This is the title of this CKAN instance. It appears in the page title and various other places throughout your CKAN instance.
 
-  ckan.template_head_end = <style type="text/css"> 
-      body {
-        font-size: xlarge;
-      }
-    </style>
+- **Style:** Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.
 
-Adding Javascript
------------------
+- **Site Tag Logo:** This is the logo that appears in the header of all the CKAN instance templates. If you want to add a custom logo we recommened you do it here.
 
-You could also use this config option to add script tags (or any other material to the ``<head>`` of all site pages).
+- **About:** This text will appear on this CKAN instance's about page. We support `markdown`_ within this field.
 
-However, for javascript it is probably better to use the ``ckan.template_footer_end`` option as it adds material just before the closing ``</body>`` tag -- in CKAN v1.5 scripts are included at the foot of the page rather than in the <head> section (thus if your scripts requires jquery it needs to come after jqurey is included at the bottom of the page and hence you should use the footer end option).
+- **Intro Text:** This text will appear on this CKAN instance's home page as a welcome to visitors. Again `markdown`_ is supported here.
 
+- **Custom CSS:** This is a block of CSS that appears in ``<head>`` tag of every page. If you wish to customize the templates more fully we recommend using the extension method of customizing your CKAN instance.
 
-More Advanced Customization
-===========================
+Create Custom Extension
+-----------------------
 
-If you want to make broader changes to the look and feel of your CKAN site, we offer ways to add custom CSS and over-ride the default CKAN templates. 
+This method is best for you want to customize the HTML templates of you CKAN
+instance. It's also more extensible and means you can make sure you keep your
+custom theme as seperate from CKAN core as possible.
 
-Adding (and Overriding) Files and Templates
--------------------------------------------
-
-You can add (and override) files (e.g. CSS, scripts and images) as well as templates to your site using the ``extra_template_paths`` and ``extra_public_paths`` options in the CKAN config file::
-
- extra_template_paths = %(here)s/my-templates
- extra_public_paths = %(here)s/my-public
-
-All contents of the public directory is mounted directly into the URL space of the site (taking precedence over existing files of the same name). 
-
-Furthermore, you can supply multiple public directories, which will be searched in order. 
-
-For example, if you set the following option in the CKAN config file::
-
- extra_public_paths = /path/to/mypublicdir 
-
-And then add a file called ``myhtmlfile.html`` in ``/path/to/mypublicdir``, the file would appear on http://yourckan.org/ at ``http://yourckan.org/myhtmlfile.html``. 
-
-If you create a file with the same path as one in the main CKAN public directory, your file will override the default CKAN file. For example, if you add ``mypublicdir/css/ckan.css``, then ``http://yourckan.org/css/ckan.css`` will be your file. 
-
-Adding a New Logo
-^^^^^^^^^^^^^^^^^
-
-One example is introducing your own logo, which you can do with a new file and a CKAN config option. 
-
-Add a logo file at ``mypublicdir/images/mylogo.png``, then set options in the CKAN config file (``/etc/ckan/std/std.ini``) as follows::
-
- extra_public_paths = /path/to/mypublicdir
- ckan.site_logo = /images/mylogo.png
+Here follows the main topics you'll need in order to understand how to write
+a custom extension in order to customize your CKAN instance.
 
 
-Adding a New Stylesheet
-^^^^^^^^^^^^^^^^^^^^^^^
+Customizing the HTML
+~~~~~~~~~~~~~~~~~~~~
 
-Lots of visual changes can be made simply by changing the stylesheet. We've already 
+The main templates within CKAN use the templating language `Jinja2`_. Jinja2
+has template inheritance which means that you don't have to re-write a whole
+template in order to change small elements within templates.
 
-The easiest way to override the default CKAN style is to create one or more custom CSS files and load them in the ``layout.html`` template.
+For more information on how to exactly change the HTML of your CKAN instance: 
+please read the `Templating > Templating within extensions`_ documentation.
 
-Use the 'public' directory as described in the previous section, then add a new file at ``mypublicdir/css/mycss.css``.
 
-Your next step is to have that css file including by the templates.
+Including custom Stylesheets, JavaScript and images
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next, copy the ``layout.html`` template and add a reference to the new CSS file. Here is an example of the edited ``layout.html`` template::
+Within CKAN we use a resource manager to handle the static resources that are
+required by any given template. In order to include a stylesheet or a
+JavaScript document you should tell the resource manager of its existence and
+then include it within your template.
 
-  <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:i18n="http://genshi.edgewall.org/i18n"
-    xmlns:py="http://genshi.edgewall.org/" 
-    xmlns:xi="http://www.w3.org/2001/XInclude"
-    py:strip="">
-    <head py:match="head">
-      ${select('*')}
-      <link rel="stylesheet" href="${h.url_for('/css/mycss.css')}" />
-    </head>
-    <xi:include href="layout_base.html" />
-  </html>
+For more information on how resources work within CKAN and how to add custom
+resources to your extension: please read the 
+`Resources > Resources within extensions`_ documentation.
 
-Retheming the Site with Templates
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. Note::
+    The main CKAN theme is a heavily customized version of `Bootstrap`_.
+    However the core of Bootstrap is no different in CKAN and therefore people
+    familiar with Bootstrap should feel right at home writing custom HTML and
+    CSS for CKAN.
 
-Template files are used as source templates for rendered pages on the site. These templates are just an HTML page but with variables, such as the page title set by each page: ``${page_title}``.
 
-To over-ride a template, set the ``extra_template_paths`` directory as described above, then copy and rewrite the template file you wish to over-ride. 
+Customizing the JavaScript
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Commonly modified templates are:
+Within CKAN core we have a concept of JavaScript modules which allow you to
+simply attach JavaScript to DOM elements via HTML5 data attributes.
 
- * ``layout.html`` - empty by default
- * ``home/index.html`` - the home page of the site
- * ``home/about.html`` - the about page
+For more information on what a JavaScript module is and how to build one:
+please read the `Building a JavaScript Module`_ documentation.
 
-If you are re-theming the site, we recommend you over-ride ``layout.html``, which is empty but inherits from ``layout_base.html``. This will mean you can upgrade the site more easily in the future. 
 
-.. note::
+Customizing the CSS
+~~~~~~~~~~~~~~~~~~~
 
-  For more information on the syntax of the CKAN templates, refer to the `Genshi documentation <http://genshi.edgewall.org/wiki/Documentation>`_.
+To customize your CSS all you really need to know is how to add a stylesheet as
+a resource. Beyond that it's purely writing your own CSS and making sure it's
+included on the correct pages.
+
+For more information on how CSS works in CKAN core: please read the
+`Front End Documentation > Stylesheets`_ documentation.
+
+.. Note::
+    In CKAN core we use `LESS`_ to pre-process our main CSS document. We do
+    this to make the core CSS more maintainable (as well as to offer different
+    basic colour styles on our default theme). It's not necessary that you do
+    the same, but we'd recommend using something like it if you plan on
+    customizing your CKAN instance heavily.
+
+
+.. _Bootstrap: http://getbootstrap.com/
+.. _Jinja2: http://Jinja2.pocoo.org/
+.. _markdown: http://daringfireball.net/projects/markdown/
+.. _LESS: http://lesscss.org/
+.. _Templating > Templating within extensions: ./templating.html#templating-within-extensions
+.. _Resources > Resources within extensions: ./resources.html#resources-within-extensions
+.. _Building a JavaScript Module: ./javascript-module-tutorial.html
+.. _Front End Documentation > Stylesheets: ./frontend-development.html#stylesheets
+.. _CKAN Configuration Options > Front-End Settings: ./configuration.html#front-end-settings
+.. _CKAN Configuration Options > Theming Settings: ./configuration.html#theming-settings
+
