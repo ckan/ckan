@@ -134,10 +134,12 @@ the site's ``data`` and ``sstore`` directories:
 Enable Your CKAN Site
 ---------------------
 
-Finally, enable your CKAN site in Apache::
+Finally, enable your CKAN site in Apache:
+
+.. parsed-literal::
 
     sudo a2ensite ckan_default
-    sudo service apache2 reload
+    |reload_apache|
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
@@ -150,10 +152,12 @@ Default Apache Welcome Page
 
 If you see a default Apache welcome page where your CKAN front page should be,
 it may be because the default Apache config file is overriding your CKAN config
-file (both use port 80), so disable it and restart Apache::
+file (both use port 80), so disable it and restart Apache:
+
+.. parsed-literal::
 
     sudo a2dissite default
-    sudo service apache2 reload
+    |reload_apache|
 
 403 Forbidden and 500 Internal Server Error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
