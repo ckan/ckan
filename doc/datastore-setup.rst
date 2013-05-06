@@ -126,21 +126,30 @@ Copy the ``set_permissions.sql`` file to the server that the database runs on. M
 3. Test the set-up
 ==================
 
-The DataStore is now set-up. To test the set-up you can list all resources that are in the DataStore::
+The DataStore is now set-up. To test the set-up, (re)start CKAN and run the
+following command to list all resources that are in the DataStore::
 
  curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
 
 This should return a JSON page without errors.
 
-To test the whether the set-up allows writing you can create a new resource in the DataStore. To do so, run the following command::
+To test the whether the set-up allows writing, you can create a new resource in
+the DataStore. To do so, run the following command:: 
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
+Replace ``{YOUR-API-KEY}`` with a valid API key and ``{RESOURCE-ID}`` with a
+resource id of an existing CKAN resource.
+
 A table named after the resource id should have been created on your DataStore
-database. Visiting the following URL should return a response from the DataStore with
+database. Visiting this URL should return a response from the DataStore with
 the records inserted above::
 
  http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
+
+You can now delete the DataStore table with::
+
+    curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}' 
 
 To find out more about the DataStore API, go to :doc:`datastore-api`.
 
