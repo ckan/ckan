@@ -427,11 +427,13 @@ ckan.search.automatic_indexing
 
 Example::
 
- ckan.search.automatic_indexing = 1
+ ckan.search.automatic_indexing = true
+
+Default value: ``true``
 
 Make all changes immediately available via the search after editing or
 creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to 0.
+to occur asynchronously, set this option to false.
 
 .. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
@@ -462,6 +464,19 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
+.. _search.facets.limits:
+
+search.facets.limits
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ search.facets.limits = 100
+
+Default value:  ``50``
+
+Sets the default number of searched facets returned in a query.
+
 .. _search.facets.default:
 
 search.facets.default
@@ -472,17 +487,6 @@ Example::
   search.facets.default = 10
 
 Default number of facets shown in search results.  Default 10.
-
-.. _search.facets.limit:
-
-search.facets.limit
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  search.facets.limit = 50
-
-Highest number of facets shown in search results.  Default 50.
 
 .. _ckan.extra_resource_fields:
 
@@ -1033,6 +1037,21 @@ Default value: ``infinite``
 This controls the number of activities to show in the Activity Stream. By default, it shows everything.
 
 
+.. _ckan.email_notifications_since:
+
+ckan.email_notifications_since
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.email_notifications_since = 2 days
+
+Default value: ``infinite``
+
+Email notifications for events older than this time delta will not be sent.
+Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
+
+
 .. _config-feeds:
 
 Feeds Settings
@@ -1201,7 +1220,7 @@ example::
 This is useful for integrating CKAN's new dataset form into a third-party
 interface, see :doc:`form-integration`.
 
-The ``<NAME>`` string is replaced with the name of the dataset created. 
+The ``<NAME>`` string is replaced with the name of the dataset created.
 
 .. _package_edit_return_url:
 
