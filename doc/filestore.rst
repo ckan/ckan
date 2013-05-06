@@ -40,7 +40,7 @@ To setup CKAN's FileStore with local file storage:
 
    .. parsed-literal::
 
-      |restart_apache|
+      |reload_apache|
 
 Setup the FileStore with Cloud Storage
 ======================================
