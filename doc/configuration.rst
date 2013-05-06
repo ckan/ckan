@@ -979,6 +979,19 @@ Default value: ``50000000``
 
 This defines the maximum content size, in bytes, for uploads.
 
+.. _ofs.impl:
+
+ofs.impl
+^^^^^^^^
+
+Example::
+
+  ofs.impl = pairtree
+
+Default value:  ``None``
+
+Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -990,7 +1003,67 @@ Example::
 
 Default value:  ``None``
 
-Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+
+.. _ofs.aws_access_key_id:
+
+ofs.aws_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.aws_secret_access_key:
+
+ofs.aws_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_access_key_id:
+
+ofs.gs_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_secret_access_key:
+
+ofs.gs_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
 
 
 Activity Streams Settings
