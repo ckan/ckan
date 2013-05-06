@@ -91,7 +91,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # we remove it so any bad templates crash and burn
         del globs['url']
 
-        template = globs['app_globals'].genshi_loader.load(template_name,
+        template = globs['app_globals'].genshi_loader.load(template_name.encode('utf-8'),
                                                            cls=loader_class)
         stream = template.generate(**globs)
 
