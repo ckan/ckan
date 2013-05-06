@@ -76,6 +76,39 @@ This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
 
+.. start_config-datastore-urls
+
+.. _ckan.datastore.write_url:
+
+ckan.datastore.write_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
+
+Database connection to use for write operations when using the datastore (This
+can be ignored if the :doc:`datastore` is not used). Note that the database
+used should not be the same as the normal CKAN database. The format is the
+same as in :ref:`sqlalchemy.url`.
+
+.. _ckan.datastore.read_url:
+
+ckan.datastore.read_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+
+Database connection to use for read operations when using the datastore (This
+can be ignored if the :doc:`datastore` is not used). The database
+used must be the same used in :ref:`ckan.datastore.write_url`, but the user
+should be one with read permissions only. The format is the
+same as in :ref:`sqlalchemy.url`.
+
+.. end_config-datastore-urls
+
 
 Site Settings
 -------------
