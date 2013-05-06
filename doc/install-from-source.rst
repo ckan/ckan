@@ -383,9 +383,11 @@ Upgrade a source install
    ``ckan search-index rebuild`` command.
 
 8. Finally, restart your web server. For example if you have deployed CKAN
-   using the Apache web server on Ubuntu linux, run this command::
+   using the Apache web server on Ubuntu linux, run this command:
 
-    sudo service apache2 restart
+   .. parsed-literal::
+
+    |reload_apache|
 
 9. You're done! You should now be able to visit your CKAN website in your web
    browser and see that it's running the new version of CKAN.
