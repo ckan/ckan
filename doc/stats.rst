@@ -24,7 +24,8 @@ Enabling the Stats Extension
 ============================
 
 To enable the stats extensions add `stats` to `ckan.plugins` in the config
-file.
+file. If you set :ref:`ckanext.stats.cache_enabled` to `true`, it will use
+1-day cache for the stats.
 
 Viewing the Statistics
 ======================
