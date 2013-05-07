@@ -62,13 +62,12 @@ OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/instal
      sudo ln -s ~/ckan/etc |config_parent_dir|
 
 a. Create a Python `virtual environment <http://www.virtualenv.org>`_
-   (virtualenv) to install CKAN into, and activate it. In the second command,
-   replace ``seanh`` with your own username:
+   (virtualenv) to install CKAN into, and activate it:
 
    .. parsed-literal::
 
        sudo mkdir -p |virtualenv|
-       sudo chown seanh |virtualenv|
+       sudo chown \`whoami\` |virtualenv|
        virtualenv --no-site-packages |virtualenv|
        |activate|
 
@@ -149,13 +148,12 @@ database user you just created:
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a directory to contain the site's config files. In the second command,
-replace ``seanh`` with your own username:
+Create a directory to contain the site's config files:
 
 .. parsed-literal::
 
     sudo mkdir -p |config_dir|
-    sudo chown -R seanh |config_parent_dir|/
+    sudo chown -R \`whoami\` |config_parent_dir|/
 
 Change to the ``ckan`` directory and create a CKAN config file:
 
