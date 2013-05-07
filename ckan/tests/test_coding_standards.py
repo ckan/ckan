@@ -111,7 +111,7 @@ class TestNastyString(object):
             count = 1
             errors = []
             for line in f:
-                if re_import_star.search(line):
+                if re_nasty_str.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
             if errors and not filename in blacklist:
@@ -272,13 +272,13 @@ class TestImportFromCkan(object):
     @classmethod
     def process(cls):
         blacklist = cls.CKAN_IMPORTS_BLACKLIST_FILES
-        re_import_star = re.compile(r'^from\s.*\bckan\b(?!\.common).*\bimport')
+        re_nasty_import = re.compile(r'^from\s.*\bckan\b(?!\.common).*\bimport')
         for path, filename in process_directory(base_path):
             f = open(path, 'r')
             count = 1
             errors = []
             for line in f:
-                if re_import_star.search(line):
+                if re_nasty_import.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
             if errors and not filename in blacklist:
@@ -418,13 +418,13 @@ class TestImportStar(object):
     @classmethod
     def process(cls):
         blacklist = cls.IMPORT_STAR_BLACKLIST_FILES
-        re_nasty_str = re.compile(r'^\s*from\s+.*\simport\s+\*')
+        re_import_star = re.compile(r'^\s*from\s+.*\simport\s+\*')
         for path, filename in process_directory(base_path):
             f = open(path, 'r')
             count = 1
             errors = []
             for line in f:
-                if re_nasty_str.search(line):
+                if re_import_star.search(line):
                     errors.append('%s ln:%s import *\n\t%s'
                                   % (filename, count, line))
                 count += 1
