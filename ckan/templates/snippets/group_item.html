@@ -5,7 +5,7 @@
     <a class="module-image" href="{{ url }}">
       <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
     </a>
-    <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+    <h3 class="media-heading"><a href="{{ url }}">{{ group.title or group.name }}</a></h3>
     {% if group.description %}
       {% if truncate == 0 %}
         <p>{{ h.markdown_extract(group.description)|urlize }}</p>

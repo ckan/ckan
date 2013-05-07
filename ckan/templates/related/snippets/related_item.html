@@ -13,7 +13,7 @@ Example:
 {% set placeholder_map = {
 'application':'/base/images/placeholder-application.png'
 } %}
-{% set tooltip = _('Go to {type}').format(type=related.type|replace('_', ' ')|title) %}
+{% set tooltip = _('Go to {related_item_type}').format(related_item_type=related.type|replace('_', ' ')|title) %}
 <li class="related-item media-item" data-module="related-item">
   <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" class="media-image">
   <h3 class="media-heading">{{ related.title }}</h3>

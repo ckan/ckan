@@ -33,7 +33,7 @@ Example:
       <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
-  <a href="{{ url }}" title="{{ _('View {name}').format(name=organization.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=organization.display_name) }}</span>
+  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
+    <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
   </a>
 </li>
