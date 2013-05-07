@@ -64,21 +64,6 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-.. versionchanged:: 2.1
-   Previously |postgres| tests used the databases defined in your
-   ``development.ini`` file, instead of using their own test databases.
-
-Create test databases:
-
-.. parsed-literal::
-
-    sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
-    sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
-    paster datastore set-permissions postgres -c test-core.ini
-
-This database connection is specified in the ``test-core.ini`` file by the
-``sqlalchemy.url`` parameter.
-
 CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
 database library (it also sets ``faster_db_test_hacks``). To run the tests more
 thoroughly with PostgreSQL, specify the ``test-core.ini`` nose configuration
