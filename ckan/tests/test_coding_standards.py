@@ -272,13 +272,13 @@ class TestImportFromCkan(object):
     @classmethod
     def process(cls):
         blacklist = cls.CKAN_IMPORTS_BLACKLIST_FILES
-        re_nasty_import = re.compile(r'^from\s.*\bckan\b(?!\.common).*\bimport')
+        re_bad_import = re.compile(r'^from\s.*\bckan\b(?!\.common).*\bimport')
         for path, filename in process_directory(base_path):
             f = open(path, 'r')
             count = 1
             errors = []
             for line in f:
-                if re_nasty_import.search(line):
+                if re_bad_import.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
             if errors and not filename in blacklist:
