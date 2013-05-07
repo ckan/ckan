@@ -103,7 +103,7 @@ class TestNastyString(object):
     @classmethod
     def process(cls):
         blacklist = cls.NASTY_STR_BLACKLIST_FILES
-        re_import_star = re.compile(
+        re_nasty_str = re.compile(
             r'''("[^"]*\%s[^"]*"|'[^']*\%s[^']*').*%.*str\('''
         )
         for path, filename in process_directory(base_path):
@@ -418,13 +418,13 @@ class TestImportStar(object):
     @classmethod
     def process(cls):
         blacklist = cls.IMPORT_STAR_BLACKLIST_FILES
-        re_import_star = re.compile(r'^\s*from\s+.*\simport\s+\*')
+        re_nasty_str = re.compile(r'^\s*from\s+.*\simport\s+\*')
         for path, filename in process_directory(base_path):
             f = open(path, 'r')
             count = 1
             errors = []
             for line in f:
-                if re_import_star.search(line):
+                if re_nasty_str.search(line):
                     errors.append('%s ln:%s import *\n\t%s'
                                   % (filename, count, line))
                 count += 1
@@ -1005,7 +1005,7 @@ class TestBadExceptions(object):
     ''' Look for a common coding problem in ckan Exception(_'...') '''
 
     # Exceptions should not on the whole be translated as they are for
-    # brogrammers to read in trace backs or log files.  However some like
+    # programmers to read in trace backs or log files.  However some like
     # Invalid used in validation functions do get passed back up to the user
     # and so should be translated.
 
@@ -1036,7 +1036,7 @@ class TestBadExceptions(object):
     @classmethod
     def process(cls):
         blacklist = cls.NASTY_EXCEPTION_BLACKLIST_FILES
-        re_import_star = re.compile(
+        re_nasty_exception = re.compile(
             r'''raise\W+(?![^I]*Invalid\().*_\('''
         )
         for path, filename in process_directory(base_path):
@@ -1044,7 +1044,7 @@ class TestBadExceptions(object):
             count = 1
             errors = []
             for line in f:
-                if re_import_star.search(line):
+                if re_nasty_exception.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
             if errors and not filename in blacklist:
