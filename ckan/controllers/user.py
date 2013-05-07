@@ -533,7 +533,7 @@ class UserController(base.BaseController):
                 action_functions.get(filter_type))
             # Is this a valid type?
             if action_function is None:
-                raise abort(404, _('Follow item not found'))
+                abort(404, _('Follow item not found'))
             try:
                 followee = action_function(context, data_dict)
             except NotFound:
@@ -574,7 +574,8 @@ class UserController(base.BaseController):
         c.dashboard_activity_stream_context = self._get_dashboard_context(
             filter_type, filter_id, q)
         c.dashboard_activity_stream = h.dashboard_activity_stream(
-            filter_type, filter_id, offset)
+            c.userobj.id, filter_type, filter_id, offset
+        )
 
         # Mark the user's new activities as old whenever they view their
         # dashboard page.

@@ -25,44 +25,52 @@ List existing databases::
 
  sudo -u postgres psql -l
 
-Check that the encoding of databases is ‘UTF8’, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the datastore setup.
+Check that the encoding of databases is ``UTF8``, if not internationalisation may be a problem. Since changing the encoding of PostgreSQL may mean deleting existing databases, it is suggested that this is fixed before continuing with the datastore setup.
 
 Create users and databases
 --------------------------
 
 .. tip::
 
- As is done in the example commands below, we recommend reusing your existing
- CKAN database user (``ckanuser`` in :doc:`install-from-source`) as the
- readwrite user for your datastore database.
+ If your CKAN database and DataStore databases are on different servers, then
+ you need to create a new database user on the server where the DataStore
+ database will be created. As in :doc:`install-from-source` we'll name the
+ database user |database_user|:
 
- However, this might not be possible if the CKAN database and the DataStore
- database are on different servers. In this case, you should create a new
- database user on the server with the DataStore database::
+ .. parsed-literal::
 
-   sudo -u postgres createuser -S -D -R -P -l writeuser
+    sudo -u postgres createuser -S -D -R -P -l |database_user|
 
- Then in the commands below, replace ``ckanuser`` with ``writeuser``.
-
-Create a database user called ``readonlyuser``. This user will be given
+Create a database_user called |datastore_user|. This user will be given
 read-only access to your DataStore database in the `Set Permissions`_ step
-below::
+below:
 
- sudo -u postgres createuser -S -D -R -P -l readonlyuser
+.. parsed-literal::
 
-Create the database (owned by ``ckanuser``), which we'll call ``datastore``::
+ sudo -u postgres createuser -S -D -R -P -l |datastore_user|
 
- sudo -u postgres createdb -O ckanuser datastore -E utf-8
+Create the database (owned by |database_user|), which we'll call
+|datastore|:
+
+.. parsed-literal::
+
+ sudo -u postgres createdb -O |database_user| |datastore| -E utf-8
 
 Set URLs
 --------
 
-Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url`` lines in your CKAN config file and edit them if necessary::
+Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url``
+lines in your CKAN config file and edit them, for example:
+
+.. parsed-literal::
 
  # Datastore
  # Uncommment to set the datastore urls
- ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
- ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+ ckan.datastore.write_url = postgresql://|database_user|:pass@localhost/|datastore|
+ ckan.datastore.read_url = postgresql://|datastore_user|:pass@localhost/|datastore|
+
+Replace ``pass`` with the passwords you created for your |database_user| and
+|datastore_user| database users.
 
 Set Permissions
 ---------------
@@ -76,11 +84,13 @@ Option 1: Paster command
 
 This option is preferred if CKAN and PostgreSQL are on the same server.
 
-To set the permissions, use this paster command after you've set the database URLs (make sure to have your virtualenv activated)::
+To set the permissions, use this paster command after you've set the database URLs (make sure to have your virtualenv activated):
 
- paster datastore set-permissions postgres
+.. parsed-literal::
 
-The ``postgres`` at the end of this command should be the name of a postgres
+ paster datastore set-permissions postgres -c |development.ini|
+
+The ``postgres`` in this command should be the name of a postgres
 user with permission to create new tables and users, grant permissions, etc.
 Typically this user is called "postgres". See ``paster datastore
 set-permissions -h``.
@@ -94,15 +104,19 @@ Copy the content from the ``datastore/bin/`` directory to the database server. T
 
  python datastore_setup.py -h
 
-Once you are confident that you know the right names, set the permissions (assuming that the CKAN database is called ``ckan`` and the CKAN PostgreSQL user is called ``ckanuser``)::
+Once you are confident that you know the right names, set the permissions
+(assuming that the CKAN database is called |database| and the CKAN |postgres|
+user is called |database_user|):
 
- python datastore_setup.py ckan datastore ckanuser ckanuser readonlyuser -p postgres
+.. parsed-literal::
+
+ python datastore_setup.py |database| |datastore| |database_user| |database_user| |datastore_user| -p postgres
 
 
 Option 3: SQL script
 ~~~~~~~~~~~~~~~~~~~~
 
-This option is for more complex set-ups and requires understanding of SQL and PostgreSQL.
+This option is for more complex set-ups and requires understanding of SQL and |postgres|.
 
 Copy the ``set_permissions.sql`` file to the server that the database runs on. Make sure you set all variables in the file correctly and comment out the parts that are not needed for you set-up. Then, run the script::
 
@@ -112,21 +126,30 @@ Copy the ``set_permissions.sql`` file to the server that the database runs on. M
 3. Test the set-up
 ==================
 
-The DataStore is now set-up. To test the set-up you can list all resources that are in the DataStore::
+The DataStore is now set-up. To test the set-up, (re)start CKAN and run the
+following command to list all resources that are in the DataStore::
 
  curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
 
 This should return a JSON page without errors.
 
-To test the whether the set-up allows writing you can create a new resource in the DataStore. To do so, run the following command::
+To test the whether the set-up allows writing, you can create a new resource in
+the DataStore. To do so, run the following command:: 
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
+Replace ``{YOUR-API-KEY}`` with a valid API key and ``{RESOURCE-ID}`` with a
+resource id of an existing CKAN resource.
+
 A table named after the resource id should have been created on your DataStore
-database. Visiting the following URL should return a response from the DataStore with
+database. Visiting this URL should return a response from the DataStore with
 the records inserted above::
 
  http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
+
+You can now delete the DataStore table with::
+
+    curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}' 
 
 To find out more about the DataStore API, go to :doc:`datastore-api`.
 
