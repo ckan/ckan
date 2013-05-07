@@ -14,7 +14,7 @@ CKAN uses customized schema files that take into account its specific
 search needs. Different versions of the schema file are found in
 ``ckan/ckan/config/solr``
 
-The following instructions apply to Ubuntu 12.04 (Precise), the supported
+The following instructions apply to Ubuntu 12.04 (Precise), the recommended
 platform by the CKAN team. Other versions or distributions may need
 slightly different instructions.
 
