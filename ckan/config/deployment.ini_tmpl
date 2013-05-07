@@ -32,9 +32,9 @@ beaker.session.key = ckan
 # time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
 
-#beaker.cache.data_dir = %(here)s/data/cache
-#beaker.session.data_dir = %(here)s/data/sessions
-#
+beaker.cache.data_dir = %(here)s/data/cache
+beaker.session.data_dir = %(here)s/data/sessions
+
 # `paster make-config` generates a unique value for this each time it generates
 # a config file.
 app_instance_uuid = ${app_instance_uuid}
@@ -72,7 +72,7 @@ ckan.auth.create_user_via_api = false
 
 ## Search Settings
 
-ckan.site_id =
+ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
 #ckan.simple_search = 1
