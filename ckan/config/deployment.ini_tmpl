@@ -46,7 +46,14 @@ use = egg:ckan
 full_stack = true
 cache_dir = %(here)s/data
 beaker.session.key = ckan
+
+# This is the secret token that the beaker library uses to hash the cookie sent
+# to the client. `paster make-config` generates a unique value for this each
+# time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
+
+# `paster make-config` generates a unique value for this each time it generates
+# a config file.
 app_instance_uuid = ${app_instance_uuid}
 
 # List the names of CKAN extensions to activate.
@@ -65,14 +72,14 @@ ckan.plugins = stats json_preview recline_preview
 # Specify the database for SQLAlchemy to use:
 # * Postgres is currently required for a production CKAN deployment
 # * Sqlite (memory or file) can be used as a quick alternative for testing
-sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
+sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 # Un-comment and specify the URLs for the DataStore database.
 # * Postgres is required
-#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
-#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
+#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
 
 # repoze.who config
 who.config_file = %(here)s/who.ini
@@ -146,7 +153,7 @@ ckan.gravatar_default = identicon
 
 ## An 'id' for the site (using, for example, when creating entries in a common search index) 
 ## If not specified derived from the site_url
-# ckan.site_id = ckan.net
+ckan.site_id = default
 
 ## API url to use (e.g. in AJAX callbacks)
 ## Enable if the API is at a different domain
@@ -241,7 +248,7 @@ ckan.feeds.author_link =
 
 # To enable local file storage:
 #ofs.impl = pairtree
-#ofs.storage_dir = /my/path/to/storage/root/directory
+#ofs.storage_dir = /var/lib/ckan/default
 
 # To enable Google cloud storage:
 #ofs.impl = google
@@ -299,24 +306,24 @@ ckan.debug_supress_header = false
 keys = root, ckan, ckanext
 
 [handlers]
-keys = console, file
+keys = console
 
 [formatters]
 keys = generic
 
 [logger_root]
 level = WARNING
-handlers = console, file
+handlers = console
 
 [logger_ckan]
 level = INFO
-handlers = console, file
+handlers = console
 qualname = ckan
 propagate = 0
 
 [logger_ckanext]
 level = DEBUG
-handlers = console, file
+handlers = console
 qualname = ckanext
 propagate = 0
 
@@ -325,12 +332,6 @@ class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
 formatter = generic
-
-[handler_file]
-class = logging.handlers.RotatingFileHandler
-formatter = generic
-level = NOTSET
-args = ("ckan.log", "a", 20000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
