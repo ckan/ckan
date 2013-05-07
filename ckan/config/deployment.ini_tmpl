@@ -2,7 +2,7 @@
 # CKAN - Pylons configuration
 #
 # These are some of the configuration options available for your CKAN
-# instance. Check the documentation on 'doc/configuration.rst' or on the
+# instance. Check the documentation in 'doc/configuration.rst' or at the
 # following URL for a description of what they do and the full list of
 # available options:
 #
