@@ -59,7 +59,7 @@ Create the database (owned by |database_user|), which we'll call
 Set URLs
 --------
 
-Now, uncomment the :ref:`ckan.datastore.write_url` and :ref:`ckan.datastore.read_url` lines in your CKAN config file and edit them if necessary:
+Now, uncomment the :ref:`ckan.datastore.write_url` and :ref:`ckan.datastore.read_url` lines in your CKAN config file and edit them if necessary.
 
 .. parsed-literal::
 
