@@ -124,7 +124,9 @@ class TestNastyString(object):
         show_passing(msg, self.passes)
 
     def test_bad(self):
-        msg = 'The following files have nasty str() issues that need resolving'
+        msg = ('The following files have nasty str() issues that need'
+               ' resolving\nCode is like `\'...%s..\' % str(..)`'
+               'and should just be `\'...%s..\' % ..`')
         show_fails(msg, self.fails)
 
 
@@ -291,7 +293,10 @@ class TestImportFromCkan(object):
         show_passing(msg, self.passes)
 
     def test_import_bad(self):
-        msg = 'The following files have ckan import issues that need resolving'
+        msg = ('The following files have ckan import issues that need'
+               'resolving\nThese files contain lines like `from ckan import x`'
+               ' This should not be done except from ckan.common which is'
+               ' written specifically to share external functions.')
         show_fails(msg, self.fails)
 
 
@@ -438,7 +443,9 @@ class TestImportStar(object):
         show_passing(msg, self.passes)
 
     def test_import_bad(self):
-        msg = 'The following files have import * issues that need resolving'
+        msg = ('The following files have import * issues that need resolving\n'
+               '`from ... import *` lines which should not be used in ckan'
+               ' where possible.')
         show_fails(msg, self.fails)
 
 
@@ -1053,9 +1060,12 @@ class TestBadExceptions(object):
                 cls.passes.append(filename)
 
     def test_good(self):
-        msg = 'The following files passed nasty str() rules'
+        msg = 'The following files passed nasty exceptions rules'
         show_passing(msg, self.passes)
 
     def test_bad(self):
-        msg = 'The following files have nasty str() issues that need resolving'
+        msg = ('The following files have nasty exception issues that need'
+               ' resolving\nWe should not be translating exceptions in most'
+               ' situations.  We need to when the exception message is passed'
+               ' to the front end for example validation')
         show_fails(msg, self.fails)
