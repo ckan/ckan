@@ -57,7 +57,7 @@ Create the database (owned by ``ckanuser``), which we'll call ``datastore``::
 Set URLs
 --------
 
-Now, uncomment the :ref:`ckan.datastore.write_url` and :ref:`ckan.datastore.read_url` lines in your CKAN config file and edit them if necessary:
+Now, uncomment the :ref:`ckan.datastore.write_url` and :ref:`ckan.datastore.read_url` lines in your CKAN config file and edit them if necessary.
 
 .. include:: /configuration.rst
     :start-after: start_config-datastore-urls
