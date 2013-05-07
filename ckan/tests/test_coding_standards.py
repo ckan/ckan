@@ -121,6 +121,7 @@ class TestNastyString(object):
 
     def test_good(self):
         msg = 'The following files passed nasty str() rules'
+        msg += '\nThey need removing from the test blacklist'
         show_passing(msg, self.passes)
 
     def test_bad(self):
@@ -290,6 +291,7 @@ class TestImportFromCkan(object):
 
     def test_import_good(self):
         msg = 'The following files passed ckan import rules'
+        msg += '\nThey need removing from the test blacklist'
         show_passing(msg, self.passes)
 
     def test_import_bad(self):
@@ -440,6 +442,7 @@ class TestImportStar(object):
 
     def test_import_good(self):
         msg = 'The following files passed import * rules'
+        msg += '\nThey need removing from the test blacklist'
         show_passing(msg, self.passes)
 
     def test_import_bad(self):
@@ -807,6 +810,7 @@ class TestPep8(object):
 
     def test_pep8_fails(self):
         msg = 'The following files have pep8 issues that need resolving'
+        msg += '\nThey need removing from the test blacklist'
         show_fails(msg, self.fails)
 
     def test_pep8_pass(self):
@@ -1061,6 +1065,7 @@ class TestBadExceptions(object):
 
     def test_good(self):
         msg = 'The following files passed nasty exceptions rules'
+        msg += '\nThey need removing from the test blacklist'
         show_passing(msg, self.passes)
 
     def test_bad(self):
