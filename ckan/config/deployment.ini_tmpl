@@ -26,9 +26,17 @@ use = egg:ckan
 full_stack = true
 cache_dir = %(here)s/data
 beaker.session.key = ckan
+
+# This is the secret token that the beaker library uses to hash the cookie sent
+# to the client. `paster make-config` generates a unique value for this each
+# time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
-#beaker.cache.data_dir = %(here)s/data/cache
-#beaker.session.data_dir = %(here)s/data/sessions
+
+beaker.cache.data_dir = %(here)s/data/cache
+beaker.session.data_dir = %(here)s/data/sessions
+
+# `paster make-config` generates a unique value for this each time it generates
+# a config file.
 app_instance_uuid = ${app_instance_uuid}
 
 # repoze.who config
@@ -38,13 +46,12 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 
 ## Database Settings
+sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
+#sqlalchemy.url = sqlite:///
+#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
-sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
-#sqlalchemy.url = sqlite:///                    # SQLite memory (testing only)
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db  # SQLite file (testing only)
-
-#ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
-#ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
+#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
 
 
 ## Site Settings
@@ -66,7 +73,7 @@ ckan.auth.create_user_via_api = false
 
 ## Search Settings
 
-ckan.site_id =
+ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
 #ckan.simple_search = 1
@@ -100,7 +107,6 @@ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain a
 
 
 ## Internationalisation Settings
-
 ckan.locale_default = en
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
 ckan.locales_offered =
@@ -118,7 +124,7 @@ ckan.feeds.author_link =
 
 # Local file storage:
 #ofs.impl = pairtree
-#ofs.storage_dir = /my/path/to/storage/root/directory
+#ofs.storage_dir = /var/lib/ckan/default
 
 # Google cloud storage:
 #ofs.impl = google
@@ -155,24 +161,24 @@ smtp.starttls = False
 keys = root, ckan, ckanext
 
 [handlers]
-keys = console, file
+keys = console
 
 [formatters]
 keys = generic
 
 [logger_root]
 level = WARNING
-handlers = console, file
+handlers = console
 
 [logger_ckan]
 level = INFO
-handlers = console, file
+handlers = console
 qualname = ckan
 propagate = 0
 
 [logger_ckanext]
 level = DEBUG
-handlers = console, file
+handlers = console
 qualname = ckanext
 propagate = 0
 
@@ -181,12 +187,6 @@ class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
 formatter = generic
-
-[handler_file]
-class = logging.handlers.RotatingFileHandler
-formatter = generic
-level = NOTSET
-args = ("ckan.log", "a", 20000000, 9)
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
