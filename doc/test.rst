@@ -12,22 +12,28 @@ Installing Additional Dependencies
 ----------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at ``~/pyenv/ckan/development.ini``, then activate your
-virtual environment::
+created a config file at |development.ini|, then activate your
+virtual environment:
 
-    . ~/pyenv/bin/activate
+.. parsed-literal::
+
+    |activate|
 
 Install nose and other test-specific CKAN dependencies into your virtual
-environment::
+environment:
 
-    pip install -r ~/pyenv/src/ckan/pip-requirements-test.txt
+.. parsed-literal::
+
+    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
 
 Testing with SQLite
 -------------------
 
-To run the CKAN tests using SQLite as the database library::
+To run the CKAN tests using SQLite as the database library:
 
-    cd ~/pyenv/src/ckan
+.. parsed-literal::
+
+    cd |virtualenv|/src/ckan
     nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
@@ -58,16 +64,17 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-Starting in CKAN 2.1 tests are run in a separate postgres database by
-default.  You should create the test databases as follows::
+.. versionchanged:: 2.1
+   Previously |postgres| tests used the databases defined in your
+   ``development.ini`` file, instead of using their own test databases.
 
-    sudo -u postgres createdb -O ckanuser ckan_test -E utf-8
-    sudo -u postgres createdb -O ckanuser ckan_test_datastore -E utf-8
-    # create datastore user default password `pass`
-    sudo -u postgres createuser -S -D -R -P -l readonlyuser
-    # set the permissions for readonly user
+Create test databases:
+
+.. parsed-literal::
+
+    sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
+    sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
     paster datastore set-permissions postgres -c test-core.ini
-
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
@@ -149,9 +156,11 @@ nosetests
 
          pip install --ignore-installed nose
 
-   If ``nose --version`` still fails, ensure that ckan is installed in your environment::
+   If ``nose --version`` still fails, ensure that ckan is installed in your environment:
 
-         cd pyenv/src/ckan
+   .. parsed-literal::
+
+         cd |virtualenv|/src/ckan
          python setup.py develop
 
    One final check - the version of nose should be at least 1.0. Check with::
