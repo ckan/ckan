@@ -76,6 +76,38 @@ This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
 
+.. start_config-datastore-urls
+
+.. _ckan.datastore.write_url:
+
+ckan.datastore.write_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
+
+The database connection to use for writing to the datastore (this can be
+ignored if you're not using the :doc:`datastore`). Note that the database used
+should not be the same as the normal CKAN database. The format is the same as
+in :ref:`sqlalchemy.url`.
+
+.. _ckan.datastore.read_url:
+
+ckan.datastore.read_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+
+The database connection to use for reading from the datastore (this can be
+ignored if you're not using the :doc:`datastore`). The database used must be
+the same used in :ref:`ckan.datastore.write_url`, but the user should be one
+with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
+
+.. end_config-datastore-urls
+
 
 Site Settings
 -------------
@@ -394,11 +426,13 @@ ckan.search.automatic_indexing
 
 Example::
 
- ckan.search.automatic_indexing = 1
+ ckan.search.automatic_indexing = true
+
+Default value: ``true``
 
 Make all changes immediately available via the search after editing or
 creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to 0.
+to occur asynchronously, set this option to false.
 
 .. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
@@ -432,7 +466,7 @@ standard datasets or also custom dataset types.
 .. _search.facets.limits:
 
 search.facets.limits
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
@@ -452,17 +486,6 @@ Example::
   search.facets.default = 10
 
 Default number of facets shown in search results.  Default 10.
-
-.. _search.facets.limit:
-
-search.facets.limit
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  search.facets.limit = 50
-
-Highest number of facets shown in search results.  Default 50.
 
 .. _ckan.extra_resource_fields:
 
@@ -955,6 +978,19 @@ Default value: ``50000000``
 
 This defines the maximum content size, in bytes, for uploads.
 
+.. _ofs.impl:
+
+ofs.impl
+^^^^^^^^
+
+Example::
+
+  ofs.impl = pairtree
+
+Default value:  ``None``
+
+Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -966,7 +1002,67 @@ Example::
 
 Default value:  ``None``
 
-Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+
+.. _ofs.aws_access_key_id:
+
+ofs.aws_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.aws_secret_access_key:
+
+ofs.aws_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_access_key_id:
+
+ofs.gs_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_secret_access_key:
+
+ofs.gs_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
 
 
 Activity Streams Settings
@@ -1011,6 +1107,21 @@ Example::
 Default value: ``infinite``
 
 This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+
+
+.. _ckan.email_notifications_since:
+
+ckan.email_notifications_since
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.email_notifications_since = 2 days
+
+Default value: ``infinite``
+
+Email notifications for events older than this time delta will not be sent.
+Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
 
 
 .. _config-feeds:
@@ -1181,7 +1292,7 @@ example::
 This is useful for integrating CKAN's new dataset form into a third-party
 interface, see :doc:`form-integration`.
 
-The ``<NAME>`` string is replaced with the name of the dataset created. 
+The ``<NAME>`` string is replaced with the name of the dataset created.
 
 .. _package_edit_return_url:
 
