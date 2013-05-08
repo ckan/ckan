@@ -20,7 +20,7 @@ Some popular extensions include:
 
    Those marked with (x) are 'core' extensions and are shipped as part of the core CKAN distribution
 
-* ckanext-stats (x): Statistics (and visuals) about the datasets in a CKAN instance.
+* :doc:`ckanext-stats <stats>` (x): Statistics (and visuals) about the datasets in a CKAN instance.
 * `ckanext-apps <https://github.com/okfn/ckanext-apps>`_: Apps and ideas catalogue extension for CKAN.
 * `ckanext-disqus <https://github.com/okfn/ckanext-disqus>`_: Allows users to comment on dataset pages with Disqus. 
 * `ckanext-follower <https://github.com/okfn/ckanext-follower>`_: Allow users to follow datasets.
