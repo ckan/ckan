@@ -23,6 +23,7 @@ Installation
    install-from-package
    install-from-source
    post-installation
+   common-error-messages
    deployment
    solr-setup
    datastore-setup
@@ -39,7 +40,6 @@ Customizing and Extending
    resources
    apps-ideas
    extensions
-   writing-extensions
    toolkit
    tag-vocabularies
    form-integration
@@ -47,8 +47,6 @@ Customizing and Extending
    filestore
    datastore
    background-tasks
-   harvesting
-   geospatial
    multilingual
    email-notifications
    tracking
@@ -88,7 +86,6 @@ General Administration
    paster
    database-dumps
    configuration
-   common-error-messages
 
 For CKAN Developers
 ===================

@@ -82,6 +82,8 @@ notifications for a CKAN site, a sysadmin must:
 
 6. For the new configuration to take effect you need to restart the web server.
    For example if your are using Apache on Ubuntu, run this command in a
-   shell::
+   shell:
 
-    sudo service apache2 restart
+   .. parsed-literal::
+
+      |reload_apache|
