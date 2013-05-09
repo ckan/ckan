@@ -24,16 +24,13 @@ port = 5000
 [app:main]
 use = egg:ckan
 full_stack = true
-cache_dir = %(here)s/data
+cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
 # This is the secret token that the beaker library uses to hash the cookie sent
 # to the client. `paster make-config` generates a unique value for this each
 # time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
-
-beaker.cache.data_dir = %(here)s/data/cache
-beaker.session.data_dir = %(here)s/data/sessions
 
 # `paster make-config` generates a unique value for this each time it generates
 # a config file.
