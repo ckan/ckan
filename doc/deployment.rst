@@ -120,17 +120,6 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
-Set the ``data`` and ``sstore`` Directory Permissions
------------------------------------------------------
-
-Make sure that Apache's user (``www-data`` on Ubuntu) has permission to write to
-the site's ``data`` and ``sstore`` directories:
-
-.. parsed-literal::
-
-    chmod g+w -R |data_dir| |sstore|
-    sudo chgrp -R www-data |data_dir| |sstore|
-
 Enable Your CKAN Site
 ---------------------
 
