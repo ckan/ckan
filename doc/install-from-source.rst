@@ -117,6 +117,8 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
         deactivate
         |activate|
 
+.. _postgres-setup:
+
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -199,6 +201,8 @@ setup Solr, then change the ``solr_url`` option in your CKAN config file to
 point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
+
+.. _postgres-init:
 
 6. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
