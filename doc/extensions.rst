@@ -24,7 +24,7 @@ CKAN comes with several pre-installed extensions:
   * ``resourceproxy`` - Allow remotely hosted content to be viewed
 
 
-* ``stats`` - Show stats and visuals about your site's datasets
+* :doc:`stats` - Show stats and visuals about your site's datasets
 
 External Extensions
 -------------------
