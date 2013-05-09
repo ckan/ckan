@@ -4,36 +4,42 @@
 Stats Extension
 ===============
 
-CKAN can analyze its database and display the results with the stats extension.
-This extension can show the:
+CKAN's stats extension analyzes your CKAN database and displays several tables
+and graphs with statistics about your site, including:
 
-* Total Number of Datasets
-* Dataset Revisions per Week
-* Top Rated Datasets
-* Most Edited Datasets
-* Largest Groups
-* Top Tags
-* Users Owning Most Datasets
+* Total number of datasets
+* Dataset revisions per week
+* Top-rated datasets
+* Most-edited Datasets
+* Largest groups
+* Top tags
+* Users owning most datasets
+
+.. seealso::
+
+  CKAN's :ref:`built-in page view tracking feature <tracking>`, which tracks
+  visits to pages.
 
 .. seealso::
 
  `ckanext-googleanalytics <https://github.com/okfn/ckanext-googleanalytics>`_
     A CKAN extension that integrates Google Analytics into CKAN.
 
-.. seealso::
-
-  :ref:`tracking`
-  CKAN can track visits to pages of your site to show and highlight popular datasets.
 
 Enabling the Stats Extension
 ============================
 
-To enable the stats extensions add ``stats`` to ``ckan.plugins`` in the config
-file. If you set :ref:`ckanext.stats.cache_enabled` to `true`, CKAN will cache
-the stats for one day instead of calculating them each time a user visits the
-stats page.
+To enable the stats extensions add ``stats`` to the :ref:`ckan.plugins` option
+in your CKAN config file, for example::
+
+  ckan.plugins = stats
+
+If you also set the :ref:`ckanext.stats.cache_enabled` option to ``true``, CKAN
+will cache the stats for one day instead of calculating them each time a user
+visits the stats page.
 
 Viewing the Statistics
 ======================
 
-To visits the statistics, use the URL ``/stats``.
+To view the statistics reported by the stats extension, visit the ``/stats``
+page, for example: http://demo.ckan.org/stats
