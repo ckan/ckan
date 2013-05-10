@@ -3,7 +3,7 @@ Option 2: Install from Source
 =============================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 12.04. Installing
+:doc:`install-from-package` is simpler, it requires Ubuntu 12.04 64-bit. Installing
 CKAN from source works with other versions of Ubuntu and with other operating
 systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
 on your own operating system, please share your experiences on our
@@ -42,6 +42,8 @@ Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (use
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
+
+.. _install-ckan-in-virtualenv:
 
 2. Install CKAN into a Python virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,6 +118,8 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 
         deactivate
         |activate|
+
+.. _postgres-setup:
 
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,6 +203,8 @@ setup Solr, then change the ``solr_url`` option in your CKAN config file to
 point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
+
+.. _postgres-init:
 
 6. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
