@@ -31,7 +31,7 @@ python setup.py develop
 # Configure CKAN's configuration file
 paster make-config ckan development.ini --no-interactive
 sed -i -e 's/.*solr_url.*/solr_url = http:\/\/127.0.0.1:8983\/solr/' development.ini
-sed -i -e 's/.*ckan\.site_id.*/ckan.site_id = travis_ci/' development.ini
+sed -i -e 's/.*ckan\.site_id =.*/ckan.site_id = travis_ci/' development.ini
 sed -i -e 's/^sqlalchemy.url.*/sqlalchemy.url = postgresql:\/\/ckan_default:pass@localhost\/ckan_test/' development.ini
 sed -i -e 's/.*datastore.write_url.*/ckan.datastore.write_url = postgresql:\/\/ckan_default:pass@localhost\/datastore_test/' development.ini
 
