@@ -185,16 +185,11 @@ Upgrading to a new major version
 Upgrading to a new minor version
 ********************************
 
-If you only want to upgrade to a new minor version (e.g. upgrade to 1.7.1 to
-1.7, or to 1.7.2 from 1.7.1), then you only need to update the `python-ckan`
+If you only want to upgrade to a new minor version (e.g. upgrade from 1.7 to
+1.7.1, or from 1.7.1 to 1.7.2), then you only need to update the `python-ckan`
 package to get the latest changes::
 
     sudo apt-get install python-ckan
-
-.. caution::
-
-    This assumes that you already have installed CKAN via package install. If
-    not, do not install this single package, follow the instructions on :ref:`run-package-installer`
 
 After upgrading the package, you need to restart Apache for the changes to take
 effect::
