@@ -2051,7 +2051,7 @@ msgstr "Déconnexion"
 #: ckan/templates/header.html:43 ckan/templates/user/logout_first.html:15
 #: ckan/templates/user/snippets/login_form.html:27
 msgid "Log in"
-msgstr ""
+msgstr "Connexion"
 
 #: ckan/templates/header.html:44 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -3860,7 +3860,7 @@ msgstr "Déconnexion"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Mémoriser mes informations"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
@@ -6828,3 +6828,36 @@ msgstr "Vous avez oublié vos coordonnées"
 
 msgid "No problem, use our password recovery form to reset it"
 msgstr "Utilisez notre formulaire de récupération de mot de passe pour rétablir votre identité"
+
+msgid "Search Data"
+msgstr "Recherche données"
+
+msgid "Help"
+msgstr "Aide"
+
+msgid "Stay connected"
+msgstr "Restez branchés"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Travel"
+msgstr "Voyage"
+
+msgid "Jobs"
+msgstr "Emplois"
+
+msgid "Economy"
+msgstr "Économie"
+
+msgid "healthycanadians.gc.ca"
+msgstr "canadiensensante.gc.ca"
+
+msgid "travel.gc.ca"
+msgstr "voyage.gc.ca"
+
+msgid "jobbank.gc.ca"
+msgstr "guichetemplois.gc.ca"
+
+msgid "actionplan.gc.ca"
+msgstr "plandaction.gc.ca"
