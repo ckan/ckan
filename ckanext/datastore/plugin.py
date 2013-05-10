@@ -74,6 +74,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
 
+        @logic.side_effect_free
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
                 context,
