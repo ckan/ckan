@@ -142,7 +142,7 @@ Upgrading to a new major version
 
 #. Upgrade your Solr schema.
 
-   Configure ``ckan.site_url`` or ``ckan.site_id`` in |production.ini| for SOLR search-index rebuild to work. eg:
+   Configure ``ckan.site_url`` or ``ckan.site_id`` in |production.ini| for |solr| search-index rebuild to work. eg:
 
    ::
 
