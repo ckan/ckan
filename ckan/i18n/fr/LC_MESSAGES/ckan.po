@@ -2051,7 +2051,7 @@ msgstr "Déconnexion"
 #: ckan/templates/header.html:43 ckan/templates/user/logout_first.html:15
 #: ckan/templates/user/snippets/login_form.html:27
 msgid "Log in"
-msgstr ""
+msgstr "Connexion"
 
 #: ckan/templates/header.html:44 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2590,13 +2590,13 @@ msgstr ""
 #: ckan/templates/organization/snippets/organization_item.html:33
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{num} Ensembles de données"
+msgstr[1] "{num} Ensembles de données"
 
 #: ckan/templates/group/snippets/group_item.html:35
 #: ckan/templates/organization/snippets/organization_item.html:35
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 Ensembles de données"
 
 #: ckan/templates/home/index.html:3 ckan/templates_legacy/home/index.html:9
 msgid "Welcome"
@@ -2817,7 +2817,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_item.html:30
 msgid "This organization has no description"
-msgstr ""
+msgstr "Il n’y a aucune description de cette organisation"
 
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
@@ -3542,11 +3542,11 @@ msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
-msgstr ""
+msgstr "Effacer tout"
 
 #: ckan/templates/snippets/facet_list.html:58
 msgid "Show More {facet}"
-msgstr ""
+msgstr "Afficher plus d'{facet}"
 
 #: ckan/templates/snippets/facet_list.html:60
 msgid "Show Only Popular {facet}"
@@ -3554,7 +3554,7 @@ msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:64
 msgid "There are no filters for this search"
-msgstr ""
+msgstr "Aucun filtre sélectionné pour cette recherche"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -3590,7 +3590,7 @@ msgstr ""
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:18
 msgid "Popular"
-msgstr ""
+msgstr "Popularité"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
@@ -3609,22 +3609,22 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} Ensembles de données trouvés"
+msgstr[1] "{number} Ensembles de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "0 Ensembles de données trouvés "
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} Ensembles de données trouvés "
+msgstr[1] "{number} Ensembles de données trouvés "
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "Sorry no datasets found"
-msgstr ""
+msgstr "0 Ensembles de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
@@ -3649,22 +3649,22 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} organisations repérées"
+msgstr[1] "{number} organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "Sorry no organizations found for \"{query}\""
-msgstr ""
+msgstr "0 organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} organisations repérées"
+msgstr[1] "{number} organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "Sorry no organizations found"
-msgstr ""
+msgstr "0 organisations repérées"
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
@@ -3672,19 +3672,19 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Tri"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr ""
+msgstr "Pertinence"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "Alphabétique croissant"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "Alphabétique décroissant"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -3825,7 +3825,7 @@ msgstr ""
 
 #: ckan/templates/user/login.html:26
 msgid "Create an Account"
-msgstr ""
+msgstr "Créer un compte"
 
 #: ckan/templates/user/login.html:32
 msgid "Forgotten your details?"
@@ -3860,7 +3860,7 @@ msgstr "Déconnexion"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Mémoriser mes informations"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
@@ -6813,3 +6813,66 @@ msgstr "Choisissez une zone"
 #: ckanext-canada/ckanext/canada/templates/internal/base.html
 msgid "Open Data Registry"
 msgstr "Registre de données ouvertes"
+
+msgid "Departments"
+msgstr "Ministères"
+
+msgid "Need an Account"
+msgstr "Besoin d’un compte"
+
+msgid "Then sign right up, it only takes a minute"
+msgstr "Inscrivez-vous maintenant, cela ne prend qu’une minute"
+
+msgid "Forgotten your details"
+msgstr "Vous avez oublié vos coordonnées"
+
+msgid "No problem, use our password recovery form to reset it"
+msgstr "Utilisez notre formulaire de récupération de mot de passe pour rétablir votre identité"
+
+msgid "Search Data"
+msgstr "Recherche données"
+
+msgid "Help"
+msgstr "Aide"
+
+msgid "Stay connected"
+msgstr "Restez branchés"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Travel"
+msgstr "Voyage"
+
+msgid "Jobs"
+msgstr "Emplois"
+
+msgid "Economy"
+msgstr "Économie"
+
+msgid "healthycanadians.gc.ca"
+msgstr "canadiensensante.gc.ca"
+
+msgid "travel.gc.ca"
+msgstr "voyage.gc.ca"
+
+msgid "jobbank.gc.ca"
+msgstr "guichetemplois.gc.ca"
+
+msgid "actionplan.gc.ca"
+msgstr "plandaction.gc.ca"
+
+msgid "What are Organizations"
+msgstr "Qu’est qu’une organisation"
+
+msgid "Search open data"
+msgstr "Chercher dans les données ouvertes"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "File Format"
+msgstr "Format du fichier"
+
+msgid "Published or Pending"
+msgstr "Publié ou en attente de publication"
