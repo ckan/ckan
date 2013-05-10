@@ -2590,13 +2590,13 @@ msgstr ""
 #: ckan/templates/organization/snippets/organization_item.html:33
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{num} Ensembles de données"
+msgstr[1] "{num} Ensembles de données"
 
 #: ckan/templates/group/snippets/group_item.html:35
 #: ckan/templates/organization/snippets/organization_item.html:35
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 Ensembles de données"
 
 #: ckan/templates/home/index.html:3 ckan/templates_legacy/home/index.html:9
 msgid "Welcome"
@@ -2817,7 +2817,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_item.html:30
 msgid "This organization has no description"
-msgstr ""
+msgstr "Il n’y a aucune description de cette organisation"
 
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
@@ -3649,22 +3649,22 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} organisations repérées"
+msgstr[1] "{number} organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "Sorry no organizations found for \"{query}\""
-msgstr ""
+msgstr "0 organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} organisations repérées"
+msgstr[1] "{number} organisations repérées"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "Sorry no organizations found"
-msgstr ""
+msgstr "0 organisations repérées"
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
@@ -3672,7 +3672,7 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Tri"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
@@ -3680,11 +3680,11 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "Alphabétique croissant"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "Alphabétique décroissant"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -6861,3 +6861,6 @@ msgstr "guichetemplois.gc.ca"
 
 msgid "actionplan.gc.ca"
 msgstr "plandaction.gc.ca"
+
+msgid "What are Organizations"
+msgstr "Qu’est qu’une organisation"
