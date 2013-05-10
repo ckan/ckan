@@ -58,7 +58,7 @@ SetupCommand('setup-app').run([config['__file__']])
 # webtest (successor library) already has this
 # http://pythonpaste.org/webtest/#parsing-the-body
 def _getjson(self):
-    return json.loads(self.body)
+    return json.loads(self.body, encoding='utf8')
 paste.fixture.TestResponse.json = property(_getjson)
 
 # Check config is correct for sqlite
