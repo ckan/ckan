@@ -1116,7 +1116,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     if result:
         user_id = result.id
     else:
-        message = _(u'User {username} does not exist.'.format(username=username))
+        message = _(u'User {username} does not exist.').format(username=username)
         raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
