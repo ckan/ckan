@@ -6894,3 +6894,8 @@ msgstr "Aucun nom complet fourni"
 
 msgid "You have not provided a biography"
 msgstr "Vous n’avez pas fourni de biographie"
+
+msgid ""
+" Your profile lets other Open Data Registry users know about who you "
+"are and what you do. "
+msgstr "Votre profil permet aux autres utilisateurs de Registre de données ouvertes de savoir qui vous êtes et ce que vous faites"
