@@ -3825,7 +3825,7 @@ msgstr ""
 
 #: ckan/templates/user/login.html:26
 msgid "Create an Account"
-msgstr ""
+msgstr "Créer un compte"
 
 #: ckan/templates/user/login.html:32
 msgid "Forgotten your details?"
@@ -6813,3 +6813,18 @@ msgstr "Choisissez une zone"
 #: ckanext-canada/ckanext/canada/templates/internal/base.html
 msgid "Open Data Registry"
 msgstr "Registre de données ouvertes"
+
+msgid "Departments"
+msgstr "Ministères"
+
+msgid "Need an Account"
+msgstr "Besoin d’un compte"
+
+msgid "Then sign right up, it only takes a minute"
+msgstr "Inscrivez-vous maintenant, cela ne prend qu’une minute"
+
+msgid "Forgotten your details"
+msgstr "Vous avez oublié vos coordonnées"
+
+msgid "No problem, use our password recovery form to reset it"
+msgstr "Utilisez notre formulaire de récupération de mot de passe pour rétablir votre identité"
