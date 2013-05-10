@@ -7,11 +7,14 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-from pylons.i18n.translation import _
-from pylons import config, g
-from ckan import model, __version__
-from ckan.lib.helpers import url_for
+from pylons import config
 import paste.deploy.converters
+
+import ckan
+import ckan.model as model
+import ckan.lib.helpers as h
+
+from ckan.common import _, g
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +39,7 @@ def _mail_recipient(recipient_name, recipient_email,
     recipient = u"%s <%s>" % (recipient_name, recipient_email)
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
-    msg['X-Mailer'] = "CKAN %s" % __version__
+    msg['X-Mailer'] = "CKAN %s" % ckan.__version__
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
@@ -115,7 +118,7 @@ def create_reset_key(user):
 
 def get_reset_link(user):
     return urljoin(g.site_url,
-                   url_for(controller='user',
+                   h.url_for(controller='user',
                            action='perform_reset',
                            id=user.id,
                            key=user.reset_key))

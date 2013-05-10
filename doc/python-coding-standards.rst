@@ -34,6 +34,7 @@ single-quote characters or wrapping the string in double single-quotes.
 
 We also use triple single-quotes for docstrings, see `Docstrings`_.
 
+.. _imports:
 
 Imports
 -------
@@ -102,7 +103,7 @@ as it changes over time. So:
 - Try to avoid repetition.
 
 PEP 257 (Docstring Conventions)
-```````
+```````````````````````````````
 
 Generally, follow `PEP 257`_ for docstrings. We'll only describe the ways that
 CKAN differs from or extends PEP 257 below.

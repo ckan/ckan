@@ -10,12 +10,13 @@ from pylons import config
 import webhelpers.util
 from nose.tools import assert_equal
 from paste.fixture import TestRequest
+from webhelpers.html import url_escape
 
 from ckan.tests import *
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json, url_escape
 from ckan.tests import TestController as ControllerTestCase
+from ckan.common import json
 
 ACCESS_DENIED = [403]
 

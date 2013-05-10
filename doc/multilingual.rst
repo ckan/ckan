@@ -1,6 +1,6 @@
-=====================================
-Translating Datasets, Groups and Tags
-=====================================
+======================
+Multilingual Extension
+======================
 
 For translating CKAN's web interface see :ref:`i18n`. In addition to user interface internationalization, a CKAN administrator can also enter translations into CKAN's database for terms that may appear in the contents of datasets, groups or tags created by users. When a user is viewing the CKAN site, if the translation terms database contains a translation in the user's language for the name or description of a dataset or resource, the name of a tag or group, etc. then the translated term will be shown to the user in place of the original.
 
@@ -14,7 +14,7 @@ By default term translations are disabled. To enable them, you have to specify t
   # List the names of CKAN extensions to activate.
   ckan.plugins = multilingual_dataset multilingual_group multilingual_tag
 
-Of course, you won't see any terms getting translated until you load some term translations into the database. You can do this using the ``term_translation_update`` and ``term_translation_update_many`` actions of the CKAN API, See :ref:`api` for more details.
+Of course, you won't see any terms getting translated until you load some term translations into the database. You can do this using the ``term_translation_update`` and ``term_translation_update_many`` actions of the CKAN API, See :doc:`api` for more details.
 
 Loading Test Translations
 -------------------------

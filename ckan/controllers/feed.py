@@ -21,16 +21,17 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 import urlparse
+from urllib import urlencode
 
 import webhelpers.feedgenerator
 from pylons import config
-from pylons.i18n import _
-from urllib import urlencode
 
-from ckan import model
-from ckan.lib.base import BaseController, c, request, response, json, abort, g
-from ckan.lib.helpers import date_str_to_datetime, url_for
-from ckan.logic import get_action, NotFound
+import ckan.model as model
+import ckan.lib.base as base
+import ckan.lib.helpers as h
+import ckan.logic as logic
+
+from ckan.common import _, g, c, request, response, json
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -55,7 +56,7 @@ def _package_search(data_dict):
         data_dict['rows'] = ITEMS_LIMIT
 
     # package_search action modifies the data_dict, so keep our copy intact.
-    query = get_action('package_search')(context, data_dict.copy())
+    query = logic.get_action('package_search')(context, data_dict.copy())
 
     return query['count'], query['results']
 
@@ -151,8 +152,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
     return ':'.join(['tag', tagging_entity, resource_path])
 
 
-class FeedController(BaseController):
-
+class FeedController(base.BaseController):
     base_url = config.get('ckan.site_url')
 
     def _alternate_url(self, params, **kwargs):
@@ -171,9 +171,9 @@ class FeedController(BaseController):
         try:
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
-            group_dict = get_action('group_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Group not found'))
+            group_dict = logic.get_action('group_show')(context, {'id': id})
+        except logic.NotFound:
+            base.abort(404, _('Group not found'))
 
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'groups:"%s"' % id
@@ -207,7 +207,6 @@ class FeedController(BaseController):
                                 navigation_urls=navigation_urls)
 
     def tag(self, id):
-
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'tags:"%s"' % id
 
@@ -283,9 +282,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1))
         except ValueError:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -323,7 +322,6 @@ class FeedController(BaseController):
 
     def output_feed(self, results, feed_title, feed_description,
                     feed_link, feed_url, navigation_urls, feed_guid):
-
         author_name = config.get('ckan.feeds.author_name', '').strip() or \
             config.get('ckan.site_id', '').strip()
         author_link = config.get('ckan.feeds.author_link', '').strip() or \
@@ -348,22 +346,22 @@ class FeedController(BaseController):
         for pkg in results:
             feed.add_item(
                 title=pkg.get('title', ''),
-                link=self.base_url + url_for(controller='package',
-                                             action='read',
-                                             id=pkg['id']),
+                link=self.base_url + h.url_for(controller='package',
+                                               action='read',
+                                               id=pkg['id']),
                 description=pkg.get('notes', ''),
-                updated=date_str_to_datetime(pkg.get('metadata_modified')),
-                published=date_str_to_datetime(pkg.get('metadata_created')),
+                updated=h.date_str_to_datetime(pkg.get('metadata_modified')),
+                published=h.date_str_to_datetime(pkg.get('metadata_created')),
                 unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
                 author_name=pkg.get('author', ''),
                 author_email=pkg.get('author_email', ''),
                 categories=[t['name'] for t in pkg.get('tags', [])],
                 enclosure=webhelpers.feedgenerator.Enclosure(
-                    self.base_url + url_for(controller='api',
-                                            register='package',
-                                            action='show',
-                                            id=pkg['name'],
-                                            ver='2'),
+                    self.base_url + h.url_for(controller='api',
+                                              register='package',
+                                              action='show',
+                                              id=pkg['name'],
+                                              ver='2'),
                     unicode(len(json.dumps(pkg))),   # TODO fix this
                     u'application/json')
             )
@@ -377,7 +375,7 @@ class FeedController(BaseController):
         Constructs the url for the given action.  Encoding the query
         parameters.
         """
-        path = url_for(controller=controller, action=action, **kwargs)
+        path = h.url_for(controller=controller, action=action, **kwargs)
         query = [(k, v.encode('utf-8') if isinstance(v, basestring)
                   else str(v)) for k, v in query.items()]
 
@@ -433,13 +431,12 @@ class FeedController(BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {

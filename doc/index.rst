@@ -1,12 +1,12 @@
-=======================================
-Welcome to CKAN's Administration Guide
-=======================================
+===============================
+Welcome to CKAN's Documentation
+===============================
 
 .. note ::
 
    This is the documentation for CKAN version '|version|'. If you are using a different version, use the links on the bottom right corner of the page to select the appropriate documentation.
 
-This Administration Guide covers how to set up and manage `CKAN <http://ckan.org>`_ software.
+This documentation covers how to set up and manage `CKAN <http://ckan.org>`_ software.
 
 * The first two sections cover your two options for installing CKAN: package or source install.
 * The rest of the first half of the Guide, up to :doc:`authorization`, covers setup and basic admin.
@@ -23,6 +23,7 @@ Installation
    install-from-package
    install-from-source
    post-installation
+   common-error-messages
    deployment
    solr-setup
    datastore-setup
@@ -34,22 +35,22 @@ Customizing and Extending
    :maxdepth: 2
 
    theming
+   frontend-development
+   templating
+   resources
    apps-ideas
-   commenting
    extensions
-   writing-extensions
    toolkit
-   forms
    tag-vocabularies
    form-integration
    linked-data-and-rdf
    filestore
    datastore
    background-tasks
-   harvesting
-   geospatial
    multilingual
    email-notifications
+   tracking
+   stats
 
 Publishing Datasets
 ===================
@@ -58,7 +59,7 @@ Publishing Datasets
    :maxdepth: 2
 
    publishing-datasets
-   loading-data
+   importing-datasets
    authorization
    publisher-profile
    data-viewer
@@ -67,11 +68,13 @@ The CKAN API
 ============
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    api
-   api-tutorial
    datastore-api
+   filestore-api
+   legacy-api
+
 
 General Administration
 ======================
@@ -83,7 +86,6 @@ General Administration
    paster
    database-dumps
    configuration
-   common-error-messages
 
 For CKAN Developers
 ===================
@@ -91,6 +93,7 @@ For CKAN Developers
 .. toctree::
    :maxdepth: 1
 
+   contributing
    architecture
    python-coding-standards
    javascript-coding-standards
@@ -99,6 +102,7 @@ For CKAN Developers
    i18n
    test
    release-cycle
+   release-process
 
 Other material
 ==============
@@ -106,8 +110,6 @@ Other material
 .. toctree::
    :maxdepth: 2
 
-   contrib.rst
-   user-stories
    CHANGELOG.rst
 
 Indices and tables

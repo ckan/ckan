@@ -106,6 +106,8 @@ class CheckPoFiles(paste.script.command.Command):
             print u'Checking file {}'.format(path)
             po = polib.pofile(path)
             for entry in po.translated_entries():
+                if not entry.msgstr:
+                    continue
                 for function in (simple_conv_specs, mapping_keys,
                         replacement_fields):
                     if not function(entry.msgid) == function(entry.msgstr):

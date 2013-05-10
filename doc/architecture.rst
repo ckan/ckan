@@ -45,7 +45,7 @@ Action Functions are Exposed in the API
 ```````````````````````````````````````
 
 The functions in ``ckan.logic.action`` are exposed to the world as the
-:doc:`apiv3`.  The API URL for an action function is automatically generated
+:doc:`api`.  The API URL for an action function is automatically generated
 from the function name, for example
 ``ckan.logic.action.create.package_create()`` is exposed at
 ``/api/action/package_create``. See `Steve Yegge's Google platforms rant
@@ -54,12 +54,12 @@ interesting discussion about APIs.
 
 **All** publicly visible functions in the
 ``ckan.logic.action.{create,delete,get,update}`` namespaces will be exposed
-through the :doc:`apiv3`. **This includes functions imported** by those
+through the :doc:`api`. **This includes functions imported** by those
 modules, **as well as any helper functions** defined within those modules.  To
 prevent inadvertent exposure of non-action functions through the action api,
 care should be taken to:
 
-1. Import modules correctly (see `Imports`_).  For example: ::
+1. Import modules correctly (see :ref:`imports`).  For example::
 
      import ckan.lib.search as search
 
@@ -78,7 +78,7 @@ care should be taken to:
 
 
 Use ``get_action()``
-````````````````
+````````````````````
 
 Don't call ``logic.action`` functions directly, instead use ``get_action()``.
 This allows plugins to override action functions using the ``IActions`` plugin
@@ -92,7 +92,7 @@ Instead of ::
 
 
 Auth Functions and ``check_access()``
-``````````````
+`````````````````````````````````````
 
 Each action function defined in ``ckan.logic.action`` should use its own
 corresponding auth function defined in ``ckan.logic.auth``. Instead of calling
@@ -111,7 +111,7 @@ from the API).
 
 
 ``logic.get_or_bust()``
-`````````````
+```````````````````````
 
 The ``data_dict`` parameter of logic action functions may be user provided, so
 required files may be invalid or absent. Naive Code like::
@@ -179,13 +179,13 @@ See :doc:`test` for further information on testing in CKAN.
 Writing Extensions
 ------------------
 
-Please see :doc:`writing-extensions` for information about writing ckan
+Please see :ref:`writing-extensions` for information about writing ckan
 extensions, including details on the API available to extensions.
 
 Deprecation
 -----------
 
-- Anything that may be used by extensions (see :doc:`writing-extensions`) needs
+- Anything that may be used by extensions (see :ref:`writing-extensions`) needs
   to maintain backward compatibility at call-site.  ie - template helper
   functions and functions defined in the plugins toolkit.
 

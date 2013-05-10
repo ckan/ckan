@@ -93,6 +93,8 @@ class CkanExtend(ext.Extension):
         template_path = parser.filename
         # find where in the search path this template is from
         index = 0
+        if not hasattr(self, 'searchpath'):
+            return node
         for searchpath in self.searchpath:
             if template_path.startswith(searchpath):
                 break

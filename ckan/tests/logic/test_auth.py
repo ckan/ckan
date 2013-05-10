@@ -3,7 +3,6 @@ from ckan.logic import get_action
 import ckan.model as model
 import ckan.new_authz as new_authz
 import json
-from ckan.tests import StatusCodes
 
 INITIAL_TEST_CONFIG_PERMISSIONS = {
     'anon_create_dataset': False,
@@ -15,6 +14,7 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'create_user_via_api': False,
     'create_unowned_dataset': False,
 }
+
 
 class TestAuth(tests.WsgiAppCase):
     @classmethod
@@ -34,7 +34,7 @@ class TestAuth(tests.WsgiAppCase):
         model.repo.rebuild_db()
 
     def _call_api(self, action, data, user, status=None):
-        params='%s=1' % json.dumps(data)
+        params = '%s=1' % json.dumps(data)
         return self.app.post('/api/action/%s' % action,
                              params=params,
                              extra_environ={'Authorization': self.apikeys[user]},
@@ -65,16 +65,16 @@ class TestAuthOrgs(TestAuth):
         self._call_api('user_create', user, 'no_org', 403)
 
     def test_02_create_orgs(self):
-        org = {'name': 'org_no_user',}
+        org = {'name': 'org_no_user'}
         self._call_api('organization_create', org, 'random_key', 403)
         self._call_api('organization_create', org, 'sysadmin')
 
-        org = {'name': 'org_with_user',}
+        org = {'name': 'org_with_user'}
         self._call_api('organization_create', org, 'random_key', 403)
         self._call_api('organization_create', org, 'sysadmin')
 
         #no user should be able to create org
-        org = {'name': 'org_should_not_be_created',}
+        org = {'name': 'org_should_not_be_created'}
         self._call_api('organization_create', org, 'org_admin', 403)
 
     def test_03_create_dataset_no_org(self):
@@ -87,13 +87,16 @@ class TestAuthOrgs(TestAuth):
 
     def test_04_create_dataset_with_org(self):
 
-        dataset = {'name': 'admin_create_with_user', 'owner_org': 'org_with_user'}
+        dataset = {'name': 'admin_create_with_user',
+                   'owner_org': 'org_with_user'}
         self._call_api('package_create', dataset, 'sysadmin', 200)
 
-        dataset = {'name': 'sysadmin_create_no_user', 'owner_org': 'org_no_user'}
+        dataset = {'name': 'sysadmin_create_no_user',
+                   'owner_org': 'org_no_user'}
         self._call_api('package_create', dataset, 'sysadmin', 200)
 
-        dataset = {'name': 'user_create_with_org', 'owner_org': 'org_with_user'}
+        dataset = {'name': 'user_create_with_org',
+                   'owner_org': 'org_with_user'}
         self._call_api('package_create', dataset, 'no_org', 403)
 
     def test_05_add_users_to_org(self):
@@ -127,11 +130,11 @@ class TestAuthOrgs(TestAuth):
         self._call_api('package_create', dataset, user, 409)
 
         #admin not able to make dataset not owned by a org
-        dataset = {'name': user + '_dataset_bad' }
+        dataset = {'name': user + '_dataset_bad'}
         self._call_api('package_create', dataset, user, 409)
 
         #not able to add org to not existant org
-        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist' }
+        dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
         self._call_api('package_create', dataset, user, 409)
 
     def test_07_add_datasets(self):
@@ -149,7 +152,7 @@ class TestAuthOrgs(TestAuth):
         dataset = {'id': 'sysadmin_create_no_user', 'title': 'test'}
         self._call_api('package_update', dataset, user, 403)
         #non existant owner org
-        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist' }
+        dataset = {'id': 'org_editor_dataset', 'owner_org': 'org_not_exist'}
         self._call_api('package_update', dataset, user, 409)
 
     def test_08_update_datasets(self):
@@ -191,17 +194,15 @@ class TestAuthOrgs(TestAuth):
 class TestAuthGroups(TestAuth):
 
     def test_01_create_groups(self):
-        group = {'name': 'group_no_user',}
+        group = {'name': 'group_no_user'}
         self._call_api('group_create', group, 'random_key', 403)
         self._call_api('group_create', group, 'sysadmin')
 
-        group = {'name': 'group_with_user',}
+        group = {'name': 'group_with_user'}
         self._call_api('group_create', group, 'random_key', 403)
         self._call_api('group_create', group, 'sysadmin')
-
 
     def test_02_add_users_to_group(self):
-
         self.create_user('org_admin')
         self.create_user('org_editor')
         self.create_user('org_editor_wannabe')
@@ -232,20 +233,28 @@ class TestAuthGroups(TestAuth):
         package = {'name': 'package_added_by_editor', 'owner_org': 'org'}
         self._call_api('package_create', package, 'sysadmin')
 
-        group = {'id': 'group_with_user', 'packages': [{'id': 'package_added_by_admin'}]}
+        res = self._call_api('group_show',
+                             {'id': 'group_with_user'},
+                             'org_admin')
+        group = json.loads(res.body)['result']
         self._call_api('group_update', group, 'no_group', 403)
         self._call_api('group_update', group, 'org_admin')
 
         group = {'id': 'group_with_user',
-                 'packages': [{'id': 'package_added_by_admin'}, {'id' :'package_added_by_editor'}]}
+                 'packages': [{'id': 'package_added_by_admin'},
+                              {'id': 'package_added_by_editor'}]}
         # org editor doesn't have edit rights
         self._call_api('group_update', group, 'org_editor', 403)
 
     def test_04_modify_group(self):
-
-        group = {'id': 'group_with_user', 'title': 'moo',
-                 'packages': [{'id': 'package_added_by_admin'}]}
-
+        res = self._call_api('group_show',
+                             {'id': 'group_with_user'},
+                             'org_admin')
+        group = json.loads(res.body)['result']
+        group.update({
+            'title': 'moo',
+            'packages': [{'id': 'package_added_by_admin'}]
+        })
         self._call_api('group_update', group, 'org_admin')
 
         # need to think about this as is horrible may just let editor edit
@@ -253,14 +262,9 @@ class TestAuthGroups(TestAuth):
         self._call_api('group_update', group, 'org_editor', 403)
 
     def test_05_delete_group(self):
-
         org = {'id': 'group_with_user'}
         self._call_api('group_delete', org, 'org_editor', 403)
         self._call_api('group_delete', org, 'org_admin', 403)
         org = {'id': 'group_with_user'}
         self._call_api('group_delete', org, 'org_editor', 403)
         self._call_api('group_delete', org, 'org_admin', 403)
-
-
-
-

@@ -12,22 +12,28 @@ Installing Additional Dependencies
 ----------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
-created a config file at ``~/pyenv/ckan/development.ini``, then activate your
-virtual environment::
+created a config file at |development.ini|, then activate your
+virtual environment:
 
-    . ~/pyenv/bin/activate
+.. parsed-literal::
+
+    |activate|
 
 Install nose and other test-specific CKAN dependencies into your virtual
-environment::
+environment:
 
-    pip install -r ~/pyenv/src/ckan/pip-requirements-test.txt
+.. parsed-literal::
+
+    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
 
 Testing with SQLite
 -------------------
 
-To run the CKAN tests using SQLite as the database library::
+To run the CKAN tests using SQLite as the database library:
 
-    cd ~/pyenv/src/ckan
+.. parsed-literal::
+
+    cd |virtualenv|/src/ckan
     nosetests --ckan ckan
 
 You *must* run the tests from the CKAN directory as shown above, otherwise the
@@ -58,8 +64,20 @@ Or to run the CKAN tests and the core extensions tests together::
 Testing with PostgreSQL
 -----------------------
 
-First, make sure you have specified a PostgreSQL database with the
-``sqlalchemy.url`` parameter in your ``development.ini`` file.
+.. versionchanged:: 2.1
+   Previously |postgres| tests used the databases defined in your
+   ``development.ini`` file, instead of using their own test databases.
+
+Create test databases:
+
+.. parsed-literal::
+
+    sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
+    sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
+    paster datastore set-permissions postgres -c test-core.ini
+
+This database connection is specified in the ``test-core.ini`` file by the
+``sqlalchemy.url`` parameter.
 
 CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
 database library (it also sets ``faster_db_test_hacks``). To run the tests more
@@ -92,26 +110,60 @@ With the ``--ckan-migration`` option the tests will run using a database that
 has been created by running the migration scripts in ``ckan/migration``, which
 is how the database is created and upgraded in production.
 
-.. caution ::
-
-    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL
-    database so these also get used when running ``test-core.ini``, since
-    ``test-core.ini`` inherits from ``development.ini``. If you were to change
-    the ``sqlalchemy.url`` option in your ``development.ini`` file to use
-    SQLite, the command above would actually test SQLite rather than
-    PostgreSQL, so always check the setting in ``development.ini`` to ensure
-    you are running the full tests.
-
 .. warning ::
 
    A common error when wanting to run tests against a particular database is to
    change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem
    is that these are versioned files and people have checked in these by
-   mistake, creating problems for other developers and the CKAN buildbot. This
-   is easily avoided by only changing ``sqlalchemy.url`` in your local
-   ``development.ini`` and testing ``--with-pylons=test-core.ini``.
+   mistake, creating problems for other developers.
 
 Common error messages
 ---------------------
 
-Consult :doc:`common-error-messages` for solutions to a range of setup problems.
+ConfigError
+```````````
+
+``nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'``
+   This error can result when you run nosetests for two reasons:
+
+   1. Pylons nose plugin failed to run. If this is the case, then within a couple of lines of running `nosetests` you'll see this warning: `Unable to load plugin pylons` followed by an error message. Fix the error here first`.
+
+   2. The Python module 'Pylons' is not installed into you Python environment. Confirm this with::
+
+        python -c "import pylons"
+
+OperationalError
+````````````````
+
+``OperationalError: (OperationalError) no such function: plainto_tsquery ...``
+   This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
+
+nosetests
+`````````
+
+``nosetests: error: no such option: --ckan``
+   Nose is either unable to find ckan/ckan_nose_plugin.py in the python environment it is running in, or there is an error loading it. If there is an error, this will surface it::
+
+         nosetests --version
+
+   There are a few things to try to remedy this:
+
+   Commonly this is because the nosetests isn't running in the python environment. You need to have nose actually installed in the python environment. To see which you are running, do this::
+
+         which nosetests
+
+   If you have activated the environment and this still reports ``/usr/bin/nosetests`` then you need to::
+
+         pip install --ignore-installed nose
+
+   If ``nose --version`` still fails, ensure that ckan is installed in your environment:
+
+   .. parsed-literal::
+
+         cd |virtualenv|/src/ckan
+         python setup.py develop
+
+   One final check - the version of nose should be at least 1.0. Check with::
+
+         pip freeze | grep -i nose
+

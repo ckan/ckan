@@ -1,22 +1,24 @@
 import logging
 import datetime
+import json
 
-import pylons
-from pylons.i18n import _
 from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
-import paste.deploy.converters
+import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
 import ckan.logic as logic
-import ckan.logic.schema
-import ckan.lib.dictization
+import ckan.logic.schema as schema_
+import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.email_notifications
+import ckan.lib.email_notifications as email_notifications
+import ckan.lib.search as search
+
+from ckan.common import _, request
 
 log = logging.getLogger(__name__)
 
@@ -128,7 +130,7 @@ def related_update(context, data_dict):
     user = context['user']
     id = _get_or_bust(data_dict, "id")
 
-    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    schema = context.get('schema') or schema_.default_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -168,7 +170,7 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
-    schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
+    schema = context.get('schema') or schema_.default_update_resource_schema()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -233,20 +235,23 @@ def package_update(context, data_dict):
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    try:
-        schema = package_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
-                                               'context': context})
-    except AttributeError:
-        schema = package_plugin.form_to_db_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.update_package_schema()
 
     if 'api_version' not in context:
-        # old plugins do not support passing the schema so we need
-        # to ensure they still work
-        try:
-            package_plugin.check_data_dict(data_dict, schema)
-        except TypeError:
-            package_plugin.check_data_dict(data_dict)
+        # check_data_dict() is deprecated. If the package_plugin has a
+        # check_data_dict() we'll call it, if it doesn't have the method we'll
+        # do nothing.
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
+        if check_data_dict:
+            try:
+                package_plugin.check_data_dict(data_dict, schema)
+            except TypeError:
+                # Old plugins do not support passing the schema so we need
+                # to ensure they still work.
+                package_plugin.check_data_dict(data_dict)
 
     data, errors = _validate(data_dict, schema, context)
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
@@ -286,41 +291,15 @@ def package_update(context, data_dict):
 
     return_id_only = context.get('return_id_only', False)
 
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
+
+    # we could update the dataset so we should still be able to read it.
+    context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
-
-def package_update_validate(context, data_dict):
-    model = context['model']
-    user = context['user']
-
-    id = _get_or_bust(data_dict, "id")
-
-    pkg = model.Package.get(id)
-    context["package"] = pkg
-
-    if pkg is None:
-        raise NotFound(_('Package was not found.'))
-    data_dict["id"] = pkg.id
-
-    # get the schema
-    package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    try:
-        schema = package_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
-                                               'context': context})
-    except AttributeError:
-        schema = package_plugin.form_to_db_schema()
-
-    _check_access('package_update', context, data_dict)
-
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-    return data
-
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
@@ -364,7 +343,7 @@ def package_relationship_update(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
+    schema = context.get('schema') or schema_.default_update_relationship_schema()
 
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
@@ -445,7 +424,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # when editing an org we do not want to update the packages if using the
     # new templates.
     if ((not is_org)
-            and not paste.deploy.converters.asbool(
+            and not converters.asbool(
                 config.get('ckan.legacy_templates', False))
             and 'api_version' not in context):
         context['prevent_packages_update'] = True
@@ -502,7 +481,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
             activity_dict['activity_type'] = 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
-                'group': ckan.lib.dictization.table_dictize(group, context)
+                'group': dictization.table_dictize(group, context)
                 }
         activity_create_context = {
             'model': model,
@@ -573,7 +552,7 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or ckan.logic.schema.default_update_user_schema()
+    schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
@@ -641,7 +620,7 @@ def task_status_update(context, data_dict):
 
     user = context['user']
     id = data_dict.get("id")
-    schema = context.get('schema') or ckan.logic.schema.default_task_status_schema()
+    schema = context.get('schema') or schema_.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
@@ -851,7 +830,7 @@ def vocabulary_update(context, data_dict):
 
     _check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
+    schema = context.get('schema') or schema_.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -1010,15 +989,15 @@ def send_email_notifications(context, data_dict):
     # If paste.command_request is True then this function has been called
     # by a `paster post ...` command not a real HTTP request, so skip the
     # authorization.
-    if not pylons.request.environ.get('paste.command_request'):
+    if not request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
 
-    if not paste.deploy.converters.asbool(
-            pylons.config.get('ckan.activity_streams_email_notifications')):
+    if not converters.asbool(
+            config.get('ckan.activity_streams_email_notifications')):
         raise logic.ParameterError('ckan.activity_streams_email_notifications'
                 ' is not enabled in config')
 
-    ckan.lib.email_notifications.get_and_send_notifications_for_all_users()
+    email_notifications.get_and_send_notifications_for_all_users()
 
 
 def package_owner_org_update(context, data_dict):
@@ -1075,3 +1054,102 @@ def package_owner_org_update(context, data_dict):
 
     if not context.get('defer_commit'):
         model.Session.commit()
+
+
+def _bulk_update_dataset(context, data_dict, update_dict):
+    ''' Bulk update shared code for organizations'''
+
+    datasets = data_dict.get('datasets', [])
+    org_id = data_dict.get('org_id')
+
+    model = context['model']
+
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == org_id) \
+        .update(update_dict, synchronize_session=False)
+
+    # revisions
+    model.Session.query(model.package_revision_table) \
+        .filter(model.PackageRevision.id.in_(datasets)) \
+        .filter(model.PackageRevision.owner_org == org_id) \
+        .filter(model.PackageRevision.current == True) \
+        .update(update_dict, synchronize_session=False)
+
+    model.Session.commit()
+
+    # solr update here
+    psi = search.PackageSearchIndex()
+
+    # update the solr index in batches
+    BATCH_SIZE = 50
+
+    def process_solr(q):
+        # update the solr index for the query
+        query = search.PackageSearchQuery()
+        q = {
+            'q': q,
+            'fl': 'data_dict',
+            'wt': 'json',
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'rows': BATCH_SIZE
+        }
+
+        for result in query.run(q)['results']:
+            data_dict = json.loads(result['data_dict'])
+            if data_dict['owner_org'] == org_id:
+                data_dict.update(update_dict)
+                psi.index_package(data_dict, defer_commit=True)
+
+    count = 0
+    q = []
+    for id in datasets:
+        q.append('id:%s' % (id))
+        count += 1
+        if count % BATCH_SIZE == 0:
+            process_solr(' OR '.join(q))
+            q = []
+    if len(q):
+        process_solr(' OR '.join(q))
+    # finally commit the changes
+    psi.commit()
+
+
+def bulk_update_private(context, data_dict):
+    ''' Make a list of datasets private
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_private', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'private': True})
+
+def bulk_update_public(context, data_dict):
+    ''' Make a list of datasets public
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_public', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'private': False})
+
+def bulk_update_delete(context, data_dict):
+    ''' Make a list of datasets deleted
+
+    :param datasets: list of ids of the datasets to update
+    :type datasets: list of strings
+
+    :param org_id: id of the owning organization
+    :type org_id: int
+    '''
+
+    _check_access('bulk_update_delete', context, data_dict)
+    _bulk_update_dataset(context, data_dict, {'state': 'deleted'})

@@ -309,10 +309,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert anna.version in res
         assert anna.url in res
         assert 'Some test notes' in res
-        self.check_named_element(res, 'a',
-                                 'http://ckan.net/',
-                                 'target="_blank"',
-                                 'rel="nofollow"')
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
@@ -350,7 +346,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         pkg_name = u'link-test',
         CreateTestData.create_arbitrary([
             {'name':pkg_name,
-             'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
+             'notes':'Decoy link here: decoy:decoy, real links here: dataset:pkg-1, ' \
                    'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation."',
              }
             ])
@@ -358,9 +354,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         res = self.app.get(offset)
         def check_link(res, controller, id):
             id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
-            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id_in_uri),
-                                    '%s:%s' % (controller, id))
-        check_link(res, 'package', 'pkg-1')
+            self.check_tag_and_data(res, 'a ', '%s/%s' % (controller, id_in_uri),
+                                    '%s:%s' % (controller, id.replace('"', '&#34;')))
+        check_link(res, 'dataset', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
@@ -744,18 +740,6 @@ class TestEdit(TestPackageForm):
         rev = model.Revision.youngest(model.Session)
         assert rev.author == self.admin.name
         assert rev.message == exp_log_message
-
-    def test_missing_fields(self):
-        # User edits and a field is left out in the commit parameters.
-        # (Spammers can cause this)
-        fv = self.res.forms['dataset-edit']
-        del fv.fields['notes']
-        res = fv.submit('save', status=400, extra_environ=self.extra_environ_admin)
-
-        fv = self.res.forms['dataset-edit']
-        prefix = ''
-        del fv.fields[prefix + 'license_id']
-        res = fv.submit('save', status=400, extra_environ=self.extra_environ_admin)
 
     def test_redirect_after_edit_using_param(self):
         return_url = 'http://random.site.com/dataset/<NAME>?test=param'
@@ -1201,12 +1185,6 @@ class TestNew(TestPackageForm):
         assert 'URL: Missing value' in res, res
         self._assert_form_errors(res)
 
-    def test_new_bad_param(self):
-        offset = url_for(controller='package', action='new', __bad_parameter='value')
-        res = self.app.post(offset, {'save':'1'},
-                            status=400, extra_environ=self.extra_environ_tester)
-        assert 'Integrity Error' in res.body
-
     def test_redirect_after_new_using_param(self):
         return_url = 'http://random.site.com/dataset/<NAME>?test=param'
         # It's useful to know that this url encodes to:
@@ -1312,31 +1290,6 @@ class TestNew(TestPackageForm):
         assert 'Error' in res, res
         assert 'That URL is already in use.' in res, res
         self._assert_form_errors(res)
-
-    def test_missing_fields(self):
-        # A field is left out in the commit parameters.
-        # (Spammers can cause this)
-        offset = url_for(controller='package', action='new')
-        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
-        assert 'Add - Datasets' in res, res
-        prefix = ''
-        fv = res.forms['dataset-edit']
-        fv[prefix + 'name'] = 'anything'
-        del fv.fields['notes']
-        self.pkg_names.append('anything')
-        res = fv.submit('save', status=400, extra_environ=self.extra_environ_tester)
-
-        offset = url_for(controller='package', action='new')
-        res = self.app.get(offset, extra_environ=self.extra_environ_tester)
-        assert 'Add - Datasets' in res
-        fv = res.forms['dataset-edit']
-        fv[prefix + 'name'] = 'anything'
-        prefix = ''
-        del fv.fields[prefix + 'notes']
-        # NOTE Missing dropdowns fields don't cause KeyError in
-        # _serialized_value so don't register as an error here like
-        # text field tested here.
-        res = fv.submit('save', status=400, extra_environ=self.extra_environ_tester)
 
     def test_new_plugin_hook(self):
         plugin = MockPackageControllerPlugin()
@@ -1600,10 +1553,10 @@ alert('Hello world!');
 
     def test_markdown_html_whitelist(self):
         self.body = str(self.res)
-        self.assert_fragment('<table width="100%" border="1">')
-        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
-        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<table width="100%" border="1">')
+        self.fail_if_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.fail_if_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
+        self.fail_if_fragment('<td colspan="2"><center>--</center></td>')
         self.fail_if_fragment('<script>')
 
     def assert_fragment(self, fragment):

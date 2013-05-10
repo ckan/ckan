@@ -18,6 +18,8 @@
 
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
+
+    {% block basic_fields_data %}
       <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
         {#
         This block uses a slightly odd pattern. Unlike the rest of the radio
@@ -33,13 +35,21 @@
         <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
       </div>
     </div>
+    {% endblock %}
 
+    {% block basic_fields_url %}
     {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
+    {% endblock %}
 
+    {% block basic_fields_name %}
     {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+    {% endblock %}
 
+    {% block basic_fields_description %}
     {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+    {% endblock %}
 
+    {% block basic_fields_format %}
     {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
     {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
     <span class="info-block info-block-small">
@@ -47,6 +57,7 @@
       {{ _('This is generated automatically. You can edit if you wish') }}
     </span>
     {% endcall %}
+    {% endblock %}
   {% endblock %}
 
   {% block metadata_fields %}

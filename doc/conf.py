@@ -24,9 +24,39 @@ import sys, os
 # General configuration
 # ---------------------
 
+rst_epilog = '''
+
+.. |virtualenv_parent_dir| replace:: /usr/lib/ckan
+.. |virtualenv| replace:: |virtualenv_parent_dir|/default
+.. |activate| replace:: . |virtualenv|/bin/activate
+.. |config_parent_dir| replace:: /etc/ckan
+.. |config_dir| replace:: |config_parent_dir|/default
+.. |production.ini| replace:: |config_dir|/production.ini
+.. |development.ini| replace:: |config_dir|/development.ini
+.. |git_url| replace:: https://github.com/okfn/ckan.git
+.. |postgres| replace:: PostgreSQL
+.. |database| replace:: ckan_default
+.. |database_user| replace:: ckan_default
+.. |datastore| replace:: datastore_default
+.. |datastore_user| replace:: datastore_default
+.. |test_database| replace:: ckan_test
+.. |test_datastore| replace:: datastore_test
+.. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default
+.. |apache.wsgi| replace:: |config_dir|/apache.wsgi
+.. |data_dir| replace:: |config_dir|/data
+.. |sstore| replace:: |config_dir|/sstore
+.. |storage_parent_dir| replace:: /var/lib/ckan
+.. |storage_dir| replace:: |storage_parent_dir|/default
+.. |reload_apache| replace:: sudo service apache2 reload
+
+'''
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo']
+autodoc_member_order = 'bysource'
+
+autodoc_member_order = 'bysource'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,7 +71,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'CKAN Data Management System Documentation'
+project = u'CKAN Documentation'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2012, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
     Licensed under <a

@@ -1,12 +1,12 @@
 import re
-import datetime
 
-from pylons.i18n import _
 from webhelpers.html import literal
 
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.logic as logic
+
+from ckan.common import _
 
 # get_snippet_*() functions replace placeholders like {user}, {dataset}, etc.
 # in activity strings with HTML representations of particular users, datasets,

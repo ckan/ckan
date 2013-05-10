@@ -15,16 +15,20 @@
         </span>
       {% endif %}
       <h1>
+        {% block page_heading %}
         {{ pkg.title or pkg.name }}
         {% if pkg.state.startswith('draft') %}
           [{{ _('Draft') }}]
         {% endif %}
+        {% endblock %}
       </h1>
+      {% block package_notes %}
       {% if c.pkg_notes_formatted %}
         <div class="notes embedded-content">
           {{ c.pkg_notes_formatted }}
         </div>
       {% endif %}
+      {% endblock %}
       {# FIXME why is this here? seems wrong #}
       <span class="insert-comment-thread"></span>
     </section>

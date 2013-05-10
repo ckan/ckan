@@ -1,7 +1,7 @@
-from pylons.i18n import _
-
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 
 def package_create(context, data_dict=None):
@@ -106,6 +106,8 @@ def user_create(context, data_dict=None):
 
 
 def _check_group_auth(context, data_dict):
+    # FIXME This code is shared amoung other logic.auth files and should be
+    # somewhere better
     if not data_dict:
         return True
 
