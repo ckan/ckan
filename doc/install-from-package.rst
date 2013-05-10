@@ -23,11 +23,16 @@ CKAN:
 
 #. Install the Ubuntu packages that CKAN requires::
 
-    sudo apt-get install nginx apache2 libapache2-mod-wsgi libpq5
+    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
 
 #. Download the CKAN package::
 
     wget http://packages.ckan.org/python-ckan-2.0_amd64.deb
+
+   .. note:: If ``wget`` is not present, you can install it
+       via::
+
+        sudo apt-get install wget
 
 #. Install the CKAN package::
 
@@ -79,6 +84,9 @@ CKAN:
 #. Optionally, setup the :doc:`DataStore <datastore>` by following the
    instructions in :doc:`datastore-setup`.
 
+#. Also optionally, you can enable file uploads by following the
+   instructions in :doc:`filestore`.
+
 3. You're done!
 ---------------
 
@@ -92,106 +100,59 @@ page, which will look something like this:
 You can now proceed to :doc:`post-installation`.
 
 
-.. _upgrading:
+.. _upgrading-to-2.0:
 
-Upgrading a Package Install
----------------------------
-
-.. note::
-
-   The CKAN 2.0 package only works on Ubuntu 12.04 64-bit.
-
-.. versionchanged: 1.7
-
-   Before CKAN 1.7, it was not necessary to uninstall and reinstall the CKAN
-   package when upgrading between major versions.
+Upgrading to CKAN 2.0
+---------------------
 
 .. note::
 
-   **Major versions** of CKAN, such as 2.0, 1.8 and 1.7, can introduce
-   backwards-incompatible changes, and changes to CKAN's database and |solr|
-   schemas. **Minor versions**, such as 1.7.1 or 1.7.2, contain only bug
-   fixes, non-breaking optimizations, and new translations. The procedure for
-   upgrading a CKAN package install is different depending on whether you're
-   upgrading to a new major version, or just upgrading to a new minor version
-   within the same major version.
+   If you are upgrading to a 1.X version of CKAN check the
+   `documentation <http://docs.ckan.org/en/ckan-1.8/install-from-package.html#upgrading-a-package-install>`_
+   relevant to the old packaging system.
 
-If you're upgrading to a new major version of CKAN, follow the instructions in
-`Upgrading to a new major version`_ below. If you're only upgrading to a new
-minor version, follow `Upgrading to a new minor version`_ instead.
+CKAN 2.0 packages require Ubuntu 12.04 64-bit and install the files
+in different locations from the 1.X ones. These changes have been made to 
+simplify the installation and packaging process and bring source and package
+installations closer, but unfortunately this means that there is not a direct
+upgrade path from 1.X to 2.0.
 
-Upgrading to a new major version
-********************************
+The upgrade process will roughly involve the following steps:
 
-.. caution ::
+.. warning::
 
-   Always make a backup first and be prepared to start again with a fresh
-   install of the newer version of CKAN.
-
-#. First, uninstall the old CKAN package (this won't remove your data or
-   configuration)::
-
-    sudo apt-get autoremove ckan
-
-   Then, follow the instructions in :ref:`run-package-installer` to install
-   the new CKAN package.
-
-#. Move your ``production.ini`` file. The location of the ``production.ini``
-   file has changed in 2.0, you'll need to move your ``production.ini`` file to
-   |production.ini|.
-
-#. Upgrade your Solr schema.
-
-   Configure ``ckan.site_url`` or ``ckan.site_id`` in |production.ini| for |solr| search-index rebuild to work. eg:
-
-   ::
-
-       ckan.site_id = yoursite.ckan.org
-
-   The site_id must be unique so the domain name of the CKAN instance is a good choice.
-
-   Install the new schema:
-
-   ::
-
-       sudo rm /usr/share/solr/conf/schema.xml
-       sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema-2.0.xml /usr/share/solr/conf/schema.xml
-
-#. Upgrade your database::
-
-       sudo ckan db upgrade
-
-   When upgrading from CKAN 1.5 you may experience error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key``. In this case then you need to rename users with duplicate names, before the database upgrade will run successfully. For example::
-
-        sudo ckan paster --plugin=pylons shell /etc/ckan/std/std.ini
-        model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>1);').fetchall()
-        users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
-        users[1].name = users[1].name[:-1]
-        model.repo.commit_and_remove()
-
-#. Rebuild the search index (this can take some time - e.g. an hour for 5000 datasets):
-
-   ::
-
-       sudo ckan search-index rebuild
-
-#. Restart Apache
-
-   ::
-
-       sudo service apache2 restart
+    Always make a backup of the database and any configuration or custom
+    extensions that you have.
 
 
-Upgrading to a new minor version
-********************************
+* Create a dump of your 1.X database::
 
-If you only want to upgrade to a new minor version (e.g. upgrade from 1.7 to
-1.7.1, or from 1.7.1 to 1.7.2), then you only need to update the `python-ckan`
-package to get the latest changes::
+    sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db dump db-1.x.dump --config=/etc/ckan/std/std.ini
 
-    sudo apt-get install python-ckan
+* Install CKAN 2.0, either from a :doc:`source install <install-from-source>`
+  or a :doc:`package install <install-from-package>`, but don't initialize a 
+  database (don't run the ``db init`` command).
 
-After upgrading the package, you need to restart Apache for the changes to take
-effect::
+* Load the old database dump. This will also try to upgrade the database to
+  the latest version and rebuild the search index afterwards::
 
-   sudo service apache2 restart
+    sudo ckan db load db-1.x.dump
+
+CKAN 2.0 introduces significant backwards incompatible changes with previous
+versions, so if you are using custom extensions you will need to update them.
+Main changes include:
+
+* The :doc:`toolkit` allows safer interation with CKAN core, as the methods
+  provided will work across different CKAN versions.
+
+* The front-end templates have been rewritten to Jinja2, so any custom ones
+  will need to be adapted. See :doc:`theming` for details.
+
+* CKAN 2.0 introduces a new form of :doc:`authorization` based on
+  organizations. Have a look at the documentation and decide on the best way
+  to migrate and configure the new instance.
+
+Have a look at the :doc:`CHANGELOG` for a more comprehensive list of changes.
+
+We recommend enabling the different extensions used one by one to identify
+potential problems and things that need updating.
