@@ -111,11 +111,9 @@ Upgrading to CKAN 2.0
    `documentation <http://docs.ckan.org/en/ckan-1.8/install-from-package.html#upgrading-a-package-install>`_
    relevant to the old packaging system.
 
-CKAN 2.0 packages require Ubuntu 12.04 64-bit and install the files
-in different locations from the 1.X ones. These changes have been made to 
-simplify the installation and packaging process and bring source and package
-installations closer, but unfortunately this means that there is not a direct
-upgrade path from 1.X to 2.0.
+CKAN 2.0 packages require Ubuntu 12.04 64-bit and are built differently
+from previous versions, so there is not a direct upgrade path from 1.X to
+2.0.
 
 The upgrade process will roughly involve the following steps:
 
@@ -129,21 +127,26 @@ The upgrade process will roughly involve the following steps:
 
     sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db dump db-1.x.dump --config=/etc/ckan/std/std.ini
 
+* If you want to use the same server to do a source install, uninstall CKAN
+  first::
+
+    sudo apt-get autoremove ckan
+
 * Install CKAN 2.0, either from a :doc:`source install <install-from-source>`
-  or a :doc:`package install <install-from-package>`, but don't initialize a 
-  database (don't run the ``db init`` command).
+  or a :doc:`package install <install-from-package>` if you have an Ubuntu
+  12.04 64-bit server available.
 
-* Load the old database dump. This will also try to upgrade the database to
-  the latest version and rebuild the search index afterwards::
+* Once you are confident that CKAN 2.0 is running fine, clean the default
+  database created on the previous step and load the old database dump.
+  This will also try to upgrade the database to the latest version and rebuild
+  the search index afterwards::
 
+    sudo ckan db clean
     sudo ckan db load db-1.x.dump
 
 CKAN 2.0 introduces significant backwards incompatible changes with previous
 versions, so if you are using custom extensions you will need to update them.
 Main changes include:
-
-* The :doc:`toolkit` allows safer interation with CKAN core, as the methods
-  provided will work across different CKAN versions.
 
 * The front-end templates have been rewritten to Jinja2, so any custom ones
   will need to be adapted. See :doc:`theming` for details.
