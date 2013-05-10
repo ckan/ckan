@@ -237,23 +237,7 @@ Follow the instructions in :doc:`datastore-setup` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
-8. Create the ``data`` and ``sstore`` directories
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create the ``data`` and ``sstore`` directories:
-
-.. parsed-literal::
-
-    mkdir |data_dir| |sstore|
-
-The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
-OpenID session directory, is specified by the ``store_file_path`` setting in
-the ``who.ini`` file.
-
-The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
-is specified by the ``cache_dir`` setting in your CKAN config file.
-
-9. Link to ``who.ini``
+8. Link to ``who.ini``
 ~~~~~~~~~~~~~~~~~~~~~~
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
@@ -263,7 +247,7 @@ same directory as your CKAN config file, so create a symlink to it:
 
     ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
-10. Run CKAN in the development web server
+9. Run CKAN in the development web server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can use the Paste development server to serve CKAN from the command-line.
@@ -279,13 +263,13 @@ Apache or Nginx (see :doc:`post-installation`).
 Open http://127.0.0.1:5000/ in your web browser, and you should see the CKAN
 front page.
 
-11. Run the CKAN Tests
+10. Run the CKAN Tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you've installed CKAN, you should run CKAN's tests to make sure that
 they all pass. See :doc:`test`.
 
-12. You're done!
+11. You're done!
 ~~~~~~~~~~~~~~~~
 
 You can now proceed to :doc:`post-installation` which covers creating a CKAN
