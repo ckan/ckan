@@ -52,7 +52,7 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if not model.engine_is_pg():
+        if not self.write_url.startswith('postgresql'):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
