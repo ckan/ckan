@@ -90,7 +90,7 @@ CKAN:
 3. You're done!
 ---------------
 
-Open http://localhost:5000 in your web browser. You should see the CKAN front
+Open http://localhost in your web browser. You should see the CKAN front
 page, which will look something like this:
 
 .. image :: images/9.png
