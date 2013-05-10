@@ -159,11 +159,11 @@ Upgrading to a new major version
 
 #. Upgrade your database::
 
-       sudo -u ckan db upgrade
+       sudo ckan db upgrade
 
    When upgrading from CKAN 1.5 you may experience error ``sqlalchemy.exc.IntegrityError: (IntegrityError) could not create unique index "user_name_key``. In this case then you need to rename users with duplicate names, before the database upgrade will run successfully. For example::
 
-        sudo -u ckanstd paster --plugin=pylons shell /etc/ckan/std/std.ini
+        sudo ckan paster --plugin=pylons shell /etc/ckan/std/std.ini
         model.meta.engine.execute('SELECT name, count(name) AS NumOccurrences FROM "user" GROUP BY name HAVING(COUNT(name)>1);').fetchall()
         users = model.Session.query(model.User).filter_by(name='https://www.google.com/accounts/o8/id?id=ABCDEF').all()
         users[1].name = users[1].name[:-1]
@@ -173,7 +173,7 @@ Upgrading to a new major version
 
    ::
 
-       sudo -u ckan search-index rebuild
+       sudo ckan search-index rebuild
 
 #. Restart Apache
 
