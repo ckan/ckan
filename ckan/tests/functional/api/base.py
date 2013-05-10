@@ -183,7 +183,7 @@ class ApiTestCase(object):
 
     def loads(self, chars):
         try:
-            return json.loads(chars, encoding='utf8')
+            return json.loads(chars)
         except ValueError, inst:
             raise Exception, "Couldn't loads string '%s': %s" % (chars, inst)
 
