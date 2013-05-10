@@ -2,41 +2,34 @@
 Option 1: Package Installation
 ==============================
 
-This section describes how to install CKAN from packages. This is the recommended and the easiest way to install CKAN.
+This section describes how to install CKAN from packages. This is the
+recommended and the easiest way to install CKAN, but it requires **Ubuntu 12.04
+64-bit**. If you're not using Ubuntu 12.04 64-bit, or if you're installing CKAN
+for development, you should follow :doc:`install-from-source` instead.
 
-The overall process is the following:
-
-* :ref:`prepare-your-system`
-* :ref:`run-package-installer`
-* :ref:`setup-postgres-solr`
-* :ref:`upgrading`
-
-.. note:: We recommend you use package installation unless you are a core CKAN developer or have no access to Ubuntu 12.04, in which case you should use :doc:`install-from-source`.
-
-.. _prepare-your-system:
-
-Prepare your system
--------------------
-
-Package install requires you to use **Ubuntu 12.04 64-bit**: either locally,
-through a virtual machine (like `VirtualBox <https://www.virtualbox.org/>`_) or
-a cloud service like Amazon EC2, Rackspace, Azure, etc.
+If you run into problems, see :doc:`common-error-messages`.
 
 .. _run-package-installer:
 
-Run the Package Installer
--------------------------
+1. Install the CKAN Package
+---------------------------
 
-On your Ubuntu 12.04 system, open a terminal and run these commands to prepare your system::
+On your Ubuntu 12.04 system, open a terminal and run these commands to install
+CKAN:
+
+#. Update Ubuntu's package index::
 
     sudo apt-get update
-    wget http://packages.ckan.org/python-ckan-2.0_amd64.deb
 
-Install the following requirements::
+#. Install the Ubuntu packages that CKAN requires::
 
     sudo apt-get install nginx apache2 libapache2-mod-wsgi libpq5
 
-Now you are ready to install::
+#. Download the CKAN package::
+
+    wget http://packages.ckan.org/python-ckan-2.0_amd64.deb
+
+#. Install the CKAN package::
 
     sudo dpkg -i python-ckan-2.0_amd64.deb
 
@@ -49,107 +42,107 @@ Now you are ready to install::
     The Apache error log may have more information.
        ...fail!
 
- You can enable it running::
+ You can enable it by running these commands in a terminal::
 
     sudo a2enmod wsgi
     sudo service apache2 restart
 
 
-.. _setup-postgres-solr:
+2. Install PostgreSQL and Solr
+------------------------------
 
-Install PostgreSQL and Solr
----------------------------
+.. tip::
 
-If you already have PostgreSQL or Solr instances that you want to use set
-up on the same or a different server you don't need to install them locally.
-You will only need to update the :ref:`sqlalchemy.url`
-    and :ref:`solr_url` options on the `/etc/ckan/default/production.ini` file
-to match your settings.
+   You can install |postgres|, |solr| and CKAN on different servers. Just
+   change the :ref:`sqlalchemy.url` and :ref:`solr_url` settings in your
+   |production.ini| file to reference your |postgres| and |solr| servers.
 
-The most simple case though is to run CKAN, PostgreSQL and Solr on the same
-server. To install PostgreSQL and Solr run::
+#. Install |postgres| and |solr|, run this command in a terminal::
 
     sudo apt-get install -y postgresql solr-jetty
 
-The install will whirr away, then towards the end you'll see this::
+   The install will whirr away, then towards the end you'll see this::
 
      * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
 
-Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr and :ref:`postgres-setup` to setup and PostgreSQL for ckan.
+#. Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
+   setup |solr|.
 
-Once you have set up PostgresSQL, edit the :ref:`sqlalchemy.url`
-option on the `/etc/ckan/default/production.ini` file with the password that
-you defined (or the database and user name if you didn't use the default ones).
+#. Follow the instructions in :ref:`postgres-setup` to setup |postgres|,
+   then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
+   set the correct password, database and database user.
 
-To initialize the database, run the following::
+#. Initialize your CKAN database by running this command in a terminal::
 
     sudo ckan db init
 
-You can optionally set up the :doc:`DataStore features<datastore>`. Follow the
-instructions in :doc:`datastore-setup` to create the required databases and
-users, set the right permissions and set the appropriate values in your CKAN
-config file.
+#. Optionally, setup the :doc:`DataStore <datastore>` by following the
+   instructions in :doc:`datastore-setup`.
 
-Visit your CKAN instance at `http://localhost:5000`. The welcome screen will
-look something like this:
+3. You're done!
+---------------
+
+Open http://localhost:5000 in your web browser. You should see the CKAN front
+page, which will look something like this:
 
 .. image :: images/9.png
-  :width: 807px
+   :width: 807px
 
 |
-Now you should be up and running. Don't forget you there is the a help page for
-dealing with :doc:`common-error-messages`.
 You can now proceed to :doc:`post-installation`.
+
 
 .. _upgrading:
 
-Upgrading a package install
+Upgrading a Package Install
 ---------------------------
 
-The CKAN 2.0 package is incompatible with the earlier packages and will only
-work on Ubuntu 12.04 64-bit.
+.. note::
 
-Starting on CKAN 1.7, the updating process is different depending on whether
-the new version is a major release (e.g. 1.7, 1.8, etc) or a minor release
-(e.g. 1.7.X, 1.7.Y). Major releases can introduce backwards incompatible changes,
-changes on the database and the Solr schema. Each major release until 1.8 and
-its subsequent minor versions has its own apt repository (Please note that this
-was not true for 1.5 and 1.5.1 versions).
+   The CKAN 2.0 package only works on Ubuntu 12.04 64-bit.
 
-Minor versions, on the other hand contain only bug fixes, non-breaking
-optimizations and new translations.
+.. versionchanged: 1.7
 
-A fresh install or upgrade from another major version will install the latest
-minor version.
+   Before CKAN 1.7, it was not necessary to uninstall and reinstall the CKAN
+   package when upgrading between major versions.
 
-Upgrading from another major version
-************************************
-If you already have a major version installed via pacakge install and wish to
-upgrade to 2.0, you need to uninstall ckan and reinstall.
+.. note::
+
+   **Major versions** of CKAN, such as 2.0, 1.8 and 1.7, can introduce
+   backwards-incompatible changes, and changes to CKAN's database and |solr|
+   schemas. **Minor versions**, such as 1.7.1 or 1.7.2, contain only bug
+   fixes, non-breaking optimizations, and new translations. The procedure for
+   upgrading a CKAN package install is different depending on whether you're
+   upgrading to a new major version, or just upgrading to a new minor version
+   within the same major version.
+
+If you're upgrading to a new major version of CKAN, follow the instructions in
+`Upgrading to a new major version`_ below. If you're only upgrading to a new
+minor version, follow `Upgrading to a new minor version`_ instead.
+
+Upgrading to a new major version
+********************************
 
 .. caution ::
 
-   Always make a backup first and be prepared to start again with a fresh install of the newer version of CKAN.
+   Always make a backup first and be prepared to start again with a fresh
+   install of the newer version of CKAN.
 
-First remove the old CKAN code (it doesn't remove your data):
-
-::
+#. First, uninstall the old CKAN package (this won't remove your data or
+   configuration)::
 
     sudo apt-get autoremove ckan
 
-Then follow the instructions in :ref:`run-package-installer`. Please note the
-location of ``production.ini`` has changed in 2.0 and you'll need to move your
-configuration to ``/etc/ckan/default``.
+   Then, follow the instructions in :ref:`run-package-installer` to install
+   the new CKAN package.
 
-#. Upgrade the Solr schema
+#. Move your ``production.ini`` file. The location of the ``production.ini``
+   file has changed in 2.0, you'll need to move your ``production.ini`` file to
+   |production.ini|.
 
-    .. note ::
+#. Upgrade your Solr schema.
 
-       This only needs to be done if the Solr schema has been updated between major releases. The CHANGELOG or the announcement
-       emails will specify if this is the case.
-
-   Configure ``ckan.site_url`` or ``ckan.site_id`` in ``/etc/ckan/default/production.ini`` for SOLR search-index rebuild to work. eg:
+   Configure ``ckan.site_url`` or ``ckan.site_id`` in |production.ini| for |solr| search-index rebuild to work. eg:
 
    ::
 
@@ -164,9 +157,7 @@ configuration to ``/etc/ckan/default``.
        sudo rm /usr/share/solr/conf/schema.xml
        sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema-2.0.xml /usr/share/solr/conf/schema.xml
 
-#. Upgrade the database
-
-   ::
+#. Upgrade your database::
 
        sudo -u ckan db upgrade
 
@@ -191,25 +182,16 @@ configuration to ``/etc/ckan/default``.
        sudo service apache2 restart
 
 
-Upgrading from the same major version
-*************************************
+Upgrading to a new minor version
+********************************
 
-If you want to update to a new minor version of a major release (e.g. upgrade
-to 1.7.1 to 1.7, or to 1.7.2 from 1.7.1), then you only need to update the
-`python-ckan` package to get the latest changes::
+If you only want to upgrade to a new minor version (e.g. upgrade from 1.7 to
+1.7.1, or from 1.7.1 to 1.7.2), then you only need to update the `python-ckan`
+package to get the latest changes::
 
     sudo apt-get install python-ckan
 
-.. caution::
-
-    This assumes that you already have installed CKAN via package install. If
-    not, do not install this single package, follow the instructions on :ref:`run-package-installer`
-
-After upgrading the package, you need to restart Apache for the effects to take
-place::
+After upgrading the package, you need to restart Apache for the changes to take
+effect::
 
    sudo service apache2 restart
-
-
-
-

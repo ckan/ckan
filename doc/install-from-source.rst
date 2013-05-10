@@ -3,7 +3,7 @@ Option 2: Install from Source
 =============================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 12.04. Installing
+:doc:`install-from-package` is simpler, it requires Ubuntu 12.04 64-bit. Installing
 CKAN from source works with other versions of Ubuntu and with other operating
 systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
 on your own operating system, please share your experiences on our
@@ -42,6 +42,8 @@ Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (use
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
+
+.. _install-ckan-in-virtualenv:
 
 2. Install CKAN into a Python virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
