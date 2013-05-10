@@ -27,7 +27,7 @@ CKAN:
 
 #. Download the CKAN package::
 
-    wget http://packages.ckan.org/python-ckan-2.0_amd64.deb
+    wget http://packaging.ckan.org/python-ckan-2.0_amd64.deb
 
    .. note:: If ``wget`` is not present, you can install it
        via::
