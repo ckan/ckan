@@ -789,7 +789,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:557
 msgid "Everything"
-msgstr ""
+msgstr "."
 
 #: ckan/controllers/user.py:631
 msgid "Error: Could not parse About text"
@@ -853,7 +853,7 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:106
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} Ensemble de données créé {dataset}"
 
 #: ckan/lib/activity_streams.py:109
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
@@ -2114,7 +2114,7 @@ msgstr ""
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr ""
+msgstr "En charger davantage"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
@@ -2303,7 +2303,7 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:28
 msgid "Activity Stream"
-msgstr ""
+msgstr "Flux d’activités"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:7
 #: ckan/templates/organization/admins.html:3
@@ -2885,7 +2885,7 @@ msgstr "Privée"
 #: ckan/templates/package/read.html:20
 #: ckan/templates/snippets/package_item.html:33
 msgid "Draft"
-msgstr ""
+msgstr "Ébauche"
 
 #: ckan/templates/package/read_base.html:28
 #, python-format
@@ -3220,7 +3220,7 @@ msgstr ""
 #: ckan/templates/package/snippets/resource_form.html:78
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:17
 msgid "Previous"
-msgstr ""
+msgstr "Précédent"
 
 #: ckan/templates/package/snippets/package_metadata_form.html:15
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:18
@@ -3335,7 +3335,7 @@ msgstr "Aperçu"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "Données et ressources"
 
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
@@ -3710,15 +3710,15 @@ msgstr "Modifications"
 
 #: ckan/templates/user/dashboard.html:13 ckan/templates/user/edit_base.html:17
 msgid "News feed"
-msgstr ""
+msgstr "Fil de nouvelles"
 
 #: ckan/templates/user/dashboard.html:14
 msgid "Activity from items that you follow"
-msgstr ""
+msgstr "Il faut une activité sur le fil d’information des éléments dont vous faites le suivi "
 
 #: ckan/templates/user/dashboard.html:30
 msgid "My Datasets"
-msgstr ""
+msgstr "Mes ensembles de données"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
@@ -3726,7 +3726,7 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
-msgstr ""
+msgstr "Renseignements sur le compte"
 
 #: ckan/templates/user/edit.html:15
 msgid ""
@@ -3953,7 +3953,7 @@ msgstr ""
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "Membre depuis"
 
 #: ckan/templates/user/read_base.html:92
 #: ckan/templates_legacy/user/read.html:42
@@ -3977,15 +3977,15 @@ msgstr ""
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Activité de partout"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Chercher..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Vous ne faites aucun suivi"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
@@ -6876,3 +6876,21 @@ msgstr "Format du fichier"
 
 msgid "Published or Pending"
 msgstr "Publié ou en attente de publication"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Openness rating"
+msgstr "Degré d’ouverture des données"
+
+msgid "My Account"
+msgstr "Mon compte"
+
+msgid "Activities"
+msgstr "Activités"
+
+msgid "No full name provided"
+msgstr "Aucun nom complet fourni"
+
+msgid "You have not provided a biography"
+msgstr "Vous n’avez pas fourni de biographie"
