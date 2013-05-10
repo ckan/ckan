@@ -48,6 +48,7 @@ rst_epilog = '''
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
+.. |solr| replace:: Solr
 
 '''
 
