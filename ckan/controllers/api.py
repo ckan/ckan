@@ -82,7 +82,12 @@ class ApiController(base.BaseController):
         if response_data is not None:
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                response_msg = h.json.dumps(response_data, ensure_ascii=False)
+                response_msg = h.json.dumps(response_data)
+                # we need to sort unicode items like \uxxx
+                response_msg = response_msg.decode('unicode-escape')
+                # \n and \r will have been converted so we undo this
+                response_msg = response_msg.replace('\n', '\\n')
+                response_msg = response_msg.replace('\r', '\\r')
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
