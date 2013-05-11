@@ -69,7 +69,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         ## Do light wrapping around action function to add datastore_active
         ## to resource dict.  Not using IAction extension as this prevents
-        ## other plugins from having a custom resource_read.
+        ## other plugins from having a custom resource_show.
 
         # Make sure actions are cached
         resource_show = p.toolkit.get_action('resource_show')
