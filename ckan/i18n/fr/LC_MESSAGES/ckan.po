@@ -958,8 +958,8 @@ msgstr[1] ""
 #: ckan/lib/formatters.py:86
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Il y a {hours} heure"
+msgstr[1] "Il y a {hours} heures"
 
 #: ckan/lib/formatters.py:90
 msgid "{days} day ago"
@@ -3746,7 +3746,7 @@ msgstr "Paramètres"
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change your details"
-msgstr ""
+msgstr "Modifier vos coordonnées"
 
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
@@ -3786,11 +3786,11 @@ msgstr "Mot de passe"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "Confirmer le mot de passe"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
-msgstr ""
+msgstr "Mettre à jour le profil"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
