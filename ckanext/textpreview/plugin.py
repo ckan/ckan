@@ -27,7 +27,7 @@ class TextPreview(p.SingletonPlugin):
     # don't forget to change public/preview.js as well if you edit the formats here
     TEXT_FORMATS = ['text/plain', 'txt', 'plain']
     XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss']
-    JSON_FORMATS = ['json']
+    JSON_FORMATS = ['json', 'gjson', 'geojson']
     JSONP_FORMATS = ['jsonp']
     NO_JSONP_FORMATS = TEXT_FORMATS + XML_FORMATS + JSON_FORMATS
 
