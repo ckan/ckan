@@ -69,10 +69,14 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         self.url = 'http://www.ckan.org/static/example.json'
         self.data_dict = set_resource_url(self.url)
 
+    def register(self, *args, **kwargs):
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args, **kwargs)
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args, **kwargs)
+
     @httpretty.httprettified
     def test_resource_proxy_on_200(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, self.url,
+        self.register(
+            self.url,
             content_type='application/json',
             body=JSON_STRING)
 
@@ -83,8 +87,8 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
     @httpretty.httprettified
     def test_resource_proxy_on_404(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, self.url,
+        self.register(
+            self.url,
             body="I'm not here",
             content_type='application/json',
             status=404)
@@ -99,14 +103,28 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
     @httpretty.httprettified
     def test_large_file(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.GET, self.url,
-            content_length=controller.MAX_FILE_SIZE + 1,
-            body=JSON_STRING)
+        cl = controller.MAX_FILE_SIZE + 1
+        self.register(
+            self.url,
+            content_length=cl,
+            body='c' * cl)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 500, result.status
+        assert result.status == 409, result.status
+        assert 'too large' in result.body, result.body
+
+    @httpretty.httprettified
+    def test_large_file_streaming(self):
+        cl = controller.MAX_FILE_SIZE + 1
+        self.register(
+            self.url,
+            streaming=True,
+            body='c' * cl)
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url, status='*')
+        assert result.status == 409, result.status
         assert 'too large' in result.body, result.body
 
     def test_resource_proxy_non_existent(self):
@@ -119,5 +137,5 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 500, result.status
+        assert result.status == 502, result.status
         assert 'connection error' in result.body, result.body
