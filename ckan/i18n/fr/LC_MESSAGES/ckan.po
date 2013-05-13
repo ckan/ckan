@@ -3122,11 +3122,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/info.html:15
 msgid "Edit Dataset"
-msgstr ""
+msgstr "Modifier ensemble de données "
 
 #: ckan/templates/package/snippets/info.html:22
 msgid "Edit Resources"
-msgstr ""
+msgstr "Modifier ressources"
 
 #: ckan/templates/package/snippets/info.html:29
 msgid "Add New Resource"
@@ -3722,7 +3722,7 @@ msgstr "Mes ensembles de données"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
-msgstr ""
+msgstr "Vous n'avez pas des jeux de données"
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
@@ -3841,11 +3841,11 @@ msgstr "Mot de passe oublié ?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:8
 msgid "Logged Out"
-msgstr ""
+msgstr "Déconnecté"
 
 #: ckan/templates/user/logout.html:9
 msgid "You are now logged out."
-msgstr ""
+msgstr "Vous êtes maintenant déconnecté"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
@@ -3880,7 +3880,7 @@ msgstr ""
 
 #: ckan/templates/user/new.html:12
 msgid "Register for an Account"
-msgstr ""
+msgstr "S’inscrire pour obtenir un compte"
 
 #: ckan/templates/user/new.html:20
 msgid "Why Sign Up?"
@@ -3925,11 +3925,11 @@ msgstr ""
 
 #: ckan/templates/user/read.html:13
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Vous n'avez pas créé des jeux de données."
 
 #: ckan/templates/user/read.html:15
 msgid "Create one now?"
-msgstr ""
+msgstr "Créer un maintenant?"
 
 #: ckan/templates/user/read.html:20
 msgid "User hasn't created any datasets."
