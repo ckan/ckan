@@ -3613,7 +3613,7 @@ msgstr[1] "{number} organisations  trouvées pour \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "Sorry no organizations found for \"{query}\""
-msgstr "0 organisations repérées"
+msgstr "0 organisations trouvées"
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
@@ -3623,7 +3623,7 @@ msgstr[1] "{number} organisations trouvées"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "Sorry no organizations found"
-msgstr "0 organisations repérées"
+msgstr "0 organisations trouvées"
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
@@ -3631,19 +3631,19 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr "Par Ordre"
+msgstr "Par ordre"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr "Pertinence"
+msgstr "de pertinence"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr "Alphabétique croissant"
+msgstr "alphabétique croissant"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr "Alphabétique décroissant"
+msgstr "alphabétique décroissant"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -3677,11 +3677,11 @@ msgstr "Il faut une activité sur le fil d’information des éléments dont vou
 
 #: ckan/templates/user/dashboard.html:30
 msgid "My Datasets"
-msgstr "Mes jeux de données"
+msgstr "Mes ensembles de données"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
-msgstr "Vous n'avez aucun jeu de données"
+msgstr "Vous n'avez aucun ensemble de données"
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
@@ -3883,11 +3883,11 @@ msgstr "Fournissez simplement un nouveau mot de passe et nous actualiserons votr
 
 #: ckan/templates/user/read.html:13
 msgid "You haven't created any datasets."
-msgstr "Vous n'avez créé aucun jeu de données"
+msgstr "Vous n'avez créé aucun ensemble de données"
 
 #: ckan/templates/user/read.html:15
 msgid "Create one now?"
-msgstr "Vous voulez en créer un maintenant ?"
+msgstr "Vous voulez en créer un maintenant?"
 
 #: ckan/templates/user/read.html:20
 msgid "User hasn't created any datasets."
