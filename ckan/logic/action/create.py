@@ -1139,7 +1139,8 @@ def group_member_create(context, data_dict):
 
     :param id: the id or name of the group
     :param username: name or id of the user to be made member of the group
-    :param role: role of the user in the group. One of member, editor, or admin.
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``.
 
     :returns: the newly created (or updated) membership
     :rtype: dictionary
