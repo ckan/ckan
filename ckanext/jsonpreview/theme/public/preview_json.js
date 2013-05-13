@@ -10,7 +10,6 @@ ckan.module('jsonpreview', function (jQuery, _) {
       var self = this;
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
-        async: false,
         contentType: "application/json",
         dataType: preload_resource['format'],
         success: function(data, textStatus, jqXHR) {
