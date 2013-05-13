@@ -1,7 +1,7 @@
 import logging
 
 from pylons import config
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -1133,6 +1133,17 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
 def group_member_create(context, data_dict):
+    '''Make a user a member of a group
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :param username: name or id of the user to be made member of the group
+    :param role: role of the user in the group. One of member, editor, or admin.
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('group_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict)
 
