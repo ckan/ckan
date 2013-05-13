@@ -68,7 +68,11 @@ ckan.module('textpreview', function (jQuery, _) {
           self.el.html(highlighted);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
+          if (textStatus == 'error' && jqXHR.responseText.length) {
+            self.el.html(jqXHR.responseText);
+          } else {
+            self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
+          }
         }
       });
     }
