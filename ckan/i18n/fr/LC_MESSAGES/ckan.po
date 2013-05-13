@@ -2052,7 +2052,7 @@ msgstr "Organisations"
 
 #: ckan/templates/header.html:90
 msgid "Search Datasets"
-msgstr ""
+msgstr "Chercher un jeu de données"
 
 #: ckan/templates/header.html:91 ckan/templates/header.html:92
 #: ckan/templates/home/index.html:64
@@ -2076,7 +2076,7 @@ msgstr "En charger davantage"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "Aucune activité pour cet élément"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
@@ -2780,7 +2780,7 @@ msgstr "Il n'y a pas de description pour cette organisation"
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr "Créer le jeu de données"
+msgstr "Créer un jeu de données"
 
 #: ckan/templates/package/base_form_page.html:14
 msgid "What are datasets?"
@@ -3861,7 +3861,7 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Réinitialiser votre mot de passe"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
@@ -6173,3 +6173,6 @@ msgstr "Lignes directrices"
 
 msgid "Open Data Portal Metadata Implementation Guide"
 msgstr "Ide de mise en place des métadonnées pour les ressources Web"
+
+msgid "About this Dataset"
+msgstr "À propos de ce jeu de données"
