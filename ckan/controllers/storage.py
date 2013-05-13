@@ -97,7 +97,8 @@ def authorize(method, bucket, key, user, ofs):
         # now check user stuff
         context = {'user': c.user,
                    'model': model}
-        is_authorized = new_authz.is_authorized_boolean('file_upload', context, {})
+        is_authorized = new_authz.is_authorized_boolean(
+            'file_upload', context, {})
         if not is_authorized:
             h.flash_error('Not authorized to upload files.')
             abort(401)
@@ -143,9 +144,9 @@ class StorageController(BaseController):
         params['uploaded-by'] = c.userobj.name if c.userobj else ""
 
         self.ofs.put_stream(bucket_id, label, stream.file, params)
-        success_action_redirect = h.url_for('storage_upload_success',
-                                            qualified=True,
-                                            bucket=BUCKET, label=label)
+        success_action_redirect = h.url_for(
+            'storage_upload_success', qualified=True,
+            bucket=BUCKET, label=label)
         # Do not redirect here as it breaks js file uploads (get infinite loop
         # in FF and crash in Chrome)
         return self.success(label)
@@ -186,11 +187,10 @@ class StorageController(BaseController):
             fapp = FileApp(filepath, headers=None, **headers)
             return fapp(request.environ, self.start_response)
         else:
-            h.redirect_to(file_url.encode('ascii','ignore'))
+            h.redirect_to(file_url.encode('ascii', 'ignore'))
 
 
 class StorageAPIController(BaseController):
-
     _ofs_impl = None
 
     @property
@@ -270,7 +270,7 @@ class StorageAPIController(BaseController):
                             qualified=False
                             )
             if url.startswith('/'):
-                url = config.get('ckan.site_url','').rstrip('/') + url
+                url = config.get('ckan.site_url', '').rstrip('/') + url
 
         if not self.ofs.exists(bucket, label):
             abort(404)
@@ -306,7 +306,7 @@ class StorageAPIController(BaseController):
             try:
                 data = fix_stupid_pylons_encoding(request.body)
                 headers = json.loads(data)
-            except Exception, e:
+            except Exception:
                 from traceback import print_exc
                 msg = StringIO()
                 print_exc(msg)
@@ -397,7 +397,7 @@ class StorageAPIController(BaseController):
             try:
                 data = fix_stupid_pylons_encoding(request.body)
                 headers = json.loads(data)
-            except Exception, e:
+            except Exception:
                 from traceback import print_exc
                 msg = StringIO()
                 print_exc(msg)

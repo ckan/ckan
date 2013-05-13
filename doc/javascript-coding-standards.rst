@@ -8,14 +8,14 @@ Formatting
 .. _idiomatic.js: https://github.com/rwldrn/idiomatic.js/
 .. _Douglas Crockford's: http://javascript.crockford.com/code.html
 
-All JavaScript documents must use **two spaces** for indentation and files
-should have no trailing whitespace. This is contrary to the `OKFN Coding
-Standards`_ but matches what's in use in the current code base.
+All JavaScript documents must use **two spaces** for indentation. This is
+contrary to the `OKFN Coding Standards`_ but matches what's in use in the
+current code base.
 
 Coding style must follow the `idiomatic.js`_ style but with the following
 exceptions.
 
-.. note:: Idiomatic is heavily based upon `Douglas Crockford's`_ style
+.. Note:: Idiomatic is heavily based upon `Douglas Crockford's`_ style
           guide which is recommended by the `OKFN Coding Standards`_.
 
 White Space
@@ -67,19 +67,19 @@ One ``var`` statement must be used per variable assignment. These must be
 declared at the top of the function in which they are being used. ::
 
     // GOOD:
-    var good = "string";
-    var alsoGood = "another;
+    var good = 'string';
+    var alsoGood = 'another';
 
     // GOOD:
-    var good = "string";
+    var good = 'string';
     var okay = [
-      "hmm", "a bit", "better"
+      'hmm', 'a bit', 'better'
     ];
 
     // BAD:
-    var good = "string",
+    var good = 'string',
         iffy = [
-      "hmm", "not", "great"
+      'hmm', 'not', 'great'
     ];
 
 Declare variables at the top of the function in which they are first used. This
@@ -107,7 +107,7 @@ statement. ::
 
       for (index = 0, length = names.length; index < length; index += 1) {
         name = names[index];
-        names.push(names[index].toLowerCase());
+        names.push(name.toLowerCase());
       }
 
       sorted = names.sort();
@@ -288,17 +288,23 @@ Forms
 `````
 
 All forms should work without JavaScript enabled. This means that they must
-submit ``application/x-www-form-urlencoded`` data to the server and receive an appropriate
-response. The server should check for the ``X-Requested-With: XMLHTTPRequest``
-header to determine if the request is an ajax one. If so it can return an
-appropriate format, otherwise it should issue a 303 redirect.
+submit ``application/x-www-form-urlencoded`` data to the server and receive an
+appropriate response. The server should check for the ``X-Requested-With:
+XMLHTTPRequest`` header to determine if the request is an ajax one. If so it
+can return an appropriate format, otherwise it should issue a 303 redirect.
 
 The one exception to this rule is if a form or button is injected with
 JavaScript after the page has loaded. It's then not part of the HTML document
 and can submit any data format it pleases.
 
 Ajax
-````````
+````
+
+.. Note::
+    Calls to the CKAN API from JavaScript should be done through the
+    `CKAN client`_.
+
+.. _CKAN client: ./frontend-development.html#client
 
 Ajax requests can be used to improve the experience of submitting forms and
 other actions that require server interactions. Nearly all requests will
@@ -319,7 +325,7 @@ Here's a possible example for submitting a search form using jQuery. ::
 
     jQuery('#search-form').submit(function (event) {
       var form = $(this);
-      var button = form.find('[type=submit]');
+      var button = $('[type=submit]', form);
 
       // Prevent the browser submitting the form.
       event.preventDefault();

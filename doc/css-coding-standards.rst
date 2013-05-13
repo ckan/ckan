@@ -1,6 +1,11 @@
 CSS Coding Standards
 ====================
 
+.. Note::
+  For CKAN 2.0 we use LESS as a pre-processor for our core CSS. View
+  `Front-end Documentation <./frontend-development.html#stylesheets>`_
+  for more information on this subject.
+
 Formatting
 ----------
 
@@ -140,22 +145,3 @@ override later in the cascade. ::
 
     /* Cannot override this button style without including an id */
     .btn#download {}
-
-Resources
----------
-
-- `OOCSS`_
-- `An Introduction to Object Orientated CSS`_
-- `SMACSS`_
-- `CSS for Grown Ups`_ (`slides`_)
-
-.. note:: These resources are more related to structuring CSS for large projects rather
-          than actual how-to style guides.
-
-.. _OOCSS: www.stubbornella.org/content/2011/04/28/our-best-practices-are-killing-us/
-.. _An Introduction to Object Orientated CSS: coding.smashingmagazine.com/2011/12/12/an-introduction-to-object-oriented-css-oocss/
-.. _SMACSS: smacss.com
-.. _CSS for Grown Ups: schedule.sxsw.com/2012/events/event_IAP9410
-.. _slides: speakerdeck.com/u/andyhume/p/css-for-grown-ups-maturing-best-practises
-
-

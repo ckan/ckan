@@ -293,7 +293,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         assert len(res_obj['result']) == 7
         assert res_obj['result'][0]['name'] == 'annafan'
-        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: http://anna.com'
         assert not 'apikey' in res_obj['result'][0]
 
     def test_05_user_show(self):
@@ -305,7 +305,7 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'annafan'
-        assert result['about'] == 'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>'
+        assert result['about'] == 'I love reading Annakarenina. My site: http://anna.com'
         assert 'activity' in result
         assert 'created' in result
         assert 'display_name' in result
@@ -1133,6 +1133,40 @@ class TestAction(WsgiAppCase):
             assert "index" in resource['description'].lower()
             assert "json" in resource['format'].lower()
 
+    def test_package_create_duplicate_extras_error(self):
+        import ckan.tests
+        import paste.fixture
+        import pylons.test
+
+        # Posting a dataset dict to package_create containing two extras dicts
+        # with the same key, should return a Validation Error.
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        error = ckan.tests.call_action_api(app, 'package_create',
+                apikey=self.sysadmin_user.apikey, status=409,
+                name='foobar', extras=[{'key': 'foo', 'value': 'bar'},
+                    {'key': 'foo', 'value': 'gar'}])
+        assert error['__type'] == 'Validation Error'
+        assert error['extras_validation'] == ['Duplicate key "foo"']
+
+    def test_package_update_duplicate_extras_error(self):
+        import ckan.tests
+        import paste.fixture
+        import pylons.test
+
+        # We need to create a package first, so that we can update it.
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        package = ckan.tests.call_action_api(app, 'package_create',
+                apikey=self.sysadmin_user.apikey, name='foobar')
+
+        # Posting a dataset dict to package_update containing two extras dicts
+        # with the same key, should return a Validation Error.
+        package['extras'] = [{'key': 'foo', 'value': 'bar'},
+                    {'key': 'foo', 'value': 'gar'}]
+        error = ckan.tests.call_action_api(app, 'package_update',
+                apikey=self.sysadmin_user.apikey, status=409, **package)
+        assert error['__type'] == 'Validation Error'
+        assert error['extras_validation'] == ['Duplicate key "foo"']
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod
@@ -1273,7 +1307,7 @@ class TestActionPackageSearch(WsgiAppCase):
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 2)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
+        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
 
         # Test GET request
         res = self.app.get('/api/action/package_search')
@@ -1281,7 +1315,7 @@ class TestActionPackageSearch(WsgiAppCase):
         result = res['result']
         assert_equal(res['success'], True)
         assert_equal(result['count'], 2)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
+        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
 
     def test_2_bad_param(self):
         postparams = '%s=1' % json.dumps({
@@ -1573,4 +1607,3 @@ class TestDocStrings:
                             func_with_no_docstring.append(k)
         print func_with_no_docstring
         assert len(func_with_no_docstring) == 0
-

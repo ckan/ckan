@@ -6,40 +6,31 @@ After you have completed installation (from either package or source), follow th
 
 .. note::
 
-    If you installed CKAN from source, you will need to activate the virtualenv and switch to the ckan source directory.
-    In this case, you don't need to specifiy the `--plugin` or `--config` parameters when executing the paster commands, e.g.::
+   If you installed CKAN from source, you need to activate your virtualenv and
+   change to your CKAN directory in order for the commands on this page to
+   work. For example:
 
-        (pyenv):~/pyenv/src/ckan$ paster user list
+   .. parsed-literal::
 
+     |activate|
+     cd |virtualenv|/src/ckan
 
 .. _create-admin-user:
 
-Create an Admin User
-====================
+Create a Sysadmin User
+======================
 
-By default, CKAN has a set of locked-down permissions. To begin
-working with it you need to set up a user and some permissions. 
+You have to create your first CKAN sysadmin user from the command-line. For
+example, to create a user called ``seanh`` and make him a sysadmin:
 
-First create an admin account from the command line (you must be root, ``sudo -s``):
+.. parsed-literal::
 
-::
+   paster sysadmin add seanh -c |development.ini|
 
-    paster --plugin=ckan user add admin --config=/etc/ckan/std/std.ini
-
-When prompted, enter a password - this is the password you will use to log in to CKAN. In the resulting output, note that you will also get assigned a CKAN API key.
-
-.. note :: This command is your first introduction to some important CKAN concepts. **paster** is the script used to run CKAN commands. **std.ini** is the CKAN config file. You can change options in this file to configure CKAN. 
-
-For exploratory purposes, you might was well make the ``admin`` user a
-sysadmin. You obviously wouldn't give most users these rights as they would
-then be able to do anything. You can make the ``admin`` user a sysadmin like
-this:
-
-::
-
-    paster --plugin=ckan sysadmin add admin --config=/etc/ckan/std/std.ini
-
-You can now login to the CKAN frontend with the username ``admin`` and the password you set up.
+If a user called ``seanh`` already exists he will be promoted to a sysadmin. If
+the user account doesn't exist yet, it will be created.  You can now login to
+the CKAN web interface with your sysadmin account and promote more users to
+sysadmins using the web interface.
 
 .. _create-test-data:
 
@@ -48,25 +39,25 @@ Load Test Data
 
 It can be handy to have some test data to start with. You can get test data like this:
 
-::
+.. parsed-literal::
 
-    paster --plugin=ckan create-test-data --config=/etc/ckan/std/std.ini
+    paster create-test-data -c |development.ini|
 
 You now have a CKAN instance that you can log in to, with some test data to check everything
 works.
 
-You can also create various specialised test data collections for testing specific features of CKAN. For example, ``paster --plugin=ckan create-test-data translations`` creates some test data with some translations for testing the ckanext-multilingual extension. For more information, see:
+You can also create various specialised test data collections for testing specific features of CKAN. For example, ``paster create-test-data translations`` creates some test data with some translations for testing the ckanext-multilingual extension. For more information, see:
 
 ::
 
-    paster --plugin=ckan create-test-data --help
+    paster create-test-data --help
 
 .. _deployment-notes:
 
-Deployment 
+Deployment
 ==========
 
-You may want to deploy your CKAN instance at this point, to share with others. 
+You may want to deploy your CKAN instance at this point, to share with others.
 
 If you have installed CKAN from packages, then Apache and WSGI deployment scripts are already configured for you in standard locations. 
 

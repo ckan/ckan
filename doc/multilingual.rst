@@ -1,6 +1,6 @@
-=====================================
-Translating Datasets, Groups and Tags
-=====================================
+======================
+Multilingual Extension
+======================
 
 For translating CKAN's web interface see :ref:`i18n`. In addition to user interface internationalization, a CKAN administrator can also enter translations into CKAN's database for terms that may appear in the contents of datasets, groups or tags created by users. When a user is viewing the CKAN site, if the translation terms database contains a translation in the user's language for the name or description of a dataset or resource, the name of a tag or group, etc. then the translated term will be shown to the user in place of the original.
 
