@@ -11,11 +11,14 @@ Example:
 #}
 <section id="dataset-resources" class="resources module-content">
   <h3>{{ _('Data and Resources') }}</h3>
+  {% block resource_list %}
   {% if resources %}
     <ul class="resource-list">
+      {% block resource_list_inner %}
       {% for resource in resources %}
         {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}
       {% endfor %}
+      {% endblock %}
     </ul>
   {% else %}
     <p>
@@ -25,4 +28,5 @@ Example:
       {% endtrans %}
     </p>
   {% endif %}
+  {% endblock %}
 </section>

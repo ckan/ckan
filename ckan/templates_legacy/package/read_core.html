@@ -10,7 +10,7 @@
     <div id="dataset-overview">
 
       <!-- Description -->
-      <div class="notes" py:if="str(c.pkg_notes_formatted).strip()">
+      <div class="notes" py:if="c.pkg_notes_formatted">
         <div id="notes-extract">
           ${c.pkg_notes_formatted}
         </div>
@@ -25,7 +25,7 @@
       <div id="dataset-resources" class="resources subsection">
         <h3>Resources
         <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
-          ${h.subnav_link(_('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
+          ${h.nav_link(_('(edit)'), controller='package', action='editresources', id=c.pkg.name)}
         </py:if></h3>
         <ul class="resource-list">
           <py:for each="res in c.pkg_dict.get('resources', [])">
@@ -48,7 +48,7 @@
     <!-- Dataset Information Section -->
     <h3>Additional Information
       <py:if test="h.check_access('package_update',{'id':c.pkg.id})"> &nbsp;
-        ${h.subnav_link(_('(settings)'), controller='package', action='edit', id=c.pkg.name)}
+        ${h.nav_link(_('(settings)'), controller='package', action='edit', id=c.pkg.name)}
       </py:if></h3>
     <div id="dataset-information">
     <table class="table table-striped table-bordered table-condensed">

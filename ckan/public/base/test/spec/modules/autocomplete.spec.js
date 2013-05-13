@@ -146,13 +146,6 @@ describe('ckan.modules.AutocompleteModule()', function () {
       this.module.getCompletions('term with spaces');
       assert.calledWith(this.target, 'http://example.com?term=term%20with%20spaces');
     });
-
-    it('should set the formatter to work with the plugin', function () {
-      this.module.getCompletions(this.term);
-      assert.calledWith(this.target, 'http://example.com?term=term', {
-        format: this.sandbox.client.parseCompletionsForPlugin
-      });
-    });
   });
 
   describe('.lookup(term, fn)', function () {

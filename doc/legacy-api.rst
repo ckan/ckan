@@ -366,6 +366,12 @@ The ``Dataset`` and ``Revision`` data formats are as defined in `Model Formats`_
 
  filter_by_openness and filter_by_downloadable were dropped from CKAN version 1.5 onwards.
 
+.. Note::
+
+ Only public datasets can be accessed via the legacy search API, regardless of
+ the provided authorization. If you need to access private datasets via the
+ API you will need to use the `package_search` method of the :doc:`api`.
+
 
 **Resource Parameters**
 

@@ -67,7 +67,7 @@ setup(
     main = ckan.config.middleware:make_app
 
     [paste.app_install]
-    main = pylons.util:PylonsInstaller
+    main = ckan.config.install:CKANInstaller
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb

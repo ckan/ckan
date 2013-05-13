@@ -196,6 +196,17 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         assert result['records'] == self.expected_records[::-1]
 
+    def test_search_invalid(self):
+        data = {'resource_id': self.data['resource_id'],
+                'sort': u'f\xfc\xfc asc'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['sort'][0] == u'field "f\xfc\xfc" not in table'
+
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
                 'limit': 1}
@@ -501,6 +512,18 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict_alias = json.loads(res.body)
 
         assert result['records'] == res_dict_alias['result']['records']
+
+    def test_select_where_like_with_percent(self):
+        query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['records'] == self.expected_records
 
     def test_self_join(self):
         query = '''

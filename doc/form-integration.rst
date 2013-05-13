@@ -13,7 +13,7 @@ This is achieved with a parameter to the CKAN URL. The 'return URL' can be speci
 
  1. Passed as a URL-encoded value with the parameter ``return_to`` in the link to CKAN's form page.
 
- 2. Specified in the CKAN config keys ``package_new_return_url`` and ``package_edit_return_url`` (see :ref:`config-package-urls`).
+ 2. Specified in the CKAN config keys :ref:`package_new_return_url` and :ref:`package_edit_return_url`.
 
 (If the 'return URL' is supplied in both places, then the first takes precedence.)
 
