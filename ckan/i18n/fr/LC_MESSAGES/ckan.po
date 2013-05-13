@@ -6905,3 +6905,9 @@ msgstr "Couverture temporelle"
 
 msgid "Developer Tools"
 msgstr "Outils pour le développeur"
+
+msgid "Guidelines"
+msgstr "Lignes directrices"
+
+msgid "Open Data Portal Metadata Implementation Guide"
+msgstr "Ide de mise en place des métadonnées pour les ressources Web"
