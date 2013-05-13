@@ -2685,7 +2685,7 @@ msgstr "Le formulaire contient des entrées invalides :"
 #: ckan/templates/snippets/organization.html:29
 #: ckan/templates/snippets/organization_item.html:17
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Il n’y a aucune description de cette organisation"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
@@ -3076,7 +3076,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 msgid "Additional Info"
-msgstr ""
+msgstr "Information additionnelle"
 
 #: ckan/templates/package/snippets/additional_info.html:13
 #: ckan/templates_legacy/package/read_core.html:63
@@ -3502,7 +3502,7 @@ msgstr ""
 
 #: ckan/templates/related/snippets/related_item.html:38
 msgid "This item has no description"
-msgstr ""
+msgstr "Aucune description disponible pour cet ensemble de données"
 
 #: ckan/templates/related/snippets/related_item.html:40
 msgid "Go to {type}"
@@ -3594,7 +3594,7 @@ msgstr "Popularité"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Aucune description disponible pour cet ensemble de données"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
@@ -6899,3 +6899,9 @@ msgid ""
 " Your profile lets other Open Data Registry users know about who you "
 "are and what you do. "
 msgstr "Votre profil permet aux autres utilisateurs de Registre de données ouvertes de savoir qui vous êtes et ce que vous faites"
+
+msgid "Temporal Coverage"
+msgstr "Couverture temporelle"
+
+msgid "Developer Tools"
+msgstr "Outils pour le développeur"
