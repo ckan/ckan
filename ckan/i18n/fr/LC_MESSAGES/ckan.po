@@ -958,8 +958,8 @@ msgstr[1] ""
 #: ckan/lib/formatters.py:86
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Il y a {hours} heure"
+msgstr[1] "Il y a {hours} heures"
 
 #: ckan/lib/formatters.py:90
 msgid "{days} day ago"
@@ -2685,7 +2685,7 @@ msgstr "Le formulaire contient des entrées invalides :"
 #: ckan/templates/snippets/organization.html:29
 #: ckan/templates/snippets/organization_item.html:17
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Il n’y a aucune description de cette organisation"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
@@ -2826,14 +2826,14 @@ msgstr ""
 
 #: ckan/templates/package/base_form_page.html:14
 msgid "What are datasets?"
-msgstr ""
+msgstr "Qu’est-ce qu’un ensemble de données?"
 
 #: ckan/templates/package/base_form_page.html:17
 msgid ""
 " Datasets are simply used to group related pieces of data. These can then"
 " be found under a single url with a description and licensing "
 "information. "
-msgstr ""
+msgstr "On utilise les ensembles pour regrouper des données connexes. On peut ensuite trouver celles-ci à l’aide d’une adresse URL unique, avec une description et des renseignements sur la licence. "
 
 #: ckan/templates/package/confirm_delete.html:10
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3076,7 +3076,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 msgid "Additional Info"
-msgstr ""
+msgstr "Information additionnelle"
 
 #: ckan/templates/package/snippets/additional_info.html:13
 #: ckan/templates_legacy/package/read_core.html:63
@@ -3173,7 +3173,7 @@ msgstr ""
 msgid ""
 "Important: By submitting content, you agree to release your contributions"
 " under the Open Database License."
-msgstr ""
+msgstr "Important : en fournissant un contenu, vous acceptez de diffuser votre contribution aux termes de la licence sur la base de données ouverte"
 
 #: ckan/templates/package/snippets/package_form.html:37
 msgid "Are you sure you want to delete this dataset?"
@@ -3181,7 +3181,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr ""
+msgstr "Suivant : ajouter données"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Visibility"
@@ -3225,7 +3225,7 @@ msgstr "Précédent"
 #: ckan/templates/package/snippets/package_metadata_form.html:15
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:18
 msgid "Finish"
-msgstr ""
+msgstr "Fin"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -3309,11 +3309,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_form.html:81
 msgid "Save & add another"
-msgstr ""
+msgstr "Sauvegarder et ajouter un autre "
 
 #: ckan/templates/package/snippets/resource_form.html:83
 msgid "Next: Additional Info"
-msgstr ""
+msgstr "Suivant : renseignements supplémentaires"
 
 #: ckan/templates/package/snippets/resource_item.html:13
 msgid "No description for this resource"
@@ -3502,7 +3502,7 @@ msgstr ""
 
 #: ckan/templates/related/snippets/related_item.html:38
 msgid "This item has no description"
-msgstr ""
+msgstr "Aucune description disponible pour cet ensemble de données"
 
 #: ckan/templates/related/snippets/related_item.html:40
 msgid "Go to {type}"
@@ -3594,7 +3594,7 @@ msgstr "Popularité"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Aucune description disponible pour cet ensemble de données"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
@@ -3746,7 +3746,7 @@ msgstr "Paramètres"
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change your details"
-msgstr ""
+msgstr "Modifier vos coordonnées"
 
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
@@ -3786,11 +3786,11 @@ msgstr "Mot de passe"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "Confirmer le mot de passe"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
-msgstr ""
+msgstr "Mettre à jour le profil"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
@@ -6899,3 +6899,15 @@ msgid ""
 " Your profile lets other Open Data Registry users know about who you "
 "are and what you do. "
 msgstr "Votre profil permet aux autres utilisateurs de Registre de données ouvertes de savoir qui vous êtes et ce que vous faites"
+
+msgid "Temporal Coverage"
+msgstr "Couverture temporelle"
+
+msgid "Developer Tools"
+msgstr "Outils pour le développeur"
+
+msgid "Guidelines"
+msgstr "Lignes directrices"
+
+msgid "Open Data Portal Metadata Implementation Guide"
+msgstr "Ide de mise en place des métadonnées pour les ressources Web"
