@@ -53,7 +53,6 @@ ckan.module('textpreview', function (jQuery, _) {
 
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
-        async: false,
         contentType: p.contentType,
         dataType: p.dataType,
         success: function(data, textStatus, jqXHR) {
