@@ -389,12 +389,12 @@ msgstr "Vous n'êtes pas autorisé à lire le groupe {group_id}"
 #: ckan/controllers/group.py:682 ckan/controllers/package.py:1238
 #: ckan/controllers/user.py:594
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Vous êtes maintenant abonné à {0}"
 
 #: ckan/controllers/group.py:701 ckan/controllers/package.py:1257
 #: ckan/controllers/user.py:613
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Vous n'êtes plus abonné à {0}"
 
 #: ckan/controllers/group.py:720 ckan/controllers/user.py:489
 #, python-format
@@ -502,7 +502,7 @@ msgstr "Vous n'êtes pas autorisé à supprimer le paquet %s"
 
 #: ckan/controllers/package.py:1084
 msgid "Dataset has been deleted."
-msgstr "Ce jeu de données a été supprimé."
+msgstr "L'ensemble de données a été supprimé."
 
 #: ckan/controllers/package.py:1109
 msgid "Resource has been deleted."
@@ -2296,7 +2296,7 @@ msgstr ""
 #: ckan/templates/related/confirm_delete.html:3
 #: ckan/templates/related/confirm_delete.html:14
 msgid "Confirm Delete"
-msgstr ""
+msgstr "Confirmer l'annulation"
 
 #: ckan/templates/group/confirm_delete.html:10
 msgid "Are you sure you want to delete group - {name}?"
@@ -2999,7 +2999,7 @@ msgstr "Envoyer"
 
 #: ckan/templates/package/search.html:55
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr "Veuillez essayer une nouvelle recherche"
 
 #: ckan/templates/package/search.html:62
 msgid ""
@@ -3528,7 +3528,7 @@ msgstr "Langue"
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/sort_by.html:20
 msgid "Go"
-msgstr ""
+msgstr "Allez"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
@@ -3583,7 +3583,7 @@ msgstr[1] "{number}Jeux de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "Sorry no datasets found"
-msgstr ""
+msgstr "0 ensembles de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
@@ -3655,7 +3655,7 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82
 #: ckan/templates_legacy/user/read.html:32
 msgid "Email"
-msgstr "e-mail"
+msgstr "Courriel"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
@@ -3721,7 +3721,7 @@ msgstr "p.ex. jean@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr ""
+msgstr "Un peu d'information vous concernant"
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
@@ -3920,7 +3920,7 @@ msgstr "Clé d'API"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
-msgstr "Demander une Réinitialisation"
+msgstr "Demander une réinitialisation"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
@@ -5460,7 +5460,7 @@ msgstr "Modifier l'utilisateur :"
 
 #: ckan/templates_legacy/user/edit_user_form.html:27
 msgid "E-mail"
-msgstr "e-mail"
+msgstr "Courriel"
 
 #: ckan/templates_legacy/user/edit_user_form.html:33
 msgid "OpenId"
@@ -5644,7 +5644,7 @@ msgstr "Nom complet (optionnel)"
 
 #: ckan/templates_legacy/user/new_user_form.html:34
 msgid "E-Mail"
-msgstr "e-mail"
+msgstr "Courriel"
 
 #: ckan/templates_legacy/user/new_user_form.html:65
 msgid "Register now"
@@ -6172,7 +6172,16 @@ msgid "Guidelines"
 msgstr "Lignes directrices"
 
 msgid "Open Data Portal Metadata Implementation Guide"
-msgstr "Ide de mise en place des métadonnées pour les ressources Web"
+msgstr "Guide de mise en place des métadonnées pour les ressources Web"
 
 msgid "About this Dataset"
 msgstr "À propos de ce jeu de données"
+
+msgid "This dataset has been deleted and is no longer accessible to non-admin users"
+msgstr "Cet ensemble de données a été supprimé et n'est plus accessible"
+
+msgid "Activity"
+msgstr "Activité"
+
+msgid "Catalog Type"
+msgstr "Type de Catalogue"
