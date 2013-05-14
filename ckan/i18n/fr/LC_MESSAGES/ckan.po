@@ -3236,7 +3236,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Last Modified"
-msgstr "Modifié le"
+msgstr "date de modification"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
@@ -3549,7 +3549,7 @@ msgstr "Supprimé"
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:18
 msgid "Popular"
-msgstr "Popularité"
+msgstr "popularité"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
@@ -3568,18 +3568,18 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{number} ensembles de données trouvés"
+msgstr[0] "{number} ensemble de données trouvé"
 msgstr[1] "{number} ensembles de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "Sorry no datasets found for \"{query}\""
-msgstr "0 ensembles de données trouvés "
+msgstr "0 ensemble de données trouvé"
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "{number}Jeu de données trouvé"
-msgstr[1] "{number}Jeux de données trouvés"
+msgstr[0] "{number} ensemble de données trouvé"
+msgstr[1] "{number} ensembles de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "Sorry no datasets found"
@@ -3631,11 +3631,11 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr "Par ordre"
+msgstr "Trier par"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr "de pertinence"
+msgstr "pertinence"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
