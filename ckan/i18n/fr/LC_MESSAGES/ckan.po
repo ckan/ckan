@@ -3509,7 +3509,7 @@ msgstr "Afficher plus d'{facet}"
 
 #: ckan/templates/snippets/facet_list.html:60
 msgid "Show Only Popular {facet}"
-msgstr "Afficher uniquement les {facet} populaire"
+msgstr "Afficher uniquement les {facet} populaires"
 
 #: ckan/templates/snippets/facet_list.html:64
 msgid "There are no filters for this search"
