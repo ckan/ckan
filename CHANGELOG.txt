@@ -1,6 +1,38 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.7.1-ecportal 2012-06-25
+==========================
+
+Major:
+ * Reindex datasets belonging to a group when group name changes
+ * Add tracking export paster command to output tracking information.
+ * OpenID plugin removed from who.ini
+ * Allow activity streams to be disabled via config
+ * Update to latest version of repoze.who
+
+Minor:
+ * RDF extension excluded from dataset read translation process
+ * User add paster command now goes through the logic layer (and so uses the same validation)
+ * Display of user Gravatar can be disabled via config
+ * Allow all sysadmins to delete publisher groups
+ * Added some documentation that was originally added in release-v1.8 (logic layer docstrings)
+ * Use search queries for atom feeds on group pages.
+ * Exclude admin interface from templates that should be translated (in setup.py)
+ * Remove strings 'Next' and 'Prev' from pagination (not translated)
+
+Bug fixes:
+ * Don't return private datasets when using legacy search API
+ * Fix bug where custom feed crashed if metadata_modified or metadata_created fields were missing
+
+Bug fixes (backported from release-v1.7.2):
+ * Fixes for licences i18n
+ * Remove sensitive data from user dict (#2784)
+ * Fix bug in feeds controller (#2869)
+ * Show dataset author and maintainer names even if they have no emails
+ * Fix URLs for some Amazon buckets
+
+
 v1.7.1 2012-06-20
 =================
 
