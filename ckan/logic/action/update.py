@@ -170,7 +170,6 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
-    schema = context.get('schema') or schema_.default_update_resource_schema()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -180,6 +179,13 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(
+            resource.resource_group.package.type)
+        schema = package_plugin.update_package_schema()['resources']
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
