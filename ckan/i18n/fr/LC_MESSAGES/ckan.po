@@ -1884,12 +1884,12 @@ msgstr "Se désabonner"
 #: ckan/public/base/javascript/modules/related-item.js:24
 #: ckan/public/base/javascript/modules/related-item.min.js:1
 msgid "show more"
-msgstr ""
+msgstr "afficher plus"
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 #: ckan/public/base/javascript/modules/related-item.min.js:1
 msgid "show less"
-msgstr ""
+msgstr "afficher plus"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
@@ -1953,7 +1953,7 @@ msgstr "Éditer"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr ""
+msgstr "Afficher plus"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
@@ -3509,7 +3509,7 @@ msgstr "Afficher plus d'{facet}"
 
 #: ckan/templates/snippets/facet_list.html:60
 msgid "Show Only Popular {facet}"
-msgstr ""
+msgstr "Afficher uniquement les {facet} populaire"
 
 #: ckan/templates/snippets/facet_list.html:64
 msgid "There are no filters for this search"
