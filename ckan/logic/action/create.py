@@ -297,10 +297,12 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    dataset_dict = None
     if 'dataset_id' in data_dict:
         dataset = model.Package.get(data_dict['dataset_id'])
         dataset.related.append( related )
         model.repo.commit_and_remove()
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
 
     session.flush()
 
@@ -311,7 +313,8 @@ def related_create(context, data_dict):
             'activity_type': 'new related item',
             }
     activity_dict['data'] = {
-            'related': related_dict
+            'related': related_dict,
+            'dataset': dataset_dict,
     }
     activity_create_context = {
         'model': model,
@@ -925,7 +928,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if errors:
         raise ValidationError(errors)
 
-    activity = model_save.activity_dict_save(activity_dict, context)
+    activity = model_save.activity_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()

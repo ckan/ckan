@@ -127,9 +127,9 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
+    session = context['session']
     schema = context.get('schema') or schema_.default_related_schema()
 
     related = model.Related.get(id)
@@ -146,6 +146,32 @@ def related_update(context, data_dict):
         raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
+
+    dataset_dict = None
+    if 'package' in context:
+        dataset = context['package']
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+        'user_id': context['user'],
+        'object_id': related.id,
+        'activity_type': 'changed related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict,
+        'dataset': dataset_dict,
+    }
+    activity_create_context = {
+        'model': model,
+        'user': context['user'],
+        'defer_commit':True,
+        'session': session
+    }
+
+    _get_action('activity_create')(activity_create_context, activity_dict,
+                                   ignore_auth=True)
+
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.related_dictize(related, context)
