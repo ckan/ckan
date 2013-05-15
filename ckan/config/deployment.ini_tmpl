@@ -1,40 +1,20 @@
 #
-# ckan - Pylons configuration
+# CKAN - Pylons configuration
+#
+# These are some of the configuration options available for your CKAN
+# instance. Check the documentation in 'doc/configuration.rst' or at the
+# following URL for a description of what they do and the full list of
+# available options:
+#
+# http://docs.ckan.org/en/${doc_version}/configuration.html
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #
+
 [DEFAULT]
 
-# Change debug to true when doing CKAN development, it enables Pylons'
-# interactive debugging tool, makes Fanstatic serve unminified JS and CSS
-# files, and enables CKAN templates' debugging features.
-#   
 # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
-# Debug mode will enable the interactive debugging tool, allowing ANYONE to
-# execute malicious code after an exception is raised.
 debug = false
-
-email_to = you@yourdomain.com
-error_email_from = paste@localhost
-
-# The SMTP server to connect to when sending emails to users, with optional
-# port (default: 25). For example: lavabit.com, or smtp.gmail.com:587. To
-# connect to a local sendmail process enter 'localhost'.
-smtp.server = localhost
-
-# Whether or not to use STARTTLS when connecting to the SMTP server.
-smtp.starttls = False
-
-# The username and password to use to authenticate with the SMTP server.
-# Optional, if these are left commented-out then CKAN will try to send email
-# to the SMTP server without logging in first.
-#smtp.user = your_username@gmail.com
-#smtp.password = your_password
-
-# The email address that emails sent by CKAN to users should appear to come
-# from. Optional (default: None, note that the SMTP server may insert its own
-# from address).
-#smtp.mail_from =
 
 [server:main]
 use = egg:Paste#http
@@ -44,7 +24,7 @@ port = 5000
 [app:main]
 use = egg:ckan
 full_stack = true
-cache_dir = %(here)s/data
+cache_dir = /tmp/%(ckan.site_id)s/
 beaker.session.key = ckan
 
 # This is the secret token that the beaker library uses to hash the cookie sent
@@ -56,252 +36,124 @@ beaker.session.secret = ${app_instance_secret}
 # a config file.
 app_instance_uuid = ${app_instance_uuid}
 
-# List the names of CKAN extensions to activate.
-# Note: This line is required to be here for packaging, even if it is empty.
-# Note: Add ``pdf_preview`` to enable the resource preview for PDFs
-#		Add the ``resource_proxy`` plugin to enable resorce proxying and get around the same origin policy
-#       Add ``datastore`` to enable the CKAN DataStore extension
-ckan.plugins = stats json_preview recline_preview
-
-# If you'd like to fine-tune the individual locations of the cache data dirs
-# for the Cache data, or the Session saves, un-comment the desired settings
-# here:
-#beaker.cache.data_dir = %(here)s/data/cache
-#beaker.session.data_dir = %(here)s/data/sessions
-
-# Specify the database for SQLAlchemy to use:
-# * Postgres is currently required for a production CKAN deployment
-# * Sqlite (memory or file) can be used as a quick alternative for testing
-sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
-#sqlalchemy.url = sqlite:///
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db
-
-# Un-comment and specify the URLs for the DataStore database.
-# * Postgres is required
-#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
-#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
-
 # repoze.who config
 who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-# Location of licenses group (defaults to cached local version of ckan group)
-#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
 
-# Dataset form to use
-package_form = standard
+## Database Settings
+sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
+#sqlalchemy.url = sqlite:///
+#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
-# Hide certain extras fields from dataset read form:
-# package_hide_extras = for_search_index_only
-
-# API configuration
-#apikey_header_name = X-CKAN-API-Key
-
-## extra places to look for templates and public files (comma separated lists)
-## any templates/files found will override correspondingly named ones in
-## ckan/templates/ and ckan/public
-## (e.g. to override main layout template layout.html or add extra css files)
-# extra_template_paths = %(here)s/my-templates
-# extra_public_paths = %(here)s/my-public
-
-# Dataset form integration
-#package_edit_return_url = http://another.frontend/dataset/<NAME>
-#package_new_return_url = http://another.frontend/dataset/<NAME>
+#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
+#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
 
 
-# Turn on messaging with carrot, default to false
-#ckan.async_notifier = true
-# Messaging module used by carrot:
-# * pyamqplib - AMQP (e.g. for RabbitMQ)
-# * queue - native Python Queue (debugging and tests only)
-#carrot_messaging_library = pyamqplib
+## Site Settings
 
-## Perform search just using database (rather than use e.g. solr).
-## In this setup search is crude and limited .e.g no full-text search, no faceting ...
-## However, very useful for getting up and running quickly with CKAN 
-# ckan.simple_search = 1
-
-## Title of site (using in several places including templates and <title> tag
-ckan.site_title = CKAN
-
-## Logo image to use on the home page
-ckan.site_logo = /base/images/ckan-logo.png
-
-## Site tagline / description (used on front page)
-ckan.site_description = DataSuite
-
-## Used in creating some absolute urls (such as rss feeds, css files) and 
-## dump filenames
 ckan.site_url =
 
-## Favicon (default is the CKAN software favicon)
-ckan.favicon = /images/icons/ckan.ico
 
-## The gravatar default to use.  This can be any of the pre-defined strings
-## as defined on http://en.gravatar.com/site/implement/images/ (e.g. "identicon"
-## or "mm").  Or it can be a url, e.g. "http://example.com/images/avatar.jpg"
-ckan.gravatar_default = identicon
+## Authorization Settings
 
-## Solr support
+ckan.auth.anon_create_dataset = false
+ckan.auth.create_unowned_dataset = true
+ckan.auth.create_dataset_if_not_in_organization = true
+ckan.auth.user_create_groups = true
+ckan.auth.user_create_organizations = true
+ckan.auth.user_delete_groups = true
+ckan.auth.user_delete_organizations = true
+ckan.auth.create_user_via_api = false
+
+
+## Search Settings
+
+ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
-## Automatic indexing. Make all changes immediately available via the search
-## after editing or creating a dataset. Default is true. If for some reason
-## you need the indexing to occur asynchronously, set this option to 0.
-# ckan.search.automatic_indexing = 1
+#ckan.simple_search = 1
 
-## An 'id' for the site (using, for example, when creating entries in a common search index) 
-## If not specified derived from the site_url
-ckan.site_id = default
 
-## API url to use (e.g. in AJAX callbacks)
-## Enable if the API is at a different domain
-# ckan.api_url = http://www.ckan.net
+## Plugins Settings
 
-## html content to be inserted just before </head> tag (e.g. extra stylesheet)
-## NB: can use html e.g. <strong>blah</strong>
-## NB: can have multiline strings just indent following lines
-# ckan.template_head_end = <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css"> 
+# Note: Add ``datastore`` to enable the CKAN DataStore
+#       Add ``pdf_preview`` to enable the resource preview for PDFs
+#		Add ``resource_proxy`` to enable resorce proxying and get around the
+#		same origin policy
+ckan.plugins = stats json_preview recline_preview
 
-## html content to be inserted just before </body> tag (e.g. google analytics code)
-## NB: can use html e.g. <strong>blah</strong>
-## NB: can have multiline strings just indent following lines
-# ckan.template_footer_end = 
 
-# These three settings (ckan.log_dir, ckan.dump_dir and ckan.backup_dir) are
-# all used in cron jobs, not in CKAN itself. CKAN logging is configured 
-# in the logging configuration below
-# Directory for logs (produced by cron scripts associated with ckan)
-ckan.log_dir = %(here)s/log
-# Directory for JSON/CSV dumps (must match setting in apache config)
-ckan.dump_dir = %(here)s/dump
-# Directory for SQL database backups
-ckan.backup_dir = %(here)s/backup
+## Front-End Settings
+ckan.site_title = CKAN
+ckan.site_logo = /base/images/ckan-logo.png
+ckan.site_description =
+ckan.favicon = /images/icons/ckan.ico
+ckan.gravatar_default = identicon
+ckan.preview.direct = png jpg gif
+ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 
-# Default authorizations for new domain objects
-#ckan.default_roles.Package = {"visitor": ["reader"], "logged_in": ["reader"]}
-#ckan.default_roles.Group = {"visitor": ["reader"], "logged_in": ["reader"]}
-#ckan.default_roles.System = {"visitor": ["reader"], "logged_in": ["editor"]}
-#ckan.default_roles.AuthorizationGroup = {"visitor": ["reader"], "logged_in": ["reader"]}
+# package_hide_extras = for_search_index_only
+#package_edit_return_url = http://another.frontend/dataset/<NAME>
+#package_new_return_url = http://another.frontend/dataset/<NAME>
+#ckan.recaptcha.publickey =
+#ckan.recaptcha.privatekey =
+#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
+# ckan.template_footer_end =
 
-## Ckan public and private recaptcha keys [localhost]
-#ckan.recaptcha.publickey = 
-#ckan.recaptcha.privatekey = 
 
-# Locale/languages
+## Internationalisation Settings
 ckan.locale_default = en
-#ckan.locales_offered = 
-# Languages are grouped by percentage of strings in CKAN 1.8 translated
-# (those with 100% first, then those with >=80%, then >=50%, then <50%) and
-# within these groups roughly sorted by number of worldwide native speakers
-# according to Wikipedia.
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
-ckan.locales_filtered_out = 
+ckan.locales_offered =
+ckan.locales_filtered_out =
 
-## Atom Feeds
-#
-# Settings for customising the metadata provided in
-# atom feeds.
-#
-# These settings are used to generate the <id> tags for both feeds
-# and entries. The unique <id>s are created following the method
-# outlined in http://www.taguri.org/  ie - they generate tagURIs, as specified
-# in http://tools.ietf.org/html/rfc4151#section-2.1 :
-#
-# <id>tag:thedatahub.org,2012:/feeds/group/933f3857-79fd-4beb-a835-c0349e31ce76</id>
-#
-# Each component has the corresponding settings:
-#
-#   "thedatahub.org" is ckan.feeds.authority_name
-#   "2012"           is ckan.feeds.date
-#
 
-# Leave blank to use the ckan.site_url config value, otherwise set to a
-# domain or email address that you own.  e.g. thedatahub.org or
-# admin@thedatahub.org
+## Feeds Settings
+
 ckan.feeds.authority_name =
-
-# Pick a date of the form "yyyy[-mm[-dd]]" during which the above domain was
-# owned by you.
-ckan.feeds.date = 2012
-
-# If not set, then the value in `ckan.site_id` is used.
+ckan.feeds.date =
 ckan.feeds.author_name =
-
-# If not set, then the value in `ckan.site_url` is used.
 ckan.feeds.author_link =
 
-## File Store
-#
-# CKAN allows users to upload files directly to file storage either on the local
-# file system or to online ‘cloud’ storage like Amazon S3 or Google Storage.
-#
-# If you are using local file storage, remember to set ckan.site_url.
-#
-# To enable cloud storage (Google or S3), first run: pip install boto
-#
-# @see http://docs.ckan.org/en/latest/filestore.html
+## Storage Settings
 
-# 'Bucket' to use for file storage
-#ckan.storage.bucket = my-bucket-name
-
-# To enable local file storage:
+# Local file storage:
 #ofs.impl = pairtree
 #ofs.storage_dir = /var/lib/ckan/default
 
-# To enable Google cloud storage:
+# Google cloud storage:
 #ofs.impl = google
 #ofs.gs_access_key_id =
 #ofs.gs_secret_access_key =
 
-# To enable S3 cloud storage:
+# S3 cloud storage:
 #ofs.impl = s3
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
 
-## Previews
-#
-# Set the file types that should be previewed inline (e.g. images) or directly in an iframe.
+## Activity Streams Settings
 
-ckan.preview.direct = png jpg gif
-ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
-
-
-# Activity Streams
-#
-# Default maximum number of activities to show in an activity stream.
-# ckan.activity_list_limit = 31
-
-
-# Activity Streams Email Notifications
-#
-# Uncomment this line to enable activity streams email notifications.
-# You also need to setup a cron job to send the emails, see the documentation.
-#ckan.activity_streams_email_notifications = True
-
-# Email notifications for events older than this time delta will not be sent.
-# Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds),
-# '7 days, 3:23:34', etc.
+#ckan.activity_streams_enabled = true
+#ckan.activity_list_limit = 31
+#ckan.activity_streams_email_notifications = true
 # ckan.email_notifications_since = 2 days
 
 
-# DEBUGGING
+## Email settings
 
-# ckan.debug_supress_header This option can be set to suppress the debug
-# information showing the controller and action recieving the request being
-# shown in the header.  Note: This info only shows if debug is set to true.
-ckan.debug_supress_header = false
+email_to = you@yourdomain.com
+error_email_from = paste@localhost
+smtp.server = localhost
+smtp.starttls = False
+#smtp.user = your_username@gmail.com
+#smtp.password = your_password
+#smtp.mail_from =
 
-## ===================================
-## Extensions
 
-## Config option to enable the (1 day) cache for stats
-## Default (if not defined) is True as stats computations are intensive
-# ckanext.stats.cache_enabled = True
-
-# Logging configuration
+## Logging configuration
 [loggers]
 keys = root, ckan, ckanext
 

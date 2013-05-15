@@ -59,13 +59,12 @@ Create the database (owned by |database_user|), which we'll call
 Set URLs
 --------
 
-Now, uncomment the ``ckan.datastore.write_url`` and ``ckan.datastore.read_url``
-lines in your CKAN config file and edit them, for example:
+Now, uncomment the :ref:`ckan.datastore.write_url` and
+:ref:`ckan.datastore.read_url` lines in your CKAN config file and edit them
+if necessary, for example:
 
 .. parsed-literal::
 
- # Datastore
- # Uncommment to set the datastore urls
  ckan.datastore.write_url = postgresql://|database_user|:pass@localhost/|datastore|
  ckan.datastore.read_url = postgresql://|datastore_user|:pass@localhost/|datastore|
 
