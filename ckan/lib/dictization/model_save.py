@@ -229,33 +229,41 @@ def package_membership_list_save(group_dicts, package, context):
             group = session.query(model.Group).get(id)
         else:
             group = session.query(model.Group).filter_by(name=name).first()
-        groups.add(group)
+        if group:
+            groups.add(group)
 
     ## need to flush so we can get out the package id
     model.Session.flush()
-    for group in groups - set(group_member.keys()):
-        if group:
-            member_obj = model.Member(table_id = package.id,
-                                      table_name = 'package',
-                                      group = group,
-                                      capacity = capacity,
-                                      group_id=group.id,
-                                      state = 'active')
-            session.add(member_obj)
+
+    # Remove any groups we are no longer in
     for group in set(group_member.keys()) - groups:
         member_obj = group_member[group]
+        if member_obj and member_obj.state == 'deleted':
+            continue
         if new_authz.has_user_permission_for_group_or_org(
                 member_obj.group_id, user, 'read'):
             member_obj.capacity = capacity
             member_obj.state = 'deleted'
             session.add(member_obj)
 
-    for group in set(group_member.keys()) & groups:
-        member_obj = group_member[group]
+    # Add any new groups
+    for group in groups:
+        member_obj = group_member.get(group)
+        if member_obj and member_obj.state == 'active':
+            continue
         if new_authz.has_user_permission_for_group_or_org(
-                member_obj.group_id, user, 'read'):
-            member_obj.capacity = capacity
-            member_obj.state = 'active'
+                group.id, user, 'read'):
+            member_obj = group_member.get(group)
+            if member_obj:
+                member_obj.capacity = capacity
+                member_obj.state = 'active'
+            else:
+                member_obj = model.Member(table_id=package.id,
+                                          table_name='package',
+                                          group=group,
+                                          capacity=capacity,
+                                          group_id=group.id,
+                                          state = 'active')
             session.add(member_obj)
 
 

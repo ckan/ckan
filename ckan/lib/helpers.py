@@ -636,7 +636,7 @@ def markdown_extract(text, extract_length=190):
     will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
-    plain = re.sub(r'<.*?>', '', markdown(text))
+    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
@@ -925,7 +925,6 @@ def dataset_link(package_or_package_dict):
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
-    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -934,11 +933,8 @@ def resource_display_name(resource_dict):
         if len(description) > max_len:
             description = description[:max_len] + '...'
         return description
-    elif url:
-        return url
     else:
-        noname_string = _('no name')
-        return '[%s] %s' % (noname_string, resource_dict['id'])
+        return _("Unnamed resource")
 
 
 def resource_link(resource_dict, package_id):
@@ -960,7 +956,7 @@ def related_item_link(related_item_dict):
 
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
-    return link_to(tag['name'], url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 def group_link(group):
@@ -1135,13 +1131,16 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None, alternative_url=None):
-    ''' Remove a key from the current parameters. A specific key/value
-    pair can be removed by passing a second value argument otherwise all
-    pairs matching the key will be removed. If replace is given then a
-    new param key=replace will be added.
+    ''' Remove one or multiple keys from the current parameters.
+    The first parameter can be either a string with the name of the key to
+    remove or a list of keys to remove.
+    A specific key/value pair can be removed by passing a second value
+    argument otherwise all pairs matching the key will be removed. If replace
+    is given then a new param key=replace will be added.
+    Note that the value and replace parameters only apply to the first key
+    provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
@@ -1150,14 +1149,20 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     This can be overriden providing an alternative_url, which will be used
     instead.
     '''
+    if isinstance(key, basestring):
+      keys = [key]
+    else:
+      keys = key
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
-        params.remove((key, value))
+        params.remove((keys[0], value))
     else:
-        [params.remove((k, v)) for (k, v) in params[:] if k == key]
+        for key in keys:
+          [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
-        params.append((key, replace))
+        params.append((keys[0], replace))
 
     if alternative_url:
         return _url_with_params(alternative_url, params)
@@ -1284,7 +1289,7 @@ def user_in_org_or_group(group_id):
 
 def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         offset=0):
-    '''Return the dashboard activity stream of the given user.
+    '''Return the dashboard activity stream of the current user.
 
     :param user_id: the id of the user
     :type user_id: string
@@ -1312,7 +1317,7 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
         return logic.get_action('dashboard_activity_list_html')(
-            context, {'id': user_id, 'offset': offset})
+            context, {'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
@@ -1362,12 +1367,77 @@ def get_request_param(parameter_name, default=None):
     return request.params.get(parameter_name, default)
 
 
-def render_markdown(data):
+# find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
+# as this would lead to linkifying links if they are urls.
+RE_MD_GET_INNER_HTML = re.compile(
+    r'(^|(?:<(?!a\b)[^>]*>))([^<]+)(?=<|$)',
+    flags=re.UNICODE
+)
+
+# find all `internal links` eg. tag:moo, dataset:1234, tag:"my tag"
+RE_MD_INTERNAL_LINK = re.compile(
+    r'\b(tag|package|dataset|group):((")?(?(3)[ \w\-.]+|[\w\-.]+)(?(3)"))',
+    flags=re.UNICODE
+)
+
+# find external links eg http://foo.com, https://bar.org/foobar.html
+RE_MD_EXTERNAL_LINK = re.compile(
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    flags=re.UNICODE
+)
+
+# find all tags but ignore < in the strings so that we can use it correctly
+# in markdown
+RE_MD_HTML_TAGS = re.compile('<[^><]*>')
+
+
+def html_auto_link(data):
+    '''Linkifies HTML
+
+    tag:... converted to a tag link
+    dataset:... converted to a dataset link
+    group:... converted to a group link
+    http://... converted to a link
+    '''
+
+    LINK_FNS = {
+        'tag': tag_link,
+        'group': group_link,
+        'dataset': dataset_link,
+        'package': dataset_link,
+    }
+
+    def makelink(matchobj):
+        obj = matchobj.group(1)
+        name = matchobj.group(2)
+        title = '%s:%s' % (obj, name)
+        return LINK_FNS[obj]({'name': name.strip('"'), 'title': title})
+
+    def link(matchobj):
+        return '<a href="%s" target="_blank" rel="nofollow">%s</a>' \
+            % (matchobj.group(1), matchobj.group(1))
+
+    def process(matchobj):
+        data = matchobj.group(2)
+        data = RE_MD_INTERNAL_LINK.sub(makelink, data)
+        data = RE_MD_EXTERNAL_LINK.sub(link, data)
+        return matchobj.group(1) + data
+
+    data = RE_MD_GET_INNER_HTML.sub(process, data)
+    return data
+
+
+def render_markdown(data, auto_link=True):
     ''' returns the data as rendered markdown '''
-    # cope with data == None
     if not data:
         return ''
-    return literal(ckan.misc.MarkdownFormat().to_html(data))
+    data = RE_MD_HTML_TAGS.sub('', data.strip())
+    data = markdown(data, safe_mode=True)
+    # tags can be added by tag:... or tag:"...." and a link will be made
+    # from it
+    if auto_link:
+        data = html_auto_link(data)
+    return literal(data)
 
 
 def format_resource_items(items):

@@ -359,6 +359,7 @@ class TestBasicDictize:
     def test_08_package_save(self):
 
         context = {"model": model,
+                   "user": 'testsysadmin',
                    "session": model.Session}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
@@ -928,7 +929,7 @@ class TestBasicDictize:
                                'title': u'simple',
                                'type': u'organization',
                                'approval_status': u'approved'}],
-                    'users': [{'about': u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>',
+                    'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
                               'display_name': u'annafan',
                               'capacity' : 'public',
                               'sysadmin': False,

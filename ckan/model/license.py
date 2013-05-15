@@ -1,10 +1,10 @@
 import datetime
 import urllib2
 import re
-import simplejson as json
 
 from pylons import config
-from pylons.i18n import _
+
+from ckan.common import _, json
 
 
 class License(object):

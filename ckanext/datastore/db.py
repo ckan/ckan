@@ -11,7 +11,7 @@ import distutils.version
 import logging
 import pprint
 import sqlalchemy
-from sqlalchemy.exc import ProgrammingError, IntegrityError
+from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
 import psycopg2.extras
 
 log = logging.getLogger(__name__)
@@ -31,19 +31,27 @@ _pg_types = {}
 _type_names = set()
 _engines = {}
 
+# See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
+_PG_ERR_CODE = {
+    'unique_violation': '23505',
+    'query_canceled': '57014',
+    'undefined_object': '42704',
+    'syntax_error': '42601'
+}
+
 _date_formats = ['%Y-%m-%d',
-                '%Y-%m-%d %H:%M:%S',
-                '%Y-%m-%dT%H:%M:%S',
-                '%Y-%m-%dT%H:%M:%SZ',
-                '%d/%m/%Y',
-                '%m/%d/%Y',
-                '%d-%m-%Y',
-                '%m-%d-%Y',
-                ]
-INSERT = 'insert'
-UPSERT = 'upsert'
-UPDATE = 'update'
-_methods = [INSERT, UPSERT, UPDATE]
+                 '%Y-%m-%d %H:%M:%S',
+                 '%Y-%m-%dT%H:%M:%S',
+                 '%Y-%m-%dT%H:%M:%SZ',
+                 '%d/%m/%Y',
+                 '%m/%d/%Y',
+                 '%d-%m-%Y',
+                 '%m-%d-%Y',
+                 ]
+
+_INSERT = 'insert'
+_UPSERT = 'upsert'
+_UPDATE = 'update'
 
 
 def _strip(input):
@@ -57,7 +65,7 @@ def _pluck(field, arr):
 
 
 def _get_list(input, strip=True):
-    """Transforms a string or list to a list"""
+    '''Transforms a string or list to a list'''
     if input is None:
         return
     if input == '':
@@ -106,7 +114,7 @@ def _validate_int(i, field_name, non_negative=False):
 
 
 def _get_engine(context, data_dict):
-    'Get either read or write engine.'
+    '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
 
@@ -159,10 +167,10 @@ def _is_valid_pg_type(context, type_name):
         try:
             connection.execute('SELECT %s::regtype', type_name)
         except ProgrammingError, e:
-            if 'invalid type name' in str(e) or 'does not exist' in str(e):
+            if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
+                                      _PG_ERR_CODE['syntax_error']]:
                 return False
-            else:
-                raise
+            raise
         else:
             return True
 
@@ -173,10 +181,8 @@ def _get_type(context, oid):
 
 
 def _rename_json_field(data_dict):
-    '''
-    rename json type to a corresponding type for the datastore since
-    pre 9.2 postgres versions do not support native json
-    '''
+    '''Rename json type to a corresponding type for the datastore since
+    pre 9.2 postgres versions do not support native json'''
     return _rename_field(data_dict, 'json', 'nested')
 
 
@@ -193,7 +199,8 @@ def _rename_field(data_dict, term, replace):
 
 
 def _guess_type(field):
-    'Simple guess type of field, only allowed are integer, numeric and text'
+    '''Simple guess type of field, only allowed are
+    integer, numeric and text'''
     data_types = set([int, float])
     if isinstance(field, (dict, list)):
         return 'nested'
@@ -252,7 +259,7 @@ def json_get_values(obj, current_list=None):
 
 
 def check_fields(context, fields):
-    'Check if field types are valid.'
+    '''Check if field types are valid.'''
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
@@ -281,7 +288,7 @@ def convert(data, type_name):
 
 
 def create_table(context, data_dict):
-    'Create table from combination of fields and first row of data.'
+    '''Create table from combination of fields and first row of data.'''
 
     datastore_fields = [
         {'id': '_id', 'type': 'serial primary key'},
@@ -331,7 +338,7 @@ def create_table(context, data_dict):
 
 
 def _get_aliases(context, data_dict):
-    ''' Get a list of aliases for a resource. '''
+    '''Get a list of aliases for a resource.'''
     res_id = data_dict['resource_id']
     alias_sql = sqlalchemy.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
@@ -340,8 +347,8 @@ def _get_aliases(context, data_dict):
 
 
 def _get_resources(context, alias):
-    ''' Get a list of resources for an alias. There could be more than one alias
-    in a resource_dict. '''
+    '''Get a list of resources for an alias. There could be more than one alias
+    in a resource_dict.'''
     alias_sql = sqlalchemy.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
@@ -521,7 +528,7 @@ def alter_table(context, data_dict):
 
 
 def insert_data(context, data_dict):
-    data_dict['method'] = INSERT
+    data_dict['method'] = _INSERT
     return upsert_data(context, data_dict)
 
 
@@ -530,9 +537,9 @@ def upsert_data(context, data_dict):
     if not data_dict.get('records'):
         return
 
-    method = data_dict.get('method', UPSERT)
+    method = data_dict.get('method', _UPSERT)
 
-    if method not in _methods:
+    if method not in [_INSERT, _UPSERT, _UPDATE]:
         raise ValidationError({
             'method': [u'"{0}" is not defined'.format(method)]
         })
@@ -543,7 +550,7 @@ def upsert_data(context, data_dict):
     sql_columns = ", ".join(['"%s"' % name.replace('%', '%%') for name in field_names]
                             + ['"_full_text"'])
 
-    if method == INSERT:
+    if method == _INSERT:
         rows = []
         for num, record in enumerate(records):
             _validate_record(record, num, field_names)
@@ -566,7 +573,7 @@ def upsert_data(context, data_dict):
 
         context['connection'].execute(sql_string, rows)
 
-    elif method in [UPDATE, UPSERT]:
+    elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
         if len(unique_keys) < 1:
             raise ValidationError({
@@ -608,7 +615,7 @@ def upsert_data(context, data_dict):
 
             full_text = _to_full_text(fields, record)
 
-            if method == UPDATE:
+            if method == _UPDATE:
                 sql_string = u'''
                     UPDATE "{res_id}"
                     SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
@@ -629,7 +636,7 @@ def upsert_data(context, data_dict):
                         'key': [u'key "{0}" not found'.format(unique_values)]
                     })
 
-            elif method == UPSERT:
+            elif method == _UPSERT:
                 sql_string = u'''
                     UPDATE "{res_id}"
                     SET ({columns}, "_full_text") = ({values}, to_tsvector(%s))
@@ -700,7 +707,7 @@ def _to_full_text(fields, record):
 
 
 def _where(field_ids, data_dict):
-    'Return a SQL WHERE clause from data_dict filters and q'
+    '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
@@ -770,8 +777,8 @@ def _sort(context, data_dict, field_ids):
 
         if field not in field_ids:
             raise ValidationError({
-                'sort': [u'field "{0}" not it table'.format(
-                    unicode(field, 'utf-8'))]
+                'sort': [u'field "{0}" not in table'.format(
+                    field)]
             })
         if sort.lower() not in ('asc', 'desc'):
             raise ValidationError({
@@ -786,9 +793,8 @@ def _sort(context, data_dict, field_ids):
 
 
 def _insert_links(data_dict, limit, offset):
-    ''' Adds link to the next/prev part (same limit, offset=offset+limit)
-    and the resource page.
-    '''
+    '''Adds link to the next/prev part (same limit, offset=offset+limit)
+    and the resource page.'''
     data_dict['_links'] = {}
 
     # get the url from the request
@@ -943,10 +949,9 @@ def create(context, data_dict):
 
     _rename_json_field(data_dict)
 
-    # close connection at all cost.
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         result = context['connection'].execute(
@@ -963,22 +968,23 @@ def create(context, data_dict):
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if ('duplicate key value violates unique constraint' in str(e)
-                or 'could not create unique index' in str(e)):
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
-                'constraints': ['Cannot insert records or create index because of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because '
+                                'of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
             })
-        else:
-            raise
-    except Exception, e:
-        trans.rollback()
-        if 'due to statement timeout' in str(e):
+        raise
+    except DBAPIError, e:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
+        raise
+    except Exception, e:
+        trans.rollback()
         raise
     finally:
         context['connection'].close()
@@ -996,30 +1002,32 @@ def upsert(context, data_dict):
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
 
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         upsert_data(context, data_dict)
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if 'duplicate key value violates unique constraint' in str(e):
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
-                'constraints': ['Cannot insert records because of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because '
+                                'of uniqueness constraint'],
                 'info': {
                     'details': str(e)
                 }
             })
-        else:
-            raise
-    except Exception, e:
-        trans.rollback()
-        if 'due to statement timeout' in str(e):
+        raise
+    except DBAPIError, e:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
+        raise
+    except Exception, e:
+        trans.rollback()
         raise
     finally:
         context['connection'].close()
@@ -1030,9 +1038,9 @@ def delete(context, data_dict):
     context['connection'] = engine.connect()
     _cache_types(context)
 
+    trans = context['connection'].begin()
     try:
         # check if table exists
-        trans = context['connection'].begin()
         result = context['connection'].execute(
             u'SELECT 1 FROM pg_tables WHERE tablename = %s',
              data_dict['resource_id']
@@ -1071,7 +1079,7 @@ def search(context, data_dict):
         id = data_dict['resource_id']
         result = context['connection'].execute(
             u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
-             u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
+            u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
         ).fetchone()
         if not result:
             raise ValidationError({
@@ -1079,8 +1087,8 @@ def search(context, data_dict):
                     data_dict['resource_id'])]
             })
         return search_data(context, data_dict)
-    except Exception, e:
-        if 'due to statement timeout' in str(e):
+    except DBAPIError, e:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
             })
@@ -1099,7 +1107,7 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         results = context['connection'].execute(
-            data_dict['sql']
+            data_dict['sql'].replace('%', '%%')
         )
         return format_results(context, results, data_dict)
 
@@ -1112,10 +1120,10 @@ def search_sql(context, data_dict):
             'orig': [str(e.orig)]
          }
         })
-    except Exception, e:
-        if 'due to statement timeout' in str(e):
+    except DBAPIError, e:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
-                'query': ['Search took too long']
+                'query': ['Query took too long']
             })
         raise
     finally:

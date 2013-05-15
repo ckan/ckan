@@ -1,13 +1,10 @@
-{% with items=(
-h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
-h.literal('<li class="active">') + h.link_to('Active Tab', '#') + h.literal('</li>'),
-h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
-h.literal('<li>') + h.link_to('In-active Tab', '#') + h.literal('</li>'),
-) %}
+{% with items=(("First", true), ("Second", false), ("Third", false)) %}
   <header class="module-content page-header">
     <ul class="nav nav-tabs">
-      {% for item in items %}
-        {{ item }}
+      {% for value, active in items %}
+        <li{{ ' class=active' if active }}>
+          <a href="#"><i class="icon-cog"></i> {{ value }}</a>
+        </li>
       {% endfor %}
     </ul>
   </header>
