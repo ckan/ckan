@@ -78,12 +78,6 @@ def _get_list(input, strip=True):
         return l
 
 
-def _get_bool(input, default=False):
-    if input in [None, '']:
-        return default
-    return converters.asbool(input)
-
-
 def _is_valid_field_name(name):
     '''
     Check that field name is valid:
@@ -506,7 +500,11 @@ def alter_table(context, data_dict):
         new_fields.append(field)
 
     if records:
-        # check record for sanity
+        # check record for sanity as they have not been checked during validation
+        if not isinstance(records, list):
+            raise ValidationError({
+                'records': ['Records has to be a list of dicts']
+            })
         if not isinstance(records[0], dict):
             raise ValidationError({
                 'records': ['The first row is not a json object']
@@ -538,11 +536,6 @@ def upsert_data(context, data_dict):
         return
 
     method = data_dict.get('method', _UPSERT)
-
-    if method not in [_INSERT, _UPSERT, _UPDATE]:
-        raise ValidationError({
-            'method': [u'"{0}" is not defined'.format(method)]
-        })
 
     fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
@@ -740,7 +733,7 @@ def _textsearch_query(data_dict):
     q = data_dict.get('q')
     lang = data_dict.get(u'language', u'english')
     if q:
-        if (_get_bool(data_dict.get('plain'), True)):
+        if data_dict.get('plain', True):
             statement = u", plainto_tsquery('{lang}', '{query}') query"
         else:
             statement = u", to_tsquery('{lang}', '{query}') query"
