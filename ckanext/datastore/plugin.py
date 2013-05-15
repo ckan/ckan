@@ -132,8 +132,11 @@ class DatastorePlugin(p.SingletonPlugin):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = db._get_engine(None,
                                         {'connection_url': url}).connect()
-            sql = u"SELECT has_schema_privilege('public', 'CREATE')"
-            is_writable = connection.execute(sql).first()[0]
+            try:
+                sql = u"SELECT has_schema_privilege('public', 'CREATE')"
+                is_writable = connection.execute(sql).first()[0]
+            finally:
+                connection.close()
             if is_writable:
                 return False
         return True
@@ -162,15 +165,19 @@ class DatastorePlugin(p.SingletonPlugin):
         write_connection.execute(drop_foo_sql)
 
         try:
-            write_connection.execute(u'CREATE TABLE _foo ()')
-            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
-                sql = test_privilege_sql.format(privilege=privilege)
-                have_privilege = read_connection.execute(sql).first()[0]
-                if have_privilege:
-                    return False
+            try:
+                write_connection.execute(u'CREATE TABLE _foo ()')
+                for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                    test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
+                    sql = test_privilege_sql.format(privilege=privilege)
+                    have_privilege = read_connection.execute(sql).first()[0]
+                    if have_privilege:
+                        return False
+            finally:
+                write_connection.execute(drop_foo_sql)
         finally:
-            write_connection.execute(drop_foo_sql)
+            write_connection.close()
+            read_connection.close()
         return True
 
     def _create_alias_table(self):
@@ -194,9 +201,12 @@ class DatastorePlugin(p.SingletonPlugin):
             ORDER BY dependee.oid DESC;
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
-        connection = db._get_engine(None,
-            {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
-        connection.execute(create_alias_table_sql)
+        try:
+            connection = db._get_engine(None,
+                {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
+            connection.execute(create_alias_table_sql)
+        finally:
+            connection.close()
 
     def get_actions(self):
         actions = {'datastore_create': action.datastore_create,
