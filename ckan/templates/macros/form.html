@@ -217,6 +217,11 @@ Examples:
   {%- set extra_html = caller() if caller -%}
   {%- do classes.append('control-custom') -%}
 
+  {# if the key starts with __ we hide it as it is a system setting #}
+  {% if (values[0] and values[0].startswith('__')) %}
+    <input id="{{ id or names[0] }}-key" type="hidden" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" />
+    <input id="{{ id or names[1] }}-value" type="hidden" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" />
+  {% else %}
   {% call input_block(label_id, label or name, error, classes, control_classes=["editor"], extra_html=extra_html) %}
     <div class="input-prepend" {{ attributes(attrs) }}>
       <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
@@ -228,6 +233,7 @@ Examples:
       {% endif %}
     </div>
   {% endcall %}
+  {% endif %}
 {% endmacro %}
 
 {#

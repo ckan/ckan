@@ -576,7 +576,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
         if extra.get('state') == 'deleted':
             continue
         k, v = extra['key'], extra['value']
-        if k in exclude:
+        if k in exclude or k.startswith('__'):
             continue
         if subs and k in subs:
             k = subs[k]
