@@ -30,6 +30,10 @@ PLUGINS_ENTRY_POINT_GROUP = "ckan.plugins"
 SYSTEM_PLUGINS_ENTRY_POINT_GROUP = "ckan.system_plugins"
 
 
+# THIS IS PURE EVIL
+# We are changing the default inherit from False to True
+implements.__defaults__ = (None, True, True)
+
 class PluginNotFoundException(Exception):
     """
     Raised when a requested plugin cannot be found.
