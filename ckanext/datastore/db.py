@@ -11,7 +11,7 @@ import distutils.version
 import logging
 import pprint
 import sqlalchemy
-from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
+from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError, DataError
 import psycopg2.extras
 
 log = logging.getLogger(__name__)
@@ -30,6 +30,8 @@ else:
 _pg_types = {}
 _type_names = set()
 _engines = {}
+
+_timeout = 60000
 
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
@@ -937,7 +939,7 @@ def create(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _timeout)
     _cache_types(context)
 
     _rename_json_field(data_dict)
@@ -971,6 +973,12 @@ def create(context, data_dict):
                 }
             })
         raise
+    except DataError, e:
+        raise ValidationError({
+            'data': e.message,
+            'info': {
+                'orig': [str(e.orig)]
+            }})
     except DBAPIError, e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
@@ -994,7 +1002,7 @@ def upsert(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _timeout)
 
     try:
         # check if table already existes
@@ -1014,6 +1022,12 @@ def upsert(context, data_dict):
                 }
             })
         raise
+    except DataError, e:
+        raise ValidationError({
+            'data': e.message,
+            'info': {
+                'orig': [str(e.orig)]
+            }})
     except DBAPIError, e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
@@ -1063,7 +1077,7 @@ def delete(context, data_dict):
 def search(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _timeout)
     _cache_types(context)
 
     try:
@@ -1094,7 +1108,7 @@ def search(context, data_dict):
 def search_sql(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _timeout)
     _cache_types(context)
 
     try:
