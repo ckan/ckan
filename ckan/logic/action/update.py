@@ -126,17 +126,8 @@ def related_update(context, data_dict):
     :rtype: dictionary
 
     '''
-    if not context.has_key('user'):
-        raise logic.NotAuthorized(
-                _("You must be logged in to update a related item."))
-
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
-    userobj = model.User.get(user)
-    if not userobj:
-        raise logic.NotAuthorized(
-                _("You must be logged in to update a related item."))
 
     session = context['session']
 
@@ -164,7 +155,7 @@ def related_update(context, data_dict):
 
     related_dict = model_dictize.related_dictize(related, context)
     activity_dict = {
-        'user_id': userobj.id,
+        'user_id': context['user'],
         'object_id': related.id,
         'activity_type': 'changed related item',
     }
@@ -174,7 +165,7 @@ def related_update(context, data_dict):
     }
     activity_create_context = {
         'model': model,
-        'user': user,
+        'user': context['user'],
         'defer_commit':True,
         'session': session
     }
