@@ -488,6 +488,18 @@ class IActions(Interface):
         request (as well as the usual POST request) through the action API.
         """
 
+    def before_action(self, action_name, context, data_dict):
+        ''' We get the context and data_dict along with the action_name
+        before the action is called.  This allows us to alter them as
+        needed. '''
+        pass
+
+    def after_action(self, action_name, context, data_dict):
+        ''' We get the context and data_dict along with the action_name
+        after the action is called.  This allows us to alter them as
+        needed. '''
+        pass
+
 
 class IAuthFunctions(Interface):
     """
