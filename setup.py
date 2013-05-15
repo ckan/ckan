@@ -16,10 +16,10 @@ setup(
     url='http://ckan.org/',
     description=__description__,
     keywords='data packaging component tool server',
-    long_description =__long_description__,
+    long_description=__long_description__,
     install_requires=[
     ],
-    extras_require = {
+    extras_require={
     },
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
@@ -32,10 +32,54 @@ setup(
         'migration/tests/test_dumps/*',
         'migration/versions/*',
     ]},
-    message_extractors = {
+    # Not currently translating the admin interface or API
+    #
+    # Also ignoring templates that are overwritten (or not used) in the
+    # ckanext-ecportal extension
+    message_extractors={
         'ckan': [
+            ('authz.py', 'ignore', None),
+            ('new_authz.py', 'ignore', None),
+            ('controllers/**.py', 'ignore', None),
+            ('forms/**.py', 'ignore', None),
+            ('lib/**.py', 'ignore', None),
+            ('logic/**.py', 'ignore', None),
+            ('model/**.py', 'ignore', None),
+            ('tests/**.py', 'ignore', None),
+            ('templates/_util.html', 'ignore', None),
+            ('templates/admin/**.html', 'ignore', None),
+            ('templates/activity_streams/**.html', 'ignore', None),
+            ('templates/authorization_group/**.html', 'ignore', None),
+            ('templates/facets.html', 'ignore', None),
+            ('templates/group/**.html', 'ignore', None),
+            ('templates/home/index.html', 'ignore', None),
+            ('templates/home/about.html', 'ignore', None),
+            ('templates/importer/**.html', 'ignore', None),
+            ('templates/js_strings.html', 'ignore', None),
+            ('templates/layout_base.html', 'ignore', None),
+            ('templates/package/authz.html', 'ignore', None),
+            ('templates/package/edit.html', 'ignore', None),
+            ('templates/package/editresources.html', 'ignore', None),
+            ('templates/package/edit_form.html', 'ignore', None),
+            ('templates/package/form.html', 'ignore', None),
+            ('templates/package/form_extra_fields.html', 'ignore', None),
+            ('templates/package/form_fields.html', 'ignore', None),
+            ('templates/package/form_resources.html', 'ignore', None),
+            ('templates/package/history.html', 'ignore', None),
+            ('templates/package/layout.html', 'ignore', None),
+            ('templates/package/new.html', 'ignore', None),
+            ('templates/package/new_package_form.html', 'ignore', None),
+            ('templates/package/read.html', 'ignore', None),
+            ('templates/package/read_core.html', 'ignore', None),
+            ('templates/package/related_list.html', 'ignore', None),
+            ('templates/package/resource_read.html', 'ignore', None),
+            ('templates/package/resources.html', 'ignore', None),
+            ('templates/package/search.html', 'ignore', None),
+            ('templates/revision/**.html', 'ignore', None),
+            ('templates/snippets/**.html', 'ignore', None),
+            ('templates/storage/**.html', 'ignore', None),
+            ('templates/user/**.html', 'ignore', None),
             ('**.py', 'python', None),
-            ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'genshi', None),
             ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
@@ -45,14 +89,51 @@ setup(
             }),
             ('public/**', 'ignore', None),
         ],
-        'ckanext': [
+        # Note: make sure that the path to ckanext-ecportal is
+        # correct when updating the list of strings for translation
+        '../ckanext-ecportal': [
+            ('ckanext/ecportal/auth.py', 'ignore', None),
+            ('ckanext/ecportal/validators.py', 'ignore', None),
+            ('ckanext/ecportal/templates/email/**.html', 'ignore', None),
+            ('ckanext/ecportal/templates/home/about.html', 'ignore', None),
+            ('ckanext/ecportal/templates/group/edit.html', 'ignore', None),
+            ('ckanext/ecportal/templates/group/layout.html', 'ignore', None),
+            ('ckanext/ecportal/templates/js_strings.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/authz.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/edit.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/layout.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/new.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/new_package_form.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/publisher/edit.html', 'ignore', None),
+            ('ckanext/ecportal/templates/publisher/new.html', 'ignore', None),
+            ('ckanext/ecportal/templates/publisher/history.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/publisher/layout.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/user/**.html', 'ignore', None),
+            ('ckanext/ecportal/templates/organization_apply.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/organization_apply_form.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/organization_layout.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/organization_users.html',
+             'ignore', None),
+            ('ckanext/ecportal/templates/organization_users_form.html',
+             'ignore', None),
             ('**.py', 'python', None),
             ('**.html', 'genshi', None),
-            ('multilingual/solr/*.txt', 'ignore', None),
-            ('**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-        ]},
+        ]
+        # 'ckanext': [
+        #     ('**.py', 'python', None),
+        #     ('**.html', 'genshi', None),
+        #     ('multilingual/solr/*.txt', 'ignore', None),
+        #     ('**.txt', 'genshi', {
+        #         'template_class': 'genshi.template:TextTemplate'
+        #     }),
+        # ]},
+    },
     entry_points="""
     [nose.plugins.0.10]
     main = ckan.ckan_nose_plugin:CkanNose

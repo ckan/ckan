@@ -2,6 +2,7 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
+import pylons.config as config
 from nose.plugins.skip import SkipTest
 
 import ckan
@@ -16,6 +17,7 @@ from ckan.logic.action.get import package_list, package_show
 from ckan.lib.dictization.model_dictize import resource_list_dictize
 from pylons.test import pylonsapp
 import paste.fixture
+import ckan.lib.helpers as h
 from ckan.lib.helpers import json
 
 
@@ -86,6 +88,7 @@ def make_package(name=None):
     pkg['tags'] = [tag1, tag2]
     return pkg
 
+
 def find_new_activities(before, after):
     new_activities = []
     for activity in after:
@@ -93,10 +96,12 @@ def find_new_activities(before, after):
             new_activities.append(activity)
     return new_activities
 
-class TestActivity:
 
+class TestActivity:
     @classmethod
     def setup_class(self):
+        if not h.asbool(config.get('ckan.activity_streams_enabled', 'true')):
+            raise SkipTest('Activity streams not enabled')
         ckan.tests.CreateTestData.create()
         self.sysadmin_user = model.User.get('testsysadmin')
         self.normal_user = model.User.get('annafan')

@@ -10,6 +10,7 @@ import datetime
 import logging
 import re
 import urllib
+import urlparse
 
 from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
@@ -77,6 +78,16 @@ def url_for(*args, **kw):
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)
+
+    # _add_i18n_to_url() only works on the assumption that the `url_to_amend`
+    # startswith the mount-point of the application.  This will already be
+    # taken care of by `routes` if we're within a http request.  Otherwise, we
+    # have to make a best guess.
+    if not _handling_request():
+        # Safe to assume `kw['qualified'] is False` since `routes` would have
+        # thrown an exception by now if it were `True`.
+        my_url = _guess_mount_point() + my_url
+
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
@@ -152,6 +163,31 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException('There is a broken url being created %s' % kw)
 
     return url
+
+def _guess_mount_point():
+    '''
+    Returns the best guess of the application's mount-point assuming we are
+    running *outside* of an http request.
+
+    The mount-point of the application can only be reliably found from the
+    SCRIPT_NAME wsgi environment variable.  But if we're outside of an http
+    request, then this variable is not available.  So we make a best guess
+    using the `site_url` config option.
+    '''
+    site_url = config.get('ckan.site_url')
+    return urlparse.urlparse(site_url).path.rstrip('/')
+
+def _handling_request():
+    '''Returns `True` iff we can detect that we're handling a http request.
+
+    Url-generation is not contained to callers handling http requests, it can
+    be called upon outside of a http request, for example, a paster command.
+    '''
+    try:
+        request.environ.get('SCRIPT_NAME', '')
+        return True
+    except TypeError:
+        return False
 
 def lang():
     ''' Return the language code for the current locale eg `en` '''
@@ -477,6 +513,10 @@ def format_icon(_format):
     return 'page_white'
 
 def linked_gravatar(email_hash, size=100, default=None):
+
+    if not _display_gravatars():
+        return ''
+
     return literal(
         '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
@@ -485,6 +525,10 @@ def linked_gravatar(email_hash, size=100, default=None):
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid', 'wavatar', 'retro']
 def gravatar(email_hash, size=100, default=None):
+
+    if not _display_gravatars():
+        return ''
+
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
 
@@ -496,6 +540,9 @@ def gravatar(email_hash, size=100, default=None):
         class="gravatar" />'''
         % (email_hash, size, default)
         )
+
+def _display_gravatars():
+    return asbool(config.get('ckan.display_gravatars', 'true'))
 
 def pager_url(page, partial=None, **kwargs):
     routes_dict = _pylons_default_url.environ['pylons.routes_dict']
@@ -512,7 +559,7 @@ class Page(paginate.Page):
     def pager(self, *args, **kwargs):
         kwargs.update(
             format=u"<div class='pagination'><ul>$link_previous ~2~ $link_next</ul></div>",
-            symbol_previous=u'« Prev', symbol_next=u'Next »',
+            symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class':'active'}, link_attr={}
         )
         return super(Page, self).pager(*args, **kwargs)

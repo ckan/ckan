@@ -14,6 +14,9 @@ def package_create(context, data_dict=None):
     user = context['user']
     userobj = model.User.get(user)
 
+    if Authorizer().is_sysadmin(unicode(user)):
+        return {'success': True}
+
     if userobj and len(userobj.get_groups()):
         return {'success': True}
 

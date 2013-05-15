@@ -114,8 +114,8 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
         "/group/933f3857-79fd-4beb-a835-c0349e31ce76"
 
-    The latter of which is only used if no site_url is available.   And it
-    should be noted will result in an invalid feed.
+    The latter of which is only used if no site_url is available. And it should
+    be noted will result in an invalid feed.
 
     [1] http://web.archive.org/web/20110514113830/http://diveintomark.org/\
     archives/2004/05/28/howto-atom-id
@@ -206,7 +206,6 @@ class FeedController(BaseController):
                                 navigation_urls=navigation_urls)
 
     def tag(self, id):
-
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'tags:"%s"' % id
 
@@ -343,26 +342,37 @@ class FeedController(BaseController):
         )
 
         for pkg in results:
+            updated_date = pkg.get('metadata_modified')
+            if updated_date:
+                updated_date = date_str_to_datetime(updated_date)
+
+            published_date = pkg.get('metadata_created')
+            if published_date:
+                published_date = date_str_to_datetime(published_date)
+
             feed.add_item(
                 title=pkg.get('title', ''),
-                link=self.base_url + url_for(controller='package',
-                                             action='read',
-                                             id=pkg['id']),
+                link=urlparse.urljoin(self.base_url,
+                                      url_for(controller='package',
+                                              action='read',
+                                              id=pkg['id'])),
                 description=pkg.get('notes', ''),
-                updated=date_str_to_datetime(pkg.get('metadata_modified')),
-                published=date_str_to_datetime(pkg.get('metadata_created')),
+                updated=updated_date,
+                published=published_date,
                 unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
                 author_name=pkg.get('author', ''),
                 author_email=pkg.get('author_email', ''),
                 categories=[t['name'] for t in pkg.get('tags', [])],
                 enclosure=webhelpers.feedgenerator.Enclosure(
-                    self.base_url + url_for(controller='api',
-                                            register='package',
-                                            action='show',
-                                            id=pkg['name'],
-                                            ver='2'),
-                    unicode(len(json.dumps(pkg))),   # TODO fix this
-                    u'application/json')
+                    urlparse.urljoin(self.base_url,
+                                     url_for(controller='api',
+                                             register='package',
+                                             action='show',
+                                             id=pkg['name'],
+                                             ver='2')),
+                    unicode(len(json.dumps(pkg))),  # TODO fix this
+                    u'application/json'
+                )
             )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
@@ -375,11 +385,9 @@ class FeedController(BaseController):
         parameters.
         """
         path = url_for(controller=controller, action=action, **kwargs)
-        query = [(k, v.encode('utf-8') if isinstance(v, basestring)
-                  else str(v)) for k, v in query.items()]
-
-        # a trailing '?' is valid.
-        return self.base_url + path + u'?' + urlencode(query)
+        query = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+                 for k, v in query.items()]
+        return urlparse.urljoin(self.base_url, path + u'?' + urlencode(query))
 
     def _navigation_urls(self, query, controller, action,
                          item_count, limit, **kwargs):
@@ -438,6 +446,8 @@ class FeedController(BaseController):
 
         limit = ITEMS_LIMIT
         data_dict = {
+            'q': request.params.get('q', u''),
+            'sort': request.params.get('sort', None),
             'start': (page - 1) * limit,
             'rows': limit
         }

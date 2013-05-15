@@ -39,7 +39,7 @@ class HomeController(BaseController):
         try:
             # package search
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'for_view': True}
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,

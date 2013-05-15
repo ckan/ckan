@@ -255,9 +255,8 @@ class PackageController(BaseController):
         return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
 
     def read(self, id, format='html'):
+        ctype, extension, loader = self._content_type_from_extension(format)
         if not format == 'html':
-            ctype, extension, loader = \
-                self._content_type_from_extension(format)
             if not ctype:
                 # An unknown format, we'll carry on in case it is a
                 # revision specifier and re-constitute the original id
@@ -272,7 +271,7 @@ class PackageController(BaseController):
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'extras_as_string': True,
-                   'for_view': True}
+                   'for_view': extension != 'rdf'}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -319,7 +318,16 @@ class PackageController(BaseController):
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
+        if extension == 'rdf':
+            import urlparse
+            c.dataset_url = urlparse.urljoin(
+                config['ckan.site_url'],
+                'dataset/%s' % c.pkg_dict.get('name', c.pkg_dict['id'])
+            )
+            return render(template, method="xml", loader_class=loader)
+
         return render(template, loader_class=loader)
+
 
     def comments(self, id):
         package_type = self._get_package_type(id)

@@ -18,7 +18,7 @@ babel==0.9.6
 psycopg2==2.4.5
 webob==1.0.8
 Pylons==0.9.7
-repoze.who==1.0.19
+repoze.who==2.1
 tempita==0.5.1
 zope.interface==4.0.1
 repoze.who.plugins.openid==0.5.3
