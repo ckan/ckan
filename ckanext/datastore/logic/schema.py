@@ -1,5 +1,16 @@
-from ckan.logic.schema import *
+import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
+from formencode.validators import OneOf
+
+toolkit = p.toolkit
+
+not_missing = toolkit.get_validator('not_missing')
+not_empty = toolkit.get_validator('not_empty')
+resource_id_exists = toolkit.get_validator('resource_id_exists')
+ignore_missing = toolkit.get_validator('ignore_missing')
+empty = toolkit.get_validator('empty')
+boolean_validator = toolkit.get_validator('boolean_validator')
+int_validator = toolkit.get_validator('int_validator')
 
 
 def rename(old, new):
