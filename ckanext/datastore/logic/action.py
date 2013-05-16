@@ -1,6 +1,6 @@
 import logging
 import pylons
-import ckan
+import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db

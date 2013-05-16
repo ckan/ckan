@@ -31,7 +31,7 @@ _pg_types = {}
 _type_names = set()
 _engines = {}
 
-_timeout = 60000
+_TIMEOUT = 60000  # milliseconds
 
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
@@ -41,15 +41,14 @@ _PG_ERR_CODE = {
     'syntax_error': '42601'
 }
 
-_date_formats = ['%Y-%m-%d',
+_DATE_FORMATS = ['%Y-%m-%d',
                  '%Y-%m-%d %H:%M:%S',
                  '%Y-%m-%dT%H:%M:%S',
                  '%Y-%m-%dT%H:%M:%SZ',
                  '%d/%m/%Y',
                  '%m/%d/%Y',
                  '%d-%m-%Y',
-                 '%m-%d-%Y',
-                 ]
+                 '%m-%d-%Y']
 
 _INSERT = 'insert'
 _UPSERT = 'upsert'
@@ -217,7 +216,7 @@ def _guess_type(field):
         return 'numeric'
 
     ##try iso dates
-    for format in _date_formats:
+    for format in _DATE_FORMATS:
         try:
             datetime.datetime.strptime(field, format)
             return 'timestamp'
@@ -939,7 +938,7 @@ def create(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _timeout)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     _rename_json_field(data_dict)
@@ -1002,7 +1001,7 @@ def upsert(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _timeout)
+    timeout = context.get('query_timeout', _TIMEOUT)
 
     try:
         # check if table already existes
@@ -1077,7 +1076,7 @@ def delete(context, data_dict):
 def search(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _timeout)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     try:
@@ -1108,7 +1107,7 @@ def search(context, data_dict):
 def search_sql(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', _timeout)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     try:
