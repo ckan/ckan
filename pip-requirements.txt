@@ -23,5 +23,6 @@ tempita==0.5.1
 zope.interface==4.0.1
 repoze.who.plugins.openid==0.5.3
 repoze.who-friendlyform==1.0.8
+repoze.who-use_beaker==0.3
 routes==1.13
 paste==1.7.5.1

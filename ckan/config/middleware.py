@@ -56,25 +56,9 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
-    # Routing/Session/Cache Middleware
+    # Routing Middleware
     app = RoutesMiddleware(app, config['routes.map'])
-    app = SessionMiddleware(app, config)
-    app = CacheMiddleware(app, config)
-    
-    # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-    #app = QueueLogMiddleware(app)
-    
-    if asbool(full_stack):
-        # Handle Python exceptions
-        app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
 
-        # Display error documents for 401, 403, 404 status codes (and
-        # 500 when debug is disabled)
-        if asbool(config['debug']):
-            app = StatusCodeRedirect(app, [400, 404])
-        else:
-            app = StatusCodeRedirect(app, [400, 404, 500])
-    
     # Initialize repoze.who
     who_parser = WhoConfig(global_conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
@@ -106,6 +90,24 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
                 who_parser.remote_user_key,
            )
     
+    # Session/Cache Middleware
+    app = SessionMiddleware(app, config)
+    app = CacheMiddleware(app, config)
+
+    # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
+    #app = QueueLogMiddleware(app)
+
+    if asbool(full_stack):
+        # Handle Python exceptions
+        app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
+
+        # Display error documents for 401, 403, 404 status codes (and
+        # 500 when debug is disabled)
+        if asbool(config['debug']):
+            app = StatusCodeRedirect(app, [400, 404])
+        else:
+            app = StatusCodeRedirect(app, [400, 404, 500])
+
     # Establish the Registry for this application
     app = RegistryManager(app)
 

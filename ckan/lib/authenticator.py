@@ -3,7 +3,8 @@ import logging
 from zope.interface import implements
 from repoze.who.interfaces import IAuthenticator
 
-from ckan.model import User, Session
+from ckan.model import User
+
 
 log = logging.getLogger(__name__)
 
@@ -36,3 +37,9 @@ class UsernamePasswordAuthenticator(object):
         log.debug('Login as %r failed - password not valid', identity.get('login'))
         return None
 
+
+class BeakerSessionAuthenticator(object):
+    implements(IAuthenticator)
+
+    def authenticate(self, environ, identity):
+        return identity.get('repoze.who.userid')

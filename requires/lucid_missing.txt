@@ -10,6 +10,7 @@ solrpy==0.9.5
 formalchemy==1.4.2
 pairtree==0.7.1-T
 ofs==0.4.1
+repoze.who-use_beaker==0.3
 
 apachemiddleware==0.1.1
 # markupsafe is required by webhelpers==1.2 required by formalchemy with SQLAlchemy 0.6

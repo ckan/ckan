@@ -2,6 +2,7 @@ from routes import url_for
 from nose.tools import assert_equal
 from pylons import config
 import hashlib
+import repoze.who.config
 
 from ckan.tests import search_related, CreateTestData
 from ckan.tests.html_check import HtmlCheckMethods
@@ -11,7 +12,9 @@ import ckan.model as model
 from base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
 
-class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
+
+class TestUserController(FunctionalTestCase, HtmlCheckMethods,
+                         PylonsTestCase, SmtpServerHarness):
     @classmethod
     def setup_class(cls):
         smtp_server = config.get('test_smtp_server')
@@ -152,9 +155,14 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         # For a request response, returns the Set-Cookie header values.
         cookie_headers = []
         for key, value in res.headers:
-            if key == 'Set-Cookie':
+            if key.lower() == 'set-cookie':
                 cookie_headers.append(value)
         return cookie_headers
+
+    def _get_repoze_identifiers(self):
+        who_parser = repoze.who.config.WhoConfig(config)
+        who_parser.parse(open(config['who.config_file']))
+        return [identifier[0] for identifier in who_parser.identifiers]
 
     def test_login(self):
         # create test user
@@ -173,11 +181,14 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['remember'] = False
         res = fv.submit()
 
-        # check cookies set
-        cookies = self._get_cookie_headers(res)
-        assert cookies
-        for cookie in cookies:
-            assert not 'max-age' in cookie.lower(), cookie
+        identifiers = self._get_repoze_identifiers()
+
+        if 'auth_tkt' in identifiers:
+            # check cookies set
+            cookies = self._get_cookie_headers(res)
+            assert cookies
+            for cookie in cookies:
+                assert not 'max-age' in cookie.lower(), cookie
 
         # first get redirected to user/logged_in
         assert_equal(res.status, 302)
@@ -202,8 +213,14 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookie created
         cookie = res.request.environ['HTTP_COOKIE']
-        assert 'auth_tkt=' in cookie, cookie
-        assert 'testlogin!userid_type:unicode' in cookie, cookie
+
+        if 'auth_tkt' in identifiers:
+            assert 'auth_tkt=' in cookie, cookie
+            assert 'testlogin!userid_type:unicode' in cookie, cookie
+        elif 'use_beaker' in identifiers:
+            assert 'ckan=' in cookie, cookie
+        else:
+            raise Exception('Unknown cookie identification type')
 
         # navigate to another page and check username still displayed
         res = res.click('Search')
@@ -215,7 +232,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         password = u'letmein'
         CreateTestData.create_user(name=username,
                                    password=password)
-        user = model.User.by_name(username)
+
+        identifiers = self._get_repoze_identifiers()
 
         # do the login
         offset = url_for(controller='user', action='login')
@@ -226,14 +244,20 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         fv['remember'] = True
         res = fv.submit()
 
-        # check cookies set
-        cookies = self._get_cookie_headers(res)
-        assert cookies
-        # check cookie is remembered via Max-Age and Expires
-        # (both needed for cross-browser compatibility)
-        for cookie in cookies:
-            assert 'Max-Age=63072000;' in cookie, cookie
-            assert 'Expires=' in cookie, cookie
+        if 'auth_tkt' in identifiers:
+            # check cookies set
+            cookies = self._get_cookie_headers(res)
+            assert cookies
+            # check cookie is remembered via Max-Age and Expires
+            # (both needed for cross-browser compatibility)
+            for cookie in cookies:
+                assert 'Max-Age=63072000;' in cookie, cookie
+                assert 'Expires=' in cookie, cookie
+        elif 'use_beaker' in identifiers:
+            # remember check box ignored when using beaker
+            pass
+        else:
+            raise Exception('Unknown cookie identification type')
 
     def test_login_wrong_password(self):
         # create test user
@@ -468,9 +492,16 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
         # check cookies created
         cookie = res.request.environ['HTTP_COOKIE']
-        assert 'auth_tkt=' in cookie, cookie
-        assert 'testcreate!userid_type:unicode' in cookie, cookie
 
+        identifiers = self._get_repoze_identifiers()
+
+        if 'auth_tkt' in identifiers:
+            assert 'auth_tkt=' in cookie, cookie
+            assert 'testcreate!userid_type:unicode' in cookie, cookie
+        elif 'use_beaker' in identifiers:
+            assert 'ckan=' in cookie, cookie
+        else:
+            raise Exception('Unknown cookie identification type')
 
     def test_user_create_unicode(self):
         # create/register user
