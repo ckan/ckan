@@ -6185,3 +6185,12 @@ msgstr "Activité"
 
 msgid "Catalog Type"
 msgstr "Type de Catalogue"
+
+msgid "Resource Name"
+msgstr "Nom de la ressource"
+
+msgid "Size (MB)"
+msgstr "Taille (Mo)"
+
+msgid "Link"
+msgstr "Lien"
