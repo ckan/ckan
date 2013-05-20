@@ -6194,3 +6194,6 @@ msgstr "Taille (Mo)"
 
 msgid "Link"
 msgstr "Lien"
+
+msgid "Program Page"
+msgstr "Page du programme"
