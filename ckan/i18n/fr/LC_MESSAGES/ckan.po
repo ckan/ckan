@@ -6197,3 +6197,6 @@ msgstr "Lien"
 
 msgid "Program Page"
 msgstr "Page du programme"
+
+msgid "Geographic Information"
+msgstr "Information géographique"
