@@ -672,50 +672,35 @@ class UserCmd(CkanCommand):
             print 'Need name of the user.'
             return
         username = self.args[1]
+
         user = model.User.by_name(unicode(username))
         if user:
             print 'User "%s" already found' % username
             sys.exit(1)
 
-        # parse args
-        apikey = None
-        password = None
-        args = self.args[2:]
-        if len(args) == 1 and not (args[0].startswith('password') or \
-                                   args[0].startswith('apikey')):
-            # continue to support the old syntax of just supplying
-            # the apikey
-            apikey = args[0]
-        else:
-            # new syntax: password=foo apikey=bar
-            for arg in args:
-                split = arg.find('=')
-                if split == -1:
-                    split = arg.find(' ')
-                    if split == -1:
-                        raise ValueError('Could not parse arg: %r (expected "--<option>=<value>)")' % arg)
-                key, value = arg[:split], arg[split+1:]
-                if key == 'password':
-                    password = value
-                elif key == 'apikey':
-                    apikey = value
-                else:
-                    raise ValueError('Could not parse arg: %r (expected password/apikey argument)' % arg)
+        # parse args into data_dict
+        data_dict = {'name': username}
+        for arg in self.args[2:]:
+            try:
+                field, value = arg.split('=', 1)
+                data_dict[field] = value
+            except ValueError:
+                raise ValueError('Could not parse arg: %r '
+                                 '(expected "<option>=<value>)"' % arg)
 
-        if not password:
-            password = self.password_prompt()
+        if 'password' not in data_dict:
+            data_dict['password'] = self.password_prompt()
 
         print('Creating user: %r' % username)
 
         try:
             import ckan.logic as logic
-            site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-            context = {
-                    'model': model,
-                    'session': model.Session,
-                    'ignore_auth': True,
-                    'user': site_user['name'],
-                    }
+            site_user = logic.get_action('get_site_user')(
+                {'model': model, 'ignore_auth': True}, {})
+            context = {'model': model,
+                       'session': model.Session,
+                       'ignore_auth': True,
+                       'user': site_user['name']}
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
