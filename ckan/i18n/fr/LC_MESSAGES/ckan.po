@@ -6204,3 +6204,5 @@ msgstr "Information géographique"
 msgid "Open Government"
 msgstr "Gouvernement ouvert"
 
+msgid "You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here"
+msgstr "Vous pouvez utiliser le formatage <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown</a> ici"
