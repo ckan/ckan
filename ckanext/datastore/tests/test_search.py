@@ -157,6 +157,16 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         assert result['records'] == [self.expected_records[0]]
 
+    def test_search_filters_get(self):
+        filters = {u'b\xfck': 'annakarenina'}
+        res = self.app.get('/api/action/datastore_search?resource_id={0}&filters={1}'.format(
+                    self.data['resource_id'], json.dumps(filters)))
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [self.expected_records[0]]
+
     def test_search_array_filters(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'characters': [u'Princess Anna', u'Sergius']}}
