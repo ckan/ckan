@@ -99,6 +99,10 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
+    :param owner_org: the id of the dataset's owning organization, see 
+        ``organization_list()`` or ``organization_list_for_user`` for 
+        available values (optional)
+    :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
               in the context, in which case just the dataset id will be returned)
