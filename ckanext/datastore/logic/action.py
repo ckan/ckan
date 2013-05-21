@@ -1,5 +1,6 @@
 import logging
 import pylons
+import json
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
@@ -223,6 +224,12 @@ def datastore_search(context, data_dict):
     if 'id' in data_dict:
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
+
+    if 'filters' in data_dict and isinstance(data_dict['filters'], basestring):
+        try:
+            data_dict['filters'] = json.loads(data_dict['filters'])
+        except ValueError:
+            pass
 
     data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
             pylons.config['ckan.datastore.write_url'])
