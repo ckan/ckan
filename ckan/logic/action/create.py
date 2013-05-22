@@ -1,3 +1,5 @@
+'''API functions for adding data to CKAN.'''
+
 import logging
 
 from pylons import config

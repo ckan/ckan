@@ -5,7 +5,7 @@ These are the steps followed by CKAN developers to do a release. To get an
 overview of CKAN releases, check :doc:`release-cycle`.
 
 
-Doing a Beta release
+Doing a Beta Release
 --------------------
 
 Beta releases are branched off a certain point in master and will eventually
@@ -143,7 +143,7 @@ become stable releases.
         git push
 
 
-Doing a Proper release
+Doing a Proper Release
 ----------------------
 
 Once the release branch has been thoroughly tested and is stable we can do

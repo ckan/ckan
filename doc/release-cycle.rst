@@ -1,5 +1,5 @@
-CKAN Release Cycle
-==================
+Release Cycle
+=============
 
 CKAN follows a standardized release process to ensure that releases
 are stable and backwards compatible, and to allow external developers to
@@ -21,7 +21,7 @@ types of releases:
     These increment the second version number (eg *2.1*) and
     represent stable lines among CKAN releases. Although not as disruptive as on
     major releases, backwards incompatible changes may be introduced on point
-    releases. The :doc:`CHANGELOG` will describe which are these incompatible changes.
+    releases. The :doc:`changelog` will describe which are these incompatible changes.
     We aim to do a point release roughly every three months.
 
 * **Point-point Releases**

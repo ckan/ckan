@@ -1,3 +1,5 @@
+'''API functions for updating existing data in CKAN.'''
+
 import logging
 import datetime
 import json
