@@ -6209,3 +6209,6 @@ msgstr "Vous pouvez utiliser le formatage <a href=\"http://daringfireball.net/pr
 
 msgid "Forgotten your password?"
 msgstr "Vous avez oublié votre mot de passe?"
+
+msgid "Add another resource"
+msgstr "Ajouter une autre ressource"
