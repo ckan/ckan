@@ -1,6 +1,5 @@
 import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
-from formencode.validators import OneOf
 
 toolkit = p.toolkit
 
@@ -11,6 +10,7 @@ ignore_missing = toolkit.get_validator('ignore_missing')
 empty = toolkit.get_validator('empty')
 boolean_validator = toolkit.get_validator('boolean_validator')
 int_validator = toolkit.get_validator('int_validator')
+OneOf = toolkit.get_validator('OneOf')
 
 
 def rename(old, new):

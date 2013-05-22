@@ -8,6 +8,7 @@ import ckan.new_authz as new_authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
+import formencode.validators
 from ckan.common import _, c
 
 log = logging.getLogger(__name__)
@@ -410,6 +411,7 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
+        _validators_cache.update({'OneOf': formencode.validators.OneOf})
     try:
         return _validators_cache[validator]
     except KeyError:
