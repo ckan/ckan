@@ -1099,7 +1099,9 @@ def search(context, data_dict):
             raise ValidationError({
                 'query': ['Search took too long']
             })
-        raise
+        raise ValidationError({
+            'query': ['Invalid query']
+        })
     finally:
         context['connection'].close()
 

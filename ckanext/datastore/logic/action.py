@@ -232,10 +232,7 @@ def datastore_search(context, data_dict):
 
     '''
     schema = context.get('schema', dsschema.datastore_search_schema())
-    filters = data_dict.pop('filters', None)
     data_dict, errors = _validate(data_dict, schema, context)
-    if filters:
-        data_dict['filters'] = filters
     if errors:
         raise p.toolkit.ValidationError(errors)
 

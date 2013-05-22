@@ -1,16 +1,18 @@
+import json
+
 import ckan.plugins as p
 import ckan.lib.navl.dictization_functions as df
 
-toolkit = p.toolkit
+get_validator = p.toolkit.get_validator
 
-not_missing = toolkit.get_validator('not_missing')
-not_empty = toolkit.get_validator('not_empty')
-resource_id_exists = toolkit.get_validator('resource_id_exists')
-ignore_missing = toolkit.get_validator('ignore_missing')
-empty = toolkit.get_validator('empty')
-boolean_validator = toolkit.get_validator('boolean_validator')
-int_validator = toolkit.get_validator('int_validator')
-OneOf = toolkit.get_validator('OneOf')
+not_missing = get_validator('not_missing')
+not_empty = get_validator('not_empty')
+resource_id_exists = get_validator('resource_id_exists')
+ignore_missing = get_validator('ignore_missing')
+empty = get_validator('empty')
+boolean_validator = get_validator('boolean_validator')
+int_validator = get_validator('int_validator')
+OneOf = get_validator('OneOf')
 
 
 def rename(old, new):
@@ -50,6 +52,16 @@ def list_of_strings_or_string(key, data, errors, context):
     if isinstance(value, basestring):
         return
     list_of_strings_or_lists(key, data, errors, context)
+
+
+def json_validator(value, context):
+    if isinstance(value, dict) or isinstance(value, list):
+        return value
+    try:
+        value = json.loads(value)
+    except ValueError:
+        raise df.Invalid('Cannot parse JSON')
+    return value
 
 
 def datastore_create_schema():
@@ -96,6 +108,7 @@ def datastore_search_schema():
         'id': [ignore_missing],
         'q': [ignore_missing, unicode],
         'plain': [ignore_missing, boolean_validator],
+        'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, unicode],
         'limit': [ignore_missing, int_validator],
         'offset': [ignore_missing, int_validator],
