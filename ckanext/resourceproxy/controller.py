@@ -22,7 +22,12 @@ def proxy_resource(context, data_dict):
     url = resource['url']
 
     try:
+        # first we try a HEAD request which may not be supported
+        did_get = False
         r = requests.head(url)
+        if r.status_code == 405:
+            r = requests.get(url)
+            did_get = True
         r.raise_for_status()
 
         cl = r.headers['content-length']
@@ -31,7 +36,8 @@ def proxy_resource(context, data_dict):
                 'Allowed file size: {allowed}, Content-Length: {actual}.'.format(
                     allowed=MAX_FILE_SIZE, actual=cl))
 
-        r = requests.get(url)
+        if not did_get:
+            r = requests.get(url)
 
         base.response.content_type = r.headers['content-type']
         base.response.charset = r.encoding
@@ -46,8 +52,9 @@ def proxy_resource(context, data_dict):
                     detail='Content is too large to be proxied.')
 
     except requests.exceptions.HTTPError, error:
-        details = 'Could not proxy resource. %s' % str(error.response.reason)
-        base.abort(error.response.status_code, detail=details)
+        details = 'Could not proxy resource. Server responded with %s %s' % (
+            error.response.status_code, str(error.response.reason))
+        base.abort(409, detail=details)
     except requests.exceptions.ConnectionError, error:
         details = '''Could not proxy resource because a
                             connection error occurred. %s''' % str(error)
