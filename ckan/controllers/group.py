@@ -1,10 +1,12 @@
+# -*- coding: utf8 -*-
+
 import logging
 import genshi
 import datetime
 from urllib import urlencode
 
 from ckan.lib.base import BaseController, c, model, request, render, h, g
-from ckan.lib.base import ValidationException, abort, gettext
+from ckan.lib.base import ValidationException, abort, gettext, session
 from pylons.i18n import get_lang, _
 from ckan.lib.helpers import Page
 import ckan.lib.maintain as maintain
@@ -99,6 +101,12 @@ class GroupController(BaseController):
         return render(self._index_template(group_type))
 
     def read(self, id):
+        boolean = 'all'
+        if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
+            session['ext_boolean'] = request.GET['ext_boolean']
+            session.save()
+            boolean = request.GET.get('ext_boolean')
+
         from ckan.lib.search import SearchError
         group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
@@ -117,8 +125,6 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
-        # Search within group
-        q += ' groups: "%s"' % c.group_dict.get('name')
 
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(
@@ -182,7 +188,7 @@ class GroupController(BaseController):
                     else:
                         search_extras[param] = value
 
-            fq = 'capacity:"public"'
+            fq = 'capacity:"public" +groups:"%s" ' % c.group_dict.get('name')
             if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
                 fq = ''
                 context['ignore_capacity_check'] = True
