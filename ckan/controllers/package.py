@@ -1,8 +1,10 @@
+# -*- coding: utf8 -*-
+
 import logging
 from urllib import urlencode
 import datetime
 
-from pylons import config
+from pylons import config, session
 from pylons.i18n import _
 from autoneg.accept import negotiate
 
@@ -107,6 +109,11 @@ class PackageController(BaseController):
     def search(self):
         from ckan.lib.search import SearchError
 
+        boolean = 'all'
+        if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
+            session['ext_boolean'] = request.GET['ext_boolean']
+            session.save()
+            boolean = request.GET.get('ext_boolean')
         package_type = self._guess_package_type()
 
         try:
