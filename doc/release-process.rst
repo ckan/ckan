@@ -2,7 +2,7 @@ Doing a CKAN Release
 ====================
 
 These are the steps followed by CKAN developers to do a release. To get an
-overview of CKAN releases, check :doc:`release-cycle`.
+overview of CKAN releases, check :doc:`releases`.
 
 
 Doing a Beta Release

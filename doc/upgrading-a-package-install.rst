@@ -10,7 +10,7 @@ Upgrading a Package Install to CKAN 2.0
 
 The CKAN 2.0 package requires Ubuntu 12.04 64-bit, whereas previous CKAN
 packages used Ubuntu 10.04. CKAN 2.0 also introduces many
-backwards-incompatible feature changes (see :doc:`the changelog <changelog>`).
+backwards-incompatible feature changes (see :ref:`the changelog <changelog>`).
 So it's not possible to automatically upgrade to a CKAN 2.0 package install.
 
 However, you can install CKAN 2.0 (either on the same server that contained

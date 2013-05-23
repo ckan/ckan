@@ -19,6 +19,4 @@ For high-level information on what CKAN is, see the
    configuration
    contributing
    test
-   release-cycle
-   release-process
-   changelog
+   releases
