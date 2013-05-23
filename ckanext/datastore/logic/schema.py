@@ -85,7 +85,8 @@ def datastore_upsert_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
         'id': [ignore_missing],
-        'method': [ignore_missing, unicode, OneOf(['upsert', 'insert', 'update'])],
+        'method': [ignore_missing, unicode, OneOf(
+            ['upsert', 'insert', 'update'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
