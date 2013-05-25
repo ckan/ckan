@@ -140,7 +140,7 @@ the `documentation guidelines <http://docs.ckan.org/en/latest/documentation-guid
 .. toctree::
    :hidden:
 
-   writing-documentation
+   documentation-guidelines
 
 
 .. _making a pull request:
