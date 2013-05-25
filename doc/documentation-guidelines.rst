@@ -94,7 +94,7 @@ submodule::
     git submodule init
     git submodule update
 
-You may occassionally have to run ``git submodule update`` again, when someone
+You may occasionally have to run ``git submodule update`` again, when someone
 updates the theme, but this doesn't happen often.
 
 
