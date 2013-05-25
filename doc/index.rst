@@ -15,7 +15,7 @@ For high-level information on what CKAN is, see the
    writing-extensions
    theming
    api
-   configuration
    contributing
    test
+   configuration
    releases
