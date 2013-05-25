@@ -11,7 +11,6 @@ For high-level information on what CKAN is, see the
 
    installing
    getting-started
-   paster
    features
    writing-extensions
    theming

@@ -13,6 +13,7 @@ is the
 .. toctree::
    :maxdepth: 2
 
+   paster
    authorization
    data-viewer
    filestore
