@@ -17,7 +17,7 @@ an existing feature) should be missing from the docs** (but see `todo`_).
 
 ----
 
-The guidelines below are broken into three sections:
+The guidelines below are broken into four sections:
 
 :ref:`getting-started`
   Walks you through downloading the source files for CKAN's docs, editing them,
