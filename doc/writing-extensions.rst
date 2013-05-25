@@ -178,6 +178,8 @@ At this point you should be able to write your own plugins and extensions
 together with their tests.
 
 
+.. _plugin-reference:
+
 Plugin API Documentation
 ========================
 

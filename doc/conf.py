@@ -50,6 +50,11 @@ rst_epilog = '''
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
+.. |nginx| replace:: Nginx
+.. |sqlite| replace:: SQLite
+.. |python| replace:: Python
+.. |sqlalchemy| replace:: SQLAlchemy
+.. |javascript| replace:: JavaScript
 
 '''
 
