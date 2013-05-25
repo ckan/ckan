@@ -1,9 +1,17 @@
-======================
-CKAN Code Architecture
-======================
+=====================
+CKAN Coding Standards
+=====================
 
-This section tries to give some guidelines for writing code that is consistent
-with the intended, overall design and architecture of CKAN.
+This section documents our CKAN-specific coding standards, which are guidelines
+for writing code that is consistent with the intended design and architecture
+of CKAN.
+
+For more general coding standards, see also:
+
+* :doc:`python-coding-standards`
+* :doc:`html-coding-standards`
+* :doc:`css-coding-standards`
+* :doc:`javascript-coding-standards`
 
 
 Encapsulate SQLAlchemy in ``ckan.model``
@@ -31,6 +39,14 @@ When changes are made to the model classes in ``ckan.model`` that alter CKAN's
 database schema, a migration script has to be added to migrate old CKAN
 databases to the new database schema when they upgrade their copies of CKAN.
 See :doc:`migration`.
+
+.. Add a hidden tocree here to silence Sphinx warning about migration.rst not
+   being included in any toctree.
+
+.. toctree::
+   :hidden:
+
+   migration
 
 Always go through the Action Functions
 ``````````````````````````````````````
@@ -179,13 +195,13 @@ See :doc:`test` for further information on testing in CKAN.
 Writing Extensions
 ------------------
 
-Please see :ref:`writing-extensions` for information about writing ckan
+Please see :doc:`writing-extensions` for information about writing ckan
 extensions, including details on the API available to extensions.
 
 Deprecation
 -----------
 
-- Anything that may be used by extensions (see :ref:`writing-extensions`) needs
+- Anything that may be used by extensions (see :doc:`writing-extensions`) needs
   to maintain backward compatibility at call-site.  ie - template helper
   functions and functions defined in the plugins toolkit.
 

@@ -517,7 +517,7 @@ Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
 
 .. _ckan.datastore.enabled:
 
@@ -550,6 +550,8 @@ This controls if we'll use the 1 day cache for stats.
 
 Front-End Settings
 ------------------
+
+.. start_config-front-end
 
 .. _ckan.site_title:
 
@@ -766,7 +768,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :doc:`database-dumps`.
+For more information on using dumpfiles, see :ref:`paster db`.
 
 .. _ckan.dumps_format:
 
@@ -849,8 +851,12 @@ receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
 
+.. end_config-front-end
+
 Theming Settings
 ----------------
+
+.. start_config-theming
 
 .. _ckan.template_head_end:
 
@@ -935,6 +941,8 @@ To customise the display of CKAN you can supply replacements for static files su
 For more information on theming, see :doc:`theming`.
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
+
+.. end_config-theming
 
 Storage Settings
 ----------------
@@ -1333,8 +1341,8 @@ Examples::
 
 .. _email-settings:
 
-E-mail Settings
----------------
+Email Settings
+--------------
 
 .. _smtp.server:
 
