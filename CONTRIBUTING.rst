@@ -126,77 +126,24 @@ Frontend Development Guidelines
 Writing Documentation
 ---------------------
 
-**Note**: Getting started with contributing to `docs.ckan.org`_ is a little
-complicated.  An easier way to contribute documentation to CKAN is to sign up
-for a free GitHub account and simply edit the `CKAN Wiki
-<https://github.com/okfn/ckan/wiki>`_. Docs started on the wiki can make it
-onto `docs.ckan.org`_ later.
+The quickest and easiest way to contribute documentation to CKAN is to sign up
+for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+Docs started on the wiki can make it onto `docs.ckan.org`_ later.
 
-**Tip**: Use the |restructuredtext| markup format when creating a wiki page,
-since |restructuredtext| is the format that docs.ckan.org uses, this will make
+**Tip**: Use the reStructuredText markup format when creating a wiki page,
+since reStructuredText is the format that docs.ckan.org uses, this will make
 moving the documentation from the wiki into docs.ckan.org later easier.
 
-The CKAN documentation at `docs.ckan.org`_ is created using `Sphinx
-<http://sphinx-doc.org/>`_. The source files are in `the doc directory of the
-CKAN git repo <https://github.com/okfn/ckan/tree/master/doc>`_.  The following
-sections will walk you through the process of making changes to these
-documentation files, and submitting your work to the CKAN project.
+For how to contribute to the offical CKAN documentation at docs.ckan.org, see
+the `documentation guidelines <http://docs.ckan.org/en/latest/documentation-guidelines.html>`_.
 
-1. Install CKAN into a Virtualenv
-=================================
+.. toctree::
+   :hidden:
 
-Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
-(virtualenv), activate it, install CKAN into the virtual environment, and
-install the dependencies necessary for building CKAN. In this example we'll
-create a virtualenv in a folder called ``pyenv``. Run these commands in a
-terminal::
-
-    virtualenv --no-site-packages pyenv
-    . pyenv/bin/activate
-    pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+   writing-documentation
 
 
-2. Fetch CKAN's Git Submodules
-==============================
-
-CKAN's custom Sphinx theme is a kept in a git *submodule*, so before you can
-build the docs you have to run these commands in a terminal to download the
-submodule::
-
-    cd pyenv/src/ckan
-    git submodule init
-    git submodule update
-
-**Note**: you may occassionally have to run ``git submodule update`` again,
-when someone updates the theme, but this doesn't happen often.
-
-
-3. Build the Docs
-=================
-
-You should now be able to build the CKAN documentation locally. Make sure your
-virtual environment is activated, and then run this command::
-
-    python setup.py build_sphinx
-
-Now you can open the built HTML files in
-``pyenv/src/ckan/build/sphinx/html``, e.g.::
-
-    firefox pyenv/src/ckan/build/sphinx/html/index.html
-
-
-4. Edit the reStructuredText Files
-==================================
-
-To make changes to the documentation, use a text editor to edit the ``.rst``
-files in ``pyenv/src/ckan/doc/``. Save your changes and then build the docs
-again (``python setup.py build_sphinx``) and open the HTML files in a web
-browser to preview your changes.
-
-Once your docs are ready to submit to the CKAN project, follow the steps in
-`Making a Pull Request`_.
-
+.. _making a pull request:
 
 ---------------------
 Making a Pull Request
