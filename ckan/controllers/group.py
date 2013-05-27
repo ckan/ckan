@@ -1,5 +1,3 @@
-# -*- coding: utf8 -*-
-
 import logging
 import genshi
 import datetime

@@ -1,5 +1,3 @@
-# -*- coding: utf8 -*-
-
 import logging
 from urllib import urlencode
 import datetime
