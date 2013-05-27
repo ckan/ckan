@@ -136,11 +136,15 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
-                .format('json' if native_json else 'text'))
-            _pg_types.clear()
+            log.info("Create nested type. Native JSON: {0}".format(native_json))
 
-            log.info("Created nested type. Native JSON: {0}".format(native_json))
+            import pylons
+            data_dict = {'connection_url': pylons.config['ckan.datastore.write_url']}
+            engine = _get_engine(None, data_dict)
+            with engine.begin() as connection:
+                connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
+                    .format('json' if native_json else 'text'))
+            _pg_types.clear()
 
             ## redo cache types with json now available.
             return _cache_types(context)
