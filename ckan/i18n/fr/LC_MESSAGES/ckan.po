@@ -6212,3 +6212,15 @@ msgstr "Vous avez oublié votre mot de passe?"
 
 msgid "Add another resource"
 msgstr "Ajouter une autre ressource"
+
+msgid "Dataset Resources"
+msgstr "Ressources de l'ensemble de données"
+
+msgid "The information on this page (the dataset metadata) is also available in JSON format"
+msgstr "L’information sur cette page (les métadonnées du jeu de données) est aussi disponible en format JSON"
+
+msgid "Link to JSON format"
+msgstr "Lien au format JSON"
+
+msgid "Read more about this site's API: <a href='%(portal)s/eng/developers-corner/api'>About the API</a>"
+msgstr "En savoir plus sur l’API du site: <a href='%(portal)s/fra/developers-corner/api'>À propos du API</a>"
