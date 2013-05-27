@@ -114,7 +114,7 @@ def datastore_upsert(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -153,7 +153,7 @@ def datastore_delete(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -228,7 +228,7 @@ def datastore_search(context, data_dict):
             pylons.config['ckan.datastore.write_url'])
 
     resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:

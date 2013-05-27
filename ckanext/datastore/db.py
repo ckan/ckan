@@ -113,7 +113,7 @@ def _validate_int(i, field_name, non_negative=False):
         })
 
 
-def _get_engine(context, data_dict):
+def _get_engine(data_dict):
     '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
@@ -140,7 +140,7 @@ def _cache_types(context):
 
             import pylons
             data_dict = {'connection_url': pylons.config['ckan.datastore.write_url']}
-            engine = _get_engine(None, data_dict)
+            engine = _get_engine(data_dict)
             with engine.begin() as connection:
                 connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
                     .format('json' if native_json else 'text'))
@@ -946,7 +946,7 @@ def create(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
     _cache_types(context)
@@ -1002,7 +1002,7 @@ def upsert(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
 
@@ -1038,7 +1038,7 @@ def upsert(context, data_dict):
 
 
 def delete(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     _cache_types(context)
 
@@ -1071,7 +1071,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
     _cache_types(context)
@@ -1102,7 +1102,7 @@ def search(context, data_dict):
 
 
 def search_sql(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
     _cache_types(context)

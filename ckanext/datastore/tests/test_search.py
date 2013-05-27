@@ -62,7 +62,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         import pylons
         engine = db._get_engine(
-                None,
                 {'connection_url': pylons.config['ckan.datastore.write_url']}
             )
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))

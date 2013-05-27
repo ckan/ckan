@@ -77,7 +77,6 @@ class DatastorePlugin(p.SingletonPlugin):
         @logic.side_effect_free
         def new_resource_show(context, data_dict):
             engine = db._get_engine(
-                context,
                 {'connection_url': self.read_url}
             )
             new_data_dict = resource_show(context, data_dict)
@@ -130,8 +129,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
-            connection = db._get_engine(None,
-                                        {'connection_url': url}).connect()
+            connection = db._get_engine({'connection_url': url}).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
                 is_writable = connection.execute(sql).first()[0]
@@ -155,9 +153,9 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if the right permissions are set for the read only user.
         A table is created by the write user to test the read only user.
         '''
-        write_connection = db._get_engine(None,
+        write_connection = db._get_engine(
             {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(None,
+        read_connection = db._get_engine(
             {'connection_url': self.read_url}).connect()
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
@@ -202,7 +200,7 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine(None,
+            connection = db._get_engine(
                 {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
             connection.execute(create_alias_table_sql)
         finally:
