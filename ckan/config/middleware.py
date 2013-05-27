@@ -319,5 +319,5 @@ class TrackingMiddleware(object):
                      (user_key, url, tracking_type)
                      VALUES (%s, %s, %s)'''
             self.engine.execute(sql, key, data.get('url'), data.get('type'))
-            return []
+            return ['Tracked']
         return self.app(environ, start_response)
