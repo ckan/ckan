@@ -1,5 +1,3 @@
-# -*- coding: utf8 -*-
-
 from pylons import config
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
