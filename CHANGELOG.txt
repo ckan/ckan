@@ -10,6 +10,8 @@ Major:
  * OpenID plugin removed from who.ini
  * Allow activity streams to be disabled via config
  * Update to latest version of repoze.who
+ * Change search behaviour to AND by default
+   (can be changed to OR and exact phrase matching at query time)
 
 Minor:
  * RDF extension excluded from dataset read translation process
