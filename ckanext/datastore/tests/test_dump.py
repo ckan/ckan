@@ -4,7 +4,7 @@ from nose.tools import assert_equals
 from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
-from ckan.config.middleware import make_app
+import ckan.config.middleware as middleware
 
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
@@ -12,7 +12,7 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+import ckanext.datastore.tests.helpers as helpers
 
 
 class TestDatastoreDump(tests.WsgiAppCase):
@@ -41,8 +41,7 @@ class TestDatastoreDump(tests.WsgiAppCase):
                         'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}}
-                       ]
+                        'nested': {'a': 'b'}}]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}
@@ -52,29 +51,26 @@ class TestDatastoreDump(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         import pylons
-        engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+        engine = db._get_engine(None, {
+            'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'datastore'
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
     def teardown_class(cls):
-        rebuild_all_dbs(cls.Session)
+        helpers.rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         config.clear()
         config.update(cls._original_config)
 
     def test_dump_basic(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}'.format(
-                str(self.data['resource_id'])),
-                    extra_environ=auth)
+        res = self.app.get('/datastore/dump/{0}'.format(str(
+            self.data['resource_id'])), extra_environ=auth)
         content = res.body.decode('utf-8')
         expected = u'_id,b\xfck,author,published,characters,nested'
         assert_equals(content[:len(expected)], expected)
@@ -82,6 +78,5 @@ class TestDatastoreDump(tests.WsgiAppCase):
         assert "[u'Princess Anna', u'Sergius']" in content
 
         # get with alias instead of id
-        res = self.app.get('/datastore/dump/{0}'.format(
-            str(self.data['aliases'])),
-                extra_environ=auth)
+        res = self.app.get('/datastore/dump/{0}'.format(str(
+            self.data['aliases'])), extra_environ=auth)
