@@ -21,16 +21,17 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 import urlparse
+from urllib import urlencode
 
 import webhelpers.feedgenerator
 from pylons import config
-from pylons.i18n import _
-from urllib import urlencode
 
-from ckan import model
-from ckan.lib.base import BaseController, c, request, response, json, abort, g
+import ckan.model as model
+import ckan.lib.base as base
 import ckan.lib.helpers as h
-from ckan.logic import get_action, NotFound
+import ckan.logic as logic
+
+from ckan.common import _, g, c, request, response, json
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -55,7 +56,7 @@ def _package_search(data_dict):
         data_dict['rows'] = ITEMS_LIMIT
 
     # package_search action modifies the data_dict, so keep our copy intact.
-    query = get_action('package_search')(context, data_dict.copy())
+    query = logic.get_action('package_search')(context, data_dict.copy())
 
     return query['count'], query['results']
 
@@ -151,7 +152,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
     return ':'.join(['tag', tagging_entity, resource_path])
 
 
-class FeedController(BaseController):
+class FeedController(base.BaseController):
     base_url = config.get('ckan.site_url')
 
     def _alternate_url(self, params, **kwargs):
@@ -170,9 +171,9 @@ class FeedController(BaseController):
         try:
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author}
-            group_dict = get_action('group_show')(context, {'id': id})
-        except NotFound:
-            abort(404, _('Group not found'))
+            group_dict = logic.get_action('group_show')(context, {'id': id})
+        except logic.NotFound:
+            base.abort(404, _('Group not found'))
 
         data_dict, params = self._parse_url_params()
         data_dict['fq'] = 'groups:"%s"' % id
@@ -281,9 +282,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1))
         except ValueError:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -433,9 +434,9 @@ class FeedController(BaseController):
         try:
             page = int(request.params.get('page', 1)) or 1
         except ValueError:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
         if page < 0:
-            abort(400, _('"page" parameter must be a positive integer'))
+            base.abort(400, _('"page" parameter must be a positive integer'))
 
         limit = ITEMS_LIMIT
         data_dict = {

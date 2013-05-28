@@ -1,6 +1,5 @@
 """
 Interfaces for plugins system
-See doc/plugins.rst for more information
 """
 
 __all__ = [

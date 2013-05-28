@@ -1,9 +1,8 @@
 import logging
+
 from pylons import config
-from pylons.i18n import _
 from paste.deploy.converters import asbool
 
-import ckan.new_authz as new_authz
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -14,6 +13,8 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+
+from ckan.common import _
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -296,10 +297,12 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    dataset_dict = None
     if 'dataset_id' in data_dict:
         dataset = model.Package.get(data_dict['dataset_id'])
         dataset.related.append( related )
         model.repo.commit_and_remove()
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
 
     session.flush()
 
@@ -310,7 +313,8 @@ def related_create(context, data_dict):
             'activity_type': 'new related item',
             }
     activity_dict['data'] = {
-            'related': related_dict
+            'related': related_dict,
+            'dataset': dataset_dict,
     }
     activity_create_context = {
         'model': model,
@@ -417,10 +421,18 @@ def member_create(context, data_dict=None):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
+        rev.message = _(u'REST API: Create member object %s') % data_dict.get('name', '')
 
-    group = model.Group.get(data_dict.get('id', ''))
-    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
+    group_id, obj_id, obj_type, capacity = _get_or_bust(data_dict, ['id', 'object', 'object_type', 'capacity'])
+
+    group = model.Group.get(group_id)
+    if not group:
+        raise NotFound('Group was not found.')
+
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj = obj_class.get(obj_id)
+    if not obj:
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
@@ -428,17 +440,16 @@ def member_create(context, data_dict=None):
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
-            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.table_id == obj.id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state == "active").first()
-    if member:
-        member.capacity = capacity
-    else:
+            filter(model.Member.state == 'active').first()
+    if not member:
         member = model.Member(table_name = obj_type,
-                              table_id = obj_id,
+                              table_id = obj.id,
                               group_id = group.id,
-                              state = 'active',
-                              capacity=capacity)
+                              state = 'active')
+
+    member.capacity = capacity
 
     model.Session.add(member)
     model.repo.commit()
@@ -917,7 +928,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if errors:
         raise ValidationError(errors)
 
-    activity = model_save.activity_dict_save(activity_dict, context)
+    activity = model_save.activity_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1107,6 +1118,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     result = session.query(model.User).filter_by(name=username).first()
     if result:
         user_id = result.id
+    else:
+        message = _(u'User {username} does not exist.').format(username=username)
+        raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
         'object': user_id,

@@ -6,44 +6,47 @@ CKAN allows users to upload files directly to file storage either on the local
 file system or to online 'cloud' storage like Amazon S3 or Google Storage. The
 uploaded files will be stored in the configured location.
 
-Setup and Configuration
-=======================
+Setup the FileStore with Local File Storage
+===========================================
 
-By default storage is disabled. To enable it, all you need to do is configure
-where files will be stored. Add the following lines afer the ``[app:main]``
-line in your CKAN config file::
+To setup CKAN's FileStore with local file storage:
 
-   ## Required
-   ## 'Bucket' (subdirectory for file based storage) to use for file storage
-   ckan.storage.bucket = my-bucket-name
+1. Create the directory where CKAN will store uploaded files:
 
-   ## Optional
-   ## maximum content size for uploads in bytes, defaults to 1Gb
-   # ckanext.storage.max_content_length = 1000000000
+   .. parsed-literal::
 
-Local File Storage
-------------------
+     sudo mkdir -p |storage_dir|
 
-Important: you must install pairtree library for local storage to function::
-          
-    pip install pairtree
+2. Add the following lines to your CKAN config file, after the ``[app:main]``
+   line:
 
-To enable local file storage add the following lines to your CKAN config file,
-after the ``[app:main]`` line::
+   .. parsed-literal::
 
-   ## OFS configuration
-   ofs.impl = pairtree
-   # directory on disk for data storage (should be empty)
-   ofs.storage_dir = /my/path/to/storage/root/directory
+      ofs.impl = pairtree
+      ofs.storage_dir = |storage_dir|
 
-You must also set ``ckan.site_url`` to your CKAN instance's base URL, e.g.
-``http://scotdata.ckan.net``.
+3. Set the permissions of the ``storage_dir``. For example if you're running
+   CKAN with Apache, then Apache's user (``www-data`` on Ubuntu) must have
+   read, write and execute permissions for the ``storage_dir``:
 
-Cloud Storage
--------------
+   .. parsed-literal::
+
+     sudo chown www-data |storage_dir|
+     sudo chmod u+rwx |storage_dir|
+
+4. Make sure you've set :ref:`ckan.site_url` in your config file.
+
+5. Restart your web server, for example to restart Apache:
+
+   .. parsed-literal::
+
+      |reload_apache|
+
+Setup the FileStore with Cloud Storage
+======================================
 
 Important: you must install boto library for cloud storage to function::
-          
+
     pip install boto
 
 In your config for google::

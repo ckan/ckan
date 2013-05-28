@@ -116,6 +116,7 @@ def default_create_tag_schema():
 
 def default_create_package_schema():
     schema = {
+        '__before': [duplicate_extras_key, ignore],
         'id': [empty],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
@@ -139,7 +140,6 @@ def default_create_package_schema():
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
-        'extras_validation': [duplicate_extras_key, ignore],
         'save': [ignore],
         'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
@@ -449,14 +449,15 @@ def default_create_activity_schema():
     schema = {
         'id': [ignore],
         'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'user_id': [not_missing, not_empty, unicode,
+            convert_user_name_or_id_to_id],
         'object_id': [not_missing, not_empty, unicode, object_id_validator],
         # We don't bother to validate revision ID, since it's always created
         # internally by the activity_create() logic action function.
         'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode,
             activity_type_exists],
-        'data': [ignore_empty, ignore_missing, unicode],
+        'data': [ignore_empty, ignore_missing],
     }
     return schema
 

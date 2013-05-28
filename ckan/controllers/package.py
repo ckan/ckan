@@ -174,7 +174,6 @@ class PackageController(base.BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
-        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -217,10 +216,13 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license_id': _('Licence'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -245,6 +247,7 @@ class PackageController(base.BaseController):
             }
 
             query = get_action('package_search')(context, data_dict)
+            c.sort_by_selected = query['sort']
 
             c.page = h.Page(
                 collection=query['results'],
@@ -264,7 +267,8 @@ class PackageController(base.BaseController):
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
-            limit = int(request.params.get('_%s_limit' % facet, 10))
+            limit = int(request.params.get('_%s_limit' % facet,
+                                           g.facets_default_number))
             c.search_facets_limits[facet] = limit
 
         maintain.deprecate_context_item(
