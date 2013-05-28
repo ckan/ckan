@@ -2051,7 +2051,7 @@ msgid "Organizations"
 msgstr "Organisations"
 
 #: ckan/templates/header.html:90
-msgid "Search Datasets"
+msgid "Search Data"
 msgstr "Chercher un jeu de données"
 
 #: ckan/templates/header.html:91 ckan/templates/header.html:92
