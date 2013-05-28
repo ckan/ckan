@@ -444,6 +444,14 @@ def group_member_delete(context, data_dict=None):
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
+    '''Remove a user from a organization
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :param username: name or id of the user to be removed
+
+    '''
     return _group_or_org_member_delete(context, data_dict)
 
 

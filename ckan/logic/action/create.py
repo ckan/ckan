@@ -1152,6 +1152,19 @@ def group_member_create(context, data_dict):
     return _group_or_org_member_create(context, data_dict)
 
 def organization_member_create(context, data_dict):
+    '''Make a user a member of an organization
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :param username: name or id of the user to be made member of the
+        organization
+    :param role: role of the user in the organization. One of ``member``,
+        ``editor``, or ``admin``.
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 
