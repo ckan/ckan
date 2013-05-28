@@ -1883,13 +1883,13 @@ msgstr "Se désabonner"
 
 #: ckan/public/base/javascript/modules/related-item.js:24
 #: ckan/public/base/javascript/modules/related-item.min.js:1
-msgid "show more"
-msgstr "afficher plus"
+msgid "Show more"
+msgstr "Afficher plus"
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 #: ckan/public/base/javascript/modules/related-item.min.js:1
-msgid "show less"
-msgstr "afficher plus"
+msgid "Show less"
+msgstr "Afficher moins"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
