@@ -201,6 +201,8 @@ def datastore_search(context, data_dict):
 
     .. _full text search query language: http://www.postgresql.org/docs/9.1/static/datatype-textsearch.html#DATATYPE-TSQUERY
 
+    If you need to download the full resource, read :ref:`dump`.
+
     **Results:**
 
     The result of this action is a dict with the following keys:
