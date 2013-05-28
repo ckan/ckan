@@ -1259,7 +1259,7 @@ def package_search(context, data_dict):
             fq = data_dict.get('fq', '')
             for filter_name, filter_value_list in filters.iteritems():
                 for filter_value in filter_value_list:
-                    if filter_name in data_dict['facet.field']:
+                    if 'facet.field' in data_dict and filter_name in data_dict['facet.field']:
                         fq += ' %s:"%s"' % (filter_name,
                                             urllib.unquote(filter_value))
             data_dict['fq'] = fq
