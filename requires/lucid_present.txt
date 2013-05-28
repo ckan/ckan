@@ -14,7 +14,6 @@ lxml==2.2.4
 webob==1.0.8
 Pylons==0.9.7
 tempita==0.4
-zope.interface==3.5.3
 repoze.who.plugins.openid==0.5.3
 repoze.who-friendlyform==1.0.8
 routes==1.11
