@@ -77,7 +77,7 @@ def package_list(context, data_dict):
     query = query.where(_and_(package_revision_table.c.state=='active',
         package_revision_table.c.current==True))
     query = query.order_by(col)
-    return zip(*query.execute())
+    return list(zip(*query.execute())[0])
 
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
