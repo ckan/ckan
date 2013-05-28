@@ -287,11 +287,6 @@ class PackageSearchQuery(SearchQuery):
 
         May raise SearchQueryError or SearchError.
         '''
-        boolean = query.get('extras', {}).get('ext_boolean', 'all')
-        if boolean not in ['all', 'any', 'exact']:
-            log.error('Ignoring unknown boolean search operator %r'%(boolean,))
-            boolean = 'all'
-
         from solr import SolrException
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
@@ -341,11 +336,17 @@ class PackageSearchQuery(SearchQuery):
         query['wt'] = query.get('wt', 'json')
 
         # If the query has a colon in it then consider it a fielded search and do use dismax.
+        boolean = query.get('extras', {}).get('ext_boolean', 'all')
+        if boolean not in ['all', 'any', 'exact']:
+            log.error('Ignoring unknown boolean search operator %r'
+                      % (boolean,))
+            boolean = 'all'
+
         if ':' not in query['q']:
             query['defType'] = 'dismax'
             query['tie'] = '0.1'
             if boolean == 'any':
-                query['mm'] = '0'
+                query['mm'] = '1'
             elif boolean == 'all':
                 query['mm'] = '100%'
             elif boolean == 'exact':
