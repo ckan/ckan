@@ -35,8 +35,10 @@ class TestDatastoreDump(tests.WsgiAppCase):
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'},
                        {'id': u'characters', u'type': u'_text'}],
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
+            'records': [{u'b\xfck': 'annakarenina',
+            'author': 'tolstoy',
+                        'published': '2005-03-01',
+                        'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                         'nested': {'a': 'b'}}
@@ -70,8 +72,9 @@ class TestDatastoreDump(tests.WsgiAppCase):
 
     def test_dump_basic(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.get('/datastore/dump/{0}'.format(str(self.data['resource_id'])),
-                           extra_environ=auth)
+        res = self.app.get('/datastore/dump/{0}'.format(
+                str(self.data['resource_id'])),
+                    extra_environ=auth)
         content = res.body.decode('utf-8')
         expected = u'_id,b\xfck,author,published,characters,nested'
         assert_equals(content[:len(expected)], expected)
@@ -79,5 +82,6 @@ class TestDatastoreDump(tests.WsgiAppCase):
         assert "[u'Princess Anna', u'Sergius']" in content
 
         # get with alias instead of id
-        res = self.app.get('/datastore/dump/{0}'.format(str(self.data['aliases'])),
-                           extra_environ=auth)
+        res = self.app.get('/datastore/dump/{0}'.format(
+            str(self.data['aliases'])),
+                extra_environ=auth)
