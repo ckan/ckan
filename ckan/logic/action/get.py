@@ -67,16 +67,17 @@ def package_list(context, data_dict):
     '''
     model = context["model"]
     api = context.get("api_version", 1)
-    ref_package_by = 'id' if api == 2 else 'name'
 
     _check_access('package_list', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state=='active')
-    query = query.filter(model.PackageRevision.current==True)
-
-    packages = query.all()
-    return [getattr(p, ref_package_by) for p in packages]
+    from ckan.model.package import package_revision_table
+    col = (package_revision_table.c.id
+        if api == 2 else package_revision_table.c.name)
+    query = _select([col])
+    query = query.where(_and_(package_revision_table.c.state=='active',
+        package_revision_table.c.current==True))
+    query = query.order_by(col)
+    return zip(*query.execute())
 
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
