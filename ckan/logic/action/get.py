@@ -76,6 +76,7 @@ def package_list(context, data_dict):
     query = _select([col])
     query = query.where(_and_(package_revision_table.c.state=='active',
         package_revision_table.c.current==True))
+    query = query.order_by(col)
     return zip(*query.execute())
 
 def current_package_list_with_resources(context, data_dict):
