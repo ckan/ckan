@@ -38,7 +38,7 @@ _PG_ERR_CODE = {
     'undefined_object': '42704',
     'syntax_error': '42601',
     'duplicate_table': '42P07',
-    'duplicate_alias': '42712'
+    'duplicate_alias': '42712',
 }
 
 _date_formats = ['%Y-%m-%d',
