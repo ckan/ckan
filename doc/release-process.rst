@@ -4,6 +4,7 @@ Doing a CKAN Release
 These are the steps followed by CKAN developers to do a release. To get an
 overview of CKAN releases, check :doc:`release-cycle`.
 
+.. _beta-release:
 
 Doing a Beta release
 --------------------
@@ -217,6 +218,27 @@ a release.
 9. Write a `CKAN Blog post <http://ckan.org/wp-admin>`_ and send an email to
    the mailing list announcing the release, including the relevant bit of
    changelog.
+
+10. Cherry-pick the i18n changes from the release branch onto master.
+
+    Generally we don't merge or cherry-pick release branches into master, but
+    the files in ckan/i18n are an exception. These files are only ever changed
+    on release branches following the :ref:`beta-release` instructions above,
+    and after a release has been finalized the changes need to be cherry-picked
+    onto master.
+
+    To find out what i18n commits there are on the release-v* branch that are
+    not on master, do::
+
+      git log master..release-v* ckan/i18n
+
+    Then ``checkout`` the master branch, do a ``git status`` and a ``git pull``
+    to make sure you have the latest commits on master and no local changes.
+    Then use ``git cherry-pick`` when on the master branch to cherry-pick these
+    commits onto master. You should not get any merge conflicts. Run the
+    ``check-po-files`` command again just to be safe, it should not report any
+    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
+    origin master``.
 
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan

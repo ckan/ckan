@@ -403,7 +403,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
-        assert 'constraints' in res_dict['error']
+        assert 'constraints' in res_dict['error'], res_dict
 
         #######  insert again which should not fail because constraint is removed
         data5 = {

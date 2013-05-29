@@ -3,6 +3,8 @@ import logging
 import types
 import re
 
+import formencode.validators
+
 import ckan.model as model
 import ckan.new_authz as new_authz
 import ckan.lib.navl.dictization_functions as df
@@ -95,7 +97,7 @@ class ValidationError(ParameterError):
 
     def __str__(self):
         err_msgs = (super(ValidationError, self).__str__(),
-                    self.error_summary)
+                    self.error_dict)
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 log = logging.getLogger(__name__)
@@ -410,6 +412,7 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
+        _validators_cache.update({'OneOf': formencode.validators.OneOf})
     try:
         return _validators_cache[validator]
     except KeyError:

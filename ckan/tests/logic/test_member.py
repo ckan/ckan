@@ -31,7 +31,7 @@ class TestMemberLogic(object):
         assert initial['capacity'] == u'public'
         assert final['capacity'] == u'private'
 
-    def test_member_create_raises_if_user_is_unauthorized_to_update_group(self):
+    def test_member_create_raises_if_user_unauthorized_to_update_group(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package',
                                       user='unauthorized_user')
         assert_raises(logic.NotAuthorized,
@@ -111,7 +111,7 @@ class TestMemberLogic(object):
             res = self._member_list('user', 'admin')
             assert (self.user.id, 'user', 'Admin') not in res, res
 
-    def test_member_delete_raises_if_user_is_unauthorized_to_update_group(self):
+    def test_member_delete_raises_if_user_unauthorized_to_update_group(self):
         ctx, dd = self._build_context(self.pkgs[0].id, 'package',
                                       user='unauthorized_user')
         assert_raises(logic.NotAuthorized,
@@ -162,7 +162,8 @@ class TestMemberLogic(object):
         ctx, dd = self._build_context(obj, obj_type, group_id=group_id)
         return logic.get_action('member_delete')(ctx, dd)
 
-    def _build_context(self, obj, obj_type, capacity='public', group_id=None, user=None):
+    def _build_context(self, obj, obj_type, capacity='public',
+                       group_id=None, user=None):
         ctx = {'model': model,
                'session': model.Session,
                'user': user or self.user.id}
