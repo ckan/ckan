@@ -6224,3 +6224,6 @@ msgstr "Lien au format JSON"
 
 msgid "Read more about this site's API: <a href='%(portal)s/eng/developers-corner/api'>About the API</a>"
 msgstr "En savoir plus sur l’API du site: <a href='%(portal)s/fra/developers-corner/api'>À propos du API</a>"
+
+msgid "Data Type"
+msgstr "Type de données"
