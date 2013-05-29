@@ -36,7 +36,9 @@ _PG_ERR_CODE = {
     'unique_violation': '23505',
     'query_canceled': '57014',
     'undefined_object': '42704',
-    'syntax_error': '42601'
+    'syntax_error': '42601',
+    'duplicate_table': '42P07',
+    'duplicate_alias': '42712'
 }
 
 _date_formats = ['%Y-%m-%d',
@@ -365,19 +367,28 @@ def create_alias(context, data_dict):
             sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
             context['connection'].execute(sql_alias_drop_string)
 
-        for alias in aliases:
-            sql_alias_string = u'CREATE VIEW "{alias}" AS SELECT * FROM "{main}"'.format(
-                alias=alias,
-                main=data_dict['resource_id']
-            )
+        try:
+            for alias in aliases:
+                sql_alias_string = u'''CREATE VIEW "{alias}"
+                    AS SELECT * FROM "{main}"'''.format(
+                    alias=alias,
+                    main=data_dict['resource_id']
+                )
 
-            res_ids = _get_resources(context, alias)
-            if res_ids:
+                res_ids = _get_resources(context, alias)
+                if res_ids:
+                    raise ValidationError({
+                        'alias': [(u'The alias "{0}" already exists.').format(
+                            alias)]
+                    })
+
+                context['connection'].execute(sql_alias_string)
+        except DBAPIError, e:
+            if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
+                                 _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
-                    'alias': [(u'The alias "{0}" already exists.').format(alias)]
+                    'alias': ['"{0}" already exists'.format(alias)]
                 })
-
-            context['connection'].execute(sql_alias_string)
 
 
 def create_indexes(context, data_dict):

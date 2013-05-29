@@ -63,7 +63,7 @@ def datastore_create(context, data_dict):
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
-                'alias': ['{0} is not a valid alias name'.format(alias)]
+                'alias': ['"{0}" is not a valid alias name'.format(alias)]
             })
 
     result = db.create(context, data_dict)

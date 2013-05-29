@@ -92,6 +92,45 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
 
+    def test_create_duplicate_alias_name(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'aliases': u'myalias'
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=200)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        # try to create another table with the same alias
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'aliases': u'myalias'
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        # try to create an alias that is a resource id
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'aliases': model.Package.get('annakarenina').resources[0].id
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_create_invalid_field_type(self):
         resource = model.Package.get('annakarenina').resources[0]
         data = {
