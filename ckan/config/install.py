@@ -4,6 +4,7 @@ from pylons.util import PylonsInstaller
 
 import ckan
 
+
 class CKANInstaller(PylonsInstaller):
 
     def config_content(self, command, vars):
