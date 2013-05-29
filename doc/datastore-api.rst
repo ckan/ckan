@@ -31,6 +31,7 @@ Download resource as CSV
 ------------------------
 
 A DataStore resource can be downloaded in the `CSV`_ file format from ``/datastore/dump/{RESOURCE_ID}``.
+You can pass a ``limit`` and ``offset`` parameter as GET parameters. The default limit is 100,000 rows.
 
 .. _CSV: //en.wikipedia.org/wiki/Comma-separated_values
 

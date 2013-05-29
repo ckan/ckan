@@ -203,8 +203,8 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine(None,
-                {'connection_url': self.write_url}).connect()
+            connection = db._get_engine(None, {
+                'connection_url': self.write_url}).connect()
             connection.execute(create_alias_table_sql)
         finally:
             connection.close()

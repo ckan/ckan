@@ -241,8 +241,9 @@ def datastore_search(context, data_dict):
         raise p.toolkit.ValidationError(errors)
 
     res_id = data_dict['resource_id']
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
-            pylons.config['ckan.datastore.write_url'])
+    data_dict['connection_url'] = pylons.config.get(
+        'ckan.datastore.read_url',
+        pylons.config['ckan.datastore.write_url'])
 
     resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
