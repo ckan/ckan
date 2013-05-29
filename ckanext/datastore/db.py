@@ -949,10 +949,9 @@ def create(context, data_dict):
 
     _rename_json_field(data_dict)
 
-    # close connection at all cost.
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         result = context['connection'].execute(
@@ -1003,9 +1002,9 @@ def upsert(context, data_dict):
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', 60000)
 
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         upsert_data(context, data_dict)
@@ -1039,9 +1038,9 @@ def delete(context, data_dict):
     context['connection'] = engine.connect()
     _cache_types(context)
 
+    trans = context['connection'].begin()
     try:
         # check if table exists
-        trans = context['connection'].begin()
         result = context['connection'].execute(
             u'SELECT 1 FROM pg_tables WHERE tablename = %s',
              data_dict['resource_id']

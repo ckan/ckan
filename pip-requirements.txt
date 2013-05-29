@@ -30,3 +30,4 @@ fanstatic==0.12
 requests==1.1.0
 WebTest==1.4.3
 python-dateutil>=1.5.0,<2.0.0
+unicodecsv==0.9
