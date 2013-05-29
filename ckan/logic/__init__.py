@@ -359,7 +359,7 @@ def get_or_bust(data_dict, keys):
     if errors:
         raise ValidationError(errors)
 
-    # cannot use data_dict.keys() because data_dict is not sorted
+    # preserve original key order
     values = [data_dict[key] for key in keys]
     if len(values) == 1:
         return values[0]
