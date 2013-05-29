@@ -17,69 +17,24 @@
   <section class="module">
     <div class="module-content">
       {% block form %}
-      <form id="dataset-search" class="dataset-search clearfix" method="get" data-module="select-switch">
-        {% block search_input %}
-        <span class="control-group search-giant">
-          <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('Search...') }}" />
-          <button type="submit" value="search">{{ _('Submit') }}</button>
-        </span>
-        {% endblock %}
-
-        {% block package_sortby %}
-        {{ h.snippet('snippets/sort_by.html', sort=c.sort_by_selected) }}
-        {% endblock %}
-
-        {% block package_search_fields %}
-        {% if c.fields -%}
-          <span>
-            {{ form.hidden_from_list(fields=c.fields) }}
-          </span>
-        {%- endif %}
-        {% endblock %}
-
-        <div id="dataset-search-ext">{% block dataset_search_ext %}{% endblock %}</div>
-      </form>
+        {% set facets = {
+          'fields': c.fields_grouped,
+          'search': c.search_facets,
+          'titles': c.facet_titles,
+          'translated_fields': c.translated_fields,
+          'remove_field': c.remove_field }
+        %}
+        {% set sorting = [
+          (_('Relevance'), 'score desc, metadata_modified desc'),
+          (_('Name Ascending'), 'title_string asc'),
+          (_('Name Descending'), 'title_string desc'),
+          (_('Last Modified'), 'metadata_modified desc'),
+          (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
+        %}
+        {% snippet 'snippets/search_form.html', type='dataset', query=c.q, sorting=sorting, sorting_selected=c.sort_by_selected, count=c.page.item_count, facets=facets, show_empty=request.params, error=c.query_error %}
       {% endblock %}
-      {% block package_search_results %}
-      <div class="results">
-        <strong>
-          {% block package_search_results_text %}
-          {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='dataset' %}
-          {% endblock %}
-        </strong>
-        <div class="filter-list">
-          {% block package_search_results_filter_list %}
-          {% for field in c.fields_grouped %}
-            {% set search_facets_items = c.search_facets.get(field)['items'] %}
-            <span class="facet">{{ c.facet_titles.get(field) }}:</span>
-            {% for value in c.fields_grouped[field] %}
-              <span class="filtered pill">
-                {%- if c.translated_fields and c.translated_fields.has_key((field,value)) -%}
-                  {{ c.translated_fields[(field,value)] }}
-                {%- else -%}
-                  {{ h.list_dict_filter(search_facets_items , 'name', 'display_name', value) }}
-                {%- endif %}
-                <a href="{{ c.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
-              </span>
-            {% endfor %}
-          {% endfor %}
-          {% endblock %}
-        </div>
-        {% if request.params and c.page.item_count == 0 %}
-          {% trans %}
-            <p class="extra">Please try another search.</p>
-          {% endtrans %}
-        {% endif %}
-      </div>
-
-      {% if c.query_error %}
-        {% trans %}
-          <p><strong>There was an error while searching.</strong> Please try again.</p>
-        {% endtrans %}
-      {% endif %}
       {% block package_search_results_list %}
       {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
-      {% endblock %}
       {% endblock %}
     </div>
 

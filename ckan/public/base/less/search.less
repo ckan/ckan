@@ -1,0 +1,127 @@
+.search-form {
+  // .clearfix;
+  margin-bottom: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px dotted @genericBorderColor;
+
+  // Normal search box
+  .search-input {
+    position: relative;
+    margin-bottom: 20px;
+  	input {
+      .box-sizing(border-box);
+      margin: 0;
+      width: 100%;
+      height: auto;
+    }
+    button {
+      cursor: pointer;
+      display: block;
+      position: absolute;
+      top: 50%;
+      margin-top: -10px;
+      right: 10px;
+      height: 20px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      span {
+        display: none;
+      }
+      i {
+        color: @inputBorder;
+        .transition(color 0.2s ease-in);
+      }
+      &:hover i {
+        color: @inputColor;
+      }
+    }
+    &.search-giant {
+      input {
+        font-size: 16px;
+        padding: 15px;
+      }
+      button {
+        margin-top: -15px;
+        right: 15px;
+        height: 30px;
+        i {
+          font-size: 28px;
+          width: 28px;
+        }
+      }
+    }
+  }
+  .control-order-by {
+    float: right;
+    margin: 0 0 0 15px;
+    label,
+    select {
+      display: inline;
+    }
+    select {
+      width: 160px;
+      margin: 0;
+    }
+  }
+  h2 {
+    font-size: 24px;
+    line-height: 1.3;
+    color: @layoutBoldColor;
+    margin-bottom: 0;
+  }
+  .filter-list {
+    color: @layoutTextColor;
+    line-height: 32px;
+    margin: 10px 0 0 0;
+    .pill {
+      line-height: 21px;
+    }
+    .extra {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: normal;
+      color: @layoutBoldColor;
+    }
+  }
+}
+
+/*.search-giant 
+
+.search-normal input {
+  .box-sizing(border-box);
+  width: 100%;
+  height: auto;
+}
+
+.search-normal button {
+  cursor: pointer;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  background: transparent;
+  border: none;
+  color: #999;
+  margin-top: -17px;
+  span {
+    display: none;
+  }
+  &:hover {
+    color: #000;
+  }
+}
+
+.search-giant button {
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: block;
+  border: none;
+  padding: 0;
+  margin-top: -17px;
+  width: 30px;
+  height: 30px;
+  background: transparent url("@{imagePath}/icon-search-27x26.png") no-repeat center center;
+  text-indent: -900em;
+}*/
