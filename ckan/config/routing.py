@@ -343,9 +343,15 @@ def make_map():
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
-        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_dashboard', '/dashboard', action='dashboard',
                   ckan_icon='list')
+        m.connect('user_dashboard_datasets', '/dashboard/datasets',
+                  action='dashboard_datasets', ckan_icon='sitemap')
+        m.connect('user_dashboard_groups', '/dashboard/groups',
+                  action='dashboard_groups', ckan_icon='group')
+        m.connect('user_dashboard_organizations', '/dashboard/organizations',
+                  action='dashboard_organizations', ckan_icon='building')
+        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',

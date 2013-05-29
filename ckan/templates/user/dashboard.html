@@ -1,9 +1,7 @@
 {% extends "user/edit_base.html" %}
 
-{% block add_action_content %}
-  {% if h.check_access('package_create') %}
-    <li>{% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}</li>
-  {% endif %}
+{% block breadcrumb_content %}
+  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -30,26 +28,23 @@
     </div>
   {% endif %}
   {% endblock %}
-  {% block dashboard_datasets %}
-  <div class="module module-narrow module-shallow">
-    <h2 class="module-heading">
-      <i class="icon-sitemap"></i>
-      {{ _('My Datasets') }}
-    </h2>
-    {% if c.user_dict['datasets'] %}
-      <ul class="nav nav-simple">
-        {% for package in c.user_dict['datasets'] %}
-          {% set title = package.title or package.name %}
-          <li class="nav-item">
-            {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.name)) }}
-          </li>
-        {% endfor %}
+  {% block dashboard_context %}
+    <div class="dashboard-me">
+      {{ h.gravatar(user.email_hash, 50) }}
+      <strong>{{ h.truncate(user.display_name, 25) }}</strong>
+      <a href="{{ h.url_for('user_edit', id=user.name) }}">{{ _('Edit settings') }}</a>
+    </div>
+  {% endblock %}
+  {% block dashboard_subnav %}
+    <div class="module module-narrow module-shallow">
+      <ul class="nav nav-aside">
+        {% block dashboard_subnav_content %}
+          {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
+          {{ h.build_nav_icon('user_dashboard_datasets', _('My Datasets')) }}
+          {{ h.build_nav_icon('user_dashboard_organizations', _('My Organizations')) }}
+          {{ h.build_nav_icon('user_dashboard_groups', _('My Groups')) }}
+        {% endblock %}
       </ul>
-    {% else %}
-      <div class="module-content">
-        <p class="empty">{{ _('You do not have any datasets') }}</p>
-      </div>
-    {% endif %}
-  </div>
+    </div>
   {% endblock %}
 {% endblock %}

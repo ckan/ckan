@@ -1,0 +1,23 @@
+{% extends "user/dashboard.html" %}
+
+{% block dashboard_activity_stream_context %}{% endblock %}
+
+{% block add_action_content %}
+  {% if h.check_access('organization_create') %}
+    <li>{% link_for _('Add Organization'), controller='organization', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  <h2 class="page-heading">{{ _('My Organizations') }}</h2>
+  {% if c.organizations %}
+    {% snippet "organization/snippets/organization_list.html", organizations=c.organizations %}
+  {% else %}
+    <p class="empty">
+      {{ _('You are not a member of any organizations.') }}
+      {% if h.check_access('organization_create') %}
+        {% link_for _('Create one now?'), controller='organization', action='new' %}
+      {% endif %}
+    </p>
+  {% endif %}
+{% endblock %}
