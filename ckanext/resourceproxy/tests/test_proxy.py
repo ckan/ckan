@@ -73,7 +73,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args, **kwargs)
         httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args, **kwargs)
 
-    @httpretty.httprettified
+    @httpretty.activate
     def test_resource_proxy_on_200(self):
         self.register(
             self.url,
@@ -85,7 +85,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert result.status_code == 200, result.status_code
         assert "yes, I'm proxied" in result.content, result.content
 
-    @httpretty.httprettified
+    @httpretty.activate
     def test_resource_proxy_on_404(self):
         self.register(
             self.url,
@@ -99,9 +99,12 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
-        assert result.status == 404, result.status
+        # we expect a 409 because the resourceproxy got an error (404)
+        # from the server
+        assert result.status == 409, result.status
+        assert '404' in result.body
 
-    @httpretty.httprettified
+    @httpretty.activate
     def test_large_file(self):
         cl = controller.MAX_FILE_SIZE + 1
         self.register(
@@ -114,7 +117,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert result.status == 409, result.status
         assert 'too large' in result.body, result.body
 
-    @httpretty.httprettified
+    @httpretty.activate
     def test_large_file_streaming(self):
         cl = controller.MAX_FILE_SIZE + 1
         self.register(

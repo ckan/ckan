@@ -12,10 +12,11 @@ CHUNK_SIZE = 512
 
 
 def proxy_resource(context, data_dict):
-    ''' Chunked proxy for resources. To make sure that the file is not too large,
-    first, we try to get the content length from the headers. If the headers to not
-    contain a content length (if it is a chinked response), we only transfer
-    as long as the transfered data is less than the maximum file size. '''
+    ''' Chunked proxy for resources. To make sure that the file is not too
+    large, first, we try to get the content length from the headers.
+    If the headers to not contain a content length (if it is a chinked
+    response), we only transfer as long as the transfered data is less
+    than the maximum file size. '''
     resource_id = data_dict['resource_id']
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
@@ -32,9 +33,9 @@ def proxy_resource(context, data_dict):
 
         cl = r.headers['content-length']
         if cl and int(cl) > MAX_FILE_SIZE:
-            base.abort(409, 'Content is too large to be proxied. '
-                'Allowed file size: {allowed}, Content-Length: {actual}.'.format(
-                    allowed=MAX_FILE_SIZE, actual=cl))
+            base.abort(409, '''Content is too large to be proxied. Allowed
+                file size: {allowed}, Content-Length: {actual}.'''.format(
+                allowed=MAX_FILE_SIZE, actual=cl))
 
         if not did_get:
             r = requests.get(url)
@@ -43,21 +44,22 @@ def proxy_resource(context, data_dict):
         base.response.charset = r.encoding
 
         length = 0
-        for chunk in r.iter_content(chunk_size=CHUNK_SIZE, decode_unicode=False):
+        for chunk in r.iter_content(chunk_size=CHUNK_SIZE,
+                                    decode_unicode=False):
             base.response.body_file.write(chunk)
             length += len(chunk)
 
             if length >= MAX_FILE_SIZE:
                 base.abort(409, headers={'content-encoding': ''},
-                    detail='Content is too large to be proxied.')
+                           detail='Content is too large to be proxied.')
 
     except requests.exceptions.HTTPError, error:
         details = 'Could not proxy resource. Server responded with %s %s' % (
-            error.response.status_code, str(error.response.reason))
+            error.response.status_code, error.response.reason)
         base.abort(409, detail=details)
     except requests.exceptions.ConnectionError, error:
         details = '''Could not proxy resource because a
-                            connection error occurred. %s''' % str(error)
+                            connection error occurred. %s''' % error
         base.abort(502, detail=details)
     except requests.exceptions.Timeout, error:
         details = 'Could not proxy resource because the connection timed out.'
