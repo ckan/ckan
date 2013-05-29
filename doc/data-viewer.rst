@@ -47,12 +47,14 @@ the resource read page:
 
 * ``png``
 * ``jpg``
+* ``jpeg``
 * ``gif``
 
 The types of resources that are embedded directly can be specified in the
 CKAN config file. See :ref:`ckan.preview.direct` for more information.
 
-The following types of resources will be loaded in an iframe:
+The following types of resources will be loaded in an iframe if there is no
+extension that can preview these types:
 
 * ``plain``
 * ``txt``
@@ -106,25 +108,34 @@ Or:
    reliable than viewing data that is in the DataStore.
 
 
-Viewing JSON data
------------------
+Viewing highlighted XML, JSON and plain text data
+-------------------------------------------------
 
-**Configuration required:** The ``json_preview`` extension must be added to
+**Configuration required:** The ``text_preview`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file. If you wish to view
-external JSON resources as well, the ``resource_proxy`` extension must also
+external files resources as well, the ``resource_proxy`` extension must also
 be enabled.
 These extensions are part of CKAN and so do not need to be installed
 separately.
 
-**Resource formats:** ``json``, ``jsonp``.
+**Resource formats:**
 
-The ``json_preview`` extension provides previews of any JSON data that has been
+* ``json``, ``gjson``, ``geojson``
+   (can be configured by setting ``ckan.preview.json_formats``)
+* ``jsonp``
+   (can be configured  by setting ``ckan.preview.jsonp_formats``)
+* ``xml``, ``rdf``, ``rdf+xm``, ``owl+xml``, ``atom``, ``rss``
+   (can be configured  by setting ``ckan.preview.xml_formats``)
+* ``text/plain``, ``txt``, ``plain``
+   (can be configured  by setting ``ckan.preview.text_formats``)
+
+The ``text_preview`` extension provides previews of many file types that have been
 added to a CKAN instance
 (and so are stored in the `Filestore <filestore.html>`_).
-To view the data the resource format must be set to "json" or "jsonp"
-(case insensitive).
+To view the data the resource format must be set to one of the resource formats
+from above (case insensitive).
 
-To also view remote JSON resources, the ``resource_proxy`` extension must be
+To also view remote resources, the ``resource_proxy`` extension must be
 enabled as well
 (this is required in order to get around the
 `same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_).
