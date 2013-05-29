@@ -9,5 +9,13 @@
     </pre>
   </div>
 
+  {% block scripts %}
+    {{ super() }}
+    <script>
+      var preview_metdata = {{ h.literal(c.preview_metadata) }};
+    </script>
+  {% endblock %}
+
+
   {% resource 'ckanext-textpreview/main' %}
 {% endblock %}

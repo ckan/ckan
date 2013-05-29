@@ -34,10 +34,10 @@ ckan.module('textpreview', function (jQuery, _) {
       var self = this;
       var format = preload_resource['format'].toLowerCase();
 
-      var TEXT_FORMATS = ['text/plain', 'txt', 'plain'];
-      var XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss'];
-      var JSON_FORMATS = ['json', 'gjson', 'geojson'];
-      var JSONP_FORMATS = ['jsonp'];
+      var TEXT_FORMATS = preview_metdata['text_formats'];
+      var XML_FORMATS = preview_metdata['xml_formats'];
+      var JSON_FORMATS = preview_metdata['json_formats'];
+      var JSONP_FORMATS = preview_metdata['jsonp_formats'];
 
       var p;
 

@@ -1508,7 +1508,8 @@ def resource_preview(resource, pkg_id):
         reason = None
         if format_lower:
             log.info(
-                _(u'No preview handler for resource of type {0}'.format(format_lower))
+                _(u'No preview handler for resource of type {0}'.format(
+                    format_lower))
             )
         else:
             reason = _(u'The resource format is not specified.')
@@ -1520,6 +1521,7 @@ def resource_preview(resource, pkg_id):
                    embed=directly,
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
+
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
