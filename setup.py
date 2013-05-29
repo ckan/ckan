@@ -131,7 +131,7 @@ setup(
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
     [babel.extractors]
-        ckan = ckan.lib.extract:extract_ckan
+    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

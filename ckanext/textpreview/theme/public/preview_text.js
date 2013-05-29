@@ -36,7 +36,7 @@ ckan.module('textpreview', function (jQuery, _) {
 
       var TEXT_FORMATS = ['text/plain', 'txt', 'plain'];
       var XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss'];
-      var JSON_FORMATS = ['json'];
+      var JSON_FORMATS = ['json', 'gjson', 'geojson'];
       var JSONP_FORMATS = ['jsonp'];
 
       var p;
