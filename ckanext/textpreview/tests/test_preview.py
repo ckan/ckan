@@ -9,8 +9,8 @@ import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.textpreview.plugin as previewplugin
-from ckan.lib.create_test_data import CreateTestData
-from ckan.config.middleware import make_app
+import ckan.lib.create_test_data as create_test_data
+import ckan.config.middleware as middleware
 
 
 class TestTextPreview(tests.WsgiAppCase):
@@ -19,13 +19,13 @@ class TestTextPreview(tests.WsgiAppCase):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'text_preview'
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.TextPreview()
 
         # create test resource
-        CreateTestData.create()
+        create_test_data.CreateTestData.create()
 
         context = {
             'model': model,
@@ -45,7 +45,7 @@ class TestTextPreview(tests.WsgiAppCase):
         config.clear()
         config.update(cls._original_config)
         plugins.reset()
-        CreateTestData.delete()
+        create_test_data.CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
