@@ -1,11 +1,13 @@
 import logging
 import pylons
+
+import sqlalchemy
+
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
-import sqlalchemy
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust

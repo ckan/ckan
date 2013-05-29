@@ -3,12 +3,13 @@ import logging
 import types
 import re
 
+import formencode.validators
+
 import ckan.model as model
 import ckan.new_authz as new_authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
-import formencode.validators
 from ckan.common import _, c
 
 log = logging.getLogger(__name__)

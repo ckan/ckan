@@ -1,5 +1,4 @@
 import logging
-import pylons
 
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
@@ -148,13 +147,14 @@ class DatastorePlugin(p.SingletonPlugin):
         return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
-        ''' Returns True if the right permissions are set for the read only user.
-        A table is created by the write user to test the read only user.
+        ''' Returns True if the right permissions are set for the read
+        only user. A table is created by the write user to test the
+        read only user.
         '''
-        write_connection = db._get_engine(None,
-            {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(None,
-            {'connection_url': self.read_url}).connect()
+        write_connection = db._get_engine(None, {
+            'connection_url': self.write_url}).connect()
+        read_connection = db._get_engine(None, {
+            'connection_url': self.read_url}).connect()
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
@@ -193,8 +193,8 @@ class DatastorePlugin(p.SingletonPlugin):
             ORDER BY dependee.oid DESC;
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
-        connection = db._get_engine(None,
-            {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
+        connection = db._get_engine(None, {
+            'connection_url': self.write_url})
         connection.execute(create_alias_table_sql)
 
     def get_actions(self):
