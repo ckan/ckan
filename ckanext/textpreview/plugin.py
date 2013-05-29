@@ -39,19 +39,23 @@ class TextPreview(p.SingletonPlugin):
         template directory for the preview
         '''
 
-        self.text_formats = config.get('ckan.preview.text_formats', '').split()
+        self.text_formats = config.get(
+            'ckan.preview.text_formats', '').split()
         if not self.text_formats:
             self.text_formats = DEFAULT_TEXT_FORMATS
 
-        self.xml_formats = config.get('ckan.preview.xml_formats', '').split()
+        self.xml_formats = config.get(
+            'ckan.preview.xml_formats', '').split()
         if not self.xml_formats:
             self.xml_formats = DEFAULT_XML_FORMATS
 
-        self.json_formats = config.get('ckan.preview.json_formats', '').split()
+        self.json_formats = config.get(
+            'ckan.preview.json_formats', '').split()
         if not self.json_formats:
             self.json_formats = DEFAULT_JSON_FORMATS
 
-        self.jsonp_formats = config.get('ckan.preview.jsonp_formats', '').split()
+        self.jsonp_formats = config.get(
+            'ckan.preview.jsonp_formats', '').split()
         if not self.jsonp_formats:
             self.jsonp_formats = DEFAULT_JSONP_FORMATS
 

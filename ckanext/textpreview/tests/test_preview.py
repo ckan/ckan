@@ -34,8 +34,10 @@ class TestTextPreview(tests.WsgiAppCase):
         }
 
         cls.package = model.Package.get('annakarenina')
-        cls.resource = logic.get_action('resource_show')(context, {'id': cls.package.resources[1].id})
-        cls.resource['url'] = pylons.config.get('ckan.site_url', '//localhost:5000')
+        cls.resource = logic.get_action('resource_show')(
+            context, {'id': cls.package.resources[1].id})
+        cls.resource['url'] = pylons.config.get(
+            'ckan.site_url', '//localhost:5000')
         logic.action.update.resource_update(context, cls.resource)
 
     @classmethod
@@ -100,8 +102,10 @@ class TestTextPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert (('preview_text.js' in result.body) or ('preview_text.min.js' in result.body)), result.body
-        assert (('highlight.pack.js' in result.body) or ('highlight.pack.js' in result.body)), result.body
+        assert ((('preview_text.js' in result.body)
+                or ('preview_text.min.js' in result.body))), result.body
+        assert ((('highlight.pack.js' in result.body)
+                or ('highlight.pack.js' in result.body))), result.body
         assert 'preload_resource' in result.body, result.body
         assert 'data-module="textpreview"' in result.body, result.body
 
@@ -116,7 +120,8 @@ class TestTextPreview(tests.WsgiAppCase):
         assert 'github.css' in result.body, result.body
 
     def test_iframe_is_shown(self):
-        url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
+        url = h.url_for(controller='package', action='resource_read',
+                        id=self.package.name, resource_id=self.resource['id'])
         result = self.app.get(url)
         assert 'data-module="data-viewer"' in result.body
         assert '<iframe' in result.body
