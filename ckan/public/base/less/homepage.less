@@ -6,8 +6,11 @@
     position: relative;
     padding-bottom: 0;
   }
-  .search-giant input {
-    border-color: darken(@mastheadBackgroundColorEnd, 5);
+  .search-giant {
+    margin-bottom: 10px;
+    input {
+      border-color: darken(@mastheadBackgroundColorEnd, 5);
+    }
   }
   .page-heading {
     font-size: 18px;
@@ -21,9 +24,12 @@
     .module-content {
       .border-radius(3px 3px 0 0);
       background-color: @mastheadBackgroundColor;
+      border-bottom: none;
       .heading {
         margin-top: 0;
         margin-bottom: 7px;
+        font-size: 24px;
+        line-height: 40px;
       }
     }
   }
