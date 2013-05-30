@@ -120,7 +120,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1] + root
+        root = _routes_default_url_for('/', qualified=True)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
