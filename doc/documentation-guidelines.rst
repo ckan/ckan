@@ -532,4 +532,12 @@ to mark things as deprecated in the docs::
 
 Often one page of the docs is related to other pages of the docs or to external
 pages. A `seealso <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
-block is a nice way to include a list of related links.
+block is a nice way to include a list of related links::
+
+    .. seealso::
+
+       :doc:`The DataStore extension <datastore>`
+         A CKAN extension for storing data.
+
+       CKAN's `demo site <http://demo.ckan.org/>`_
+         A demo site running the latest CKAN beta version.
