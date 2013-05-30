@@ -172,6 +172,31 @@ customize, initialize, color, etc. There's a list here:
 https://wiki.ubuntu.com/EnglishTranslation/WordSubstitution
 
 
+Commonly used terms
+===================
+
+CKAN
+  Should be written in ALL-CAPS.
+email
+  Use email not e-mail.
+|postgres|, |sqlalchemy|, |nginx|, |python|, |sqlite|, |javascript|, etc.
+  These should always be capitalized as shown above (including capital first
+  letters for Python and Nginx even when they're not the first word in a
+  sentence). ``doc/conf.py`` defines substitutions for each of these so you
+  don't have to remember them, see :ref:`sphinx substitutions`.
+Web site
+  Two words, with Web always capitalized
+frontend
+  Not front-end
+command line
+  Two words, not commandline or command-line
+  (this is because we want to be like `Neal Stephenson <http://www.cryptonomicon.com/beginning.html>`_)
+CKAN config file or configuration file
+  Not settings file, ini file, etc. Also, the **config file** contains **config
+  options** such as ``ckan.site_id``, and each config option is **set** to a
+  certain **setting** or **value** such as ``ckan.site_id = demo.ckan.org``.
+
+
 Section titles
 ==============
 
@@ -274,31 +299,6 @@ identifiable pieces:
 * Break text into short paragraphs of 5-6 sentences each max.
 
 * Use section and subsection headers to visualize the structure of a page.
-
-
-Commonly used terms
-===================
-
-CKAN
-  Should be written in ALL-CAPS.
-email
-  Use email not e-mail.
-|postgres|, |sqlalchemy|, |nginx|, |python|, |sqlite|, |javascript|, etc.
-  These should always be capitalized as shown above (including capital first
-  letters for Python and Nginx even when they're not the first word in a
-  sentence). ``doc/conf.py`` defines substitutions for each of these so you
-  don't have to remember them, see :ref:`sphinx substitutions`.
-Web site
-  Two words, with Web always capitalized
-frontend
-  Not front-end
-command line
-  Two words, not commandline or command-line
-  (this is because we want to be like `Neal Stephenson <http://www.cryptonomicon.com/beginning.html>`_)
-CKAN config file or configuration file
-  Not settings file, ini file, etc. Also, the **config file** contains **config
-  options** such as ``ckan.site_id``, and each config option is **set** to a
-  certain **setting** or **value** such as ``ckan.site_id = demo.ckan.org``.
 
 
 .. _sphinx tips:
