@@ -341,14 +341,49 @@ http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
 Cross-references and links
 ==========================
 
-Use ``:doc:`` to cross-reference to other files and ``:ref:`` to
-cross-reference to particular sections within the same or another file. See
-`Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
-and `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
+Use ``:doc:`` to cross-reference to other files by filename::
+
+    See :doc:`theming`
+
+see `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
+for details.
+
+Use ``:ref:`` to cross-reference to particular sections within the same or
+another file. First you have to add a label before the section you want to
+cross-reference to::
+
+    .. _getting-started:
+
+    ---------------
+    Getting started
+    ---------------
+
+then from elsewhere cross-reference to the section like this::
+
+    See :ref:`getting-started`.
+
+see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
+
+With both ``:doc:`` and ``:ref:`` if you want the link text to be different
+from the title of the section you're referencing, do this::
+
+    :doc:`the theming document <theming>`
+
+    :ref:`the getting started section <getting-started>`
 
 The syntax for linking to external URLs is slightly different from
-cross-referencing (you have to add a trailing underscore), see
-`Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_.
+cross-referencing, you have to add a trailing underscore::
+
+    `Link text <http://example.com/>`_
+
+or to define a URL once and then link to it in multiple places, do::
+
+    This is `a link`_ and this is `a link`_ and this is
+    `another link <a link>`_.
+
+    .. _a link: http://example.com/
+
+see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
 
 
 .. _sphinx substitutions:
