@@ -279,7 +279,6 @@ def make_map():
                   requirements=dict(action='|'.join([
                       'edit',
                       'delete',
-                      'members',
                       'member_new',
                       'member_delete',
                       'history',
@@ -291,6 +290,8 @@ def make_map():
                   ])))
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-sign'),
+        m.connect('group_members', '/group/members/{id}', action='members',
+                  ckan_icon='group'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',
                   action='activity', ckan_icon='time'),
         m.connect('group_read', '/group/{id}', action='read',

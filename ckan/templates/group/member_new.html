@@ -1,48 +1,24 @@
-{% extends "page.html" %}
+{% extends "group/read_base.html" %}
 {% import 'macros/form.html' as form %}
 
-{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
-
-{% block breadcrumb_content %}
-  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
-  <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
-{% endblock %}
-
-{% block actions_content %}
-  {% if h.check_access('organization_member_create', {'id': c.group_dict.id}) %}
-    <li>{% link_for _('Members'), controller='group', action='members', id=c.group_dict.id, class_='btn' %}</li>
-  {% endif %}
-{% endblock %}
-
-{% block primary_content %}
-  <section class="module">
-    <div class="module-content">
-      <h1 class="page-heading">
-        {% block page_heading %}{{ _('Edit Member') if c.user_name else _('Add Member') }}{% endblock %}
-      </h1>
-      {% block form %}
-      <form class="dataset-form form-horizontal" method='post'>
-        {% if c.user_name %}
-            <input type="hidden" name="username" value="{{ c.user_name }}" />
-        {% else %}
-          {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/user/autocomplete?q=?'} %}
-          {{ form.input('username', id='field-username', label=_('User'), placeholder=_('Username'), value='', error='', classes=['control-medium'], attrs=format_attrs) }}
-        {% endif %}
-        {% set format_attrs = {'data-module': 'autocomplete'} %}
-        {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
-        <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
-      </form>
-      {% endblock %}
-    </div>
-  </section>
-{% endblock %}
-
-{% block secondary_content %}
-  {% snippet 'snippets/group.html', group=c.group_dict %}
-
-{% endblock %}
-
-{% block links %}
-  {{ super() }}
-  {% include "group/snippets/feeds.html" %}
+{% block primary_content_inner %}
+  <div class="module-content">
+    {% link_for _('Back to all members'), controller='group', action='members', id=c.group_dict.id, class_='btn pull-right' %}
+    <h1 class="page-heading">
+      {% block page_heading %}{{ _('Edit Member') if c.user_name else _('Add Member') }}{% endblock %}
+    </h1>
+    {% block form %}
+    <form class="dataset-form form-horizontal" method='post'>
+      {% if c.user_name %}
+          <input type="hidden" name="username" value="{{ c.user_name }}" />
+      {% else %}
+        {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/user/autocomplete?q=?'} %}
+        {{ form.input('username', id='field-username', label=_('User'), placeholder=_('Username'), value='', error='', classes=['control-medium'], attrs=format_attrs) }}
+      {% endif %}
+      {% set format_attrs = {'data-module': 'autocomplete'} %}
+      {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
+      <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
+    </form>
+    {% endblock %}
+  </div>
 {% endblock %}
