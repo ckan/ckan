@@ -464,8 +464,8 @@ For how to write docstrings, see :ref:`docstrings`.
 
 .. _todo:
 
-``todo``
-========
+todo
+====
 
 No new feature (or change to an existing feature) should be missing from the
 docs. It's best to document new features or changes as you implement them,
@@ -486,8 +486,8 @@ just to contain the ``todo``)::
 
 
 
-``versionadded`` and ``versionchanged``
-=======================================
+versionadded and versionchanged
+===============================
 
 Use Sphinx's ``versionadded`` and ``versionchanged`` directives to mark new or
 changed features. For example::
@@ -517,8 +517,8 @@ changed (you can also do this with ``versionadded`` if you want)::
     which...
 
 
-``deprecated``
-==============
+deprecated
+==========
 
 Use Sphinx's `deprecated directive <http://sphinx-doc.org/markup/para.html#directive-deprecated>`_
 to mark things as deprecated in the docs::
@@ -527,8 +527,8 @@ to mark things as deprecated in the docs::
        Use :func:`spam` instead.
 
 
-``seealso``
-===========
+seealso
+=======
 
 Often one page of the docs is related to other pages of the docs or to external
 pages. A `seealso <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
