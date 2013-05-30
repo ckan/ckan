@@ -1504,7 +1504,8 @@ def resource_preview(resource, pkg_id):
         reason = None
         if format_lower:
             log.info(
-                _(u'No preview handler for resource of type {0}'.format(format_lower))
+                _(u'No preview handler for resource of type {0}'.format(
+                    format_lower))
             )
         else:
             reason = _(u'The resource format is not specified.')
