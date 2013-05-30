@@ -18,6 +18,7 @@ import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.lib.jinja_extensions as jinja_extensions
+import ckan.logic as logic
 
 from ckan.common import _, ungettext
 
@@ -348,3 +349,6 @@ def load_environment(global_conf, app_conf):
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
+
+    # Here we create the site user if they are not already in the database
+    logic.get_action('get_site_user')({'ignore_auth': True}, None)
