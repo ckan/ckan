@@ -1,3 +1,5 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
