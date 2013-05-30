@@ -1,7 +1,7 @@
-from pylons.i18n import _
-
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 
 def package_create(context, data_dict=None):

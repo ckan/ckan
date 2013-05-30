@@ -179,13 +179,13 @@ See :doc:`test` for further information on testing in CKAN.
 Writing Extensions
 ------------------
 
-Please see :doc:`writing-extensions` for information about writing ckan
+Please see :ref:`writing-extensions` for information about writing ckan
 extensions, including details on the API available to extensions.
 
 Deprecation
 -----------
 
-- Anything that may be used by extensions (see :doc:`writing-extensions`) needs
+- Anything that may be used by extensions (see :ref:`writing-extensions`) needs
   to maintain backward compatibility at call-site.  ie - template helper
   functions and functions defined in the plugins toolkit.
 

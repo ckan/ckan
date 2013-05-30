@@ -1,10 +1,11 @@
-from pylons.i18n import _
-from pylons import request, c, config
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+
+from ckan.common import _, request, c
 
 
 LIMIT = 25
@@ -68,4 +69,5 @@ class TagController(base.BaseController):
         if h.asbool(config.get('ckan.legacy_templates', False)):
             return base.render('tag/read.html')
         else:
-            h.redirect_to(controller='package', action='search', tags=c.tag.get('name'))
+            h.redirect_to(controller='package', action='search',
+                          tags=c.tag.get('name'))
