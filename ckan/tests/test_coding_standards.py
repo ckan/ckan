@@ -914,16 +914,11 @@ class TestActionAuth(object):
 
     ACTION_NO_DOC_STR_BLACKLIST = [
         'create: group_create_rest',
-        'create: group_member_create',
-        'create: organization_member_create',
         'create: package_create_rest',
         'create: package_relationship_create_rest',
-        'delete: group_member_delete',
-        'delete: organization_member_delete',
         'delete: package_relationship_delete_rest',
         'get: get_site_user',
         'get: group_show_rest',
-        'get: member_roles_list',
         'get: package_show_rest',
         'get: tag_show_rest',
         'update: group_update_rest',
