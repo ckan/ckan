@@ -8949,3 +8949,19 @@ iframe {
   position: relative;
   zoom: 1;
 }
+.ie7 .resource-item {
+  position: static;
+  padding-bottom: 1px;
+}
+.ie7 .resource-item .heading {
+  position: relative;
+}
+.ie7 .resource-item .format-label {
+  left: -48px;
+}
+.ie7 .resource-item .btn-group {
+  position: relative;
+  float: right;
+  top: -35px;
+  right: 0;
+}
