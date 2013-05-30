@@ -130,7 +130,7 @@ def related_update(context, data_dict):
     user = context['user']
     id = _get_or_bust(data_dict, "id")
 
-    schema = context.get('schema', ckan.logic.schema.default_related_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -170,7 +170,7 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
-    schema = context.get('schema', ckan.logic.schema.default_update_resource_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -337,8 +337,7 @@ def package_relationship_update(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema',
-                         ckan.logic.schema.default_update_relationship_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
 
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
@@ -547,7 +546,7 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema', ckan.logic.schema.default_update_user_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
@@ -615,8 +614,7 @@ def task_status_update(context, data_dict):
 
     user = context['user']
     id = data_dict.get("id")
-    schema = context.get('schema',
-                         ckan.logic.schema.default_task_status_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
@@ -826,7 +824,7 @@ def vocabulary_update(context, data_dict):
 
     _check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema', ckan.logic.schema.default_update_vocabulary_schema())
+    schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()

@@ -384,8 +384,8 @@ def unfollow_user(context, data_dict):
     :type id: string
 
     '''
-    schema = context.get('schema',
-                         ckan.logic.schema.default_follow_user_schema())
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_user_schema())
     _unfollow(context, data_dict, schema, context['model'].UserFollowingUser)
 
 def unfollow_dataset(context, data_dict):
@@ -395,8 +395,8 @@ def unfollow_dataset(context, data_dict):
     :type id: string
 
     '''
-    schema = context.get('schema',
-                         ckan.logic.schema.default_follow_dataset_schema())
+    schema = context.get('schema') or (
+            ckan.logic.schema.default_follow_dataset_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingDataset)
 

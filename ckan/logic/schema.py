@@ -30,7 +30,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
-                                   natural_number_validator,
+                                   pos_int_validator,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -490,17 +490,17 @@ def default_follow_group_schema():
 
 def default_package_list_schema():
     schema = {
-        'limit': [ignore_missing, natural_number_validator],
-        'offset': [ignore_missing, natural_number_validator],
-        'page': [ignore_missing, natural_number_validator]
+        'limit': [ignore_missing, pos_int_validator],
+        'offset': [ignore_missing, pos_int_validator],
+        'page': [ignore_missing, pos_int_validator]
     }
     return schema
 
 
 def default_pagination_schema():
     schema = {
-        'limit': [ignore_missing, natural_number_validator],
-        'offset': [ignore_missing, natural_number_validator]
+        'limit': [ignore_missing, pos_int_validator],
+        'offset': [ignore_missing, pos_int_validator]
     }
     return schema
 
@@ -514,7 +514,7 @@ def default_dashboard_activity_list_schema():
 def default_autocomplete_schema():
     schema = {
         'q': [not_missing, unicode],
-        'limit': [ignore_missing, natural_number_validator]
+        'limit': [ignore_missing, pos_int_validator]
     }
     return schema
 
@@ -523,13 +523,13 @@ def default_package_search_schema():
     schema = {
         'q': [ignore_missing, unicode],
         'fq': [ignore_missing, unicode],
-        'rows': [ignore_missing, natural_number_validator],
+        'rows': [ignore_missing, pos_int_validator],
         'sort': [ignore_missing, unicode],
-        'start': [ignore_missing, natural_number_validator],
+        'start': [ignore_missing, pos_int_validator],
         'qf': [ignore_missing, unicode],
         'facet': [ignore_missing, unicode],
-        'facet.mincount': [ignore_missing, natural_number_validator],
-        'facet.limit': [ignore_missing, natural_number_validator],
+        'facet.mincount': [ignore_missing, pos_int_validator],
+        'facet.limit': [ignore_missing, pos_int_validator],
         'facet.field': [ignore_missing, list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }
@@ -541,13 +541,13 @@ def default_resource_search_schema():
         'query': [ignore_missing],  # string or list of strings
         'fields': [ignore_missing],  # dict of fields
         'order_by': [ignore_missing, unicode],
-        'offset': [ignore_missing, natural_number_validator],
-        'limit': [ignore_missing, natural_number_validator]
+        'offset': [ignore_missing, pos_int_validator],
+        'limit': [ignore_missing, pos_int_validator]
     }
     return schema
 
 
-def create_schema_for_required_keys(keys):
+def _create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
     '''
