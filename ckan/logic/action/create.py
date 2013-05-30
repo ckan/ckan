@@ -1084,7 +1084,7 @@ def follow_dataset(context, data_dict):
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
         # FIXME really package model should have this logic and provide
-        # 'dispaly_name' like users and groups
+        # 'display_name' like users and groups
         pkgobj = model.Package.get(validated_data_dict['id'])
         name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
