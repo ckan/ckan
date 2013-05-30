@@ -10,7 +10,6 @@ ckan.module('jsonpreview', function (jQuery, _) {
       var self = this;
       jQuery.ajax(preload_resource['url'], {
         type: 'GET',
-        async: false,
         contentType: "application/json",
         dataType: preload_resource['format'],
         success: function(data, textStatus, jqXHR) {
@@ -19,7 +18,11 @@ ckan.module('jsonpreview', function (jQuery, _) {
           self.el.html(pretty);
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
+          if (textStatus == 'error' && jqXHR.responseText.length) {
+            self.el.html(jqXHR.responseText);
+          } else {
+            self.el.html(self.i18n('error', {text: textStatus, error: errorThrown}));
+          }
         }
       });
     },
