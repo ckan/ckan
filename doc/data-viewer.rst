@@ -72,6 +72,10 @@ extension that can preview these types:
 The types of resources that are loaded in an iframe can be specified in the
 CKAN config file. See :ref:`ckan.preview.loadable` for more information.
 
+Note that these documents will be directly linked by the browser, so the
+way in which they are shown may vary. If you want to ensure for instance that
+XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
+
 
 Viewing structured data: the Data Explorer
 ------------------------------------------
@@ -124,7 +128,7 @@ separately.
    (can be configured by setting ``ckan.preview.json_formats``)
 * ``jsonp``
    (can be configured  by setting ``ckan.preview.jsonp_formats``)
-* ``xml``, ``rdf``, ``rdf+xm``, ``owl+xml``, ``atom``, ``rss``
+* ``xml``, ``rdf``, ``rdf+xml``, ``owl+xml``, ``atom``, ``rss``
    (can be configured  by setting ``ckan.preview.xml_formats``)
 * ``text/plain``, ``txt``, ``plain``
    (can be configured  by setting ``ckan.preview.text_formats``)
