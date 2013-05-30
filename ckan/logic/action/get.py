@@ -111,7 +111,10 @@ def current_package_list_with_resources(context, data_dict):
         page = int(data_dict['page'])
         if page < 1:
             raise ValidationError(_('Must be larger than 0'))
-        offset = (page - 1) * limit
+        if limit:
+            offset = (page - 1) * limit
+        else:
+            offset = 0
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
@@ -122,7 +125,7 @@ def current_package_list_with_resources(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit is not None:
         query = query.limit(limit)
-        query = query.offset(offset)
+    query = query.offset(offset)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
