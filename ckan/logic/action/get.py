@@ -111,7 +111,10 @@ def current_package_list_with_resources(context, data_dict):
         page = int(data_dict['page'])
         if page < 1:
             raise ValidationError(_('Must be larger than 0'))
-        offset = (page - 1) * limit
+        if limit:
+            offset = (page - 1) * limit
+        else:
+            offset = 0
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
@@ -122,7 +125,7 @@ def current_package_list_with_resources(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit is not None:
         query = query.limit(limit)
-        query = query.offset(offset)
+    query = query.offset(offset)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
@@ -182,7 +185,7 @@ def related_show(context, data_dict=None):
 
     _check_access('related_show',context, data_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    schema = context.get('schema', ckan.logic.schema.default_related_schema())
     related_dict = model_dictize.related_dictize(related, context)
     related_dict, errors = _validate(related_dict, schema, context=context)
 
@@ -1261,10 +1264,7 @@ def package_search(context, data_dict):
         query cannot be changed.  CKAN always returns the matched datasets as
         dictionary objects.
     '''
-    # sometimes context['schema'] is None
-    schema = context.get('schema')
-    if not schema:
-        schema = logic.schema.default_package_search_schema()
+    schema = context.get('schema', logic.schema.default_package_search_schema())
     if isinstance(data_dict.get('facet.field'), basestring):
         data_dict['facet.field'] = ast.literal_eval(data_dict['facet.field'])
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2482,8 +2482,8 @@ def followee_list(context, data_dict):
 
     '''
     _check_access('followee_list', context, data_dict)
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
+    schema = context.get('schema',
+                         ckan.logic.schema.default_follow_user_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -2539,8 +2539,8 @@ def user_followee_list(context, data_dict):
         _check_access('user_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
-        schema = context.get('schema') or (
-                ckan.logic.schema.default_follow_user_schema())
+        schema = context.get('schema',
+                             ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -2570,8 +2570,8 @@ def dataset_followee_list(context, data_dict):
         _check_access('dataset_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
-        schema = context.get('schema') or (
-                ckan.logic.schema.default_follow_user_schema())
+        schema = context.get('schema',
+                             ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)

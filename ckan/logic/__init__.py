@@ -351,8 +351,8 @@ def get_or_bust(data_dict, keys):
     if isinstance(keys, basestring):
         keys = [keys]
 
-    import ckan.logic.schema as schema_module
-    schema = schema_module._create_schema_for_required_keys(keys)
+    import ckan.logic.schema as schema
+    schema = schema.create_schema_for_required_keys(keys)
 
     data_dict, errors = _validate(data_dict, schema)
 

@@ -344,7 +344,7 @@ def package_relationship_create(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    schema = context.get('schema') or ckan.logic.schema.default_create_relationship_schema()
+    schema = context.get('schema', ckan.logic.schema.default_create_relationship_schema())
     api = context.get('api_version')
     ref_package_by = 'id' if api == 2 else 'name'
 
@@ -754,7 +754,7 @@ def user_create(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_user_schema()
+    schema = context.get('schema', ckan.logic.schema.default_user_schema())
     session = context['session']
 
     _check_access('user_create', context, data_dict)
@@ -850,7 +850,7 @@ def vocabulary_create(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_create_vocabulary_schema()
+    schema = context.get('schema', ckan.logic.schema.default_create_vocabulary_schema())
 
     _check_access('vocabulary_create', context, data_dict)
 
@@ -906,7 +906,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if not ignore_auth:
         _check_access('activity_create', context, activity_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
+    schema = context.get('schema', ckan.logic.schema.default_create_activity_schema())
     data, errors = _validate(activity_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -956,7 +956,7 @@ def tag_create(context, tag_dict):
 
     _check_access('tag_create', context, tag_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
+    schema = context.get('schema', ckan.logic.schema.default_create_tag_schema())
     data, errors = _validate(tag_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -992,8 +992,8 @@ def follow_user(context, data_dict):
     if not userobj:
         raise logic.NotAuthorized(_("You must be logged in to follow users"))
 
-    schema = (context.get('schema')
-            or ckan.logic.schema.default_follow_user_schema())
+    schema = context.get('schema',
+              ckan.logic.schema.default_follow_user_schema())
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
@@ -1052,8 +1052,8 @@ def follow_dataset(context, data_dict):
         raise logic.NotAuthorized(
                 _("You must be logged in to follow a dataset."))
 
-    schema = (context.get('schema')
-            or ckan.logic.schema.default_follow_dataset_schema())
+    schema = context.get('schema',
+              ckan.logic.schema.default_follow_dataset_schema())
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
