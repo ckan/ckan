@@ -14,6 +14,8 @@ from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
 
+import ckan.tests as tests
+
 class PackagesTestCase(BaseModelApiTestCase):
 
     @classmethod
@@ -776,6 +778,34 @@ class PackagesTestCase(BaseModelApiTestCase):
         revisions = res.json
         assert len(revisions) == 3, len(revisions)
 
+    def test_create_extra_with_non_string_value(self):
+        '''Test that creating a package extra with a non-string value returns
+        the right error message.
+
+        '''
+        user = model.User.by_name(u'testsysadmin')
+        extras = [{'key': 'test', 'value': {'foo': 'bar'}}]
+        result = tests.call_action_api(self.app, 'package_create',
+                name='test', extras=extras, apikey=user.apikey, status=409)
+        assert result == {
+                '__type': 'Validation Error',
+                'extras': [{'value': ['Must be a string']}]}
+
+    def test_update_extra_with_non_string_value(self):
+        '''Test that updating a package extra with a non-string value returns
+        the right error message.
+
+        '''
+        user = model.User.by_name(u'testsysadmin')
+        extras = [{'key': 'test', 'value': 'foo'}]
+        result = tests.call_action_api(self.app, 'package_create',
+                name='test', extras=extras, apikey=user.apikey)
+        extras = [{'key': 'test', 'value': {'foo': 'bar'}}]
+        result = tests.call_action_api(self.app, 'package_update',
+                name='test', extras=extras, apikey=user.apikey, status=409)
+        assert result == {
+                '__type': 'Validation Error',
+                'extras': [{'value': ['Must be a string']}]}
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
     def test_06_create_pkg_using_download_url(self):
