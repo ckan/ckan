@@ -328,7 +328,7 @@ def default_extras_schema():
     schema = {
         'id': [ignore],
         'key': [not_empty, unicode],
-        'value': [not_missing],
+        'value': [not_missing, string_validator],
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
