@@ -1,9 +1,10 @@
 from datetime import datetime
 import hashlib
 import socket
-import solr
+
 from pylons import config
-from ckan import model
+
+import ckan.model as model
 import ckan.lib.search as search
 from ckan.tests import TestController, CreateTestData, setup_test_search_index, is_search_supported
 

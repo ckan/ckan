@@ -1,5 +1,7 @@
 import os
-from pylons import config
+
+import ckan
+import ckan.lib.util as util
 from ckan.tests import TestController
 
 class TestSolrSchemaVersionCheck(TestController):
@@ -11,9 +13,7 @@ class TestSolrSchemaVersionCheck(TestController):
 
     def _get_current_schema(self):
 
-        from ckan.lib.search import SUPPORTED_SCHEMA_VERSIONS
-
-        current_version = sorted(SUPPORTED_SCHEMA_VERSIONS).pop()
+        current_version = util.base_version(ckan.__version__)
 
         current_schema = os.path.join(self.root_dir,'..','..','config','solr','schema-%s.xml' % current_version)
 
