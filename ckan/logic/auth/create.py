@@ -20,6 +20,7 @@ def package_create(context, data_dict=None):
         return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
 
     # If an organization is given are we able to add a dataset to it?
+    data_dict = data_dict or {}
     org_id = data_dict.get('organization_id')
     if org_id and not new_authz.has_user_permission_for_group_or_org(
             org_id, user, 'create_dataset'):
