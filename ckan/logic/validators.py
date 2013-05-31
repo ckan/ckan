@@ -52,6 +52,7 @@ def package_id_not_changed(value, context):
 def string_validator(value, context):
     if not isinstance(value, basestring):
         raise Invalid(_("Must be a string"))
+    return value
 
 def int_validator(value, context):
     if isinstance(value, int):
