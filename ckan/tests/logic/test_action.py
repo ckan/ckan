@@ -90,12 +90,14 @@ class TestAction(WsgiAppCase):
 
         postparams = '%s=1' % json.dumps({
             'limit': -2})
-        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        res = json.loads(self.app.post(url, params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
         assert not res['success']
 
         postparams = '%s=1' % json.dumps({
             'offset': 'a'})
-        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        res = json.loads(self.app.post(url, params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
         assert not res['success']
 
         postparams = '%s=1' % json.dumps({
@@ -108,7 +110,9 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({
             'limit': 1,
             'page': 0})
-        res = json.loads(self.app.post(url, params=postparams, status=StatusCodes.STATUS_409_CONFLICT).body)
+        res = json.loads(self.app.post(url,
+                         params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
         assert not res['success']
 
     def test_01_package_show(self):
