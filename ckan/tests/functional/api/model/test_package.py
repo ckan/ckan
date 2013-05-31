@@ -789,7 +789,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 name='test', extras=extras, apikey=user.apikey, status=409)
         assert result == {
                 '__type': 'Validation Error',
-                'extras': [{'value': ['Must be a string']}]}
+                'extras': [{'value': ['Must be a string or null']}]}
 
     def test_update_extra_with_non_string_value(self):
         '''Test that updating a package extra with a non-string value returns
@@ -805,7 +805,7 @@ class PackagesTestCase(BaseModelApiTestCase):
                 name='test', extras=extras, apikey=user.apikey, status=409)
         assert result == {
                 '__type': 'Validation Error',
-                'extras': [{'value': ['Must be a string']}]}
+                'extras': [{'value': ['Must be a string or null']}]}
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
     def test_06_create_pkg_using_download_url(self):
