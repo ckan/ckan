@@ -80,7 +80,6 @@ class TestNastyString(object):
         'ckan/lib/activity_streams.py',
         'ckan/logic/action/create.py',
         'ckan/logic/action/update.py',
-        'ckan/logic/auth/create.py',
         'ckan/logic/auth/delete.py',
         'ckan/logic/auth/get.py',
         'ckan/logic/validators.py',
