@@ -173,7 +173,6 @@ class _Toolkit(object):
         ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
-    @classmethod
     def _check_ckan_version(cls, min_version=None, max_version=None):
         ''' Check that the ckan version is correct for the plugin. '''
         current = util.version_str_2_list(cls.ckan.__version__)
