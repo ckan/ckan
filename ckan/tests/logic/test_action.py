@@ -1301,7 +1301,9 @@ class TestActionPackageSearch(WsgiAppCase):
         assert_equal(result['results'][0]['name'], 'annakarenina')
 
         # Test GET request
-        url_params = urllib.urlencode(params)
+        params_json_list = params
+        params_json_list['facet.field'] = json.dumps(params['facet.field'])
+        url_params = urllib.urlencode(params_json_list)
         res = self.app.get('/api/action/package_search?{0}'.format(url_params))
         res = json.loads(res.body)
         result = res['result']

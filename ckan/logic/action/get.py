@@ -2,7 +2,6 @@ import uuid
 import logging
 import json
 import datetime
-import ast
 
 from pylons import config
 from pylons.i18n import _
@@ -1265,11 +1264,10 @@ def package_search(context, data_dict):
         dictionary objects.
     '''
     # sometimes context['schema'] is None
-    schema = context.get('schema')
-    if not schema:
-        schema = logic.schema.default_package_search_schema()
+    schema = (context.get('schema') or
+              logic.schema.default_package_search_schema())
     if isinstance(data_dict.get('facet.field'), basestring):
-        data_dict['facet.field'] = ast.literal_eval(data_dict['facet.field'])
+        data_dict['facet.field'] = json.loads(data_dict['facet.field'])
     data_dict, errors = _validate(data_dict, schema, context)
     # put the extras back into the data_dict so that the search can
     # report needless parameters
