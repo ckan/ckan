@@ -42,7 +42,7 @@ class TestTextPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('json_preview')
+        plugins.unload('text_preview')
         create_test_data.CreateTestData.delete()
 
     def test_can_preview(self):
