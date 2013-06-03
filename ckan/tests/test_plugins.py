@@ -102,16 +102,11 @@ class TestPlugins(object):
         plugins.load_all(config)
 
     def test_only_configured_plugins_loaded(self):
-        # FIXME This test is screwed it passes if all tests are run but not
-        # if just this file.  I think there is flawed logic -TD
-
-        import ckan.model.extension as model_ext
-        with plugins.use_plugin('mapper_plugin'):
+        with plugins.use_plugin('mapper_plugin') as p:
             # MapperPlugin should be loaded as it is listed in
-            assert ckantestplugins.MapperPlugin() in iter(model_ext.PluginMapperExtension.observers)
+            assert p in plugins.PluginImplementations(plugins.IMapper)
             # MapperPlugin2 and RoutesPlugin should NOT be loaded
-            assert ckantestplugins.MapperPlugin2() not in iter(model_ext.PluginMapperExtension.observers)
-            assert ckantestplugins.RoutesPlugin() not in plugins.PluginImplementations(plugins.IRoutes)
+            assert len(plugins.PluginImplementations(plugins.IMapper)) == 1
 
     def test_plugin_loading_order(self):
         """
@@ -148,6 +143,8 @@ class TestPlugins(object):
     def test_mapper_plugin_fired(self):
         with plugins.use_plugin('mapper_plugin') as mapper_plugin:
             CreateTestData.create_arbitrary([{'name':u'testpkg'}])
+            # remove this data
+            CreateTestData.delete()
             assert len(mapper_plugin.added) == 2 # resource group table added automatically
             assert mapper_plugin.added[0].name == 'testpkg'
 
