@@ -286,7 +286,7 @@ def package_dictize(pkg, context):
     # if null assign the default value to make searching easier
     result_dict['type']= pkg.type or u'dataset'
 
-    # licence
+    # license
     if pkg.license and pkg.license.url:
         result_dict['license_url']= pkg.license.url
         result_dict['license_title']= pkg.license.title.split('::')[-1]

@@ -58,7 +58,7 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    :param license_id: the id of the dataset's license, see ``licence_list()``
+    :param license_id: the id of the dataset's license, see ``license_list()``
         for available values (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
@@ -101,8 +101,8 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
-    :param owner_org: the id of the dataset's owning organization, see 
-        ``organization_list()`` or ``organization_list_for_user`` for 
+    :param owner_org: the id of the dataset's owning organization, see
+        ``organization_list()`` or ``organization_list_for_user`` for
         available values (optional)
     :type owner_org: string
 
