@@ -16,10 +16,15 @@
   <div class="module">
     <div class="module-content">
       <h1 class="hide-heading">{{ _('Groups') }}</h1>
+      {% block groups_search_form %}
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search groups...') %}
+      {% endblock %}
       <h2 class="is-search-title">
+        {% block groups_search_result_text %}
         {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='group' %}
+        {% endblock %}
       </h2>
+      {% block groups_list %}
       {% if c.page.items or request.params %}
         {% snippet "group/snippets/group_list.html", groups=c.page.items %}
       {% else %}
@@ -30,8 +35,11 @@
           {% endif %}
         </p>
       {% endif %}
+      {% endblock %}
     </div>
+    {% block page_pagination %}
     {{ c.page.pager() }}
+    {% endblock %}
   </div>
 {% endblock %}
 

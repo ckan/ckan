@@ -1,7 +1,10 @@
-import logging
-from pylons.i18n import _
+'''API functions for adding data to CKAN.'''
 
-import ckan.new_authz as new_authz
+import logging
+
+from pylons import config
+from paste.deploy.converters import asbool
+
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -12,6 +15,8 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+
+from ckan.common import _
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -53,7 +58,7 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    :param license_id: the id of the dataset's license, see ``license_list()``
+    :param license_id: the id of the dataset's license, see ``licence_list()``
         for available values (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
@@ -96,6 +101,10 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
+    :param owner_org: the id of the dataset's owning organization, see 
+        ``organization_list()`` or ``organization_list_for_user`` for 
+        available values (optional)
+    :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
               in the context, in which case just the dataset id will be returned)
@@ -107,7 +116,10 @@ def package_create(context, data_dict):
 
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-    schema = package_plugin.create_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.create_package_schema()
 
     _check_access('package_create', context, data_dict)
 
@@ -115,7 +127,7 @@ def package_create(context, data_dict):
         # check_data_dict() is deprecated. If the package_plugin has a
         # check_data_dict() we'll call it, if it doesn't have the method we'll
         # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_datadict', None)
+        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
         if check_data_dict:
             try:
                 check_data_dict(data_dict, schema)
@@ -170,6 +182,9 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % str(pkg.name))
+
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -288,10 +303,12 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    dataset_dict = None
     if 'dataset_id' in data_dict:
         dataset = model.Package.get(data_dict['dataset_id'])
         dataset.related.append( related )
         model.repo.commit_and_remove()
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
 
     session.flush()
 
@@ -302,7 +319,8 @@ def related_create(context, data_dict):
             'activity_type': 'new related item',
             }
     activity_dict['data'] = {
-            'related': related_dict
+            'related': related_dict,
+            'dataset': dataset_dict,
     }
     activity_create_context = {
         'model': model,
@@ -409,10 +427,18 @@ def member_create(context, data_dict=None):
     if 'message' in context:
         rev.message = context['message']
     else:
-        rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
+        rev.message = _(u'REST API: Create member object %s') % data_dict.get('name', '')
 
-    group = model.Group.get(data_dict.get('id', ''))
-    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
+    group_id, obj_id, obj_type, capacity = _get_or_bust(data_dict, ['id', 'object', 'object_type', 'capacity'])
+
+    group = model.Group.get(group_id)
+    if not group:
+        raise NotFound('Group was not found.')
+
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj = obj_class.get(obj_id)
+    if not obj:
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
@@ -420,16 +446,16 @@ def member_create(context, data_dict=None):
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
-            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.table_id == obj.id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active").first()
-    if member:
-        member.capacity = capacity
-    else:
+            filter(model.Member.state == 'active').first()
+    if not member:
         member = model.Member(table_name = obj_type,
-                              table_id = obj_id,
+                              table_id = obj.id,
                               group_id = group.id,
-                              capacity=capacity)
+                              state = 'active')
+
+    member.capacity = capacity
 
     model.Session.add(member)
     model.repo.commit()
@@ -888,6 +914,9 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+        return
+
     model = context['model']
 
     # Any revision_id that the caller attempts to pass in the activity_dict is
@@ -905,7 +934,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if errors:
         raise ValidationError(errors)
 
-    activity = model_save.activity_dict_save(activity_dict, context)
+    activity = model_save.activity_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1059,7 +1088,7 @@ def follow_dataset(context, data_dict):
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
         # FIXME really package model should have this logic and provide
-        # 'dispaly_name' like users and groups
+        # 'display_name' like users and groups
         pkgobj = model.Package.get(validated_data_dict['id'])
         name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
@@ -1095,6 +1124,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     result = session.query(model.User).filter_by(name=username).first()
     if result:
         user_id = result.id
+    else:
+        message = _(u'User {username} does not exist.').format(username=username)
+        raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
         'object': user_id,

@@ -89,50 +89,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'checkpoint:is-myself' in main_res, main_res
         assert 'Edit Profile' in main_res, main_res
 
-    def test_user_read_about_unfinished(self):
-        user = model.User.by_name(u'unfinisher')
-        offset = '/user/%s' % user.id
-        res = self.app.get(offset, status=200)
-        main_res = self.main_div(res)
-        assert 'unfinisher' in res, res
-        assert '&lt;a href="http://unfinished.tag' in main_res, main_res
-
-    def test_user_read_about_unclosed(self):
-        user = model.User.by_name(u'uncloser')
-        offset = '/user/%s' % user.id
-        res = self.app.get(offset, status=200)
-        main_res = self.main_div(res)
-        assert 'unclosed' in res, res
-        # tag gets closed by genshi
-        assert '<a href="http://unclosed.tag" target="_blank" rel="nofollow">\n</a>' in main_res, main_res
-
-    def test_user_read_about_spam(self):
-        user = model.User.by_name(u'spammer')
-        offset = '/user/%s' % user.id
-        res = self.app.get(offset, status=200)
-        main_res = self.main_div(res)
-        assert 'spammer' in res, res
-        self.check_named_element(res, 'a',
-                                 'href="http://mysite"',
-                                 'target="_blank"',
-                                 'rel="nofollow"')
-
-        self.check_named_element(res, 'a',
-                                 'href="TAG MALFORMED"',
-                                 'target="_blank"',
-                                 'rel="nofollow"')
-
-    def test_user_read_about_spam2(self):
-        user = model.User.by_name(u'spammer2')
-        offset = '/user/%s' % user.id
-        res = self.app.get(offset, status=200)
-        main_res = self.main_div(res)
-        assert 'spammer2' in res, res
-        assert 'spamsite2' not in res, res
-        # some computers have the Genshi exception and some insert "malformed"
-        # but either are fine
-        assert 'Error: Could not parse About text' in res or\
-               'malformed' in res, res
 
     def test_user_login_page(self):
         offset = url_for(controller='user', action='login', id=None)
@@ -820,8 +776,9 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
 
     def test_user_edit_unknown_user(self):
         offset = url_for(controller='user', action='edit', id='unknown_person')
-        res = self.app.get(offset, status=404)
-        assert 'User not found' in res, res
+        res = self.app.get(offset, status=302) # redirect to login page
+        res = res.follow()
+        assert 'Login' in res, res
 
     def test_user_edit_not_logged_in(self):
         # create user

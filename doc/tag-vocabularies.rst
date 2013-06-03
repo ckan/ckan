@@ -1,5 +1,5 @@
 ================
-Tag vocabularies
+Tag Vocabularies
 ================
 
 .. versionadded:: 1.7
