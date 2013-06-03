@@ -67,14 +67,13 @@ def make_map():
     # import controllers here rather than at root level because
     # pylons config is initialised by this point.
 
-
     # Helpers to reduce code clutter
     GET = dict(method=['GET'])
     PUT = dict(method=['PUT'])
     POST = dict(method=['POST'])
     DELETE = dict(method=['DELETE'])
     GET_POST = dict(method=['GET', 'POST'])
-    PUT_POST = dict(method=['PUT','POST'])
+    PUT_POST = dict(method=['PUT', 'POST'])
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
@@ -91,7 +90,8 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
-    map.connect('*url', controller='home', action='cors_options', conditions=OPTIONS)
+    map.connect('*url', controller='home', action='cors_options',
+                conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
     for plugin in p.PluginImplementations(p.IRoutes):
@@ -102,39 +102,43 @@ def make_map():
 
     # CKAN API versioned.
     register_list = [
-            'package',
-            'dataset',
-            'resource',
-            'tag',
-            'group',
-            'related',
-            'revision',
-            'licenses',
-            'rating',
-            'user',
-            'activity'
-            ]
+        'package',
+        'dataset',
+        'resource',
+        'tag',
+        'group',
+        'related',
+        'revision',
+        'licenses',
+        'rating',
+        'user',
+        'activity'
+    ]
     register_list_str = '|'.join(register_list)
 
     # /api ver 3 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/3|}', ver='/3') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/3|}',
+                   ver='/3') as m:
         m.connect('/action/{logic_function}', action='action',
                   conditions=GET_POST)
 
     # /api ver 1, 2, 3 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}', ver='/1') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
+                   ver='/1') as m:
         m.connect('', action='get_api')
         m.connect('/search/{register}', action='search')
 
     # /api ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
+                   ver='/1') as m:
         m.connect('/tag_counts', action='tag_counts')
         m.connect('/rest', action='index')
         m.connect('/qos/throughput/', action='throughput', conditions=GET)
 
     # /api/rest ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1',
-                   requirements=dict(register=register_list_str)) as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
+                   ver='/1', requirements=dict(register=register_list_str)
+                   ) as m:
 
         m.connect('/rest/{register}', action='list', conditions=GET)
         m.connect('/rest/{register}', action='create', conditions=POST)
@@ -143,20 +147,21 @@ def make_map():
         m.connect('/rest/{register}/{id}', action='update', conditions=POST)
         m.connect('/rest/{register}/{id}', action='delete', conditions=DELETE)
         m.connect('/rest/{register}/{id}/:subregister', action='list',
-            conditions=GET)
+                  conditions=GET)
         m.connect('/rest/{register}/{id}/:subregister', action='create',
-            conditions=POST)
+                  conditions=POST)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='create',
-            conditions=POST)
+                  conditions=POST)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='show',
-            conditions=GET)
+                  conditions=GET)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='update',
-            conditions=PUT)
+                  conditions=PUT)
         m.connect('/rest/{register}/{id}/:subregister/{id2}', action='delete',
-            conditions=DELETE)
+                  conditions=DELETE)
 
     # /api/util ver 1, 2 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}', ver='/1') as m:
+    with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|}',
+                   ver='/1') as m:
         m.connect('/util/user/autocomplete', action='user_autocomplete')
         m.connect('/util/is_slug_valid', action='is_slug_valid',
                   conditions=GET)
@@ -188,7 +193,7 @@ def make_map():
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
     with SubMapper(map, controller='related') as m:
-        m.connect('related_new',  '/dataset/{id}/related/new', action='new')
+        m.connect('related_new', '/dataset/{id}/related/new', action='new')
         m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
                   action='edit')
         m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
@@ -203,35 +208,32 @@ def make_map():
                   highlight_actions='index search')
         m.connect('add dataset', '/dataset/new', action='new')
         m.connect('/dataset/{action}',
-          requirements=dict(action='|'.join([
-              'list',
-              'autocomplete',
-              'search'
-              ]))
-          )
+                  requirements=dict(action='|'.join([
+                      'list',
+                      'autocomplete',
+                      'search'
+                  ])))
 
         m.connect('/dataset/{action}/{id}/{revision}', action='read_ajax',
-          requirements=dict(action='|'.join([
-          'read',
-          'edit',
-          'history',
-          ]))
-        )
+                  requirements=dict(action='|'.join([
+                      'read',
+                      'edit',
+                      'history',
+                  ])))
         m.connect('/dataset/{action}/{id}',
-          requirements=dict(action='|'.join([
-          'edit',
-          'new_metadata',
-          'new_resource',
-          'history',
-          'read_ajax',
-          'history_ajax',
-          'follow',
-          'activity',
-          'unfollow',
-          'delete',
-          'api_data',
-          ]))
-          )
+                  requirements=dict(action='|'.join([
+                      'edit',
+                      'new_metadata',
+                      'new_resource',
+                      'history',
+                      'read_ajax',
+                      'history_ajax',
+                      'follow',
+                      'activity',
+                      'unfollow',
+                      'delete',
+                      'api_data',
+                  ])))
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
@@ -251,7 +253,8 @@ def make_map():
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
         m.connect('/dataset/{id}/resource/{resource_id}/viewer',
-                  action='resource_embedded_dataviewer', width="960", height="800")
+                  action='resource_embedded_dataviewer', width="960",
+                  height="800")
         m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_datapreview')
 
@@ -269,22 +272,21 @@ def make_map():
         m.connect('group_index', '/group', action='index',
                   highlight_actions='index search')
         m.connect('group_list', '/group/list', action='list')
-        m.connect('group_new',  '/group/new', action='new')
+        m.connect('group_new', '/group/new', action='new')
         m.connect('group_action', '/group/{action}/{id}',
-          requirements=dict(action='|'.join([
-          'edit',
-          'delete',
-          'members',
-          'member_new',
-          'member_delete',
-          'history',
-          'followers',
-          'follow',
-          'unfollow',
-          'admins',
-          'activity',
-          ]))
-          )
+                  requirements=dict(action='|'.join([
+                      'edit',
+                      'delete',
+                      'members',
+                      'member_new',
+                      'member_delete',
+                      'history',
+                      'followers',
+                      'follow',
+                      'unfollow',
+                      'admins',
+                      'activity',
+                  ])))
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-sign'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',
@@ -298,14 +300,13 @@ def make_map():
         m.connect('/organization/list', action='list')
         m.connect('/organization/new', action='new')
         m.connect('/organization/{action}/{id}',
-          requirements=dict(action='|'.join([
-          'delete',
-          'admins',
-          'member_new',
-          'member_delete',
-          'history'
-          ]))
-          )
+                  requirements=dict(action='|'.join([
+                      'delete',
+                      'admins',
+                      'member_new',
+                      'member_delete',
+                      'history'
+                  ])))
         m.connect('organization_activity', '/organization/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
@@ -317,7 +318,8 @@ def make_map():
                   action='edit', ckan_icon='edit')
         m.connect('organization_members', '/organization/members/{id}',
                   action='members', ckan_icon='group')
-        m.connect('organization_bulk_process', '/organization/bulk_process/{id}',
+        m.connect('organization_bulk_process',
+                  '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
     lib_plugins.register_package_plugins(map)
     lib_plugins.register_group_plugins(map)
@@ -325,7 +327,8 @@ def make_map():
     # tags
     map.redirect('/tags', '/tag')
     map.redirect('/tags/{url:.*}', '/tag/{url}')
-    map.redirect('/tag/read/{url:.*}', '/tag/{url}', _redirect_code='301 Moved Permanently')
+    map.redirect('/tag/read/{url:.*}', '/tag/{url}',
+                 _redirect_code='301 Moved Permanently')
     map.connect('/tag', controller='tag', action='index')
     map.connect('/tag/{id}', controller='tag', action='read')
     # users

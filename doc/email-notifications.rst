@@ -1,6 +1,8 @@
-=================================
-Send Email Notifications to Users
-=================================
+.. _email-notifications:
+
+===================
+Email Notifications
+===================
 
 CKAN can send email notifications to users, for example when a user has new
 activities on her dashboard. Once email notifications have been enabled by a
@@ -36,42 +38,37 @@ notifications for a CKAN site, a sysadmin must:
      Since ``send_email_notifications`` is an API action, it can be called from
      a machine other than the server on which CKAN is running, simply by
      POSTing an HTTP request to the CKAN API (you must be a sysadmin to call
-     this particular API action). See :ref:`action-api`.
+     this particular API action). See :doc:`api`.
 
 
 2. CKAN will not send out any email notifications, nor show the email
    notifications preference to users, unless the
-   ``ckan.activity_streams_email_notifications`` option is set to ``True``, so
+   :ref:`ckan.activity_streams_email_notifications` option is set to ``True``, so
    put this line in the ``[app:main]`` section of your CKAN config file::
 
     ckan.activity_streams_email_notifications = True
 
 
-3. Make sure that ``ckan.site_url`` is set correctly in the ``[app:main]``
+3. Make sure that :ref:`ckan.site_url` is set correctly in the ``[app:main]``
    section of your CKAN configuration file. This is used to generate links in
    the bodies of the notification emails. For example::
 
     ckan.site_url = http://publicdata.eu
 
-   .. warning::
-
-    The ``ckan.site_url`` setting should not have a trailing ``/`` on the end!
-
-
-4. Make sure that ``smtp.mail_from`` is set correctly in the ``[app:main]``
+4. Make sure that :ref:`smtp.mail_from` is set correctly in the ``[app:main]``
    section of your CKAN configuration file. This is the email address that
    CKAN's email notifications will appear to come from. For example::
 
     smtp.mail_from = mailman@publicdata.eu
 
-   This is combined with your ``ckan.site_title`` to form the ``From:`` header
+   This is combined with your :ref:`ckan.site_title` to form the ``From:`` header
    of the email that are sent, for example::
 
     From: PublicData.eu <mailmain@publicdata.eu>
 
 
 5. If you do not have an SMTP server running locally on the machine that hosts
-   your CKAN instance, you can use CKAN's SMTP settings to send email via an
+   your CKAN instance, you can change the :ref:`email-settings` to send email via an
    external SMTP server. For example, these settings in the ``[app:main]``
    section of your configuration file will send emails using a gmail account
    (not recommended for production websites!)::
@@ -85,6 +82,8 @@ notifications for a CKAN site, a sysadmin must:
 
 6. For the new configuration to take effect you need to restart the web server.
    For example if your are using Apache on Ubuntu, run this command in a
-   shell::
+   shell:
 
-    sudo service apache2 restart
+   .. parsed-literal::
+
+      |reload_apache|

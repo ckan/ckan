@@ -2,7 +2,6 @@ import inspect
 import os
 import re
 
-import pylons
 import paste.deploy.converters as converters
 import webhelpers.html.tags
 
@@ -74,6 +73,7 @@ class _Toolkit(object):
         import ckan.logic as logic
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
+        import ckan.common as common
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -82,9 +82,9 @@ class _Toolkit(object):
         t = self._toolkit
 
         # imported functions
-        t['_'] = pylons.i18n._
-        t['c'] = pylons.c
-        t['request'] = pylons.request
+        t['_'] = common._
+        t['c'] = common.c
+        t['request'] = common.request
         t['render'] = base.render
         t['render_text'] = base.render_text
         t['asbool'] = converters.asbool

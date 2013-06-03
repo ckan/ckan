@@ -9,23 +9,22 @@ import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.pdfpreview.plugin as previewplugin
-from ckan.lib.create_test_data import CreateTestData
-from ckan.config.middleware import make_app
+import ckan.lib.create_test_data as create_test_data
+import ckan.config.middleware as middleware
 
 
 class TestPdfPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         plugins.load('pdf_preview')
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.PdfPreview()
         cls.p.proxy_is_enabled = False
 
-        # create test resource
-        CreateTestData.create()
+        create_test_data.CreateTestData.create()
 
         context = {
             'model': model,
@@ -34,15 +33,17 @@ class TestPdfPreview(tests.WsgiAppCase):
         }
 
         cls.package = model.Package.get('annakarenina')
-        cls.resource = logic.get_action('resource_show')(context, {'id': cls.package.resources[1].id})
-        cls.resource['url'] = pylons.config.get('ckan.site_url', '//localhost:5000')
+        cls.resource = logic.get_action('resource_show')(
+            context, {'id': cls.package.resources[1].id})
+        cls.resource['url'] = pylons.config.get(
+            'ckan.site_url', '//localhost:5000')
         cls.resource['format'] = 'pdf'
         logic.action.update.resource_update(context, cls.resource)
 
     @classmethod
     def teardown_class(cls):
         plugins.unload('pdf_preview')
-        CreateTestData.delete()
+        create_test_data.CreateTestData.delete()
 
     def test_can_preview(self):
         data_dict = {
@@ -84,12 +85,14 @@ class TestPdfPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert (('preview_pdf.js' in result.body) or ('preview_pdf.min.js' in result.body))
+        assert (('preview_pdf.js' in result.body) or (
+            'preview_pdf.min.js' in result.body))
         assert 'preload_resource' in result.body
         assert 'data-module="pdfpreview"' in result.body
 
     def test_iframe_is_shown(self):
-        url = h.url_for(controller='package', action='resource_read', id=self.package.name, resource_id=self.resource['id'])
+        url = h.url_for(controller='package', action='resource_read',
+                        id=self.package.name, resource_id=self.resource['id'])
         result = self.app.get(url)
         assert 'data-module="data-viewer"' in result.body
         assert '<iframe' in result.body

@@ -14,7 +14,7 @@ def find_template(template_name):
     returns the full path is it exists. '''
     template_paths = config['pylons.app_globals'].template_paths
     for path in template_paths:
-        if os.path.exists(os.path.join(path, template_name)):
+        if os.path.exists(os.path.join(path, template_name.encode('utf-8'))):
             return os.path.join(path, template_name)
 
 def template_type(template_path):

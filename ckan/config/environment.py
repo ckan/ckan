@@ -9,7 +9,6 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
-from pylons.i18n import _, ungettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
@@ -22,10 +21,12 @@ import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+import ckan.lib.jinja_extensions as jinja_extensions
+
+from ckan.common import _, ungettext
 
 log = logging.getLogger(__name__)
 
-import lib.jinja_extensions
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
@@ -311,22 +312,22 @@ def update_config():
         template_paths, auto_reload=True, callback=template_loaded)
 
     # Create Jinja2 environment
-    env = lib.jinja_extensions.Environment(
-        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
+    env = jinja_extensions.Environment(
+        loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
         extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    lib.jinja_extensions.SnippetExtension,
-                    lib.jinja_extensions.CkanExtend,
-                    lib.jinja_extensions.CkanInternationalizationExtension,
-                    lib.jinja_extensions.LinkForExtension,
-                    lib.jinja_extensions.ResourceExtension,
-                    lib.jinja_extensions.UrlForStaticExtension,
-                    lib.jinja_extensions.UrlForExtension]
+                    jinja_extensions.SnippetExtension,
+                    jinja_extensions.CkanExtend,
+                    jinja_extensions.CkanInternationalizationExtension,
+                    jinja_extensions.LinkForExtension,
+                    jinja_extensions.ResourceExtension,
+                    jinja_extensions.UrlForStaticExtension,
+                    jinja_extensions.UrlForExtension]
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
-    env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
-    env.filters['truncate'] = lib.jinja_extensions.truncate
+    env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
+    env.filters['truncate'] = jinja_extensions.truncate
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override

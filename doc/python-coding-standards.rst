@@ -85,6 +85,8 @@ replacement field, for example::
 
 .. _new .format() method: http://docs.python.org/2/library/stdtypes.html#str.format
 
+.. _docstrings:
+
 Docstrings
 ----------
 

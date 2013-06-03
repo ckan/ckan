@@ -230,7 +230,8 @@ class PackageTag(vdm.sqlalchemy.RevisionedObjectMixin,
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
+        s = u'<PackageTag package=%s tag=%s>' % (self.package.name, self.tag.name)
+        return s.encode('utf8')
 
     def activity_stream_detail(self, activity_id, activity_type):
         if activity_type == 'new':
