@@ -191,10 +191,10 @@ def tag_show_rest(context, data_dict):
     return tag_show(context, data_dict)
 
 def get_site_user(context, data_dict):
-    if not context.get('ignore_auth'):
-        return {'success': False, 'msg': 'Only internal services allowed to use this action'}
-    else:
-        return {'success': True}
+    # FIXME this is available to sysadmins currently till
+    # @auth_sysadmins_check decorator is added
+    return {'success': False,
+            'msg': 'Only internal services allowed to use this action'}
 
 
 def member_roles_list(context, data_dict):
