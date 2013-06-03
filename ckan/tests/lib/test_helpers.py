@@ -177,3 +177,9 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')
+
+    def test_check_filestore(self):
+        config['ofs.impl'] = ''
+        assert_equal(False, h.check_filestore())
+        config['ofs.impl'] = 'pairtree'
+        assert_equal(True, h.check_filestore())

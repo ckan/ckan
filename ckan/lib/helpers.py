@@ -1550,6 +1550,14 @@ def SI_number_span(number):
         output = literal('<span title="' + formatters.localised_number(number) + '">')
     return output + formatters.localised_SI_number(number) + literal('<span>')
 
+
+def check_filestore():
+    '''Returns true if filestore is enabled'''
+    if not config.get('ofs.impl'):
+        return False
+    return True
+
+
 # add some formatter functions
 localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
@@ -1650,4 +1658,5 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'check_filestore',
 ]
