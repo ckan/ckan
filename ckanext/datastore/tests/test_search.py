@@ -440,6 +440,8 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
         if plugin.legacy_mode:
+            # make sure we undo adding the plugin
+            p.unload('datastore')
             raise nose.SkipTest("SQL tests are not supported in legacy mode")
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
