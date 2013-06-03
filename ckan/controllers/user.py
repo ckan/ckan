@@ -311,7 +311,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return h.redirect_to(controller='user', action='logged_in')
+            return h.redirect_to(controller='package', action='search')
 
     def logged_in(self):
         came_from = request.params.get('came_from', '')
