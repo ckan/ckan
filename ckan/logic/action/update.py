@@ -178,7 +178,6 @@ def resource_update(context, data_dict):
 
     _check_access('resource_update', context, data_dict)
 
-    # get the schema
     if 'schema' in context:
         schema = context['schema']
     else:
