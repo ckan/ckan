@@ -1,12 +1,17 @@
 import logging
 import pylons
+
+import sqlalchemy
+
+import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
-import sqlalchemy
+import ckanext.datastore.logic.schema as dsschema
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
+_validate = ckan.lib.navl.dictization_functions.validate
 
 
 def datastore_create(context, data_dict):
@@ -44,15 +49,13 @@ def datastore_create(context, data_dict):
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     '''
-    model = _get_or_bust(context, 'model')
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    if not model.Resource.get(res_id):
-        raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
-        ))
+    schema = context.get('schema', dsschema.datastore_create_schema())
+    records = data_dict.pop('records', None)
+    data_dict, errors = _validate(data_dict, schema, context)
+    if records:
+        data_dict['records'] = records
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
     p.toolkit.check_access('datastore_create', context, data_dict)
 
@@ -63,7 +66,7 @@ def datastore_create(context, data_dict):
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
-                'alias': ['{0} is not a valid alias name'.format(alias)]
+                'alias': ['"{0}" is not a valid alias name'.format(alias)]
             })
 
     result = db.create(context, data_dict)
@@ -106,12 +109,17 @@ def datastore_upsert(context, data_dict):
     :rtype: dictionary
 
     '''
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
+    schema = context.get('schema', dsschema.datastore_upsert_schema())
+    records = data_dict.pop('records', None)
+    data_dict, errors = _validate(data_dict, schema, context)
+    if records:
+        data_dict['records'] = records
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
+    res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
@@ -145,12 +153,17 @@ def datastore_delete(context, data_dict):
     :rtype: dictionary
 
     '''
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
+    schema = context.get('schema', dsschema.datastore_upsert_schema())
+    filters = data_dict.pop('filters', None)
+    data_dict, errors = _validate(data_dict, schema, context)
+    if filters:
+        data_dict['filters'] = filters
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
+    res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
@@ -222,12 +235,15 @@ def datastore_search(context, data_dict):
     :type records: list of dictionaries
 
     '''
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
+    schema = context.get('schema', dsschema.datastore_search_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.read_url',
-            pylons.config['ckan.datastore.write_url'])
+    res_id = data_dict['resource_id']
+    data_dict['connection_url'] = pylons.config.get(
+        'ckan.datastore.read_url',
+        pylons.config['ckan.datastore.write_url'])
 
     resources_sql = sqlalchemy.text(u'SELECT 1 FROM "_table_metadata" WHERE name = :id')
     results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
@@ -279,7 +295,7 @@ def datastore_search_sql(context, data_dict):
         raise p.toolkit.ValidationError({
             'query': ['Query is not a single statement or contains semicolons.'],
             'hint': [('If you want to use semicolons, use character encoding'
-                '(; equals chr(59)) and string concatenation (||). ')]
+                     '(; equals chr(59)) and string concatenation (||). ')]
         })
 
     p.toolkit.check_access('datastore_search', context, data_dict)

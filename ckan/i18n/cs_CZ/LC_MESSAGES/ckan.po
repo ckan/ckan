@@ -938,16 +938,16 @@ msgstr[2] "před {mins} minutami"
 #: ckan/lib/formatters.py:86
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] "před {mins} hodinou"
-msgstr[1] "před {mins} hodinami"
-msgstr[2] "před {mins} hodinami"
+msgstr[0] "před {hours} hodinou"
+msgstr[1] "před {hours} hodinami"
+msgstr[2] "před {hours} hodinami"
 
 #: ckan/lib/formatters.py:90
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] "před {mins} dnem"
-msgstr[1] "před {mins} dny"
-msgstr[2] "před {mins} dny"
+msgstr[0] "před {days} dnem"
+msgstr[1] "před {days} dny"
+msgstr[2] "před {days} dny"
 
 #: ckan/lib/formatters.py:97
 msgid "{month} {day}, {year}"

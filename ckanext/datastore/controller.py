@@ -7,7 +7,7 @@ import ckan.plugins as p
 import ckan.lib.base as base
 import ckan.model as model
 
-LARGE_NUMBER = 1e12
+from ckan.common import request
 
 
 class DatastoreController(base.BaseController):
@@ -20,7 +20,8 @@ class DatastoreController(base.BaseController):
 
         data_dict = {
             'resource_id': resource_id,
-            'limit': LARGE_NUMBER
+            'limit': request.GET.get('limit', 100000),
+            'offset': request.GET.get('offset', 0)
         }
 
         action = p.toolkit.get_action('datastore_search')

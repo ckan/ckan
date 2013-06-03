@@ -1,55 +1,16 @@
-==========
-Extensions
-==========
-
-Extensions customize CKAN or add new features. A CKAN extension is a Python
-package that contains one or more CKAN plugins that can be enabled.
-
-Built-in Extensions
--------------------
-
-CKAN comes with several pre-installed extensions:
-
-* :doc:`datastore` -- a database for structured storage of data
-
-* :doc:`multilingual` -- translate datasets, groups and tags into multiple
-  languages
-
-* Data preview extensions -- preview resources in the CKAN web interface:
-
-  * ``pdfpreview`` - Preview PDF files
-  * ``reclinepreview`` - Preview Google Documents, CSV files, Excel files,
-    etc. via the Recline.js library
-  * ``jsonpreview`` - Preview json files
-  * ``resourceproxy`` - Allow remotely hosted content to be viewed
-
-
-* :doc:`stats` - Show stats and visuals about your site's datasets
-
-External Extensions
--------------------
-
-Many other extensions are available to use with CKAN. These must be downloaded
-and installed separately. Each extension should come with its own instructions
-for how to install and configure it. For a list of external extensions, see the
-`list of extensions the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
-
-
-.. _writing-extensions:
-
-==================
+------------------
 Writing Extensions
-==================
+------------------
 
 .. note::
 
     A CKAN **extension** is a Python package that contains one or more
     **plugins**. A plugin is a class that implements one or more of CKAN's
-    **plugin interfaces**.
+    **plugin interfaces** to customize CKAN or add new features.
 
 
 Plugins: An Overview
---------------------
+====================
 
 Plugins are created as classes inheriting from either the `Plugin` or
 `SingletonPlugin` base classes.  Most Extensions use the `SingletonPlugin`
@@ -69,7 +30,7 @@ have not defined.
     without this risk.
 
 Libraries Available To Extensions
----------------------------------
+=================================
 
 As well as using the variables made available to them by implementing
 various plugin hooks, extensions will likely want to be able to use parts of
@@ -79,9 +40,14 @@ stable, backward-compatible and with clear deprecation guidelines as
 development of CKAN core progresses.  This interface is available in
 :doc:`toolkit`.
 
+.. toctree::
+   :hidden:
+
+   toolkit
+
 
 Example Extension
------------------
+=================
 
 ::
 
@@ -106,8 +72,8 @@ Example Extension
             # is used to return a dict of named helper functions.
             return {'hello_world': hello_world}
 
-Guidelines for writing extensions:
-----------------------------------
+Guidelines for writing extensions
+=================================
 
 - Use the plugins :doc:`toolkit`.
 
@@ -122,7 +88,7 @@ Guidelines for writing extensions:
 
 
 Creating CKAN Extensions
-------------------------
+========================
 
 All CKAN extensions must start with the name ``ckanext-``. You can create
 your own CKAN extension like this (you must be in your CKAN pyenv):
@@ -157,7 +123,7 @@ Testing
 =======
 
 Testing CKAN Extensions
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
 
@@ -167,7 +133,7 @@ CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN `
 
 
 Testing Plugins
-~~~~~~~~~~~~~~~
+---------------
 
 When writing tests for your plugin code you will need setup and teardown code
 similar to the following to ensure that your plugin is loaded while testing::
@@ -212,17 +178,21 @@ At this point you should be able to write your own plugins and extensions
 together with their tests.
 
 
+.. _plugin-reference:
+
 Plugin API Documentation
 ========================
 
 Core Plugin Reference
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 .. automodule:: ckan.plugins.core
         :members:  SingletonPlugin, Plugin, implements
 
 CKAN Interface Reference
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 .. automodule:: ckan.plugins.interfaces
         :members:
+
+
