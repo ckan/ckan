@@ -321,7 +321,7 @@ class PackageSearchQuery(SearchQuery):
             query['defType'] = 'dismax'
             query['tie'] = '0.1'
             if boolean == 'any':
-                query['mm'] = '1'
+                query['mm'] = '0'
             elif boolean == 'all':
                 query['mm'] = '100%'
             elif boolean == 'exact':
