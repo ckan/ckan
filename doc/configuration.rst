@@ -32,7 +32,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats json_preview recline_preview
+        ckan.plugins = stats text_preview recline_preview
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
@@ -513,11 +513,13 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
+Default value: ``stats text_preview recline_preview``
+
 Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
 
 .. _ckan.datastore.enabled:
 
@@ -550,6 +552,8 @@ This controls if we'll use the 1 day cache for stats.
 
 Front-End Settings
 ------------------
+
+.. start_config-front-end
 
 .. _ckan.site_title:
 
@@ -734,9 +738,9 @@ ckan.preview.direct
 
 Example::
 
- ckan.preview.direct = png jpg gif
+ ckan.preview.direct = png jpg jpeg gif
 
-Default value: ``png jpg gif``
+Default value: ``png jpg jpeg gif``
 
 Defines the resource formats which should be embedded directly in an ``img`` tag
 when previewing them.
@@ -753,7 +757,7 @@ Example::
 Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
 
 Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them.
+tag when previewing them if no :doc:`data-viewer` can preview it.
 
 .. _ckan.dumps_url:
 
@@ -766,7 +770,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :doc:`database-dumps`.
+For more information on using dumpfiles, see :ref:`paster db`.
 
 .. _ckan.dumps_format:
 
@@ -849,8 +853,12 @@ receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
 
+.. end_config-front-end
+
 Theming Settings
 ----------------
+
+.. start_config-theming
 
 .. _ckan.template_head_end:
 
@@ -935,6 +943,8 @@ To customise the display of CKAN you can supply replacements for static files su
 For more information on theming, see :doc:`theming`.
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
+
+.. end_config-theming
 
 Storage Settings
 ----------------
@@ -1333,8 +1343,8 @@ Examples::
 
 .. _email-settings:
 
-E-mail Settings
----------------
+Email Settings
+--------------
 
 .. _smtp.server:
 

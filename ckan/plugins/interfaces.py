@@ -855,9 +855,9 @@ class IGroupForm(Interface):
 class IFacets(Interface):
     ''' Allows specify which facets are displayed and also the names used.
 
-    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
-    to allow translatable dispaly names use _(...)
-    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    facet_dicts are in the form {'facet_name': 'display name', ...}
+    to allow translatable display names use _(...)
+    eg {'facet_name': _('display name'), ...} and ensure that this is
     created each time the function is called.
 
     The dict supplied is actually an ordered dict.

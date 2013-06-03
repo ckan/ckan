@@ -8,22 +8,23 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.pdfpreview.plugin as previewplugin
+import ckanext.textpreview.plugin as previewplugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
 
-class TestPdfPreview(tests.WsgiAppCase):
+class TestTextPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
         cls._original_config = config.copy()
-        config['ckan.plugins'] = 'pdf_preview'
+        config['ckan.plugins'] = 'text_preview'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
-        cls.p = previewplugin.PdfPreview()
+        cls.p = previewplugin.TextPreview()
 
+        # create test resource
         create_test_data.CreateTestData.create()
 
         context = {
@@ -37,7 +38,6 @@ class TestPdfPreview(tests.WsgiAppCase):
             context, {'id': cls.package.resources[1].id})
         cls.resource['url'] = pylons.config.get(
             'ckan.site_url', '//localhost:5000')
-        cls.resource['format'] = 'pdf'
         logic.action.update.resource_update(context, cls.resource)
 
     @classmethod
@@ -50,7 +50,14 @@ class TestPdfPreview(tests.WsgiAppCase):
     def test_can_preview(self):
         data_dict = {
             'resource': {
-                'format': 'pdf',
+                'format': 'jsonp'
+            }
+        }
+        assert self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
+                'format': 'json',
                 'on_same_domain': True
             }
         }
@@ -58,7 +65,7 @@ class TestPdfPreview(tests.WsgiAppCase):
 
         data_dict = {
             'resource': {
-                'format': 'x-pdf',
+                'format': 'xml',
                 'on_same_domain': True
             }
         }
@@ -66,7 +73,7 @@ class TestPdfPreview(tests.WsgiAppCase):
 
         data_dict = {
             'resource': {
-                'format': 'pdf',
+                'format': 'txt',
                 'on_same_domain': True
             }
         }
@@ -74,7 +81,15 @@ class TestPdfPreview(tests.WsgiAppCase):
 
         data_dict = {
             'resource': {
-                'format': 'pdf',
+                'format': 'foo',
+                'on_same_domain': True
+            }
+        }
+        assert not self.p.can_preview(data_dict)
+
+        data_dict = {
+            'resource': {
+                'format': 'json',
                 'on_same_domain': False
             }
         }
@@ -87,10 +102,22 @@ class TestPdfPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert (('preview_pdf.js' in result.body) or (
-            'preview_pdf.min.js' in result.body))
-        assert 'preload_resource' in result.body
-        assert 'data-module="pdfpreview"' in result.body
+        assert ((('preview_text.js' in result.body)
+                or ('preview_text.min.js' in result.body))), result.body
+        assert ((('highlight.pack.js' in result.body)
+                or ('highlight.pack.js' in result.body))), result.body
+        assert 'preload_resource' in result.body, result.body
+        assert 'data-module="textpreview"' in result.body, result.body
+
+    def test_css_included(self):
+        res_id = self.resource['id']
+        pack_id = self.package.name
+        url = '/dataset/{0}/resource/{1}/preview'.format(pack_id, res_id)
+        result = self.app.get(url, status='*')
+
+        assert result.status == 200, result.status
+        assert 'text.css' in result.body, result.body
+        assert 'github.css' in result.body, result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read',

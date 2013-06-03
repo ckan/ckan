@@ -49,6 +49,12 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |solr| replace:: Solr
+.. |restructuredtext| replace:: reStructuredText
+.. |nginx| replace:: Nginx
+.. |sqlite| replace:: SQLite
+.. |python| replace:: Python
+.. |sqlalchemy| replace:: SQLAlchemy
+.. |javascript| replace:: JavaScript
 
 '''
 
@@ -149,7 +155,10 @@ html_theme_options = {
     }
 
 html_sidebars = {
-    '**':  ['localtoc.html', 'globaltoc.html']
+    '**':  ['relations.html', 'globaltoc.html'],
+    # There's no point in showing the table of contents in the sidebar on the
+    # table of contents page! So:
+    'index': ['relations.html'],
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
