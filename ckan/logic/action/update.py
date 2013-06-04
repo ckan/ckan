@@ -207,31 +207,26 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+    del context["resource"]
 
-    if 'schema' in context:
-        schema = context['schema']
+    package_id = resource.resource_group.package.id
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    for n, p in enumerate(pkg_dict['resources']):
+        if p['id'] == id:
+            break
     else:
-        package_plugin = lib_plugins.lookup_package_plugin(
-            resource.resource_group.package.type)
-        schema = package_plugin.update_package_schema()['resources']
+        logging.error('Could not find resource ' + id)
+        raise NotFound(_('Resource was not found.'))
+    pkg_dict['resources'][n] = data_dict
 
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name", "")
-
-    resource = model_save.resource_dict_save(data, context)
-    if not context.get('defer_commit'):
-        model.repo.commit()
-    return model_dictize.resource_dictize(resource, context)
-
+    return pkg_dict['resources'][n]
 
 
 def package_update(context, data_dict):
