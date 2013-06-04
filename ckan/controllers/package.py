@@ -118,11 +118,6 @@ class PackageController(BaseController):
     def search(self):
         from ckan.lib.search import SearchError
 
-        boolean = 'all'
-        if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
-            session['ext_boolean'] = request.GET['ext_boolean']
-            session.save()
-            boolean = request.GET.get('ext_boolean')
         package_type = self._guess_package_type()
 
         try:
@@ -130,6 +125,10 @@ class PackageController(BaseController):
             check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
+        if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
+            session['ext_boolean'] = request.GET['ext_boolean']
+            session.save()
 
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')

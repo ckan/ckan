@@ -99,11 +99,9 @@ class GroupController(BaseController):
         return render(self._index_template(group_type))
 
     def read(self, id):
-        boolean = 'all'
         if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
             session['ext_boolean'] = request.GET['ext_boolean']
             session.save()
-            boolean = request.GET.get('ext_boolean')
 
         from ckan.lib.search import SearchError
         group_type = self._get_group_type(id.split('@')[0])
@@ -123,10 +121,9 @@ class GroupController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
-
         try:
             description_formatted = ckan.misc.MarkdownFormat().to_html(
-            c.group_dict.get('description', ''))
+                c.group_dict.get('description', ''))
             c.description_formatted = genshi.HTML(description_formatted)
         except Exception, e:
             error_msg = "<span class='inline-warning'>%s</span>" %\
