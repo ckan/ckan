@@ -27,7 +27,7 @@ CKAN:
 
 #. Download the CKAN package::
 
-    wget http://packaging.ckan.org/python-ckan-2.0_amd64.deb
+    wget http://packaging.ckan.org/python-ckan_2.0_amd64.deb
 
    .. note:: If ``wget`` is not present, you can install it
        via::
@@ -36,7 +36,7 @@ CKAN:
 
 #. Install the CKAN package::
 
-    sudo dpkg -i python-ckan-2.0_amd64.deb
+    sudo dpkg -i python-ckan_2.0_amd64.deb
 
 .. note:: If you get the following error it means that for some reason the
  Apache WSGI module was not enabled::
