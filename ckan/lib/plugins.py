@@ -2,6 +2,7 @@ import logging
 
 from pylons import c
 from ckan.lib import base
+from ckan.lib.maintain import deprecate_context_item
 from ckan.lib.navl import dictization_functions
 from ckan import logic
 import logic.schema
