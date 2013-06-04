@@ -52,37 +52,41 @@
 {% if data.group_id %}
   <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
 {% endif %}
-{% set existing_org = data.owner_org or data.group_id %}
-{% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
-  {% set organizations_available = h.organizations_available('create_dataset') %}
-  {% if organizations_available %}
+
+{% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
+{% set dataset_has_organization = data.owner_org or data.group_id %}
+{% set organizations_available = h.organizations_available('create_dataset') %}
+{% set user_is_sysadmin = h.check_access('sysadmin') %}
+
+{% if organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+<div class="control-group">
+  <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+  <div class="controls">
+    <select id="field-organizations" name="owner_org" data-module="autocomplete">
+      <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
+      {% for organization in organizations_available %}
+        {# get out first org from users list only if there is not an existing org #}
+        {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
+        <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+{% endif %}
+
+{% if dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+  {% block package_metadata_fields_visibility %}
     <div class="control-group">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
       <div class="controls">
-        <select id="field-organizations" name="owner_org" data-module="autocomplete">
-          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
-          {% for organization in organizations_available %}
-            {# get out first org from users list only if there is not an existing org #}
-            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
-            <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
+        <select id="field-private" name="private" data-module="autocomplete">
+          {% for option in [(true, _('Private')), (false, _('Public'))] %}
+          <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
           {% endfor %}
         </select>
       </div>
     </div>
-  {% endif %}
+  {% endblock %}
 {% endif %}
-
-{% block package_metadata_fields_visibility %}
-  <div class="control-group">
-    <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-    <div class="controls">
-      <select id="field-private" name="private" data-module="autocomplete">
-        {% for option in [(true, _('Private')), (false, _('Public'))] %}
-        <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-{% endblock %}
 
 {% endblock %}
