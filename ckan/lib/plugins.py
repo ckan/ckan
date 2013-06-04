@@ -192,6 +192,7 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licenses = [('', '')] + base.model.Package.get_license_options()
+        # CS: bad_spelling ignore 2 lines
         c.licences = c.licenses
         deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
