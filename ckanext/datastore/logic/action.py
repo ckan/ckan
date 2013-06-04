@@ -273,7 +273,7 @@ def datastore_search_sql(context, data_dict):
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
 
     .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
-        It is not available in :ref:`legacy mode<legacy_mode>`.
+        It is not available in :ref:`legacy mode<legacy-mode>`.
 
     :param sql: a single sql select statement
     :type sql: string

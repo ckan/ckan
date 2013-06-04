@@ -2,19 +2,24 @@
 DataStore Extension
 ===================
 
-.. todo::
-
-   What features does the datastore actually provide that users care about?
-   Why would they want to use it?
-
-   - API for reading, writing data without downloading, uploading entire file
-   - Enables Recline previews
-   - API for searching data, including search across resources
-
-The CKAN DataStore provides a database for structured storage of data together
+The CKAN DataStore provides an *ad hoc* database for structured storage of data together
 with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
-interface and authorization system. At the same time, we kept the layer between the
+API and authorization system. At the same time, we kept the layer between the
 underlying database and the user as thin as possible.
+
+The CKAN DataStore offers an API for reading, searching and filtering data without
+the need to download the entire file first. The DataStore is an ad hoc database which
+means that it is a collection of tables with unknown relationships. This allows
+you to search in one DataStore resource (a *table* in the database) as well as queries
+across DataStore resources.
+
+Data can be written incrementally to the DataStore through the API. New data can be
+inserted, existing data can be updated or deleted. You can also add a new column to
+an existing table even if the DataStore resource already contains some data.
+
+A DataStore resource can not be created on its own. It is always required to have an
+associated CKAN resource. If data is stored in the DataStore, it will automatically be
+previewed by the :ref:`recline preview extension <data-explorer>`.
 
 .. contents::
    :depth: 1
@@ -45,7 +50,7 @@ Setting up the DataStore
    DataStore on versions prior to 9.0 (for example 8.4). However, the
    :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be
    available and the set-up is slightly different. Make sure, you read
-   :ref:`legacy_mode` for more details.
+   :ref:`legacy-mode` for more details.
 
 .. warning::
 
@@ -63,7 +68,7 @@ Add the ``datastore`` plugin to your CKAN config file::
 
 .. warning:: Make sure that you follow the steps in `Set Permissions`_ below correctly. Wrong settings could lead to serious security issues.
 
-The DataStore requires a separate PostgreSQL database to save the resources to.
+The DataStore requires a separate PostgreSQL database to save the DataStore resources to.
 
 List existing databases::
 
@@ -118,7 +123,7 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set Permissions
 ---------------
 
-.. tip:: See :ref:`legacy_mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
+.. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. Since there are different set-ups, there are different ways of setting the permissions. Only **one** of the options should be used.
 
@@ -170,19 +175,19 @@ Copy the ``set_permissions.sql`` file to the server that the database runs on. M
 ==================
 
 The DataStore is now set-up. To test the set-up, (re)start CKAN and run the
-following command to list all resources that are in the DataStore::
+following command to list all DataStore resources::
 
  curl -X GET "http://127.0.0.1:5000/api/3/action/datastore_search?resource_id=_table_metadata"
 
 This should return a JSON page without errors.
 
-To test the whether the set-up allows writing, you can create a new resource in
-the DataStore. To do so, run the following command:: 
+To test the whether the set-up allows writing, you can create a new DataStore resource.
+To do so, run the following command::
 
  curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
-Replace ``{YOUR-API-KEY}`` with a valid API key and ``{RESOURCE-ID}`` with a
-resource id of an existing CKAN resource.
+Replace ``{YOUR-API-KEY}`` with a valid API key and ``{RESOURCE-ID}`` with the
+id of an existing CKAN resource.
 
 A table named after the resource id should have been created on your DataStore
 database. Visiting this URL should return a response from the DataStore with
@@ -192,12 +197,12 @@ the records inserted above::
 
 You can now delete the DataStore table with::
 
-    curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}' 
+    curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
 
 To find out more about the DataStore API, see `The DataStore API`_.
 
 
-.. _legacy_mode:
+.. _legacy-mode:
 
 Legacy mode: use the DataStore with old PostgreSQL versions
 ===========================================================
@@ -278,7 +283,7 @@ Example::
 Records
 -------
 
-A record is the data to be inserted in a table and is defined as follows::
+A record is the data to be inserted in a DataStore resource and is defined as follows::
 
     {
         "<id>":  # data to be set
@@ -332,7 +337,7 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
-.. _resource_aliases:
+.. _resource-aliases:
 
 Resource aliases
 ----------------
@@ -372,7 +377,7 @@ Internal structure of the database
 
 The DataStore is a thin layer on top of a PostgreSQL database. Each DataStore resource belongs to a CKAN resource. The name of a table in the DataStore is always the resource id of the CKAN resource for the data.
 
-As explained in :ref:`resource_aliases`, a resource can have mnemonic aliases which are stored as views in the database.
+As explained in :ref:`resource-aliases`, a resource can have mnemonic aliases which are stored as views in the database.
 
 All aliases (views) and resources (tables respectively relations) of the DataStore can be found in a special view called ``_table_metadata``. To access the list, open ``http://{YOUR-CKAN-INSTALLATION}/api/3/action/datastore_search?resource_id=_table_metadata``.
 

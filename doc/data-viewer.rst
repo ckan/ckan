@@ -76,6 +76,7 @@ Note that these documents will be directly linked by the browser, so the
 way in which they are shown may vary. If you want to ensure for instance that
 XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
 
+.. _data-explorer:
 
 Viewing structured data: the Data Explorer
 ------------------------------------------
