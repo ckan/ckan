@@ -63,7 +63,7 @@ class TestPackage:
         from ckan import logic
         context = {'model': ckan.model,
                    'session': ckan.model.Session}
-        schema = ckan.logic.schema.default_package_schema()
+        schema = ckan.logic.schema.default_create_package_schema()
         schema.update({
             'my_field': [logic.converters.convert_from_extras]
         })
