@@ -145,13 +145,15 @@ class TestAction(WsgiAppCase):
         assert_equal(pkg['isopen'], False)
 
     def test_08_user_create_not_authorized(self):
-        postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
+        postparams = '%s=1' % json.dumps(
+                {'name':'test_create_from_action_api', 'password':'testpass'})
         res = self.app.post('/api/action/user_create', params=postparams,
-                            status=StatusCodes.STATUS_403_ACCESS_DENIED)
+                            status=StatusCodes.STATUS_409_CONFLICT)
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
-        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
+        assert res_obj['error'] == {u'__type': u'Validation Error',
+                u'email': [u'Missing value']}
 
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',
