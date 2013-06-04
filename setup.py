@@ -67,7 +67,7 @@ setup(
     main = ckan.config.middleware:make_app
 
     [paste.app_install]
-    main = pylons.util:PylonsInstaller
+    main = ckan.config.install:CKANInstaller
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
@@ -78,8 +78,6 @@ setup(
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     notify = ckan.lib.cli:Notification
-    rights = ckan.lib.authztool:RightsCommand
-    roles = ckan.lib.authztool:RolesCommand
     celeryd = ckan.lib.cli:Celery
     rdf-export = ckan.lib.cli:RDFExport
     tracking = ckan.lib.cli:Tracking
@@ -123,16 +121,17 @@ setup(
     datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
-    json_preview=ckanext.jsonpreview.plugin:JsonPreview
+    text_preview=ckanext.textpreview.plugin:TextPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
+    example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
     [babel.extractors]
-	    ckan = ckan.lib.extract:extract_ckan
+    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

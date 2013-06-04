@@ -1,32 +1,33 @@
-import sys
 from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang
 
-from ckan.logic import NotAuthorized, check_access
+import ckan.logic as logic
+import ckan.lib.base as base
+import ckan.model as model
+import ckan.lib.helpers as h
 
-from ckan.lib.base import *
-from ckan.lib.helpers import Page
+from ckan.common import _, c, request
 
 
-class RevisionController(BaseController):
+class RevisionController(base.BaseController):
 
     def __before__(self, action, **env):
-        BaseController.__before__(self, action, **env)
+        base.BaseController.__before__(self, action, **env)
 
         context = {'model': model, 'user': c.user or c.author}
         if c.user:
             try:
-                check_access('revision_change_state', context)
+                logic.check_access('revision_change_state', context)
                 c.revision_change_state_allowed = True
-            except NotAuthorized:
+            except logic.NotAuthorized:
                 c.revision_change_state_allowed = False
         else:
             c.revision_change_state_allowed = False
         try:
-            check_access('site_read', context)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            logic.check_access('site_read', context)
+        except logic.NotAuthorized:
+            base.abort(401, _('Not authorized to see this page'))
 
     def index(self):
         return self.list()
@@ -127,20 +128,20 @@ class RevisionController(BaseController):
             return feed.writeString('utf-8')
         else:
             query = model.Session.query(model.Revision)
-            c.page = Page(
+            c.page = h.Page(
                 collection=query,
                 page=request.params.get('page', 1),
                 url=h.pager_url,
                 items_per_page=20
             )
-            return render('revision/list.html')
+            return base.render('revision/list.html')
 
     def read(self, id=None):
         if id is None:
-            abort(404)
+            base.abort(404)
         c.revision = model.Session.query(model.Revision).get(id)
         if c.revision is None:
-            abort(404)
+            base.abort(404)
 
         pkgs = model.Session.query(model.PackageRevision).\
             filter_by(revision=c.revision)
@@ -152,11 +153,11 @@ class RevisionController(BaseController):
         grps = model.Session.query(model.GroupRevision).\
             filter_by(revision=c.revision)
         c.groups = [grp.continuity for grp in grps]
-        return render('revision/read.html')
+        return base.render('revision/read.html')
 
     def diff(self, id=None):
         if 'diff' not in request.params or 'oldid' not in request.params:
-            abort(400)
+            base.abort(400)
         c.revision_from = model.Session.query(model.Revision).get(
             request.params.getone('oldid'))
         c.revision_to = model.Session.query(model.Revision).get(
@@ -170,23 +171,23 @@ class RevisionController(BaseController):
             c.group = model.Group.by_name(id)
             diff = c.group.diff(c.revision_to, c.revision_from)
         else:
-            abort(400)
+            base.abort(400)
 
         c.diff = diff.items()
         c.diff.sort()
-        return render('revision/diff.html')
+        return base.render('revision/diff.html')
 
     def edit(self, id=None):
         if id is None:
-            abort(404)
+            base.abort(404)
         revision = model.Session.query(model.Revision).get(id)
         if revision is None:
-            abort(404)
+            base.abort(404)
         action = request.params.get('action', '')
         if action in ['delete', 'undelete']:
             # this should be at a lower level (e.g. logic layer)
             if not c.revision_change_state_allowed:
-                abort(401)
+                base.abort(401)
             if action == 'delete':
                 revision.state = model.State.DELETED
             elif action == 'undelete':

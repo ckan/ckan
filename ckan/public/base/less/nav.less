@@ -5,6 +5,8 @@
 
 .nav-item > a {
   color: @navLinkColor;
+  font-size: @baseFontSize;
+  line-height: @baseLineHeight;
   margin: -7px -@gutterX;
   padding: 7px @gutterX;
 }
@@ -27,8 +29,8 @@
     top: 0;
     right: -6px;
     width: 6px;
-    height: 28px;
-    background-image: url("@{imagePath}/nav-active.png");
+    height: 34px;
+    background-image: url("@{imagePath}/nav-active.png?1");
   }
 }
 
@@ -36,11 +38,6 @@
   white-space: nowrap;
   overflow:hidden;
   display:block;
-}
-
-.nav-item [class^=icon] {
-  font-size: 1.2em;
-  margin: -1px 0 -1px -1px;
 }
 
 .module-narrow .nav-item > a {
@@ -89,30 +86,6 @@
   right: 3px;
 }
 
-.nav-group {
-  margin-bottom: 0;
-  li {
-    margin: 5px;
-    a {
-      overflow: hidden;
-      height: 25px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      .border-radius(4px);
-      img {
-        margin-right: 3px;
-        .border-radius(4px);
-      }
-      &:hover {
-        background-color: transparent;
-        span {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-}
-
 .user-list {
   .unstyled;
   li {
@@ -122,5 +95,55 @@
     vertical-align: -4px;
     margin-right: 3px;
     .border-radius(100px);
+  }
+}
+
+.nav-facet-tertiary {
+  margin: 10px 0;
+  .module-heading {
+    margin-bottom: 5px;
+    padding: 8px 12px;
+    border-bottom-width: 0;
+    .border-radius(5px);
+    i {
+      display: none;
+    }
+  }
+  .module-footer {
+    padding: 8px 12px;
+    border-top-width: 0;
+    a {
+      font-weight: normal;
+      color: #8C8C8C;
+    }
+  }
+  .nav {
+    margin-bottom: 0;
+  }
+  .module-content.empty {
+    padding: 8px 12px;
+    margin-top: 0;
+  }
+  .nav li.active {
+    position: relative;
+  }
+  .nav li.active > a:hover:after,
+  .nav li.active > a:after {
+    .ckan-icon;
+    .ckan-icon-circle-cross;
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    margin-top: -8px;
+  }
+}
+
+.nav-simple > .nav-btn {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  .btn {
+    display: inline-block;
   }
 }

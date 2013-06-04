@@ -39,6 +39,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
+                                   resource_id_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
                                    owner_org_validator,
@@ -50,6 +51,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
 from formencode.validators import OneOf
 import ckan.model
+import ckan.lib.maintain as maintain
 
 def default_resource_schema():
 
@@ -112,10 +114,11 @@ def default_create_tag_schema():
     schema['id'] = [empty]
     return schema
 
-def default_package_schema():
 
+def default_create_package_schema():
     schema = {
-        'id': [ignore_missing, unicode, package_id_exists],
+        '__before': [duplicate_extras_key, ignore],
+        'id': [empty],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
@@ -130,11 +133,16 @@ def default_package_schema():
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
+        'log_message': [ignore_missing, unicode, no_http],
+        'private': [ignore_missing, boolean_validator],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
+        'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
+        'save': [ignore],
+        'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
         'relationships_as_subject': default_relationship_schema(),
         'groups': {
@@ -146,54 +154,31 @@ def default_package_schema():
     }
     return schema
 
-def default_create_package_schema():
-
-    schema = default_package_schema()
-    schema["id"] = [empty]
-
-    return schema
-
 def default_update_package_schema():
+    schema = default_create_package_schema()
 
-    schema = default_package_schema()
-    schema["id"] = [ignore_missing, package_id_not_changed]
-    schema["name"] = [ignore_missing, name_validator, package_name_validator, unicode]
-    schema["title"] = [ignore_missing, unicode]
+    # Users can (optionally) supply the package id when updating a package, but
+    # only to identify the package to be updated, they cannot change the id.
+    schema['id'] = [ignore_missing, package_id_not_changed]
 
-    schema['private'] = [ignore_missing, boolean_validator]
+    # Supplying the package name when updating a package is optional (you can
+    # supply the id to identify the package instead).
+    schema['name'] = [ignore_missing, name_validator, package_name_validator,
+            unicode]
+
+    # Supplying the package title when updating a package is optional, if it's
+    # not supplied the title will not be changed.
+    schema['title'] = [ignore_missing, unicode]
+
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
-    return schema
-
-def package_form_schema():
-    # This function is deprecated and was replaced by
-    # form_to_db_package_schema(), it remains here for backwards compatibility.
-    return form_to_db_package_schema()
-
-def form_to_db_package_schema():
-
-    schema = default_package_schema()
-    ##new
-    schema['log_message'] = [ignore_missing, unicode, no_http]
-    schema['groups'] = {
-            'id': [ignore_missing, unicode],
-            '__extras': [ignore],
-    }
-    schema['tag_string'] = [ignore_missing, tag_string_convert]
-    schema['extras_validation'] = [duplicate_extras_key, ignore]
-    schema['save'] = [ignore]
-    schema['return_to'] = [ignore]
-    schema['type'] = [ignore_missing, unicode]
-
-    ##changes
-    schema.pop("id")
-    schema.pop('relationships_as_object')
-    schema.pop('revision_id')
-    schema.pop('relationships_as_subject')
 
     return schema
 
-def db_to_form_package_schema():
-    schema = default_package_schema()
+def default_show_package_schema():
+    schema = default_create_package_schema()
+
+    # Don't strip ids from package dicts when validating them.
+    schema['id'] = []
 
     schema.update({
         'tags': {'__extras': [ckan.lib.navl.validators.keep_extras]}})
@@ -243,7 +228,7 @@ def db_to_form_package_schema():
     schema['url'] = []
     schema['version'] = []
 
-    # Add several keys that are missing from default_package_schema(), so
+    # Add several keys that are missing from default_create_package_schema(), so
     # validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
@@ -465,14 +450,15 @@ def default_create_activity_schema():
     schema = {
         'id': [ignore],
         'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'user_id': [not_missing, not_empty, unicode,
+            convert_user_name_or_id_to_id],
         'object_id': [not_missing, not_empty, unicode, object_id_validator],
         # We don't bother to validate revision ID, since it's always created
         # internally by the activity_create() logic action function.
         'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode,
             activity_type_exists],
-        'data': [ignore_empty, ignore_missing, unicode],
+        'data': [ignore_empty, ignore_missing],
     }
     return schema
 

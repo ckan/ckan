@@ -11,37 +11,44 @@
   <li class="active"><a href="">{{ h.resource_display_name(res)|truncate(30) }}</a></li>
 {% endblock %}
 
-{% block actions_content %}
-
-  {% if h.check_access('package_update', {'id':pkg.id }) %}
-    <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
-  {% endif %}
-
-  {% if res.url %}
-    <li>
-      <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
-        {% if res.resource_type in ('listing', 'service') %}
-          <i class="icon-eye-open"></i> {{ _('View') }}
-        {% elif  res.resource_type == 'api' %}
-          <i class="icon-key"></i> {{ _('API Endpoint') }}
-        {% else %}
-          <i class="icon-download"></i> {{ _('Download') }}
-        {%endif %}
-      </a>
-    </li>
-  {% endif %}
-
-  {% if 'datastore' in g.plugins %}
-    <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
-  {% endif %}
-{% endblock %}
-
 {% block pre_primary %}
   {% block resource %}
     <section class="module module-resource">
       <div class="module-content">
+        <div class="actions">
+          {% block resource_actions %}
+          <ul>
+            {% block resource_actions_inner %}
+            {% if h.check_access('package_update', {'id':pkg.id }) %}
+              <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+            {% endif %}
+            {% if res.url %}
+              <li>
+                <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+                  {% if res.resource_type in ('listing', 'service') %}
+                    <i class="icon-eye-open"></i> {{ _('View') }}
+                  {% elif  res.resource_type == 'api' %}
+                    <i class="icon-key"></i> {{ _('API Endpoint') }}
+                  {% else %}
+                    <i class="icon-download"></i> {{ _('Download') }}
+                  {% endif %}
+                </a>
+              </li>
+            {% endif %}
+            {% if 'datastore' in g.plugins %}
+              <li>{% snippet 'package/snippets/data_api_button.html', resource=res, datastore_root_url=c.datastore_api %}</li>
+            {% endif %}
+            {% endblock %}
+          </ul>
+          {% endblock %}
+        </div>
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+          {% block resource_read_url %}
+            {% if res.url %}
+              <p class="muted ellipsis">{{ _('URL:') }} <a href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+            {% endif %}
+          {% endblock %}
           <div class="prose notes" property="rdfs:label">
             {% if res.description %}
               {{ h.render_markdown(res.description) }}
@@ -68,17 +75,33 @@
     {% if res %}
       <section class="module">
         <div class="module-content">
-          <h2>Additional Information</h2>
-          <table class="table table-striped table-bordered table-condensed">
+          <h2>{{ _('Additional Information') }}</h2>
+          <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
             <thead>
               <tr>
-                <th scope="col">Field</th>
-                <th scope="col">Value</th>
+                <th scope="col">{{ _('Field') }}</th>
+                <th scope="col">{{ _('Value') }}</th>
               </tr>
             </thead>
             <tbody>
+              <tr>
+                <th scope="row">{{ _('Last updated') }}</th>
+                <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('Created') }}</th>
+                <td>{{ h.render_datetime(res.created) or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('Format') }}</th>
+                <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{ _('License') }}</th>
+                <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
+              </tr>
               {% for key, value in h.format_resource_items(res.items()) %}
-                <tr><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
+                <tr class="toggle-more"><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
               {% endfor %}
             </tbody>
           </table>
@@ -89,16 +112,6 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% block resource_information %}
-    <section class="module module-narrow">
-      <h2 class="module-heading"><i class="icon-medium icon-info-sign"></i> Resource Information</h2>
-      <ul class="simple-list">
-        <li><i class="ckan-icon ckan-icon-calendar"></i> Last Updated: {{ h.render_datetime(res.last_modified) or _("unknown") }}</li>
-        <li><i class="ckan-icon ckan-icon-file"></i> Format: {{ res.mimetype_inner or res.mimetype or _("unknown") }}</li>
-        <li><i class="ckan-icon ckan-icon-lock"></i> {% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</li>
-      </ul>
-    </section>
-  {% endblock %}
 
   {% block resources_list %}
     {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id %}

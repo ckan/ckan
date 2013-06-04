@@ -1,16 +1,15 @@
 import ckan
-from pylons.test import pylonsapp
+import pylons.test
 import paste.fixture
-from ckan.lib.helpers import json
+import ckan.lib.helpers as helpers
 import ckan.lib.dictization.model_dictize as model_dictize
-import sqlalchemy
-from nose.tools import raises, assert_raises
+
 
 class TestVocabulary(object):
 
     @classmethod
     def setup_class(self):
-        self.app = paste.fixture.TestApp(pylonsapp)
+        self.app = paste.fixture.TestApp(pylons.test.pylonsapp)
 
     @classmethod
     def teardown_class(self):
@@ -27,15 +26,18 @@ class TestVocabulary(object):
         model.Session.add_all([genre, time_period, composers])
 
         self.genre_vocab = model_dictize.vocabulary_dictize(genre, context)
-        self.timeperiod_vocab = model_dictize.vocabulary_dictize(time_period, context)
-        self.composers_vocab = model_dictize.vocabulary_dictize(composers, context)
+        self.timeperiod_vocab = model_dictize.vocabulary_dictize(time_period,
+                context)
+        self.composers_vocab = model_dictize.vocabulary_dictize(composers,
+                context)
         ckan.model.Session.commit()
 
         self.sysadmin_user = ckan.model.User.get('admin')
         self.normal_user = ckan.model.User.get('normal')
         if not self.sysadmin_user:
             normal_user = ckan.model.User(name=u'normal', password=u'annafan')
-            sysadmin_user = ckan.model.User(name=u'admin', password=u'testsysadmin')
+            sysadmin_user = ckan.model.User(name=u'admin',
+                    password=u'testsysadmin')
             sysadmin_user.sysadmin = True
             ckan.model.Session.add(normal_user)
             ckan.model.Session.add(sysadmin_user)
@@ -55,7 +57,7 @@ class TestVocabulary(object):
     def _post(self, url, params=None, extra_environ=None):
         if params is None:
             params = {}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post(url, params=param_string,
                 extra_environ=extra_environ)
         assert not response.errors
@@ -66,14 +68,14 @@ class TestVocabulary(object):
         # Create a new vocabulary.
         params = {'name': vocab_name}
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
         response = self._post('/api/action/vocabulary_create', params=params,
                 extra_environ=extra_environ)
 
         # Check the values of the response.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         created_vocab = response['result']
         assert created_vocab['name'] == vocab_name
@@ -82,7 +84,7 @@ class TestVocabulary(object):
         # Get the list of vocabularies.
         response = self._post('/api/action/vocabulary_list')
         # Check that the vocabulary we created is in the list.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         assert response['result'].count(created_vocab) == 1
 
@@ -94,14 +96,14 @@ class TestVocabulary(object):
         assert response == self._post('/api/action/vocabulary_show',
                 by_name_params)
         # Check that it matches what we created.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] == created_vocab
 
         return created_vocab
 
     def _update_vocabulary(self, params, user=None):
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
 
@@ -112,20 +114,20 @@ class TestVocabulary(object):
                 extra_environ=extra_environ)
 
         # Check the values of the response.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         updated_vocab = response['result']
         # id should never change.
         assert updated_vocab['id'] == original_vocab['id']
-        if params.has_key('id'):
+        if 'id' in params:
             assert updated_vocab['id'] == params['id']
         # name should change only if given in params.
-        if params.has_key('name'):
+        if 'name' in params:
             assert updated_vocab['name'] == params['name']
         else:
             assert updated_vocab['name'] == original_vocab['name']
         # tags should change only if given in params.
-        if params.has_key('tags'):
+        if 'tags' in params:
             assert sorted([tag['name'] for tag in params['tags']]) \
                     == sorted([tag['name'] for tag in updated_vocab['tags']])
         else:
@@ -134,7 +136,7 @@ class TestVocabulary(object):
         # Get the list of vocabularies.
         response = self._post('/api/action/vocabulary_list')
         # Check that the vocabulary we created is in the list.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         assert response['result'].count(updated_vocab) == 1
 
@@ -146,14 +148,14 @@ class TestVocabulary(object):
         assert response == self._post('/api/action/vocabulary_show',
                 by_name_params)
         # Check that it matches what we created.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] == updated_vocab
 
         return updated_vocab
 
     def _delete_vocabulary(self, vocab_id, user=None):
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
         params = {'id': vocab_id}
@@ -161,36 +163,36 @@ class TestVocabulary(object):
                 extra_environ=extra_environ)
 
         # Check the values of the response.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] is None
         response['result']
 
         # Get the list of vocabularies.
         response = self._post('/api/action/vocabulary_list')
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         # Check that the vocabulary we deleted is not in the list.
         assert vocab_id not in [vocab['id'] for vocab in response['result']]
 
         # Check that the deleted vocabulary can no longer be retrieved.
         response = self.app.post('/api/action/vocabulary_show',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
 
     def _list_tags(self, vocabulary=None, user=None):
         params = {}
         if vocabulary:
             params['vocabulary_id'] = vocabulary['id']
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
         response = self._post('/api/action/tag_list', params=params,
                 extra_environ=extra_environ)
-        assert response['success'] == True
+        assert response['success'] is True
         return response['result']
 
     def _create_tag(self, user, tag_name, vocabulary=None):
@@ -198,12 +200,12 @@ class TestVocabulary(object):
         if vocabulary:
             tag_dict['vocabulary_id'] = vocabulary['id']
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
         response = self._post('/api/action/tag_create', params=tag_dict,
                 extra_environ=extra_environ)
-        assert response['success'] == True
+        assert response['success'] is True
         return response['result']
 
     def _delete_tag(self, user, tag_id_or_name, vocab_id_or_name=None):
@@ -211,12 +213,12 @@ class TestVocabulary(object):
         if vocab_id_or_name:
             params['vocabulary_id'] = vocab_id_or_name
         if user:
-            extra_environ = {'Authorization' : str(user.apikey)}
+            extra_environ = {'Authorization': str(user.apikey)}
         else:
             extra_environ = None
         response = self._post('/api/action/tag_delete', params=params,
                 extra_environ=extra_environ)
-        assert response['success'] == True
+        assert response['success'] is True
         return response['result']
 
     def test_vocabulary_create(self):
@@ -237,9 +239,8 @@ class TestVocabulary(object):
         params['tags'] = [tag1, tag2]
         response = self._post('/api/action/vocabulary_create',
                 params=params,
-                extra_environ = {'Authorization':
-                    str(self.sysadmin_apikey)})
-        assert response['success'] == True
+                extra_environ={'Authorization': str(self.sysadmin_apikey)})
+        assert response['success'] is True
         assert response['result']
         created_vocab = response['result']
         assert created_vocab['name'] == 'foobar'
@@ -248,7 +249,7 @@ class TestVocabulary(object):
         # Get the list of vocabularies.
         response = self._post('/api/action/vocabulary_list')
         # Check that the vocabulary we created is in the list.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result']
         assert response['result'].count(created_vocab) == 1
 
@@ -260,7 +261,7 @@ class TestVocabulary(object):
         assert response == self._post('/api/action/vocabulary_show',
                 by_name_params)
         # Check that it matches what we created.
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] == created_vocab
 
         # Get the list of tags for the vocabulary.
@@ -278,17 +279,16 @@ class TestVocabulary(object):
                 [{'name': 'foo'}, {'name': None}],
                 [{'name': 'foo'}, {'name': ''}],
                 [{'name': 'foo'}, {'name': 'f'}],
-                [{'name': 'f'*200}, {'name': 'foo'}],
+                [{'name': 'f' * 200}, {'name': 'foo'}],
                 [{'name': 'Invalid!'}, {'name': 'foo'}],
                 ):
             params = {'name': 'foobar', 'tags': tags}
             response = self.app.post('/api/action/vocabulary_create',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization':
-                        str(self.sysadmin_apikey)},
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization': str(self.sysadmin_apikey)},
                     status=409)
-            assert response.json['success'] == False
-            assert response.json['error'].has_key('tags')
+            assert response.json['success'] is False
+            assert 'tags' in response.json['error']
             assert len(response.json['error']) == 2
 
     def test_vocabulary_create_none_tags(self):
@@ -297,8 +297,8 @@ class TestVocabulary(object):
         '''
         params = {'name': 'foobar', 'tags': None}
         response = self.app.post('/api/action/vocabulary_create',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=400)
         assert "Integrity Error" in response.body
@@ -309,11 +309,11 @@ class TestVocabulary(object):
         '''
         params = {'name': 'foobar', 'tags': []}
         response = self.app.post('/api/action/vocabulary_create',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=200)
-        assert response.json['success'] == True
+        assert response.json['success'] is True
         assert response.json['result']
         created_vocab = response.json['result']
         assert created_vocab['name'] == 'foobar'
@@ -321,7 +321,7 @@ class TestVocabulary(object):
         assert created_vocab['tags'] == []
         params = {'id': created_vocab['id']}
         response = self._post('/api/action/vocabulary_show', params)
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] == created_vocab
         tags = self._list_tags(created_vocab)
         assert tags == []
@@ -332,13 +332,13 @@ class TestVocabulary(object):
 
         '''
         params = {'id': 'xxx', 'name': 'foobar'}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_create',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['id'] == [u'The input field id was '
             'not expected.']
 
@@ -348,13 +348,13 @@ class TestVocabulary(object):
 
         '''
         params = {}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_create',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['name'] == [u'Missing value']
 
     def test_vocabulary_create_invalid_name(self):
@@ -362,15 +362,15 @@ class TestVocabulary(object):
         invalid name.
 
         '''
-        for name in (None, '', 'a', 'foobar'*100):
+        for name in (None, '', 'a', 'foobar' * 100):
             params = {'name': name}
-            param_string = json.dumps(params)
+            param_string = helpers.json.dumps(params)
             response = self.app.post('/api/action/vocabulary_create',
                     params=param_string,
-                    extra_environ = {'Authorization':
+                    extra_environ={'Authorization':
                         str(self.sysadmin_apikey)},
                     status=409)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             assert response.json['error']['name']
 
     def test_vocabulary_create_exists(self):
@@ -379,13 +379,13 @@ class TestVocabulary(object):
 
         '''
         params = {'name': self.genre_vocab['name']}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_create',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['name'] == [u'That vocabulary name is '
             'already in use.']
 
@@ -394,24 +394,24 @@ class TestVocabulary(object):
 
         params = {'name':
             "Spam Vocabulary: SpamCo Duck Rental: Rent Your Ducks From Us!"}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_create',
                 params=param_string,
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_create_not_authorized(self):
         '''Test that users who are not authorized cannot create vocabs.'''
 
         params = {'name': 'My Unauthorised Vocabulary'}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_create',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.normal_user.apikey)},
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_update_id_only(self):
@@ -465,35 +465,35 @@ class TestVocabulary(object):
 
         '''
         params = {'id': 'xxxxxxx', 'name': 'updated_name'}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_update',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'].startswith('Not found: ')
 
     def test_vocabulary_update_no_id(self):
         params = {'name': 'bagel radio'}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_update',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
-        assert response.json['error'].has_key('id')
+        assert response.json['success'] is False
+        assert 'id' in response.json['error']
         assert response.json['error']['id'] == 'id not in data'
 
     def test_vocabulary_update_not_logged_in(self):
         '''Test that users who are not logged in cannot update vocabularies.'''
         params = {'id': self.genre_vocab['id']}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_update',
                 params=param_string,
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_update_with_tags(self):
@@ -521,13 +521,13 @@ class TestVocabulary(object):
     def test_vocabulary_update_not_authorized(self):
         '''Test that users who are not authorized cannot update vocabs.'''
         params = {'id': self.genre_vocab['id']}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_update',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.normal_user.apikey)},
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_update_bad_tags(self):
@@ -541,15 +541,15 @@ class TestVocabulary(object):
                 [{'name': 'foo'}, {'name': None}],
                 [{'name': 'foo'}, {'name': ''}],
                 [{'name': 'foo'}, {'name': 'f'}],
-                [{'name': 'f'*200}, {'name': 'foo'}],
+                [{'name': 'f' * 200}, {'name': 'foo'}],
                 [{'name': 'Invalid!'}, {'name': 'foo'}],
                 ):
             params = {'id': self.genre_vocab['name'], 'tags': tags}
             response = self.app.post('/api/action/vocabulary_update',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization': apikey},
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization': apikey},
                     status=409)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             assert response.json['error']['tags']
 
     def test_vocabulary_update_none_tags(self):
@@ -558,8 +558,8 @@ class TestVocabulary(object):
         '''
         params = {'id': self.genre_vocab['id'], 'tags': None}
         response = self.app.post('/api/action/vocabulary_update',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=400)
         assert "Integrity Error" in response.body, response.body
@@ -570,11 +570,11 @@ class TestVocabulary(object):
         '''
         params = {'id': self.genre_vocab['id'], 'tags': []}
         response = self.app.post('/api/action/vocabulary_update',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=200)
-        assert response.json['success'] == True
+        assert response.json['success'] is True
         assert response.json['result']
         updated_vocab = response.json['result']
         assert updated_vocab['name'] == self.genre_vocab['name']
@@ -582,7 +582,7 @@ class TestVocabulary(object):
         assert updated_vocab['tags'] == []
         params = {'id': updated_vocab['id']}
         response = self._post('/api/action/vocabulary_show', params)
-        assert response['success'] == True
+        assert response['success'] is True
         assert response['result'] == updated_vocab
         tags = self._list_tags(updated_vocab)
         assert tags == []
@@ -596,13 +596,13 @@ class TestVocabulary(object):
 
         '''
         params = {'id': 'xxxxxxx'}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_delete',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'].startswith('Not found: '
                 'Could not find vocabulary')
 
@@ -612,36 +612,36 @@ class TestVocabulary(object):
 
         '''
         params = {}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_delete',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
-        assert response.json['error'].has_key('id')
+        assert response.json['success'] is False
+        assert 'id' in response.json['error']
         assert response.json['error']['id'] == 'id not in data'
 
     def test_vocabulary_delete_not_logged_in(self):
         '''Test that users who are not logged in cannot delete vocabularies.'''
         params = {'id': self.genre_vocab['id']}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_delete',
                 params=param_string,
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_vocabulary_delete_not_authorized(self):
         '''Test that users who are not authorized cannot delete vocabs.'''
         params = {'id': self.genre_vocab['id']}
-        param_string = json.dumps(params)
+        param_string = helpers.json.dumps(params)
         response = self.app.post('/api/action/vocabulary_delete',
                 params=param_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.normal_user.apikey)},
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_add_tag_to_vocab(self):
@@ -661,13 +661,13 @@ class TestVocabulary(object):
 
         '''
         tag_dict = {'name': 'noise'}
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['vocabulary_id'] == ['Missing value']
 
     def test_add_tag_vocab_not_exists(self):
@@ -676,13 +676,13 @@ class TestVocabulary(object):
 
         '''
         tag_dict = {'name': 'noise', 'vocabulary_id': 'does not exist'}
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['vocabulary_id'] == [
                 'Tag vocabulary was not found.']
 
@@ -694,13 +694,13 @@ class TestVocabulary(object):
         self.test_add_tag_to_vocab()
         vocab = self.genre_vocab
         tag_dict = {'name': 'noise', 'vocabulary_id': vocab['id']}
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['vocabulary_id'][0].startswith(
             'Tag noise already belongs to vocabulary')
 
@@ -714,13 +714,13 @@ class TestVocabulary(object):
                 'name': 'noise',
                 'vocabulary_id': self.genre_vocab['id']
                 }
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['id'] == [u'The input field id was not '
             'expected.']
 
@@ -732,13 +732,13 @@ class TestVocabulary(object):
         tag_dict = {
                 'vocabulary_id': self.genre_vocab['id']
                 }
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['name'] == [u'Missing value']
 
     def test_add_tag_invalid_name(self):
@@ -747,13 +747,13 @@ class TestVocabulary(object):
                     'name': name,
                     'vocabulary_id': self.genre_vocab['id']
                     }
-            tag_string = json.dumps(tag_dict)
+            tag_string = helpers.json.dumps(tag_dict)
             response = self.app.post('/api/action/tag_create',
                     params=tag_string,
-                    extra_environ = {'Authorization':
+                    extra_environ={'Authorization':
                         str(self.sysadmin_apikey)},
                     status=409)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             assert response.json['error']['name']
 
     def test_add_tag_invalid_vocab_id(self):
@@ -761,13 +761,13 @@ class TestVocabulary(object):
                 'name': 'noise',
                 'vocabulary_id': 'xxcxzczxczxc',
                 }
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                extra_environ = {'Authorization':
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=409)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['vocabulary_id'] == [
                 u'Tag vocabulary was not found.']
 
@@ -776,11 +776,11 @@ class TestVocabulary(object):
                 'name': 'noise',
                 'vocabulary_id': self.genre_vocab['id']
                 }
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_add_tag_not_authorized(self):
@@ -788,13 +788,13 @@ class TestVocabulary(object):
                 'name': 'noise',
                 'vocabulary_id': self.genre_vocab['id']
                 }
-        tag_string = json.dumps(tag_dict)
+        tag_string = helpers.json.dumps(tag_dict)
         response = self.app.post('/api/action/tag_create',
                 params=tag_string,
-                    extra_environ = {'Authorization':
+                    extra_environ={'Authorization':
                         str(self.normal_user.apikey)},
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         assert response.json['error']['message'] == 'Access denied'
 
     def test_add_vocab_tag_to_dataset(self):
@@ -815,10 +815,10 @@ class TestVocabulary(object):
 
         # Add the new vocab tag to the package.
         package['tags'].append(tag)
-        updated_package = (self._post('/api/action/package_update',
+        updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-                ['result'])
+                extra_environ={'Authorization':
+                    str(self.sysadmin_user.apikey)})['result']
 
         # Test that the new vocab tag was added to the package.
         tags_in_pkg = [tag_in_pkg for tag_in_pkg in updated_package['tags'] if
@@ -826,12 +826,34 @@ class TestVocabulary(object):
                 tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
         assert len(tags_in_pkg) == 1
 
+        # Test that the package appears vocabulary_list.
+        vocabs = self._post('/api/action/vocabulary_list')['result']
+        genre_vocab = [vocab for vocab in vocabs if vocab['name'] == 'Genre']
+        assert len(genre_vocab) == 1
+        genre_vocab = genre_vocab[0]
+        noise_tag = [tag_ for tag_ in genre_vocab['tags']
+                if tag_['name'] == 'noise']
+        assert len(noise_tag) == 1
+        noise_tag = noise_tag[0]
+        assert len([p for p in noise_tag['packages'] if
+                    p['id'] == updated_package['id']]) == 1
+
+        # Test that the tagged package appears in vocabulary_show.
+        genre_vocab = self._post('/api/action/vocabulary_show',
+                params={'id': genre_vocab['id']})['result']
+        noise_tag = [tag_ for tag_ in genre_vocab['tags']
+                if tag_['name'] == 'noise']
+        assert len(noise_tag) == 1
+        noise_tag = noise_tag[0]
+        assert len([p for p in noise_tag['packages'] if
+                    p['id'] == updated_package['id']]) == 1
+
         # Remove the new vocab tag from the package.
         package['tags'].remove(tag)
-        updated_package = (self._post('/api/action/package_update',
+        updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-                ['result'])
+                extra_environ={'Authorization':
+                    str(self.sysadmin_user.apikey)})['result']
 
         # Test that the tag no longer appears in the list of tags for the
         # package.
@@ -866,10 +888,10 @@ class TestVocabulary(object):
         # Add the new vocab tags to the package.
         for tag in tags:
             package['tags'].append(tag)
-        updated_package = (self._post('/api/action/package_update',
+        updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-                ['result'])
+                extra_environ={'Authorization':
+                    str(self.sysadmin_user.apikey)})['result']
 
         # Test that the new vocab tags were added to the package.
         for tag in tags:
@@ -965,7 +987,7 @@ class TestVocabulary(object):
 
         '''
         vocab = self.genre_vocab
-        tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        self._create_tag(self.sysadmin_user, 'noise', vocab)
 
         for tag_id in ('missing', '', None):
             # Now try to delete the tag from the vocab.
@@ -973,12 +995,12 @@ class TestVocabulary(object):
             if tag_id != 'missing':
                 params['id'] = tag_id
             response = self.app.post('/api/action/tag_delete',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization':
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=409)
-            assert response.json['success'] == False
-            assert response.json['error'].has_key('id')
+            assert response.json['success'] is False
+            assert 'id' in response.json['error']
             assert response.json['error']['id'] == 'id not in data'
 
     def test_delete_tag_no_vocab(self):
@@ -995,14 +1017,14 @@ class TestVocabulary(object):
             if vocab_name != 'missing':
                 params['vocabulary_id'] = vocab_name
             response = self.app.post('/api/action/tag_delete',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization':
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=404)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             msg = response.json['error']['message']
-            assert msg == u'Not found: Could not find tag "%s"' % tag['name'], \
-                    msg
+            assert msg == u'Not found: Could not find tag "{0}"'.format(
+                    tag['name']), msg
 
     def test_delete_tag_not_exists(self):
         '''Test the error response when a user tries to delete a from a vocab
@@ -1010,16 +1032,16 @@ class TestVocabulary(object):
 
         '''
         vocab = self.genre_vocab
-        tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        self._create_tag(self.sysadmin_user, 'noise', vocab)
 
         params = {'id': 'nonexistent',
                 'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         msg = response.json['error']['message']
         assert msg == u'Not found: Could not find tag "%s"' % 'nonexistent', \
                 msg
@@ -1035,11 +1057,11 @@ class TestVocabulary(object):
         params = {'id': tag['name'],
                 'vocabulary_id': 'nonexistent'}
         response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.sysadmin_user.apikey)},
                 status=404)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         msg = response.json['error']['message']
         assert msg == u"Not found: could not find vocabulary 'nonexistent'", \
                 msg
@@ -1050,17 +1072,17 @@ class TestVocabulary(object):
 
         '''
         vocab = self.genre_vocab
-        tag = self._create_tag(self.sysadmin_user, 'noise', vocab)
+        self._create_tag(self.sysadmin_user, 'noise', vocab)
 
         for tag_name in ('Invalid!', ' '):
             params = {'id': tag_name,
                     'vocabulary_id': self.genre_vocab['name']}
             response = self.app.post('/api/action/tag_delete',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization':
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=404)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             msg = response.json['error']['message']
             assert msg == u'Not found: Could not find tag "%s"' % tag_name, msg
 
@@ -1075,11 +1097,11 @@ class TestVocabulary(object):
         for vocab_name in ('Invalid!', ' '):
             params = {'id': tag['name'], 'vocabulary_id': vocab_name}
             response = self.app.post('/api/action/tag_delete',
-                    params=json.dumps(params),
-                    extra_environ = {'Authorization':
+                    params=helpers.json.dumps(params),
+                    extra_environ={'Authorization':
                         str(self.sysadmin_user.apikey)},
                     status=404)
-            assert response.json['success'] == False
+            assert response.json['success'] is False
             msg = response.json['error']['message']
             assert msg == u"Not found: could not find vocabulary '%s'" \
                     % vocab_name, msg
@@ -1091,9 +1113,9 @@ class TestVocabulary(object):
         params = {'id': tag['name'],
                 'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
+                params=helpers.json.dumps(params),
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         msg = response.json['error']['message']
         assert msg == u"Access denied", msg
 
@@ -1104,10 +1126,10 @@ class TestVocabulary(object):
         params = {'id': tag['name'],
                 'vocabulary_id': self.genre_vocab['name']}
         response = self.app.post('/api/action/tag_delete',
-                params=json.dumps(params),
-                extra_environ = {'Authorization':
+                params=helpers.json.dumps(params),
+                extra_environ={'Authorization':
                     str(self.normal_user.apikey)},
                 status=403)
-        assert response.json['success'] == False
+        assert response.json['success'] is False
         msg = response.json['error']['message']
         assert msg == u"Access denied"

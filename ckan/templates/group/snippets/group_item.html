@@ -17,7 +17,7 @@ Example:
 #}
 {% set url = h.url_for(group.type ~ '_read', action='read', id=group.name) %}
 <li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
-  <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" alt="{{ group.name }}" /></a>
+  <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" /></a>
   <div class="media-content">
     <h3 class="media-heading">
       <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}">
@@ -25,7 +25,7 @@ Example:
       </a>
     </h3>
     {% if group.description %}
-      <p>{{ h.truncate(group.description, length=80, whole_word=True) }}</p>
+      <p>{{ h.markdown_extract(group.description, extract_length=80) }}</p>
     {% else %}
       <p class="empty">{{ _('This group has no description') }}</p>
     {% endif %}

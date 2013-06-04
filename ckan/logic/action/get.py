@@ -1,16 +1,17 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
 import datetime
 
 from pylons import config
-from pylons.i18n import _
-from pylons import c
 import sqlalchemy
 
 import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
+import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
 import ckan.model.misc as misc
@@ -19,6 +20,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
 
@@ -43,7 +46,6 @@ _text = sqlalchemy.text
 
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
-    model = context["model"]
     for package in package_revision_list:
         result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
@@ -94,7 +96,7 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    if data_dict.has_key('limit'):
+    if 'limit' in data_dict:
         try:
             limit = int(data_dict['limit'])
             if limit < 0:
@@ -205,7 +207,6 @@ def related_list(context, data_dict=None):
 
     '''
     model = context['model']
-    session = context['session']
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
@@ -261,9 +262,11 @@ def member_list(context, data_dict=None):
 
     '''
     model = context['model']
-    user = context['user']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
+    if not group:
+        raise NotFound
+
     obj_type = data_dict.get('object_type', None)
     capacity = data_dict.get('capacity', None)
 
@@ -271,33 +274,23 @@ def member_list(context, data_dict=None):
     _check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
-            filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active")
+        filter(model.Member.group_id == group.id).\
+        filter(model.Member.state == "active")
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    lookup = {}
-    def type_lookup(name):
-        if name in lookup:
-            return lookup[name]
-        if hasattr(model, name.title()):
-            lookup[name] = getattr(model,name.title())
-            return lookup[name]
-        return None
-
     trans = new_authz.roles_trans()
+
     def translated_capacity(capacity):
         try:
             return trans[capacity]
         except KeyError:
             return capacity
 
-    return [(m.table_id,
-             type_lookup(m.table_name),
-             translated_capacity(m.capacity),)
+    return [(m.table_id, m.table_name, translated_capacity(m.capacity))
             for m in q.all()]
 
 def _group_or_org_list(context, data_dict, is_org=False):
@@ -305,12 +298,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
-    ref_group_by = 'id' if api == 2 else 'name';
+    ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
+    q = data_dict.get('q')
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
-    order_by = data_dict.get('order_by')
+    order_by = data_dict.get('order_by', '')
     if order_by:
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
@@ -332,6 +327,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.current==True)
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
+    if q:
+        q = u'%{0}%'.format(q)
+        query = query.filter(_or_(
+            model.GroupRevision.name.ilike(q),
+            model.GroupRevision.title.ilike(q),
+            model.GroupRevision.description.ilike(q),
+        ))
+
 
     query = query.filter(model.GroupRevision.is_organization==is_org)
 
@@ -473,7 +476,7 @@ def organization_list_for_user(context, data_dict):
 
     if sysadmin:
         # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name} for org in orgs_q.all()]
+        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
 
     permission = data_dict.get('permission', 'edit_group')
 
@@ -499,7 +502,7 @@ def organization_list_for_user(context, data_dict):
 
     q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name} for org in q.all()]
+    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -525,7 +528,7 @@ def group_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
-def licence_list(context, data_dict):
+def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
@@ -533,12 +536,12 @@ def licence_list(context, data_dict):
     '''
     model = context["model"]
 
-    _check_access('licence_list',context, data_dict)
+    _check_access('license_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licences = [l.as_dict() for l in licenses]
-    return licences
+    licenses = [l.as_dict() for l in licenses]
+    return licenses
 
 def tag_list(context, data_dict):
     '''Return a list of the site's tags.
@@ -669,13 +672,12 @@ def package_relationships_list(context, data_dict):
     '''
     ##TODO needs to work with dictization layer
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
 
     id = _get_or_bust(data_dict, "id")
     id2 = data_dict.get("id2")
     rel = data_dict.get("rel")
-    ref_package_by = 'id' if api == 2 else 'name';
+    ref_package_by = 'id' if api == 2 else 'name'
     pkg1 = model.Package.get(id)
     pkg2 = None
     if not pkg1:
@@ -731,13 +733,10 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    try:
-        schema = package_plugin.db_to_form_schema_options({
-            'type':'show',
-            'api': 'api_version' in context,
-            'context': context })
-    except AttributeError:
-        schema = package_plugin.db_to_form_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
@@ -833,7 +832,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
-    
+
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -1044,8 +1043,6 @@ def package_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
-    user = context['user']
     q = _get_or_bust(data_dict, 'q')
 
     like_q = u"%s%%" % q
@@ -1088,7 +1085,6 @@ def format_autocomplete(context, data_dict):
     '''
     model = context['model']
     session = context['session']
-    user = context['user']
 
     _check_access('format_autocomplete', context, data_dict)
 
@@ -1126,7 +1122,6 @@ def user_autocomplete(context, data_dict):
 
     '''
     model = context['model']
-    session = context['session']
     user = context['user']
     q = data_dict.get('q',None)
     if not q:
@@ -1163,25 +1158,22 @@ def package_search(context, data_dict):
 
     This action accepts a *subset* of solr's search query parameters:
 
+
     :param q: the solr query.  Optional.  Default: `"*:*"`
     :type q: string
     :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
         is added to this string prior to the query being executed.
     :type fq: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        'relevance asc, metadata_modified desc'.  As per the solr
+        documentation, this is a comma-separated string of field names and
+        sort-orderings.
+    :type sort: string
     :param rows: the number of matching rows to return.
     :type rows: int
-    :param sort: sorting of the search results.  Optional.  Default:
-        "score desc, name asc".  As per the solr documentation, this is a
-        comma-separated string of field names and sort-orderings.
-    :type sort: string
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
     :type start: int
-    :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation
-        <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
-        for further details.
-    :type qf: string
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1193,6 +1185,18 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
+
+
+    The following advanced Solr parameters are supported as well. Note that
+    some of these are only available on particular Solr versions. See Solr's
+    `dismax`_ and `edismax`_ documentation for further details on them:
+
+    ``qf``, ``wt``, ``bf``, ``boost``, ``tie``, ``defType``, ``mm``
+
+
+    .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
+    .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
+
 
     **Results:**
 
@@ -1245,6 +1249,12 @@ def package_search(context, data_dict):
 
     _check_access('package_search', context, data_dict)
 
+    # Move ext_ params to extras and remove them from the root of the search
+    # params, so they don't cause and error
+    data_dict['extras'] = data_dict.get('extras', {})
+    for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
+        data_dict['extras'][key] = data_dict.pop(key)
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1252,6 +1262,9 @@ def package_search(context, data_dict):
     # the extension may have decided that it is not necessary to perform
     # the query
     abort = data_dict.get('abort_search',False)
+
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
@@ -1268,8 +1281,14 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # Pop these ones as Solr does not need them
+        extras = data_dict.pop('extras', None)
+
         query = search.query_for(model.Package)
         query.run(data_dict)
+
+        # Add them back so extensions can use them on after_search
+        data_dict['extras'] = extras
 
         for package in query.results:
             # get the package object
@@ -1308,7 +1327,8 @@ def package_search(context, data_dict):
     search_results = {
         'count': count,
         'facets': facets,
-        'results': results
+        'results': results,
+        'sort': data_dict['sort']
     }
 
     # Transform facets into a more useful data structure.
@@ -1321,10 +1341,16 @@ def package_search(context, data_dict):
         for key_, value_ in value.items():
             new_facet_dict = {}
             new_facet_dict['name'] = key_
-            if key == 'groups':
+            if key in ('groups', 'organization'):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            elif key == 'license_id':
+                license = model.Package.get_license_register().get(key_)
+                if license:
+                    new_facet_dict['display_name'] = license.title
                 else:
                     new_facet_dict['display_name'] = key_
             else:
@@ -1355,7 +1381,7 @@ def resource_search(context, data_dict):
     limit or query parameters having an effect.  The ``results`` field is a
     list of dictized Resource objects.
 
-    The 'q' parameter is a required field.  It is a string of the form
+    The 'query' parameter is a required field.  It is a string of the form
     ``{field}:{term}`` or a list of strings, each of the same form.  Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
@@ -1548,7 +1574,7 @@ def _tag_search(context, data_dict):
     # TODO: should we check for user authentication first?
     q = model.Session.query(model.Tag)
 
-    if data_dict.has_key('vocabulary_id'):
+    if 'vocabulary_id' in data_dict:
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
@@ -2581,19 +2607,19 @@ def group_followee_list(context, data_dict):
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
-    Unlike the activity dictionaries returned by other *_activity_list actions,
-    these activity dictionaries have an extra boolean value with key 'is_new'
-    that tells you whether the activity happened since the user last viewed her
-    dashboard ('is_new': True) or not ('is_new': False).
+    Unlike the activity dictionaries returned by other ``*_activity_list``
+    actions, these activity dictionaries have an extra boolean value with key
+    ``is_new`` that tells you whether the activity happened since the user last
+    viewed her dashboard (``'is_new': True``) or not (``'is_new': False``).
 
-    The user's own activities are always marked 'is_new': False.
+    The user's own activities are always marked ``'is_new': False``.
 
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: 31, the default value is configurable via the
-        ckan.activity_list_limit setting)
+        ``ckan.activity_list_limit`` setting)
 
     :rtype: list of activity dictionaries
 
@@ -2647,11 +2673,11 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
+    model = context['model']
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
-        'controller': 'dashboard',
-        'action': 'activity',
-        'id': data_dict['id'],
+        'controller': 'user',
+        'action': 'dashboard',
         'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream,

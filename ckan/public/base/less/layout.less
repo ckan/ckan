@@ -28,8 +28,7 @@
 }
 
 [role=main] .primary {
-  width: 719px;
-  margin-left: 1px;
+  width: 717px;
   float: right;
 }
 
@@ -44,8 +43,34 @@
   margin-bottom: 0;
 }
 
-.context-header {
-  padding: 8px 15px;
+.primary {
+  .primary {
+    float: left;
+    width: 479px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    h1, h2, h3, h4 {
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+  }
+  .tertiary {
+    float: left;
+    width: 180px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+.hero {
+  background: url("@{imagePath}/background-tile.png");
+}
+
+.hero:after {
+  // Need to manually declare this here. If you pass rgba() through to
+  // #gradient it breaks the filter property in IE7.
+  .rgba-vertial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
   background-color: @moduleHeadingBackgroundColor;
   border-bottom: 1px solid darken(@moduleHeadingBorderColor, 5%);
   .border-radius(3px 3px 0 0);
@@ -136,4 +161,8 @@
       margin-top: 0;
     }
   }
+}
+
+.modal {
+  top: 50%;
 }

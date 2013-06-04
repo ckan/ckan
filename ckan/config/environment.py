@@ -9,7 +9,6 @@ import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
-from pylons.i18n import _, ungettext
 from genshi.template import TemplateLoader
 from genshi.filters.i18n import Translator
 
@@ -18,10 +17,13 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
+import ckan.lib.jinja_extensions as jinja_extensions
+import ckan.logic as logic
+
+from ckan.common import _, ungettext
 
 log = logging.getLogger(__name__)
 
-import lib.jinja_extensions
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
@@ -297,22 +299,22 @@ def load_environment(global_conf, app_conf):
 
 
     # Create Jinja2 environment
-    env = lib.jinja_extensions.Environment(
-        loader=lib.jinja_extensions.CkanFileSystemLoader(template_paths),
+    env = jinja_extensions.Environment(
+        loader=jinja_extensions.CkanFileSystemLoader(template_paths),
         autoescape=True,
         extensions=['jinja2.ext.do', 'jinja2.ext.with_',
-                    lib.jinja_extensions.SnippetExtension,
-                    lib.jinja_extensions.CkanExtend,
-                    lib.jinja_extensions.CkanInternationalizationExtension,
-                    lib.jinja_extensions.LinkForExtension,
-                    lib.jinja_extensions.ResourceExtension,
-                    lib.jinja_extensions.UrlForStaticExtension,
-                    lib.jinja_extensions.UrlForExtension]
+                    jinja_extensions.SnippetExtension,
+                    jinja_extensions.CkanExtend,
+                    jinja_extensions.CkanInternationalizationExtension,
+                    jinja_extensions.LinkForExtension,
+                    jinja_extensions.ResourceExtension,
+                    jinja_extensions.UrlForStaticExtension,
+                    jinja_extensions.UrlForExtension]
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
-    env.filters['empty_and_escape'] = lib.jinja_extensions.empty_and_escape
-    env.filters['truncate'] = lib.jinja_extensions.truncate
+    env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
+    env.filters['truncate'] = jinja_extensions.truncate
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
@@ -347,3 +349,10 @@ def load_environment(global_conf, app_conf):
 
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
+
+    # Here we create the site user if they are not already in the database
+    try:
+        logic.get_action('get_site_user')({'ignore_auth': True}, None)
+    except sqlalchemy.exc.ProgrammingError:
+        # The database is not initialised.  This is a bit dirty.
+        pass

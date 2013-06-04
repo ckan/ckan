@@ -1,5 +1,5 @@
 <section class="module module-narrow module-shallow related{{ " related-empty" if not item }}">
-  <h2 class="module-heading"><i class="icon-medium icon-picture"></i> Related</h2>
+<h2 class="module-heading"><i class="icon-medium icon-picture"></i> {{ _('Related') }}</h2>
   <div class="module-content media">
     {% if item %}
       {% with url = h.url_for(controller='related', action='list', id=pkg_name) %}

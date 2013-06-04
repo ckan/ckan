@@ -1,8 +1,8 @@
 {% extends "user/edit_base.html" %}
 
-{% block actions_content %}
+{% block add_action_content %}
   {% if h.check_access('package_create') %}
-    <li>{% link_for _('Add a dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus" %}</li>
+    <li>{% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}</li>
   {% endif %}
 {% endblock %}
 
@@ -10,30 +10,37 @@
   <div data-module="dashboard">
     {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
     <h2 class="page-heading">
+      {% block page_heading %}
       {{ _('News feed') }}
+      {% endblock %}
       <small>{{ _('Activity from items that you follow') }}</small>
     </h2>
+    {% block activity_stream %}
     {{ c.dashboard_activity_stream }}
+    {% endblock %}
   </div>
 {% endblock %}
 
 {% block secondary_content %}
+  {% block dashboard_activity_stream_context %}
   {% if not c.dashboard_activity_stream_context.dict == None %}
     <div class="context-info dashboard-context">
       <span class="arrow"></span>
       {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
     </div>
   {% endif %}
+  {% endblock %}
+  {% block dashboard_datasets %}
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
       <i class="icon-sitemap"></i>
       {{ _('My Datasets') }}
     </h2>
     {% if c.user_dict['datasets'] %}
-      <ul class="nav nav-list">
+      <ul class="nav nav-simple">
         {% for package in c.user_dict['datasets'] %}
           {% set title = package.title or package.name %}
-          <li>
+          <li class="nav-item">
             {{ h.link_to(h.truncate(title, 80), h.url_for(controller='package', action='read', id=package.name)) }}
           </li>
         {% endfor %}
@@ -44,4 +51,5 @@
       </div>
     {% endif %}
   </div>
+  {% endblock %}
 {% endblock %}

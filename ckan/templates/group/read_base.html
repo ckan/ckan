@@ -9,7 +9,7 @@
 
 {% block actions_content %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    <li>{% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus' %}</li>
+    <li>{% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn', icon='plus-sign-alt' %}</li>
     <li>{% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn btn-primary', icon='wrench' %}</li>
   {% endif %}
   <li>{{ h.follow_button('group', c.group_dict.id) }}</li>
@@ -17,23 +17,18 @@
 
 {% block primary_content %}
   <section class="module">
-    {% block package_header %}
+    {% block page_header %}
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
-          <li{% if c.action == 'read' %} class="active"{% endif %}>
-            {% link_for _('Datasets'), controller='group', action='read', id=c.group_dict.name, icon='sitemap' %}
-          </li>
-          <li{% if c.action == 'activity' %} class="active"{% endif %}>
-            {% link_for _('Activity Stream'), controller='group', action='activity', id=c.group_dict.name, icon='time' %}
-          </li>
-          <li{% if c.action == 'about' %} class="active"{% endif %}>
-            {% link_for _('About'), controller='group', action='about', id=c.group_dict.name, icon='info-sign' %}
-          </li>
+          {% block page_header_tabs %}
+            {{ h.build_nav_icon('group_read', _('Datasets'), id=c.group_dict.name) }}
+            {{ h.build_nav_icon('group_activity', _('Activity Stream'), id=c.group_dict.name, offset=0) }}
+            {{ h.build_nav_icon('group_about', _('About'), id=c.group_dict.name) }}
+          {% endblock %}
         </ul>
       </header>
     {% endblock %}
-    {% block primary_content_inner %}
-    {% endblock %}
+    {% block primary_content_inner %}{% endblock %}
   </section>
 {% endblock %}
 

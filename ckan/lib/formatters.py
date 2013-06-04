@@ -1,9 +1,10 @@
 import datetime
 
-from pylons.i18n import _, ungettext
 from babel import numbers
 
 import ckan.lib.i18n as i18n
+
+from ckan.common import _, ungettext
 
 
 ##################################################

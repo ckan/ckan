@@ -1,0 +1,21 @@
+{% extends 'dataviewer/base.html' %}
+
+{% block page %}
+  <div>
+    <pre data-module="textpreview">
+      <div class="loading">
+        {{ _('Loading...') }}
+      </div>
+    </pre>
+  </div>
+
+  {% block scripts %}
+    {{ super() }}
+    <script>
+      var preview_metadata = {{ h.literal(c.preview_metadata) }};
+    </script>
+  {% endblock %}
+
+
+  {% resource 'ckanext-textpreview/main' %}
+{% endblock %}

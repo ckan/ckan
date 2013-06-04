@@ -3,7 +3,6 @@ from collections import defaultdict
 import datetime
 
 import ckan.model as model
-import authztool
 
 log = logging.getLogger(__name__)
 
@@ -149,15 +148,15 @@ class CreateTestData(object):
         new_group_names = set()
         new_groups = {}
 
-        rev = model.repo.new_revision()
-        rev.author = cls.author
-        rev.message = u'Creating test packages.'
 
         admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
             for item in package_dicts:
+                rev = model.repo.new_revision()
+                rev.author = cls.author
+                rev.message = u'Creating test packages.'
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
                     if item.has_key(field):
@@ -246,7 +245,7 @@ class CreateTestData(object):
                 model.setup_default_user_roles(pkg, admins=[])
                 for admin in admins:
                     admins_list[item['name']].append(admin)
-            model.repo.commit_and_remove()
+                model.repo.commit_and_remove()
 
         needs_commit = False
 
@@ -465,7 +464,7 @@ left arrow <
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: <a href="http://anna.com">anna.com</a>', password=u'annafan'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://anna.com', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
             sysadmin,
             ])
@@ -522,19 +521,6 @@ left arrow <
     def create_user(cls, name='', **kwargs):
         cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
-
-    @classmethod
-    def create_roles(cls, roles):
-        '''Each role is a tuple (object_name, role, subject_name).
-        There is clever searching going on to find the objects of any type,
-        by name or ID. You can also use the subject_name='system'.
-        '''
-        for role_tuple in roles:
-            object_name, role, subject_name = role_tuple
-            authztool.RightsTool.make_or_remove_roles('make', object_name, role, subject_name,
-                                                      except_on_error=True,
-                                                      do_commit=False)
-        model.repo.commit_and_remove()
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],

@@ -2,23 +2,18 @@
 
 Provides the BaseController class for subclassing.
 """
-from datetime import datetime
-from hashlib import md5
 import logging
-import os
-import urllib
 import time
 
 from paste.deploy.converters import asbool
-from pylons import c, cache, config, g, request, response, session
+from pylons import cache, config, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify, validate
-from pylons.i18n import _, ungettext, N_, gettext, ngettext
+from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
-from genshi.template.base import TemplateSyntaxError
 from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
@@ -28,9 +23,13 @@ from ckan.lib import i18n
 import lib.render
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter
-from ckan.lib.helpers import json
+from ckan.plugins import PluginImplementations, IGenshiStreamFilter, IAuthenticator
 import ckan.model as model
+
+# These imports are for legacy usages and will be removed soon these should
+# be imported directly from ckan.common for internal ckan code and via the
+# plugins.toolkit for extensions.
+from ckan.common import json, _, ungettext, c, g, request, response
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +42,12 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
+    if status_code == 401:
+        # Allow IAuthenticator plugins to alter the abort
+        for item in PluginImplementations(IAuthenticator):
+            result = item.abort(status_code, detail, headers, comment)
+            (status_code, detail, headers, comment) = result
+
     if detail and status_code != 503:
         h.flash_error(detail)
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
@@ -135,8 +140,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             return render_jinja2(template_name, globs)
 
         # Genshi templates
-        template = globs['app_globals'].genshi_loader.load(template_name,
-                                                           cls=loader_class)
+        template = globs['app_globals'].genshi_loader.load(
+            template_name.encode('utf-8'), cls=loader_class
+        )
         stream = template.generate(**globs)
 
         for item in PluginImplementations(IGenshiStreamFilter):
@@ -213,7 +219,9 @@ class BaseController(WSGIController):
         c.__timer = time.time()
         c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
+
         self._identify_user()
+
         i18n.handle_request(request, c)
 
         # If the user is logged in add their number of new activities to the
@@ -227,11 +235,7 @@ class BaseController(WSGIController):
             c.new_activities = new_activities_count(context, {})
 
     def _identify_user(self):
-        '''
-        Identifies the user using two methods:
-        a) If he has logged into the web interface then repoze.who will
-           set REMOTE_USER.
-        b) For API calls he may set a header with his API key.
+        '''Try to identify the user
         If the user is identified then:
           c.user = user name (unicode)
           c.userobj = user object
@@ -239,13 +243,40 @@ class BaseController(WSGIController):
         otherwise:
           c.user = None
           c.userobj = None
-          c.author = user\'s IP address (unicode)
-        '''
+          c.author = user's IP address (unicode)'''
         # see if it was proxied first
         c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
         if not c.remote_addr:
             c.remote_addr = request.environ.get('REMOTE_ADDR',
                                                 'Unknown IP Address')
+
+        # Authentication plugins get a chance to run here break as soon as a
+        # user is identified.
+        authenticators = PluginImplementations(IAuthenticator)
+        if authenticators:
+            for item in authenticators:
+                item.identify()
+                if c.user:
+                    break
+
+        # We haven't identified the user so try the default methods
+        if not c.user:
+            self._identify_user_default()
+
+        # general settings
+        if c.user:
+            c.author = c.user
+        else:
+            c.author = c.remote_addr
+        c.author = unicode(c.author)
+
+    def _identify_user_default(self):
+        '''
+        Identifies the user using two methods:
+        a) If they logged into the web interface then repoze.who will
+           set REMOTE_USER.
+        b) For API calls they may set a header with an API key.
+        '''
 
         # environ['REMOTE_USER'] is set by repoze.who if it authenticates
         # a user's cookie or OpenID. But repoze.who doesn't check the user
@@ -277,11 +308,6 @@ class BaseController(WSGIController):
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
                 c.user = c.userobj.name
-        if c.user:
-            c.author = c.user
-        else:
-            c.author = c.remote_addr
-        c.author = unicode(c.author)
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""

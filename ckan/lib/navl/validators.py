@@ -1,5 +1,11 @@
-from dictization_functions import missing, StopOnError, Invalid
-from pylons.i18n import _
+import ckan.lib.navl.dictization_functions as df
+
+from ckan.common import _
+
+missing = df.missing
+StopOnError = df.StopOnError
+Invalid = df.Invalid
+
 
 def identity_converter(key, data, errors, context):
     return

@@ -55,8 +55,8 @@ my.Dataset = Backbone.Model.extend({
     if (this.backend !== recline.Backend.Memory) {
       this.backend.fetch(this.toJSON())
         .done(handleResults)
-        .fail(function(arguments) {
-          dfd.reject(arguments);
+        .fail(function(args) {
+          dfd.reject(args);
         });
     } else {
       // special case where we have been given data directly
@@ -79,8 +79,8 @@ my.Dataset = Backbone.Model.extend({
         .done(function() {
           dfd.resolve(self);
         })
-        .fail(function(arguments) {
-          dfd.reject(arguments);
+        .fail(function(args) {
+          dfd.reject(args);
         });
     }
 
@@ -198,9 +198,9 @@ my.Dataset = Backbone.Model.extend({
         self.trigger('query:done');
         dfd.resolve(self.records);
       })
-      .fail(function(arguments) {
-        self.trigger('query:fail', arguments);
-        dfd.reject(arguments);
+      .fail(function(args) {
+        self.trigger('query:fail', args);
+        dfd.reject(args);
       });
     return dfd.promise();
   },
@@ -309,9 +309,11 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding rendered computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValue: function(field) {
     val = this.getFieldValueUnrendered(field);
-    if (field.renderer) {
+    if (field && !_.isUndefined(field.renderer)) {
       val = field.renderer(val, field, this.toJSON());
     }
     return val;
@@ -321,7 +323,12 @@ my.Record = Backbone.Model.extend({
   //
   // For the provided Field get the corresponding computed data value
   // for this record.
+  //
+  // NB: if field is undefined a default '' value will be returned
   getFieldValueUnrendered: function(field) {
+    if (!field) {
+      return '';
+    }
     var val = this.get(field.id);
     if (field.deriver) {
       val = field.deriver(val, field, this);
@@ -443,7 +450,7 @@ my.Field = Backbone.Model.extend({
         if (val && typeof val === 'string') {
           val = val.replace(/(https?:\/\/[^ ]+)/g, '<a href="$1">$1</a>');
         }
-        return val
+        return val;
       }
     }
   }

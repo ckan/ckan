@@ -1,26 +1,38 @@
 {% import 'macros/form.html' as form %}
 
+{% block package_basic_fields_title %}
 {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target'}) }}
+{% endblock %}
 
+{% block package_basic_fields_url %}
 {% set prefix = h.url_for(controller='package', action='read', id='') %}
 {% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
 {% set domain = domain|replace("http://", "")|replace("https://", "") %}
 {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
 
 {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs) }}
+{% endblock %}
 
+{% block package_basic_fields_custom %}
+{% endblock %}
+
+{% block package_basic_fields_description %}
 {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('eg. Some useful notes about the data'), value=data.notes, error=errors.notes) }}
+{% endblock %}
 
+{% block package_basic_fields_tags %}
 {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
 {{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
+{% endblock %}
 
+{% block package_basic_fields_license %}
 <div class="control-group">
   {% set error = errors.license_id %}
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
     <select id="field-license" name="license_id" data-module="autocomplete">
-      {% for licence_desc, licence_id in licences|sort if licence_desc  %}
-        <option value="{{ licence_id }}" {% if data.get('license_id', 'notspecified') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
+      {% for license_desc, license_id in licenses|sort if license_desc  %}
+        <option value="{{ license_id }}" {% if data.get('license_id', 'notspecified') == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
@@ -33,7 +45,9 @@
     </span>
   </div>
 </div>
+{% endblock %}
 
+{% block package_basic_fields_org %}
 {# if we have a default group then this wants remembering #}
 {% if data.group_id %}
   <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
@@ -46,10 +60,10 @@
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
-          <option value="">{{ _('Select an organization...') }}</option>
+          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
           {% for organization in organizations_available %}
             {# get out first org from users list only if there is not an existing org #}
-            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and organization.id == organizations_available[0].id) %}
+            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
             <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
           {% endfor %}
         </select>
@@ -57,3 +71,4 @@
     </div>
   {% endif %}
 {% endif %}
+{% endblock %}

@@ -2,8 +2,6 @@
 
 {% block subtitle %}{{ _('About') }}{% endblock %}
 
-{% block wrapper_class %} no-nav{% endblock %}
-
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('About'), controller='home', action='about' %}</li>
 {% endblock %}
@@ -13,7 +11,7 @@
     <div class="module-content">
       {% block about %}
         {% if g.site_about %}
-          {{ h.markdown_extract(g.site_about) }}
+          {{ h.render_markdown(g.site_about) }}
         {% else %}
           <h1 class="page-heading">{{ _('About') }}</h1>
           {% snippet 'home/snippets/about_text.html' %}
@@ -23,4 +21,4 @@
   </article>
 {% endblock %}
 
-{% block sidebar %}{% endblock %}
+{% block secondary %}{% endblock %}

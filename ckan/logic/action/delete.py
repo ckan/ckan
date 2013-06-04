@@ -1,9 +1,12 @@
-from pylons.i18n import _
+'''API functions for deleting data from CKAN.'''
 
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
+
+from ckan.common import _
+
 validate = ckan.lib.navl.dictization_functions.validate
 
 # Define some shortcuts
@@ -166,7 +169,7 @@ def member_delete(context, data_dict=None):
 
     :param id: the id of the group
     :type id: string
-    :param object: the id of the object to be removed
+    :param object: the id or name of the object to be removed
     :type object: string
     :param object_type: the type of the object to be removed, e.g. ``package``
         or ``user``
@@ -175,17 +178,25 @@ def member_delete(context, data_dict=None):
     '''
     model = context['model']
 
-    group = model.Group.get(_get_or_bust(data_dict, 'id'))
-    obj_id, obj_type = _get_or_bust(data_dict, ['object', 'object_type'])
+    group_id, obj_id, obj_type = _get_or_bust(data_dict, ['id', 'object', 'object_type'])
+
+    group = model.Group.get(group_id)
+    if not group:
+        raise NotFound('Group was not found.')
+
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj = obj_class.get(obj_id)
+    if not obj:
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to remove a member from it
     _check_access('group_update', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
-            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.table_id == obj.id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active").first()
+            filter(model.Member.state    == 'active').first()
     if member:
         rev = model.repo.new_revision()
         rev.author = context.get('user')
@@ -219,9 +230,11 @@ def _group_or_org_delete(context, data_dict, is_org=False):
         _check_access('group_delete', context, data_dict)
 
     # organization delete will delete all datasets for that org
+    # FIXME this gets all the packages the user can see which generally will
+    # be all but this is only a fluke so we should fix this properly
     if is_org:
-        for pkg in group.active_packages().all():
-            _get_action('package_delete')(context, {id: pkg.id})
+        for pkg in group.packages(with_private=True):
+            _get_action('package_delete')(context, {'id': pkg.id})
 
     rev = model.repo.new_revision()
     rev.author = user

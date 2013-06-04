@@ -3,14 +3,14 @@ import logging
 import types
 import re
 
-from pylons.i18n import _
+import formencode.validators
 
-import ckan.lib.base as base
 import ckan.model as model
-from ckan.new_authz import is_authorized
-from ckan.lib.navl.dictization_functions import flatten_dict, DataError
-from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IActions
+import ckan.new_authz as new_authz
+import ckan.lib.navl.dictization_functions as df
+import ckan.plugins as p
+
+from ckan.common import _, c
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ class ValidationError(ParameterError):
 
     def __str__(self):
         err_msgs = (super(ValidationError, self).__str__(),
-                    self.error_summary)
+                    self.error_dict)
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 log = logging.getLogger(__name__)
@@ -174,7 +174,7 @@ def tuplize_dict(data_dict):
                 try:
                     key_list[num] = int(key)
                 except ValueError:
-                    raise DataError('Bad key')
+                    raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
     return tuplized_dict
 
@@ -190,7 +190,7 @@ def untuplize_dict(tuplized_dict):
 
 def flatten_to_string_key(dict):
 
-    flattented = flatten_dict(dict)
+    flattented = df.flatten_dict(dict)
     return untuplize_dict(flattented)
 
 
@@ -205,7 +205,7 @@ def check_access(action, context, data_dict=None):
         #    # TODO Check the API key is valid at some point too!
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
-        logic_authorization = is_authorized(action, context, data_dict)
+        logic_authorization = new_authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
@@ -262,6 +262,10 @@ def get_action(action):
     :rtype: callable
 
     '''
+
+    # clean the action names
+    action = new_authz.clean_action_name(action)
+
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
@@ -280,6 +284,7 @@ def get_action(action):
             if not k.startswith('_'):
                 # Only load functions from the action module.
                 if isinstance(v, types.FunctionType):
+                    k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
@@ -290,8 +295,9 @@ def get_action(action):
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
     fetched_actions = {}
-    for plugin in PluginImplementations(IActions):
+    for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
+            name = new_authz.clean_action_name(name)
             if name in resolved_action_plugins:
                 raise Exception(
                     'The action %r is already implemented in %r' % (
@@ -317,7 +323,7 @@ def get_action(action):
                 context.setdefault('model', model)
                 context.setdefault('session', model.Session)
                 try:
-                    context.setdefault('user', base.c.user or base.c.author)
+                    context.setdefault('user', c.user or c.author)
                 except TypeError:
                     # c not registered
                     pass
@@ -381,3 +387,100 @@ def side_effect_free(action):
     wrapper.side_effect_free = True
 
     return wrapper
+
+
+def auth_sysadmins_check(action):
+    ''' Prevent sysadmins from automatically being authenticated.  Instead
+    they are treated like any other user and the auth function is called.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_sysadmins_check = True
+    return wrapper
+
+
+
+class UnknownValidator(Exception):
+    pass
+
+
+_validators_cache = {}
+
+def clear_validators_cache():
+    _validators_cache.clear()
+
+
+def get_validator(validator):
+    '''Return a validator by name or UnknownValidator exception if the
+    validator is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param validator: name of the validator requested
+    :type validator: string
+    '''
+    if  not _validators_cache:
+        validators = _import_module_functions('ckan.lib.navl.validators')
+        _validators_cache.update(validators)
+        validators = _import_module_functions('ckan.logic.validators')
+        _validators_cache.update(validators)
+        _validators_cache.update({'OneOf': formencode.validators.OneOf})
+    try:
+        return _validators_cache[validator]
+    except KeyError:
+        raise UnknownValidator('Validator `%s` does not exist' % validator)
+
+
+class UnknownConverter(Exception):
+    pass
+
+
+_converters_cache = {}
+
+def clear_converters_cache():
+    _converters_cache.clear()
+
+
+def get_converter(converter):
+    '''Return a converter by name or UnknownConverter exception if the
+    converter is not found.  This is mainly so that validators can be made
+    available to extensions via the plugin toolkit.
+
+    :param converter: name of the converter requested
+    :type converter: string
+    '''
+    if not _converters_cache:
+        converters = _import_module_functions('ckan.logic.converters')
+        _converters_cache.update(converters)
+    try:
+        return _converters_cache[converter]
+    except KeyError:
+        raise UnknownConverter('Converter `%s` does not exist' % converter)
+
+
+def model_name_to_class(model_module, model_name):
+    '''Return the class in model_module that has the same name as the received string.
+
+    Raises AttributeError if there's no model in model_module named model_name.
+    '''
+    try:
+        model_class_name = model_name.title()
+        return getattr(model_module, model_class_name)
+    except AttributeError:
+        raise ValidationError("%s isn't a valid model" % model_class_name)
+
+def _import_module_functions(module_path):
+    '''Import a module and get the functions and return them in a dict'''
+    functions_dict = {}
+    module = __import__(module_path)
+    for part in module_path.split('.')[1:]:
+        module = getattr(module, part)
+    for k, v in module.__dict__.items():
+
+        try:
+            if v.__module__ != module_path:
+                continue
+            functions_dict[k] = v
+        except AttributeError:
+            pass
+    return functions_dict

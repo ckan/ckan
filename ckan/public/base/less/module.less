@@ -1,4 +1,9 @@
+.module {
+  margin: 20px 0;
+}
+
 .module-heading {
+  .clearfix;
   margin: 0;
   padding: 7px @gutterX;
   font-size: 14px;
@@ -11,8 +16,12 @@
 .module-heading .action {
   float: right;
   color: @moduleHeadingActionTextColor;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: @baseLineHeight;
   text-decoration: underline;
+  &:hover {
+    color: @layoutTextColor;
+  }
 }
 
 .module-content {
@@ -62,12 +71,15 @@
 
 .module .pagination > ul {
   .border-radius(0);
+  .box-shadow(none);
   border: 0;
 }
 
 .module .pagination li a {
   border-top: none;
   border-bottom: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 .module .pagination li:first-child a,
@@ -92,6 +104,10 @@
   padding: 0;
   margin-top: 10px;
   padding-bottom: 10px;
+}
+
+.module h1 {
+  margin-bottom: 20px;
 }
 
 // Module Shallow
@@ -187,9 +203,24 @@
 .module-resource {
   background-color: @layoutTrimBackgroundColor;
   border-bottom: 1px solid @genericBorderColor;
+  margin-top: 0;
+  margin-bottom: 0;
   .border-radius(3px 3px 0 0);
+  .actions { 
+    position: relative;
+    float: right;
+    top: -10px;
+    right: -15px;
+  }
 }
 
 .module .module-tags {
   padding-bottom: 8px;
+}
+
+.secondary,
+.primary {
+  .module:first-child {
+    margin-top: 0;
+  }
 }

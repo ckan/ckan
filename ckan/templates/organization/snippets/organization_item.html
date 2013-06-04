@@ -17,7 +17,7 @@ Example:
 #}
 {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
 <li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
-  <a class="media-image" href="{{ url }}"><img src="{{ organization.image_url or '/base/images/placeholder-organization.png' }}" alt="{{ organization.name }}" /></a>
+  <a class="media-image" href="{{ url }}"><img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" /></a>
   <div class="media-content">
     <h3 class="media-heading">
       <a href="{{ url }}" title="{{ _('View {name}').format(name=organization.display_name) }}">
@@ -25,7 +25,7 @@ Example:
       </a>
     </h3>
     {% if organization.description %}
-      <p>{{ h.truncate(organization.description, length=80, whole_word=True) }}</p>
+      <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
     {% else %}
       <p class="empty">{{ _('This organization has no description') }}</p>
     {% endif %}
