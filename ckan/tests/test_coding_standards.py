@@ -20,6 +20,7 @@ import os
 import re
 import cStringIO
 import inspect
+import itertools
 
 import pep8
 
@@ -27,11 +28,11 @@ file_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(file_path, '..', '..'))
 
 
-def process_directory(directory):
+def process_directory(directory, ext='.py'):
     base_len = len(base_path) + 1
     for (dirpath, dirnames, filenames) in os.walk(directory):
         for name in filenames:
-            if name.endswith('.py'):
+            if name.endswith(ext):
                 path = os.path.join(dirpath, name)
                 filename = path[base_len:]
                 yield path, filename
@@ -91,6 +92,70 @@ def cs_filter(f, filter_, ignore_comment_lines=True):
         out.append(line)
         count += 1
     return out
+
+
+class TestBadSpellings(object):
+
+    BAD_SPELLING_BLACKLIST_FILES = [
+        'ckan/lib/navl/__init__.py',
+    ]
+
+    # these are the bad spellings with the correct spelling
+    # use LOWER case
+    BAD_SPELLINGS = {
+        # CS: bad_spelling ignore 2 lines
+        'licence': 'license',
+        'organisation': 'organization',
+    }
+
+    fails = {}
+    passes = []
+    done = False
+
+    @classmethod
+    def setup(cls):
+        if not cls.done:
+            cls.process()
+        cls.done = True
+
+    @classmethod
+    def process(cls):
+        blacklist = cls.BAD_SPELLING_BLACKLIST_FILES
+        re_bad_spelling = re.compile(
+            r'(%s)' % '|'.join([x for x in cls.BAD_SPELLINGS]),
+            flags=re.IGNORECASE
+        )
+        files = itertools.chain.from_iterable([
+            process_directory(base_path),
+            process_directory(base_path, ext='.rst')])
+        for path, filename in files:
+            f = open(path, 'r')
+            count = 1
+            errors = []
+            for line in cs_filter(f, 'bad_spelling'):
+                matches = re_bad_spelling.findall(line)
+                if matches:
+                    bad_words = []
+                    for m in matches:
+                        if m not in bad_words:
+                            bad_words.append('%s use %s' %
+                                             (m, cls.BAD_SPELLINGS[m.lower()]))
+                    bad = ', '.join(bad_words)
+                    errors.append('ln:%s \t%s\n<%s>' % (count, line[:-1], bad))
+                count += 1
+            if errors and not filename in blacklist:
+                cls.fails[filename] = output_errors(filename, errors)
+            elif not errors and filename in blacklist:
+                cls.passes.append(filename)
+
+    def test_good(self):
+        msg = 'The following files passed bad spellings rules'
+        msg += '\nThey need removing from the test blacklist'
+        show_passing(msg, self.passes)
+
+    def test_bad(self):
+        msg = 'The following files have bad spellings that need fixing'
+        show_fails(msg, self.fails)
 
 
 class TestNastyString(object):
