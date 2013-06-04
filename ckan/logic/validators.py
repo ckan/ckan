@@ -104,7 +104,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %r' % str(value))
+        raise Invalid(_('Not found') + ': %s' % value)
     return value
 
 def package_id_or_name_exists(package_id_or_name, context):
@@ -261,7 +261,7 @@ def object_id_validator(key, activity_dict, errors, context):
         return object_id_validators[activity_type](object_id, context)
     else:
         raise Invalid('There is no object_id validator for '
-            'activity type "%s"' % str(activity_type))
+            'activity type "%s"' % activity_type)
 
 def extras_unicode_convert(extras, context):
     for extra in extras:

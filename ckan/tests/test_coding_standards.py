@@ -106,15 +106,6 @@ class TestNastyString(object):
     # any place.
 
     NASTY_STR_BLACKLIST_FILES = [
-        'ckan/controllers/api.py',
-        'ckan/controllers/group.py',
-        'ckan/lib/activity_streams.py',
-        'ckan/logic/action/create.py',
-        'ckan/logic/action/update.py',
-        'ckan/logic/auth/create.py',
-        'ckan/logic/auth/delete.py',
-        'ckan/logic/auth/get.py',
-        'ckan/logic/validators.py',
         'ckan/tests/functional/api/test_revision_search.py',
         'ckan/tests/functional/test_pagination.py',
         'ckan/tests/models/test_package_relationships.py',
