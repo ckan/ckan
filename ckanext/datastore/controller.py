@@ -25,7 +25,10 @@ class DatastoreController(base.BaseController):
         }
 
         action = p.toolkit.get_action('datastore_search')
-        result = action(context, data_dict)
+        try:
+            result = action(context, data_dict)
+        except p.toolkit.ObjectNotFound:
+            base.abort(404, p.toolkit._('DataStore table not found'))
 
         pylons.response.headers['Content-Type'] = 'text/csv'
         pylons.response.headers['Content-disposition'] = \
