@@ -91,17 +91,26 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'Opengov.se'})
         assert self._pkg_names(result) == 'se-opengov', self._pkg_names(result)
         # multiple words
-        result = search.query_for(model.Package).run({'q': u'Government Expenditure'})
+        #
+        # setting ext_boolean = 'any' makes sets search operator to OR instead
+        # of the default AND
+        result = search.query_for(model.Package).run(
+            {'q': u'Government Expenditure',
+             'extras': {'ext_boolean': 'any'}})
         # uk-government-expenditure is the best match but all other results should be retured
         assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
         # se-opengov has only government in tags, all others hav it in title.
         assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
         # multiple words wrong order
-        result = search.query_for(model.Package).run({'q': u'Expenditure Government'})
+        result = search.query_for(model.Package).run(
+            {'q': u'Expenditure Government',
+             'extras': {'ext_boolean': 'any'}})
         assert self._pkg_names(result).startswith('uk-government-expenditure'), self._pkg_names(result)
         assert self._pkg_names(result).endswith('se-opengov'), self._pkg_names(result)
         # multiple words all should match government
-        result = search.query_for(model.Package).run({'q': u'Expenditure Government China'})
+        result = search.query_for(model.Package).run(
+            {'q': u'Expenditure Government China',
+             'extras': {'ext_boolean': 'any'}})
         assert len(result['results']) == 5, self._pkg_names(result)
 
     def test_3_licence(self):
