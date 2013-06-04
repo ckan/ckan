@@ -281,7 +281,7 @@ class GroupController(base.BaseController):
             default_facet_titles = {'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
-                                    'license': _('Licence')}
+                                    'license': _('License')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:

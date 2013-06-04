@@ -69,7 +69,7 @@ class HomeController(base.BaseController):
                 'groups': _('Groups'),
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
-                'license': _('Licence'),
+                'license': _('License'),
             }
 
             data_dict = {'sort': 'packages', 'all_fields': 1}
