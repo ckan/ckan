@@ -333,14 +333,7 @@ class UserController(base.BaseController):
             return render('user/logout_first.html')
 
     def logged_in(self):
-        # we need to set the language via a redirect
-        lang = session.pop('lang', None)
-        session.save()
         came_from = request.params.get('came_from', '')
-
-        # we need to set the language explicitly here or the flash
-        # messages will not be translated.
-        i18n.set_lang(lang)
 
         if c.user:
             context = None
@@ -360,7 +353,7 @@ class UserController(base.BaseController):
                          'with a user account.)')
             if h.asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
-                h.redirect_to(locale=lang, controller='user',
+                h.redirect_to(controller='user',
                               action='login', came_from=came_from)
             else:
                 return self.login(error=err)
