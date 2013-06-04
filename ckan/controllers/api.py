@@ -251,7 +251,7 @@ class ApiController(base.BaseController):
             'dataset': 'package_list',
             'tag': 'tag_list',
             'related': 'related_list',
-            'licenses': 'licence_list',
+            'licenses': 'license_list',
             ('dataset', 'relationships'): 'package_relationships_list',
             ('dataset', 'revisions'): 'package_revision_list',
             ('dataset', 'activity'): 'package_activity_list',

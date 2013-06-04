@@ -14,7 +14,7 @@ then itself be extended to add/remove blocks of functionality. #}
   {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
   {% block basic_fields %}
-    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licences=c.licences, groups_available=c.groups_available %}
+    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licenses=c.licenses, groups_available=c.groups_available %}
   {% endblock %}
 
   {% block metadata_fields %}
