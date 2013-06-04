@@ -62,7 +62,39 @@ def show_passing(msg, errors):
         raise Exception('\n%s\n\n' % msg + '\n'.join(sorted(errors)))
 
 
+def cs_filter(f, filter_, ignore_comment_lines=True):
+    ''' filter the file removing comments if requested.
+    looks for comments like
+    # CS: <filter_> ignore
+    # CS: <filter_> ignore x line
+    and removes the requested number of lines.  Lines are removed by
+    blanking so the line numbers reported will be correct.  This allows us
+    to check files that have known violations of the test rules. '''
+
+    # this RegEx is of poor quality but works
+    exp = r'^\s*#\s+CS:.*%s.*ignore\D*((\d+)\s+line)*'
+    re_ignore = re.compile(exp % filter_)
+    ignore = 0
+    out = []
+    count = 1
+    for line in f:
+        # ignore the line if we have been told too
+        if ignore > 0:
+            line = ''
+            ignore -= 1
+        matches = re_ignore.search(line)
+        if matches:
+            ignore = int(matches.group(2) or 1)
+        # ignore comments out lines
+        if ignore_comment_lines and line.lstrip().startswith('#'):
+            line = ''
+        out.append(line)
+        count += 1
+    return out
+
+
 class TestNastyString(object):
+    # CS: nasty_string ignore
     ''' Look for a common coding problem in ckan '..%s..' % str(x) '''
 
     # Nasty str() issues
@@ -74,7 +106,6 @@ class TestNastyString(object):
     # any place.
 
     NASTY_STR_BLACKLIST_FILES = [
-        'ckan/ckan_nose_plugin.py',
         'ckan/controllers/api.py',
         'ckan/controllers/group.py',
         'ckan/lib/activity_streams.py',
@@ -84,7 +115,6 @@ class TestNastyString(object):
         'ckan/logic/auth/delete.py',
         'ckan/logic/auth/get.py',
         'ckan/logic/validators.py',
-        'ckan/tests/test_coding_standards.py',  # example causes error
         'ckan/tests/functional/api/test_revision_search.py',
         'ckan/tests/functional/test_pagination.py',
         'ckan/tests/models/test_package_relationships.py',
@@ -110,7 +140,7 @@ class TestNastyString(object):
             f = open(path, 'r')
             count = 1
             errors = []
-            for line in f:
+            for line in cs_filter(f, 'nasty_string'):
                 if re_nasty_str.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
@@ -125,6 +155,7 @@ class TestNastyString(object):
         show_passing(msg, self.passes)
 
     def test_bad(self):
+        # CS: nasty_string ignore next 2 lines
         msg = ('The following files have nasty str() issues that need'
                ' resolving\nCode is like `\'...%s..\' % str(..)`'
                'and should just be `\'...%s..\' % ..`')
