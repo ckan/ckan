@@ -192,6 +192,7 @@ class DefaultDatasetForm(object):
 
         c.licenses = [('', '')] + base.model.Package.get_license_options()
         c.licences = c.licenses
+        deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:
