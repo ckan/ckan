@@ -1,5 +1,53 @@
-Upgrading a Package Install to CKAN 2.0
-=======================================
+Upgrading to a patch version
+============================
+
+For example from 2.0 to 2.0.1. Patch versions don't introduce backwards
+incompatible changes, like changes on the database structure, the Solr schema
+or new requirements (see :doc:`releases` for more details).
+
+Patch releases are included in the same package as the minor release they
+belong to, so for example 2.0.1, 2.0.2, etc will be installed using the 2.0
+package (``python-ckan_2.0_amd64.deb``):
+
+#. Download the CKAN package::
+
+    wget http://packaging.ckan.org/python-ckan_2.0_amd64.deb
+
+   You can check the actual CKAN version from a package running the following
+   command::
+
+    dpkg --info python-ckan_2.0_amd64.deb
+
+   Look for the ``Version`` field in the output::
+
+    ...
+    Package: python-ckan
+    Version: 2.0.1-3
+    ...
+
+#. Install the package with the following command::
+
+    sudo dpkg -i python-ckan_2.0_amd64.deb
+
+   This will **not** replace or modify any configuration files that you
+   already have in the server, including the CKAN ini file or any Apache or
+   Nginx configuration files.
+
+   Your CKAN instance should be upgraded straight away.
+
+.. note::
+
+   When upgrading from 2.0 to 2.0.1 you may see some vdm related warnings when
+   installing the package::
+
+    dpkg: warning: unable to delete old directory '/usr/lib/ckan/default/src/vdm': Directory not empty
+
+   These are due to vdm not longer being installed from source. You can ignore
+   them and delete the folder manually if you want.
+
+
+Upgrading a 1.X Package Install to CKAN 2.0
+===========================================
 
 .. note::
 
