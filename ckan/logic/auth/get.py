@@ -100,6 +100,8 @@ def package_show(context, data_dict):
         auth = new_authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
+    elif package.owner_org is None:
+        return {'success': True}
     else:
         # anyone can see a public package
         if not package.private and package.state == 'active':
