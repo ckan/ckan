@@ -30,6 +30,9 @@ base_path = os.path.abspath(os.path.join(file_path, '..', '..'))
 def process_directory(directory):
     base_len = len(base_path) + 1
     for (dirpath, dirnames, filenames) in os.walk(directory):
+        # ignore hidden files and dir
+        filenames = [f for f in filenames if not f[0] == '.']
+        dirnames[:] = [d for d in dirnames if not d[0] == '.']
         for name in filenames:
             if name.endswith('.py'):
                 path = os.path.join(dirpath, name)
