@@ -81,6 +81,11 @@ class TestDatastoreDump(tests.WsgiAppCase):
         res = self.app.get('/datastore/dump/{0}'.format(str(
             self.data['aliases'])), extra_environ=auth)
 
+    def test_dump_does_not_exist_raises_404(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        self.app.get('/datastore/dump/{0}'.format(str(
+            'does-not-exist')), extra_environ=auth, status=404)
+
     def test_dump_limit(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.get('/datastore/dump/{0}?limit=1'.format(str(
