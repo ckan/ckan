@@ -68,6 +68,8 @@ A **member** can:
 
 * View the organization's private datasets.
 
+When a user creates a new organization, they automatically become the first
+admin of that organization.
 
 Configuration File Options
 --------------------------

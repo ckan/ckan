@@ -1,62 +1,13 @@
-==================================
-Theming and Customizing Appearance
-==================================
+=======
+Theming
+=======
 
-After installing CKAN, the next step is probably to re-theme the site. There
-are a few different ways you can do this. Ranging from simply changing the logo
-and adding some simple CSS to writing a extension that will fully customize
-the look and feel of your instance.
+If you want more control over your CKAN site's layout and appearance than the
+options described in :doc:`getting-started` give, you can further customize
+CKAN's appearance by developing a theme. CKAN's templates, HTML and CSS are all
+completely customizable by themes. This document will walk you through the
+process of developing a CKAN theme.
 
-Here are the two main ways you can customize the appearance of CKAN:
-
-1. `Edit CKAN config options`_
-2. `Create Custom Extension`_
-
-
-Edit CKAN config options
-------------------------
-
-This method is best if you simply want to change the logo, title, add a little
-custom CSS and perhaps customize a few templates. There are two types of config
-options you can set to customize your instance. You can set options within
-your `CKAN config file`_ or edit your `Instance sysadmin settings`_.
-
-CKAN config file
-~~~~~~~~~~~~~~~~
-
-You can change both some of your front end settings and template settings from
-within your CKAN config file.
-
-If you wish to change the site title, description, logo, favicon, etc, then you
-should consult the `CKAN Configuration Options > Front-End Settings`_
-documentation.
-
-If you wish add images, customize templates or add extra stylesheets then you
-should read the `CKAN Configuration Options > Theming Settings`_ documentation.
-
-.. Note::
-    If you are planning on customizing you CKAN instance beyond the settings
-    provided here it is recommended that you read the
-    `Create Custom Extension`_ documentation.
-
-Instance sysadmin settings
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When you login to CKAN as a sysadmin user, you'll see a link to the
-Administration page where you can edit your CKAN config options. Here are the
-basic config options you can change on the Administation page:
-
-- **Site Title:** This is the title of this CKAN instance. It appears in the page title and various other places throughout your CKAN instance.
-
-- **Style:** Choose from a list of simple variations of the main colour scheme to get a very quick custom theme working.
-
-- **Site Tag Logo:** This is the logo that appears in the header of all the CKAN instance templates. If you want to add a custom logo we recommened you do it here.
-
-- **About:** This text will appear on this CKAN instance's about page. We support `markdown`_ within this field.
-
-- **Intro Text:** This text will appear on this CKAN instance's home page as a welcome to visitors. Again `markdown`_ is supported here.
-
-- **Custom CSS:** This is a block of CSS that appears in ``<head>`` tag of every page. If you wish to customize the templates more fully we recommend using the extension method of customizing your CKAN instance.
 
 Create Custom Extension
 -----------------------

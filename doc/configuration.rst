@@ -33,7 +33,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats json_preview recline_preview
+        ckan.plugins = stats text_preview recline_preview
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.

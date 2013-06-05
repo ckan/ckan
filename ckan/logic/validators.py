@@ -204,10 +204,20 @@ def activity_type_exists(activity_type):
     very safe.
 
     """
-    if object_id_validators.has_key(activity_type):
+    if activity_type in object_id_validators:
         return activity_type
     else:
         raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
+
+def resource_id_exists(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Resource).get(value)
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    return value
 
 # A dictionary mapping activity_type values from activity dicts to functions
 # for validating the object_id values from those same activity dicts.
@@ -227,7 +237,8 @@ object_id_validators = {
     'deleted organization' : group_id_exists,
     'follow group' : group_id_exists,
     'new related item': related_id_exists,
-    'deleted related item': related_id_exists
+    'deleted related item': related_id_exists,
+    'changed related item': related_id_exists,
     }
 
 def object_id_validator(key, activity_dict, errors, context):
