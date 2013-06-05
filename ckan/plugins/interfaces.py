@@ -1,6 +1,5 @@
 """
 Interfaces for plugins system
-See doc/plugins.rst for more information
 """
 
 __all__ = [
@@ -19,6 +18,7 @@ __all__ = [
     'ITagController',
     'ITemplateHelpers',
     'IFacets',
+    'IAuthenticator',
 ]
 
 from inspect import isclass
@@ -856,9 +856,9 @@ class IGroupForm(Interface):
 class IFacets(Interface):
     ''' Allows specify which facets are displayed and also the names used.
 
-    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
-    to allow translatable dispaly names use _(...)
-    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    facet_dicts are in the form {'facet_name': 'display name', ...}
+    to allow translatable display names use _(...)
+    eg {'facet_name': _('display name'), ...} and ensure that this is
     created each time the function is called.
 
     The dict supplied is actually an ordered dict.
@@ -875,3 +875,32 @@ class IFacets(Interface):
     def organization_facets(self, facets_dict, organization_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
+
+
+class IAuthenticator(Interface):
+    '''EXPERIMENTAL
+
+    Allows custom authentication methods to be integrated into CKAN.
+    Currently it is experimental and the interface may change.'''
+
+
+    def identify(self):
+        '''called to identify the user.
+
+        If the user is identfied then it should set
+        c.user: The id of the user
+        c.userobj: The actual user object (this may be removed as a
+        requirement in a later release so that access to the model is not
+        required)
+        '''
+
+    def login(self):
+        '''called at login.'''
+
+    def logout(self):
+        '''called at logout.'''
+
+    def abort(self, status_code, detail, headers, comment):
+        '''called on abort.  This allows aborts due to authorization issues
+        to be overriden'''
+        return (status_code, detail, headers, comment)

@@ -1,172 +1,179 @@
-.. _paster:
-
-====================
-CKAN Paster Commands
-====================
-
-The majority of common CKAN administration tasks are carried out using the **paster** script.
-
-Paster is run on the command line on the server running CKAN. This section covers:
-
-* :ref:`paster-understanding`. Understanding paster syntax and getting help.
-* :ref:`paster-tasks`. How to carry out common CKAN admin tasks using paster.
-
-.. _paster-understanding:
-
-Understanding Paster
-====================
-
-At its simplest, paster commands can be thought of like this::
-
-  paster <ckan commands>
-
-But there are various extra elements to the commandline that usually need adding. We shall build them up:
-
-Enabling CKAN commands
+======================
+Command Line Interface
 ======================
 
-Paster is used for many things aside from CKAN. You usually need to tell paster that you want to enable the CKAN commands::
+Most common CKAN administration tasks can be carried out from the command line
+on the server that CKAN is installed on, using the ``paster`` command.
 
-  paster --plugin=ckan <ckan commands>
+If you have trouble running paster commands, see
+`Troubleshooting Paster Commands`_ below.
 
-You know you need to do this if you get the error ``Command 'user' not known`` for a valid CKAN command.
+.. note::
 
-(Alternatively, CKAN commands are enabled by default if your current directory is the CKAN source directory)
+   Before running a CKAN ``paster`` command, you have to activate your CKAN
+   virtualenv and change to the ``ckan``  directory, for example:
 
-Pointing to your CKAN config
-============================
+   .. parsed-literal::
 
-Paster needs to know where your CKAN config file is (so it knows which database and search index to deal with etc.)::
+      |activate|
+      cd |virtualenv|/src/ckan
 
-  paster --plugin=ckan <ckan commands> --config=<config file>
+   To run a paster command without activating the virtualenv first, you have
+   to give the full path the paster script within the virtualenv, for example:
 
-If you forget to specify ``--config`` then you will get error ``AssertionError: Config filename '/home/okfn/development.ini' does not exist.``
+   .. parsed-literal::
 
-(Paster defaults to looking for development.ini in the current directory.)
+      |virtualenv|/bin/paster --plugin=ckan user list -c |development.ini|
 
-For example, to initialise a database::
+   To run a paster command without changing to the ckan directory first, add
+   the ``--plugin=ckan`` option to the command. For example:
 
-  paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+   .. parsed-literal::
 
-Virtual environments
-====================
+      paster --plugin=ckan user list -c |development.ini|
 
-You often need to run paster within your CKAN virtual environment (pyenv). If CKAN was installed as 'source' then you can activate it as usual before running the paster command::
+   In the example commands below, we assume you're running the commands with
+   your virtualenv activated and from your ckan directory.
 
-  . ~/pyenv/bin/activate
-  paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+The general form of a CKAN ``paster`` command is:
 
-The alternative, which also suits a CKAN 'package' install, is to simply give the full path to the paster in your pyenv::
+.. parsed-literal::
 
-  /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+   paster **command** --config=\ |development.ini|
 
+The ``--config`` option tells CKAN where to find your config file, which it
+reads for example to know which database it should use. As you'll see in the
+examples below, this option can be given as ``-c`` for short.
 
-Running Paster on a deployment
-==============================
+``command`` should be replaced with the name of the CKAN command that you wish
+to execute. Most commands have their own subcommands and options. For example,
+to print out a list of all of your CKAN site's users do:
 
-If CKAN is deployed with Apache on this machine, then you should run paster as the same user, which is usually ``www-data``. This is because paster will write to the same CKAN logfile as the Apache process and file permissions need to match.
+.. parsed-literal::
 
- For example::
+   paster user list -c |development.ini|
 
-  sudo -u www-data /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+(Here ``user`` is the name of the CKAN command you're running, and ``list`` is
+a subcommand of ``user``.)
 
-Otherwise you will get an error such as: ``IOError: [Errno 13] Permission denied: '/var/log/ckan/std/std.log'``.
+For a list of all available commands, simply run ``paster`` on its own with no
+command, or see `Paster Commands Reference`_. In this case we don't need the
+``-c`` option, since we're only asking CKAN to print out information about
+commands, not to actually do anything with our CKAN site::
 
-.. _paster-help:
+ paster
 
-Getting Help on Paster
-----------------------
+Each command has its own help text, which tells you what subcommands and
+options it has (if any). To print out a command's help text, run the command
+with the ``--help`` option::
 
-To get a full list of paster commands (i.e. including CKAN commands)::
-
-  paster --plugin=ckan --help
-
-And to get more detailed help on each command (e.g. on ``db``)::
-
-  paster --plugin=ckan --help db
-
-
-Paster executable
------------------
-
-It is essential to run the correct paster. The program may be installed globally on a server, but in nearly all cases, the one installed in the CKAN python virtual environment (pyenv) is the one that should be used instead. This can be done by either:
-
-1. Activating the virtual environment::
-
-    . pyenv/bin/activate
-
-2. Giving the path to paster when you run it::
-
-    pyenv/bin/paster ...
+   paster user --help
 
 
-Position of Paster Parameters
------------------------------
+-------------------------------
+Troubleshooting Paster Commands
+-------------------------------
 
-The position of paster parameters matters.
+Virtualenv not activated, or not in ckan dir
+============================================
 
-``--plugin`` is a parameter to paster, so needs to come before the CKAN command. To do this, the first parameter to paster is normally ``--plugin=ckan``.
+Most errors with paster commands can be solved by remembering to **activate
+your virtual environment** and **change to the ckan directory** before running
+the command:
 
-.. note:: The default value for ``--plugin`` is ``setup.py`` in the current directory. If you are running paster from the directory where CKAN's ``setup.py`` file is located, you don't need to specify the plugin parameter..
+.. parsed-literal::
 
-Meanwhile, ``--config`` is a parameter to CKAN, so needs to come after the CKAN command. This specifies the CKAN config file for the instance you want to use, e.g. ``--config=/etc/ckan/std/std.ini``
+   |activate|
+   cd |virtualenv|/src/ckan
 
-.. note:: The default value for ``--config`` is ``development.ini`` in the current directory. If you are running a package install of CKAN (as described in :doc:`install-from-package`), you should explicitly specify ``std.ini``.
+Error messages such as the following are usually caused by forgetting to do
+this:
 
-The position of the CKAN command itself is less important, as longs as it follows ``--plugin``. For example, both the following commands have the same effect:::
+* **Command 'foo' not known** (where *foo* is the name of the command you
+  tried to run)
+* **The program 'paster' is currently not installed**
+* **Command not found: paster**
+* **ImportError: No module named fanstatic** (or other ``ImportError``\ s)
 
-  paster --plugin=ckan db --config=development.ini init
-  paster --plugin=ckan db init --config=development.ini
+Running paster commands provided by extensions
+==============================================
+
+**If you're trying to run a CKAN command provided by an extension** that you've
+installed and you're getting an error like **Command 'foo' not known** even
+though you've activated your virtualenv and changed to the ckan directory, this
+is because you need to run the extension's paster commands from the extension's
+source directory not CKAN's source directory. For example:
+
+.. parsed-literal::
+
+   |activate|
+   cd |virtualenv|/src/ckanext-spatial
+   paster foo -c |development.ini|
+
+This should not be necessary when using the pre-installed extensions that come
+with CKAN.
+
+Alternatively, you can give the extension's name using the ``--plugin`` option,
+for example
+
+.. parsed-literal::
+
+   paster --plugin=ckanext-foo foo -c |development.ini|
+
+.. todo::
+
+   Running a paster shell with ``paster --plugin=pylons shell -c ...``.
+   Useful for development?
+
+Wrong config file path
+======================
+
+AssertionError: Config filename development.ini does not exist
+  This means you forgot to give the ``--config`` or ``-c`` option to tell CKAN
+  where to find your config file. (CKAN looks for a config file named
+  ``development.ini`` in your current working directory by default.)
+
+ConfigParser.MissingSectionHeaderError: File contains no section headers
+  This happens if the config file that you gave with the ``-c`` or ``--config``
+  option is badly formatted, or if you gave the wrong filename.
+
+IOError: [Errno 2] No such file or directory: '...'
+  This means you gave the wrong path to the ``--config`` or ``-c`` option
+  (you gave a path to a file that doesn't exist).
 
 
-Running a Paster Shell
-----------------------
+-------------------------
+Paster Commands Reference
+-------------------------
 
-If you want to run a "paster shell", which can be useful for development, then the plugin is pylons. e.g. ``paster --plugin=pylons shell``.
+The following paster commands are supported by CKAN:
 
-Often you will want to run this as the same user as the web application, to ensure log files are written as the same user. And you'll also want to specify a config file (note that this is not specified using the ``--config`` parameter, but simply as the final argument). For example::
-
-  sudo -u www-data paster --plugin=pylons shell std.ini
-
-
-.. _paster-tasks:
-
-Common Tasks Using Paster
-=========================
-
-The following tasks are supported by paster.
-
-  ================= ==========================================================
-  celeryd           Control celery daemon.
-  check-po-files    Check po files for common mistakes
-  color             Create or remove a color scheme.
-  create-test-data  Create test data in the database.
-  dataset           Manage datasets.
-  datastore         Perform commands to set up the datastore.
-  db                Perform various tasks on the database.
-  front-end-build   Creates and minifies css and JavaScript files
-  less              Compile all root less documents into their CSS counterparts
-  minify            Create minified versions of the given Javascript and CSS files.
-  notify            Send out modification notifications.
-  plugin-info       Provide info on installed plugins.
-  profile           Code speed profiler
-  ratings           Manage the ratings stored in the db
-  rdf-export        Export active datasets as RDF.
-  search-index      Creates a search index for all datasets
-  sysadmin          Gives sysadmin rights to a named user.
-  tracking          Update tracking statistics.
-  trans             Translation helper functions
-  user              Manage users.
-  ================= ==========================================================
-
-
-For the full list of tasks supported by paster, you can run::
-
- paster --plugin=ckan --help
+================= ============================================================
+celeryd           Control celery daemon.
+check-po-files    Check po files for common mistakes
+color             Create or remove a color scheme.
+create-test-data  Create test data in the database.
+dataset           Manage datasets.
+datastore         Perform commands to set up the datastore.
+db                Perform various tasks on the database.
+front-end-build   Creates and minifies css and JavaScript files
+less              Compile all root less documents into their CSS counterparts
+minify            Create minified versions of the given Javascript and CSS files.
+notify            Send out modification notifications.
+plugin-info       Provide info on installed plugins.
+profile           Code speed profiler
+ratings           Manage the ratings stored in the db
+rdf-export        Export active datasets as RDF.
+search-index      Creates a search index for all datasets
+sysadmin          Gives sysadmin rights to a named user.
+tracking          Update tracking statistics.
+trans             Translation helper functions
+user              Manage users.
+================= ============================================================
 
 
 celeryd: Control celery daemon
--------------------------------
+==============================
 
 Usage::
 
@@ -178,7 +185,7 @@ Usage::
 
 
 check-po-files: Check po files for common mistakes
---------------------------------------------------
+==================================================
 
 Usage::
 
@@ -186,7 +193,7 @@ Usage::
 
 
 color: Create or remove a color scheme
---------------------------------------
+======================================
 
 After running this command, you'll need to regenerate the css files. See :ref:`less` for details.
 
@@ -200,13 +207,13 @@ Usage::
 
 
 create-test-data: Create test data
-----------------------------------
+==================================
 
 As the name suggests, this command lets you load test data when first setting up CKAN. See :ref:`create-test-data` for details.
 
 
 dataset: Manage datasets
-------------------------
+========================
 
 Usage::
 
@@ -218,7 +225,7 @@ Usage::
 
 
 datastore: Perform commands to set up the datastore
----------------------------------------------------
+===================================================
 
 Make sure that the datastore URLs are set properly before you run these commands.
 
@@ -233,66 +240,129 @@ Usage::
                        be the "postgres" user.
 
 
+.. _paster db:
+
 db: Manage databases
---------------------
+====================
 
 Lets you initialise, upgrade, and dump the CKAN database.
 
-Initialisation
-~~~~~~~~~~~~~~
+Initialization
+--------------
 
-Before you can run CKAN for the first time, you need to run "db init" to create the tables in the database and the default authorization settings::
+Before you can run CKAN for the first time, you need to run ``db init`` to
+initialize your database:
 
- paster --plugin=ckan db init --config=/etc/ckan/std/std.ini
+.. parsed-literal::
 
-If you forget to do this then CKAN won't serve requests and you will see errors such as this in the logs::
+ paster db init -c |production.ini|
 
- ProgrammingError: (ProgrammingError) relation "user" does not exist
+If you forget to do this you'll see this error message in your web browser:
+
+ 503 Service Unavailable:  This site is currently off-line. Database is not
+ initialised.
 
 Cleaning
-~~~~~~~~
+--------
 
-You can delete everything in the CKAN database, including the tables, to start from scratch::
+You can delete everything in the CKAN database, including the tables, to start
+from scratch:
 
- paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini
+.. warning::
 
-The next logical step from this point is to do a "db init" step before starting CKAN again.
+   This will delete all data from your CKAN database!
+
+.. parsed-literal::
+
+ paster db clean -c |production.ini|
+
+After cleaning the db you must do a ``db init`` or ``db load`` before CKAN will
+work again.
 
 .. _dumping and loading:
 
 Dumping and Loading databases to/from a file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 
-You can 'dump' (save) the exact state of the database to a file on disk and at a later point 'load' (restore) it again, or load it on another machine.
+You can 'dump' (save) the exact state of the database to a file on disk and at
+a later point 'load' (restore) it again.
 
-To write the dump::
+.. tip::
 
- paster --plugin=ckan db dump --config=/etc/ckan/std/std.ini std.pg_dump
+   You can also dump the database from one CKAN instance, and then load it into
+   another CKAN instance on the same or another machine. This will even work if
+   the CKAN instance you dumped the database from is an older version of CKAN
+   than the one you load it into, the database will be automatically upgraded
+   during the load command. (But you cannot load a database from a newer
+   version of CKAN into an older version of CKAN.)
 
-To load it in again, you first have to clean the database of existing data (be careful not to wipe valuable data), followed by the load::
+To export a dump of your CKAN database:
 
- paster --plugin=ckan db clean --config=/etc/ckan/std/std.ini std.pg_dump
- paster --plugin=ckan db load --config=/etc/ckan/std/std.ini std.pg_dump
+.. parsed-literal::
 
-.. warning: The pg_dump file is a complete backup of the database in plain text, and includes API keys and other user data which may be regarded as private. So keep it secure, like your database server.
+ paster db dump -c |production.ini| my_database_dump.sql
 
-.. _upgrade migration:
+To load it in again, you first have to clean the database (this will delete all
+data in the database!) and then load the file:
 
-Upgrade migration
-~~~~~~~~~~~~~~~~~
+.. parsed-literal::
 
-When you upgrade CKAN software by any method *other* than the package update described in :doc:`install-from-package`, before you restart it, you should run 'db upgrade', which will do any necessary migrations to the database tables::
+ paster db clean -c |production.ini|
+ paster db load -c |production.ini| my_database_dump.sql
 
- paster --plugin=ckan db upgrade --config=/etc/ckan/std/std.ini
+.. warning:
 
-Creating dump files
-~~~~~~~~~~~~~~~~~~~
+   The exported file is a complete backup of the database in plain text, and
+   includes API keys and other user data which may be regarded as private. So
+   keep it secure, like your database server.
 
-For information on using ``db`` to create dumpfiles, see :doc:`database-dumps`.
+Exporting Datasets to JSON or CSV
+---------------------------------
 
+You can export all of your CKAN site's datasets from your database to a JSON file
+using the ``db simple-dump-json`` command:
+
+.. parsed-literal::
+
+ paster db simple-dump-json -c |production.ini| my_datasets.json
+
+To export the datasets in CSV format instead, use ``db simple-dump-csv``:
+
+.. parsed-literal::
+
+ paster db simple-dump-csv -c |production.ini| my_datasets.csv
+
+This is useful to create a simple public listing of the datasets, with no user
+information. Some simple additions to the Apache config can serve the dump
+files to users in a directory listing. To do this, add these lines to your
+virtual Apache config file (e.g. |apache_config_file|)::
+
+    Alias /dump/ /home/okfn/var/srvc/ckan.net/dumps/
+
+    # Disable the mod_python handler for static files
+    <Location /dump>
+        SetHandler None
+        Options +Indexes
+    </Location>
+
+.. warning::
+
+   Don't serve an SQL dump of your database (created using the ``paster db
+   dump`` command), as those contain private user information such as email
+   addresses and API keys.
+
+Exporting User Accounts to CSV
+------------------------------
+
+You can export all of your CKAN site's user accounts from your database to a CSV file
+using the ``db user-dump-csv`` command:
+
+.. parsed-literal::
+
+ paster db user-dump-csv -c |production.ini| my_database_users.csv
 
 front-end-build: Creates and minifies css and JavaScript files
---------------------------------------------------------------
+==============================================================
 
 Usage::
 
@@ -302,7 +372,7 @@ Usage::
 .. _less:
 
 less: Compile all root less documents into their CSS counterparts
------------------------------------------------------------------
+=================================================================
 
 Usage::
 
@@ -310,7 +380,7 @@ Usage::
 
 
 minify: Create minified versions of the given Javascript and CSS files
-----------------------------------------------------------------------
+======================================================================
 
 Usage::
 
@@ -326,7 +396,7 @@ If the --clean option is provided any minified files will be removed.
 
 
 notify: Send out modification notifications
--------------------------------------------
+===========================================
 
 Usage::
 
@@ -335,13 +405,13 @@ Usage::
 
 
 plugin-info: Provide info on installed plugins
-----------------------------------------------
+==============================================
 
 As the name suggests, this commands shows you the installed plugins, their description, and which interfaces they implement
 
 
 profile: Code speed profiler
-----------------------------
+============================
 
 Provide a ckan url and it will make the request and record how long each function call took in a file that can be read
 by runsnakerun.
@@ -358,7 +428,7 @@ You may need to install the cProfile python module.
 
 
 ratings: Manage dataset ratings
--------------------------------
+===============================
 
 Manages the ratings stored in the database, and can be used to count ratings, remove all ratings, or remove only anonymous ratings.
 
@@ -368,7 +438,7 @@ For example, to remove anonymous ratings from the database::
 
 
 rdf-export: Export datasets as RDF
-----------------------------------
+==================================
 
 This command dumps out all currently active datasets as RDF into the specified folder::
 
@@ -378,7 +448,7 @@ This command dumps out all currently active datasets as RDF into the specified f
 .. _rebuild search index:
 
 search-index: Rebuild search index
-----------------------------------
+==================================
 
 Rebuilds the search index. This is useful to prevent search indexes from getting out of sync with the main database.
 
@@ -409,7 +479,7 @@ There are other search related commands, mostly useful for debugging purposes::
 
 
 sysadmin: Give sysadmin rights
-------------------------------
+==============================
 
 Gives sysadmin rights to a named user. This means the user can perform any action on any object.
 
@@ -419,7 +489,7 @@ For example, to make a user called 'admin' into a sysadmin::
 
 
 tracking: Update tracking statistics
-------------------------------------
+====================================
 
 Usage::
 
@@ -428,7 +498,7 @@ Usage::
 
 
 trans: Translation helper functions
------------------------------------
+===================================
 
 Usage::
 
@@ -439,7 +509,7 @@ Usage::
 .. _paster-user:
 
 user: Create and manage users
------------------------------
+=============================
 
 Lets you create, remove, list and manage users.
 

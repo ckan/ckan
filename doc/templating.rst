@@ -1,16 +1,16 @@
 Templating
 ==========
 
-Within CKAN 2.0 we moved out templating to use Jinja from Genshi. This was
+Within CKAN 2.0 we moved out templating to use Jinja2 from Genshi. This was
 done to provide a more flexible, extensible and most importantly easy to
 understand templating language.
 
 Some useful links to get you started.
 
--  `Jinja Homepage <http://jinja.pocoo.org>`_
--  `Jinja Developer Documentation <http://jinja.pocoo.org/docs/>`_
--  `Jinja Template
-   Documentation <http://jinja.pocoo.org/docs/templates/>`_
+-  `Jinja2 Homepage <http://Jinja2.pocoo.org>`_
+-  `Jinja2 Developer Documentation <http://Jinja2.pocoo.org/docs/>`_
+-  `Jinja2 Template
+   Documentation <http://Jinja2.pocoo.org/docs/templates/>`_
 
 Legacy Templates
 ----------------
@@ -36,7 +36,7 @@ File Structure
 The file structure for the CKAN templates is pretty much the same as
 before with a directory per controller and individual files per action.
 
-With Jinja we also have the ability to use snippets which are small
+With Jinja2 we also have the ability to use snippets which are small
 fragments of HTML code that can be pulled in to any template. These are
 kept in a snippets directory within the same folder as the actions that
 are using them. More generic snippets are added to templates/snippets.
@@ -60,7 +60,7 @@ are using them. More generic snippets are added to templates/snippets.
 Using the templating system
 ---------------------------
 
-Jinja makes heavy use of template inheritance to build pages. A template
+Jinja2 makes heavy use of template inheritance to build pages. A template
 for an action will tend to inherit from *page.html*:
 
 ::
@@ -87,8 +87,8 @@ can customise as little or as much as required.
 Internationalisation
 --------------------
 
-Jinja provides a couple of helpers for
-`internationalisation <http://jinja.pocoo.org/docs/templates/#i18n>`_.
+Jinja2 provides a couple of helpers for
+`internationalisation <http://Jinja2.pocoo.org/docs/templates/#i18n>`_.
 The most common is to use the ``_()`` function:
 
 ::
@@ -162,17 +162,13 @@ for creating common form fields.
 They should generally be avoided as they are hard to extend and
 customise.
 
-CKAN Extensions
----------------
+Templating within extensions
+----------------------------
 
-Currently extensions cannot automatically insert content into the CKAN
-website instead they require a new "theme" extension to be created
-specifically for the instance. This has been done to intentionally keep
-everything very declarative and to allow the most flexibility in the
-simplest way.
-
-Please see the `Extension Templating <./extension-templating.html>`_
-document for more information.
+When you need to add or customize a template from within an extension you need
+to tell CKAN that there is a template directory that it can call from. Within
+your ``update_config`` method for the extension you'll need to add a
+``extra_template_paths`` to the ``config``.
 
 Custom Control Structures
 -------------------------
@@ -235,7 +231,7 @@ snippet
 
     {% snippet [filepath], [arg1=arg1], [arg2=arg2]... %}
 
-Snippets work very much like Jinja's ``{% include %}`` except that that
+Snippets work very much like Jinja2's ``{% include %}`` except that that
 do not inherit the parent templates context. This means that all
 variables must be explicitly passed in to the snippet. This makes
 debugging much easier.
@@ -415,6 +411,7 @@ matching labels to inputs, selected item and error messages.
 Examples:
 
 ::
+
     {% import 'macros/form.html' as form %}
     {{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 

@@ -221,7 +221,7 @@ class PackageController(base.BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('Licence'),
+                    'license_id': _('License'),
                     }
 
             for facet in g.facets:

@@ -1,3 +1,5 @@
+'''API functions for adding data to CKAN.'''
+
 import logging
 
 from pylons import config
@@ -99,6 +101,10 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
+    :param owner_org: the id of the dataset's owning organization, see
+        ``organization_list()`` or ``organization_list_for_user`` for
+        available values (optional)
+    :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
               in the context, in which case just the dataset id will be returned)
@@ -297,10 +303,12 @@ def related_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit_and_remove()
 
+    dataset_dict = None
     if 'dataset_id' in data_dict:
         dataset = model.Package.get(data_dict['dataset_id'])
         dataset.related.append( related )
         model.repo.commit_and_remove()
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
 
     session.flush()
 
@@ -311,7 +319,8 @@ def related_create(context, data_dict):
             'activity_type': 'new related item',
             }
     activity_dict['data'] = {
-            'related': related_dict
+            'related': related_dict,
+            'dataset': dataset_dict,
     }
     activity_create_context = {
         'model': model,
@@ -925,7 +934,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     if errors:
         raise ValidationError(errors)
 
-    activity = model_save.activity_dict_save(activity_dict, context)
+    activity = model_save.activity_dict_save(data, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1079,7 +1088,7 @@ def follow_dataset(context, data_dict):
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
         # FIXME really package model should have this logic and provide
-        # 'dispaly_name' like users and groups
+        # 'display_name' like users and groups
         pkgobj = model.Package.get(validated_data_dict['id'])
         name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
@@ -1115,6 +1124,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     result = session.query(model.User).filter_by(name=username).first()
     if result:
         user_id = result.id
+    else:
+        message = _(u'User {username} does not exist.').format(username=username)
+        raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
         'object': user_id,

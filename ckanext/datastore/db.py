@@ -7,18 +7,21 @@ import urllib2
 import urlparse
 import random
 import string
-import distutils.version
 import logging
 import pprint
+
+import distutils.version
 import sqlalchemy
-from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
+from sqlalchemy.exc import (ProgrammingError, IntegrityError,
+                            DBAPIError, DataError)
 import psycopg2.extras
+import ckan.lib.cli as cli
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
     import paste.deploy.converters as converters
-    import ckan.plugins.toolkit as toolkit
     ValidationError = toolkit.ValidationError
 else:
     log.warn("Running datastore without CKAN")
@@ -31,23 +34,27 @@ _pg_types = {}
 _type_names = set()
 _engines = {}
 
+_TIMEOUT = 60000  # milliseconds
+
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
-    'unique_violation': 23505,
-    'query_canceled': 57014,
-    'undefined_object': 42704,
-    'syntax_error': 42601
+    'unique_violation': '23505',
+    'query_canceled': '57014',
+    'undefined_object': '42704',
+    'syntax_error': '42601',
+    'permission_denied': '42501',
+    'duplicate_table': '42P07',
+    'duplicate_alias': '42712',
 }
 
-_date_formats = ['%Y-%m-%d',
+_DATE_FORMATS = ['%Y-%m-%d',
                  '%Y-%m-%d %H:%M:%S',
                  '%Y-%m-%dT%H:%M:%S',
                  '%Y-%m-%dT%H:%M:%SZ',
                  '%d/%m/%Y',
                  '%m/%d/%Y',
                  '%d-%m-%Y',
-                 '%m-%d-%Y',
-                 ]
+                 '%m-%d-%Y']
 
 _INSERT = 'insert'
 _UPSERT = 'upsert'
@@ -76,12 +83,6 @@ def _get_list(input, strip=True):
         return [_strip(x) for x in l]
     else:
         return l
-
-
-def _get_bool(input, default=False):
-    if input in [None, '']:
-        return default
-    return converters.asbool(input)
 
 
 def _is_valid_field_name(name):
@@ -136,16 +137,20 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            connection.execute('CREATE TYPE "nested" AS (json {0}, extra text)'
-                .format('json' if native_json else 'text'))
+            connection.execute('''CREATE TYPE "nested"
+                AS (json {0}, extra text)'''.format(
+                'json' if native_json else 'text'))
             _pg_types.clear()
 
-            log.info("Created nested type. Native JSON: {0}".format(native_json))
+            log.info("Created nested type. Native JSON: {0}".format(
+                native_json))
 
             ## redo cache types with json now available.
             return _cache_types(context)
 
-        psycopg2.extras.register_composite('nested', connection.connection, True)
+        psycopg2.extras.register_composite('nested',
+                                           connection.connection,
+                                           True)
 
 
 def _pg_version_is_at_least(connection, version):
@@ -167,8 +172,8 @@ def _is_valid_pg_type(context, type_name):
         try:
             connection.execute('SELECT %s::regtype', type_name)
         except ProgrammingError, e:
-            if int(e.orig.pgcode) in [_PG_ERR_CODE['undefined_object'],
-                                      _PG_ERR_CODE['syntax_error']]:
+            if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
+                                 _PG_ERR_CODE['syntax_error']]:
                 return False
             raise
         else:
@@ -221,7 +226,7 @@ def _guess_type(field):
         return 'numeric'
 
     ##try iso dates
-    for format in _date_formats:
+    for format in _DATE_FORMATS:
         try:
             datetime.datetime.strptime(field, format)
             return 'timestamp'
@@ -263,11 +268,13 @@ def check_fields(context, fields):
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field type'.format(field['type'])]
+                'fields': ['"{0}" is not a valid field type'.format(
+                    field['type'])]
             })
         elif not _is_valid_field_name(field['id']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field name'.format(field['id'])]
+                'fields': ['"{0}" is not a valid field name'.format(
+                    field['id'])]
             })
 
 
@@ -326,8 +333,8 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(f['id'].replace('%', '%%'), f['type'])
-                            for f in fields])
+    sql_fields = u", ".join([u'"{0}" {1}'.format(
+        f['id'].replace('%', '%%'), f['type']) for f in fields])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
         data_dict['resource_id'],
@@ -358,26 +365,35 @@ def _get_resources(context, alias):
 
 def create_alias(context, data_dict):
     aliases = _get_list(data_dict.get('aliases'))
-    if aliases != None:
+    if aliases is not None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
             sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
             context['connection'].execute(sql_alias_drop_string)
 
-        for alias in aliases:
-            sql_alias_string = u'CREATE VIEW "{alias}" AS SELECT * FROM "{main}"'.format(
-                alias=alias,
-                main=data_dict['resource_id']
-            )
+        try:
+            for alias in aliases:
+                sql_alias_string = u'''CREATE VIEW "{alias}"
+                    AS SELECT * FROM "{main}"'''.format(
+                    alias=alias,
+                    main=data_dict['resource_id']
+                )
 
-            res_ids = _get_resources(context, alias)
-            if res_ids:
+                res_ids = _get_resources(context, alias)
+                if res_ids:
+                    raise ValidationError({
+                        'alias': [(u'The alias "{0}" already exists.').format(
+                            alias)]
+                    })
+
+                context['connection'].execute(sql_alias_string)
+        except DBAPIError, e:
+            if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
+                                 _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
-                    'alias': [(u'The alias "{0}" already exists.').format(alias)]
+                    'alias': ['"{0}" already exists'.format(alias)]
                 })
-
-            context['connection'].execute(sql_alias_string)
 
 
 def create_indexes(context, data_dict):
@@ -391,9 +407,9 @@ def create_indexes(context, data_dict):
     if indexes is None and primary_key is None:
         return
 
-    sql_index_skeletton = u'CREATE {unique} INDEX {name} ON "{res_id}"'
-    sql_index_string_method = sql_index_skeletton + u' USING {method}({fields})'
-    sql_index_string = sql_index_skeletton + u' ({fields})'
+    sql_index_tmpl = u'CREATE {unique} INDEX {name} ON "{res_id}"'
+    sql_index_string_method = sql_index_tmpl + u' USING {method}({fields})'
+    sql_index_string = sql_index_tmpl + u' ({fields})'
     sql_index_strings = []
 
     fields = _get_fields(context, data_dict)
@@ -405,8 +421,8 @@ def create_indexes(context, data_dict):
         if _pg_version_is_at_least(context['connection'], '9.0'):
             return ''
         else:
-            source = string.ascii_letters + string.digits
-            random_string = ''.join([random.choice(source) for n in xrange(10)])
+            src = string.ascii_letters + string.digits
+            random_string = ''.join([random.choice(src) for n in xrange(10)])
             return 'idx_' + random_string
 
     if indexes is not None:
@@ -433,19 +449,20 @@ def create_indexes(context, data_dict):
         for field in index_fields:
             if field not in field_ids:
                 raise ValidationError({
-                    'index': [('The field "{0}" is not a valid column name.').format(
-                        index)]
+                    'index': [
+                        ('The field "{0}" is not a valid column name.').format(
+                            index)]
                 })
-        fields_string = u', '.join([
-                '(("{0}").json::text)'.format(field.replace('%', '%%'))
-            if field in json_fields else
-                 '"%s"' % field.replace('%', '%%')
-            for field in index_fields])
+        fields_string = u', '.join(
+            ['(("{0}").json::text)'.format(field.replace('%', '%%'))
+                if field in json_fields else
+                '"%s"' % field.replace('%', '%%')
+                for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
-                res_id=data_dict['resource_id'],
-                unique='unique' if index == primary_key else '',
-                name=generate_index_name(),
-                fields=fields_string))
+            res_id=data_dict['resource_id'],
+            unique='unique' if index == primary_key else '',
+            name=generate_index_name(),
+            fields=fields_string))
 
     map(context['connection'].execute, sql_index_strings)
 
@@ -470,7 +487,8 @@ def _drop_indexes(context, data_dict, unique=False):
     indexes_to_drop = context['connection'].execute(
         sql_get_index_string, data_dict['resource_id']).fetchall()
     for index in indexes_to_drop:
-        context['connection'].execute(sql_drop_index.format(index[0]).replace('%', '%%'))
+        context['connection'].execute(
+            sql_drop_index.format(index[0]).replace('%', '%%'))
 
 
 def alter_table(context, data_dict):
@@ -492,7 +510,8 @@ def alter_table(context, data_dict):
             if field['id'] != current_fields[num]['id']:
                 raise ValidationError({
                     'fields': [('Supplied field "{0}" not '
-                              'present or in wrong order').format(field['id'])]
+                                'present or in wrong order').format(
+                                    field['id'])]
                 })
             ## no need to check type as field already defined.
             continue
@@ -506,7 +525,12 @@ def alter_table(context, data_dict):
         new_fields.append(field)
 
     if records:
-        # check record for sanity
+        # check record for sanity as they have not been
+        # checked during validation
+        if not isinstance(records, list):
+            raise ValidationError({
+                'records': ['Records has to be a list of dicts']
+            })
         if not isinstance(records[0], dict):
             raise ValidationError({
                 'records': ['The first row is not a json object']
@@ -539,16 +563,11 @@ def upsert_data(context, data_dict):
 
     method = data_dict.get('method', _UPSERT)
 
-    if method not in [_INSERT, _UPSERT, _UPDATE]:
-        raise ValidationError({
-            'method': [u'"{0}" is not defined'.format(method)]
-        })
-
     fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
     records = data_dict['records']
-    sql_columns = ", ".join(['"%s"' % name.replace('%', '%%') for name in field_names]
-                            + ['"_full_text"'])
+    sql_columns = ", ".join(['"%s"' % name.replace(
+        '%', '%%') for name in field_names] + ['"_full_text"'])
 
     if method == _INSERT:
         rows = []
@@ -565,7 +584,8 @@ def upsert_data(context, data_dict):
             row.append(_to_full_text(fields, record))
             rows.append(row)
 
-        sql_string = u'INSERT INTO "{res_id}" ({columns}) VALUES ({values}, to_tsvector(%s));'.format(
+        sql_string = u'''INSERT INTO "{res_id}" ({columns})
+            VALUES ({values}, to_tsvector(%s));'''.format(
             res_id=data_dict['resource_id'],
             columns=sql_columns,
             values=', '.join(['%s' for field in field_names])
@@ -583,11 +603,12 @@ def upsert_data(context, data_dict):
         for num, record in enumerate(records):
             # all key columns have to be defined
             missing_fields = [field for field in unique_keys
-                    if field not in record]
+                              if field not in record]
             if missing_fields:
                 raise ValidationError({
-                    'key': [u'fields "{0}" are missing but needed as key'.format(
-                        ', '.join(missing_fields))]
+                    'key': [u'''fields "{fields}" are missing
+                        but needed as key'''.format(
+                            fields=', '.join(missing_fields))]
                 })
 
             for field in fields:
@@ -596,8 +617,8 @@ def upsert_data(context, data_dict):
                     ## a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
-            non_existing_filed_names = [field for field in record.keys()
-                if field not in field_names]
+            non_existing_filed_names = [field for field in record
+                                        if field not in field_names]
             if non_existing_filed_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
@@ -607,7 +628,7 @@ def upsert_data(context, data_dict):
             unique_values = [record[key] for key in unique_keys]
 
             used_fields = [field for field in fields
-                                    if field['id'] in record.keys()]
+                           if field['id'] in record]
 
             used_field_names = _pluck('id', used_fields)
 
@@ -622,13 +643,17 @@ def upsert_data(context, data_dict):
                     WHERE ({primary_key}) = ({primary_value});
                 '''.format(
                     res_id=data_dict['resource_id'],
-                    columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
-                    values=u', '.join(['%s' for _ in used_field_names]),
-                    primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
+                    columns=u', '.join(
+                        [u'"{0}"'.format(field)
+                         for field in used_field_names]),
+                    values=u', '.join(
+                        ['%s' for _ in used_field_names]),
+                    primary_key=u','.join(
+                        [u'"{0}"'.format(part) for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
                 results = context['connection'].execute(
-                        sql_string, used_values + [full_text] + unique_values)
+                    sql_string, used_values + [full_text] + unique_values)
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -647,13 +672,18 @@ def upsert_data(context, data_dict):
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
                     res_id=data_dict['resource_id'],
-                    columns=u', '.join([u'"{0}"'.format(field) for field in used_field_names]),
-                    values=u', '.join(['%s::nested' if field['type'] == 'nested' else '%s' for field in used_fields]),
-                    primary_key=u','.join([u'"{0}"'.format(part) for part in unique_keys]),
+                    columns=u', '.join([u'"{0}"'.format(field)
+                                        for field in used_field_names]),
+                    values=u', '.join(['%s::nested'
+                                       if field['type'] == 'nested' else '%s'
+                                       for field in used_fields]),
+                    primary_key=u','.join([u'"{0}"'.format(part)
+                                           for part in unique_keys]),
                     primary_value=u','.join(["%s"] * len(unique_keys))
                 )
                 context['connection'].execute(
-                        sql_string, (used_values + [full_text] + unique_values) * 2)
+                    sql_string,
+                    (used_values + [full_text] + unique_values) * 2)
 
 
 def _get_unique_key(context, data_dict):
@@ -673,7 +703,8 @@ def _get_unique_key(context, data_dict):
         AND idx.indisprimary = false
         AND t.relname = %s
     '''
-    key_parts = context['connection'].execute(sql_get_unique_key, data_dict['resource_id'])
+    key_parts = context['connection'].execute(sql_get_unique_key,
+                                              data_dict['resource_id'])
     return [x[0] for x in key_parts]
 
 
@@ -740,7 +771,7 @@ def _textsearch_query(data_dict):
     q = data_dict.get('q')
     lang = data_dict.get(u'language', u'english')
     if q:
-        if (_get_bool(data_dict.get('plain'), True)):
+        if data_dict.get('plain', True):
             statement = u", plainto_tsquery('{lang}', '{query}') query"
         else:
             statement = u", to_tsquery('{lang}', '{query}') query"
@@ -798,7 +829,6 @@ def _insert_links(data_dict, limit, offset):
     data_dict['_links'] = {}
 
     # get the url from the request
-    import ckan.plugins.toolkit as toolkit
     urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
 
     # change the offset in the url
@@ -880,12 +910,12 @@ def search_data(context, data_dict):
     sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
-            select=select_columns,
-            rank=rank_column,
-            resource=data_dict['resource_id'],
-            ts_query=ts_query,
-            where=where_clause,
-            sort=sort, limit=limit, offset=offset)
+        select=select_columns,
+        rank=rank_column,
+        resource=data_dict['resource_id'],
+        ts_query=ts_query,
+        where=where_clause,
+        sort=sort, limit=limit, offset=offset)
     results = context['connection'].execute(sql_string, [where_values])
 
     _insert_links(data_dict, limit, offset)
@@ -944,20 +974,19 @@ def create(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     _rename_json_field(data_dict)
 
-    # close connection at all cost.
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         result = context['connection'].execute(
             u'SELECT * FROM pg_tables WHERE tablename = %s',
-             data_dict['resource_id']
+            data_dict['resource_id']
         ).fetchone()
         if not result:
             create_table(context, data_dict)
@@ -966,20 +995,29 @@ def create(context, data_dict):
         insert_data(context, data_dict)
         create_indexes(context, data_dict)
         create_alias(context, data_dict)
+        if data_dict.get('private'):
+            _change_privilege(context, data_dict, 'REVOKE')
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['unique_violation']:
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
-                'constraints': ['Cannot insert records or create index because '
-                                'of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because'
+                                ' of uniqueness constraint'],
                 'info': {
-                    'details': str(e)
+                    'orig': str(e.orig),
+                    'pgcode': e.orig.pgcode
                 }
             })
         raise
+    except DataError, e:
+        raise ValidationError({
+            'data': e.message,
+            'info': {
+                'orig': [str(e.orig)]
+            }})
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1001,28 +1039,35 @@ def upsert(context, data_dict):
     '''
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _TIMEOUT)
 
+    trans = context['connection'].begin()
     try:
         # check if table already existes
-        trans = context['connection'].begin()
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         upsert_data(context, data_dict)
         trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['unique_violation']:
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
             raise ValidationError({
-                'constraints': ['Cannot insert records or create index because '
-                                'of uniqueness constraint'],
+                'constraints': ['Cannot insert records or create index because'
+                                ' of uniqueness constraint'],
                 'info': {
-                    'details': str(e)
+                    'orig': str(e.orig),
+                    'pgcode': e.orig.pgcode
                 }
             })
         raise
+    except DataError, e:
+        raise ValidationError({
+            'data': e.message,
+            'info': {
+                'orig': [str(e.orig)]
+            }})
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
@@ -1039,18 +1084,9 @@ def delete(context, data_dict):
     context['connection'] = engine.connect()
     _cache_types(context)
 
+    trans = context['connection'].begin()
     try:
         # check if table exists
-        trans = context['connection'].begin()
-        result = context['connection'].execute(
-            u'SELECT 1 FROM pg_tables WHERE tablename = %s',
-             data_dict['resource_id']
-        ).fetchone()
-        if not result:
-            raise ValidationError({
-                'resource_id': [u'table for resource "{0}" does not exist'.format(
-                    data_dict['resource_id'])]
-            })
         if not 'filters' in data_dict:
             context['connection'].execute(
                 u'DROP TABLE "{0}" CASCADE'.format(data_dict['resource_id'])
@@ -1070,30 +1106,21 @@ def delete(context, data_dict):
 def search(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     try:
-        # check if table exists
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
-        id = data_dict['resource_id']
-        result = context['connection'].execute(
-            u"(SELECT 1 FROM pg_tables where tablename = '{0}') union"
-            u"(SELECT 1 FROM pg_views where viewname = '{0}')".format(id)
-        ).fetchone()
-        if not result:
-            raise ValidationError({
-                'resource_id': [u'table for resource "{0}" does not exist'.format(
-                    data_dict['resource_id'])]
-            })
         return search_data(context, data_dict)
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Search took too long']
             })
-        raise
+        raise ValidationError({
+            'query': ['Invalid query']
+        })
     finally:
         context['connection'].close()
 
@@ -1101,7 +1128,7 @@ def search(context, data_dict):
 def search_sql(context, data_dict):
     engine = _get_engine(context, data_dict)
     context['connection'] = engine.connect()
-    timeout = context.get('query_timeout', 60000)
+    timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
 
     try:
@@ -1113,19 +1140,82 @@ def search_sql(context, data_dict):
         return format_results(context, results, data_dict)
 
     except ProgrammingError, e:
+        if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
+            raise toolkit.NotAuthorized({
+                'permissions': ['Not authorized to read resource.']
+            })
         raise ValidationError({
-         'query': [str(e)],
-         'info': {
-            'statement': [e.statement],
-            'params': [e.params],
-            'orig': [str(e.orig)]
-         }
+            'query': [str(e)],
+            'info': {
+                'statement': [e.statement],
+                'params': [e.params],
+                'orig': [str(e.orig)]
+            }
         })
     except DBAPIError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['query_canceled']:
+        if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
             raise ValidationError({
                 'query': ['Query took too long']
             })
         raise
+    finally:
+        context['connection'].close()
+
+
+def _get_read_only_user(data_dict):
+    parsed = cli.parse_db_config('ckan.datastore.read_url')
+    return parsed['db_user']
+
+
+def _change_privilege(context, data_dict, what):
+    ''' We need a transaction for this code to work '''
+    read_only_user = _get_read_only_user(data_dict)
+    if what == 'REVOKE':
+        sql = u'REVOKE SELECT ON TABLE "{0}" FROM "{1}"'.format(
+            data_dict['resource_id'],
+            read_only_user)
+    elif what == 'GRANT':
+        sql = u'GRANT SELECT ON TABLE "{0}" TO "{1}"'.format(
+            data_dict['resource_id'],
+            read_only_user)
+    else:
+        raise ValidationError({
+            'privileges': 'Can only GRANT or REVOKE but not {0}'.format(what)})
+    try:
+        context['connection'].execute(sql)
+    except ProgrammingError, e:
+        log.critical("Error making resource private. {0}".format(e.message))
+        raise ValidationError({
+            'privileges': [u'cannot make "{0}" private'.format(
+                           data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+
+
+def make_private(context, data_dict):
+    log.info('Making resource {0} private'.format(
+        data_dict['resource_id']))
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    trans = context['connection'].begin()
+    try:
+        _change_privilege(context, data_dict, 'REVOKE')
+        trans.commit()
+    finally:
+        context['connection'].close()
+
+
+def make_public(context, data_dict):
+    log.info('Making resource {0} public'.format(
+        data_dict['resource_id']))
+    engine = _get_engine(context, data_dict)
+    context['connection'] = engine.connect()
+    trans = context['connection'].begin()
+    try:
+        _change_privilege(context, data_dict, 'GRANT')
+        trans.commit()
     finally:
         context['connection'].close()
