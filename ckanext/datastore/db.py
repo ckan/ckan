@@ -38,11 +38,11 @@ _TIMEOUT = 60000  # milliseconds
 
 # See http://www.postgresql.org/docs/9.2/static/errcodes-appendix.html
 _PG_ERR_CODE = {
-    'unique_violation': 23505,
-    'query_canceled': 57014,
-    'undefined_object': 42704,
-    'syntax_error': 42601,
-    'permission_denied': 42501,
+    'unique_violation': '23505',
+    'query_canceled': '57014',
+    'undefined_object': '42704',
+    'syntax_error': '42601',
+    'permission_denied': '42501',
     'duplicate_table': '42P07',
     'duplicate_alias': '42712',
 }
@@ -1140,7 +1140,7 @@ def search_sql(context, data_dict):
         return format_results(context, results, data_dict)
 
     except ProgrammingError, e:
-        if int(e.orig.pgcode) == _PG_ERR_CODE['permission_denied']:
+        if e.orig.pgcode == _PG_ERR_CODE['permission_denied']:
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to read resource.']
             })
