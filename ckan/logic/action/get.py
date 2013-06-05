@@ -1,3 +1,5 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
@@ -526,7 +528,7 @@ def group_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
-def licence_list(context, data_dict):
+def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
@@ -534,12 +536,12 @@ def licence_list(context, data_dict):
     '''
     model = context["model"]
 
-    _check_access('licence_list',context, data_dict)
+    _check_access('license_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licences = [l.as_dict() for l in licenses]
-    return licences
+    licenses = [l.as_dict() for l in licenses]
+    return licenses
 
 def tag_list(context, data_dict):
     '''Return a list of the site's tags.
@@ -830,7 +832,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
-    
+
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -1156,26 +1158,22 @@ def package_search(context, data_dict):
 
     This action accepts a *subset* of solr's search query parameters:
 
+
     :param q: the solr query.  Optional.  Default: `"*:*"`
     :type q: string
     :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
         is added to this string prior to the query being executed.
     :type fq: string
-    :param rows: the number of matching rows to return.
-    :type rows: int
     :param sort: sorting of the search results.  Optional.  Default:
         'relevance asc, metadata_modified desc'.  As per the solr
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
+    :param rows: the number of matching rows to return.
+    :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
     :type start: int
-    :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation
-        <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
-        for further details.
-    :type qf: string
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1187,6 +1185,18 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
+
+
+    The following advanced Solr parameters are supported as well. Note that
+    some of these are only available on particular Solr versions. See Solr's
+    `dismax`_ and `edismax`_ documentation for further details on them:
+
+    ``qf``, ``wt``, ``bf``, ``boost``, ``tie``, ``defType``, ``mm``
+
+
+    .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
+    .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
+
 
     **Results:**
 
@@ -1239,6 +1249,12 @@ def package_search(context, data_dict):
 
     _check_access('package_search', context, data_dict)
 
+    # Move ext_ params to extras and remove them from the root of the search
+    # params, so they don't cause and error
+    data_dict['extras'] = data_dict.get('extras', {})
+    for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
+        data_dict['extras'][key] = data_dict.pop(key)
+
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
         data_dict = item.before_search(data_dict)
@@ -1248,7 +1264,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search',False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_created desc'
+        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
@@ -1265,8 +1281,14 @@ def package_search(context, data_dict):
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # Pop these ones as Solr does not need them
+        extras = data_dict.pop('extras', None)
+
         query = search.query_for(model.Package)
         query.run(data_dict)
+
+        # Add them back so extensions can use them on after_search
+        data_dict['extras'] = extras
 
         for package in query.results:
             # get the package object
@@ -1323,6 +1345,12 @@ def package_search(context, data_dict):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            elif key == 'license_id':
+                license = model.Package.get_license_register().get(key_)
+                if license:
+                    new_facet_dict['display_name'] = license.title
                 else:
                     new_facet_dict['display_name'] = key_
             else:
@@ -2645,11 +2673,11 @@ def dashboard_activity_list_html(context, data_dict):
 
     '''
     activity_stream = dashboard_activity_list(context, data_dict)
+    model = context['model']
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
-        'controller': 'dashboard',
-        'action': 'activity',
-        'id': data_dict['id'],
+        'controller': 'user',
+        'action': 'dashboard',
         'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream,

@@ -1,19 +1,16 @@
-=============================
-Option 2: Install from Source
-=============================
+Installing CKAN from Source
+===========================
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 10.04. Installing
-CKAN from source works with Ubuntu 10.04, with other versions of Ubuntu (e.g.
-12.04) and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X). If
-you install CKAN from source on your own operating system, please share your
-experiences on our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+:doc:`install-from-package` is simpler, it requires Ubuntu 12.04 64-bit. Installing
+CKAN from source works with other versions of Ubuntu and with other operating
+systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
+on your own operating system, please share your experiences on our
+`How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
 work on CKAN.
-
-If you run into problems, see :doc:`common-error-messages`.
 
 1. Install the required packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,11 +28,11 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v2.5-2.7 <http://www.python.org/getit/>`_
-PostgreSQL             `The PostgreSQL database system <http://www.postgresql.org/download/>`_
+Python                 `The Python programming language, v2.6 or 2.7 <http://www.python.org/getit/>`_
+|postgres|             `The PostgreSQL database system, v8.4 or newer <http://www.postgresql.org/download/>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
-virtualenv             `The virtual Python environment builder <http://pypi.python.org/pypi/virtualenv>`_
+virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
 Apache Solr                   `A search platform <http://lucene.apache.org/solr>`_
 Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
@@ -43,36 +40,83 @@ OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/instal
 =====================  ===============================================
 
 
+.. _install-ckan-in-virtualenv:
+
 2. Install CKAN into a Python virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-a. Create a Python virtual environment (virtualenv) to install CKAN into (in
-   this example we create a virtualenv called ``pyenv`` in our home
-   directory), and activate it::
+.. tip::
 
-       virtualenv --no-site-packages ~/pyenv
-       . ~/pyenv/bin/activate
+   If you're installing CKAN for development and want it to be installed in
+   your home directory, you can symlink the directories used in this
+   documentation to your home directory. This way, you can copy-paste the
+   example commands from this documentation without having to modify them, and
+   still have CKAN installed in your home directory:
+
+   .. parsed-literal::
+
+     mkdir -p ~/ckan/lib
+     sudo ln -s ~/ckan/lib |virtualenv_parent_dir|
+     mkdir -p ~/ckan/etc
+     sudo ln -s ~/ckan/etc |config_parent_dir|
+
+a. Create a Python `virtual environment <http://www.virtualenv.org>`_
+   (virtualenv) to install CKAN into, and activate it:
+
+   .. parsed-literal::
+
+       sudo mkdir -p |virtualenv|
+       sudo chown \`whoami\` |virtualenv|
+       virtualenv --no-site-packages |virtualenv|
+       |activate|
+
+.. important::
+
+   The final command above activates your virtualenv. The virtualenv has to
+   remain active for the rest of the installation and deployment process,
+   or commands will fail. You can tell when the virtualenv is active because
+   its name appears in front of your shell prompt, something like this::
+
+     (default) $ _
+
+   For example, if you logout and login again, or if you close your terminal
+   window and open it again, your virtualenv will no longer be activated. You
+   can always reactivate the virtualenv with this command:
+
+   .. parsed-literal::
+
+       |activate|
 
 b. Install the CKAN source code into your virtualenv. To install the latest
    development version of CKAN (the most recent commit on the master branch of
-   the CKAN git repository), run::
+   the CKAN git repository), run:
 
-       pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
+   .. parsed-literal::
 
-   Alternatively, to install a specific version such as CKAN 1.7.1 run::
+       pip install -e 'git+\ |git_url|\#egg=ckan'
 
-       pip install -e 'git+https://github.com/okfn/ckan.git@ckan-1.7.1#egg=ckan'
+   Alternatively, to install a specific version such as CKAN 2.0 run:
 
-c. Install the Python modules that CKAN requires into your virtualenv::
+   .. parsed-literal::
 
-       pip install -r ~/pyenv/src/ckan/pip-requirements.txt
+       pip install -e 'git+\ |git_url|\@ckan-2.0#egg=ckan'
+
+c. Install the Python modules that CKAN requires into your virtualenv:
+
+   .. parsed-literal::
+
+       pip install -r |virtualenv|/src/ckan/pip-requirements.txt
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
-   installed copies::
+   installed copies:
 
-    deactivate
-    . ~/pyenv/bin/activate
+   .. parsed-literal::
+
+        deactivate
+        |activate|
+
+.. _postgres-setup:
 
 3. Setup a PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,98 +125,107 @@ List existing databases::
 
     sudo -u postgres psql -l
 
-Check that the encoding of databases is 'UTF8', if not internationalisation may
-be a problem. Since changing the encoding of PostgreSQL may mean deleting
+Check that the encoding of databases is ``UTF8``, if not internationalisation
+may be a problem. Since changing the encoding of |postgres| may mean deleting
 existing databases, it is suggested that this is fixed before continuing with
 the CKAN install.
 
 Next you'll need to create a database user if one doesn't already exist.
+Create a new |postgres| database user called |database_user|, and enter a
+password for the user when prompted. You'll need this password later:
 
-.. tip ::
+.. parsed-literal::
 
-    If you choose a database name, user or password which are different from
-    the example values suggested below then you'll need to change the
-    sqlalchemy.url value accordingly in the CKAN configuration file that you'll
-    create in the next step.
+    sudo -u postgres createuser -S -D -R -P |database_user|
 
-Create a user called ``ckanuser``, and enter ``pass`` for the password when
-prompted::
+Create a new |postgres| database, called |database|, owned by the
+database user you just created:
 
-    sudo -u postgres createuser -S -D -R -P ckanuser
+.. parsed-literal::
 
-Create the database (owned by ``ckanuser``), which we'll call ``ckan_dev``::
-
-    sudo -u postgres createdb -O ckanuser ckan_dev -E utf-8
+    sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
 
 4. Create a CKAN config file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With your virtualenv activated, change to the ckan directory and create a CKAN
-config file::
+Create a directory to contain the site's config files:
 
-    cd ~/pyenv/src/ckan
-    paster make-config ckan development.ini
+.. parsed-literal::
 
-.. tip ::
+    sudo mkdir -p |config_dir|
+    sudo chown -R \`whoami\` |config_parent_dir|/
 
-    If you used a different database name or password when creating the database in
-    step 6 you'll need to now edit ``development.ini`` and change the
-    ``sqlalchemy.url`` line, filling in the database name, user and password you
-    used::
+Change to the ``ckan`` directory and create a CKAN config file:
 
-        sqlalchemy.url = postgresql://ckanuser:pass@localhost/ckan_dev
+.. parsed-literal::
+
+    cd |virtualenv|/src/ckan
+    paster make-config ckan |development.ini|
+
+Edit the ``development.ini`` file in a text editor, changing the following
+options:
+
+sqlalchemy.url
+  This should refer to the database we created in `3. Setup a PostgreSQL
+  database`_ above:
+
+  .. parsed-literal::
+
+    sqlalchemy.url = postgresql://|database_user|:pass@localhost/|database|
+
+  Replace ``pass`` with the password that you created in `3. Setup a
+  PostgreSQL database`_ above.
+
+  .. tip ::
 
     If you're using a remote host with password authentication rather than SSL
-    authentication, use::
+    authentication, use:
 
-        sqlalchemy.url = postgresql://<user>:<password>@<remotehost>/ckan?sslmode=disable
+    .. parsed-literal::
 
-.. tip ::
+      sqlalchemy.url = postgresql://|database_user|:pass@<remotehost>/|database|?sslmode=disable
 
-  Legacy installs of CKAN may have the config file in the pyenv directory, e.g.
-  ``pyenv/ckan.net.ini``. This is fine but CKAN probably won't be able to find
-  your ``who.ini`` file. To fix this edit ``pyenv/ckan.net.ini``, search for
-  the line ``who.config_file = %(here)s/who.ini`` and change it to
-  ``who.config_file = who.ini``.
+site_id
+  Each CKAN site should have a unique ``site_id``, for example::
+
+   ckan.site_id = default
 
 
 5. Setup Solr
 ~~~~~~~~~~~~~
 
 Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr, set appropriate values for the ``ckan.site_id`` and ``solr_url``
-config variables in your CKAN config file:
+setup Solr, then change the ``solr_url`` option in your CKAN config file to
+point to your Solr server, for example::
 
-::
-
-       ckan.site_id=my_ckan_instance
        solr_url=http://127.0.0.1:8983/solr
+
+.. toctree::
+   :hidden:
+
+   solr-setup
+
+.. _postgres-init:
 
 6. Create database tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you have a configuration file that has the correct settings for your
-database, you'll need to create the tables. Make sure you are still in an
-activated environment with ``(pyenv)`` at the front of the command prompt and
-then from the ``~/pyenv/src/ckan`` directory run this command::
+database, you can create the database tables:
 
-    paster --plugin=ckan db init
+.. parsed-literal::
+
+    cd |virtualenv|/src/ckan
+    paster db init -c |development.ini|
 
 You should see ``Initialising DB: SUCCESS``.
 
-.. tip ::
+.. tip::
 
     If the command prompts for a password it is likely you haven't set up the
-    database configuration correctly in step 6.
-
-.. tip ::
-
-    If your config file is not called ``development.ini`` you must give the
-    ``--config`` option, for example with a config file called
-    ``test.ckan.net.ini`` you would use::
-
-        paster --plugin=ckan db init --config=test.ckan.net.ini
+    ``sqlalchemy.url`` option in your CKAN configuration file properly.
+    See `4. Create a CKAN config file`_.
 
 7. Set up the DataStore
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,148 +235,41 @@ You should see ``Initialising DB: SUCCESS``.
   the :doc:`DataStore features<datastore>` will not be available and the
   DataStore tests will fail.
 
-Follow the instructions in :doc:`datastore-setup` to create the required
+Follow the instructions in :doc:`datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
-8. Create the data and sstore directories
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create the ``data`` and ``sstore`` directories, in the same directory that
-contains your CKAN config file (e.g. ``~/pyenv/src/ckan``)::
-
-    mkdir data sstore
-
-
-The location of the ``sstore`` directory, which CKAN uses as its Repoze.who
-OpenID session directory, is specified by the ``store_file_path`` setting in
-the ``who.ini`` file.
-
-The location of the ``data`` directory, which CKAN uses as its Pylons cache, is
-is specified by the ``cache_dir`` setting in your CKAN config file.
-
-9. Link to who.ini
-~~~~~~~~~~~~~~~~~~
-
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file. So if your config file is not in
-``~/pyenv/src/ckan``, then cd to the directory with your config file and create a
-symbolic link to ``who.ini``. e.g.::
-
-    ln -s ~/pyenv/src/ckan/who.ini
-
-10. Run CKAN in the development web server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can use the Paste development server to serve CKAN from the command-line.
-This is a simple and lightweight way to serve CKAN that is useful for
-development and testing. For production it's better to serve CKAN using
-Apache or nginx (see :doc:`post-installation`).
-
-With your virtualenv activated, run this command from the ``~/pyenv/src/ckan``
-directory::
-
-    paster serve development.ini
-
-Open http://127.0.0.1:5000/ in your web browser, and you should see the CKAN
-front page.
-
-.. tip:: If you installed CKAN on a remote machine then you'll need to run
- the web browser on that same machine. For example run the textual web browser
- `w3m` in a separate ssh session to the one running `paster serve`.
-
-
-11. Run the CKAN Tests
+8. Link to ``who.ini``
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Now that you've installed CKAN, you should run CKAN's tests to make sure that
-they all pass. See :doc:`test`.
+``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
+same directory as your CKAN config file, so create a symlink to it:
 
-12. You're done!
-~~~~~~~~~~~~~~~~
+.. parsed-literal::
 
-You can now proceed to :doc:`post-installation` which covers creating a CKAN
-sysadmin account and deploying CKAN with Apache.
+    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
-Upgrading a source install
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+9. You're done!
+~~~~~~~~~~~~~~~
 
-Before upgrading your version of CKAN you should check that any custom
-templates or extensions you're using work with the new version of CKAN. For
-example, you could install the new version of CKAN in a new virtual environment
-and use that to test your templates and extensions.
+You can now use the Paste development server to serve CKAN from the
+command-line.  This is a simple and lightweight way to serve CKAN that is
+useful for development and testing:
 
-You should also read the `CKAN Changelog <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_
-to see if there are any extra notes to be aware of when upgrading to the new
-version.
+.. parsed-literal::
 
-1. Backup your CKAN database using the ``ckan db dump`` command, for example::
+    cd |virtualenv|/src/ckan
+    paster serve |development.ini|
 
-    paster --plugin=ckan db dump --config=/path/to/your/ckan.ini my_ckan_database.pg_dump
+Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
+page.
 
-   This will create a file called ``my_ckan_database.pg_dump``, if something
-   goes wrong with the CKAN upgrade you can use this file to restore the
-   database to its pre-upgrade state. See :ref:`dumping and loading` for
-   details of the `ckan db dump` and `ckan db load` commands.
+Now that you've installed CKAN, you should:
 
-2. Checkout the new CKAN version from git, for example::
+* Run CKAN's tests to make sure that everything's working, see :doc:`/test`.
 
-    cd pyenv/src/ckan
-    git fetch
-    git checkout release-v1.8.1
+* If you want to use your CKAN site as a production site, not just for testing
+  or development purposes, then deploy CKAN using a production web server such
+  as Apache or Nginx. See :doc:`deployment`.
 
-   If you have any CKAN extensions installed from source, you may need to
-   checkout newer versions of the extensions at this point as well. Refer to
-   the documentation for each extension.
-
-3. Update CKAN's dependencies. Make sure that your CKAN virtual environment
-   is active, then run this command::
-
-     pip install --upgrade -r /path/to/your/pyenv/ckan/ckan/pip-requirements.txt
-
-4. If you are upgrading to a new major version of CKAN (for example if you are
-   upgrading to CKAN 1.7, 1.8 or 1.9, etc.), update your CKAN database's schema
-   using the ``ckan db upgrade`` command.
-
-    .. warning ::
-
-        To avoid problems during the database upgrade, comment out any
-        plugins that you have enabled on your ini file. You can uncomment
-        them back when the upgrade finishes.
-
-   For example::
-
-    paster --plugin=ckan db upgrade --config=/path/to/your/ckan.ini
-
-   If you are just upgrading to a minor version of CKAN (for example upgrading
-   from version 1.8 to 1.8.1) then it should not be necessary to upgrade your
-   database.
-
-   See :ref:`upgrade migration` for details of the ``ckan db upgrade`` command.
-
-5. If CKAN's Solr schema version has changed between the CKAN versions you're
-   upgrading from and to, then you need to update your solr schema symlink
-   (Check the CHANGELOG to see if it necessary to update the schema, otherwise
-   you can skip this step).
-
-   When :ref:`setting up solr` you created a symlink
-   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
-   ``/path/to/your/pyenv/ckan/ckan/config/solr/schema-1.4.xml``. This symlink
-   should be updated to point to the latest schema file in
-   ``/path/to/your/pyenv/ckan/ckan/config/solr/``, if it doesn't already.
-
-   After updating the symlink, you must rebuild your search index by running
-   the ``ckan search-index rebuild`` command, for example::
-
-    paster --plugin=ckan search-index rebuild --config=/path/to/your/ckan.ini
-
-   See :ref:`rebuild search index` for details of the
-   ``ckan search-index rebuild`` command.
-
-6. Finally, restart your web server. For example if you have deployed CKAN
-   using the Apache web server on Ubuntu linux, run this command::
-
-    sudo service apache2 restart
-
-7. You're done! You should now be able to visit your CKAN website in your web
-   browser and see that it's now running the new version of CKAN.
+* Begin using and customizing your site, see :doc:`/getting-started`.

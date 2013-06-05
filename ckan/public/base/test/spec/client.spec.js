@@ -154,7 +154,7 @@ describe('ckan.Client()', function () {
         }
       };
 
-      var target = this.client.parseCompletions(data);
+      var target = this.client.parseCompletions(data, {});
 
       assert.deepEqual(target, ["1 percent", "18thc", "19thcentury"]);
     });
@@ -168,7 +168,7 @@ describe('ckan.Client()', function () {
         }
       };
 
-      var target = this.client.parseCompletions(data);
+      var target = this.client.parseCompletions(data, {});
 
       assert.deepEqual(target, ["json", "csv", "text"]);
     });
@@ -182,7 +182,7 @@ describe('ckan.Client()', function () {
         }
       };
 
-      var target = this.client.parseCompletions(data);
+      var target = this.client.parseCompletions(data, {});
 
       assert.deepEqual(target, ["Test"]);
     });

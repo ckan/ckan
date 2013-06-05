@@ -216,10 +216,13 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license_id': _('License'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -264,7 +267,8 @@ class PackageController(base.BaseController):
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
-            limit = int(request.params.get('_%s_limit' % facet, 10))
+            limit = int(request.params.get('_%s_limit' % facet,
+                                           g.facets_default_number))
             c.search_facets_limits[facet] = limit
 
         maintain.deprecate_context_item(

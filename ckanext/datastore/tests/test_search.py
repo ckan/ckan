@@ -39,7 +39,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
+                        'nested': {'a': 'b'}}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -206,6 +206,27 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         assert result['records'] == [self.expected_records[0]]
 
+    def test_search_filters_get(self):
+        filters = {u'b\xfck': 'annakarenina'}
+        res = self.app.get('/api/action/datastore_search?resource_id={0}&filters={1}'.format(
+                    self.data['resource_id'], json.dumps(filters)))
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 1
+        assert result['records'] == [self.expected_records[0]]
+
+    def test_search_invalid_filter(self):
+        data = {'resource_id': self.data['resource_id'],
+                # invalid because author is not an array
+                'filters': {u'author': [u'tolstoy']}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_search_sort(self):
         data = {'resource_id': self.data['resource_id'],
                 'sort': u'b\xfck asc, author desc'}
@@ -231,6 +252,17 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 2
 
         assert result['records'] == self.expected_records[::-1]
+
+    def test_search_invalid(self):
+        data = {'resource_id': self.data['resource_id'],
+                'sort': u'f\xfc\xfc asc'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['sort'][0] == u'field "f\xfc\xfc" not in table'
 
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
@@ -542,6 +574,18 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict_alias = json.loads(res.body)
 
         assert result['records'] == res_dict_alias['result']['records']
+
+    def test_select_where_like_with_percent(self):
+        query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['records'] == self.expected_records
 
     def test_self_join(self):
         query = '''

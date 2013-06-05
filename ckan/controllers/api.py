@@ -251,7 +251,7 @@ class ApiController(base.BaseController):
             'dataset': 'package_list',
             'tag': 'tag_list',
             'related': 'related_list',
-            'licenses': 'licence_list',
+            'licenses': 'license_list',
             ('dataset', 'relationships'): 'package_relationships_list',
             ('dataset', 'revisions'): 'package_revision_list',
             ('dataset', 'activity'): 'package_activity_list',
@@ -571,7 +571,7 @@ class ApiController(base.BaseController):
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
-        results = ckan.misc.MarkdownFormat().to_html(raw_markdown)
+        results = h.render_markdown(raw_markdown)
 
         return self._finish_ok(results)
 

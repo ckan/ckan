@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 _open_licenses = None
 
 VALID_SOLR_PARAMETERS = set([
-    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf',
+    'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
     'extras', 'fq_list', 'tie', 'defType', 'mm'
 ])
@@ -352,6 +352,7 @@ class PackageSearchQuery(SearchQuery):
             # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
+
 
         conn = make_connection()
         log.debug('Package query: %r' % query)
