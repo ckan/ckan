@@ -5,7 +5,7 @@ from docutils import nodes
 from docutils.statemachine import ViewList
 from sphinx.util.compat import Directive
 
-import ckan.lib.app_globals as app_globals
+import ckan.lib.config as lib_config
 from paste.deploy.converters import asbool
 
 def setup(app):
@@ -132,11 +132,11 @@ class ConfigDirective(Directive):
                                  )]
             return node
 
-        items = app_globals.config_sections
+        items = lib_config.config_sections
         for item in items:
             self.config_sections[item['name']] = {'detail': item, 'nodes': {},
                                              }
-        items = app_globals.config_details
+        items = lib_config.config_details
         for item in items:
              node = setting_node(item, items[item])
              self.config_options[item] = node
@@ -144,7 +144,7 @@ class ConfigDirective(Directive):
              if section in self.config_sections:
                  self.config_sections[section]['nodes'][item] = node
 
-        items = app_globals.config_sections
+        items = lib_config.config_sections
         for item in items:
             self.config_sections[item['name']]['full_node'] = section_node(item)
             self.config_sections[item['name']]['node'] = section_items(item)
@@ -162,7 +162,7 @@ class ConfigDirective(Directive):
             include_section = False
             sections = self.arguments
         else:
-            sections = [s['name'] for s in app_globals.config_sections]
+            sections = [s['name'] for s in lib_config.config_sections]
 
         nodes_list = []
         for section in sections:
