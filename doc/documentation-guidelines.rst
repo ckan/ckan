@@ -231,6 +231,26 @@ Wrong:
 For lots of examples of this done right, see
 `Django's table of contents <https://docs.djangoproject.com/en/1.5/contents/>`_.
 
+In Sphinx, use the following section title styles::
+
+    ===============
+    Top-level title
+    ===============
+
+    ------------------
+    Second-level title
+    ------------------
+
+    Third-level title
+    =================
+
+    Fourth-level title
+    ------------------
+
+If you need more than four levels of headings, you're probably doing something
+wrong, but see:
+http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
+
 
 Be conversational
 =================
@@ -312,30 +332,6 @@ Maximum line length
 ===================
 
 As with Python code, try to limit all lines to a maximum of 79 characters.
-
-
-Headings
-========
-
-Use::
-
-    =================
-    Top-Level Heading
-    =================
-
-    --------------------
-    Second-Level Heading
-    --------------------
-
-    Third-Level Heading
-    ===================
-
-    Fourth-Level Heading
-    --------------------
-
-If you need more than four levels of headings, you're probably doing something
-wrong, but see:
-http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
 
 
 Cross-references and links
