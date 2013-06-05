@@ -4,6 +4,7 @@ import logging
 import time
 from threading import Lock
 import re
+import os.path
 
 from paste.deploy.converters import asbool
 from pylons import config
@@ -31,41 +32,33 @@ auto_update = [
     'ckan.site_custom_css',
 ]
 
-config_details = {
-    'ckan.favicon': {}, # default gets set in config.environment.py
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-        # has been setup in load_environment():
-    'ckan.site_id': {},
-    'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
-    'ckan.recaptcha.privatekey': {'name': 'recaptcha_publickey'},
-    'ckan.template_title_deliminater': {'default': '-'},
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
-    'ckan.api_url': {},
+import ckan.lib.config_ini_parser as ini_parser
+config_sections = []
+config_details = {}
 
-    # split string
-    'search.facets': {'default': 'organization groups tags res_format license_id',
-                      'type': 'split',
-                      'name': 'facets'},
-    'package_hide_extras': {'type': 'split'},
-    'ckan.plugins': {'type': 'split'},
+path = os.path.join(os.path.dirname(__file__), '..', 'config')
+# parse the resource.config file if it exists
+config_path = os.path.join(path, 'config_options.ini')
+if os.path.exists(config_path):
+    conf = ini_parser.ConfigIniParser()
+    conf.read(config_path)
+    for section in conf.sections():
+        items = conf.items(section)
+        items_dict = dict((n, v.strip()) for (n, v) in items)
+        if section.startswith('section:'):
+            section_name = section[8:]
+            config_sections.append(dict(name=section_name, options=[], **items_dict))
+        else:
+            if 'type' not in items_dict:
+                items_dict['type'] = 'str'
+            config_details[section] = dict(section=section_name, **items_dict)
+            config_sections[-1]['options'].append(section)
 
-    # bool
-    'openid_enabled': {'default': 'true', 'type' : 'bool'},
-    'debug': {'default': 'false', 'type' : 'bool'},
-    'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
-    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
-
-    # int
-    'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
-    'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
-    'search.facets.default': {'default': '10', 'type': 'int',
-                             'name': 'facets_default_number'},
-}
+    ## FIXME
+    ## These settings are strange
+    ## ckan.favicon': {}, # default gets set in config.environment.py
+    ## # has been setup in load_environment():
+    ## ckan.site_id': {},
 
 
 # A place to store the origional config options of we override them
