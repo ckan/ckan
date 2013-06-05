@@ -91,7 +91,6 @@ class TestNastyString(object):
         'ckan/tests/functional/api/test_revision_search.py',
         'ckan/tests/functional/test_pagination.py',
         'ckan/tests/models/test_package_relationships.py',
-        'ckanext/resourceproxy/controller.py',
     ]
     fails = {}
     passes = []
@@ -765,7 +764,6 @@ class TestPep8(object):
         'ckanext/pdfpreview/plugin.py',
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
-        'ckanext/resourceproxy/controller.py',
         'ckanext/resourceproxy/plugin.py',
         'ckanext/resourceproxy/tests/test_proxy.py',
         'ckanext/stats/controller.py',
