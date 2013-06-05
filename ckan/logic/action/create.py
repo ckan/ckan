@@ -243,12 +243,12 @@ def resource_create(context, data_dict):
     pkg_dict['resources'].append(data_dict)
 
     try:
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        pkg_dict = _get_action('package_update')(dict(context, return_id_only=True), pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][-1]
+    return
 
 
 def related_create(context, data_dict):
