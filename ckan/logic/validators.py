@@ -611,3 +611,10 @@ def role_exists(role, context):
     if role not in new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
+
+
+def datasets_with_no_organization_cannot_be_private(key, data, errors,
+        context):
+    if data[key] is True and data.get(('owner_org',)) is None:
+        errors[key].append(
+                _("Datasets with no organization can't be private."))

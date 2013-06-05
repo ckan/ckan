@@ -45,7 +45,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
-                                   url_validator)
+                                   url_validator,
+                                   datasets_with_no_organization_cannot_be_private)
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
@@ -134,7 +135,8 @@ def default_create_package_schema():
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
         'log_message': [ignore_missing, unicode, no_http],
-        'private': [ignore_missing, boolean_validator],
+        'private': [ignore_missing, boolean_validator,
+            datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),

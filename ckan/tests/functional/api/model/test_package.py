@@ -11,6 +11,8 @@ from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
 
+import ckan.tests as tests
+
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
 
@@ -775,6 +777,36 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 3, len(revisions)
+
+    def test_create_private_package_with_no_organization(self):
+        '''Test that private packages with no organization cannot be created.
+
+        '''
+        testsysadmin = model.User.by_name('testsysadmin')
+        result = tests.call_action_api(self.app, 'package_create', name='test',
+                private=True, apikey=testsysadmin.apikey, status=409)
+        assert result == {'__type': 'Validation Error',
+                'private': ["Datasets with no organization can't be private."]}
+
+    def test_create_public_package_with_no_organization(self):
+        '''Test that public packages with no organization can be created.'''
+        testsysadmin = model.User.by_name('testsysadmin')
+        tests.call_action_api(self.app, 'package_create', name='test',
+                private=False, apikey=testsysadmin.apikey)
+
+    def test_make_package_with_no_organization_private(self):
+        '''Test that private packages with no organization cannot be created
+        by package_update.
+
+        '''
+        testsysadmin = model.User.by_name('testsysadmin')
+        package = tests.call_action_api(self.app, 'package_create',
+                name='test_2', private=False, apikey=testsysadmin.apikey)
+        package['private'] = True
+        result = tests.call_action_api(self.app, 'package_update',
+                apikey=testsysadmin.apikey, status=409, **package)
+        assert result == {'__type': 'Validation Error',
+                'private': ["Datasets with no organization can't be private."]}
 
 
 class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
