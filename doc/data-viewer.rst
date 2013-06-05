@@ -153,7 +153,7 @@ Viewing remote resources: the resource proxy
 This extension is part of CKAN and so does not need to be installed separately.
 
 This extension must be enabled if you wish to preview remote resources. If enabled,
-it allows to get around the
+it allows CKAN to get around the
 `same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_ which
 prevents files from different domains from being loaded into browsers.
 
@@ -162,7 +162,7 @@ proxied, you need to replace the URL that is used to load the file. This can
 be done using the function ``ckanext.resourceproxy.plugin.get_proxified_resource_url(data_dict)``.
 To find out whether the resource proxy is enabled, check ``ckan.resource_proxy_enabled``
 from the config. You can find a complete example in the
-`CKAN source <https://github.com/okfn/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_
+`CKAN source <https://github.com/okfn/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
 
 
 Embedding Previews In Other Web Pages
