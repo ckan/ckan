@@ -328,6 +328,20 @@ identifiable pieces:
 ---------
 
 
+Don't introduce any new Sphinx warnings
+=======================================
+
+When you build the docs, Sphinx prints out warnings about any broken
+cross-references, syntax errors, etc. We aim not to have any of these warnings,
+so when adding to or editing the docs make sure your changes don't introduce
+any new ones.
+
+It's best to delete the ``build`` directory and completely rebuild the docs, to
+check for any warnings::
+
+    rm -rf build; python setup.py build_sphinx
+
+
 Maximum line length
 ===================
 
