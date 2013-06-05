@@ -4,22 +4,15 @@ import logging
 import time
 from threading import Lock
 import re
-import os.path
 
 from paste.deploy.converters import asbool
 from pylons import config
 
 import ckan
+import ckan.lib.config as lib_config
 import ckan.model as model
 
 log = logging.getLogger(__name__)
-
-
-# mappings translate between config settings and globals because our naming
-# conventions are not well defined and/or implemented
-mappings = {
-#   'config_key': 'globals_key',
-}
 
 # these config settings will get updated from system_info
 auto_update = [
@@ -32,37 +25,29 @@ auto_update = [
     'ckan.site_custom_css',
 ]
 
-import ckan.lib.config_ini_parser as ini_parser
-config_sections = []
-config_details = {}
+def reset_globals():
+    ''' set updatable values from config '''
 
-path = os.path.join(os.path.dirname(__file__), '..', 'config')
-# parse the resource.config file if it exists
-config_path = os.path.join(path, 'config_options.ini')
-if os.path.exists(config_path):
-    conf = ini_parser.ConfigIniParser()
-    conf.read(config_path)
-    for section in conf.sections():
-        items = conf.items(section)
-        items_dict = dict((n, v.strip()) for (n, v) in items)
-        if section.startswith('section:'):
-            section_name = section[8:]
-            config_sections.append(dict(name=section_name, options=[], **items_dict))
-        else:
-            if 'type' not in items_dict:
-                items_dict['type'] = 'str'
-            config_details[section] = dict(section=section_name, **items_dict)
-            config_sections[-1]['options'].append(section)
+    # update the config settings in auto update
+    for key in auto_update:
+        value = lib_config.get_config_value(key)
+        setattr(app_globals, get_globals_key(key), value)
 
-    ## FIXME
-    ## These settings are strange
-    ## ckan.favicon': {}, # default gets set in config.environment.py
-    ## # has been setup in load_environment():
-    ## ckan.site_id': {},
+    # cusom styling
+    main_css = lib_config.get_config_value('ckan.main_css', '/base/css/main.css')
+    setattr(app_globals, get_globals_key(key), main_css)
+    set_main_css(main_css)
+    # site_url_nice
+    site_url_nice = app_globals.site_url.replace('http://', '')
+    site_url_nice = site_url_nice.replace('www.', '')
+    app_globals.site_url_nice = site_url_nice
 
-
-# A place to store the origional config options of we override them
-_CONFIG_CACHE = {}
+    if app_globals.site_logo:
+        app_globals.header_class = 'header-image'
+    elif not app_globals.site_description:
+        app_globals.header_class = 'header-text-logo'
+    else:
+        app_globals.header_class = 'header-text-logo-tagline'
 
 def set_main_css(css_file):
     ''' Sets the main_css using debug css if needed.  The css_file
@@ -90,64 +75,11 @@ def delete_global(key):
     log.info('config `%s` deleted' % (key))
 
 def get_globals_key(key):
-    # create our globals key
-    # these can be specified in mappings or else we remove
-    # the `ckan.` part this is to keep the existing namings
-    # set the value
-    if key in mappings:
-        return mappings[key]
-    elif key.startswith('ckan.'):
+    # Create our globals key. We remove the `ckan.` part this is to keep the
+    # existing namings set the value
+    if key.startswith('ckan.'):
         return key[5:]
 
-def reset():
-    ''' set updatable values from config '''
-    def get_config_value(key, default=''):
-        if model.meta.engine.has_table('system_info'):
-            value = model.get_system_info(key)
-        else:
-            value = None
-        config_value = config.get(key)
-        # sort encodeings if needed
-        if isinstance(config_value, str):
-            try:
-                config_value = config_value.decode('utf-8')
-            except UnicodeDecodeError:
-                config_value = config_value.decode('latin-1')
-        # we want to store the config the first time we get here so we can
-        # reset them if needed
-        if key not in _CONFIG_CACHE:
-            _CONFIG_CACHE[key] = config_value
-        if value is not None:
-            log.debug('config `%s` set to `%s` from db' % (key, value))
-        else:
-            value = _CONFIG_CACHE[key]
-            if value:
-                log.debug('config `%s` set to `%s` from config' % (key, value))
-            else:
-                value = default
-        setattr(app_globals, get_globals_key(key), value)
-        # update the config
-        config[key] = value
-        return value
-
-    # update the config settings in auto update
-    for key in auto_update:
-        get_config_value(key)
-
-    # cusom styling
-    main_css = get_config_value('ckan.main_css', '/base/css/main.css')
-    set_main_css(main_css)
-    # site_url_nice
-    site_url_nice = app_globals.site_url.replace('http://', '')
-    site_url_nice = site_url_nice.replace('www.', '')
-    app_globals.site_url_nice = site_url_nice
-
-    if app_globals.site_logo:
-        app_globals.header_class = 'header-image'
-    elif not app_globals.site_description:
-        app_globals.header_class = 'header-text-logo'
-    else:
-        app_globals.header_class = 'header-text-logo-tagline'
 
 
 
@@ -172,7 +104,7 @@ class _Globals(object):
         value = model.get_system_info('ckan.config_update')
         if self._config_update != value:
             if self._mutex.acquire(False):
-                reset()
+                reset_globals()
                 self._config_update = value
                 self._mutex.release()
 
@@ -180,12 +112,12 @@ class _Globals(object):
 
         # check for unknown options
         unknown_options = []
-        for key in config.keys():
+        for key in lib_config.config.keys():
             if key.split('.')[0] in ['pylons', 'who', 'buffet', 'routes']:
                 continue
             if key in ['here', '__file__', 'global_conf']:
                 continue
-            option = config_details.get(key)
+            option = lib_config.config_details.get(key)
             if not option:
                 unknown_options.append(key)
         if unknown_options:
@@ -201,14 +133,14 @@ class _Globals(object):
             self.ckan_doc_version = 'latest'
 
         # process the config_details to set globals
-        for name, options in config_details.items():
+        for name, options in lib_config.config_details.items():
             if 'name' in options:
                 key = options['name']
             elif name.startswith('ckan.'):
                 key = name[5:]
             else:
                 key = name
-            value = config.get(name, options.get('default', ''))
+            value = lib_config.config.get(name, options.get('default', ''))
 
             data_type = options.get('type')
             if data_type == 'bool':
