@@ -15,44 +15,23 @@ guidelines below are soft rules.
 Having said that, we suggest just one hard rule: **no new feature (or change to
 an existing feature) should be missing from the docs** (but see `todo`_).
 
-----
-
-The guidelines below are broken into four sections:
-
-:ref:`getting-started`
-  Walks you through downloading the source files for CKAN's docs, editing them,
-  and submitting your work to the CKAN project.
-
-:ref:`structure`
- Describes the intended structure and audiences of the docs, so we know:
-
- * Where to add new pages and sections
- * What sections a new page should have
- * Who we're writing the docs for:
-
-   * How much technical detail to go into
-   * How much knowledge can be assumed
-
-:ref:`style`
-  Covers things like what tone to use, how to capitalize section titles, etc.
-  Having a consistent style will make the docs nice and easy to read and give
-  them a complete, quality feel.
-
-:ref:`sphinx tips`
-  Gives some useful tips about using Sphinx.
-
 .. seealso::
 
    Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
      A series of blog posts about writing technical docs, a lot of our
      guidelines were based on this.
 
+.. contents::
+   :local:
 
 .. _getting-started:
 
 ------------------
 1. Getting started
 ------------------
+
+This section will walk you through downloading the source files for CKAN's
+docs, editing them, and submitting your work to the CKAN project.
 
 CKAN's documentation is created using `Sphinx <http://sphinx-doc.org/>`_,
 which in turn uses `Docutils <http://docutils.sourceforge.net/>`_
@@ -162,6 +141,10 @@ suggestion for what sections the page should have is:
 
 .. 
     http://jacobian.org/writing/great-documentation/technical-style/
+
+This section covers things like what tone to use, how to capitalize section
+titles, etc.  Having a consistent style will make the docs nice and easy to
+read and give them a complete, quality feel.
 
 
 Use American spelling
@@ -326,6 +309,8 @@ identifiable pieces:
 ---------
 4. Sphinx
 ---------
+
+This section gives some useful tips about using Sphinx.
 
 
 Don't introduce any new Sphinx warnings
