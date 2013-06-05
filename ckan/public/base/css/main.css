@@ -8965,3 +8965,6 @@ iframe {
   top: -35px;
   right: 0;
 }
+.ie7 .media-overlay .media-heading {
+  background-color: #000;
+}
