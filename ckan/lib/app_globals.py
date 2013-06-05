@@ -178,6 +178,21 @@ class _Globals(object):
 
     def _init(self):
 
+        # check for unknown options
+        unknown_options = []
+        for key in config.keys():
+            if key.split('.')[0] in ['pylons', 'who', 'buffet', 'routes']:
+                continue
+            if key in ['here', '__file__', 'global_conf']:
+                continue
+            option = config_details.get(key)
+            if not option:
+                unknown_options.append(key)
+        if unknown_options:
+            msg = '\n\t'.join(unknown_options)
+            log.warning('Unknown config option(s)\n\t%s' % msg)
+
+
         self.ckan_version = ckan.__version__
         self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
         if self.ckan_base_version == self.ckan_version:
