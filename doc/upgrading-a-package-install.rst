@@ -1,13 +1,24 @@
-Upgrading to a patch version
-============================
+===========================
+Upgrading a package install
+===========================
 
-For example from 2.0 to 2.0.1. Patch versions don't introduce backwards
-incompatible changes, like changes on the database structure, the Solr schema
-or new requirements (see :doc:`releases` for more details).
 
-Patch releases are included in the same package as the minor release they
-belong to, so for example 2.0.1, 2.0.2, etc will be installed using the 2.0
-package (``python-ckan_2.0_amd64.deb``):
+----------------------------
+Upgrading to a patch release
+----------------------------
+
+.. note::
+
+   *Patch releases* of CKAN are releases that increment the third digit in the
+   version number. For example, if you're upgrading from CKAN ``2.0`` to CKAN
+   ``2.0.1`` then you're upgrading to a new patch release. Patch releases
+   should not contain any backwards-incompatible changes.
+
+   See :doc:`releases` for more detail about the different types CKAN release.
+
+Patch releases are distributed in the same package as the minor release they
+belong to, so for example CKAN ``2.0``, ``2.0.1``, ``2.0.2``, etc. will all be
+installed using the CKAN ``2.0`` package (``python-ckan_2.0_amd64.deb``):
 
 #. Download the CKAN package::
 
@@ -29,9 +40,9 @@ package (``python-ckan_2.0_amd64.deb``):
 
     sudo dpkg -i python-ckan_2.0_amd64.deb
 
-   This will **not** replace or modify any configuration files that you
-   already have in the server, including the CKAN ini file or any Apache or
-   Nginx configuration files.
+   This will **not** replace or modify any configuration files that you already
+   have on the server, including the CKAN config file or any |apache| or
+   |nginx| configuration files.
 
    Your CKAN instance should be upgraded straight away.
 
@@ -46,8 +57,9 @@ package (``python-ckan_2.0_amd64.deb``):
    them and delete the folder manually if you want.
 
 
+-------------------------------------------
 Upgrading a 1.X Package Install to CKAN 2.0
-===========================================
+-------------------------------------------
 
 .. note::
 
