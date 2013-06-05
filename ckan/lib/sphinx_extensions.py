@@ -6,6 +6,7 @@ from docutils.statemachine import ViewList
 from sphinx.util.compat import Directive
 
 import ckan.lib.app_globals as app_globals
+from paste.deploy.converters import asbool
 
 def setup(app):
     app.add_config_value('config', False, False)
@@ -43,12 +44,12 @@ class ConfigDirective(Directive):
 
         def make_para(arg):
             def build_para(arg):
-                parts = re.split('(?<=:)(:\n\n.*$)', arg,
+                parts = re.split('(?<=:)(:\n+.*$)', arg,
                                  flags=re.DOTALL | re.MULTILINE)
                 n = []
                 for part in parts:
-                    if part.startswith(':\n\n'):
-                        n += [nodes.literal_block('', part[3:])]
+                    if part.startswith(':\n'):
+                        n += [nodes.literal_block('', part[1:].strip())]
                     else:
                         node = nodes.paragraph()
                         node.document = self.state.document
@@ -67,15 +68,25 @@ class ConfigDirective(Directive):
 
 
         def setting_node(name, item):
+            deprecated = item.get('undocumented', False)
+            if asbool(deprecated):
+                return []
 
             n = [nodes.title('', name)]
+
+            deprecated = item.get('deprecated')
+            if deprecated:
+                dep_text = 'This setting was deprecated in version %s'
+                admonition = nodes.admonition(
+                    'deprecated',
+                    nodes.title('', 'Deprecated'),
+                    nodes.paragraph('', dep_text % deprecated)
+                )
+                admonition['classes'] += ['deprecated', 'warning']
+                n += [admonition]
+
             description = item.get('description')
             n += make_para(description)
-
-            example = item.get('example')
-            if example:
-                n += [nodes.paragraph('', 'Example:'),
-                      nodes.literal_block('', example)]
 
             default = item.get('default')
             if default:
@@ -85,9 +96,22 @@ class ConfigDirective(Directive):
             type_ = item.get('type')
             if type_:
                 n += [nodes.paragraph('', 'Type: ', nodes.literal('', type_))]
+            example = item.get('example')
+            if example:
+                n += [nodes.paragraph('', 'Example:'),
+                      nodes.literal_block('', example)]
+
             node = [nodes.section('', *n,
                     ids=[slug(name)])]
             return node
+
+        def section_items(item):
+            n = []
+            items = item['options']
+            for item_ in items:
+                node = self.config_options[item_]
+                n += node
+            return n
 
         def section_node(item):
 
@@ -97,26 +121,10 @@ class ConfigDirective(Directive):
             if description:
                 n += make_para(description)
 
-            items = self.config_sections[item['name']]['nodes']
-            for item in items:
-                pass
-                n += items[item]
-
-            node = [nodes.section('',
-                    *n,
-                    ids=[slug(title)]
-                                 )]
-            return node
-            title = item.get('title', '')
-            n = [nodes.title('', title)]
-            description = item.get('description')
-            if description:
-                n += make_para(description)
-
-            items = self.config_sections[item['name']]['nodes']
-            for item in items:
-                pass
-                n += items[item]
+            items = item['options']
+            for item_ in items:
+                node = self.config_options[item_]
+                n += node
 
             node = [nodes.section('',
                     *n,
@@ -138,7 +146,8 @@ class ConfigDirective(Directive):
 
         items = app_globals.config_sections
         for item in items:
-            self.config_sections[item['name']]['node'] = section_node(item)
+            self.config_sections[item['name']]['full_node'] = section_node(item)
+            self.config_sections[item['name']]['node'] = section_items(item)
 
     def run(self):
 
@@ -148,11 +157,18 @@ class ConfigDirective(Directive):
         self.result = ViewList()
         self.build_config_nodes()
 
-        all_sections = [s['name'] for s in app_globals.config_sections]
-        sections = self.arguments or all_sections
+        include_section = True
+        if self.arguments:
+            include_section = False
+            sections = self.arguments
+        else:
+            sections = [s['name'] for s in app_globals.config_sections]
 
         nodes_list = []
         for section in sections:
             sec = self.config_sections[section]
-            nodes_list.extend(sec['node'])
+            if include_section:
+                nodes_list.extend(sec['full_node'])
+            else:
+                nodes_list.extend(sec['node'])
         return nodes_list
