@@ -55,6 +55,7 @@ rst_epilog = '''
 .. |python| replace:: Python
 .. |sqlalchemy| replace:: SQLAlchemy
 .. |javascript| replace:: JavaScript
+.. |apache| replace:: Apache
 
 '''
 

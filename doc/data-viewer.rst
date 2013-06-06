@@ -21,7 +21,7 @@ the following sections:
 
 * `Viewing images and text files`_
 * `Viewing structured data: the Data Explorer`_
-* `Viewing JSON data`_
+* `Viewing highlighted XML, JSON and plain text data`_
 * `Viewing PDF documents`_
 * `Embedding Previews In Other Web Pages`_
 
