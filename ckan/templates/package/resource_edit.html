@@ -12,8 +12,8 @@
   <li class="active"><a href="">{{ _('Edit') }}</a></li>
 {% endblock %}
 
-{% block actions_content %}
-  <li>{% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}</li>
+{% block edit_action %}
+  {% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}
 {% endblock %}
 
 {# logged_in is defined in new_resource.html #}

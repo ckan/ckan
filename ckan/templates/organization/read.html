@@ -1,13 +1,11 @@
 {% extends "organization/read_base.html" %}
 
 {% block primary_content_inner %}
-  <div class="module-content">
-    {% block packages_list %}
+  {% block packages_list %}
     {% include "package/snippets/search_form.html" %}
-    {% endblock %}
-  </div>
+  {% endblock %}
   {% block page_pagination %}
-  {{ c.page.pager(q=c.q) }}
+    {{ c.page.pager(q=c.q) }}
   {% endblock %}
 {% endblock %}
 

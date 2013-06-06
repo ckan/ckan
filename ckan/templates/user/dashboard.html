@@ -1,8 +1,8 @@
 {% extends "user/edit_base.html" %}
 
-{% block add_action_content %}
+{% block add_action %}
   {% if h.check_access('package_create') %}
-    <li>{% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}</li>
+    {% link_for _('Add Dataset'), controller='package', action='new', class_="btn btn-primary", icon="plus-sign-alt" %}
   {% endif %}
 {% endblock %}
 

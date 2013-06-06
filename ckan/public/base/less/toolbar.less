@@ -78,19 +78,21 @@
 }
 
 .page-header {
-  position: relative;
+  .clearfix;
   border-bottom: 1px solid @moduleHeadingBorderColor;
   background-color: @moduleHeadingBackgroundColor;
-  height: 30px;
   .border-radius(0 3px 0 0);
   .nav-tabs {
-    position: absolute;
-    left: 20px;
-    bottom: -1px;
-    margin-bottom: 0;
+    float: left;
+    margin-bottom: -1px;
     li.active a,
     a:hover {
       background-color: @moduleBackgroundColor;
     }
+  }
+  .edit_action {
+    float: right;
+    margin-top: -5px;
+    margin-right: -7px;
   }
 }

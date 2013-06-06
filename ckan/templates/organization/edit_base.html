@@ -1,4 +1,4 @@
-{% extends "organization/index.html" %}
+{% extends "page.html" %}
 
 {% set organization = c.group_dict %}
 
@@ -14,29 +14,17 @@
   {% endblock %}
 {% endblock %}
 
-{% block actions_content %}
+{% block edit_action %}
   {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
-    <li>{% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}</li>
+    {% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
-{% block primary_content %}
-  <section class="module">
-    {% block page_header %}
-      <header class="module-content page-header">
-        <ul class="nav nav-tabs">
-          {% block page_header_tabs %}
-            {{ h.build_nav_icon('organization_edit', _('Edit'), id=c.group_dict.name) }}
-            {{ h.build_nav_icon('organization_bulk_process', _('Datasets'), id=c.group_dict.name) }}
-            {{ h.build_nav_icon('organization_members', _('Members'), id=c.group_dict.name) }}
-          {% endblock %}
-        </ul>
-      </header>
-    {% endblock %}
-    {% block primary_content_inner %}
-    {% endblock %}
-  </section>
+{% block page_header_tabs %}
+  {{ h.build_nav_icon('organization_edit', _('Edit'), id=c.group_dict.name) }}
+  {{ h.build_nav_icon('organization_bulk_process', _('Datasets'), id=c.group_dict.name) }}
+  {{ h.build_nav_icon('organization_members', _('Members'), id=c.group_dict.name) }}
 {% endblock %}
 
 {% block secondary_content %}
