@@ -577,99 +577,196 @@ class PackageController(base.BaseController):
                 'error_summary': error_summary, 'action': 'new'}
         return render('package/resource_edit.html', extra_vars=vars)
 
-    def new_resource(self, id, data=None, errors=None, error_summary=None):
-        ''' FIXME: This is a temporary action to allow styling of the
-        forms. '''
-        if request.method == 'POST' and not data:
-            save_action = request.params.get('save')
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
-            # we don't want to include save as it is part of the form
-            del data['save']
-            resource_id = data['id']
-            del data['id']
+    def _render_new_resource_page(self, package_id, data, errors,
+            error_summary):
+        '''Render the new resource page for the given package.
 
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+        The page will show the given errors and the form will contain the given
+        data if any. For example if the user entered invalid data into the form
+        and tried to save it, the page reloads with the same data in the form
+        and an error message asking them to fix it.
 
-            # see if we have any data that we are trying to save
-            data_provided = False
-            for key, value in data.iteritems():
-                if value and key != 'resource_type':
-                    data_provided = True
-                    break
-
-            if not data_provided and save_action != "go-dataset-complete":
-                if save_action == 'go-dataset':
-                    # go to final stage of adddataset
-                    redirect(h.url_for(controller='package',
-                                       action='edit', id=id))
-                # see if we have added any resources
-                try:
-                    data_dict = get_action('package_show')(context, {'id': id})
-                except NotAuthorized:
-                    abort(401, _('Unauthorized to update dataset'))
-                if not len(data_dict['resources']):
-                    # no data so keep on page
-                    msg = _('You must add at least one data resource')
-                    # On new templates do not use flash message
-                    if g.legacy_templates:
-                        h.flash_error(msg)
-                        redirect(h.url_for(controller='package',
-                                           action='new_resource', id=id))
-                    else:
-                        errors = {}
-                        error_summary = {_('Error'): msg}
-                        return self.new_resource(id, data, errors, error_summary)
-                # we have a resource so let them add metadata
-                redirect(h.url_for(controller='package',
-                                   action='new_metadata', id=id))
-
-            data['package_id'] = id
-            try:
-                if resource_id:
-                    data['id'] = resource_id
-                    get_action('resource_update')(context, data)
-                else:
-                    get_action('resource_create')(context, data)
-            except ValidationError, e:
-                errors = e.error_dict
-                error_summary = e.error_summary
-                return self.new_resource(id, data, errors, error_summary)
-            except NotAuthorized:
-                abort(401, _('Unauthorized to create a resource'))
-            if save_action == 'go-metadata':
-                # go to final stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='new_metadata', id=id))
-            elif save_action == 'go-dataset':
-                # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='edit', id=id))
-            elif save_action == 'go-dataset-complete':
-                # go to first stage of add dataset
-                redirect(h.url_for(controller='package',
-                                   action='read', id=id))
-            else:
-                # add more resources
-                redirect(h.url_for(controller='package',
-                                   action='new_resource', id=id))
+        '''
         errors = errors or {}
         error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new'}
-        vars['pkg_name'] = id
-        # get resources for sidebar
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        pkg_dict = get_action('package_show')(context, {'id': id})
-        # required for nav menu
-        vars['pkg_dict'] = pkg_dict
+
+        extra_vars = {
+                'data': data,
+                'errors': errors,
+                'error_summary': error_summary,
+                'action': 'new',
+                'pkg_name': package_id}
+
+        pkg_dict = get_action('package_show')(data_dict={'id': package_id})
+        extra_vars['pkg_dict'] = pkg_dict
+
         if pkg_dict['state'] == 'draft':
-            vars['stage'] = ['complete', 'active']
+            extra_vars['stage'] = ['complete', 'active']
         elif pkg_dict['state'] == 'draft-complete':
-            vars['stage'] = ['complete', 'active', 'complete']
-        return render('package/new_resource.html', extra_vars=vars)
+            extra_vars['stage'] = ['complete', 'active', 'complete']
+
+        return render('package/new_resource.html', extra_vars=extra_vars)
+
+    def _get_data_from_post_params(self, data=None):
+        data = data or clean_dict(dict_fns.unflatten(tuplize_dict(
+            parse_params(request.POST))))
+        if 'save' in data:
+            del data['save']
+        resource_id = data.get('id')
+        if 'id' in data:
+            del data['id']
+        return (data, resource_id)
+
+    def _data_provided(self, data):
+        # See if we have any data that we are trying to save.
+        for key, value in data.iteritems():
+            if value and key != 'resource_type':
+                return True
+        return False
+
+    def _save_resource(self, package_id, resource_id, data):
+        '''Save resource data submitted to the new resource form.
+
+        Raises ValidationError (from resource_update or resource_create) if
+        the data is invalid.
+
+        '''
+        data['package_id'] = package_id
+        try:
+            if resource_id:
+                data['id'] = resource_id
+                get_action('resource_update')(data_dict=data)
+            else:
+                get_action('resource_create')(data_dict=data)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create a resource'))
+
+    def _save_and_add_another(self, package_id, data, errors, error_summary):
+        '''Handle a click of the "Save & add another" button.
+
+        (On the new resource page.)
+
+        '''
+        assert not data
+        assert request.method == 'POST'
+        data, resource_id = self._get_data_from_post_params()
+        self._save_resource(package_id, resource_id, data)
+        redirect(h.url_for(controller='package', action='new_resource',
+            id=package_id))
+
+    def _previous(self, package_id, data, errors, error_summary):
+        '''Handle a click of the "Previous" button on the new resource form.'''
+
+        assert request.method == 'POST'
+        assert not data
+
+        data, resource_id = self._get_data_from_post_params()
+
+        if self._data_provided(data):
+            self._save_resource(package_id, resource_id, data)
+
+        redirect(h.url_for(controller='package', action='edit', id=package_id))
+
+    def _next(self, package_id, data, errors, error_summary):
+        '''Handle a click of the "Next" button on the new resource form.'''
+
+        assert not data
+        assert request.method == 'POST'
+
+        data, resource_id = self._get_data_from_post_params()
+
+        if self._data_provided(data):
+            self._save_resource(package_id, resource_id, data)
+            # Go to the next form.
+            redirect(h.url_for(controller='package',
+                                action='new_metadata', id=package_id))
+        else:
+            # The user didn't enter anything into the new resource form field,
+            # see if they've already added any resources to this package.
+            try:
+                data_dict = get_action('package_show')(
+                        data_dict={'id': package_id})
+            except NotAuthorized:
+                abort(401, _('Unauthorized to update dataset'))
+            if len(data_dict['resources']) > 0:
+                # Move onto the next form.
+                redirect(h.url_for(controller='package', action='new_metadata',
+                    id=package_id))
+            else:
+                # You can't move onto the next form without adding any
+                # resources. Reload the new resource page again, with an error.
+                msg = _('You must add at least one data resource')
+                # On new templates do not use flash message
+                if g.legacy_templates:
+                    h.flash_error(msg)
+                    redirect(h.url_for(controller='package',
+                                        action='new_resource', id=package_id))
+                else:
+                    errors = {}
+                    error_summary = {_('Error'): msg}
+                    return self.new_resource(package_id, data, errors,
+                            error_summary)
+
+    def _add(self, package_id, data, errors, error_summary):
+        '''Handle a click of the "Add" button on the new resource form.'''
+
+        assert request.method == 'POST'
+        data, resource_id = self._get_data_from_post_params(data)
+        self._save_resource(package_id, resource_id, data)
+        # Go back to the package read page.
+        redirect(h.url_for(controller='package', action='read', id=package_id))
+
+    def new_resource(self, id, data=None, errors=None, error_summary=None):
+        '''Handle rendering the new resource page.
+
+        This page contains a form for entering details (URL, name, etc.) for
+        a new resource and lots of buttons for saving resources and moving
+        forwards or backwards in the three-stage new dataset process.
+
+        This page is used both when adding resources to a dataset when creating
+        a new dataset, and when adding resources to an existing dataset when
+        editing the dataset.
+
+        '''
+        button_clicked = request.params.get('save')
+        try:
+            if button_clicked is None:
+                # We've just come to the new_resource page by clicking a button
+                # on some other page.
+                return self._render_new_resource_page(id, data, errors,
+                        error_summary)
+            elif button_clicked == 'again':
+                # The "Save & add another resource" button was clicked.
+                return self._save_and_add_another(id, data, errors,
+                        error_summary)
+            elif button_clicked == 'go-dataset':
+                # The "Previous" button was clicked.
+                return self._previous(id, data, errors, error_summary)
+            elif button_clicked == 'go-metadata':
+                # The "Next: Additional Info" button was clicked.
+                if data:
+                    # The user tried to create a dataset with no resources and
+                    # the page reloaded itself with errors.
+                    return self._render_new_resource_page(id, data, errors,
+                            error_summary)
+                else:
+                    return self._next(id, data, errors, error_summary)
+            elif button_clicked == 'go-dataset-complete':
+                # The "Add" button was clicked.
+                return self._add(id, data, errors, error_summary)
+            else:
+                # We should never get here.
+                assert False, "Unrecognised 'save' param: {0}".format(
+                        button_clicked)
+        except ValidationError, e:
+            # At some point we tried to save a resource and resource_create
+            # or resource_update raised a ValidationError. Reload the new
+            # resource form with validation errors to show to the user.
+            errors = e.error_dict
+            error_summary = e.error_summary
+            data, resource_id = self._get_data_from_post_params()
+            return self._render_new_resource_page(id, data, errors,
+                    error_summary)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
