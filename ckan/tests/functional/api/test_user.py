@@ -3,6 +3,7 @@ from pylons import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
@@ -84,7 +85,9 @@ class TestCreateUser(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
+        new_authz.CONFIG_PERMISSIONS.clear()
         PylonsTestCase.teardown_class()
+
         model.repo.rebuild_db()
 
     def test_user_create_disabled(self):
