@@ -1,4 +1,3 @@
-import sys
 import os.path
 import logging
 
@@ -6,6 +5,8 @@ from pylons import config
 
 import ckan.lib.config_ini_parser as ini_parser
 import ckan.model as model
+
+from ckan.common import OrderedDict
 
 log = logging.getLogger(__name__)
 # A place to store the origional config options of we override them
@@ -18,10 +19,7 @@ path = os.path.join(os.path.dirname(__file__), '..', 'config')
 # parse the resource.config file if it exists
 config_path = os.path.join(path, 'config_options.ini')
 if os.path.exists(config_path):
-    if sys.version_info < (2, 7):
-        conf = ini_parser.ConfigIniParser()
-    else:
-        conf = ini_parser.ConfigParser.RawConfigParser()
+    conf = ini_parser.ConfigParser.RawConfigParser(dict_type=OrderedDict)
     conf.read(config_path)
     for section in conf.sections():
         items = conf.items(section)
