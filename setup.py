@@ -8,6 +8,7 @@ except ImportError:
 from ckan import __version__, __description__, __long_description__, __license__
 
 install_requires = [
+    'Babel>=0.9.6',
     'Genshi==0.6',
     'Jinja2>=2.6',
     'Pylons==0.9.7',
@@ -36,6 +37,7 @@ install_requires = [
     'webhelpers>=1.3',
     'webob==1.0.8',
     'zope.interface>=4.0.1',
+    'unicodecsv>=0.9',
 ]
 
 dev_requires = [
@@ -44,12 +46,11 @@ dev_requires = [
     'httpretty>=0.5',
     'nose>=1.2.1',
     'pip-tools>=0.3.1',
-    'Sphinx>=1.2b1'
+    'Sphinx>=1.2b1',
 ]
 
 dependency_links = [
     'https://github.com/okfn/ckanclient/tarball/master#egg=ckanclient'
-    'https://github.com/okfn/vdm/tarball/master#egg=vdm'
 ]
 
 setup(
@@ -63,7 +64,7 @@ setup(
     keywords='data packaging component tool server',
     long_description =__long_description__,
     install_requires=install_requires,
-    extra_requires={'dev': dev_requires},
+    extras_require={'dev': dev_requires},
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
