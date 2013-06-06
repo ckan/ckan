@@ -3,7 +3,7 @@
 var path = require('path'),
     nodeWatch = require('nodewatch'),
     exec = require('child_process').exec,
-    watch = path.join(__dirname, '..', 'ckan', 'public', 'base', 'less'),
+    watch = path.join(__dirname, '..', 'ckan', 'public', 'less'),
     debug = process.env.ENV !== 'production',
     lastArg = process.argv.slice().pop();
 
@@ -19,7 +19,7 @@ function compile(event, filename) {
     filename = 'main.debug.css';
   }
 
-  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
+  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/less/main.less > ' + __dirname + '/../ckan/public/css/' + filename, function (err, stdout, stderr) {
     var duration = Date.now() - start;
 
     if (err) {

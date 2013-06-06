@@ -87,7 +87,7 @@ ckan.plugins = stats text_preview recline_preview
 
 ## Front-End Settings
 ckan.site_title = CKAN
-ckan.site_logo = /base/images/ckan-logo.png
+ckan.site_logo = /images/ckan-logo.png
 ckan.site_description =
 ckan.favicon = /images/icons/ckan.ico
 ckan.gravatar_default = identicon
