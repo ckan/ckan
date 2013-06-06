@@ -57,8 +57,14 @@
 {% set dataset_has_organization = data.owner_org or data.group_id %}
 {% set organizations_available = h.organizations_available('create_dataset') %}
 {% set user_is_sysadmin = h.check_access('sysadmin') %}
+{% set show_organizations_selector = organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+{% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
-{% if organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+{% if show_organizations_selector and show_visibility_selector %}
+  <div data-module="dataset-visibility">
+{% endif %}
+
+{% if show_organizations_selector %}
 <div class="control-group">
   <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
   <div class="controls">
@@ -74,12 +80,12 @@
 </div>
 {% endif %}
 
-{% if dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+{% if show_visibility_selector %}
   {% block package_metadata_fields_visibility %}
     <div class="control-group">
       <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
       <div class="controls">
-        <select id="field-private" name="private" data-module="autocomplete">
+        <select id="field-private" name="private">
           {% for option in [(true, _('Private')), (false, _('Public'))] %}
           <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
           {% endfor %}
@@ -87,6 +93,10 @@
       </div>
     </div>
   {% endblock %}
+{% endif %}
+
+{% if show_organizations_selector and show_visibility_selector %}
+  </div>
 {% endif %}
 
 {% endblock %}
