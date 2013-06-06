@@ -1,3 +1,4 @@
+import sys
 import os.path
 import logging
 
@@ -17,7 +18,10 @@ path = os.path.join(os.path.dirname(__file__), '..', 'config')
 # parse the resource.config file if it exists
 config_path = os.path.join(path, 'config_options.ini')
 if os.path.exists(config_path):
-    conf = ini_parser.ConfigIniParser()
+    if sys.version_info < (2, 7):
+        conf = ini_parser.ConfigIniParser()
+    else:
+        conf = ini_parser.ConfigParser.RawConfigParser()
     conf.read(config_path)
     for section in conf.sections():
         items = conf.items(section)
