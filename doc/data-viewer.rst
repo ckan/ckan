@@ -152,10 +152,17 @@ Viewing remote resources: the resource proxy
 ``ckan.plugins`` in your CKAN configuration file.
 This extension is part of CKAN and so does not need to be installed separately.
 
-This extension must be enabled if you wish to preview remote resources. If enabled,
-it allows CKAN to get around the
+This extension must be enabled if you wish to preview resources that are on a
+different domain. That means if this extension is not enabled, e.g.
+PDF, or JSON files that are on ``www.example.com`` while CKAN is on
+``www.ckan.org`` can not be previewed by any extension.
+
+Previewing is prevented by the
 `same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_ which
-prevents files from different domains from being loaded into browsers.
+prevents files from different domains (different *origins*) from being loaded
+into browsers. This extension gets around the same origin policy by pretending
+that all files are served from the same domain (same *origin*) that
+CKAN is on (e.g. ``www.ckan.org``).
 
 If you are writing a custom preview extension that requires resources to be
 proxied, you need to replace the URL that is used to load the file. This can
