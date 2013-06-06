@@ -24,7 +24,9 @@ if os.path.exists(config_path):
         items_dict = dict((n, v.strip()) for (n, v) in items)
         if section.startswith('section:'):
             section_name = section[8:]
-            config_sections.append(dict(name=section_name, options=[], **items_dict))
+            config_sections.append(
+                dict(name=section_name, options=[], **items_dict)
+            )
         else:
             if 'type' not in items_dict:
                 items_dict['type'] = 'str'
@@ -36,6 +38,7 @@ if os.path.exists(config_path):
     ## ckan.favicon': {}, # default gets set in config.environment.py
     ## # has been setup in load_environment():
     ## ckan.site_id': {},
+
 
 def get_config_value(key, default=''):
     if model.meta.engine.has_table('system_info'):

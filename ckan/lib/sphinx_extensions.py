@@ -8,6 +8,7 @@ from sphinx.util.compat import Directive
 import ckan.lib.config as lib_config
 from paste.deploy.converters import asbool
 
+
 def setup(app):
     app.add_config_value('config', False, False)
     app.add_node(config)
@@ -35,7 +36,6 @@ class ConfigDirective(Directive):
 
     config_options = {}
     config_sections = {}
-
 
     def build_config_nodes(self):
 
@@ -65,7 +65,6 @@ class ConfigDirective(Directive):
             for part in parts:
                 nodes_list += build_para(part)
             return nodes_list
-
 
         def setting_node(name, item):
             deprecated = item.get('undocumented', False)
@@ -128,25 +127,24 @@ class ConfigDirective(Directive):
 
             node = [nodes.section('',
                     *n,
-                    ids=[slug(title)]
-                                 )]
+                    ids=[slug(title)])]
             return node
 
         items = lib_config.config_sections
         for item in items:
-            self.config_sections[item['name']] = {'detail': item, 'nodes': {},
-                                             }
+            self.config_sections[item['name']] = {'detail': item, 'nodes': {}}
         items = lib_config.config_details
         for item in items:
-             node = setting_node(item, items[item])
-             self.config_options[item] = node
-             section = items[item].get('section')
-             if section in self.config_sections:
-                 self.config_sections[section]['nodes'][item] = node
+            node = setting_node(item, items[item])
+            self.config_options[item] = node
+            section = items[item].get('section')
+            if section in self.config_sections:
+                self.config_sections[section]['nodes'][item] = node
 
         items = lib_config.config_sections
         for item in items:
-            self.config_sections[item['name']]['full_node'] = section_node(item)
+            self.config_sections[item['name']]['full_node'] = \
+                section_node(item)
             self.config_sections[item['name']]['node'] = section_items(item)
 
     def run(self):
