@@ -85,7 +85,7 @@ class TestCreateUser(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.CONFIG_PERMISSIONS.clear()
+        new_authz.clear_auth_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()

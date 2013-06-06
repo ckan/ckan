@@ -16,8 +16,9 @@ log = getLogger(__name__)
 class AuthFunctions:
     _functions = {}
 
-def clear_auth_functions_cache():
+def clear_auth_cache():
     AuthFunctions._functions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def clean_action_name(action_name):

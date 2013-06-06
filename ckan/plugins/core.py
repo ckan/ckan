@@ -115,7 +115,7 @@ def _clear_logic_and_auth_caches():
     import ckan.logic
     import ckan.new_authz
     ckan.logic.clear_actions_cache()
-    ckan.new_authz.clear_auth_functions_cache()
+    ckan.new_authz.clear_auth_cache()
 
 def load(plugin):
     """
