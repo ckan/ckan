@@ -2,10 +2,10 @@ import os
 
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
-from pylons import i18n
+from pylons import i18n, config
 
 import ckan.i18n
-import ckan.lib.config as lib_config
+from ckan.common import ckan_config
 
 LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
                                # Brazilian territory, since
@@ -15,10 +15,10 @@ LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
     the config AND also the locals available subject to the config. '''
-    locales_offered = lib_config.get_config('ckan.locales_offered')
-    filtered_out = lib_config.get_config('ckan.locales_filtered_out')
-    locale_default = lib_config.get_config('ckan.locale_default')
-    locale_order = lib_config.get_config('ckan.locale_order')
+    locales_offered = ckan_config['ckan.locales_offered']
+    filtered_out = ckan_config['ckan.locales_filtered_out']
+    locale_default = ckan_config['ckan.locale_default']
+    locale_order = ckan_config['ckan.locale_order']
     known_locales = get_locales()
     all_locales = set(known_locales) | set(locales_offered) | set(locale_order) | set(locale_default)
     all_locales -= set(filtered_out)
@@ -26,10 +26,10 @@ def get_locales_from_config():
 
 def _get_locales():
     # FIXME this wants cleaning up and merging with get_locales_from_config()
-    locales_offered = lib_config.get_config('ckan.locales_offered')
-    filtered_out = lib_config.get_config('ckan.locales_filtered_out')
-    locale_default = lib_config.get_config('ckan.locale_default')
-    locale_order = lib_config.get_config('ckan.locale_order')
+    locales_offered = ckan_config['ckan.locales_offered']
+    filtered_out = ckan_config['ckan.locales_filtered_out']
+    locale_default = ckan_config['ckan.locale_default']
+    locale_order = ckan_config['ckan.locale_order']
 
     locales = ['en']
     i18n_path = os.path.dirname(ckan.i18n.__file__)
@@ -84,7 +84,7 @@ def non_translated_locals():
     no translations. returns a list like ['en', 'de', ...] '''
     global _non_translated_locals
     if not _non_translated_locals:
-        locales = lib_config.get_config('ckan.locale_order')
+        locales = ckan_config['ckan.locale_order']
         _non_translated_locals = [x for x in locales if x not in get_locales()]
     return _non_translated_locals
 
@@ -113,9 +113,9 @@ def _set_lang(lang):
     sets the Pylons root path to desired i18n_directory.
     This is needed as Pylons will only look for an i18n directory in
     the application root.'''
-    if lib_config.get_config('ckan.i18n_directory'):
-        fake_config = {'pylons.paths': {'root': lib_config.get_config('ckan.i18n_directory')},
-                       'pylons.package': lib_config.get_config('pylons.package')}
+    if ckan_config['ckan.i18n_directory']:
+        fake_config = {'pylons.paths': {'root': ckan_config['ckan.i18n_directory']},
+                       'pylons.package': config['pylons.package']}
         i18n.set_lang(lang, pylons_config=fake_config)
     else:
         i18n.set_lang(lang)
@@ -123,7 +123,7 @@ def _set_lang(lang):
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
-        lib_config.get_config('ckan.locale_default')
+        ckan_config['ckan.locale_default']
     if lang != 'en':
         set_lang(lang)
     tmpl_context.language = lang
@@ -141,6 +141,6 @@ def get_lang():
 def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
-        language_code = lib_config.get_config('ckan.locale_default')
+        language_code = ckan_config['ckan.locale_default']
     if language_code != 'en':
         _set_lang(language_code)
