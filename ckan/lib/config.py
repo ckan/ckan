@@ -10,6 +10,7 @@ import ckan.model as model
 from ckan.common import OrderedDict
 
 log = logging.getLogger(__name__)
+
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
 
@@ -127,3 +128,7 @@ class _CkanConfig(object):
 
 ckan_config = _CkanConfig()
 del _CkanConfig
+
+def get_config(key):
+    ''' Helper function for cleaner code '''
+    return ckan_config.get(key)
