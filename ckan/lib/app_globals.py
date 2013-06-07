@@ -117,8 +117,8 @@ class _Globals(object):
             self.ckan_doc_version = 'latest'
 
         # process the config_details to set globals
-        lib_config.ckan_config.update()
-        for key, value in lib_config.ckan_config.items():
+        lib_config.update_config()
+        for key, value in lib_config.config_items():
             setattr(self, key, value)
 
 
