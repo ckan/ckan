@@ -197,7 +197,7 @@ this.ckan = this.ckan || {};
    *
    *   ckan.module('like-button', {
    *     options: {
-   *        endpoint: '/api/v2/like'
+   *        endpoint: '/v2/like'
    *     },
    *     initialize: function () {
    *       var options = this.options,
