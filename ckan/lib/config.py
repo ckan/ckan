@@ -2,6 +2,7 @@ import os.path
 import logging
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 import ckan.lib.config_ini_parser as ini_parser
 import ckan.model as model
@@ -69,3 +70,60 @@ def get_config_value(key, default=''):
     # update the config
     config[key] = value
     return value
+
+class _CkanConfig(object):
+
+    _config = {}
+
+    def set_item(self, item, value):
+        self._config[item] = value
+
+    def clear(self):
+        self._config.clear()
+
+    def items(self):
+        return self._config.items()
+
+    def get(self, key, default=None):
+        if key.startswith('ckan.'):
+            key = key[5:]
+        return self._config.get(key.replace('.', '_'), default)
+
+    def update(self):
+        self.clear()
+        for name, options in config_details.items():
+            if 'name' in options:
+                key = options['name']
+            elif name.startswith('ckan.'):
+                key = name[5:]
+            else:
+                key = name
+            value = config.get(name, options.get('default', ''))
+
+            data_type = options.get('type')
+            if data_type == 'bool':
+                value = asbool(value)
+            elif data_type == 'int':
+                value = int(value)
+            elif data_type == 'split':
+                value = value.split()
+            key = key.replace('.', '_')
+            self._config[key] = value
+            print '%s: %s' % (key, value)
+
+        # check for unknown options
+        unknown_options = []
+        for key in config.keys():
+            if key.split('.')[0] in ['pylons', 'who', 'buffet', 'routes']:
+                continue
+            if key in ['here', '__file__', 'global_conf']:
+                continue
+            option = config_details.get(key)
+            if not option:
+                unknown_options.append(key)
+        if unknown_options:
+            msg = '\n\t'.join(unknown_options)
+            log.warning('Unknown config option(s)\n\t%s' % msg)
+
+ckan_config = _CkanConfig()
+del _CkanConfig

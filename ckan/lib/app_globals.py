@@ -5,7 +5,6 @@ import time
 from threading import Lock
 import re
 
-from paste.deploy.converters import asbool
 from pylons import config
 
 import ckan
@@ -110,21 +109,6 @@ class _Globals(object):
 
     def _init(self):
 
-        # check for unknown options
-        unknown_options = []
-        for key in lib_config.config.keys():
-            if key.split('.')[0] in ['pylons', 'who', 'buffet', 'routes']:
-                continue
-            if key in ['here', '__file__', 'global_conf']:
-                continue
-            option = lib_config.config_details.get(key)
-            if not option:
-                unknown_options.append(key)
-        if unknown_options:
-            msg = '\n\t'.join(unknown_options)
-            log.warning('Unknown config option(s)\n\t%s' % msg)
-
-
         self.ckan_version = ckan.__version__
         self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
         if self.ckan_base_version == self.ckan_version:
@@ -133,23 +117,8 @@ class _Globals(object):
             self.ckan_doc_version = 'latest'
 
         # process the config_details to set globals
-        for name, options in lib_config.config_details.items():
-            if 'name' in options:
-                key = options['name']
-            elif name.startswith('ckan.'):
-                key = name[5:]
-            else:
-                key = name
-            value = lib_config.config.get(name, options.get('default', ''))
-
-            data_type = options.get('type')
-            if data_type == 'bool':
-                value = asbool(value)
-            elif data_type == 'int':
-                value = int(value)
-            elif data_type == 'split':
-                value = value.split()
-
+        lib_config.ckan_config.update()
+        for key, value in lib_config.ckan_config.items():
             setattr(self, key, value)
 
 
