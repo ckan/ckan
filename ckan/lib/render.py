@@ -3,11 +3,14 @@ import re
 
 from pylons import config
 
+import ckan.lib.config as lib_config
+
 _template_info_cache = {}
 
 def find_template(template_name):
     ''' looks through the possible template paths to find a template
     returns the full path is it exists. '''
+    # FIXME this should get into ckan_config
     template_paths = config['pylons.app_globals'].template_paths
     for path in template_paths:
         if os.path.exists(os.path.join(path, template_name.encode('utf-8'))):
@@ -49,7 +52,7 @@ def template_info(template_name):
 
     # if in debug mode we always want to search for templates so we
     # don't want to store it.
-    if not config.get('debug', False):
+    if not lib_config.get_config('debug'):
         t_data = {'template_path' : template_path,
                   'template_type' : t_type,}
         _template_info_cache[template_name] = t_data
