@@ -148,7 +148,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps(
                 {'name':'test_create_from_action_api', 'password':'testpass'})
         res = self.app.post('/api/action/user_create', params=postparams,
-                            status=StatusCodes.STATUS_409_CONFLICT)
+                            status=StatusCodes.STATUS_403_ACCESS_DENIED)
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
