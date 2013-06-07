@@ -21,7 +21,7 @@ path = os.path.join(os.path.dirname(__file__), '..', 'config')
 # parse the resource.config file if it exists
 config_path = os.path.join(path, 'config_options.ini')
 if os.path.exists(config_path):
-    conf = ini_parser.ConfigParser.RawConfigParser(dict_type=OrderedDict)
+    conf = ini_parser.ConfigIniParser(dict_type=OrderedDict)
     conf.read(config_path)
     for section in conf.sections():
         items = conf.items(section)
@@ -110,7 +110,6 @@ class _CkanConfig(object):
                 value = value.split()
             key = key.replace('.', '_')
             self._config[key] = value
-            print '%s: %s' % (key, value)
 
         # check for unknown options
         unknown_options = []

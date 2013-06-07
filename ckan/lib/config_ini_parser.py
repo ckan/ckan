@@ -51,6 +51,9 @@ class ConfigIniParser(ConfigParser.RawConfigParser):
                 if mo:
                     sectname = mo.group('header')
                     if sectname in self._sections:
+                        raise Exception('%s has been included more than once'
+                                        ' in the config_options.ini'
+                                        % sectname)
                         cursect = self._sections[sectname]
                     elif sectname == ConfigParser.DEFAULTSECT:
                         cursect = self._defaults
