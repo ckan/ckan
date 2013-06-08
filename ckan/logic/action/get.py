@@ -964,16 +964,11 @@ def user_show(context, data_dict):
             ).filter_by(author=user_obj.name)
 
     revisions_list = []
-    for revision in revisions_q.limit(20).all():
-        revision_dict = revision_show(context,{'id':revision.id})
-        revision_dict['state'] = revision.state
-        revisions_list.append(revision_dict)
-    user_dict['activity'] = revisions_list
 
     user_dict['datasets'] = []
     dataset_q = model.Session.query(model.Package).join(model.PackageRole
             ).filter_by(user=user_obj, role=model.Role.ADMIN
-            ).limit(50)
+            ).limit(5)
 
     for dataset in dataset_q:
         try:
