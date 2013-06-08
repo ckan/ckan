@@ -6222,8 +6222,17 @@ msgstr "L’information sur cette page (les métadonnées du jeu de données) es
 msgid "Link to JSON format"
 msgstr "Lien au format JSON"
 
-msgid "Read more about this site's API: <a href='%(portal)s/eng/developers-corner/api'>About the API</a>"
-msgstr "En savoir plus sur l’API du site: <a href='%(portal)s/fra/developers-corner/api'>À propos du API</a>"
+msgid "Read more about this site's API: <a href='%(portal)s/eng/developers-corner-api'>About the API</a>"
+msgstr "En savoir plus sur l’API du site: <a href='%(portal)s/fra/coin-des-developpeurs-ipa'>À propos du API</a>"
 
 msgid "Data Type"
 msgstr "Type de données"
+
+msgid "No datasets were found to match your query."
+msgstr "Aucun jeu de données correspond aux termes de recherche spécifiés."
+
+msgid "Please review your spelling, or reduce the number of filters selected."
+msgstr "S'il vous plaît vérifier votre orthographe, ou réduit le nombre de filtres sélectionnés."
+
+msgid "The following fields are required to publish this dataset:"
+msgstr "Les champs suivants doivent être remplis afin de publier ce jeu de données:"
