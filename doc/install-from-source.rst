@@ -105,7 +105,7 @@ c. Install the Python modules that CKAN requires into your virtualenv:
 
    .. parsed-literal::
 
-       pip install -r |virtualenv|/src/ckan/pip-requirements.txt
+       pip install -r |virtualenv|/src/ckan/requirements.txt
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
