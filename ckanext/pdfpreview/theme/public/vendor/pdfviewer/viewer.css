@@ -460,6 +460,9 @@ html[dir='rtl'] #toolbarViewerLeft {
   top: 0;
   right: 0;
 }
+html[dir='ltr'] #toolbarViewerLeft {
+   position: relative;
+}
 html[dir='ltr'] #toolbarViewerLeft > *,
 html[dir='ltr'] #toolbarViewerMiddle > *,
 html[dir='ltr'] #toolbarViewerRight > *,
