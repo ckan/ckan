@@ -1,5 +1,4 @@
 import logging
-import pylons
 
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
@@ -20,6 +19,8 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IDomainObjectModification, inherit=True)
+    p.implements(p.IRoutes, inherit=True)
 
     legacy_mode = False
 
@@ -101,6 +102,24 @@ class DatastorePlugin(p.SingletonPlugin):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
 
+    def notify(self, entity, operation):
+        if not isinstance(entity, model.Package) or self.legacy_mode:
+            return
+        # if a resource is new, it cannot have a datastore resource, yet
+        if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True}
+            if entity.private:
+                func = p.toolkit.get_action('datastore_make_private')
+            else:
+                func = p.toolkit.get_action('datastore_make_public')
+            for resource in entity.resources:
+                try:
+                    func(context, {
+                        'connection_url': self.write_url,
+                        'resource_id': resource.id})
+                except p.toolkit.ObjectNotFound:
+                    pass
+
     def _log_or_raise(self, message):
         if self.config.get('debug'):
             log.critical(message)
@@ -152,13 +171,14 @@ class DatastorePlugin(p.SingletonPlugin):
         return self.write_url == self.read_url
 
     def _read_connection_has_correct_privileges(self):
-        ''' Returns True if the right permissions are set for the read only user.
-        A table is created by the write user to test the read only user.
+        ''' Returns True if the right permissions are set for the read
+        only user. A table is created by the write user to test the
+        read only user.
         '''
-        write_connection = db._get_engine(None,
-            {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(None,
-            {'connection_url': self.read_url}).connect()
+        write_connection = db._get_engine(None, {
+            'connection_url': self.write_url}).connect()
+        read_connection = db._get_engine(None, {
+            'connection_url': self.read_url}).connect()
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
@@ -202,8 +222,8 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine(None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}).connect()
+            connection = db._get_engine(None, {
+                'connection_url': self.write_url}).connect()
             connection.execute(create_alias_table_sql)
         finally:
             connection.close()
@@ -214,11 +234,22 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search}
         if not self.legacy_mode:
-            actions['datastore_search_sql'] = action.datastore_search_sql
+            actions.update({
+                'datastore_search_sql': action.datastore_search_sql,
+                'datastore_make_private': action.datastore_make_private,
+                'datastore_make_public': action.datastore_make_public})
         return actions
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
-                'datastore_search': auth.datastore_search}
+                'datastore_search': auth.datastore_search,
+                'datastore_change_permissions': auth.datastore_change_permissions}
+
+    def before_map(self, m):
+        print "Load mapping"
+        m.connect('/datastore/dump/{resource_id}',
+                  controller='ckanext.datastore.controller:DatastoreController',
+                  action='dump')
+        return m

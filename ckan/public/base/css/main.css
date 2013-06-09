@@ -6088,6 +6088,10 @@ textarea {
 }
 .filter-list {
   color: #444444;
+  line-height: 32px;
+}
+.filter-list .pill {
+  line-height: 21px;
 }
 .filter-list .extra {
   margin-top: 10px;
@@ -6454,6 +6458,30 @@ textarea {
 .page-header .nav-tabs li.active a,
 .page-header .nav-tabs a:hover {
   background-color: #ffffff;
+}
+h1 {
+  font-size: 28px;
+}
+h2 {
+  font-size: 21px;
+}
+h3 {
+  font-size: 18px;
+}
+h4 {
+  font-size: 14px;
+}
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.5;
+}
+h1 small,
+h2 small,
+h3 small,
+h4 small {
+  font-size: 14px;
 }
 .prose h1,
 .prose heading-1 h2,
@@ -8920,4 +8948,23 @@ iframe {
 .ie7 .group-listing {
   position: relative;
   zoom: 1;
+}
+.ie7 .resource-item {
+  position: static;
+  padding-bottom: 1px;
+}
+.ie7 .resource-item .heading {
+  position: relative;
+}
+.ie7 .resource-item .format-label {
+  left: -48px;
+}
+.ie7 .resource-item .btn-group {
+  position: relative;
+  float: right;
+  top: -35px;
+  right: 0;
+}
+.ie7 .media-overlay .media-heading {
+  background-color: #000;
 }

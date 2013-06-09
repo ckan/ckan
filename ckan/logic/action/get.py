@@ -1,3 +1,5 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
@@ -526,7 +528,7 @@ def group_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
-def licence_list(context, data_dict):
+def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
@@ -534,12 +536,12 @@ def licence_list(context, data_dict):
     '''
     model = context["model"]
 
-    _check_access('licence_list',context, data_dict)
+    _check_access('license_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licences = [l.as_dict() for l in licenses]
-    return licences
+    licenses = [l.as_dict() for l in licenses]
+    return licenses
 
 def tag_list(context, data_dict):
     '''Return a list of the site's tags.
