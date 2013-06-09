@@ -140,9 +140,6 @@ added to a CKAN instance
 To view the data the resource format must be set to one of the resource formats
 from above (case insensitive).
 
-To also view remote resources, the :ref:`resource proxy <resource_proxy>`
-extension must be enabled as well (this is required in order to get around the
-`same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_).
 
 Viewing PDF documents
 ---------------------
