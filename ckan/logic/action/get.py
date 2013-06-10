@@ -1766,7 +1766,7 @@ def term_translation_show(context, data_dict):
 def get_site_user(context, data_dict):
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = ckan_config.get('ckan.site_id', 'ckan_site_user')
+    site_id = ckan_config['ckan.site_id'] or 'ckan_site_user'
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
