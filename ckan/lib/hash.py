@@ -1,7 +1,7 @@
 import hmac
 import hashlib
 
-from pylons import config, request
+from ckan.common import ckan_config, request
 
 secret = None
 
@@ -10,7 +10,7 @@ def get_message_hash(value):
     if not secret:
         # avoid getting config value at module scope since config may
         # not be read in yet
-        secret = config['beaker.session.secret']
+        secret = ckan_config['beaker.session.secret']
     return hmac.new(secret, value.encode('utf8'), hashlib.sha1).hexdigest()
 
 def get_redirect():

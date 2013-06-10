@@ -1,7 +1,6 @@
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
-from pylons import config
 
 # NOTE
 # The functions in this file contain very generic methods for dictizing objects

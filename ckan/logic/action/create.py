@@ -2,9 +2,6 @@
 
 import logging
 
-from pylons import config
-from paste.deploy.converters import asbool
-
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -16,7 +13,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 
-from ckan.common import _
+from ckan.common import _, ckan_config
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -914,7 +911,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
-    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+    if not ckan_config['ckan.activity_streams_enabled']:
         return
 
     model = context['model']

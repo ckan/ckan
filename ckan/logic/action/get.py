@@ -5,7 +5,6 @@ import logging
 import json
 import datetime
 
-from pylons import config
 import sqlalchemy
 
 import ckan.lib.dictization
@@ -21,7 +20,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
 
-from ckan.common import _
+from ckan.common import _, ckan_config
 
 log = logging.getLogger('ckan.logic')
 
@@ -1767,7 +1766,7 @@ def term_translation_show(context, data_dict):
 def get_site_user(context, data_dict):
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get('ckan.site_id', 'ckan_site_user')
+    site_id = ckan_config.get('ckan.site_id', 'ckan_site_user')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -1835,13 +1834,13 @@ def roles_show(context, data_dict):
 def status_show(context, data_dict):
     '''Return a dictionary with information about the site's configuration.'''
     return {
-        'site_title': config.get('ckan.site_title'),
-        'site_description': config.get('ckan.site_description'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': ckan_config['ckan.site_title'],
+        'site_description': ckan_config['ckan.site_description'],
+        'site_url': ckan_config['ckan.site_url'],
         'ckan_version': ckan.__version__,
-        'error_emails_to': config.get('email_to'),
-        'locale_default': config.get('ckan.locale_default'),
-        'extensions': config.get('ckan.plugins').split(),
+        'error_emails_to': ckan_config['email_to'],
+        'locale_default': ckan_config['ckan.locale_default'],
+        'extensions': ckan_config['ckan.plugins'],
         }
 
 def vocabulary_list(context, data_dict):
@@ -1905,7 +1904,7 @@ def user_activity_list(context, data_dict):
 
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
@@ -1942,7 +1941,7 @@ def package_activity_list(context, data_dict):
 
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
@@ -1974,7 +1973,7 @@ def group_activity_list(context, data_dict):
     group_id = _get_or_bust(data_dict, 'id')
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     # Convert group_id (could be id or name) into id.
     group_show = logic.get_action('group_show')
@@ -2001,7 +2000,7 @@ def organization_activity_list(context, data_dict):
     org_id = _get_or_bust(data_dict, 'id')
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     # Convert org_id (could be id or name) into id.
     org_show = logic.get_action('organization_show')
@@ -2030,7 +2029,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     model = context['model']
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     activity_objects = model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
@@ -2630,7 +2629,7 @@ def dashboard_activity_list(context, data_dict):
     user_id = model.User.get(context['user']).id
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
+        data_dict.get('limit', ckan_config['ckan.activity_list_limit']))
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.

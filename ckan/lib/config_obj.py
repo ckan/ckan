@@ -65,6 +65,9 @@ class _CkanConfig(object):
 
     __getitem__ = get
 
+    def __contains__(self, key):
+        return key in self._config
+
     def store_for_tests(self):
         self._config_store.append(self._config)
 
