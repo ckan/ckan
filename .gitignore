@@ -40,3 +40,6 @@ ckan_deb/DEBIAN/prerm
 
 # node.js
 node_modules/
+
+# ckanext-canada rebuilds this
+ckan/i18n/fr/LC_MESSAGES/ckan.mo
