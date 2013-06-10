@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
 
+
 def get_config_value(key, default=''):
     if model.meta.engine.has_table('system_info'):
         value = model.get_system_info(key)

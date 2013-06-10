@@ -39,7 +39,8 @@ class _CkanConfig(object):
                 else:
                     if 'type' not in items_dict:
                         items_dict['type'] = 'str'
-                    self._config_details[section] = dict(section=section_name, **items_dict)
+                    self._config_details[section] = dict(section=section_name,
+                                                         **items_dict)
                     self._config_sections[-1]['options'].append(section)
 
             ## FIXME
@@ -72,7 +73,6 @@ class _CkanConfig(object):
 
     def update_for_tests(self, items):
         self._config.update(items)
-
 
     def update(self, config):
         self.clear()
@@ -108,6 +108,7 @@ class _CkanConfig(object):
         if unknown_options:
             msg = '\n\t'.join(unknown_options)
             log.warning('Unknown config option(s)\n\t%s' % msg)
+
 
 ckan_config = _CkanConfig()
 del _CkanConfig
