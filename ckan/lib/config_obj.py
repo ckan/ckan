@@ -19,6 +19,7 @@ class _CkanConfig(object):
 
     _config_sections = []
     _config_details = {}
+    _config_store = []
 
     def __init__(self):
         path = os.path.join(os.path.dirname(__file__), '..', 'config')
@@ -51,7 +52,7 @@ class _CkanConfig(object):
         self._config[item] = value
 
     def clear(self):
-        self._config.clear()
+        self._config = {}
 
     def items(self):
         return self._config.items()
@@ -62,6 +63,16 @@ class _CkanConfig(object):
         return self._config.get(key.replace('.', '_'))
 
     __getitem__ = get
+
+    def store_for_tests(self):
+        self._config_store.append(self._config)
+
+    def restore_for_tests(self):
+        self._config = self._config_store.pop()
+
+    def update_for_tests(self, items):
+        self._config.update(items)
+
 
     def update(self, config):
         self.clear()
