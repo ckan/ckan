@@ -389,12 +389,12 @@ msgstr "Vous n'êtes pas autorisé à lire le groupe {group_id}"
 #: ckan/controllers/group.py:682 ckan/controllers/package.py:1238
 #: ckan/controllers/user.py:594
 msgid "You are now following {0}"
-msgstr "Vous êtes maintenant abonné à {0}"
+msgstr ""
 
 #: ckan/controllers/group.py:701 ckan/controllers/package.py:1257
 #: ckan/controllers/user.py:613
 msgid "You are no longer following {0}"
-msgstr "Vous n'êtes plus abonné à {0}"
+msgstr ""
 
 #: ckan/controllers/group.py:720 ckan/controllers/user.py:489
 #, python-format
@@ -502,7 +502,7 @@ msgstr "Vous n'êtes pas autorisé à supprimer le paquet %s"
 
 #: ckan/controllers/package.py:1084
 msgid "Dataset has been deleted."
-msgstr "L'ensemble de données a été supprimé."
+msgstr "Ce jeu de données a été supprimé."
 
 #: ckan/controllers/package.py:1109
 msgid "Resource has been deleted."
@@ -1883,13 +1883,13 @@ msgstr "Se désabonner"
 
 #: ckan/public/base/javascript/modules/related-item.js:24
 #: ckan/public/base/javascript/modules/related-item.min.js:1
-msgid "Show more"
-msgstr "Afficher plus"
+msgid "show more"
+msgstr ""
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 #: ckan/public/base/javascript/modules/related-item.min.js:1
-msgid "Show less"
-msgstr "Afficher moins"
+msgid "show less"
+msgstr ""
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
@@ -1953,7 +1953,7 @@ msgstr "Éditer"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr "Afficher plus"
+msgstr ""
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
@@ -2008,7 +2008,7 @@ msgstr "Déconnexion"
 #: ckan/templates/header.html:43 ckan/templates/user/logout_first.html:15
 #: ckan/templates/user/snippets/login_form.html:27
 msgid "Log in"
-msgstr "Connexion"
+msgstr "Connection"
 
 #: ckan/templates/header.html:44 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2051,8 +2051,8 @@ msgid "Organizations"
 msgstr "Organisations"
 
 #: ckan/templates/header.html:90
-msgid "Search Data"
-msgstr "Chercher un jeu de données"
+msgid "Search Datasets"
+msgstr ""
 
 #: ckan/templates/header.html:91 ckan/templates/header.html:92
 #: ckan/templates/home/index.html:64
@@ -2072,11 +2072,11 @@ msgstr ""
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr "En charger davantage"
+msgstr ""
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
-msgstr "Aucune activité pour cet élément"
+msgstr ""
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
@@ -2261,7 +2261,7 @@ msgstr "Il n'y a pas de description pour ce groupe"
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:28
 msgid "Activity Stream"
-msgstr "Flux d'Activités"
+msgstr "Flux d'Activité"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:7
 #: ckan/templates/organization/admins.html:3
@@ -2296,7 +2296,7 @@ msgstr ""
 #: ckan/templates/related/confirm_delete.html:3
 #: ckan/templates/related/confirm_delete.html:14
 msgid "Confirm Delete"
-msgstr "Confirmer l'annulation"
+msgstr ""
 
 #: ckan/templates/group/confirm_delete.html:10
 msgid "Are you sure you want to delete group - {name}?"
@@ -2641,7 +2641,7 @@ msgid "The form contains invalid entries:"
 msgstr "Le formulaire contient des entrées invalides :"
 
 #: ckan/templates/organization/about.html:11
-#: ckan/templates/snippets/sorganization.html:29
+#: ckan/templates/snippets/organization.html:29
 #: ckan/templates/snippets/organization_item.html:17
 msgid "There is no description for this organization"
 msgstr "Il n'y a pas de description pour cette organisation"
@@ -2780,11 +2780,11 @@ msgstr "Il n'y a pas de description pour cette organisation"
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr "Créer un jeu de données"
+msgstr "Créer le jeu de données"
 
 #: ckan/templates/package/base_form_page.html:14
 msgid "What are datasets?"
-msgstr "Qu’est-ce qu’un ensemble de données?"
+msgstr ""
 
 #: ckan/templates/package/base_form_page.html:17
 msgid ""
@@ -2842,7 +2842,7 @@ msgstr "Privée"
 #: ckan/templates/package/read.html:20
 #: ckan/templates/snippets/package_item.html:33
 msgid "Draft"
-msgstr "Ébauche"
+msgstr "Brouillon"
 
 #: ckan/templates/package/read_base.html:28
 #, python-format
@@ -2999,7 +2999,7 @@ msgstr "Envoyer"
 
 #: ckan/templates/package/search.html:55
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr "Veuillez essayer une nouvelle recherche"
+msgstr ""
 
 #: ckan/templates/package/search.html:62
 msgid ""
@@ -3033,7 +3033,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 msgid "Additional Info"
-msgstr "Information additionnelle"
+msgstr ""
 
 #: ckan/templates/package/snippets/additional_info.html:13
 #: ckan/templates_legacy/package/read_core.html:63
@@ -3079,11 +3079,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/info.html:15
 msgid "Edit Dataset"
-msgstr "Modifier ensemble de données "
+msgstr ""
 
 #: ckan/templates/package/snippets/info.html:22
 msgid "Edit Resources"
-msgstr "Modifier ressources"
+msgstr ""
 
 #: ckan/templates/package/snippets/info.html:29
 msgid "Add New Resource"
@@ -3138,7 +3138,7 @@ msgstr "Etes-vous sûr de vouloir supprimer ce jeu de données?"
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr "Suivant : ajouter données"
+msgstr ""
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Visibility"
@@ -3236,7 +3236,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Last Modified"
-msgstr "date de modification"
+msgstr "Modifié le"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
@@ -3266,11 +3266,11 @@ msgstr "Etes-vous sûr de vouloir supprimer cette ressource?"
 
 #: ckan/templates/package/snippets/resource_form.html:81
 msgid "Save & add another"
-msgstr "Sauvegarder et ajouter un autre "
+msgstr ""
 
 #: ckan/templates/package/snippets/resource_form.html:83
 msgid "Next: Additional Info"
-msgstr "Suivant : renseignements supplémentaires"
+msgstr ""
 
 #: ckan/templates/package/snippets/resource_item.html:13
 msgid "No description for this resource"
@@ -3293,7 +3293,7 @@ msgstr "Aperçu"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr "Données et ressources"
+msgstr ""
 
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
@@ -3461,7 +3461,7 @@ msgstr ""
 
 #: ckan/templates/related/snippets/related_item.html:38
 msgid "This item has no description"
-msgstr "Aucune description disponible pour cet ensemble de données"
+msgstr ""
 
 #: ckan/templates/related/snippets/related_item.html:40
 msgid "Go to {type}"
@@ -3501,19 +3501,19 @@ msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
-msgstr "Effacer tout"
+msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:58
 msgid "Show More {facet}"
-msgstr "Afficher plus d'{facet}"
+msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:60
 msgid "Show Only Popular {facet}"
-msgstr "Afficher uniquement les {facet} populaires"
+msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:64
 msgid "There are no filters for this search"
-msgstr "Aucun filtre sélectionné pour cette recherche"
+msgstr "Il n'y a pas de filtres pour cette recherche"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -3528,7 +3528,7 @@ msgstr "Langue"
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/sort_by.html:20
 msgid "Go"
-msgstr "Allez"
+msgstr ""
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
@@ -3549,11 +3549,11 @@ msgstr "Supprimé"
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:18
 msgid "Popular"
-msgstr "popularité"
+msgstr "Populaire"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr "Aucune description disponible pour cet ensemble de données"
+msgstr "Il n'y a pas de description pour ce jeu de données "
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
@@ -3568,22 +3568,22 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{number} ensemble de données trouvé"
-msgstr[1] "{number} ensembles de données trouvés"
+msgstr[0] "{number}  jeu  de données trouvé pour \"{query}\""
+msgstr[1] "{number}  jeux de données trouvés pour \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "Sorry no datasets found for \"{query}\""
-msgstr "0 ensemble de données trouvé"
+msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "{number} ensemble de données trouvé"
-msgstr[1] "{number} ensembles de données trouvés"
+msgstr[0] "{number}Jeu de données trouvé"
+msgstr[1] "{number}Jeux de données trouvés"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "Sorry no datasets found"
-msgstr "0 ensembles de données trouvés"
+msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
@@ -3613,7 +3613,7 @@ msgstr[1] "{number} organisations  trouvées pour \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "Sorry no organizations found for \"{query}\""
-msgstr "0 organisations trouvées"
+msgstr ""
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
@@ -3623,7 +3623,7 @@ msgstr[1] "{number} organisations trouvées"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "Sorry no organizations found"
-msgstr "0 organisations trouvées"
+msgstr ""
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
@@ -3631,19 +3631,19 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr "Trier par"
+msgstr "Par Ordre"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr "pertinence"
+msgstr "Pertinence"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr "alphabétique croissant"
+msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr "alphabétique décroissant"
+msgstr ""
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -3655,7 +3655,7 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82
 #: ckan/templates_legacy/user/read.html:32
 msgid "Email"
-msgstr "Courriel"
+msgstr "e-mail"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
@@ -3669,23 +3669,23 @@ msgstr "Modifications"
 
 #: ckan/templates/user/dashboard.html:13 ckan/templates/user/edit_base.html:17
 msgid "News feed"
-msgstr "Fil de nouvelles"
+msgstr ""
 
 #: ckan/templates/user/dashboard.html:14
 msgid "Activity from items that you follow"
-msgstr "Il faut une activité sur le fil d’information des éléments dont vous faites le suivi "
+msgstr ""
 
 #: ckan/templates/user/dashboard.html:30
 msgid "My Datasets"
-msgstr "Mes ensembles de données"
+msgstr "Mes jeux de données"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
-msgstr "Vous n'avez aucun ensemble de données"
+msgstr "Vous n'avez aucun jeu de données"
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
-msgstr "Renseignements sur le compte"
+msgstr ""
 
 #: ckan/templates/user/edit.html:15
 msgid ""
@@ -3721,7 +3721,7 @@ msgstr "p.ex. jean@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr "Un peu d'information vous concernant"
+msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
@@ -3748,7 +3748,7 @@ msgstr "Confirmez votre mot de passe"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
-msgstr "Mettre à jour le profil"
+msgstr ""
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
@@ -3783,7 +3783,7 @@ msgstr "Alors inscrivez-vous tout de suite, il n'y en a que pour une minute."
 
 #: ckan/templates/user/login.html:26
 msgid "Create an Account"
-msgstr "Créer un compte"
+msgstr "Créer un Compte"
 
 #: ckan/templates/user/login.html:32
 msgid "Forgotten your details?"
@@ -3803,7 +3803,7 @@ msgstr "Déconnecté"
 
 #: ckan/templates/user/logout.html:9
 msgid "You are now logged out."
-msgstr "Vous êtes maintenant déconnecté"
+msgstr ""
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
@@ -3818,7 +3818,7 @@ msgstr "Déconnexion"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr "Mémoriser mes informations"
+msgstr ""
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
@@ -3838,7 +3838,7 @@ msgstr "Inscription"
 
 #: ckan/templates/user/new.html:12
 msgid "Register for an Account"
-msgstr "S’inscrire pour obtenir un compte"
+msgstr ""
 
 #: ckan/templates/user/new.html:20
 msgid "Why Sign Up?"
@@ -3861,7 +3861,7 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr "Réinitialiser votre mot de passe"
+msgstr ""
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
@@ -3883,11 +3883,11 @@ msgstr "Fournissez simplement un nouveau mot de passe et nous actualiserons votr
 
 #: ckan/templates/user/read.html:13
 msgid "You haven't created any datasets."
-msgstr "Vous n'avez créé aucun ensemble de données"
+msgstr "Vous n'avez créé aucun jeu de données"
 
 #: ckan/templates/user/read.html:15
 msgid "Create one now?"
-msgstr "Vous voulez en créer un maintenant?"
+msgstr "Vous voulez en créer un maintenant ?"
 
 #: ckan/templates/user/read.html:20
 msgid "User hasn't created any datasets."
@@ -3911,7 +3911,7 @@ msgstr ""
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr "Membre depuis"
+msgstr "Membre Depuis"
 
 #: ckan/templates/user/read_base.html:92
 #: ckan/templates_legacy/user/read.html:42
@@ -3920,7 +3920,7 @@ msgstr "Clé d'API"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
-msgstr "Demander une réinitialisation"
+msgstr "Demander une Réinitialisation"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
@@ -3943,7 +3943,7 @@ msgstr "Rechercher dans la liste..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr "Vous ne faites aucun suivi"
+msgstr ""
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
@@ -5460,7 +5460,7 @@ msgstr "Modifier l'utilisateur :"
 
 #: ckan/templates_legacy/user/edit_user_form.html:27
 msgid "E-mail"
-msgstr "Courriel"
+msgstr "e-mail"
 
 #: ckan/templates_legacy/user/edit_user_form.html:33
 msgid "OpenId"
@@ -5644,7 +5644,7 @@ msgstr "Nom complet (optionnel)"
 
 #: ckan/templates_legacy/user/new_user_form.html:34
 msgid "E-Mail"
-msgstr "Courriel"
+msgstr "e-mail"
 
 #: ckan/templates_legacy/user/new_user_form.html:65
 msgid "Register now"
@@ -6070,169 +6070,3 @@ msgstr "Choisissez un attribut de jeu de données et découvrez quelles sont les
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
 msgstr "Choisissez une zone"
-
-
-#: ckanext-canada/ckanext/canada/templates/internal/base.html
-msgid "Open Data Registry"
-msgstr "Registre de données ouvertes"
-
-msgid "Departments"
-msgstr "Ministères"
-
-msgid "Need an Account"
-msgstr "Besoin d’un compte"
-
-msgid "Then sign right up, it only takes a minute"
-msgstr "Inscrivez-vous maintenant, cela ne prend qu’une minute"
-
-msgid "Forgotten your details"
-msgstr "Vous avez oublié vos coordonnées"
-
-msgid "No problem, use our password recovery form to reset it"
-msgstr "Utilisez notre formulaire de récupération de mot de passe pour rétablir votre identité"
-
-msgid "Search Data"
-msgstr "Recherche données"
-
-msgid "Help"
-msgstr "Aide"
-
-msgid "Stay connected"
-msgstr "Restez branchés"
-
-msgid "Health"
-msgstr "Santé"
-
-msgid "Travel"
-msgstr "Voyage"
-
-msgid "Jobs"
-msgstr "Emplois"
-
-msgid "Economy"
-msgstr "Économie"
-
-msgid "healthycanadians.gc.ca"
-msgstr "canadiensensante.gc.ca"
-
-msgid "travel.gc.ca"
-msgstr "voyage.gc.ca"
-
-msgid "jobbank.gc.ca"
-msgstr "guichetemplois.gc.ca"
-
-msgid "actionplan.gc.ca"
-msgstr "plandaction.gc.ca"
-
-msgid "What are Organizations"
-msgstr "Qu’est qu’une organisation"
-
-msgid "Search open data"
-msgstr "Chercher dans les données ouvertes"
-
-msgid "Subject"
-msgstr "Sujet"
-
-msgid "File Format"
-msgstr "Format du fichier"
-
-msgid "Published or Pending"
-msgstr "Publié ou en attente de publication"
-
-msgid "Next"
-msgstr "Suivant"
-
-msgid "Openness rating"
-msgstr "Degré d’ouverture des données"
-
-msgid "My Account"
-msgstr "Mon compte"
-
-msgid "Activities"
-msgstr "Activités"
-
-msgid "No full name provided"
-msgstr "Aucun nom complet fourni"
-
-msgid "You have not provided a biography"
-msgstr "Vous n’avez pas fourni de biographie"
-
-msgid ""
-" Your profile lets other Open Data Registry users know about who you "
-"are and what you do. "
-msgstr "Votre profil permet aux autres utilisateurs de Registre de données ouvertes de savoir qui vous êtes et ce que vous faites"
-
-msgid "Temporal Coverage"
-msgstr "Couverture temporelle"
-
-msgid "Developer Tools"
-msgstr "Outils pour le développeur"
-
-msgid "Guidelines"
-msgstr "Lignes directrices"
-
-msgid "Open Data Portal Metadata Implementation Guide"
-msgstr "Guide de mise en place des métadonnées pour les ressources Web"
-
-msgid "About this Dataset"
-msgstr "À propos de ce jeu de données"
-
-msgid "This dataset has been deleted and is no longer accessible to non-admin users"
-msgstr "Cet ensemble de données a été supprimé et n'est plus accessible"
-
-msgid "Activity"
-msgstr "Activité"
-
-msgid "Catalog Type"
-msgstr "Type de Catalogue"
-
-msgid "Resource Name"
-msgstr "Nom de la ressource"
-
-msgid "Size (MB)"
-msgstr "Taille (Mo)"
-
-msgid "Link"
-msgstr "Lien"
-
-msgid "Program Page"
-msgstr "Page du programme"
-
-msgid "Geographic Information"
-msgstr "Information géographique"
-
-msgid "Open Government"
-msgstr "Gouvernement ouvert"
-
-msgid "You can use <a href='http://daringfireball.net/projects/markdown/syntax' target='_blank'>Markdown formatting</a> here"
-msgstr "Vous pouvez utiliser le formatage <a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">Markdown</a> ici"
-
-msgid "Forgotten your password?"
-msgstr "Vous avez oublié votre mot de passe?"
-
-msgid "Add another resource"
-msgstr "Ajouter une autre ressource"
-
-msgid "Dataset Resources"
-msgstr "Ressources de l'ensemble de données"
-
-msgid "The information on this page (the dataset metadata) is also available in JSON format"
-msgstr "L’information sur cette page (les métadonnées du jeu de données) est aussi disponible en format JSON"
-
-msgid "Link to JSON format"
-msgstr "Lien au format JSON"
-
-msgid "Read more about this site's API: <a href='%(portal)s/eng/developers-corner-api'>About the API</a>"
-msgstr "En savoir plus sur l’API du site: <a href='%(portal)s/fra/coin-des-developpeurs-ipa'>À propos du API</a>"
-
-msgid "Data Type"
-msgstr "Type de données"
-
-msgid "No datasets were found to match your query."
-msgstr "Aucun jeu de données correspond aux termes de recherche spécifiés."
-
-msgid "Please review your spelling, or reduce the number of filters selected."
-msgstr "S'il vous plaît vérifier votre orthographe, ou réduit le nombre de filtres sélectionnés."
-
-msgid "The following fields are required to publish this dataset:"
-msgstr "Les champs suivants doivent être remplis afin de publier ce jeu de données:"
