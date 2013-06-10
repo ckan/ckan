@@ -7,8 +7,6 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-import paste.deploy.converters
-
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
@@ -28,7 +26,7 @@ def add_msg_niceties(recipient_name, body, sender_name, sender_url):
 def _mail_recipient(recipient_name, recipient_email,
         sender_name, sender_url, subject,
         body, headers={}):
-    mail_from = ckan_config.get('smtp.mail_from')
+    mail_from = ckan_config['smtp.mail_from']
     body = add_msg_niceties(recipient_name, body, sender_name, sender_url)
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items(): msg[k] = v
@@ -42,7 +40,7 @@ def _mail_recipient(recipient_name, recipient_email,
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
-    if 'smtp.test_server' in ckan_config:
+    if ckan_config['smtp.test_server']:
         # If 'smtp.test_server' is configured we assume we're running tests,
         # and don't use the smtp.server, starttls, user, password etc. options.
         smtp_server = ckan_config['smtp.test_server']
