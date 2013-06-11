@@ -13,6 +13,6 @@ Example:
 #}
 <ul class="media-grid" data-module="media-grid">
   {% for related in related_items %}
-    {% snippet "related/snippets/related_item.html", pkg_id=pkg_id, related=related %}
+    {% snippet "related/snippets/related_item.html", pkg_id=pkg_id, related=related, position=loop.index %}
   {% endfor %}
 </ul>
