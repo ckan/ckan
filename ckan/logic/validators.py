@@ -32,7 +32,7 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     group = model.Group.get(value)
     if not group:
-        raise Invalid(_('Organization does not exist'))
+        raise Invalid(_('%s not found') % _('Organization'))
     group_id = group.id
     user = context['user']
     user = model.User.get(user)
@@ -93,7 +93,7 @@ def package_id_exists(value, context):
 
     result = session.query(model.Package).get(value)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('%s not found') % _('Dataset'))
     return value
 
 def package_name_exists(value, context):
@@ -104,7 +104,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %r' % str(value))
+        raise Invalid(_('%s not found') % _('Package "%r"') % str(value))
     return value
 
 def package_id_or_name_exists(package_id_or_name, context):
@@ -125,7 +125,7 @@ def package_id_or_name_exists(package_id_or_name, context):
             name=package_id_or_name).first()
 
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
+        raise Invalid(_('%s not found') % _('Dataset'))
 
     return package_id_or_name
 
@@ -139,7 +139,7 @@ def user_id_exists(user_id, context):
 
     result = session.query(model.User).get(user_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('%s not found') % _('User'))
     return user_id
 
 def user_id_or_name_exists(user_id_or_name, context):
@@ -156,7 +156,7 @@ def user_id_or_name_exists(user_id_or_name, context):
         return user_id_or_name
     result = session.query(model.User).filter_by(name=user_id_or_name).first()
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('User')))
+        raise Invalid(_('%s not found') % _('User'))
     return user_id_or_name
 
 def group_id_exists(group_id, context):
@@ -169,7 +169,7 @@ def group_id_exists(group_id, context):
 
     result = session.query(model.Group).get(group_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Group')))
+        raise Invalid(_('%s not found') % _('Group'))
     return group_id
 
 
@@ -183,7 +183,7 @@ def related_id_exists(related_id, context):
 
     result = session.query(model.Related).get(related_id)
     if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Related')))
+        raise Invalid(_('%s not found') % _('Related'))
     return related_id
 
 def group_id_or_name_exists(reference, context):
@@ -207,7 +207,17 @@ def activity_type_exists(activity_type):
     if activity_type in object_id_validators:
         return activity_type
     else:
-        raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
+        raise Invalid(_('%s not found') % _('Activity type'))
+
+def resource_id_exists(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Resource).get(value)
+    if not result:
+        raise Invalid(_('%s not found') % _('Resource'))
+    return value
 
 def resource_id_exists(value, context):
 
