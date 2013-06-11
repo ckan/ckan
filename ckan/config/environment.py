@@ -367,3 +367,6 @@ def update_config():
     except sqlalchemy.exc.ProgrammingError:
         # The database is not initialised.  This is a bit dirty.
         pass
+    except sqlalchemy.exc.InternalError:
+        # The database is not initialised.  Travis hits this
+        pass
