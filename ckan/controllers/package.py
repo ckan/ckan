@@ -635,6 +635,7 @@ class PackageController(BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
+                    h.flash_success(_('A resource has been added'))
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary
