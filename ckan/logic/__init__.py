@@ -3,6 +3,8 @@ import logging
 import types
 import re
 
+import formencode.validators
+
 import ckan.model as model
 import ckan.new_authz as new_authz
 import ckan.lib.navl.dictization_functions as df
@@ -95,7 +97,7 @@ class ValidationError(ParameterError):
 
     def __str__(self):
         err_msgs = (super(ValidationError, self).__str__(),
-                    self.error_summary)
+                    self.error_dict)
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 log = logging.getLogger(__name__)
@@ -260,6 +262,10 @@ def get_action(action):
     :rtype: callable
 
     '''
+
+    # clean the action names
+    action = new_authz.clean_action_name(action)
+
     if _actions:
         if not action in _actions:
             raise KeyError("Action '%s' not found" % action)
@@ -278,6 +284,7 @@ def get_action(action):
             if not k.startswith('_'):
                 # Only load functions from the action module.
                 if isinstance(v, types.FunctionType):
+                    k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
@@ -290,6 +297,7 @@ def get_action(action):
     fetched_actions = {}
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
+            name = new_authz.clean_action_name(name)
             if name in resolved_action_plugins:
                 raise Exception(
                     'The action %r is already implemented in %r' % (
@@ -381,6 +389,18 @@ def side_effect_free(action):
     return wrapper
 
 
+def auth_sysadmins_check(action):
+    ''' Prevent sysadmins from automatically being authenticated.  Instead
+    they are treated like any other user and the auth function is called.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_sysadmins_check = True
+    return wrapper
+
+
+
 class UnknownValidator(Exception):
     pass
 
@@ -404,6 +424,7 @@ def get_validator(validator):
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
+        _validators_cache.update({'OneOf': formencode.validators.OneOf})
     try:
         return _validators_cache[validator]
     except KeyError:

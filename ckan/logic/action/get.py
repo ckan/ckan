@@ -1,3 +1,5 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
@@ -526,7 +528,7 @@ def group_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
-def licence_list(context, data_dict):
+def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
@@ -534,12 +536,12 @@ def licence_list(context, data_dict):
     '''
     model = context["model"]
 
-    _check_access('licence_list',context, data_dict)
+    _check_access('license_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licences = [l.as_dict() for l in licenses]
-    return licences
+    licenses = [l.as_dict() for l in licenses]
+    return licenses
 
 def tag_list(context, data_dict):
     '''Return a list of the site's tags.
@@ -1262,7 +1264,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search',False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_created desc'
+        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
@@ -1343,6 +1345,12 @@ def package_search(context, data_dict):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            elif key == 'license_id':
+                license = model.Package.get_license_register().get(key_)
+                if license:
+                    new_facet_dict['display_name'] = license.title
                 else:
                     new_facet_dict['display_name'] = key_
             else:
