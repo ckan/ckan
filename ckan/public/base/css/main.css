@@ -7873,9 +7873,6 @@ h4 small {
 .context-info.editing .module-content {
   margin-top: 0;
 }
-.modal {
-  top: 50%;
-}
 .hero {
   background: url("../../../base/images/background-tile.png");
   padding: 20px 0;
@@ -7968,8 +7965,14 @@ h4 small {
   -moz-box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
+.main.homepage .group-listing .box {
+  min-height: 275px;
+}
 .main.homepage .group-list {
   margin-bottom: 0;
+}
+.main.homepage .group-list .dataset-content {
+  min-height: 70px;
 }
 .main.homepage .box .module {
   margin-top: 0;
