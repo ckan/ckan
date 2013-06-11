@@ -311,7 +311,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return h.redirect_to(controller='package', action='search')
+            return h.redirect_to(controller='user', action='logged_in')
 
     def logged_in(self):
         # we need to set the language via a redirect
