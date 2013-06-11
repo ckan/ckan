@@ -6,6 +6,7 @@
 
 {% block main_content %}
   <section class="module span6 offset3">
+    {% block form %}
     <div class="module-content">
       <p>{{ _('Are you sure you want to delete related item - {name}?').format(name=c.related_dict.title) }}</p>
       <p class="form-actions">
@@ -14,6 +15,7 @@
         <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
       </form>
       </p>
+      {% endblock %}
     </div>
   </section>
 {% endblock %}

@@ -8,11 +8,12 @@ import datetime
 import re
 
 import pylons
-import pylons.i18n
 
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
+
+from ckan.common import ungettext
 
 
 def string_to_timedelta(s):
@@ -96,7 +97,7 @@ def _notifications_for_activities(activities, user_dict):
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
-    subject = pylons.i18n.ungettext(
+    subject = ungettext(
         "1 new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(

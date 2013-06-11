@@ -1,24 +1,26 @@
+'''API functions for updating existing data in CKAN.'''
+
 import logging
 import datetime
 import json
 
-import pylons
-from pylons.i18n import _
 from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
-import paste.deploy.converters
+import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
 import ckan.logic as logic
-import ckan.logic.schema
-import ckan.lib.dictization
+import ckan.logic.schema as schema_
+import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.email_notifications
+import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
+
+from ckan.common import _, request
 
 log = logging.getLogger(__name__)
 
@@ -127,10 +129,10 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
-    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    session = context['session']
+    schema = context.get('schema') or schema_.default_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -146,6 +148,32 @@ def related_update(context, data_dict):
         raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
+
+    dataset_dict = None
+    if 'package' in context:
+        dataset = context['package']
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+        'user_id': context['user'],
+        'object_id': related.id,
+        'activity_type': 'changed related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict,
+        'dataset': dataset_dict,
+    }
+    activity_create_context = {
+        'model': model,
+        'user': context['user'],
+        'defer_commit':True,
+        'session': session
+    }
+
+    _get_action('activity_create')(activity_create_context, activity_dict,
+                                   ignore_auth=True)
+
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.related_dictize(related, context)
@@ -170,7 +198,6 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
-    schema = context.get('schema') or ckan.logic.schema.default_update_resource_schema()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -180,6 +207,13 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(
+            resource.resource_group.package.type)
+        schema = package_plugin.update_package_schema()['resources']
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -235,7 +269,10 @@ def package_update(context, data_dict):
 
     # get the schema
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
-    schema = package_plugin.update_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.update_package_schema()
 
     if 'api_version' not in context:
         # check_data_dict() is deprecated. If the package_plugin has a
@@ -288,6 +325,9 @@ def package_update(context, data_dict):
 
     return_id_only = context.get('return_id_only', False)
 
+    # Make sure that a user provided schema is not used on package_show
+    context.pop('schema', None)
+
     # we could update the dataset so we should still be able to read it.
     context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
@@ -337,7 +377,7 @@ def package_relationship_update(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_update_relationship_schema()
+    schema = context.get('schema') or schema_.default_update_relationship_schema()
 
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
@@ -418,7 +458,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # when editing an org we do not want to update the packages if using the
     # new templates.
     if ((not is_org)
-            and not paste.deploy.converters.asbool(
+            and not converters.asbool(
                 config.get('ckan.legacy_templates', False))
             and 'api_version' not in context):
         context['prevent_packages_update'] = True
@@ -475,7 +515,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
             activity_dict['activity_type'] = 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
-                'group': ckan.lib.dictization.table_dictize(group, context)
+                'group': dictization.table_dictize(group, context)
                 }
         activity_create_context = {
             'model': model,
@@ -546,7 +586,7 @@ def user_update(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or ckan.logic.schema.default_update_user_schema()
+    schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
@@ -614,7 +654,7 @@ def task_status_update(context, data_dict):
 
     user = context['user']
     id = data_dict.get("id")
-    schema = context.get('schema') or ckan.logic.schema.default_task_status_schema()
+    schema = context.get('schema') or schema_.default_task_status_schema()
 
     if id:
         task_status = model.TaskStatus.get(id)
@@ -824,7 +864,7 @@ def vocabulary_update(context, data_dict):
 
     _check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_update_vocabulary_schema()
+    schema = context.get('schema') or schema_.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -897,13 +937,6 @@ def user_role_update(context, data_dict):
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
-#    if isinstance(domain_object, model.Package):
-#        _check_access('package_edit_permissions', context, data_dict)
-#    elif isinstance(domain_object, model.Group):
-#        _check_access('group_edit_permissions', context, data_dict)
-#    # Todo: 'system' object
-#    else:
-#        raise ValidationError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
@@ -983,15 +1016,15 @@ def send_email_notifications(context, data_dict):
     # If paste.command_request is True then this function has been called
     # by a `paster post ...` command not a real HTTP request, so skip the
     # authorization.
-    if not pylons.request.environ.get('paste.command_request'):
+    if not request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
 
-    if not paste.deploy.converters.asbool(
-            pylons.config.get('ckan.activity_streams_email_notifications')):
+    if not converters.asbool(
+            config.get('ckan.activity_streams_email_notifications')):
         raise ValidationError('ckan.activity_streams_email_notifications'
-                ' is not enabled in config')
+                              ' is not enabled in config')
 
-    ckan.lib.email_notifications.get_and_send_notifications_for_all_users()
+    email_notifications.get_and_send_notifications_for_all_users()
 
 
 def package_owner_org_update(context, data_dict):

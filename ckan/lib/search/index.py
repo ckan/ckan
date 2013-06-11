@@ -7,6 +7,8 @@ from dateutil.parser import parse
 
 import re
 
+import solr
+
 from pylons import config
 from paste.deploy.converters import asbool
 
@@ -157,11 +159,10 @@ class PackageSearchIndex(SearchIndex):
 
         # if there is an owner_org we want to add this to groups for index
         # purposes
-        if pkg_dict['owner_org'] and pkg_dict.get('organization'):
+        if pkg_dict.get('organization'):
            pkg_dict['organization'] = pkg_dict['organization']['name']
         else:
            pkg_dict['organization'] = None
-
 
         # tracking
         tracking_summary = pkg_dict.pop('tracking_summary', None)
@@ -251,9 +252,15 @@ class PackageSearchIndex(SearchIndex):
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
-        except Exception, e:
-            log.exception(e)
-            raise SearchIndexError(e)
+        except solr.core.SolrException, e:
+            msg = 'Solr returned an error: {0} {1} - {2}'.format(
+                e.httpcode, e.reason, e.body[:1000] # limit huge responses
+            )
+            raise SearchIndexError(msg)
+        except socket.error, e:
+            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
+            log.error(err)
+            raise SearchIndexError(err)
         finally:
             conn.close()
 

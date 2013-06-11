@@ -2,6 +2,7 @@ import json
 import nose
 import datetime
 
+import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -47,11 +48,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
-        engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+        engine = db._get_engine(None,
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -273,11 +271,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
-        engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+        engine = db._get_engine(None,
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -380,11 +375,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
-        engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+        engine = db._get_engine(None,
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

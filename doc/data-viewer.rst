@@ -2,39 +2,173 @@
 Data Viewer
 ===========
 
-CKAN's resource page can provide a preview of the resource's data if it is of
-an appropriate format.  If the data is available through the CKAN `DataStore
-<datastore.html>`_ API, or if the data is a ``csv`` or ``xls`` file; then `Recline's
-<http://github.com/okfn/recline>`_ `Data Explorer`_ is used.  If the data is
-another webpage; a google doc; or an image; then it is embedded in an iframe
-for viewing.  Or if the data is text-like, then it's raw contents are
-displayed.
+The CKAN resource page can contain a preview of the resource's data.
+This works by either:
 
-Data Explorer
-=============
+1. Embedding the data into the page, either directly or by loading the data
+   in an iframe.
+2. Using a custom widget (such as `Recline <http://okfnlabs.org/recline>`_)
+   to view the data.
 
-The `Recline <http://github.com/okfn/recline>`_
-Data Explorer provides a rich, queryable view of the data.  The data can be filtered,
-faceted, graphed and mapped.  Furthermore, the grid, graph or map can then be
-embedded into your own site using the **Embed** button, and copying the provided
-html snippet into your webpage.
+Generally, the decision as to which action to take is determined by the type of
+resource being viewed.
+In general, images will be directly embedded, unstructured or plain text
+files will be loaded in an iframe, and more complex data types will need to
+use a custom widget.
 
-How It Works (Technically)
-==========================
+The data preview functionality that is provided by CKAN is described in
+the following sections:
 
-The relevant code for setting up the data viewer is found in ``application.js``.
+* `Viewing images and text files`_
+* `Viewing structured data: the Data Explorer`_
+* `Viewing highlighted XML, JSON and plain text data`_
+* `Viewing PDF documents`_
+* `Embedding Previews In Other Web Pages`_
 
-All resources available through the `DataStore <datastore.html>`_ API are
-available for viewing through the `Data Explorer`_.  using recline's
-``elasticsearch`` backend.  If the datastore is not available, and the filetype
-is normalized to ``csv`` or ``xls``, then a dataproxy is used to attempt to view
-the data (using recline's ``dataproxy`` backend).
+These sections list the resource formats that each extension can preview and
+provide instructions for how to enable each extension.
+It is also possible for developers to create new extensions that can preview
+different types of resources.
+For more information on this topic see
+`Writing Extensions <writing-extensions.html>`_.
 
-Embedding
----------
 
-If a resource is viewable through the Data Explorer, then it is also embeddable
-in third-party web pages.  ``/dataset/{name}/resource/{resource_id}/embed``
-provides a stripped-down page containing the data explorer.  The data
-explorer's state is passed through using the url's query parameters.
+Viewing images and text files
+-----------------------------
 
+**Configuration required:** None.
+Images and text files (that match one of the file types given below) will be
+previewed automatically by default.
+
+**Resource formats:** images, plain text (details below).
+
+By default, the following types of resources will be embedded directly into
+the resource read page:
+
+* ``png``
+* ``jpg``
+* ``jpeg``
+* ``gif``
+
+The types of resources that are embedded directly can be specified in the
+CKAN config file. See :ref:`ckan.preview.direct` for more information.
+
+The following types of resources will be loaded in an iframe if there is no
+extension that can preview these types:
+
+* ``plain``
+* ``txt``
+* ``html``
+* ``htm``
+* ``xml``
+* ``rdf+xml``
+* ``owl+xml``
+* ``n3``
+* ``n-triples``
+* ``turtle``
+* ``atom``
+* ``rss``
+
+The types of resources that are loaded in an iframe can be specified in the
+CKAN config file. See :ref:`ckan.preview.loadable` for more information.
+
+Note that these documents will be directly linked by the browser, so the
+way in which they are shown may vary. If you want to ensure for instance that
+XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
+
+
+Viewing structured data: the Data Explorer
+------------------------------------------
+
+.. versionadded:: 2.0
+   the ``recline_preview`` extension is new in CKAN 2.0.
+
+**Configuration required:** The ``recline_preview`` extension must be added to
+``ckan.plugins`` in your CKAN configuration file.
+This extension is part of CKAN and so does not need to be installed separately.
+
+**Resource formats:** DataStore, ``csv``, ``xls``.
+
+Structured data can be previewed using the
+`Recline <http://okfnlabs.org/recline>`_ Data Explorer.
+The Data Explorer provides a rich, queryable view of the data, and allows the
+data to be filtered, graphed and mapped.
+
+To be viewed, the data must either be:
+
+1. In the CKAN `DataStore <datastore.html>`_.
+   This is the recommended way to preview structured data.
+
+Or:
+
+2. In ``csv`` or ``xls`` format.
+   In this case, CKAN will first have to try to convert the file into a more
+   structured format by using the
+   `Dataproxy <https://github.com/okfn/dataproxy>`_.
+   This is an automatic process that does not require any additional
+   configuration.
+   However, as the resource must be downloaded by the Dataproxy service and
+   then analysed before it is viewed, this option is generally slower and less
+   reliable than viewing data that is in the DataStore.
+
+
+Viewing highlighted XML, JSON and plain text data
+-------------------------------------------------
+
+**Configuration required:** The ``text_preview`` extension must be added to
+``ckan.plugins`` in your CKAN configuration file. If you wish to view
+external files resources as well, the ``resource_proxy`` extension must also
+be enabled.
+These extensions are part of CKAN and so do not need to be installed
+separately.
+
+**Resource formats:**
+
+* ``json``, ``gjson``, ``geojson``
+   (can be configured by setting ``ckan.preview.json_formats``)
+* ``jsonp``
+   (can be configured  by setting ``ckan.preview.jsonp_formats``)
+* ``xml``, ``rdf``, ``rdf+xml``, ``owl+xml``, ``atom``, ``rss``
+   (can be configured  by setting ``ckan.preview.xml_formats``)
+* ``text/plain``, ``txt``, ``plain``
+   (can be configured  by setting ``ckan.preview.text_formats``)
+
+The ``text_preview`` extension provides previews of many file types that have been
+added to a CKAN instance
+(and so are stored in the `Filestore <filestore.html>`_).
+To view the data the resource format must be set to one of the resource formats
+from above (case insensitive).
+
+To also view remote resources, the ``resource_proxy`` extension must be
+enabled as well
+(this is required in order to get around the
+`same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_).
+
+
+Viewing PDF documents
+---------------------
+
+**Configuration required:** The ``pdf_preview`` extension must be added to
+``ckan.plugins`` in your CKAN configuration file.
+This extension is part of CKAN and so does not need to be installed separately.
+
+**Resource formats:** ``pdf``, ``x-pdf``, ``acrobat``, ``vnd.pdf``.
+
+The ``pdf_preview`` extension provides previews of any ``pdf`` documents
+that have been added to a CKAN instance (and so are stored in
+the `Filestore <filestore.html>`_) as well as any external ``pdf`` documents.
+This extension uses Mozilla's `pdf.js <http://mozilla.github.io/pdf.js>`_ library.
+
+
+Embedding Previews In Other Web Pages
+-------------------------------------
+
+.. versionchanged:: 2.0
+   The URL that is used to obtain the contents of the resource preview has
+   changed from ``/dataset/{name}/resource/{resource_id}/embed``
+   to ``/dataset/{name}/resource/{resource_id}/preview``.
+
+For each resource, the preview content can be viewed at
+``/dataset/{dataset id}/resource/{resource id}/preview``.
+The preview content can therefore be embedded in other web pages by loading
+the contents of this URL in an iframe.
