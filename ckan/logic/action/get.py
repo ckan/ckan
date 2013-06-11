@@ -405,13 +405,18 @@ def group_list_authz(context, data_dict):
       (optional, default: ``False``)
     :type available_only: boolean
 
+    :param am_member: only show groups user is a member of else sys_admins get all
+    :type am-am: bool
+      (optional, default: ``False``)
+
     :returns: the names of groups that the user is authorized to edit
     :rtype: list of strings
 
     '''
     model = context['model']
     user = context['user']
-    available_only = data_dict.get('available_only',False)
+    available_only = data_dict.get('available_only', False)
+    am_member = data_dict.get('am_member', False)
 
     _check_access('group_list_authz',context, data_dict)
 
@@ -423,7 +428,7 @@ def group_list_authz(context, data_dict):
     if not user_id:
         return []
 
-    if not sysadmin:
+    if not sysadmin or am_member:
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
@@ -439,7 +444,7 @@ def group_list_authz(context, data_dict):
         .filter(model.Group.is_organization == False) \
         .filter(model.Group.state == 'active')
 
-    if not sysadmin:
+    if not sysadmin or am_member:
         q = q.filter(model.Group.id.in_(group_ids))
 
     groups = q.all()
@@ -449,7 +454,7 @@ def group_list_authz(context, data_dict):
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    return [{'id':group.id,'name':group.name} for group in groups]
+    return [{'id': group.id, 'name': group.name, 'type': group.type} for group in groups]
 
 def organization_list_for_user(context, data_dict):
     '''Return the list of organizations that the user is a member of.
@@ -472,35 +477,35 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
-    if sysadmin:
-        # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
+    if not sysadmin:
+        # for non-Sysadmins check they have the required permission
 
-    permission = data_dict.get('permission', 'edit_group')
+        permission = data_dict.get('permission', 'edit_group')
 
-    roles = ckan.new_authz.get_roles_with_permission(permission)
+        roles = ckan.new_authz.get_roles_with_permission(permission)
 
-    if not roles:
-        return []
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
-    if not user_id:
-        return []
+        if not roles:
+            return []
+        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        if not user_id:
+            return []
 
-    q = model.Session.query(model.Member) \
-        .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.capacity.in_(roles)) \
-        .filter(model.Member.table_id == user_id)
+        q = model.Session.query(model.Member) \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.capacity.in_(roles)) \
+            .filter(model.Member.table_id == user_id)
 
-    group_ids = []
-    for row in q.all():
-        group_ids.append(row.group_id)
+        group_ids = []
+        for row in q.all():
+            group_ids.append(row.group_id)
 
-    if not group_ids:
-        return []
+        if not group_ids:
+            return []
 
-    q = orgs_q.filter(model.Group.id.in_(group_ids))
+        orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
+    return [{'id': org.id, 'name': org.name, 'title': org.title, 'type': org.type}
+            for org in orgs_q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.

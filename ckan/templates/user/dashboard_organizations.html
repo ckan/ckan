@@ -10,8 +10,9 @@
 
 {% block primary_content_inner %}
   <h2 class="page-heading">{{ _('My Organizations') }}</h2>
-  {% if c.organizations %}
-    {% snippet "organization/snippets/organization_list.html", organizations=c.organizations %}
+  {% set organizations = h.organizations_available() %}
+  {% if organizations %}
+    {% snippet "organization/snippets/organization_list.html", organizations=organizations %}
   {% else %}
     <p class="empty">
       {{ _('You are not a member of any organizations.') }}

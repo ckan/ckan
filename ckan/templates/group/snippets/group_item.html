@@ -15,7 +15,7 @@ Example:
       {% endfor %}
     </ul>
 #}
-{% set url = h.url_for(group.type ~ '_read', action='read', id=group.name) %}
+{% set url = h.url_for(group.type + '_read', action='read', id=group.name) %}
 <li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
   <a class="media-image" href="{{ url }}"><img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" /></a>
   <div class="media-content">

@@ -584,30 +584,21 @@ class UserController(base.BaseController):
         return render('user/dashboard.html')
 
     def dashboard_datasets(self):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_datasets.html')
 
     def dashboard_organizations(self):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
-        # TODO: Add organizations that user is a member of here. I tried
-        # h.organizations_available() but that errors in the template
-        c.organizations = []#h.organizations_available()
         return render('user/dashboard_organizations.html')
 
     def dashboard_groups(self):
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+        context = {'for_view': True}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
-        # TODO: Add groups that user is a member of here. I tried
-        # h.groups_available() but that errors in the template
-        c.groups = []#h.groups_available()
         return render('user/dashboard_groups.html')
 
     def follow(self, id):
