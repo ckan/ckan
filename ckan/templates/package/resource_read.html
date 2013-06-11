@@ -29,6 +29,8 @@
                     <i class="icon-eye-open"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="icon-key"></i> {{ _('API Endpoint') }}
+                  {% elif not h.can_be_previewed(res, pkg) %}
+                    <i class="icon-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="icon-download"></i> {{ _('Download') }}
                   {% endif %}

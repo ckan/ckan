@@ -1466,6 +1466,11 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
+def can_be_previewed(resource, package):
+    data_dict = {'resource': resource, 'package': package}
+    return datapreview.can_be_previewed(data_dict)
+
+
 def resource_preview(resource, pkg_id):
     '''
     Returns a rendered snippet for a embedded resource preview.
@@ -1633,6 +1638,7 @@ __allowed_functions__ = [
     'render_markdown',
     'format_resource_items',
     'resource_preview',
+    'can_be_previewed',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',
