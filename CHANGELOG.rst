@@ -4,6 +4,19 @@
 Changelog
 ---------
 
+v2.0.1
+=================
+
+Bug fixes:
+ * Use IDatasetForm schema for resource_update (#897)
+ * Fixes for CKAN being run on a non-root URL (#948, #913)
+ * Fix Czech translation (#900)
+ * Allow JSON filters for datastore_search on GET requests (#917)
+ * Install vdm from the Python Package Index (#764)
+ * Allow extra parameters on Solr queries (#739)
+ * Create site user at startup if it does not exist (#952)
+
+
 v2.0 2013-05-10
 ===============
 
