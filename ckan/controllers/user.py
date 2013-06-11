@@ -287,11 +287,9 @@ class UserController(base.BaseController):
             return self.edit(id, data_dict, errors, error_summary)
 
     def login(self, error=None):
-        lang = session.pop('lang', None)
-        if lang:
-            session.save()
-            return h.redirect_to(locale=str(lang), controller='user',
-                                 action='login')
+        # save our language in the session so we don't lose it
+        session['lang'] = request.environ.get('CKAN_LANG')
+        session.save()
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
@@ -311,10 +309,17 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return h.redirect_to(controller='package', action='search')
+            return h.redirect_to(controller='user', action='logged_in')
 
     def logged_in(self):
+        # we need to set the language via a redirect
+        lang = session.pop('lang', None)
+        session.save()
         came_from = request.params.get('came_from', '')
+
+        # we need to set the language explicitly here or the flash
+        # messages will not be translated.
+        i18n.set_lang(lang)
 
         if c.user:
             context = None
@@ -326,7 +331,7 @@ class UserController(base.BaseController):
                             user_dict['display_name'])
             if came_from:
                 return h.redirect_to(str(came_from))
-            return self.me()
+            return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
@@ -334,7 +339,7 @@ class UserController(base.BaseController):
                          'with a user account.)')
             if h.asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
-                h.redirect_to(controller='user',
+                h.redirect_to(locale=lang, controller='user',
                               action='login', came_from=came_from)
             else:
                 return self.login(error=err)

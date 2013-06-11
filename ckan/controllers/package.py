@@ -635,6 +635,7 @@ class PackageController(BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
+                    h.flash_success(_('A resource has been added'))
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary
@@ -653,6 +654,9 @@ class PackageController(BaseController):
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
                                    action='read', id=id))
+            elif save_action == 'go-dataset-search':
+                redirect(h.url_for(controller='package',
+                                   action='search'))
             else:
                 # add more resources
                 redirect(h.url_for(controller='package',
