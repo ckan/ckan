@@ -653,6 +653,9 @@ class PackageController(BaseController):
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
                                    action='read', id=id))
+            elif save_action == 'go-dataset-search':
+                redirect(h.url_for(controller='package',
+                                   action='search'))
             else:
                 # add more resources
                 redirect(h.url_for(controller='package',
