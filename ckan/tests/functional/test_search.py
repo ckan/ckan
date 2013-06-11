@@ -66,7 +66,8 @@ class TestSearch(FunctionalTestCase):
         result = self._check_results(res, 1, 'se-opengov')
 
         # multiple words
-        res = self.app.get('/dataset?q=Government%20Expenditure')
+        res = self.app.get(
+            '/dataset?q=Government%20Expenditure&ext_boolean=any')
         result = self._check_results(res, 5, 'uk-government-expenditure')
 
 class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):

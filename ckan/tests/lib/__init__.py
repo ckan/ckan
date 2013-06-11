@@ -3,9 +3,13 @@ from nose.tools import assert_equal
 from ckan import model
 import ckan.lib.search as search
 
+
 def check_search_results(terms, expected_count, expected_packages=[]):
+    # setting ext_boolean = 'any' makes sets search operator to OR instead
+    # of the default AND
     query = {
         'q': unicode(terms),
+        'extras': {'ext_boolean': 'any'}
     }
     result = search.query_for(model.Package).run(query)
     pkgs = result['results']

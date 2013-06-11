@@ -2,7 +2,7 @@ import logging
 from urllib import urlencode
 import datetime
 
-from pylons import config
+from pylons import config, session
 from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
@@ -125,6 +125,10 @@ class PackageController(BaseController):
             check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
+        if request.GET.get('ext_boolean') in ['all', 'any', 'exact']:
+            session['ext_boolean'] = request.GET['ext_boolean']
+            session.save()
 
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
