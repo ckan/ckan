@@ -1540,7 +1540,7 @@ class CreateColorSchemeCommand(CkanCommand):
         lightness = None
 
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(path, '..', 'public', 'less', 'custom.less')
 
         if self.args:
             arg = self.args[0]
@@ -1683,7 +1683,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             data = json.dumps(data, sort_keys=True,
                               ensure_ascii=False, indent=2 * ' ')
             out_dir = os.path.abspath(os.path.join(self.ckan_path, 'public',
-                                                   'base', 'i18n'))
+                                                   'i18n'))
             out_file = open(os.path.join(out_dir, '%s.js' % lang), 'w')
             out_file.write(data.encode('utf-8'))
             out_file.close()
@@ -1895,7 +1895,7 @@ class LessCommand(CkanCommand):
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
 
-        root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
+        root = os.path.join(os.path.dirname(__file__), '..', 'public')
         root = os.path.abspath(root)
         custom_less = os.path.join(root, 'less', 'custom.less')
         for color in self.custom_css:

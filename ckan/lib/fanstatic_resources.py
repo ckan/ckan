@@ -223,7 +223,7 @@ def create_library(name, path, depend_base=True):
     registry.add(library)
 
 base_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', 'public', 'base'))
+                                         '..', 'public'))
 
 create_library('vendor', os.path.join(base_path, 'vendor'), depend_base=False)
 
