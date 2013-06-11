@@ -32,7 +32,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats json_preview recline_preview
+        ckan.plugins = stats text_preview recline_preview
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
@@ -75,6 +75,38 @@ Example::
 This defines the database that CKAN is to use. The format is::
 
  sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
+.. start_config-datastore-urls
+
+.. _ckan.datastore.write_url:
+
+ckan.datastore.write_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.write_url = postgresql://ckanuser:pass@localhost/datastore
+
+The database connection to use for writing to the datastore (this can be
+ignored if you're not using the :doc:`datastore`). Note that the database used
+should not be the same as the normal CKAN database. The format is the same as
+in :ref:`sqlalchemy.url`.
+
+.. _ckan.datastore.read_url:
+
+ckan.datastore.read_url
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.read_url = postgresql://readonlyuser:pass@localhost/datastore
+
+The database connection to use for reading from the datastore (this can be
+ignored if you're not using the :doc:`datastore`). The database used must be
+the same used in :ref:`ckan.datastore.write_url`, but the user should be one
+with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
+
+.. end_config-datastore-urls
 
 
 Site Settings
@@ -394,11 +426,13 @@ ckan.search.automatic_indexing
 
 Example::
 
- ckan.search.automatic_indexing = 1
+ ckan.search.automatic_indexing = true
+
+Default value: ``true``
 
 Make all changes immediately available via the search after editing or
 creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to 0.
+to occur asynchronously, set this option to false.
 
 .. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
@@ -432,7 +466,7 @@ standard datasets or also custom dataset types.
 .. _search.facets.limits:
 
 search.facets.limits
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
@@ -452,17 +486,6 @@ Example::
   search.facets.default = 10
 
 Default number of facets shown in search results.  Default 10.
-
-.. _search.facets.limit:
-
-search.facets.limit
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  search.facets.limit = 50
-
-Highest number of facets shown in search results.  Default 50.
 
 .. _ckan.extra_resource_fields:
 
@@ -490,11 +513,13 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
+Default value: ``stats text_preview recline_preview``
+
 Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
 
 .. _ckan.datastore.enabled:
 
@@ -527,6 +552,8 @@ This controls if we'll use the 1 day cache for stats.
 
 Front-End Settings
 ------------------
+
+.. start_config-front-end
 
 .. _ckan.site_title:
 
@@ -711,9 +738,9 @@ ckan.preview.direct
 
 Example::
 
- ckan.preview.direct = png jpg gif
+ ckan.preview.direct = png jpg jpeg gif
 
-Default value: ``png jpg gif``
+Default value: ``png jpg jpeg gif``
 
 Defines the resource formats which should be embedded directly in an ``img`` tag
 when previewing them.
@@ -730,7 +757,7 @@ Example::
 Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
 
 Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them.
+tag when previewing them if no :doc:`data-viewer` can preview it.
 
 .. _ckan.dumps_url:
 
@@ -743,7 +770,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :doc:`database-dumps`.
+For more information on using dumpfiles, see :ref:`paster db`.
 
 .. _ckan.dumps_format:
 
@@ -826,8 +853,12 @@ receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
 
+.. end_config-front-end
+
 Theming Settings
 ----------------
+
+.. start_config-theming
 
 .. _ckan.template_head_end:
 
@@ -913,6 +944,8 @@ For more information on theming, see :doc:`theming`.
 
 .. note:: This is only for legacy code, and shouldn't be used anymore.
 
+.. end_config-theming
+
 Storage Settings
 ----------------
 
@@ -955,6 +988,19 @@ Default value: ``50000000``
 
 This defines the maximum content size, in bytes, for uploads.
 
+.. _ofs.impl:
+
+ofs.impl
+^^^^^^^^
+
+Example::
+
+  ofs.impl = pairtree
+
+Default value:  ``None``
+
+Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -966,7 +1012,67 @@ Example::
 
 Default value:  ``None``
 
-Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
+
+.. _ofs.aws_access_key_id:
+
+ofs.aws_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.aws_secret_access_key:
+
+ofs.aws_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.aws_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Amazon S3 storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_access_key_id:
+
+ofs.gs_access_key_id
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_access_key_id = your_key_id_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
+
+.. _ofs.gs_secret_access_key:
+
+ofs.gs_secret_access_key
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ofs.gs_secret_access_key = your_secret_access_key_here
+
+Default value:  ``None``
+
+Only used with the Google storage backend.
+
+.. todo:: Expand
 
 
 Activity Streams Settings
@@ -1011,6 +1117,21 @@ Example::
 Default value: ``infinite``
 
 This controls the number of activities to show in the Activity Stream. By default, it shows everything.
+
+
+.. _ckan.email_notifications_since:
+
+ckan.email_notifications_since
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.email_notifications_since = 2 days
+
+Default value: ``infinite``
+
+Email notifications for events older than this time delta will not be sent.
+Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
 
 
 .. _config-feeds:
@@ -1181,7 +1302,7 @@ example::
 This is useful for integrating CKAN's new dataset form into a third-party
 interface, see :doc:`form-integration`.
 
-The ``<NAME>`` string is replaced with the name of the dataset created. 
+The ``<NAME>`` string is replaced with the name of the dataset created.
 
 .. _package_edit_return_url:
 
@@ -1203,16 +1324,16 @@ The ``<NAME>`` string is replaced with the name of the dataset that was edited.
 licenses_group_url
 ^^^^^^^^^^^^^^^^^^
 
-A url pointing to a JSON file containing a list of licence objects. This list
-determines the licences offered by the system to users, for example when
+A url pointing to a JSON file containing a list of license objects. This list
+determines the licenses offered by the system to users, for example when
 creating or editing a dataset.
 
 This is entirely optional - by default, the system will use an internal cached
-version of the CKAN list of licences available from the
+version of the CKAN list of licenses available from the
 http://licenses.opendefinition.org/licenses/groups/ckan.json.
 
-More details about the license objects - including the licence format and some
-example licence lists - can be found at the `Open Licenses Service
+More details about the license objects - including the license format and some
+example license lists - can be found at the `Open Licenses Service
 <http://licenses.opendefinition.org/>`_.
 
 Examples::
@@ -1222,8 +1343,8 @@ Examples::
 
 .. _email-settings:
 
-E-mail Settings
----------------
+Email Settings
+--------------
 
 .. _smtp.server:
 

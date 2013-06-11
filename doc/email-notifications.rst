@@ -1,8 +1,8 @@
 .. _email-notifications:
 
-=================================
-Send Email Notifications to Users
-=================================
+===================
+Email Notifications
+===================
 
 CKAN can send email notifications to users, for example when a user has new
 activities on her dashboard. Once email notifications have been enabled by a
@@ -38,7 +38,7 @@ notifications for a CKAN site, a sysadmin must:
      Since ``send_email_notifications`` is an API action, it can be called from
      a machine other than the server on which CKAN is running, simply by
      POSTing an HTTP request to the CKAN API (you must be a sysadmin to call
-     this particular API action). See :ref:`action-api`.
+     this particular API action). See :doc:`api`.
 
 
 2. CKAN will not send out any email notifications, nor show the email
@@ -82,6 +82,8 @@ notifications for a CKAN site, a sysadmin must:
 
 6. For the new configuration to take effect you need to restart the web server.
    For example if your are using Apache on Ubuntu, run this command in a
-   shell::
+   shell:
 
-    sudo service apache2 restart
+   .. parsed-literal::
+
+      |reload_apache|

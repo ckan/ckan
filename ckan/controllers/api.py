@@ -179,6 +179,9 @@ class ApiController(base.BaseController):
                 _('Bad request data: %s') %
                 'Request data JSON decoded to %r but '
                 'it needs to be a dictionary.' % request_data)
+        # if callback is specified we do not want to send that to the search
+        if 'callback' in request_data:
+            del request_data['callback']
         try:
             result = function(context, request_data)
             return_dict['success'] = True
@@ -251,7 +254,7 @@ class ApiController(base.BaseController):
             'dataset': 'package_list',
             'tag': 'tag_list',
             'related': 'related_list',
-            'licenses': 'licence_list',
+            'licenses': 'license_list',
             ('dataset', 'relationships'): 'package_relationships_list',
             ('dataset', 'revisions'): 'package_revision_list',
             ('dataset', 'activity'): 'package_activity_list',
@@ -537,6 +540,10 @@ class ApiController(base.BaseController):
                     if 'fq' in params:
                         del params['fq']
                     params['fq'] = '+capacity:public'
+                    # if callback is specified we do not want to send that to
+                    # the search
+                    if 'callback' in params:
+                        del params['callback']
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError, e:

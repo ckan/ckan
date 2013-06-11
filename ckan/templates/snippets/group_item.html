@@ -2,6 +2,8 @@
   <header class="module-heading">
     {% set url=h.url_for(controller='group', action='read', id=group.name) %}
     {% set truncate=truncate or 0 %}
+    {% set truncate_title = truncate_title or 0 %}
+    {% set title = group.title or group.name %}
     <a class="module-image" href="{{ url }}">
       <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
     </a>
