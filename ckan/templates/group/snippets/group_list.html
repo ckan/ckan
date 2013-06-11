@@ -10,6 +10,6 @@ Example:
 #}
 <ul class="media-grid" data-module="media-grid">
   {% for group in groups %}
-    {% snippet "group/snippets/group_item.html", group=group %}
+    {% snippet "group/snippets/group_item.html", group=group, position=loop.index %}
   {% endfor %}
 </ul>

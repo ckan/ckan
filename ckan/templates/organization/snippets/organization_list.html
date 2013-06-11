@@ -10,6 +10,6 @@ Example:
 #}
 <ul class="media-grid" data-module="media-grid">
   {% for organization in organizations %}
-    {% snippet "organization/snippets/organization_item.html", organization=organization %}
+    {% snippet "organization/snippets/organization_item.html", organization=organization, position=loop.index %}
   {% endfor %}
 </ul>

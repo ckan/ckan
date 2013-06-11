@@ -37,3 +37,6 @@ Example:
     <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
   </a>
 </li>
+{% if position is divisibleby 3 %}
+  <li class="clearfix js-hide"></li>
+{% endif %}
