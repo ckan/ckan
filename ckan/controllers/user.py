@@ -287,11 +287,9 @@ class UserController(base.BaseController):
             return self.edit(id, data_dict, errors, error_summary)
 
     def login(self, error=None):
-        lang = session.pop('lang', None)
-        if lang:
-            session.save()
-            return h.redirect_to(locale=str(lang), controller='user',
-                                 action='login')
+        # save our language in the session so we don't lose it
+        session['lang'] = request.environ.get('CKAN_LANG')
+        session.save()
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
@@ -333,7 +331,7 @@ class UserController(base.BaseController):
                             user_dict['display_name'])
             if came_from:
                 return h.redirect_to(str(came_from))
-            return self.me()
+            return self.me(locale=lang)
         else:
             err = _('Login failed. Bad username or password.')
             if g.openid_enabled:
