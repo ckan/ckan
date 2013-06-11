@@ -22,7 +22,8 @@ def clear_auth_functions_cache():
 
 def clean_action_name(action_name):
     ''' Used to convert old style action names into new style ones '''
-    return re.sub('package', 'dataset', action_name)
+    new_action_name = re.sub('package', 'dataset', action_name)
+    return re.sub('licence', 'license', new_action_name)
 
 
 def is_sysadmin(username):
@@ -65,13 +66,16 @@ def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
-    # sysadmins can do anything
-    if is_sysadmin(context.get('user')):
-        return {'success': True}
-
     action = clean_action_name(action)
     auth_function = _get_auth_function(action)
     if auth_function:
+        # sysadmins can do anything unless the auth_sysadmins_check
+        # decorator was used in which case they are treated like all other
+        # users.
+        if is_sysadmin(context.get('user')):
+            if not getattr(auth_function, 'auth_sysadmins_check', False):
+                return {'success': True}
+
         return auth_function(context, data_dict)
     else:
         raise ValueError(_('Authorization function not found: %s' % action))

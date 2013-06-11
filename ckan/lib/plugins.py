@@ -2,6 +2,7 @@ import logging
 
 from pylons import c
 from ckan.lib import base
+import ckan.lib.maintain as maintain
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -200,7 +201,9 @@ class DefaultDatasetForm(object):
 
         c.groups_available = authz_fn(context, data_dict)
 
-        c.licences = [('', '')] + base.model.Package.get_license_options()
+        c.licenses = [('', '')] + base.model.Package.get_license_options()
+        c.licences = c.licenses
+        maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:

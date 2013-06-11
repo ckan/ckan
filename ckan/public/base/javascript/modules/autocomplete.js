@@ -80,6 +80,12 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         // This is not part of the plugins API and so may break at any time.
         select2.search.on('keydown', this._onKeydown);
       }
+
+      // This prevents Internet Explorer from causing a window.onbeforeunload
+      // even from firing unnecessarily
+      $('.select2-choice', select2.container).on('click', function() {
+        return false;
+      });
     },
 
     /* Looks up the completions for the current search term and passes them

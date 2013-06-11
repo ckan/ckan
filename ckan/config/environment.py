@@ -22,6 +22,7 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.new_authz as new_authz
 import ckan.lib.jinja_extensions as jinja_extensions
+import ckan.logic as logic
 
 from ckan.common import _, ungettext
 
@@ -359,3 +360,10 @@ def update_config():
     # clear other caches
     logic.clear_actions_cache()
     new_authz.clear_auth_functions_cache()
+
+    # Here we create the site user if they are not already in the database
+    try:
+        logic.get_action('get_site_user')({'ignore_auth': True}, None)
+    except sqlalchemy.exc.ProgrammingError:
+        # The database is not initialised.  This is a bit dirty.
+        pass

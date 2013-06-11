@@ -221,7 +221,7 @@ class PackageController(base.BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license_id': _('Licence'),
+                    'license_id': _('License'),
                     }
 
             for facet in g.facets:
@@ -570,7 +570,9 @@ class PackageController(base.BaseController):
                                   action='resource_edit',
                                   resource_id=resource_id,
                                   id=id)
-        data = resource_dict
+        if not data:
+            data = resource_dict
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -1015,33 +1017,6 @@ class PackageController(base.BaseController):
                 is_included = True
         if not is_included:
             options.insert(1, (pkg.license_id, pkg.license_id))
-
-    def authz(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
-            abort(404, _('Dataset not found'))
-        # needed to add in the tab bar to the top of the auth page
-        c.pkg = pkg
-        c.pkgname = pkg.name
-        c.pkgtitle = pkg.title
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'package': pkg}
-            check_access('package_edit_permissions', context)
-            c.authz_editable = True
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-        except NotAuthorized:
-            c.authz_editable = False
-        if not c.authz_editable:
-            abort(401, _('User %r not authorized to edit %s '
-                               'authorizations') % (c.user, id))
-
-        roles = self._handle_update_of_authz(pkg)
-        self._prepare_authz_info_for_render(roles)
-
-        # c.related_count = len(pkg.related)
-
-        return render('package/authz.html')
 
     def delete(self, id):
 
