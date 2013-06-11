@@ -10,8 +10,9 @@
 
 {% block primary_content_inner %}
   <h2 class="page-heading">{{ _('My Groups') }}</h2>
-  {% if c.groups %}
-    {% snippet "group/snippets/group_list.html", groups=c.groups %}
+  {% set groups = h.groups_available(am_member=True) %}
+  {% if groups %}
+    {% snippet "group/snippets/group_list.html", groups=groups %}
   {% else %}
     <p class="empty">
       {{ _('You are not a member of any groups.') }}
