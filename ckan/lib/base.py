@@ -19,11 +19,11 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan.lib import i18n
+import ckan.lib.i18n as i18n
 import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter, IAuthenticator
+import ckan.plugins as p
 import ckan.model as model
 
 # These imports are for legacy usages and will be removed soon these should
@@ -44,7 +44,7 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 def abort(status_code=None, detail='', headers=None, comment=None):
     if status_code == 401:
         # Allow IAuthenticator plugins to alter the abort
-        for item in PluginImplementations(IAuthenticator):
+        for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)
             (status_code, detail, headers, comment) = result
 
@@ -145,7 +145,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         )
         stream = template.generate(**globs)
 
-        for item in PluginImplementations(IGenshiStreamFilter):
+        for item in p.PluginImplementations(p.IGenshiStreamFilter):
             stream = item.filter(stream)
 
         if loader_class == NewTextTemplate:
@@ -252,7 +252,7 @@ class BaseController(WSGIController):
 
         # Authentication plugins get a chance to run here break as soon as a
         # user is identified.
-        authenticators = PluginImplementations(IAuthenticator)
+        authenticators = p.PluginImplementations(p.IAuthenticator)
         if authenticators:
             for item in authenticators:
                 item.identify()

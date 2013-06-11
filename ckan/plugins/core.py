@@ -242,12 +242,10 @@ def _get_service(plugin_name):
                     group=group,
                     name=plugin_name
                 )
-                break
+                return plugin.load()(name=plugin_name)
             except ValueError:
                 pass
             else:
-                raise PluginNotFoundException(plugin)
-
-        return plugin.load()(name=plugin_name)
+                raise PluginNotFoundException(plugin_name)
     else:
-        raise TypeError('Expected a plugin name', plugin)
+        raise TypeError('Expected a plugin name', plugin_name)
