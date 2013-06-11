@@ -1,12 +1,18 @@
 <section class="group-list module module-narrow module-shallow">
   <header class="module-heading media">
-    {% set url=h.url_for(controller='group', action='read', id=group.name) %}
-    {% set truncate=truncate or 0 %}
+    {% set url = h.url_for(controller='group', action='read', id=group.name) %}
+    {% set truncate = truncate or 0 %}
+    {% set truncate_title = truncate_title or 0 %}
+    {% set title = group.title or group.name %}
     <a class="media-image" href="{{ url }}">
       <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="85" alt="{{ group.name }}" />
     </a>
     <div class="media-content">
-      <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
+      <h3 class="media-heading">
+        <a href={{ url }}>
+          {{ title if truncate_title == 0 else h.truncate(title, truncate_title) }}
+        </a>
+      </h3>
       {% if group.description %}
         {% if truncate == 0 %}
           <p>{{ h.markdown_extract(group.description)|urlize }}</p>

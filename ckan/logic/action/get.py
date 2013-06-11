@@ -1305,6 +1305,9 @@ def package_search(context, data_dict):
     if data_dict.get('sort') in (None, 'rank'):
         data_dict['sort'] = 'score desc, metadata_modified desc'
 
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_modified desc'
+
     results = []
     if not abort:
         # return a list of package ids
