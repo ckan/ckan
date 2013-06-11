@@ -49,8 +49,7 @@
         <div class="nums">
           <dl>
             <dt>{{ _('Followers') }}</dt>
-            {# todo get pkg.num_followers to work #}
-            <dd>{{ h.SI_number_span(0) }}</dd>
+            <dd>{{ h.SI_number_span(pkg.num_followers) }}</dd>
           </dl>
         </div>
         <div class="follow_button">

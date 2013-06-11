@@ -744,6 +744,10 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
 
+    package_dict['num_followers'] = logic.get_action('dataset_follower_count')(
+        {'model': model, 'session': model.Session},
+        {'id': package_dict['id']})
+
     return package_dict
 
 def resource_show(context, data_dict):
