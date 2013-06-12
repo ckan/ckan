@@ -59,6 +59,12 @@ def int_validator(value, context):
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
 
+def natural_number_validator(value, context):
+    value = int_validator(value, context)
+    if value < 0:
+        raise Invalid(_('Must be natural number'))
+    return value
+
 def boolean_validator(value, context):
     if isinstance(value, bool):
         return value
@@ -611,3 +617,12 @@ def role_exists(role, context):
     if role not in new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
+
+
+def list_of_strings(key, data, errors, context):
+    value = data.get(key)
+    if not isinstance(value, list):
+        raise Invalid(_('Not a list'))
+    for x in value:
+        if not isinstance(x, basestring):
+            raise Invalid('%s: %s' % (_('Not a string'), x))
