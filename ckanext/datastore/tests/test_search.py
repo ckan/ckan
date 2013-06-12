@@ -475,7 +475,6 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
-        plugin.configure(pylons.config)
         if plugin.legacy_mode:
             # make sure we undo adding the plugin
             p.unload('datastore')

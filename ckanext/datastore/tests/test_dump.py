@@ -4,9 +4,7 @@ import nose
 from nose.tools import assert_equals
 from pylons import config
 import sqlalchemy.orm as orm
-import paste.fixture
 
-import ckan.config.middleware as middleware
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
@@ -50,22 +48,14 @@ class TestDatastoreDump(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
         engine = db._get_engine(None, {
-            'connection_url': pylons.config['ckan.datastore.write_url']})
+            'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
-
-        cls._original_config = config.copy()
-        config['ckan.plugins'] = 'datastore'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
     def teardown_class(cls):
         helpers.rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-        config.clear()
-        config.update(cls._original_config)
 
     def test_dump_basic(self):
         auth = {'Authorization': str(self.normal_user.apikey)}
