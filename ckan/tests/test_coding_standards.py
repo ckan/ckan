@@ -153,7 +153,6 @@ class TestImportFromCkan(object):
         'ckan/controllers/error.py',
         'ckan/controllers/storage.py',
         'ckan/lib/authenticator.py',
-        'ckan/lib/base.py',
         'ckan/lib/munge.py',
         'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
