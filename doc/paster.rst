@@ -471,6 +471,11 @@ won't clear the index before starting rebuilding it::
 
     paster --plugin=ckan search-index rebuild -r --config=/etc/ckan/std/std.ini
 
+There is also an option available which works like the refresh option but tries to use all processes on the 
+computer to reindex faster::
+
+    paster --plugin=ckan search-index rebuild_fast --config=/etc/ckan/std/std.ini
+
 There are other search related commands, mostly useful for debugging purposes::
 
     search-index check                  - checks for datasets not indexed
