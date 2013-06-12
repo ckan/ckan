@@ -54,7 +54,9 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if not model.engine_is_pg():
+        read_engine = db._get_engine(
+            None, {'connection_url': self.read_url})
+        if not model.engine_is_pg(read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -75,13 +77,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
             @logic.side_effect_free
             def new_resource_show(context, data_dict):
-                engine = db._get_engine(
-                    context,
-                    {'connection_url': self.read_url}
-                )
                 new_data_dict = resource_show(context, data_dict)
                 try:
-                    connection = engine.connect()
+                    connection = read_engine.connect()
                     result = connection.execute(
                         'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
                         new_data_dict['id']
@@ -93,6 +91,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 finally:
                     connection.close()
                 return new_data_dict
+
             self.resource_show_action = new_resource_show
 
     def notify(self, entity, operation):

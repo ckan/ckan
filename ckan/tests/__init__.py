@@ -334,6 +334,7 @@ def is_migration_supported():
     return is_supported_db
 
 def is_datastore_supported():
+    # we assume that the datastore uses the same db engine that ckan uses
     is_supported_db = model.engine_is_pg()
     return is_supported_db
 
