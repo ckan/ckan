@@ -49,6 +49,13 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |solr| replace:: Solr
+.. |restructuredtext| replace:: reStructuredText
+.. |nginx| replace:: Nginx
+.. |sqlite| replace:: SQLite
+.. |python| replace:: Python
+.. |sqlalchemy| replace:: SQLAlchemy
+.. |javascript| replace:: JavaScript
+.. |apache| replace:: Apache
 
 '''
 

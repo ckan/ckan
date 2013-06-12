@@ -1,109 +1,65 @@
-==============================
-Option 1: Package Installation
-==============================
+===========================
+Upgrading a package install
+===========================
 
-This section describes how to install CKAN from packages. This is the
-recommended and the easiest way to install CKAN, but it requires **Ubuntu 12.04
-64-bit**. If you're not using Ubuntu 12.04 64-bit, or if you're installing CKAN
-for development, you should follow :doc:`install-from-source` instead.
 
-If you run into problems, see :doc:`common-error-messages`.
+----------------------------
+Upgrading to a patch release
+----------------------------
 
-.. _run-package-installer:
+.. note::
 
-1. Install the CKAN Package
----------------------------
+   *Patch releases* of CKAN are releases that increment the third digit in the
+   version number. For example, if you're upgrading from CKAN ``2.0`` to CKAN
+   ``2.0.1`` then you're upgrading to a new patch release. Patch releases
+   should not contain any backwards-incompatible changes.
 
-On your Ubuntu 12.04 system, open a terminal and run these commands to install
-CKAN:
+   See :doc:`release-cycle` for more detail about the different types CKAN release.
 
-#. Update Ubuntu's package index::
-
-    sudo apt-get update
-
-#. Install the Ubuntu packages that CKAN requires::
-
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
+Patch releases are distributed in the same package as the minor release they
+belong to, so for example CKAN ``2.0``, ``2.0.1``, ``2.0.2``, etc. will all be
+installed using the CKAN ``2.0`` package (``python-ckan_2.0_amd64.deb``):
 
 #. Download the CKAN package::
 
     wget http://packaging.ckan.org/python-ckan_2.0_amd64.deb
 
-   .. note:: If ``wget`` is not present, you can install it
-       via::
+   You can check the actual CKAN version from a package running the following
+   command::
 
-        sudo apt-get install wget
+    dpkg --info python-ckan_2.0_amd64.deb
 
-#. Install the CKAN package::
+   Look for the ``Version`` field in the output::
+
+    ...
+    Package: python-ckan
+    Version: 2.0.1-3
+    ...
+
+#. Install the package with the following command::
 
     sudo dpkg -i python-ckan_2.0_amd64.deb
 
-.. note:: If you get the following error it means that for some reason the
- Apache WSGI module was not enabled::
+   This will **not** replace or modify any configuration files that you already
+   have on the server, including the CKAN config file or any |apache| or
+   |nginx| configuration files.
 
-    Syntax error on line 1 of /etc/apache2/sites-enabled/ckan_default:
-    Invalid command 'WSGISocketPrefix', perhaps misspelled or defined by a module not included in the server configuration
-    Action 'configtest' failed.
-    The Apache error log may have more information.
-       ...fail!
+   Your CKAN instance should be upgraded straight away.
 
- You can enable it by running these commands in a terminal::
+.. note::
 
-    sudo a2enmod wsgi
-    sudo service apache2 restart
+   When upgrading from 2.0 to 2.0.1 you may see some vdm related warnings when
+   installing the package::
 
+    dpkg: warning: unable to delete old directory '/usr/lib/ckan/default/src/vdm': Directory not empty
 
-2. Install PostgreSQL and Solr
-------------------------------
-
-.. tip::
-
-   You can install |postgres|, |solr| and CKAN on different servers. Just
-   change the :ref:`sqlalchemy.url` and :ref:`solr_url` settings in your
-   |production.ini| file to reference your |postgres| and |solr| servers.
-
-#. Install |postgres| and |solr|, run this command in a terminal::
-
-    sudo apt-get install -y postgresql solr-jetty
-
-   The install will whirr away, then towards the end you'll see this::
-
-     * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
-
-#. Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-   setup |solr|.
-
-#. Follow the instructions in :ref:`postgres-setup` to setup |postgres|,
-   then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
-   set the correct password, database and database user.
-
-#. Initialize your CKAN database by running this command in a terminal::
-
-    sudo ckan db init
-
-#. Optionally, setup the :doc:`DataStore <datastore>` by following the
-   instructions in :doc:`datastore-setup`.
-
-#. Also optionally, you can enable file uploads by following the
-   instructions in :doc:`filestore`.
-
-3. You're done!
----------------
-
-Open http://localhost in your web browser. You should see the CKAN front
-page, which will look something like this:
-
-.. image :: images/9.png
-   :width: 807px
-
-|
-You can now proceed to :doc:`post-installation`.
+   These are due to vdm not longer being installed from source. You can ignore
+   them and delete the folder manually if you want.
 
 
-.. _upgrading-to-2.0:
-
-Upgrading to CKAN 2.0
----------------------
+-------------------------------------------
+Upgrading a 1.X Package Install to CKAN 2.0
+-------------------------------------------
 
 .. note::
 
@@ -114,7 +70,7 @@ Upgrading to CKAN 2.0
 
 The CKAN 2.0 package requires Ubuntu 12.04 64-bit, whereas previous CKAN
 packages used Ubuntu 10.04. CKAN 2.0 also introduces many
-backwards-incompatible feature changes (see :doc:`the changelog <CHANGELOG>`).
+backwards-incompatible feature changes (see :ref:`the changelog <changelog>`).
 So it's not possible to automatically upgrade to a CKAN 2.0 package install.
 
 However, you can install CKAN 2.0 (either on the same server that contained
