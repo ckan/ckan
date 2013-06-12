@@ -228,6 +228,12 @@ class ApiController(base.BaseController):
                                     'message': 'Search error: %r' % e.args}
             return_dict['success'] = False
             return self._finish(409, return_dict, content_type='json')
+        except search.SearchIndexError, e:
+            return_dict['error'] = {'__type': 'Search Index Error',
+                    'message': 'Unable to add package to search index: %s' %
+                    str(e)}
+            return_dict['success'] = False
+            return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
     def _get_action_from_map(self, action_map, register, subregister):
