@@ -525,6 +525,39 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
+    def test_create_ckan_resource_in_package(self):
+        package = model.Package.get('annakarenina')
+        data = {
+            'package_id': package.id
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=200)
+        res_dict = json.loads(res.body)
+
+        assert 'resource_id' in res_dict['result']
+        assert len(model.Package.get('annakarenina').resources) == 3
+
+        res = tests.call_action_api(
+            self.app, 'resource_show', id=res_dict['result']['resource_id'])
+        assert res['url'] == '/datastore/dump/' + res['id'], res
+
+    def test_cant_provide_resource_and_package_id(self):
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+        data = {
+            'resource_id': resource.id,
+            'package_id': package.id
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['error']['__type'] == 'Validation Error'
+
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
 

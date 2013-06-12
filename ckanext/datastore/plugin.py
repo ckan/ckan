@@ -248,7 +248,6 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        print "Load mapping"
         m.connect('/datastore/dump/{resource_id}',
                   controller='ckanext.datastore.controller:DatastoreController',
                   action='dump')

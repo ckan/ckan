@@ -6,6 +6,7 @@ import sqlalchemy
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+import ckan.lib.helpers as h
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
 
@@ -25,10 +26,16 @@ def datastore_create(context, data_dict):
     times to initially insert more data, add fields, change the aliases or indexes
     as well as the primary keys.
 
+    To create a datastore resource and a CKAN resource at the same time,
+    provide a valid ``package_id`` and omit the ``resource_id``.
+
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
+    :param package_id: package in which a new resource will be crated.
+    use instead of ``resource_id``.
+    :type package_id: string
     :param aliases: names for read only aliases of the resource.
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata.
@@ -60,6 +67,28 @@ def datastore_create(context, data_dict):
         raise p.toolkit.ValidationError(errors)
 
     p.toolkit.check_access('datastore_create', context, data_dict)
+
+    if 'package_id' in data_dict and 'resource_id' in data_dict:
+        raise p.toolkit.ValidationError({
+            'resource_id': ['package_id cannot be used with resource_id']
+        })
+
+    if not 'package_id' in data_dict and not 'resource_id' in data_dict:
+        raise p.toolkit.ValidationError({
+            'resource_id': ['resource_id or package_id required']
+        })
+
+    # create ckan resource if package_id was provided
+    if 'package_id' in data_dict:
+        res = p.toolkit.get_action('resource_create')(context, {
+            'package_id': data_dict['package_id'],
+            'url': '_tmp'
+        })
+        res['url'] = h.url_for(
+            controller='ckanext.datastore.controller:DatastoreController',
+            action='dump', resource_id=res['id'])
+        p.toolkit.get_action('resource_update')(context, res)
+        data_dict['resource_id'] = res['id']
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
