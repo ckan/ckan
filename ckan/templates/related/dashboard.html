@@ -6,30 +6,40 @@
 {% block subtitle %}{{ _('Apps & Ideas') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ _('Apps & Ideas') }}</li>
+  <li>{{ _('Apps & Ideas') }}</li>
 {% endblock %}
 
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Apps & Ideas') }}</h1>
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Apps & Ideas') }}{% endblock %}
+      </h1>
 
-      {% if item_count %}
-        {% trans first=page.first_item, last=page.last_item, item_count=item_count %}
-          <p>Showing items <strong>{{ first }} - {{ last }}</strong> of <strong>{{ item_count }}</strong> related items found</p>
-        {% endtrans %}
-      {% elif c.filters.type %}
-        {% trans item_count=item_count %}
-          <p><strong>{{ item_count }}</strong> related items found</p>
-        {% endtrans %}
-      {% else %}
-        <p class="empty">{{ _('There have been no apps submitted yet.') }}
-      {% endif %}
+      {% block related_items %}
+        {% if item_count %}
+          {% trans first=page.first_item, last=page.last_item, item_count=item_count %}
+            <p>Showing items <strong>{{ first }} - {{ last }}</strong> of <strong>{{ item_count }}</strong> related items found</p>
+          {% endtrans %}
+        {% elif c.filters.type %}
+          {% trans item_count=item_count %}
+            <p><strong>{{ item_count }}</strong> related items found</p>
+          {% endtrans %}
+        {% else %}
+          <p class="empty">{{ _('There have been no apps submitted yet.') }}
+        {% endif %}
+      {% endblock %}
 
-      {% snippet "related/snippets/related_list.html", related_items=page.items %}
+      {% block related_list %}
+        {% if page.items %}
+          {% snippet "related/snippets/related_list.html", related_items=page.items %}
+        {% endif %}
+      {% endblock %}
     </div>
 
-    {{ page.pager() }}
+    {% block page_pagination %}
+      {{ page.pager() }}
+    {% endblock %}
   </article>
 {% endblock %}
 

@@ -7,6 +7,52 @@ except ImportError:
 
 from ckan import __version__, __description__, __long_description__, __license__
 
+install_requires = [
+    'Babel>=0.9.6',
+    'Genshi==0.6',
+    'Jinja2>=2.6',
+    'Pylons==0.9.7',
+    'WebTest==1.4.3',  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
+    'apachemiddleware>=0.1.1',
+    'babel>=0.9.6',
+    'fanstatic==0.12',
+    'formalchemy>=1.4.2',
+    'markupsafe>=0.15',
+    'ofs>=0.4.1',
+    'pairtree>=0.7.1-T',
+    'paste>=1.7.5.1',
+    'psycopg2==2.4.5',
+    'python-dateutil>=1.5.0,<2.0.0',
+    'pyutilib.component.core>=4.5.3',
+    'repoze.who-friendlyform>=1.0.8',
+    'repoze.who.plugins.openid>=0.5.3',
+    'repoze.who==1.0.19',
+    'requests==1.1.0',
+    'routes>=1.13',
+    'solrpy>=0.9.5',
+    'sqlalchemy-migrate>=0.7.2',
+    'sqlalchemy==0.7.8',
+    'tempita>=0.5.1',
+    'vdm>=0.11',
+    'webhelpers>=1.3',
+    'webob==1.0.8',
+    'zope.interface>=4.0.1',
+    'unicodecsv>=0.9',
+]
+
+dev_requires = [
+    'ckanclient>=0.10',
+    'docutils>=0.8.1',
+    'httpretty>=0.5',
+    'nose>=1.2.1',
+    'pip-tools>=0.3.1',
+    'Sphinx>=1.2b1',
+]
+
+dependency_links = [
+    'https://github.com/okfn/ckanclient/tarball/master#egg=ckanclient'
+]
+
 setup(
     name='ckan',
     version=__version__,
@@ -17,10 +63,8 @@ setup(
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
-    install_requires=[
-    ],
-    extras_require = {
-    },
+    install_requires=install_requires,
+    extras_require={'dev': dev_requires},
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
@@ -67,7 +111,7 @@ setup(
     main = ckan.config.middleware:make_app
 
     [paste.app_install]
-    main = pylons.util:PylonsInstaller
+    main = ckan.config.install:CKANInstaller
 
     [paste.paster_command]
     db = ckan.lib.cli:ManageDb
@@ -121,7 +165,7 @@ setup(
     datastore=ckanext.datastore.plugin:DatastorePlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
-    json_preview=ckanext.jsonpreview.plugin:JsonPreview
+    text_preview=ckanext.textpreview.plugin:TextPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
@@ -131,7 +175,7 @@ setup(
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
 
     [babel.extractors]
-	    ckan = ckan.lib.extract:extract_ckan
+    ckan = ckan.lib.extract:extract_ckan
     """,
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',

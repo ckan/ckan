@@ -1,10 +1,10 @@
 # coding=UTF-8
 
-"""Helper functions
+'''Helper functions
 
 Consists of functions to typically be used within templates, but also
 available to Controllers. This module is available to templates as 'h'.
-"""
+'''
 import email.utils
 import datetime
 import logging
@@ -36,6 +36,7 @@ import ckan.model as model
 import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
+import ckan.logic as logic
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -56,16 +57,16 @@ def redirect_to(*args, **kw):
 
 
 def url(*args, **kw):
-    """Create url adding i18n information if selected
-    wrapper for pylons.url"""
+    '''Create url adding i18n information if selected
+    wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
 def url_for(*args, **kw):
-    """Create url adding i18n information if selected
-    wrapper for routes.url_for"""
+    '''Create url adding i18n information if selected
+    wrapper for routes.url_for'''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -82,12 +83,12 @@ def url_for(*args, **kw):
 
 
 def url_for_static(*args, **kw):
-    """Create url for static content that does not get translated
+    '''Create url for static content that does not get translated
     eg css, js
-    wrapper for routes.url_for"""
+    wrapper for routes.url_for'''
     # make sure that if we specify the url that it is not unicode
     if args:
-        args = (str(args[0]),) + args[1:]
+        args = (str(args[0]), ) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
 
@@ -119,7 +120,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1] + root
+        root = _routes_default_url_for('/', qualified=True)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -144,13 +145,13 @@ def _add_i18n_to_url(url_to_amend, **kw):
             # we need to strip the root from the url and the add it before
             # the language specification.
             url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale,  url)
+            url = '%s/%s%s' % (root, locale, url)
 
     # stop the root being added twice in redirects
     if no_root:
         url = url_to_amend[len(root):]
         if not default_locale:
-            url = '/%s%s' % (locale,  url)
+            url = '/%s%s' % (locale, url)
 
     if url == '/packages':
         error = 'There is a broken url being created %s' % kw
@@ -162,7 +163,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
 def full_current_url():
     ''' Returns the fully qualified current url (eg http://...) useful
     for sharing etc '''
-    return(url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
+    return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
 
 def lang():
@@ -181,14 +182,14 @@ def lang_native_name(lang=None):
 
 
 class Message(object):
-    """A message returned by ``Flash.pop_messages()``.
+    '''A message returned by ``Flash.pop_messages()``.
 
     Converting the message to a string returns the message text. Instances
     also have the following attributes:
 
     * ``message``: the message text.
     * ``category``: the category specified when the message was created.
-    """
+    '''
 
     def __init__(self, category, message, allow_html):
         self.category = category
@@ -224,14 +225,14 @@ class _Flash(object):
             self.default_category = default_category
         if self.categories and self.default_category not in self.categories:
             raise ValueError("unrecognized default category %r"
-                             % (self.default_category,))
+                             % (self.default_category, ))
 
     def __call__(self, message, category=None, ignore_duplicate=False,
                  allow_html=False):
         if not category:
             category = self.default_category
         elif self.categories and category not in self.categories:
-            raise ValueError("unrecognized category %r" % (category,))
+            raise ValueError("unrecognized category %r" % (category, ))
         # Don't store Message objects in the session, to avoid unpickling
         # errors in edge cases.
         new_message_tuple = (category, message, allow_html)
@@ -244,7 +245,7 @@ class _Flash(object):
                     if m[0] != category:
                         messages[i] = new_message_tuple
                         session.save()
-                    return    # Original message found, so exit early.
+                    return  # Original message found, so exit early.
         messages.append(new_message_tuple)
         session.save()
 
@@ -288,12 +289,12 @@ def _link_active(kwargs):
     highlight_actions = kwargs.get('highlight_actions',
                                    kwargs.get('action', '')).split(' ')
     return (c.controller == kwargs.get('controller')
-                and c.action in highlight_actions)
+            and c.action in highlight_actions)
 
 
 def _link_to(text, *args, **kwargs):
     '''Common link making code for several helper functions'''
-    assert len(args)<2, 'Too many unnamed arguments'
+    assert len(args) < 2, 'Too many unnamed arguments'
 
     def _link_class(kwargs):
         ''' creates classes for the link_to calls '''
@@ -446,7 +447,7 @@ def _make_menu_item(menu_item, title, **kw):
         raise Exception('menu item `%s` cannot be found' % menu_item)
     item = copy.copy(_menu_items[menu_item])
     item.update(kw)
-    active =  _link_active(item)
+    active = _link_active(item)
     needed = item.pop('needed')
     for need in needed:
         if need not in kw:
@@ -482,8 +483,8 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
 
     '''
     if not c.search_facets or \
-       not c.search_facets.get(facet) or \
-       not c.search_facets.get(facet).get('items'):
+            not c.search_facets.get(facet) or \
+            not c.search_facets.get(facet).get('items'):
         return []
     facets = []
     for facet_item in c.search_facets.get(facet)['items']:
@@ -532,9 +533,9 @@ def get_facet_title(name):
         return config_title
 
     facet_titles = {'groups': _('Groups'),
-                  'tags': _('Tags'),
-                  'res_format': _('Formats'),
-                  'license': _('Licence'), }
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license': _('License'), }
     return facet_titles.get(name, name.capitalize())
 
 
@@ -545,8 +546,8 @@ def get_param_int(name, default=10):
 def _url_with_params(url, params):
     if not params:
         return url
-    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v)) \
-                                  for k, v in params]
+    params = [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
+              for k, v in params]
     return url + u'?' + urlencode(params)
 
 
@@ -589,17 +590,14 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 
 def check_access(action, data_dict=None):
-    from ckan.logic import check_access as check_access_logic, NotAuthorized
-
     context = {'model': model,
-                'user': c.user or c.author}
+               'user': c.user or c.author}
     if not data_dict:
         data_dict = {}
-
     try:
-        check_access_logic(action, context, data_dict)
+        logic.check_access(action, context, data_dict)
         authorized = True
-    except NotAuthorized:
+    except logic.NotAuthorized:
         authorized = False
 
     return authorized
@@ -620,7 +618,7 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
         return icon + u' ' + link_to(displayname,
-                       url_for(controller='user', action='read', id=name))
+                                     url_for(controller='user', action='read', id=name))
 
 
 def group_name_to_title(name):
@@ -636,7 +634,7 @@ def markdown_extract(text, extract_length=190):
     will not be truncated.'''
     if (text is None) or (text.strip() == ''):
         return ''
-    plain = re.sub(r'<.*?>', '', markdown(text))
+    plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
     return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
@@ -661,9 +659,9 @@ def icon(name, alt=None, inline=True):
 def resource_icon(res):
     if False:
         icon_name = 'page_white'
-    # if (res.is_404?): icon_name = 'page_white_error'
-    # also: 'page_white_gear'
-    # also: 'page_white_link'
+        # if (res.is_404?): icon_name = 'page_white_error'
+        # also: 'page_white_gear'
+        # also: 'page_white_link'
         return icon(icon_name)
     else:
         return icon(format_icon(res.get('format', '')))
@@ -698,7 +696,7 @@ def linked_gravatar(email_hash, size=100, default=None):
         '<a href="https://gravatar.com/" target="_blank" ' +
         'title="%s">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash, size, default)
-        )
+    )
 
 _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
                             'wavatar', 'retro']
@@ -714,8 +712,8 @@ def gravatar(email_hash, size=100, default=None):
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
         class="gravatar" width="%s" height="%s" />'''
-        % (email_hash, size, default, size, size)
-        )
+                   % (email_hash, size, default, size, size)
+                   )
 
 
 def pager_url(page, partial=None, **kwargs):
@@ -741,6 +739,7 @@ class Page(paginate.Page):
         return super(Page, self).pager(*args, **kwargs)
 
     # Put each page link into a <li> (for Bootstrap to style it)
+
     def _pagerlink(self, page, text, extra_attributes=None):
         anchor = super(Page, self)._pagerlink(page, text)
         extra_attributes = extra_attributes or {}
@@ -749,6 +748,7 @@ class Page(paginate.Page):
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'
     # (for Bootstrap to style them properly)
+
     def _range(self, regexp_match):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
@@ -820,7 +820,7 @@ def date_str_to_datetime(date_str):
 
 
 def parse_rfc_2822_date(date_str, assume_utc=True):
-    """
+    '''
     Parse a date string of the form specified in RFC 2822, and return a
     datetime.
 
@@ -838,7 +838,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
     datetime is 'aware', ie - it has an associated tz_info object.
 
     Returns None if the string cannot be parsed as a valid datetime.
-    """
+    '''
     time_tuple = email.utils.parsedate_tz(date_str)
 
     # Not parsable
@@ -848,7 +848,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
     # No timezone information available in the string
     if time_tuple[-1] is None and not assume_utc:
         return datetime.datetime.fromtimestamp(
-                        email.utils.mktime_tz(time_tuple))
+            email.utils.mktime_tz(time_tuple))
     else:
         offset = 0 if time_tuple[-1] is None else time_tuple[-1]
         tz_info = _RFC2282TzInfo(offset)
@@ -856,7 +856,7 @@ def parse_rfc_2822_date(date_str, assume_utc=True):
 
 
 class _RFC2282TzInfo(datetime.tzinfo):
-    """
+    '''
     A datetime.tzinfo implementation used by parse_rfc_2822_date() function.
 
     In order to return timezone information, a concrete implementation of
@@ -864,23 +864,23 @@ class _RFC2282TzInfo(datetime.tzinfo):
     about it's offset from UTC, has no knowledge of daylight savings time, and
     no knowledge of the timezone name.
 
-    """
+    '''
 
     def __init__(self, offset):
-        """
+        '''
         offset from UTC in seconds.
-        """
+        '''
         self.offset = datetime.timedelta(seconds=offset)
 
     def utcoffset(self, dt):
         return self.offset
 
     def dst(self, dt):
-        """
+        '''
         Dates parsed from an RFC 2822 string conflate timezone and dst, and so
         it's not possible to determine whether we're in DST or not, hence
         returning None.
-        """
+        '''
         return None
 
     def tzname(self, dt):
@@ -904,7 +904,7 @@ def button_attr(enable, type='primary'):
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return package_or_package_dict.get('title', '') or \
-               package_or_package_dict.get('name', '')
+            package_or_package_dict.get('name', '')
     else:
         return package_or_package_dict.title or package_or_package_dict.name
 
@@ -918,14 +918,12 @@ def dataset_link(package_or_package_dict):
     return link_to(
         text,
         url_for(controller='package', action='read', id=name)
-        )
-
+    )
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
     description = resource_dict.get('description', None)
-    url = resource_dict.get('url')
     if name:
         return name
     elif description:
@@ -934,33 +932,30 @@ def resource_display_name(resource_dict):
         if len(description) > max_len:
             description = description[:max_len] + '...'
         return description
-    elif url:
-        return url
     else:
-        noname_string = _('no name')
-        return '[%s] %s' % (noname_string, resource_dict['id'])
+        return _("Unnamed resource")
 
 
 def resource_link(resource_dict, package_id):
     text = resource_display_name(resource_dict)
     url = url_for(controller='package',
-        action='resource_read',
-        id=package_id,
-        resource_id=resource_dict['id'])
+                  action='resource_read',
+                  id=package_id,
+                  resource_id=resource_dict['id'])
     return link_to(text, url)
 
 
 def related_item_link(related_item_dict):
     text = related_item_dict.get('title', '')
     url = url_for(controller='related',
-        action='read',
-        id=related_item_dict['id'])
+                  action='read',
+                  id=related_item_dict['id'])
     return link_to(text, url)
 
 
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
-    return link_to(tag['name'], url)
+    return link_to(tag.get('title', tag['name']), url)
 
 
 def group_link(group):
@@ -1020,6 +1015,7 @@ def convert_to_dict(object_type, objs):
 
     def dictize_revision_list(revision, context):
         # conversionof revision lists
+
         def process_names(items):
             array = []
             for item in items:
@@ -1034,7 +1030,7 @@ def convert_to_dict(object_type, objs):
                'groups': process_names(revision.groups),
                'message': revision.message, }
         return rev
-    import lib.dictization.model_dictize as md
+    import ckan.lib.dictization.model_dictize as md
     converters = {'package': md.package_dictize,
                   'revisions': dictize_revision_list}
     converter = converters[object_type]
@@ -1065,7 +1061,6 @@ def follow_button(obj_type, obj_id):
     :rtype: string
 
     '''
-    import ckan.logic as logic
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
@@ -1092,12 +1087,12 @@ def follow_count(obj_type, obj_id):
     :rtype: int
 
     '''
-    import ckan.logic as logic
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action(action)(context, {'id': obj_id})
+
 
 def _create_url_with_params(params=None, controller=None, action=None,
                             extras=None):
@@ -1113,8 +1108,9 @@ def _create_url_with_params(params=None, controller=None, action=None,
     url = url_for(controller=controller, action=action, **extras)
     return _url_with_params(url, params)
 
+
 def add_url_param(alternative_url=None, controller=None, action=None,
-                   extras=None, new_params=None):
+                  extras=None, new_params=None):
     '''
     Adds extra parameters to existing ones
 
@@ -1138,10 +1134,14 @@ def add_url_param(alternative_url=None, controller=None, action=None,
 
 def remove_url_param(key, value=None, replace=None, controller=None,
                      action=None, extras=None, alternative_url=None):
-    ''' Remove a key from the current parameters. A specific key/value
-    pair can be removed by passing a second value argument otherwise all
-    pairs matching the key will be removed. If replace is given then a
-    new param key=replace will be added.
+    ''' Remove one or multiple keys from the current parameters.
+    The first parameter can be either a string with the name of the key to
+    remove or a list of keys to remove.
+    A specific key/value pair can be removed by passing a second value
+    argument otherwise all pairs matching the key will be removed. If replace
+    is given then a new param key=replace will be added.
+    Note that the value and replace parameters only apply to the first key
+    provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
     via url_for(controller=controller, action=action, **extras)
@@ -1150,14 +1150,20 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     This can be overriden providing an alternative_url, which will be used
     instead.
     '''
+    if isinstance(key, basestring):
+        keys = [key]
+    else:
+        keys = key
+
     params_nopage = [(k, v) for k, v in request.params.items() if k != 'page']
     params = list(params_nopage)
     if value:
-        params.remove((key, value))
+        params.remove((keys[0], value))
     else:
-        [params.remove((k, v)) for (k, v) in params[:] if k == key]
+        for key in keys:
+            [params.remove((k, v)) for (k, v) in params[:] if k == key]
     if replace is not None:
-        params.append((key, replace))
+        params.append((keys[0], replace))
 
     if alternative_url:
         return _url_with_params(alternative_url, params)
@@ -1250,7 +1256,6 @@ def popular(type_, number, min=1, title=None):
 
 def groups_available():
     ''' return a list of available groups '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author}
     data_dict = {'available_only': True}
@@ -1259,7 +1264,6 @@ def groups_available():
 
 def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session,
                'user': c.user}
     data_dict = {'permission': permission}
@@ -1275,16 +1279,16 @@ def user_in_org_or_group(group_id):
     if c.userobj.sysadmin:
         return True
     query = model.Session.query(model.Member) \
-            .filter(model.Member.state == 'active') \
-            .filter(model.Member.table_name == 'user') \
-            .filter(model.Member.group_id == group_id) \
-            .filter(model.Member.table_id == c.userobj.id)
+        .filter(model.Member.state == 'active') \
+        .filter(model.Member.table_name == 'user') \
+        .filter(model.Member.group_id == group_id) \
+        .filter(model.Member.table_id == c.userobj.id)
     return len(query.all()) != 0
 
 
 def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
-        offset=0):
-    '''Return the dashboard activity stream of the given user.
+                              offset=0):
+    '''Return the dashboard activity stream of the current user.
 
     :param user_id: the id of the user
     :type user_id: string
@@ -1299,7 +1303,6 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
     :rtype: string
 
     '''
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     if filter_type:
@@ -1307,19 +1310,18 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
             'dataset': 'package_activity_list_html',
             'user': 'user_activity_list_html',
             'group': 'group_activity_list_html'
-            }
+        }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
         return logic.get_action('dashboard_activity_list_html')(
-            context, {'id': user_id, 'offset': offset})
+            context, {'offset': offset})
 
 
 def recently_changed_packages_activity_stream():
-    import ckan.logic as logic
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
-            context, {})
+        context, {})
 
 
 def escape_js(str_to_escape):
@@ -1331,8 +1333,8 @@ def escape_js(str_to_escape):
        :rtype: string
     '''
     return str_to_escape.replace('\\', '\\\\') \
-                        .replace('\'', '\\\'') \
-                        .replace('"', '\\\"')
+        .replace('\'', '\\\'') \
+        .replace('"', '\\\"')
 
 
 def get_pkg_dict_extra(pkg_dict, key, default=None):
@@ -1361,13 +1363,77 @@ def get_request_param(parameter_name, default=None):
     searches. '''
     return request.params.get(parameter_name, default)
 
+# find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags
+# as this would lead to linkifying links if they are urls.
+RE_MD_GET_INNER_HTML = re.compile(
+    r'(^|(?:<(?!a\b)[^>]*>))([^<]+)(?=<|$)',
+    flags=re.UNICODE
+)
 
-def render_markdown(data):
+# find all `internal links` eg. tag:moo, dataset:1234, tag:"my tag"
+RE_MD_INTERNAL_LINK = re.compile(
+    r'\b(tag|package|dataset|group):((")?(?(3)[ \w\-.]+|[\w\-.]+)(?(3)"))',
+    flags=re.UNICODE
+)
+
+# find external links eg http://foo.com, https://bar.org/foobar.html
+RE_MD_EXTERNAL_LINK = re.compile(
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    flags=re.UNICODE
+)
+
+# find all tags but ignore < in the strings so that we can use it correctly
+# in markdown
+RE_MD_HTML_TAGS = re.compile('<[^><]*>')
+
+
+def html_auto_link(data):
+    '''Linkifies HTML
+
+    tag:... converted to a tag link
+    dataset:... converted to a dataset link
+    group:... converted to a group link
+    http://... converted to a link
+    '''
+
+    LINK_FNS = {
+        'tag': tag_link,
+        'group': group_link,
+        'dataset': dataset_link,
+        'package': dataset_link,
+    }
+
+    def makelink(matchobj):
+        obj = matchobj.group(1)
+        name = matchobj.group(2)
+        title = '%s:%s' % (obj, name)
+        return LINK_FNS[obj]({'name': name.strip('"'), 'title': title})
+
+    def link(matchobj):
+        return '<a href="%s" target="_blank" rel="nofollow">%s</a>' \
+            % (matchobj.group(1), matchobj.group(1))
+
+    def process(matchobj):
+        data = matchobj.group(2)
+        data = RE_MD_INTERNAL_LINK.sub(makelink, data)
+        data = RE_MD_EXTERNAL_LINK.sub(link, data)
+        return matchobj.group(1) + data
+
+    data = RE_MD_GET_INNER_HTML.sub(process, data)
+    return data
+
+
+def render_markdown(data, auto_link=True):
     ''' returns the data as rendered markdown '''
-    # cope with data == None
     if not data:
         return ''
-    return literal(ckan.misc.MarkdownFormat().to_html(data))
+    data = RE_MD_HTML_TAGS.sub('', data.strip())
+    data = markdown(data, safe_mode=True)
+    # tags can be added by tag:... or tag:"...." and a link will be made
+    # from it
+    if auto_link:
+        data = html_auto_link(data)
+    return literal(data)
 
 
 def format_resource_items(items):
@@ -1438,7 +1504,8 @@ def resource_preview(resource, pkg_id):
         reason = None
         if format_lower:
             log.info(
-                _(u'No preview handler for resource of type {0}'.format(format_lower))
+                _(u'No preview handler for resource of type {0}'.format(
+                    format_lower))
             )
         else:
             reason = _(u'The resource format is not specified.')
@@ -1450,6 +1517,7 @@ def resource_preview(resource, pkg_id):
                    embed=directly,
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
+
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1472,6 +1540,7 @@ def list_dict_filter(list_, search_field, output_field, value):
             return item.get(output_field, value)
     return value
 
+
 def SI_number_span(number):
     ''' outputs a span with the number in SI unit eg 14700 -> 14.7k '''
     number = int(number)
@@ -1490,95 +1559,95 @@ localised_filesize = formatters.localised_filesize
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
-           'redirect_to',
-           'url',
-           'url_for',
-           'url_for_static',
-           'lang',
-           'flash',
-           'flash_error',
-           'flash_notice',
-           'flash_success',
-           'nav_link',
-           'nav_named_link',
-           'subnav_link',
-           'subnav_named_route',
-           'default_group_type',
-           'check_access',
-           'linked_user',
-           'group_name_to_title',
-           'markdown_extract',
-           'icon',
-           'icon_html',
-           'icon_url',
-           'resource_icon',
-           'format_icon',
-           'linked_gravatar',
-           'gravatar',
-           'pager_url',
-           'render_datetime',
-           'date_str_to_datetime',
-           'parse_rfc_2822_date',
-           'time_ago_in_words_from_str',
-           'button_attr',
-           'dataset_display_name',
-           'dataset_link',
-           'resource_display_name',
-           'resource_link',
-           'related_item_link',
-           'tag_link',
-           'group_link',
-           'dump_json',
-           'auto_log_message',
-           'snippet',
-           'convert_to_dict',
-           'activity_div',
-           'lang_native_name',
-           'get_facet_items_dict',
-           'unselected_facet_items',
-           'include_resource',
-           'urls_for_resource',
-           'build_nav_main',
-           'build_nav_icon',
-           'build_nav',
-           'debug_inspect',
-           'dict_list_reduce',
-           'full_current_url',
-           'popular',
-           'debug_full_info_as_list',
-           'get_facet_title',
-           'get_param_int',
-           'sorted_extras',
-           'follow_button',
-           'follow_count',
-           'remove_url_param',
-           'add_url_param',
-           'groups_available',
-           'organizations_available',
-           'user_in_org_or_group',
-           'dashboard_activity_stream',
-           'recently_changed_packages_activity_stream',
-           'escape_js',
-           'get_pkg_dict_extra',
-           'get_request_param',
-           'render_markdown',
-           'format_resource_items',
-           'resource_preview',
-           'SI_number_span',
-           'localised_number',
-           'localised_SI_number',
-           'localised_nice_date',
-           'localised_filesize',
-           'list_dict_filter',
-           # imported into ckan.lib.helpers
-           'literal',
-           'link_to',
-           'get_available_locales',
-           'get_locales_dict',
-           'truncate',
-           'file',
-           'mail_to',
-           'radio',
-           'submit',
-           'asbool',
+    'redirect_to',
+    'url',
+    'url_for',
+    'url_for_static',
+    'lang',
+    'flash',
+    'flash_error',
+    'flash_notice',
+    'flash_success',
+    'nav_link',
+    'nav_named_link',
+    'subnav_link',
+    'subnav_named_route',
+    'default_group_type',
+    'check_access',
+    'linked_user',
+    'group_name_to_title',
+    'markdown_extract',
+    'icon',
+    'icon_html',
+    'icon_url',
+    'resource_icon',
+    'format_icon',
+    'linked_gravatar',
+    'gravatar',
+    'pager_url',
+    'render_datetime',
+    'date_str_to_datetime',
+    'parse_rfc_2822_date',
+    'time_ago_in_words_from_str',
+    'button_attr',
+    'dataset_display_name',
+    'dataset_link',
+    'resource_display_name',
+    'resource_link',
+    'related_item_link',
+    'tag_link',
+    'group_link',
+    'dump_json',
+    'auto_log_message',
+    'snippet',
+    'convert_to_dict',
+    'activity_div',
+    'lang_native_name',
+    'get_facet_items_dict',
+    'unselected_facet_items',
+    'include_resource',
+    'urls_for_resource',
+    'build_nav_main',
+    'build_nav_icon',
+    'build_nav',
+    'debug_inspect',
+    'dict_list_reduce',
+    'full_current_url',
+    'popular',
+    'debug_full_info_as_list',
+    'get_facet_title',
+    'get_param_int',
+    'sorted_extras',
+    'follow_button',
+    'follow_count',
+    'remove_url_param',
+    'add_url_param',
+    'groups_available',
+    'organizations_available',
+    'user_in_org_or_group',
+    'dashboard_activity_stream',
+    'recently_changed_packages_activity_stream',
+    'escape_js',
+    'get_pkg_dict_extra',
+    'get_request_param',
+    'render_markdown',
+    'format_resource_items',
+    'resource_preview',
+    'SI_number_span',
+    'localised_number',
+    'localised_SI_number',
+    'localised_nice_date',
+    'localised_filesize',
+    'list_dict_filter',
+    # imported into ckan.lib.helpers
+    'literal',
+    'link_to',
+    'get_available_locales',
+    'get_locales_dict',
+    'truncate',
+    'file',
+    'mail_to',
+    'radio',
+    'submit',
+    'asbool',
 ]

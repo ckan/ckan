@@ -309,10 +309,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert anna.version in res
         assert anna.url in res
         assert 'Some test notes' in res
-        self.check_named_element(res, 'a',
-                                 'http://ckan.net/',
-                                 'target="_blank"',
-                                 'rel="nofollow"')
         assert '<strong>Some bolded text.</strong>' in res
         self.check_tag_and_data(res, 'left arrow', '&lt;')
         self.check_tag_and_data(res, 'umlaut', u'\xfc')
@@ -350,7 +346,7 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         pkg_name = u'link-test',
         CreateTestData.create_arbitrary([
             {'name':pkg_name,
-             'notes':'Decoy link here: decoy:decoy, real links here: package:pkg-1, ' \
+             'notes':'Decoy link here: decoy:decoy, real links here: dataset:pkg-1, ' \
                    'tag:tag_1 group:test-group-1 and a multi-word tag: tag:"multi word with punctuation."',
              }
             ])
@@ -358,9 +354,9 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         res = self.app.get(offset)
         def check_link(res, controller, id):
             id_in_uri = id.strip('"').replace(' ', '%20') # remove quotes and percent-encode spaces
-            self.check_tag_and_data(res, 'a ', '/%s/%s' % (controller, id_in_uri),
-                                    '%s:%s' % (controller, id))
-        check_link(res, 'package', 'pkg-1')
+            self.check_tag_and_data(res, 'a ', '%s/%s' % (controller, id_in_uri),
+                                    '%s:%s' % (controller, id.replace('"', '&#34;')))
+        check_link(res, 'dataset', 'pkg-1')
         check_link(res, 'tag', 'tag_1')
         check_link(res, 'tag', '"multi word with punctuation."')
         check_link(res, 'group', 'test-group-1')
@@ -1557,10 +1553,10 @@ alert('Hello world!');
 
     def test_markdown_html_whitelist(self):
         self.body = str(self.res)
-        self.assert_fragment('<table width="100%" border="1">')
-        self.assert_fragment('<td rowspan="2"><b>Description</b></td>')
-        self.assert_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
-        self.assert_fragment('<td colspan="2"><center>--</center></td>')
+        self.fail_if_fragment('<table width="100%" border="1">')
+        self.fail_if_fragment('<td rowspan="2"><b>Description</b></td>')
+        self.fail_if_fragment('<a href="http://www.nber.org/patents/subcategories.txt" target="_blank" rel="nofollow">subcategory.txt</a>')
+        self.fail_if_fragment('<td colspan="2"><center>--</center></td>')
         self.fail_if_fragment('<script>')
 
     def assert_fragment(self, fragment):

@@ -1,14 +1,15 @@
-import bin.datastore_setup as setup
 import logging
 
 import ckan.lib.cli as cli
+import bin.datastore_setup as setup
 
 log = logging.getLogger(__name__)
 
 
 class SetupDatastoreCommand(cli.CkanCommand):
     '''Perform commands to set up the datastore.
-    Make sure that the datastore urls are set properly before you run these commands.
+    Make sure that the datastore URLs are set properly before you run
+    these commands.
 
     Usage::
 
@@ -16,9 +17,9 @@ class SetupDatastoreCommand(cli.CkanCommand):
 
     Where:
         SQL_SUPER_USER is the name of a postgres user with sufficient
-                         permissions to create new tables, users, and grant
-                         and revoke new permissions.  Typically, this would
-                         be the "postgres" user.
+                       permissions to create new tables, users, and grant
+                       and revoke new permissions.  Typically, this would
+                       be the "postgres" user.
 
     '''
     summary = __doc__.split('\n')[0]
@@ -39,11 +40,16 @@ class SetupDatastoreCommand(cli.CkanCommand):
         cmd = self.args[0]
         self._load_config()
 
-        self.db_write_url_parts = cli.parse_db_config('ckan.datastore.write_url')
-        self.db_read_url_parts = cli.parse_db_config('ckan.datastore.read_url')
-        self.db_ckan_url_parts = cli.parse_db_config('sqlalchemy.url')
+        self.db_write_url_parts = cli.parse_db_config(
+            'ckan.datastore.write_url')
+        self.db_read_url_parts = cli.parse_db_config(
+            'ckan.datastore.read_url')
+        self.db_ckan_url_parts = cli.parse_db_config(
+            'sqlalchemy.url')
 
-        assert self.db_write_url_parts['db_name'] == self.db_read_url_parts['db_name'],\
+        write_db = self.db_write_url_parts['db_name']
+        read_db = self.db_read_url_parts['db_name']
+        assert write_db == read_db,\
             "write and read db have to be the same"
 
         if len(self.args) != 2:

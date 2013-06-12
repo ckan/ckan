@@ -10,20 +10,27 @@
   <div data-module="dashboard">
     {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
     <h2 class="page-heading">
+      {% block page_heading %}
       {{ _('News feed') }}
+      {% endblock %}
       <small>{{ _('Activity from items that you follow') }}</small>
     </h2>
+    {% block activity_stream %}
     {{ c.dashboard_activity_stream }}
+    {% endblock %}
   </div>
 {% endblock %}
 
 {% block secondary_content %}
+  {% block dashboard_activity_stream_context %}
   {% if not c.dashboard_activity_stream_context.dict == None %}
     <div class="context-info dashboard-context">
       <span class="arrow"></span>
       {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
     </div>
   {% endif %}
+  {% endblock %}
+  {% block dashboard_datasets %}
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
       <i class="icon-sitemap"></i>
@@ -44,4 +51,5 @@
       </div>
     {% endif %}
   </div>
+  {% endblock %}
 {% endblock %}

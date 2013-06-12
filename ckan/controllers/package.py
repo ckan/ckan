@@ -41,6 +41,7 @@ flatten_to_string_key = logic.flatten_to_string_key
 
 lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
+
 def _encode_params(params):
     return [(k, v.encode('utf-8') if isinstance(v, basestring) else str(v))
             for k, v in params]
@@ -110,7 +111,6 @@ class PackageController(base.BaseController):
 
         return pt
 
-
     def search(self):
         from ckan.lib.search import SearchError
 
@@ -174,7 +174,6 @@ class PackageController(base.BaseController):
         else:
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
-        c.sort_by_selected = sort_by
 
         def pager_url(q=None, page=None):
             params = list(params_nopage)
@@ -217,10 +216,13 @@ class PackageController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+            default_facet_titles = {
+                    'organization': _('Organizations'),
+                    'groups': _('Groups'),
+                    'tags': _('Tags'),
+                    'res_format': _('Formats'),
+                    'license_id': _('License'),
+                    }
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -245,6 +247,7 @@ class PackageController(base.BaseController):
             }
 
             query = get_action('package_search')(context, data_dict)
+            c.sort_by_selected = query['sort']
 
             c.page = h.Page(
                 collection=query['results'],
@@ -264,9 +267,9 @@ class PackageController(base.BaseController):
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
-            limit = int(request.params.get('_%s_limit' % facet, 10))
+            limit = int(request.params.get('_%s_limit' % facet,
+                                           g.facets_default_number))
             c.search_facets_limits[facet] = limit
-
 
         maintain.deprecate_context_item(
           'facets',
@@ -331,7 +334,7 @@ class PackageController(base.BaseController):
             abort(400, _('Invalid revision format: %r') %
                   'Too many "@" symbols')
 
-        #check if package exists
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
@@ -359,7 +362,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
-        #check if package exists
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             c.pkg = context['package']
@@ -371,7 +374,7 @@ class PackageController(base.BaseController):
         # used by disqus plugin
         c.current_package_id = c.pkg.id
 
-        #render the package
+        # render the package
         package_saver.PackageSaver().render_package(c.pkg_dict)
         return render(self._comments_template(package_type))
 
@@ -400,7 +403,7 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
                                                                   data_dict)
-            #TODO: remove
+            # TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
 
@@ -543,7 +546,6 @@ class PackageController(base.BaseController):
             redirect(h.url_for(controller='package', action='resource_read',
                                id=id, resource_id=resource_id))
 
-
         context = {'model': model, 'session': model.Session,
                    'api_version': 3,
                    'user': c.user or c.author,}
@@ -568,14 +570,14 @@ class PackageController(base.BaseController):
                                   action='resource_edit',
                                   resource_id=resource_id,
                                   id=id)
-        data = resource_dict
+        if not data:
+            data = resource_dict
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new'}
         return render('package/resource_edit.html', extra_vars=vars)
-
-
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
@@ -611,9 +613,16 @@ class PackageController(base.BaseController):
                     abort(401, _('Unauthorized to update dataset'))
                 if not len(data_dict['resources']):
                     # no data so keep on page
-                    h.flash_error(_('You must add at least one data resource'))
-                    redirect(h.url_for(controller='package',
-                                       action='new_resource', id=id))
+                    msg = _('You must add at least one data resource')
+                    # On new templates do not use flash message
+                    if g.legacy_templates:
+                        h.flash_error(msg)
+                        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+                    else:
+                        errors = {}
+                        error_summary = {_('Error'): msg}
+                        return self.new_resource(id, data, errors, error_summary)
                 # we have a resource so let them add metadata
                 redirect(h.url_for(controller='package',
                                    action='new_metadata', id=id))
@@ -1009,33 +1018,6 @@ class PackageController(base.BaseController):
         if not is_included:
             options.insert(1, (pkg.license_id, pkg.license_id))
 
-    def authz(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
-            abort(404, _('Dataset not found'))
-        # needed to add in the tab bar to the top of the auth page
-        c.pkg = pkg
-        c.pkgname = pkg.name
-        c.pkgtitle = pkg.title
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'package': pkg}
-            check_access('package_edit_permissions', context)
-            c.authz_editable = True
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-        except NotAuthorized:
-            c.authz_editable = False
-        if not c.authz_editable:
-            abort(401, _('User %r not authorized to edit %s '
-                               'authorizations') % (c.user, id))
-
-        roles = self._handle_update_of_authz(pkg)
-        self._prepare_authz_info_for_render(roles)
-
-        # c.related_count = len(pkg.related)
-
-        return render('package/authz.html')
-
     def delete(self, id):
 
         if 'cancel' in request.params:
@@ -1172,7 +1154,7 @@ class PackageController(base.BaseController):
             c.package['isopen'] = False
 
         # TODO: find a nicer way of doing this
-        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
+        c.datastore_api = '%s/api/action' % config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
         return render('package/resource_read.html')

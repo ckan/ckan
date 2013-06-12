@@ -1,4 +1,3 @@
-import genshi
 from sqlalchemy import orm
 import ckan.lib.helpers as h
 from ckan.lib.base import *
@@ -22,12 +21,8 @@ class PackageSaver(object):
         render. 
         Note that the actual calling of render('package/read') is left
         to the caller.'''
-        try:
-            notes_formatted = ckan.misc.MarkdownFormat().to_html(pkg.get('notes',''))
-            c.pkg_notes_formatted = genshi.HTML(notes_formatted)
-        except Exception, e:
-            error_msg = "<span class='inline-warning'>%s</span>" % _("Cannot render package description")
-            c.pkg_notes_formatted = genshi.HTML(error_msg)
+        c.pkg_notes_formatted = h.render_markdown(pkg.get('notes'))
+
         c.current_rating, c.num_ratings = ckan.rating.get_rating(context['package'])
         url = pkg.get('url', '')
         c.pkg_url_link = h.link_to(url, url, rel='foaf:homepage', target='_blank') \
