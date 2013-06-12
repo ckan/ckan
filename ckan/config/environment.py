@@ -22,7 +22,6 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.new_authz as new_authz
 import ckan.lib.jinja_extensions as jinja_extensions
-import ckan.logic as logic
 
 from ckan.common import _, ungettext
 
@@ -270,7 +269,11 @@ def update_config():
                              config.get('solr_password'))
     search.check_solr_schema_version()
 
-    config['routes.map'] = routing.make_map()
+    routes_map = routing.make_map()
+    config['routes.map'] = routes_map
+    # The RoutesMiddleware needs its mapper updating if it exists
+    if 'routes.middleware' in config:
+        config['routes.middleware'].mapper = routes_map
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
     # initialise the globals

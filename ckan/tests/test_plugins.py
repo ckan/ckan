@@ -12,8 +12,6 @@ import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
 from ckan.lib.create_test_data import CreateTestData
 
-import ckan.tests.ckantestplugins as ckantestplugins
-
 
 def _make_calls(*args):
     out = []
