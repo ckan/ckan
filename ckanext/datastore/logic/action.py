@@ -411,6 +411,20 @@ def datastore_make_public(context, data_dict):
     db.make_public(context, data_dict)
 
 
+def datapusher_submit(context, data_dict):
+    ''' Submit a job to the datapusher. The datapusher is a service that
+    imports tabular data into the datastore.
+
+    :param resource_id: The resource id of the resource that the data
+        should be imported in. The resource's URL will be used to get the data.
+    :type resource_id: string
+    :param set_url_to_dump: If set to true, the URL of the resource will be set
+        to the :ref:`datastore dump <dump>` URL after the data has been imported.
+    :type set_url_to_dump: boolean
+    '''
+    pass
+
+
 def _resource_exists(context, data_dict):
     # Returns true if the resource exists in CKAN and in the datastore
     model = _get_or_bust(context, 'model')

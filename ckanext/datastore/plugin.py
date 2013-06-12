@@ -232,7 +232,8 @@ class DatastorePlugin(p.SingletonPlugin):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search}
+                   'datastore_search': action.datastore_search,
+                   'datapusher_submit': action.datapusher_submit}
         if not self.legacy_mode:
             actions.update({
                 'datastore_search_sql': action.datastore_search_sql,
