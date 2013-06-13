@@ -93,6 +93,7 @@ class TextPreview(p.SingletonPlugin):
         format_lower = resource['format'].lower()
         if (format_lower in self.no_jsonp_formats and
                 self.proxy_is_enabled and not resource['on_same_domain']):
+            p.toolkit.c.resource['original_url'] = p.toolkit.c.resource['url']
             p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(
                 data_dict)
 

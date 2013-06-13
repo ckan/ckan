@@ -1,7 +1,6 @@
 from logging import getLogger
 
 import ckan.plugins as p
-import ckan.lib.base as base
 
 log = getLogger(__name__)
 
@@ -46,7 +45,9 @@ class PdfPreview(p.SingletonPlugin):
 
     def setup_template_variables(self, context, data_dict):
         if self.proxy_is_enabled and not data_dict['resource']['on_same_domain']:
-            base.c.resource['url'] = proxy.get_proxified_resource_url(data_dict)
+            p.toolkit.c.resource['original_url'] = p.toolkit.c.resource['url']
+            p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(
+                data_dict)
 
     def preview_template(self, context, data_dict):
         return 'pdf.html'
