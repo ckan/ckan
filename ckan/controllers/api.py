@@ -179,15 +179,20 @@ class ApiController(base.BaseController):
                 _('Bad request data: %s') %
                 'Request data JSON decoded to %r but '
                 'it needs to be a dictionary.' % request_data)
+        # if callback is specified we do not want to send that to the search
+        if 'callback' in request_data:
+            del request_data['callback']
         try:
             result = function(context, request_data)
             return_dict['success'] = True
             return_dict['result'] = result
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            return_dict['error'] = {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}
+            return_dict['success'] = False
+            return self._finish(400, return_dict, content_type='json')
         except NotAuthorized:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
@@ -207,13 +212,6 @@ class ApiController(base.BaseController):
             return_dict['success'] = False
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
-        except logic.ParameterError, e:
-            return_dict['error'] = {'__type': 'Parameter Error',
-                                    'message': '%s: %s' %
-                                    (_('Parameter Error'), e.extra_msg)}
-            return_dict['success'] = False
-            log.error('Parameter error: %r' % e.extra_msg)
-            return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
                                     'message': 'Search Query is invalid: %r' %
@@ -225,6 +223,12 @@ class ApiController(base.BaseController):
                                     'message': 'Search error: %r' % e.args}
             return_dict['success'] = False
             return self._finish(409, return_dict, content_type='json')
+        except search.SearchIndexError, e:
+            return_dict['error'] = {'__type': 'Search Index Error',
+                    'message': 'Unable to add package to search index: %s' %
+                    str(e)}
+            return_dict['success'] = False
+            return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
 
     def _get_action_from_map(self, action_map, register, subregister):
@@ -357,9 +361,12 @@ class ApiController(base.BaseController):
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            error_dict = {
+                'success': False,
+                'error': {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}}
+            return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
             log.error('Unable to add package to search index: %s' %
                       request_data)
@@ -409,9 +416,12 @@ class ApiController(base.BaseController):
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
-            #TODO make better error message
-            return self._finish(400, _(u'Integrity Error') +
-                                ': %s - %s' % (e.error, request_data))
+            error_dict = {
+                'success': False,
+                'error': {'__type': 'Integrity Error',
+                                    'message': e.error,
+                                    'data': request_data}}
+            return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
             log.error('Unable to update search index: %s' % request_data)
             return self._finish(500, _(u'Unable to update search index') %
@@ -537,6 +547,10 @@ class ApiController(base.BaseController):
                     if 'fq' in params:
                         del params['fq']
                     params['fq'] = '+capacity:public'
+                    # if callback is specified we do not want to send that to
+                    # the search
+                    if 'callback' in params:
+                        del params['callback']
                     results = query.run(params)
                 return self._finish_ok(results)
             except search.SearchError, e:

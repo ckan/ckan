@@ -89,23 +89,33 @@ def current_package_list_with_resources(context, data_dict):
         at most ``limit`` datasets per page and only one page will be returned
         at a time (optional)
     :type limit: int
-    :param page: when ``limit`` is given, which page to return
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+    :param page: when ``limit`` is given, which page to return, Deprecated use ``offset``
     :type page: int
 
     :rtype: list of dictionaries
 
     '''
     model = context["model"]
-    if 'limit' in data_dict:
-        try:
-            limit = int(data_dict['limit'])
-            if limit < 0:
-                limit = 0
-        except ValueError, e:
-            raise logic.ParameterError("'limit' should be an int")
-    else:
-        limit = None
-    page = int(data_dict.get('page', 1))
+    schema = context.get('schema', logic.schema.default_package_list_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    limit = data_dict.get('limit')
+    offset = int(data_dict.get('offset', 0))
+
+    if not 'offset' in data_dict and 'page' in data_dict:
+        log.warning('"page" parameter is deprecated.  '
+                    'Use the "offset" parameter instead')
+        page = int(data_dict['page'])
+        if page < 1:
+            raise ValidationError(_('Must be larger than 0'))
+        if limit:
+            offset = (page - 1) * limit
+        else:
+            offset = 0
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
@@ -116,7 +126,7 @@ def current_package_list_with_resources(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit is not None:
         query = query.limit(limit)
-        query = query.offset((page-1)*limit)
+    query = query.offset(offset)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
@@ -1038,23 +1048,33 @@ def package_autocomplete(context, data_dict):
 
     :param q: the string to search for
     :type q: string
+    :param limit: the maximum number of resource formats to return (optional,
+        default: 10)
+    :type limit: int
 
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-    q = _get_or_bust(data_dict, 'q')
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
 
-    like_q = u"%s%%" % q
+    model = context['model']
 
     _check_access('package_autocomplete', context, data_dict)
+
+    limit = data_dict.get('limit', 10)
+    q = data_dict['q']
+
+    like_q = u"%s%%" % q
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
     query = query.filter(model.PackageRevision.current==True)
     query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
                                 model.PackageRevision.title.ilike(like_q)))
-    query = query.limit(10)
+    query = query.limit(limit)
 
     q_lower = q.lower()
     pkg_list = []
@@ -1083,16 +1103,19 @@ def format_autocomplete(context, data_dict):
     :rtype: list of strings
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     session = context['session']
 
     _check_access('format_autocomplete', context, data_dict)
 
-    q = data_dict.get('q', None)
-    if not q:
-        return []
-
+    q = data_dict['q']
     limit = data_dict.get('limit', 5)
+
     like_q = u'%' + q + u'%'
 
     query = session.query(model.ResourceRevision.format,
@@ -1121,15 +1144,18 @@ def user_autocomplete(context, data_dict):
         ``'fullname'``, and ``'id'``
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     user = context['user']
-    q = data_dict.get('q',None)
-    if not q:
-        return []
 
     _check_access('user_autocomplete', context, data_dict)
 
-    limit = data_dict.get('limit',20)
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
 
     query = model.User.search(q).limit(limit)
 
@@ -1244,6 +1270,19 @@ def package_search(context, data_dict):
         query cannot be changed.  CKAN always returns the matched datasets as
         dictionary objects.
     '''
+    # sometimes context['schema'] is None
+    schema = (context.get('schema') or
+              logic.schema.default_package_search_schema())
+    if isinstance(data_dict.get('facet.field'), basestring):
+        data_dict['facet.field'] = json.loads(data_dict['facet.field'])
+    data_dict, errors = _validate(data_dict, schema, context)
+    # put the extras back into the data_dict so that the search can
+    # report needless parameters
+    data_dict.update(data_dict.get('__extras', {}))
+    data_dict.pop('__extras', None)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     session = context['session']
 
@@ -1261,7 +1300,10 @@ def package_search(context, data_dict):
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search',False)
+    abort = data_dict.get('abort_search', False)
+
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     if data_dict.get('sort') in (None, 'rank'):
         data_dict['sort'] = 'score desc, metadata_modified desc'
@@ -1271,12 +1313,11 @@ def package_search(context, data_dict):
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
-
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
-        if not context.get('ignore_capacity_check',False):
+        fq = data_dict.get('fq', '')
+        if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
@@ -1443,6 +1484,11 @@ def resource_search(context, data_dict):
     :rtype: dict
 
     '''
+    schema = context.get('schema', logic.schema.default_resource_search_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
 
     # Allow either the `query` or `fields` parameter to be given, but not both.
@@ -1833,7 +1879,11 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Return a dictionary with information about the site's configuration.'''
+    '''Return a dictionary with information about the site's configuration.
+
+    :rtype: dictionary
+
+    '''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2530,7 +2580,7 @@ def user_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingUser.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of User objects.
@@ -2561,7 +2611,7 @@ def dataset_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
@@ -2593,7 +2643,7 @@ def group_followee_list(context, data_dict):
 
     # Get the list of UserFollowingGroup objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingGroup.followee_list(user_id)
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
@@ -2624,6 +2674,12 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of activity dictionaries
 
     '''
+    schema = context.get('schema',
+                         ckan.logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     _check_access('dashboard_activity_list', context, data_dict)
 
     model = context['model']
@@ -2661,6 +2717,8 @@ def dashboard_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    :param id: the id or name of the user
+    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
@@ -2672,6 +2730,12 @@ def dashboard_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
+    schema = context.get(
+        'schema', ckan.logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     activity_stream = dashboard_activity_list(context, data_dict)
     model = context['model']
     offset = int(data_dict.get('offset', 0))
@@ -2679,9 +2743,9 @@ def dashboard_activity_list_html(context, data_dict):
         'controller': 'user',
         'action': 'dashboard',
         'offset': offset,
-        }
+    }
     return activity_streams.activity_list_to_html(context, activity_stream,
-            extra_vars)
+                                                  extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2720,12 +2784,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
             order = 'asc'
         if allowed_fields:
             if field not in allowed_fields:
-                raise logic.ParameterError('Cannot sort by field `%s`' % field)
+                raise ValidationError('Cannot sort by field `%s`' % field)
         if order not in ['asc', 'desc']:
-            raise logic.ParameterError('Invalid sort direction `%s`' % order)
+            raise ValidationError('Invalid sort direction `%s`' % order)
         sorts.append((field, order))
     if total and len(sorts) > total:
-        raise logic.ParameterError(
+        raise ValidationError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
 

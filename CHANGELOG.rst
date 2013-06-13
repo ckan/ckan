@@ -1,20 +1,26 @@
-.. _changelog:
+.. This tocdepth stops Sphinx from putting every subsection title in this file
+   into the master table of contents.
+
+:tocdepth: 1
 
 ---------
 Changelog
 ---------
 
-v2.0.1
+v2.0.1 2013-06-11
 =================
 
 Bug fixes:
  * Use IDatasetForm schema for resource_update (#897)
  * Fixes for CKAN being run on a non-root URL (#948, #913)
+ * Fix resource edit errors losing info (#580)
  * Fix Czech translation (#900)
  * Allow JSON filters for datastore_search on GET requests (#917)
  * Install vdm from the Python Package Index (#764)
  * Allow extra parameters on Solr queries (#739)
  * Create site user at startup if it does not exist (#952)
+ * Fix modal popups positioning (#828)
+ * Fix wrong redirect on dataset form on IE (#963)
 
 
 v2.0 2013-05-10
