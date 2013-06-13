@@ -5,25 +5,26 @@ ckan.module('pdfpreview', function (jQuery) {
       // set pdfjs worker uri
       PDFJS.workerSrc = pdfjs_workerSrc;
 
-      var resource_url = preload_resource['url'];
-
       // use CORS, if supported by browser and server
       if (jQuery.support.cors && preload_resource['original_url'] !== undefined) {
-        jQuery.ajax({
+        jQuery.ajax(preload_resource['original_url'], {
           type: 'HEAD',
-          async: true,
-          url: preload_resource['original_url'],
           success: function(message,text,response){
-            resource_url = preload_resource['original_url'];
+            loadPdfJsView({
+              file: preload_resource['original_url']
+            });
+          },
+          error: function() {
+            loadPdfJsView({
+              file: preload_resource['url']
+            });
           }
         });
+      } else {
+        loadPdfJsView({
+          file: preload_resource['url']
+        });
       }
-
-      var params = {
-        file: resource_url
-      };
-
-      loadPdfJsView(params);
     }
   };
 });

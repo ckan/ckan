@@ -51,19 +51,23 @@ ckan.module('textpreview', function (jQuery, _) {
         p = this.options.parameters.text;
       }
 
-      var resource_url = preload_resource['url'];
-
       // use CORS, if supported by browser and server
       if (jQuery.support.cors && preload_resource['original_url'] !== undefined) {
-        jQuery.ajax({
+        jQuery.ajax(preload_resource['original_url'], {
           type: 'HEAD',
-          async: true,
-          url: preload_resource['original_url'],
           success: function(message,text,response){
-            resource_url = preload_resource['original_url'];
+            self.showPreview(p, preload_resource['original_url']);
+          },
+          error: function() {
+            self.showPreview(p, preload_resource['url']);
           }
         });
+      } else {
+        self.showPreview(p, preload_resource['url']);
       }
+    },
+    showPreview: function (p, resource_url) {
+      var self = this;
 
       jQuery.ajax(resource_url, {
         type: 'GET',
