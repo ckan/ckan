@@ -101,6 +101,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
@@ -631,6 +632,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
@@ -669,6 +671,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
