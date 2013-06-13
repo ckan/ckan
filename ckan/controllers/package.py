@@ -75,9 +75,6 @@ class PackageController(base.BaseController):
     def _edit_template(self, package_type):
         return lookup_package_plugin(package_type).edit_template()
 
-    def _comments_template(self, package_type):
-        return lookup_package_plugin(package_type).comments_template()
-
     def _search_template(self, package_type):
         return lookup_package_plugin(package_type).search_template()
 
@@ -356,27 +353,6 @@ class PackageController(base.BaseController):
         template = template[:template.index('.') + 1] + format
 
         return render(template, loader_class=loader)
-
-    def comments(self, id):
-        package_type = self._get_package_type(id)
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
-        # check if package exists
-        try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-            c.pkg = context['package']
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        # used by disqus plugin
-        c.current_package_id = c.pkg.id
-
-        # render the package
-        package_saver.PackageSaver().render_package(c.pkg_dict)
-        return render(self._comments_template(package_type))
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
