@@ -4,6 +4,7 @@ import ckan.new_authz as new_authz
 from ckan.common import _
 
 
+@logic.auth_sysadmins_check
 def package_create(context, data_dict=None):
     user = context['user']
     if not new_authz.auth_is_registered_user():
