@@ -1263,8 +1263,11 @@ def package_search(context, data_dict):
     # the query
     abort = data_dict.get('abort_search',False)
 
-    if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_modified desc'
+    if data_dict.get('sort') in (None, 'rank', 'metadata_modified'):
+        if data_dict['q']:
+            data_dict['sort'] = 'score desc'
+        else:
+            data_dict['sort'] = 'metadata_modified desc'
 
     results = []
     if not abort:
