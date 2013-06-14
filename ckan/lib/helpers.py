@@ -1457,7 +1457,12 @@ def format_resource_items(items):
             continue
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
-            value = formatters.localised_filesize(int(value))
+            try:
+                value = formatters.localised_filesize(int(value))
+            except ValueError:
+                # Sometimes values that can't be converted to ints can sneak
+                # into the db. In this case, just leave them as they are.
+                pass
         elif isinstance(value, basestring):
             # check if strings are actually datetime/number etc
             if re.search(reg_ex_datetime, value):
