@@ -587,6 +587,9 @@ class PackageController(base.BaseController):
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
+                except NotFound:
+                    abort(404,
+                      _('The dataset {id} could not be found.').format(id=id))
                 if not len(data_dict['resources']):
                     # no data so keep on page
                     msg = _('You must add at least one data resource')
@@ -616,6 +619,9 @@ class PackageController(base.BaseController):
                 return self.new_resource(id, data, errors, error_summary)
             except NotAuthorized:
                 abort(401, _('Unauthorized to create a resource'))
+            except NotFound:
+                abort(404,
+                    _('The dataset {id} could not be found.').format(id=id))
             if save_action == 'go-metadata':
                 # go to final stage of add dataset
                 redirect(h.url_for(controller='package',
@@ -640,7 +646,10 @@ class PackageController(base.BaseController):
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
-        pkg_dict = get_action('package_show')(context, {'id': id})
+        try:
+            pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('The dataset {id} could not be found.').format(id=id))
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
         if pkg_dict['state'] == 'draft':
