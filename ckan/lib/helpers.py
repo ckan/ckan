@@ -90,9 +90,10 @@ def url_for_static(*args, **kw):
     def fix_arg(arg):
         # make sure that if we specify the url that it is not unicode and
         # starts with a /
+        arg = str(arg)
         if not arg.startswith('/'):
-            arg = '/%s' % arg
-        return str(arg)
+            arg = '/' + arg
+        return arg
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
