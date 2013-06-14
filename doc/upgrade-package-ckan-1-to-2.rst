@@ -1,16 +1,17 @@
-Upgrading a Package Install to CKAN 2.0
-=======================================
+==============================================
+Upgrading a CKAN 1 package install to CKAN 2.0
+==============================================
 
 .. note::
 
-   If you want to upgrade to a 1.X version of CKAN rather than to CKAN 2.0, see
-   the `documentation
-   <http://docs.ckan.org/en/ckan-1.8/install-from-package.html#upgrading-a-package-install>`_
+   If you want to upgrade a CKAN 1.x package install to a newer version of
+   CKAN 1 (as opposed to upgrading to CKAN 2), see the
+   `documentation <http://docs.ckan.org/en/ckan-1.8/install-from-package.html#upgrading-a-package-install>`_
    relevant to the old CKAN packaging system.
 
 The CKAN 2.0 package requires Ubuntu 12.04 64-bit, whereas previous CKAN
 packages used Ubuntu 10.04. CKAN 2.0 also introduces many
-backwards-incompatible feature changes (see :ref:`the changelog <changelog>`).
+backwards-incompatible feature changes (see :doc:`the changelog <changelog>`).
 So it's not possible to automatically upgrade to a CKAN 2.0 package install.
 
 However, you can install CKAN 2.0 (either on the same server that contained
@@ -73,3 +74,5 @@ database and any custom configuration, extensions or templates to your new CKAN
    to be adapted before they can be used with CKAN 2.0. CKAN 2.0 introduces
    an entirely new template system based on Jinja2 rather than on Genshi.
    See :doc:`theming` for details.
+
+

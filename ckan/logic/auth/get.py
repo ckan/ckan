@@ -59,8 +59,8 @@ def organization_list(context, data_dict):
 def organization_list_for_user(context, data_dict):
     return {'success': True}
 
-def licence_list(context, data_dict):
-    # Licences list is visible by default
+def license_list(context, data_dict):
+    # Licenses list is visible by default
     return {'success': True}
 
 def tag_list(context, data_dict):
@@ -262,3 +262,11 @@ def dataset_followee_list(context, data_dict):
 
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
+
+
+def user_reset(context, data_dict):
+    return {'success': True}
+
+
+def request_reset(context, data_dict):
+    return {'success': True}

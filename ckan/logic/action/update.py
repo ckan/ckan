@@ -921,10 +921,10 @@ def user_role_update(context, data_dict):
 
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     if not bool(new_user_ref):
-        raise logic.ParameterError('You must provide the "user" parameter.')
+        raise ValidationError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -937,13 +937,6 @@ def user_role_update(context, data_dict):
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
-#    if isinstance(domain_object, model.Package):
-#        _check_access('package_edit_permissions', context, data_dict)
-#    elif isinstance(domain_object, model.Group):
-#        _check_access('group_edit_permissions', context, data_dict)
-#    # Todo: 'system' object
-#    else:
-#        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
@@ -1028,8 +1021,8 @@ def send_email_notifications(context, data_dict):
 
     if not converters.asbool(
             config.get('ckan.activity_streams_email_notifications')):
-        raise logic.ParameterError('ckan.activity_streams_email_notifications'
-                ' is not enabled in config')
+        raise ValidationError('ckan.activity_streams_email_notifications'
+                              ' is not enabled in config')
 
     email_notifications.get_and_send_notifications_for_all_users()
 

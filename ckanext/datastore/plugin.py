@@ -19,6 +19,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
 
     legacy_mode = False
@@ -52,7 +53,9 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if not model.engine_is_pg():
+        read_engine = db._get_engine(
+            None, {'connection_url': self.read_url})
+        if not model.engine_is_pg(read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -76,13 +79,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
         @logic.side_effect_free
         def new_resource_show(context, data_dict):
-            engine = db._get_engine(
-                context,
-                {'connection_url': self.read_url}
-            )
             new_data_dict = resource_show(context, data_dict)
             try:
-                connection = engine.connect()
+                connection = read_engine.connect()
                 result = connection.execute(
                     'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
                     new_data_dict['id']
@@ -100,6 +99,24 @@ class DatastorePlugin(p.SingletonPlugin):
         if not hasattr(resource_show, '_datastore_wrapped'):
             new_resource_show._datastore_wrapped = True
             logic._actions['resource_show'] = new_resource_show
+
+    def notify(self, entity, operation):
+        if not isinstance(entity, model.Package) or self.legacy_mode:
+            return
+        # if a resource is new, it cannot have a datastore resource, yet
+        if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True}
+            if entity.private:
+                func = p.toolkit.get_action('datastore_make_private')
+            else:
+                func = p.toolkit.get_action('datastore_make_public')
+            for resource in entity.resources:
+                try:
+                    func(context, {
+                        'connection_url': self.write_url,
+                        'resource_id': resource.id})
+                except p.toolkit.ObjectNotFound:
+                    pass
 
     def _log_or_raise(self, message):
         if self.config.get('debug'):
@@ -215,14 +232,18 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search}
         if not self.legacy_mode:
-            actions['datastore_search_sql'] = action.datastore_search_sql
+            actions.update({
+                'datastore_search_sql': action.datastore_search_sql,
+                'datastore_make_private': action.datastore_make_private,
+                'datastore_make_public': action.datastore_make_public})
         return actions
 
     def get_auth_functions(self):
         return {'datastore_create': auth.datastore_create,
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
-                'datastore_search': auth.datastore_search}
+                'datastore_search': auth.datastore_search,
+                'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
         print "Load mapping"
