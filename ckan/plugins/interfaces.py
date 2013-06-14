@@ -690,16 +690,6 @@ class IDatasetForm(Interface):
 
         '''
 
-    def comments_template(self):
-        '''Return the path to the template for the dataset comments page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/comments.html'``.
-
-        :rtype: string
-
-        '''
-
     def search_template(self):
         '''Return the path to the template for use in the dataset search page.
 
