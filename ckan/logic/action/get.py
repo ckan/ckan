@@ -1264,7 +1264,7 @@ def package_search(context, data_dict):
     abort = data_dict.get('abort_search',False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        if data_dict['q']:
+        if data_dict.get('q'):
             data_dict['sort'] = 'score desc, metadata_modified desc'
         else:
             data_dict['sort'] = 'metadata_modified desc'
