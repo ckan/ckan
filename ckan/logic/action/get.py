@@ -658,10 +658,13 @@ def user_list(context, data_dict):
 def package_relationships_list(context, data_dict):
     '''Return a dataset (package)'s relationships.
 
-    :param id: the id or name of the first package
-    :param id2: the id or name of the second package
-    :param rel: relationship as string see ``package_relationship_create()``
-        for the relationship types (optional)
+    :param id: the id or name of the first package.
+    :type id: string
+    :param id2: the id or name of the second package.
+    :type id: string
+    :param rel: relationship as string see
+        :func:`ckan.logic.action.create.package_relationship_create()` for the
+        relationship types (optional).
 
     :rtype: list of dictionaries
 

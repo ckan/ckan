@@ -1140,10 +1140,13 @@ def group_member_create(context, data_dict):
 
     You must be authorized to edit the group.
 
-    :param id: the id or name of the group
-    :param username: name or id of the user to be made member of the group
+    :param id: the id or name of the group.
+    :type id: string
+    :param username: name or id of the user to be made member of the group.
+    :type username: string
     :param role: role of the user in the group. One of ``member``, ``editor``,
         or ``admin``.
+    :type role: string
 
     :returns: the newly created (or updated) membership
     :rtype: dictionary
@@ -1156,11 +1159,14 @@ def organization_member_create(context, data_dict):
 
     You must be authorized to edit the organization.
 
-    :param id: the id or name of the organization
+    :param id: the id or name of the organization.
+    :type id: string
     :param username: name or id of the user to be made member of the
-        organization
+        organization.
+    :type username: string
     :param role: role of the user in the organization. One of ``member``,
         ``editor``, or ``admin``.
+    :type role: string
 
     :returns: the newly created (or updated) membership
     :rtype: dictionary

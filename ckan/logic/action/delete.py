@@ -418,7 +418,7 @@ def _group_or_org_member_delete(context, data_dict=None):
 
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    user_id = data_dict.get('user_id')
+    user_id = data_dict.get('username')
     member_dict = {
         'id': group.id,
         'object': user_id,
@@ -433,23 +433,27 @@ def _group_or_org_member_delete(context, data_dict=None):
 
 
 def group_member_delete(context, data_dict=None):
-    '''Remove a user from a group
+    '''Remove a user from a group.
 
     You must be authorized to edit the group.
 
-    :param id: the id or name of the group
-    :param username: name or id of the user to be removed
+    :param id: the id or name of the group.
+    :type id: string
+    :param username: name or id of the user to be removed.
+    :type username: string
 
     '''
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
-    '''Remove a user from a organization
+    '''Remove a user from a organization.
 
     You must be authorized to edit the organization.
 
-    :param id: the id or name of the organization
-    :param username: name or id of the user to be removed
+    :param id: the id or name of the organization.
+    :type id: string
+    :param username: name or id of the user to be removed.
+    :type username: string
 
     '''
     return _group_or_org_member_delete(context, data_dict)
