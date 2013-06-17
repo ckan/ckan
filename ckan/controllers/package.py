@@ -62,7 +62,6 @@ def search_url(params, package_type=None):
         url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
 
-
 class PackageController(BaseController):
 
     def _package_form(self, package_type=None):

@@ -37,7 +37,7 @@ def is_sysadmin(username):
         # c is not available
         pass
     # get user from the database
-    user = model.User.get(username)
+    user = model.User.get(username) if not isinstance(username, model.User) else username
     if user and user.sysadmin:
         return True
     return False

@@ -87,6 +87,17 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         return meta.Session.query(_package.Package).filter_by(
             id=self.table_id).all()
 
+    def __unicode__(self):
+        if self.table_name == 'package':
+            table_info = 'package=%s' % Session.query(Package).get(self.table_id).name
+        elif self.table_name == 'group':
+            table_info = 'group=%s' % Session.query(Group).get(self.table_id).name
+        else:
+            table_info = 'table_name=%s table_id=%s' % (self.table_name, self.table_id)
+        return u'<Member group=%s %s capacity=%s state=%s>' % \
+               (self.group.name if self.group else repr(self.group),
+                table_info, self.capacity, self.state)
+
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
@@ -143,6 +154,27 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         self.approval_status = status
         if status == "denied":
             pass
+
+    def members_of_type(self, object_type, capacity=None):
+        # DR: This method was lost when organization split off group and
+        # then was merged again. I think it is useful to add it back in.
+        from ckan import model
+        object_type_string = object_type.__name__.lower()
+        query = meta.Session.query(object_type).\
+               filter(model.Group.id == self.id).\
+               filter(model.Member.state == 'active').\
+               filter(model.Member.table_name == object_type_string)
+
+        if hasattr(object_type,'state'):
+            query = query.filter(object_type.state == 'active' )
+
+        if capacity:
+            query = query.filter(model.Member.capacity == capacity)
+
+        query = query.join(model.Member, member_table.c.table_id == getattr(object_type,'id') ).\
+               join(model.Group, group_table.c.id == member_table.c.group_id)
+
+        return query
 
     def get_children_groups(self, type='group'):
         # Returns a list of dicts where each dict contains "id", "name",

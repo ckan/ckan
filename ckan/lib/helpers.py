@@ -474,11 +474,10 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-def get_facet_items_dict(facet, limit=10, exclude_active=False):
-    '''Return the list of unselected facet items for the given facet, sorted
-    by count.
+def get_facet_items_dict(facet, limit=10, exclude_active=False, sort_by='count'):
+    '''Return the list of facet items for the given facet, sorted.
 
-    Returns the list of unselected facet contraints or facet items (e.g. tag
+    Returns the list of facet contraints or facet items (e.g. tag
     names like "russian" or "tolstoy") for the given search facet (e.g.
     "tags"), sorted by facet item count (i.e. the number of search results that
     match each facet item).
@@ -505,7 +504,7 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    facets = sorted(facets, key=lambda item: item[sort_by], reverse=(sort_by=='count'))
     if c.search_facets_limits:
         limit = c.search_facets_limits.get(facet)
     if limit:
@@ -514,7 +513,7 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
         return facets
 
 
-def unselected_facet_items(facet, limit=10):
+def unselected_facet_items(facet, limit=10, sort_by='count'):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -532,7 +531,7 @@ def unselected_facet_items(facet, limit=10):
     limit -- the max. number of facet items to return.
 
     '''
-    return get_facet_items_dict(facet, limit=limit, exclude_active=True)
+    return get_facet_items_dict(facet, limit=limit, exclude_active=True, sort_by=sort_by)
 
 
 @maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be removed.')

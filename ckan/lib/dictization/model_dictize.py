@@ -105,7 +105,8 @@ def extras_list_dictize(extras_list, context):
 def _unified_resource_format(format_):
     ''' Convert resource formats into a more uniform set.
     eg .json, json, JSON, text/json all converted to JSON.'''
-
+    if not format_:
+        return ''
     format_clean = format_.lower().split('/')[-1].replace('.', '')
     formats = {
         'csv' : 'CSV',

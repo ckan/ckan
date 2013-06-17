@@ -157,7 +157,8 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False, def
         package_index.insert_dict(pkg_dict)
     else:
         package_ids = [r[0] for r in model.Session.query(model.Package.id).
-                       filter(model.Package.state == 'active').all()]
+                       filter(model.Package.state == 'active').
+                       order_by(model.Package.name).all()]
         if only_missing:
             log.info('Indexing only missing packages...')
             package_query = query_for(model.Package)
