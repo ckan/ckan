@@ -1564,6 +1564,14 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+def new_activities():
+    # If the user is logged in add their number of new activities to the
+    # template context.
+    if not c.userobj:
+        return None
+    action = logic.get_action('dashboard_new_activities_count')
+    return action({}, {})
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1647,6 +1655,7 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'new_activities',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
