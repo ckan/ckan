@@ -438,22 +438,22 @@ def group_member_delete(context, data_dict=None):
 
     You must be authorized to edit the group.
 
-    :param id: the id or name of the group.
+    :param id: the id or name of the group
     :type id: string
-    :param username: name or id of the user to be removed.
+    :param username: name or id of the user to be removed
     :type username: string
 
     '''
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
-    '''Remove a user from a organization.
+    '''Remove a user from an organization.
 
     You must be authorized to edit the organization.
 
-    :param id: the id or name of the organization.
+    :param id: the id or name of the organization
     :type id: string
-    :param username: name or id of the user to be removed.
+    :param username: name or id of the user to be removed
     :type username: string
 
     '''
