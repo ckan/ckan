@@ -822,6 +822,8 @@ def user_create(context, data_dict):
 
     context['user_obj'] = user
     context['id'] = user.id
+    # create dashboard for user
+    model.Dashboard.get(user.id)
     log.debug('Created user %s' % str(user.name))
     return user_dict
 
