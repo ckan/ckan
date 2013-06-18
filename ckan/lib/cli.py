@@ -445,7 +445,6 @@ class RDFExport(CkanCommand):
         '''
         Export datasets as RDF to an output folder.
         '''
-        import urlparse
         import urllib2
         import pylons.config as config
         import ckan.model as model
@@ -455,7 +454,10 @@ class RDFExport(CkanCommand):
         if not os.path.isdir(out_folder):
             os.makedirs(out_folder)
 
-        site_url = config['ckan.site_url']
+        import ckan.lib.helpers as h
+        root_path = h.url_for('/', qualified=False)
+        site_url = config['ckan.site_url'].rstrip('/') + root_path
+
         user = logic.get_action('get_site_user')(
             {'model': model, 'ignore_auth': True}, {}
         )
@@ -470,9 +472,8 @@ class RDFExport(CkanCommand):
             if not dd['state'] == 'active':
                 continue
 
-            url = urlparse.urljoin(site_url,
-                                   'dataset/%s' % dd.get('name', dd['id']))
-            url = url + '.rdf'
+            url = site_url.rstrip('/') + '/dataset/{0}.rdf'.format(
+                dd.get('name', dd['id']))
 
             try:
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
