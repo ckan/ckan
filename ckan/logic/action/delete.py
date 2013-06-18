@@ -419,6 +419,7 @@ def _group_or_org_member_delete(context, data_dict=None):
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
     user_id = data_dict.get('username')
+    user_id = data_dict.get('user_id') if user_id is None else user_id
     member_dict = {
         'id': group.id,
         'object': user_id,
