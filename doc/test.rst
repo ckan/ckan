@@ -25,7 +25,7 @@ environment:
 
 .. parsed-literal::
 
-    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
+    pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
 -------------------
 Testing with SQLite

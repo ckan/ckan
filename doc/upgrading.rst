@@ -1,10 +1,29 @@
-=============
-CKAN Releases
-=============
+==============
+Upgrading CKAN
+==============
+
+This document covers CKAN releases and how to upgrade a site to a newer version
+of CKAN:
+
+* :ref:`releases` describes the different types of CKAN release
+* :ref:`release process` describes the process that the CKAN dev team follows,
+  when we make a new CKAN release
+* Finally, :ref:`upgrading` will walk you through the steps for upgrading a
+  CKAN site to a newer version of CKAN
+
+For a list of CKAN releases and the changes introduced in each release, see the
+:doc:`changelog`.
+
+
+.. _releases:
+
+-------------
+CKAN releases
+-------------
 
 CKAN follows a predictable release cycle so that users can depend on stable
 releases of CKAN, and can plan their upgrades to new releases.
-The :ref:`changelog` documents the main changes in each release.
+The :doc:`changelog` documents the main changes in each release.
 
 Each release has a version number of the form ``M.m`` (eg. 2.1) or ``M.m.p``
 (eg. 1.8.2), where ``M`` is the **major version**, ``m`` is the **minor
@@ -21,7 +40,7 @@ Minor Releases
  Minor releases, such as CKAN 1.8 and CKAN 2.1, increment the minor version
  number. These releases are not as disruptive as major releases, but
  backwards-incompatible changes *may* be introduced in minor releases. The
- :ref:`changelog` will document any breaking changes. We aim to release a minor
+ :doc:`changelog` will document any breaking changes. We aim to release a minor
  version of CKAN roughly every three months.
 
 Patch Releases
@@ -36,9 +55,10 @@ Patch Releases
   - New dependencies
   - Big refactorings or new features in critical parts of the code
 
+.. _release process:
 
 ---------------
-Release Process
+Release process
 ---------------
 
 .. _beta.ckan.org: http://beta.ckan.org
@@ -59,11 +79,14 @@ of CKAN, we will:
 #. During the final week before the release, we'll only allow critical bug
    fixes to be committed on the release branch.
 
+.. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
+.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+
 At some point during the beta period a **strings freeze** will begin.
 That means that no changes to translatable strings are allowed on the release
 branch (no new strings, or changes to existing strings). This will give
 translators time to update the translations on Transifex_. We'll publish a
-**call for translations** to the ``ckan-dev`` and ``ckan-discuss`` mailing
+**call for translations** to the `ckan-dev`_ and `ckan-discuss`_ mailing
 lists, announcing that the new version is ready to be translated.
 
 At some point before the final release, we'll announce an **end of
@@ -87,4 +110,67 @@ Detailed release process instructions for CKAN Developers can be found in the
 
    release-process
 
-.. include:: ../CHANGELOG.rst
+
+.. _upgrading:
+
+--------------
+Upgrading CKAN
+--------------
+
+This section will walk you through the steps to upgrade your CKAN site to a
+newer version of CKAN.
+
+.. note::
+
+    Before upgrading your version of CKAN you should check that any custom
+    templates or extensions you're using work with the new version of CKAN.
+    For example, you could install the new version of CKAN in a new virtual
+    environment and use that to test your templates and extensions.
+
+.. note::
+
+    You should also read the :doc:`changelog` to see if there are any extra
+    notes to be aware of when upgrading to the new version.
+
+
+1. Backup your database
+=======================
+
+You should always backup your CKAN database before upgrading CKAN. If something
+goes wrong with the CKAN upgrade you can use the backup to restore the database
+to its pre-upgrade state.
+
+#. Activate your virtualenv and switch to the ckan source directory, e.g.:
+
+   .. parsed-literal::
+
+    |activate|
+    cd |virtualenv|/src/ckan
+
+#. Backup your CKAN database using the ``db dump`` command, for
+   example:
+
+   .. parsed-literal::
+
+    paster db dump --config=\ |development.ini| my_ckan_database.pg_dump
+
+   This will create a file called ``my_ckan_database.pg_dump``, you can use the
+   the ``db load`` command to restore your database to the state recorded in
+   this file. See :ref:`paster db` for details of the ``db dump`` and ``db
+   load`` commands.
+
+
+2. Upgrade CKAN
+===============
+
+The process of upgrading CKAN differs depending on whether you have a package
+install or a source install of CKAN, and whether you're upgrading to a
+:ref:`major, minor or patch release <releases>` of CKAN. Follow the
+appropriate one of these documents:
+
+.. toctree::
+
+    upgrade-package-ckan-1-to-2
+    upgrade-package-to-patch-release
+    upgrade-package-to-minor-release
+    upgrade-source

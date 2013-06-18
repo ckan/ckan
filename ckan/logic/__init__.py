@@ -13,6 +13,7 @@ import ckan.plugins as p
 from ckan.common import _, c
 
 log = logging.getLogger(__name__)
+_validate = df.validate
 
 
 class AttributeDict(dict):
@@ -46,13 +47,11 @@ class NotAuthorized(ActionError):
     pass
 
 
-class ParameterError(ActionError):
-    pass
-
-
-class ValidationError(ParameterError):
+class ValidationError(ActionError):
 
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
+        if not isinstance(error_dict, dict):
+            error_dict = {'message': error_dict}
         # tags errors are a mess so let's clean them up
         if 'tags' in error_dict:
             tag_errors = []
@@ -352,19 +351,20 @@ def get_or_bust(data_dict, keys):
     e.g single_value = get_or_bust(data_dict, 'a_key')
         value_1, value_2 = get_or_bust(data_dict, ['key1', 'key2'])
     '''
-    values = []
-    errors = {}
 
     if isinstance(keys, basestring):
         keys = [keys]
-    for key in keys:
-        try:
-            value = data_dict[key]
-            values.append(value)
-        except KeyError:
-            errors[key] = _('Missing value')
+
+    import ckan.logic.schema as schema
+    schema = schema.create_schema_for_required_keys(keys)
+
+    data_dict, errors = _validate(data_dict, schema)
+
     if errors:
         raise ValidationError(errors)
+
+    # preserve original key order
+    values = [data_dict[key] for key in keys]
     if len(values) == 1:
         return values[0]
     return tuple(values)

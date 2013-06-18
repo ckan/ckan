@@ -17,7 +17,7 @@
 {% endblock %}
 
 {# logged_in is defined in new_resource.html #}
-{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, error_summary=error_summary, pkg_name=pkg_dict.name, form_action=c.form_action, allow_upload=logged_in) }}{% endblock %}
+{% block form %}{{ h.snippet('package/snippets/resource_edit_form.html', data=data, errors=errors, error_summary=error_summary, pkg_name=pkg_dict.name, form_action=c.form_action, allow_upload=g.ofs_impl and logged_in) }}{% endblock %}
 
 {% block secondary_content %}
   {% snippet 'package/snippets/info.html', pkg=pkg_dict, active=data.id, action='resource_edit' %}
