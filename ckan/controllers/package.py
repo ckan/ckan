@@ -1338,27 +1338,46 @@ class PackageController(base.BaseController):
             on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
             data_dict['resource']['on_same_domain'] = on_same_domain
 
-            # FIXME this wants to not use plugins as it is an imported name
-            # and we already import it an p should really only be in
-            # extensu=ions in my opinion also just make it look nice and be
-            # readable grrrrrr
-            plugins = p.PluginImplementations(p.IResourcePreview)
-            plugins_that_can_preview = [plugin for plugin in plugins
-                                    if plugin.can_preview(data_dict)]
-            if len(plugins_that_can_preview) == 0:
+            plugins_that_can_preview = []
+            plugins_fixable = []
+            for plugin in p.PluginImplementations(p.IResourcePreview):
+                p_info = {'plugin': plugin, 'quality': 1}
+                data = plugin.can_preview(data_dict)
+                # old school plugins return true/False
+                if isinstance(data, bool):
+                    p_info['can_preview'] = data
+                else:
+                    # new school provide a dict
+                    p_info.update(data)
+                # if we can preview
+                if p_info['can_preview']:
+                    plugins_that_can_preview.append(p_info)
+                elif p_info.get('fixable'):
+                    plugins_fixable.append(p_info)
+            num_plugins = len(plugins_that_can_preview)
+            if num_plugins == 0:
+                for plug in plugins_fixable:
+                    log.info('%s would allow previews if %s' % (
+                        plug['plugin'], plugin['fixable']))
                 abort(409, _('No preview has been defined.'))
-            if len(plugins_that_can_preview) > 1:
-                log.warn('Multiple previews are possible. {0}'.format(
-                                            plugins_that_can_preview))
+            elif num_plugins > 1:
+                preview_plugin = plugins_that_can_preview[0]['plugin']
+            else:
+                # multiple plugins
+                plugs = [pl['plugin'] for pl in plugins_that_can_preview]
+                log.warn('Multiple previews are possible. {0}'.format(plugs))
+                qual = max(plugins_that_can_preview, key=lambda x:x['quality'])
+                # we are just grabing one of the best quality here
+                preview_plugins = [pl['plugin'] for pl in
+                                  plugins_that_can_preview
+                                  if pl['quality'] == qual]
+                preview_plugin = preview_plugins[0]
 
-            plugin = plugins_that_can_preview[0]
-            plugin.setup_template_variables(context, data_dict)
-
+            preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
-
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
         else:
-            return render(plugin.preview_template(context, data_dict))
+            return render(preview_plugin.preview_template(context, data_dict))
