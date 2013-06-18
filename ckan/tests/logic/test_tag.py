@@ -152,8 +152,6 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
-        assert res_obj['error'] == {u'__type': u'Validation Error',
-                u'email': [u'Missing value']}
 
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',
