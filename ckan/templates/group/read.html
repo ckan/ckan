@@ -2,6 +2,10 @@
 
 {% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
+{% block add_action %}
+  {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+{% endblock %}
+
 {% block primary_content_inner %}
   {% block packages_list %}
     {% include "package/snippets/search_form.html" %}

@@ -7,12 +7,6 @@
   <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='organization', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
-{% block add_action %}
-  {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
-    {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
-  {% endif %}
-{% endblock %}
-
 {% block edit_action %}
   {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
     {% link_for _('Admin'), controller='organization', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}

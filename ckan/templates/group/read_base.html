@@ -7,10 +7,6 @@
   <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
-{% block add_action %}
-  {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
-{% endblock %}
-
 {% block edit_action %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
     {% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
