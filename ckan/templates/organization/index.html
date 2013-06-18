@@ -6,15 +6,15 @@
   <li class="active">{% link_for _('Organizations'), controller='organization', action='index' %}</li>
 {% endblock %}
 
-{% block add_action_content %}
+{% block page_header %}{% endblock %}
+
+{% block add_action %}
   {% if h.check_access('organization_create') %}
     {% link_for _('Add Organization'), controller='organization', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <div class="module">
-    <div class="module-content">
+{% block primary_content_inner %}
       <h1 class="hide-heading">{% block page_heading %}{{ _('Organizations') }}{% endblock %}</h1>
       {% block organizations_search_form %}
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
@@ -36,11 +36,9 @@
         </p>
       {% endif %}
       {% endblock %}
-    </div>
     {% block page_pagination %}
     {{ c.page.pager() }}
     {% endblock %}
-  </div>
 {% endblock %}
 
 {% block secondary_content %}

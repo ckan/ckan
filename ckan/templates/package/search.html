@@ -3,12 +3,6 @@
 
 {% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
 
-{% block add_action %}
-  {% if h.check_access('package_create') %}
-    {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
-  {% endif %}
-{% endblock %}
-
 {% block breadcrumb_content %}
   <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
 {% endblock %}
@@ -16,6 +10,13 @@
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
+      {% block add_action %}
+        {% if h.check_access('package_create') %}
+          <div class="add_action">
+            {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+          </div>
+        {% endif %}
+      {% endblock %}
       {% block form %}
       <form id="dataset-search" class="dataset-search clearfix" method="get" data-module="select-switch">
         {% block search_input %}

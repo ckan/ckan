@@ -6,15 +6,15 @@
   <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
 {% endblock %}
 
-{% block add_action_content %}
+{% block page_header %}{% endblock %}
+
+{% block add_action %}
   {% if h.check_access('group_create') %}
     {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <div class="module">
-    <div class="module-content">
+{% block primary_content_inner %}
       <h1 class="hide-heading">{{ _('Groups') }}</h1>
       {% block groups_search_form %}
       {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search groups...') %}
@@ -36,11 +36,9 @@
         </p>
       {% endif %}
       {% endblock %}
-    </div>
     {% block page_pagination %}
     {{ c.page.pager() }}
     {% endblock %}
-  </div>
 {% endblock %}
 
 {% block secondary_content %}
