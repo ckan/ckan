@@ -1366,12 +1366,8 @@ class PackageController(base.BaseController):
                 # multiple plugins
                 plugs = [pl['plugin'] for pl in plugins_that_can_preview]
                 log.warn('Multiple previews are possible. {0}'.format(plugs))
-                qual = max(plugins_that_can_preview, key=lambda x:x['quality'])
-                # we are just grabing one of the best quality here
-                preview_plugins = [pl['plugin'] for pl in
-                                  plugins_that_can_preview
-                                  if pl['quality'] == qual]
-                preview_plugin = preview_plugins[0]
+                preview_plugin = max(plugins_that_can_preview,
+                                     key=lambda x: x['quality'])
 
             preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
