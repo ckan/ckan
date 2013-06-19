@@ -505,7 +505,6 @@ class TestPep8(object):
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
-        'ckan/lib/datapreview.py',
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
         'ckan/lib/dictization/model_save.py',

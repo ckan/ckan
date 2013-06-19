@@ -1500,7 +1500,7 @@ def resource_preview(resource, pkg_id):
     if not loadable_in_iframe:
         loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-    if datapreview.can_be_previewed(data_dict):
+    if datapreview.get_preview_plugin(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
                       resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in direct_embed:

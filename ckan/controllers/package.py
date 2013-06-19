@@ -1319,9 +1319,9 @@ class PackageController(base.BaseController):
         '''
         Embeded page for a resource data-preview.
 
-        Depending on the type, different previews are loaded.
-        This could be an img tag where the image is loaded directly or an iframe that
-        embeds a webpage, recline or a pdf preview.
+        Depending on the type, different previews are loaded.  This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, recline or a pdf preview.
         '''
         context = {
             'model': model,
@@ -1335,39 +1335,11 @@ class PackageController(base.BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
-            data_dict['resource']['on_same_domain'] = on_same_domain
 
-            plugins_that_can_preview = []
-            plugins_fixable = []
-            for plugin in p.PluginImplementations(p.IResourcePreview):
-                p_info = {'plugin': plugin, 'quality': 1}
-                data = plugin.can_preview(data_dict)
-                # old school plugins return true/False
-                if isinstance(data, bool):
-                    p_info['can_preview'] = data
-                else:
-                    # new school provide a dict
-                    p_info.update(data)
-                # if we can preview
-                if p_info['can_preview']:
-                    plugins_that_can_preview.append(p_info)
-                elif p_info.get('fixable'):
-                    plugins_fixable.append(p_info)
-            num_plugins = len(plugins_that_can_preview)
-            if num_plugins == 0:
-                for plug in plugins_fixable:
-                    log.info('%s would allow previews if %s' % (
-                        plug['plugin'], plugin['fixable']))
+            preview_plugin = datapreview.get_preview_plugin(data_dict)
+
+            if not preview_plugin:
                 abort(409, _('No preview has been defined.'))
-            elif num_plugins > 1:
-                preview_plugin = plugins_that_can_preview[0]['plugin']
-            else:
-                # multiple plugins
-                plugs = [pl['plugin'] for pl in plugins_that_can_preview]
-                log.warn('Multiple previews are possible. {0}'.format(plugs))
-                preview_plugin = max(plugins_that_can_preview,
-                                     key=lambda x: x['quality'])['plugin']
 
             preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)

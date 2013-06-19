@@ -6,6 +6,7 @@ Functions and data structures that are needed for the ckan data preview.
 """
 
 import urlparse
+import logging
 
 import pylons.config as config
 
@@ -15,6 +16,8 @@ DEFAULT_DIRECT_EMBED = ['png', 'jpg', 'jpeg', 'gif']
 DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml',
                            'n3', 'n-triples', 'turtle', 'plain',
                            'atom', 'rss', 'txt']
+
+log = logging.getLogger(__name__)
 
 
 def compare_domains(urls):
@@ -41,7 +44,7 @@ def compare_domains(urls):
     return True
 
 
-def resource_is_on_same_domain(data_dict):
+def _on_same_domain(data_dict):
     # compare CKAN domain and resource URL
     ckan_url = config.get('ckan.site_url', '//localhost:5000')
     resource_url = data_dict['resource']['url']
@@ -49,14 +52,45 @@ def resource_is_on_same_domain(data_dict):
     return compare_domains([ckan_url, resource_url])
 
 
-def can_be_previewed(data_dict):
-    '''
-    Determines whether there is an extension that can preview the resource.
+def get_preview_plugin(data_dict):
+    '''Determines whether there is an extension that can preview the resource.
 
     :param data_dict: contains a resource and package dict.
         The resource dict has to have a value for ``on_same_domain``
     :type data_dict: dictionary
-    '''
-    data_dict['resource']['on_same_domain'] = resource_is_on_same_domain(data_dict)
-    plugins = p.PluginImplementations(p.IResourcePreview)
-    return any(plugin.can_preview(data_dict) for plugin in plugins)
+
+    Returns a dict of plugins that can preview or ones that are fixable'''
+
+    data_dict['resource']['on_same_domain'] = _on_same_domain(data_dict)
+
+    plugins_that_can_preview = []
+    plugins_fixable = []
+    for plugin in p.PluginImplementations(p.IResourcePreview):
+        p_info = {'plugin': plugin, 'quality': 1}
+        data = plugin.can_preview(data_dict)
+        # old school plugins return true/False
+        if isinstance(data, bool):
+            p_info['can_preview'] = data
+        else:
+            # new school provide a dict
+            p_info.update(data)
+        # if we can preview
+        if p_info['can_preview']:
+            plugins_that_can_preview.append(p_info)
+        elif p_info.get('fixable'):
+            plugins_fixable.append(p_info)
+
+    num_plugins = len(plugins_that_can_preview)
+    if num_plugins == 0:
+        for plug in plugins_fixable:
+            log.info('%s would allow previews if %s' % (
+                plug['plugin'], plug['fixable']))
+    elif num_plugins > 1:
+        preview_plugin = plugins_that_can_preview[0]['plugin']
+    else:
+        # multiple plugins
+        plugs = [pl['plugin'] for pl in plugins_that_can_preview]
+        log.warn('Multiple previews are possible. {0}'.format(plugs))
+        preview_plugin = max(plugins_that_can_preview,
+                             key=lambda x: x['quality'])['plugin']
+    return preview_plugin
