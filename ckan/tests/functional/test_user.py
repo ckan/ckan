@@ -855,16 +855,8 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'No such user: unknown' in res, res # error
 
     def test_request_reset_user_password_using_search(self):
-        CreateTestData.create_user(name='larry1', email='kittens@john.com')
         offset = url_for(controller='user',
                          action='request_reset')
-        res = self.app.get(offset)
-        fv = res.forms['user-password-reset']
-        fv['user'] = 'kittens'
-        res = fv.submit()
-        assert_equal(res.status, 302)
-        assert_equal(res.header_dict['Location'], 'http://localhost/?__no_cache__=True')
-
         CreateTestData.create_user(name='larry2', fullname='kittens')
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
