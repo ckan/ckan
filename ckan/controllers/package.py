@@ -1338,7 +1338,7 @@ class PackageController(base.BaseController):
 
             preview_plugin = datapreview.get_preview_plugin(data_dict)
 
-            if not preview_plugin:
+            if preview_plugin is None:
                 abort(409, _('No preview has been defined.'))
 
             preview_plugin.setup_template_variables(context, data_dict)

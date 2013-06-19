@@ -82,13 +82,16 @@ def get_preview_plugin(data_dict):
 
     num_plugins = len(plugins_that_can_preview)
     if num_plugins == 0:
+        # we didn't find any.  see if any could be made to work
         for plug in plugins_fixable:
             log.info('%s would allow previews if %s' % (
                 plug['plugin'], plug['fixable']))
-    elif num_plugins > 1:
+        preview_plugin = None
+    elif num_plugins == 1:
+        # just one available
         preview_plugin = plugins_that_can_preview[0]['plugin']
     else:
-        # multiple plugins
+        # multiple plugins so get the best one
         plugs = [pl['plugin'] for pl in plugins_that_can_preview]
         log.warn('Multiple previews are possible. {0}'.format(plugs))
         preview_plugin = max(plugins_that_can_preview,
