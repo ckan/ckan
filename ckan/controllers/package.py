@@ -1367,7 +1367,7 @@ class PackageController(base.BaseController):
                 plugs = [pl['plugin'] for pl in plugins_that_can_preview]
                 log.warn('Multiple previews are possible. {0}'.format(plugs))
                 preview_plugin = max(plugins_that_can_preview,
-                                     key=lambda x: x['quality'])
+                                     key=lambda x: x['quality'])['plugin']
 
             preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
