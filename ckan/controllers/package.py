@@ -5,6 +5,7 @@ import datetime
 from pylons import config
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
+import genshi.template.loader
 from paste.deploy.converters import asbool
 
 import ckan.logic as logic
@@ -352,7 +353,15 @@ class PackageController(base.BaseController):
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
-        return render(template, loader_class=loader)
+        try:
+            return render(template, loader_class=loader)
+        except genshi.template.loader.TemplateNotFound:
+            msg = _("Viewing {package_type} datasets in {format} format is "
+                    "not supported (template file {file} not found).".format(
+                    package_type=package_type, format=format, file=template))
+            abort(404, msg)
+
+        assert False, "We should never get here"
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])

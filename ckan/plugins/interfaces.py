@@ -676,6 +676,15 @@ class IDatasetForm(Interface):
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
+        If the user requests the dataset in a format other than HTML
+        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
+        or .n3 to the dataset read URL, see :doc:`linked-data-and-rdf`) then
+        CKAN will try to render
+        a template file with the same path as returned by this function,
+        but a different filename extension, e.g. ``'package/read.rdf'``.
+        If your extension doesn't have this RDF version of the template
+        file, the user will get a 404 error.
+
         :rtype: string
 
         '''
