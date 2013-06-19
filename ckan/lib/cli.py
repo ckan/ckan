@@ -1,5 +1,6 @@
 import collections
 import csv
+import multiprocessing as mp
 import os
 import datetime
 import sys
@@ -8,6 +9,7 @@ import re
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
+import sqlalchemy as sa
 
 import paste.script
 from paste.registry import Registry
@@ -69,7 +71,7 @@ class CkanCommand(paste.script.command.Command):
     default_verbosity = 1
     group_name = 'ckan'
 
-    def _load_config(self):
+    def _get_config(self):
         from paste.deploy import appconfig
         if not self.options.config:
             msg = 'No config file supplied'
@@ -78,7 +80,10 @@ class CkanCommand(paste.script.command.Command):
         if not os.path.exists(self.filename):
             raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
-        conf = appconfig('config:' + self.filename)
+        return appconfig('config:' + self.filename)
+
+    def _load_config(self):
+        conf = self._get_config()
         assert 'ckan' not in dir() # otherwise loggers would be disabled
         # We have now loaded the config. Now we can import ckan for the
         # first time.
@@ -99,21 +104,21 @@ class CkanCommand(paste.script.command.Command):
 class ManageDb(CkanCommand):
     '''Perform various tasks on the database.
 
-    db create # alias of db upgrade
-    db init # create and put in default data
+    db create                      - alias of db upgrade
+    db init                        - create and put in default data
     db clean
-    db upgrade [{version no.}] # Data migrate
-    db version # returns current version of data schema
-    db dump {file-path} # dump to a pg_dump file
-    db dump-rdf {dataset-name} {file-path}
-    db simple-dump-csv {file-path} # dump just datasets in CSV format
-    db simple-dump-json {file-path} # dump just datasets in JSON format
-    db user-dump-csv {file-path} # dump user information to a CSV file
-    db send-rdf {talis-store} {username} {password}
-    db load {file-path} # load a pg_dump from a file
-    db load-only {file-path} # load a pg_dump from a file but don\'t do
-                             # the schema upgrade or search indexing
-    db create-from-model # create database from the model (indexes not made)
+    db upgrade [version no.]       - Data migrate
+    db version                     - returns current version of data schema
+    db dump FILE_PATH              - dump to a pg_dump file
+    db dump-rdf DATASET_NAME FILE_PATH
+    db simple-dump-csv FILE_PATH   - dump just datasets in CSV format
+    db simple-dump-json FILE_PATH  - dump just datasets in JSON format
+    db user-dump-csv FILE_PATH     - dump user information to a CSV file
+    db send-rdf TALIS_STORE USERNAME PASSWORD
+    db load FILE_PATH              - load a pg_dump from a file
+    db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
+                                     the schema upgrade or search indexing
+    db create-from-model           - create database from the model (indexes not made)
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -308,14 +313,19 @@ class ManageDb(CkanCommand):
         print Session.execute('select version from migrate_version;').fetchall()
 
 
+
 class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] [-e] rebuild [dataset-name]     - reindex dataset-name if given, if not then rebuild full search index (all datasets)
-      search-index check                                     - checks for datasets not indexed
-      search-index show {dataset-name}                       - shows index of a dataset
-      search-index clear [dataset-name]                      - clears the search index for the provided dataset or for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
+                                                                 full search index (all datasets)
+      search-index rebuild_fast                                - reindex using multiprocessing using all cores. 
+                                                                 This acts in the same way as rubuild -r [EXPERIMENTAL]
+      search-index check                                       - checks for datasets not indexed
+      search-index show DATASET_NAME                           - shows index of a dataset
+      search-index clear [dataset_name]                        - clears the search index for the provided dataset or
+                                                                 for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -344,14 +354,18 @@ Default is false.'''
                     )
 
     def command(self):
-        self._load_config()
-
         if not self.args:
             # default to printing help
             print self.usage
             return
 
         cmd = self.args[0]
+        # Do not run load_config yet
+        if cmd == 'rebuild_fast':
+            self.rebuild_fast()
+            return
+
+        self._load_config()
         if cmd == 'rebuild':
             self.rebuild()
         elif cmd == 'check':
@@ -400,6 +414,44 @@ Default is false.'''
         package_id =self.args[1] if len(self.args) > 1 else None
         clear(package_id)
 
+    def rebuild_fast(self):
+        ###  Get out config but without starting pylons environment ####
+        conf = self._get_config()
+
+        ### Get ids using own engine, otherwise multiprocess will balk
+        db_url = conf['sqlalchemy.url']
+        engine = sa.create_engine(db_url)
+        package_ids = []
+        result = engine.execute("select id from package where state = 'active';")
+        for row in result:
+            package_ids.append(row[0])
+
+        def start(ids):
+            ## load actual enviroment for each subprocess, so each have thier own
+            ## sa session
+            self._load_config()
+            from ckan.lib.search import rebuild, commit
+            rebuild(package_ids=ids)
+            commit()
+
+        def chunks(l, n):
+            """ Yield n successive chunks from l.
+            """
+            newn = int(len(l) / n)
+            for i in xrange(0, n-1):
+                yield l[i*newn:i*newn+newn]
+            yield l[n*newn-newn:]
+
+        processes = []
+        for chunk in chunks(package_ids, mp.cpu_count()):
+            process = mp.Process(target=start, args=(chunk,))
+            processes.append(process)
+            process.daemon = True
+            process.start()
+
+        for process in processes:
+            process.join()
+
 class Notification(CkanCommand):
     '''Send out modification notifications.
 
@@ -434,7 +486,7 @@ class Notification(CkanCommand):
 
 
 class RDFExport(CkanCommand):
-    '''
+    '''Export active datasets as RDF
     This command dumps out all currently active datasets as RDF into the
     specified folder.
 
@@ -498,8 +550,8 @@ class Sysadmin(CkanCommand):
     Usage:
       sysadmin                      - lists sysadmins
       sysadmin list                 - lists sysadmins
-      sysadmin add <user-name>      - add a user as a sysadmin
-      sysadmin remove <user-name>   - removes user from sysadmins
+      sysadmin add USERNAME         - add a user as a sysadmin
+      sysadmin remove USERNAME      - removes user from sysadmins
     '''
 
     summary = __doc__.split('\n')[0]
@@ -579,16 +631,16 @@ class UserCmd(CkanCommand):
     Usage:
       user                            - lists users
       user list                       - lists users
-      user <user-name>                - shows user properties
-      user add <user-name> [<field>=<value>]
+      user USERNAME                   - shows user properties
+      user add USERNAME [FIELD1=VALUE1 FIELD2=VALUE2 ...]
                                       - add a user (prompts for password
                                         if not supplied).
                                         Field can be: apikey
                                                       password
                                                       email
-      user setpass <user-name>        - set user password (prompts)
-      user remove <user-name>         - removes user from users
-      user search <query>             - searches for a user name
+      user setpass USERNAME           - set user password (prompts)
+      user remove USERNAME            - removes user from users
+      user search QUERY               - searches for a user name
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -735,11 +787,11 @@ class DatasetCmd(CkanCommand):
     '''Manage datasets
 
     Usage:
-      dataset <dataset-name/id>          - shows dataset properties
-      dataset show <dataset-name/id>     - shows dataset properties
+      dataset DATASET_NAME|ID            - shows dataset properties
+      dataset show DATASET_NAME|ID       - shows dataset properties
       dataset list                       - lists datasets
-      dataset delete <dataset-name/id>   - changes dataset state to 'deleted'
-      dataset purge <dataset-name/id>    - removes dataset from db entirely
+      dataset delete [DATASET_NAME|ID]   - changes dataset state to 'deleted'
+      dataset purge [DATASET_NAME|ID]    - removes dataset from db entirely
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -816,12 +868,11 @@ class Celery(CkanCommand):
     '''Celery daemon
 
     Usage:
-        celeryd                 - run the celery daemon
-        celeryd run             - run the celery daemon
-        celeryd run concurrency - run the celery daemon with
-                                  argument 'concurrency'
-        celeryd view            - view all tasks in the queue
-        celeryd clean           - delete all tasks in the queue
+        celeryd <run>            - run the celery daemon
+        celeryd run concurrency  - run the celery daemon with
+                                   argument 'concurrency'
+        celeryd view             - view all tasks in the queue
+        celeryd clean            - delete all tasks in the queue
     '''
     min_args = 0
     max_args = 2
@@ -940,8 +991,8 @@ class Tracking(CkanCommand):
     '''Update tracking statistics
 
     Usage:
-      tracking update [start-date]        - update tracking stats
-      tracking export <file> [start-date] - export tracking stats to a csv file
+      tracking update [start_date]       - update tracking stats
+      tracking export FILE [start_date]  - export tracking stats to a csv file
     '''
 
     summary = __doc__.split('\n')[0]
@@ -1047,7 +1098,7 @@ class Tracking(CkanCommand):
                               for r in total_views])
 
     def update_tracking(self, engine, summary_date):
-        PACKAGE_URL = '/dataset/'
+        PACKAGE_URL = '%/dataset/'
         # clear out existing data before adding new
         sql = '''DELETE FROM tracking_summary
                  WHERE tracking_date='%s'; ''' % summary_date
@@ -1073,7 +1124,7 @@ class Tracking(CkanCommand):
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE t.url =  %s || p.name)
+                        WHERE t.url LIKE  %s || p.name)
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
                  AND tracking_type = 'page';'''
@@ -1116,7 +1167,7 @@ class Tracking(CkanCommand):
         engine.execute(sql)
 
 class PluginInfo(CkanCommand):
-    ''' Provide info on installed plugins.
+    '''Provide info on installed plugins.
     '''
 
     summary = __doc__.split('\n')[0]
@@ -1220,8 +1271,8 @@ class CreateTestDataCommand(CkanCommand):
     create-test-data user         - create a user 'tester' with api key 'tester'
     create-test-data translations - annakarenina, warandpeace, and some test
                                     translations of terms
-    create-test-data vocabs  - annakerenina, warandpeace, and some test
-                               vocabularies
+    create-test-data vocabs       - annakerenina, warandpeace, and some test
+                                    vocabularies
 
     '''
     summary = __doc__.split('\n')[0]
@@ -1271,7 +1322,7 @@ class Profile(CkanCommand):
     by runsnakerun.
 
     Usage:
-       profile {url}
+       profile URL
 
     e.g. profile /data/search
 
@@ -1328,15 +1379,15 @@ class Profile(CkanCommand):
 
 
 class CreateColorSchemeCommand(CkanCommand):
-    ''' Create or remove a color scheme.
+    '''Create or remove a color scheme.
 
-    less will need to generate the css files after this has been run
+    After running this, you'll need to regenerate the css files. See paster's less command for details.
 
-    color              - creates a random color scheme
-    color clear        - clears any color scheme
-    color '<hex>'      - uses as base color eg '#ff00ff' must be quoted.
-    color <value>      - a float between 0.0 and 1.0 used as base hue
-    color <color name> - html color name used for base color eg lightblue
+    color               - creates a random color scheme
+    color clear         - clears any color scheme
+    color <'HEX'>       - uses as base color eg '#ff00ff' must be quoted.
+    color <VALUE>       - a float between 0.0 and 1.0 used as base hue
+    color <COLOR_NAME>  - html color name used for base color eg lightblue
     '''
 
     summary = __doc__.split('\n')[0]
@@ -1587,8 +1638,8 @@ class CreateColorSchemeCommand(CkanCommand):
 class TranslationsCommand(CkanCommand):
     '''Translation helper functions
 
-    trans js - generate the javascript translations
-    trans mangle - mangle the zh_TW translations for testing
+    trans js      - generate the javascript translations
+    trans mangle  - mangle the zh_TW translations for testing
     '''
 
     summary = __doc__.split('\n')[0]
@@ -1744,7 +1795,7 @@ class MinifyCommand(CkanCommand):
 
     Usage:
 
-        paster minify [--clean] <path>
+        paster minify [--clean] PATH
 
     for example:
 
@@ -1850,35 +1901,39 @@ class LessCommand(CkanCommand):
 
     custom_css = {
         'fuchsia': '''
-            @layoutLinkColor: #b509b5;
-            @mastheadBackgroundColorStart: #dc0bdc;
-            @mastheadBackgroundColorEnd: #f31df3;
-            @btnPrimaryBackground: #f544f5;
-            @btnPrimaryBackgroundHighlight: #f76bf7;
+            @layoutLinkColor: #E73892;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'green': '''
-            @layoutLinkColor: #045b04;
-            @mastheadBackgroundColorStart: #068106;
-            @mastheadBackgroundColorEnd: #08a808;
-            @btnPrimaryBackground: #0acf0a;
-            @btnPrimaryBackgroundHighlight: #10f210
+            @layoutLinkColor: #2F9B45;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'red': '''
-            @layoutLinkColor: #b50909;
-            @mastheadBackgroundColorStart: #dc0b0b;
-            @mastheadBackgroundColorEnd: #f31d1d;
-            @btnPrimaryBackground: #f54444;
-            @btnPrimaryBackgroundHighlight: #f76b6b;
+            @layoutLinkColor: #C14531;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
 
         'maroon': '''
-            @layoutLinkColor: #5b0404;
-            @mastheadBackgroundColorStart: #810606;
-            @mastheadBackgroundColorEnd: #a80808;
-            @btnPrimaryBackground: #cf0a0a;
-            @btnPrimaryBackgroundHighlight: #f21010;
+            @layoutLinkColor: #810606;
+            @footerTextColor: mix(#FFF, @layoutLinkColor, 60%);
+            @footerLinkColor: @footerTextColor;
+            @mastheadBackgroundColor: @layoutLinkColor;
+            @btnPrimaryBackground: lighten(@layoutLinkColor, 10%);
+            @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
     }
     def less(self):
@@ -1919,7 +1974,7 @@ class LessCommand(CkanCommand):
 
 
 class FrontEndBuildCommand(CkanCommand):
-    ''' Creates and minifies css and JavaScript files
+    '''Creates and minifies css and JavaScript files
 
     Usage:
 

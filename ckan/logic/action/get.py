@@ -1,11 +1,11 @@
+'''API functions for searching for and getting data from CKAN.'''
+
 import uuid
 import logging
 import json
 import datetime
 
 from pylons import config
-from pylons.i18n import _
-from pylons import c
 import sqlalchemy
 
 import ckan.lib.dictization
@@ -20,6 +20,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+
+from ckan.common import _
 
 log = logging.getLogger('ckan.logic')
 
@@ -87,23 +89,33 @@ def current_package_list_with_resources(context, data_dict):
         at most ``limit`` datasets per page and only one page will be returned
         at a time (optional)
     :type limit: int
-    :param page: when ``limit`` is given, which page to return
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+    :param page: when ``limit`` is given, which page to return, Deprecated use ``offset``
     :type page: int
 
     :rtype: list of dictionaries
 
     '''
     model = context["model"]
-    if 'limit' in data_dict:
-        try:
-            limit = int(data_dict['limit'])
-            if limit < 0:
-                limit = 0
-        except ValueError, e:
-            raise logic.ParameterError("'limit' should be an int")
-    else:
-        limit = None
-    page = int(data_dict.get('page', 1))
+    schema = context.get('schema', logic.schema.default_package_list_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    limit = data_dict.get('limit')
+    offset = int(data_dict.get('offset', 0))
+
+    if not 'offset' in data_dict and 'page' in data_dict:
+        log.warning('"page" parameter is deprecated.  '
+                    'Use the "offset" parameter instead')
+        page = int(data_dict['page'])
+        if page < 1:
+            raise ValidationError(_('Must be larger than 0'))
+        if limit:
+            offset = (page - 1) * limit
+        else:
+            offset = 0
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
@@ -114,7 +126,7 @@ def current_package_list_with_resources(context, data_dict):
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
     if limit is not None:
         query = query.limit(limit)
-        query = query.offset((page-1)*limit)
+    query = query.offset(offset)
     pack_rev = query.all()
     return _package_list_with_resources(context, pack_rev)
 
@@ -526,7 +538,7 @@ def group_revision_list(context, data_dict):
                                                      include_groups=False))
     return revision_dicts
 
-def licence_list(context, data_dict):
+def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
@@ -534,12 +546,12 @@ def licence_list(context, data_dict):
     '''
     model = context["model"]
 
-    _check_access('licence_list',context, data_dict)
+    _check_access('license_list',context, data_dict)
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licences = [l.as_dict() for l in licenses]
-    return licences
+    licenses = [l.as_dict() for l in licenses]
+    return licenses
 
 def tag_list(context, data_dict):
     '''Return a list of the site's tags.
@@ -731,7 +743,10 @@ def package_show(context, data_dict):
         item.read(pkg)
 
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    schema = package_plugin.show_package_schema()
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.show_package_schema()
 
     if schema and context.get('validate', True):
         package_dict, errors = _validate(package_dict, schema, context=context)
@@ -827,7 +842,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('organization_show',context, data_dict)
     else:
         _check_access('group_show',context, data_dict)
-    
+
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -1033,23 +1048,33 @@ def package_autocomplete(context, data_dict):
 
     :param q: the string to search for
     :type q: string
+    :param limit: the maximum number of resource formats to return (optional,
+        default: 10)
+    :type limit: int
 
     :rtype: list of dictionaries
 
     '''
-    model = context['model']
-    q = _get_or_bust(data_dict, 'q')
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
 
-    like_q = u"%s%%" % q
+    model = context['model']
 
     _check_access('package_autocomplete', context, data_dict)
+
+    limit = data_dict.get('limit', 10)
+    q = data_dict['q']
+
+    like_q = u"%s%%" % q
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
     query = query.filter(model.PackageRevision.current==True)
     query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
                                 model.PackageRevision.title.ilike(like_q)))
-    query = query.limit(10)
+    query = query.limit(limit)
 
     q_lower = q.lower()
     pkg_list = []
@@ -1078,16 +1103,19 @@ def format_autocomplete(context, data_dict):
     :rtype: list of strings
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     session = context['session']
 
     _check_access('format_autocomplete', context, data_dict)
 
-    q = data_dict.get('q', None)
-    if not q:
-        return []
-
+    q = data_dict['q']
     limit = data_dict.get('limit', 5)
+
     like_q = u'%' + q + u'%'
 
     query = session.query(model.ResourceRevision.format,
@@ -1116,15 +1144,18 @@ def user_autocomplete(context, data_dict):
         ``'fullname'``, and ``'id'``
 
     '''
+    schema = context.get('schema', logic.schema.default_autocomplete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     user = context['user']
-    q = data_dict.get('q',None)
-    if not q:
-        return []
 
     _check_access('user_autocomplete', context, data_dict)
 
-    limit = data_dict.get('limit',20)
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
 
     query = model.User.search(q).limit(limit)
 
@@ -1153,25 +1184,22 @@ def package_search(context, data_dict):
 
     This action accepts a *subset* of solr's search query parameters:
 
+
     :param q: the solr query.  Optional.  Default: `"*:*"`
     :type q: string
     :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
         is added to this string prior to the query being executed.
     :type fq: string
+    :param sort: sorting of the search results.  Optional.  Default:
+        'relevance asc, metadata_modified desc'.  As per the solr
+        documentation, this is a comma-separated string of field names and
+        sort-orderings.
+    :type sort: string
     :param rows: the number of matching rows to return.
     :type rows: int
-    :param sort: sorting of the search results.  Optional.  Default:
-        "score desc, name asc".  As per the solr documentation, this is a
-        comma-separated string of field names and sort-orderings.
-    :type sort: string
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
     :type start: int
-    :param qf: the dismax query fields to search within, including boosts.  See
-        the `Solr Dismax Documentation
-        <http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29>`_
-        for further details.
-    :type qf: string
     :param facet: whether to enable faceted results.  Default: "true".
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
@@ -1183,6 +1211,18 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
+
+
+    The following advanced Solr parameters are supported as well. Note that
+    some of these are only available on particular Solr versions. See Solr's
+    `dismax`_ and `edismax`_ documentation for further details on them:
+
+    ``qf``, ``wt``, ``bf``, ``boost``, ``tie``, ``defType``, ``mm``
+
+
+    .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
+    .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
+
 
     **Results:**
 
@@ -1230,10 +1270,29 @@ def package_search(context, data_dict):
         query cannot be changed.  CKAN always returns the matched datasets as
         dictionary objects.
     '''
+    # sometimes context['schema'] is None
+    schema = (context.get('schema') or
+              logic.schema.default_package_search_schema())
+    if isinstance(data_dict.get('facet.field'), basestring):
+        data_dict['facet.field'] = json.loads(data_dict['facet.field'])
+    data_dict, errors = _validate(data_dict, schema, context)
+    # put the extras back into the data_dict so that the search can
+    # report needless parameters
+    data_dict.update(data_dict.get('__extras', {}))
+    data_dict.pop('__extras', None)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
     session = context['session']
 
     _check_access('package_search', context, data_dict)
+
+    # Move ext_ params to extras and remove them from the root of the search
+    # params, so they don't cause and error
+    data_dict['extras'] = data_dict.get('extras', {})
+    for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
+        data_dict['extras'][key] = data_dict.pop(key)
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1241,25 +1300,36 @@ def package_search(context, data_dict):
 
     # the extension may have decided that it is not necessary to perform
     # the query
-    abort = data_dict.get('abort_search',False)
+    abort = data_dict.get('abort_search', False)
+
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_modified desc'
+
+    if data_dict.get('sort') in (None, 'rank'):
+        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     results = []
     if not abort:
         # return a list of package ids
         data_dict['fl'] = 'id data_dict'
 
-
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq','')
-        if not context.get('ignore_capacity_check',False):
+        fq = data_dict.get('fq', '')
+        if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
                             if not 'capacity:' in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
+        # Pop these ones as Solr does not need them
+        extras = data_dict.pop('extras', None)
+
         query = search.query_for(model.Package)
         query.run(data_dict)
+
+        # Add them back so extensions can use them on after_search
+        data_dict['extras'] = extras
 
         for package in query.results:
             # get the package object
@@ -1298,7 +1368,8 @@ def package_search(context, data_dict):
     search_results = {
         'count': count,
         'facets': facets,
-        'results': results
+        'results': results,
+        'sort': data_dict['sort']
     }
 
     # Transform facets into a more useful data structure.
@@ -1315,6 +1386,12 @@ def package_search(context, data_dict):
                 group = model.Group.get(key_)
                 if group:
                     new_facet_dict['display_name'] = group.display_name
+                else:
+                    new_facet_dict['display_name'] = key_
+            elif key == 'license_id':
+                license = model.Package.get_license_register().get(key_)
+                if license:
+                    new_facet_dict['display_name'] = license.title
                 else:
                     new_facet_dict['display_name'] = key_
             else:
@@ -1407,6 +1484,11 @@ def resource_search(context, data_dict):
     :rtype: dict
 
     '''
+    schema = context.get('schema', logic.schema.default_resource_search_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     model = context['model']
 
     # Allow either the `query` or `fields` parameter to be given, but not both.
@@ -1797,7 +1879,11 @@ def roles_show(context, data_dict):
     return result
 
 def status_show(context, data_dict):
-    '''Return a dictionary with information about the site's configuration.'''
+    '''Return a dictionary with information about the site's configuration.
+
+    :rtype: dictionary
+
+    '''
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2494,7 +2580,7 @@ def user_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingUser.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of User objects.
@@ -2525,7 +2611,7 @@ def dataset_followee_list(context, data_dict):
 
     # Get the list of Follower objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
@@ -2557,7 +2643,7 @@ def group_followee_list(context, data_dict):
 
     # Get the list of UserFollowingGroup objects.
     model = context['model']
-    user_id = data_dict.get('id')
+    user_id = _get_or_bust(data_dict, 'id')
     followees = model.UserFollowingGroup.followee_list(user_id)
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
@@ -2588,6 +2674,12 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of activity dictionaries
 
     '''
+    schema = context.get('schema',
+                         ckan.logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     _check_access('dashboard_activity_list', context, data_dict)
 
     model = context['model']
@@ -2625,6 +2717,8 @@ def dashboard_activity_list_html(context, data_dict):
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
+    :param id: the id or name of the user
+    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
@@ -2636,16 +2730,22 @@ def dashboard_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
+    schema = context.get(
+        'schema', ckan.logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
     activity_stream = dashboard_activity_list(context, data_dict)
+    model = context['model']
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
-        'controller': 'dashboard',
-        'action': 'activity',
-        'id': data_dict['id'],
+        'controller': 'user',
+        'action': 'dashboard',
         'offset': offset,
-        }
+    }
     return activity_streams.activity_list_to_html(context, activity_stream,
-            extra_vars)
+                                                  extra_vars)
 
 
 def dashboard_new_activities_count(context, data_dict):
@@ -2684,12 +2784,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
             order = 'asc'
         if allowed_fields:
             if field not in allowed_fields:
-                raise logic.ParameterError('Cannot sort by field `%s`' % field)
+                raise ValidationError('Cannot sort by field `%s`' % field)
         if order not in ['asc', 'desc']:
-            raise logic.ParameterError('Invalid sort direction `%s`' % order)
+            raise ValidationError('Invalid sort direction `%s`' % order)
         sorts.append((field, order))
     if total and len(sorts) > total:
-        raise logic.ParameterError(
+        raise ValidationError(
             'Too many sort criteria provided only %s allowed' % total)
     return sorts
 

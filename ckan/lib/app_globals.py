@@ -45,9 +45,10 @@ config_details = {
     'ckan.dumps_url': {},
     'ckan.dumps_format': {},
     'ckan.api_url': {},
+    'ofs.impl': {'name': 'ofs_impl'},
 
     # split string
-    'search.facets': {'default': 'groups tags res_format license',
+    'search.facets': {'default': 'organization groups tags res_format license_id',
                       'type': 'split',
                       'name': 'facets'},
     'package_hide_extras': {'type': 'split'},
@@ -57,10 +58,14 @@ config_details = {
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
+    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
+    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
     'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
+    'search.facets.default': {'default': '10', 'type': 'int',
+                             'name': 'facets_default_number'},
 }
 
 

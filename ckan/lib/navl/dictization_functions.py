@@ -1,8 +1,9 @@
 import copy
 import formencode as fe
 import inspect
-from pylons.i18n import _
 from pylons import config
+
+from ckan.common import _
 
 class Missing(object):
     def __unicode__(self):
@@ -116,7 +117,7 @@ def augment_data(data, schema):
 
     full_schema = make_full_schema(data, schema)
 
-    new_data = copy.deepcopy(data)
+    new_data = copy.copy(data)
 
     ## fill junk and extras
 

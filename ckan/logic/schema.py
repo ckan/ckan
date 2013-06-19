@@ -30,6 +30,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
+                                   natural_number_validator,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -39,12 +40,14 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
+                                   resource_id_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
-                                   url_validator)
+                                   url_validator,
+                                   list_of_strings)
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
@@ -116,6 +119,7 @@ def default_create_tag_schema():
 
 def default_create_package_schema():
     schema = {
+        '__before': [duplicate_extras_key, ignore],
         'id': [empty],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
@@ -139,7 +143,6 @@ def default_create_package_schema():
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
         'extras': default_extras_schema(),
-        'extras_validation': [duplicate_extras_key, ignore],
         'save': [ignore],
         'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
@@ -449,14 +452,15 @@ def default_create_activity_schema():
     schema = {
         'id': [ignore],
         'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'user_id': [not_missing, not_empty, unicode,
+            convert_user_name_or_id_to_id],
         'object_id': [not_missing, not_empty, unicode, object_id_validator],
         # We don't bother to validate revision ID, since it's always created
         # internally by the activity_create() logic action function.
         'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode,
             activity_type_exists],
-        'data': [ignore_empty, ignore_missing, unicode],
+        'data': [ignore_empty, ignore_missing],
     }
     return schema
 
@@ -472,7 +476,6 @@ def default_follow_dataset_schema():
 
 
 def member_schema():
-
     schema = {
         'id': [group_id_exists, unicode],
         'username': [user_name_exists, unicode],
@@ -484,4 +487,71 @@ def member_schema():
 def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_group_name_or_id_to_id]}
+    return schema
+
+
+def default_package_list_schema():
+    schema = {
+        'limit': [ignore_missing, natural_number_validator],
+        'offset': [ignore_missing, natural_number_validator],
+        'page': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def default_pagination_schema():
+    schema = {
+        'limit': [ignore_missing, natural_number_validator],
+        'offset': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def default_dashboard_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [unicode]
+    return schema
+
+
+def default_autocomplete_schema():
+    schema = {
+        'q': [not_missing, unicode],
+        'limit': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def default_package_search_schema():
+    schema = {
+        'q': [ignore_missing, unicode],
+        'fq': [ignore_missing, unicode],
+        'rows': [ignore_missing, natural_number_validator],
+        'sort': [ignore_missing, unicode],
+        'start': [ignore_missing, natural_number_validator],
+        'qf': [ignore_missing, unicode],
+        'facet': [ignore_missing, unicode],
+        'facet.mincount': [ignore_missing, natural_number_validator],
+        'facet.limit': [ignore_missing, natural_number_validator],
+        'facet.field': [ignore_missing, list_of_strings],
+        'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
+    }
+    return schema
+
+
+def default_resource_search_schema():
+    schema = {
+        'query': [ignore_missing],  # string or list of strings
+        'fields': [ignore_missing],  # dict of fields
+        'order_by': [ignore_missing, unicode],
+        'offset': [ignore_missing, natural_number_validator],
+        'limit': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def create_schema_for_required_keys(keys):
+    ''' helper function that creates a schema definition where
+    each key from keys is validated against ``not_missing``.
+    '''
+    schema = dict([(x, [not_missing]) for x in keys])
     return schema

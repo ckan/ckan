@@ -8,11 +8,12 @@ import datetime
 import re
 
 import pylons
-import pylons.i18n
 
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
+
+from ckan.common import ungettext
 
 
 def string_to_timedelta(s):
@@ -30,7 +31,7 @@ def string_to_timedelta(s):
     7 days, 3:23:34.087465
     .087465 (microseconds only)
 
-    :raises ckan.logic.ParameterError: if the given string does not match any
+    :raises ckan.logic.ValidationError: if the given string does not match any
         of the recognised formats
 
     '''
@@ -55,7 +56,7 @@ def string_to_timedelta(s):
             break
 
     if not match:
-        raise logic.ParameterError('Not a valid time: {0}'.format(s))
+        raise logic.ValidationError('Not a valid time: {0}'.format(s))
 
     gd = match.groupdict()
     days = int(gd.get('days', '0'))
@@ -96,7 +97,7 @@ def _notifications_for_activities(activities, user_dict):
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
-    subject = pylons.i18n.ungettext(
+    subject = ungettext(
         "1 new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
