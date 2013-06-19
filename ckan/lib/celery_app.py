@@ -57,7 +57,7 @@ try:
 except ConfigParser.NoSectionError:
     pass
 
-# Thes update of configuration means it is only possible to set each 
+# Thes update of configuration means it is only possible to set each
 # key once so this is done once all of the options have been decided.
 celery.conf.update(default_config)
 celery.loader.conf.update(default_config)
