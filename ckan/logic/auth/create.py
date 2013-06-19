@@ -16,13 +16,13 @@ def package_create(context, data_dict=None):
 
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
-    else:
 
-        check2 = _check_group_auth(context,data_dict)
-        if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+    check2 = _check_group_auth(context,data_dict)
+    if not check2:
+        return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
 
     return {'success': True}
+
 
 def file_upload(context, data_dict=None):
     user = context['user']
