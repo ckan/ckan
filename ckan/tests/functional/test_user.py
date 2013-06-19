@@ -857,6 +857,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
     def test_request_reset_user_password_using_search(self):
         offset = url_for(controller='user',
                          action='request_reset')
+        CreateTestData.create_user(name='larry1', fullname='kittens')
         CreateTestData.create_user(name='larry2', fullname='kittens')
         res = self.app.get(offset)
         fv = res.forms['user-password-reset']
