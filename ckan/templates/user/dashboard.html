@@ -4,47 +4,39 @@
   <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
-{% block primary_content_inner %}
-  <div data-module="dashboard">
-    {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
-    <h2 class="page-heading">
-      {% block page_heading %}
-      {{ _('News feed') }}
-      {% endblock %}
-      <small>{{ _('Activity from items that you follow') }}</small>
-    </h2>
-    {% block activity_stream %}
-    {{ c.dashboard_activity_stream }}
-    {% endblock %}
-  </div>
+{% block secondary %}{% endblock %}
+
+{% block actions_content %}
+  <li>{% link_for _('Edit settings'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}</li>
 {% endblock %}
 
-{% block secondary_content %}
-  {% block dashboard_activity_stream_context %}
-  {% if not c.dashboard_activity_stream_context.dict == None %}
-    <div class="context-info dashboard-context">
-      <span class="arrow"></span>
-      {% snippet 'snippets/context.html', type=c.dashboard_activity_stream_context.filter_type, dict=c.dashboard_activity_stream_context.dict %}
-    </div>
-  {% endif %}
-  {% endblock %}
-  {% block dashboard_context %}
-    <div class="dashboard-me">
-      {{ h.gravatar(user.email_hash, 50) }}
-      <strong>{{ h.truncate(user.display_name, 25) }}</strong>
-      <a href="{{ h.url_for('user_edit', id=user.name) }}">{{ _('Edit settings') }}</a>
-    </div>
-  {% endblock %}
-  {% block dashboard_subnav %}
-    <div class="module module-narrow module-shallow">
-      <ul class="nav nav-aside">
-        {% block dashboard_subnav_content %}
+{% block primary %}
+  <article class="module">
+    {% block page_header %}
+      <header class="module-content page-header hug">
+        <ul class="nav nav-tabs">
           {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
           {{ h.build_nav_icon('user_dashboard_datasets', _('My Datasets')) }}
           {{ h.build_nav_icon('user_dashboard_organizations', _('My Organizations')) }}
           {{ h.build_nav_icon('user_dashboard_groups', _('My Groups')) }}
-        {% endblock %}
-      </ul>
+        </ul>
+      </header>
+    {% endblock %}
+    <div class="module-content">
+      {% block primary_content_inner %}
+        <div data-module="dashboard">
+          {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
+          <h2 class="page-heading">
+            {% block page_heading %}
+            {{ _('News feed') }}
+            {% endblock %}
+            <small>{{ _('Activity from items that you follow') }}</small>
+          </h2>
+          {% block activity_stream %}
+          {{ c.dashboard_activity_stream }}
+          {% endblock %}
+        </div>
+      {% endblock %}
     </div>
-  {% endblock %}
+  </article>
 {% endblock %}
