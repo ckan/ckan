@@ -185,7 +185,8 @@ class GroupController(BaseController):
 
             fq = 'capacity:"public" +groups:"%s" ' % c.group_dict.get('name')
             if (c.userobj and c.group and c.userobj.is_in_group(c.group)):
-                fq = ''
+                ### Fix to stop displaying all datasets
+                fq = 'groups:"%s" ' % c.group_dict.get('name')
                 context['ignore_capacity_check'] = True
 
             data_dict = {
