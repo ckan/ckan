@@ -86,9 +86,17 @@ def url_for_static(*args, **kw):
     '''Create url for static content that does not get translated
     eg css, js
     wrapper for routes.url_for'''
-    # make sure that if we specify the url that it is not unicode
+
+    def fix_arg(arg):
+        # make sure that if we specify the url that it is not unicode and
+        # starts with a /
+        arg = str(arg)
+        if not arg.startswith('/'):
+            arg = '/' + arg
+        return arg
+
     if args:
-        args = (str(args[0]), ) + args[1:]
+        args = (fix_arg(args[0]), ) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
 
@@ -120,7 +128,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1] + root
+        root = _routes_default_url_for('/', qualified=True)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -535,7 +543,7 @@ def get_facet_title(name):
     facet_titles = {'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('Licence'), }
+                    'license': _('License'), }
     return facet_titles.get(name, name.capitalize())
 
 
@@ -1506,7 +1514,8 @@ def resource_preview(resource, pkg_id):
         reason = None
         if format_lower:
             log.info(
-                _(u'No preview handler for resource of type {0}'.format(format_lower))
+                _(u'No preview handler for resource of type {0}'.format(
+                    format_lower))
             )
         else:
             reason = _(u'The resource format is not specified.')

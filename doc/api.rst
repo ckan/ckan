@@ -1,12 +1,11 @@
-.. _action-api:
+============
+The CKAN API
+============
 
-The Action API
-==============
-
-CKAN's Action API is a powerful, RPC-style API that exposes all of CKAN's core
-features to API clients. All of a CKAN website's core functionality (everything
-you can do with the web interface and more) can be used by external code that
-calls the CKAN API.  For example, using the CKAN API your app can:
+CKAN's **Action API** is a powerful, RPC-style API that exposes all of CKAN's
+core features to API clients. All of a CKAN website's core functionality
+(everything you can do with the web interface and more) can be used by external
+code that calls the CKAN API.  For example, using the CKAN API your app can:
 
 * Get JSON-formatted lists of a site's datasets, groups or other CKAN objects:
 
@@ -36,8 +35,27 @@ calls the CKAN API.  For example, using the CKAN API your app can:
 
   http://demo.ckan.org/api/3/action/recently_changed_packages_activity_list
 
+.. note::
+
+   CKAN's FileStore and DataStore have their own APIs, see:
+
+   * :doc:`filestore`
+   * :doc:`datastore`
+
+.. note::
+
+   For documentation of CKAN's legacy API's, see :doc:`legacy-api`.
+
+.. We put legacy-api in a hidden toctree here just so that Sphinx gets the
+   links in the sidebar right when on the legacy-api page.
+
+.. toctree::
+   :hidden:
+
+   legacy-api
 
 
+---------------------
 Making an API Request
 ---------------------
 
@@ -133,6 +151,62 @@ with this Python code::
     pprint.pprint(result)
 
 
+---------------------------------------------
+Example: Importing Datasets with the CKAN API
+---------------------------------------------
+
+You can add datasets using CKAN's web interface, but when importing many
+datasets it's usually more efficient to automate the process in some way.  In
+this example, we'll show you how to use the CKAN API to write a Python script
+to import datasets into CKAN.
+
+.. todo::
+
+   Make this script more interesting (eg. read data from a CSV file), and all
+   put the script in a .py file somewhere with tests and import it here.
+
+::
+
+    #!/usr/bin/env python
+    import urllib2
+    import urllib
+    import json
+    import pprint
+
+    # Put the details of the dataset we're going to create into a dict.
+    dataset_dict = {
+        'name': 'my_dataset_name',
+        'notes': 'A long description of my dataset',
+    }
+
+    # Use the json module to dump the dictionary to a string for posting.
+    data_string = urllib.quote(json.dumps(dataset_dict))
+
+    # We'll use the package_create function to create a new dataset.
+    request = urllib2.Request(
+        'http://www.my_ckan_site.com/api/action/package_create')
+
+    # Creating a dataset requires an authorization header.
+    # Replace *** with your API key, from your user account on the CKAN site
+    # that you're creating the dataset on.
+    request.add_header('Authorization', '***')
+
+    # Make the HTTP request.
+    response = urllib2.urlopen(request, data_string)
+    assert response.code == 200
+
+    # Use the json module to load CKAN's response into a dictionary.
+    response_dict = json.loads(response.read())
+    assert response_dict['success'] is True
+
+    # package_create returns the created package as its result.
+    created_package = response_dict['result']
+    pprint.pprint(created_package)
+
+
+
+
+------------
 API Versions
 ------------
 
@@ -157,6 +231,7 @@ different sites running different versions of CKAN, the result of an API
 request that doesn't specify the API version number cannot be relied on.
 
 
+---------------------------
 Authentication and API Keys
 ---------------------------
 
@@ -190,10 +265,11 @@ run this Python code::
     response_dict = json.loads(urllib2.urlopen(request, '{}').read())
 
 
+----------------------
 GET-able API Functions
 ----------------------
 
-Functions defined in :doc:`ckan.logic.action.get` can also be called with an HTTP
+Functions defined in `ckan.logic.action.get`_ can also be called with an HTTP
 GET request.  For example, to get the list of datasets (packages) from
 demo.ckan.org, open this URL in your browser:
 
@@ -222,6 +298,7 @@ value can be sent by giving the parameter multiple times in the URL:
 http://demo.ckan.org/api/3/action/term_translation_show?terms=russian&terms=romantic%20novel
 
 
+-------------
 JSONP Support
 -------------
 
@@ -233,30 +310,32 @@ http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callbac
 
 .. todo :: This doesn't work with all functions.
 
-.. _api-reference: 
+.. _api-reference:
 
+--------------------
 Action API Reference
 --------------------
 
-.. This hidden toctree is just to shut up sphinx warnings about the following
-   files not being included in any toctree. We want to include them manually
-   because we're using a different style to what the toctree would use.
+ckan.logic.action.get
+=====================
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
+.. automodule:: ckan.logic.action.get
+   :members:
 
-   ckan.logic.action.get
-   ckan.logic.action.create
-   ckan.logic.action.update
-   ckan.logic.action.delete
+ckan.logic.action.create
+========================
 
-Functions for getting data from CKAN: :doc:`ckan.logic.action.get`.
+.. automodule:: ckan.logic.action.create
+   :members:
 
-Functions for adding data to CKAN: :doc:`ckan.logic.action.create`.
+ckan.logic.action.update
+========================
 
-Functions for updating existing data in CKAN: :doc:`ckan.logic.action.update`.
+.. automodule:: ckan.logic.action.update
+   :members:
 
-Functions for deleting data from CKAN: :doc:`ckan.logic.action.delete`.
+ckan.logic.action.delete
+========================
 
-Functions for working with the CKAN DataStore: :doc:`datastore-api`.
+.. automodule:: ckan.logic.action.delete
+   :members:

@@ -2,120 +2,47 @@
 Welcome to CKAN's Documentation
 ===============================
 
-.. note ::
+This documentation covers how to set up and manage `CKAN <http://ckan.org>`_.
+For high-level information on what CKAN is, see the
+`CKAN website <http://ckan.org>`_.
 
-   This is the documentation for CKAN version '|version|'. If you are using a different version, use the links on the bottom right corner of the page to select the appropriate documentation.
+.. rubric:: Structure & Audiences
 
-This documentation covers how to set up and manage `CKAN <http://ckan.org>`_ software.
+These docs are ordered with the beginner documentation first, and the most
+advanced documentation last:
 
-* The first two sections cover your two options for installing CKAN: package or source install.
-* The rest of the first half of the Guide, up to :doc:`authorization`, covers setup and basic admin.
-* The second half of the Guide, from :doc:`extensions` onwards, covers advanced tasks, including extensions and forms.
+* :doc:`installing` and :doc:`getting-started` walk you through installing CKAN
+  and setting up your own CKAN site with some basic customizations.  These docs
+  are for **sysadmins** who're new to CKAN and want go get started with it.
 
-For high-level information on what CKAN is, see the `CKAN website <http://ckan.org>`_.
+* The sections under :doc:`features` cover setting up and using CKAN features,
+  beyond those that just work out of the box.  These are for **sysadmins** who
+  want to learn how to manage and get more out of their CKAN site.
 
-Installation
-============
+* :doc:`writing-extensions`, :doc:`theming` and :doc:`api` are advanced docs
+  for **developers** who want to develop an extension, theme or API app using
+  CKAN.
 
-.. toctree::
-   :maxdepth: 3
+* :doc:`contributing` and :doc:`test` are for **testers**, **translators** and
+  **core developers** who want to contribute to CKAN.
 
-   install-from-package
-   install-from-source
-   post-installation
-   common-error-messages
-   deployment
-   solr-setup
-   datastore-setup
+* Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
+  covering CKAN's config file options and the differences between CKAN
+  releases.
 
-Customizing and Extending
-=========================
+----
 
 .. toctree::
    :maxdepth: 2
 
+   installing
+   upgrading
+   getting-started
+   features
+   writing-extensions
    theming
-   frontend-development
-   templating
-   resources
-   apps-ideas
-   extensions
-   toolkit
-   tag-vocabularies
-   form-integration
-   linked-data-and-rdf
-   filestore
-   datastore
-   background-tasks
-   multilingual
-   email-notifications
-   tracking
-   stats
-
-Publishing Datasets
-===================
-
-.. toctree::
-   :maxdepth: 2
-
-   publishing-datasets
-   importing-datasets
-   authorization
-   publisher-profile
-   data-viewer
-
-The CKAN API
-============
-
-.. toctree::
-   :maxdepth: 1
-
    api
-   datastore-api
-   filestore-api
-   legacy-api
-
-
-General Administration
-======================
-
-.. toctree::
-   :maxdepth: 2
-
-   administrative-dashboard
-   paster
-   database-dumps
-   configuration
-
-For CKAN Developers
-===================
-
-.. toctree::
-   :maxdepth: 1
-
    contributing
-   architecture
-   python-coding-standards
-   javascript-coding-standards
-   html-coding-standards
-   css-coding-standards
-   i18n
    test
-   release-cycle
-   release-process
-
-Other material
-==============
-
-.. toctree::
-   :maxdepth: 2
-
-   CHANGELOG.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   configuration
+   changelog

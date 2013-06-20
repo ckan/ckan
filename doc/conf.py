@@ -49,15 +49,24 @@ rst_epilog = '''
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |solr| replace:: Solr
+.. |restructuredtext| replace:: reStructuredText
+.. |nginx| replace:: Nginx
+.. |sqlite| replace:: SQLite
+.. |python| replace:: Python
+.. |sqlalchemy| replace:: SQLAlchemy
+.. |javascript| replace:: JavaScript
+.. |apache| replace:: Apache
 
 '''
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo']
-autodoc_member_order = 'bysource'
 
 autodoc_member_order = 'bysource'
+
+todo_include_todos = True
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -149,7 +158,10 @@ html_theme_options = {
     }
 
 html_sidebars = {
-    '**':  ['localtoc.html', 'globaltoc.html']
+    '**':  ['relations.html', 'globaltoc.html'],
+    # There's no point in showing the table of contents in the sidebar on the
+    # table of contents page! So:
+    'index': ['relations.html'],
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name

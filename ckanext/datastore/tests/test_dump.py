@@ -1,16 +1,16 @@
 import json
+
 import nose
 from nose.tools import assert_equals
 from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
-import ckan.config.middleware as middleware
 
+import ckan.config.middleware as middleware
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
-
 import ckanext.datastore.db as db
 import ckanext.datastore.tests.helpers as helpers
 
@@ -36,7 +36,7 @@ class TestDatastoreDump(tests.WsgiAppCase):
                        {'id': 'published'},
                        {'id': u'characters', u'type': u'_text'}],
             'records': [{u'b\xfck': 'annakarenina',
-            'author': 'tolstoy',
+                        'author': 'tolstoy',
                         'published': '2005-03-01',
                         'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius']},
@@ -80,3 +80,17 @@ class TestDatastoreDump(tests.WsgiAppCase):
         # get with alias instead of id
         res = self.app.get('/datastore/dump/{0}'.format(str(
             self.data['aliases'])), extra_environ=auth)
+
+    def test_dump_does_not_exist_raises_404(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        self.app.get('/datastore/dump/{0}'.format(str(
+            'does-not-exist')), extra_environ=auth, status=404)
+
+    def test_dump_limit(self):
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.get('/datastore/dump/{0}?limit=1'.format(str(
+            self.data['resource_id'])), extra_environ=auth)
+        content = res.body.decode('utf-8')
+        expected = u'_id,b\xfck,author,published,characters,nested'
+        assert_equals(content[:len(expected)], expected)
+        assert_equals(len(content), 148)
