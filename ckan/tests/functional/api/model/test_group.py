@@ -8,6 +8,7 @@ from nose.tools import assert_equal
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
+import ckan.tests as tests
 
 
 class GroupsTestCase(BaseModelApiTestCase):
@@ -221,6 +222,253 @@ class GroupsTestCase(BaseModelApiTestCase):
         res = self.app.delete(offset, status=[404],
                               extra_environ=self.extra_environ)
         self.assert_json_response(res, 'not found')
+
+    def test_group_purge_by_name(self):
+        '''A sysadmin should be able to purge a group by passing its name.'''
+
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan'}],
+                                      )
+
+        # Purge the group.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       apikey=sysadmin.apikey,
+                                       id='group-to-be-purged',
+                                       )
+
+        assert result is None
+
+        # Now trying to show the group should give a 404.
+        result = tests.call_action_api(self.app, 'group_show',
+                                       id='group-to-be-purged',
+                                       status=404,
+                                       )
+        assert result == {'__type': 'Not Found Error', 'message': 'Not found'}
+
+        assert group['name'] not in tests.call_action_api(self.app,
+                                                          'group_list')
+        warandpeace = tests.call_action_api(self.app, 'package_show',
+                                            id='warandpeace')
+        assert group['name'] not in [group_['name'] for group_ in
+                                     warandpeace['groups']]
+        # TODO: Also want to assert that user is not in group anymore, but
+        # how to get a user's groups?
+
+    def test_group_purge_by_id(self):
+        '''A sysadmin should be able to purge a group by passing its id.'''
+
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan'}],
+                                      )
+
+        # Purge the group.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       apikey=sysadmin.apikey,
+                                       id=group['id'],
+                                       )
+
+        assert result is None
+
+        # Now trying to show the group should give a 404.
+        result = tests.call_action_api(self.app, 'group_show',
+                                       id='group-to-be-purged',
+                                       status=404,
+                                       )
+        assert result == {'__type': 'Not Found Error',
+                          'message': 'Not found'}
+
+        assert group['name'] not in tests.call_action_api(self.app,
+                                                          'group_list')
+        warandpeace = tests.call_action_api(self.app, 'package_show',
+                                            id='warandpeace')
+        assert group['name'] not in [group_['name'] for group_ in
+                                     warandpeace['groups']]
+
+    def test_group_purge_with_invalid_id(self):
+
+        sysadmin = model.User.get('testsysadmin')
+
+
+        for name in ('foo', 'invalid name', None, ''):
+            # Try to purge a group, but pass an invalid name.
+            result = tests.call_action_api(self.app, 'group_purge',
+                                           apikey=sysadmin.apikey,
+                                           id=name,
+                                           status=404,
+                                           )
+            assert result == {'__type': 'Not Found Error',
+                              'message': 'Not found: Group was not found'}
+
+    def test_group_purge_with_missing_id(self):
+        sysadmin = model.User.get('testsysadmin')
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       apikey=sysadmin.apikey,
+                                       status=409,
+                                       )
+        assert result == {'__type': 'Validation Error',
+                          'id': ['Missing value']}
+
+    def test_visitors_cannot_purge_groups(self):
+        '''Visitors (who aren't logged in) should not be authorized to purge
+        groups.
+
+        '''
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged-2',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan'}],
+                                      )
+
+        # Try to purge the group without an API key.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       id=group['id'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
+
+    def test_users_cannot_purge_groups(self):
+        '''Users who are not members of a group should not be authorized to
+        purge the group.
+
+        '''
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged-3',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan'}],
+                                      )
+
+        # Get a user who is not a member of the group.
+        annafan = tests.call_action_api(self.app, 'user_show',
+                                        id='annafan', apikey=sysadmin.apikey)
+        # Since we did user_show as a sysadmin we should have got the user's
+        # api key.
+        assert 'apikey' in annafan
+
+        # Try to purge the group with annafan's API key.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       id=group['id'],
+                                       apikey=annafan['apikey'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
+
+    def test_members_cannot_purge_groups(self):
+        '''Members of a group should not be authorized to purge the group.
+
+        '''
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged-4',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan',
+                                              'capacity': 'member'}],
+                                      )
+
+        # Get a user who is a member of the group.
+        russianfan = tests.call_action_api(self.app, 'user_show',
+                                           id='russianfan',
+                                           apikey=sysadmin.apikey)
+        # Since we did user_show as a sysadmin we should have got the user's
+        # api key.
+        assert 'apikey' in russianfan
+
+        # Try to purge the group with russianfan's API key.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       id=group['id'],
+                                       apikey=russianfan['apikey'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
+
+    def test_editors_cannot_purge_groups(self):
+        '''Editors of a group should not be authorized to purge the group.
+
+        '''
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged-5',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan',
+                                              'capacity': 'editor'}],
+                                      )
+
+        # Get a user who is an editor of the group.
+        russianfan = tests.call_action_api(self.app, 'user_show',
+                                           id='russianfan',
+                                           apikey=sysadmin.apikey)
+        # Since we did user_show as a sysadmin we should have got the user's
+        # api key.
+        assert 'apikey' in russianfan
+
+        # Try to purge the group with russianfan's API key.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       id=group['id'],
+                                       apikey=russianfan['apikey'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
+
+    def test_admins_cannot_purge_groups(self):
+        '''Admins of a group should not be authorized to purge the group.
+
+        '''
+        sysadmin = model.User.get('testsysadmin')
+
+        # Make a group with a dataset and a user.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=sysadmin.apikey,
+                                      name='group-to-be-purged-6',
+                                      packages=[{'id': 'warandpeace'}],
+                                      users=[{'name': 'russianfan',
+                                              'capacity': 'admin'}],
+                                      )
+
+        # Get a user who is an admin of the group.
+        russianfan = tests.call_action_api(self.app, 'user_show',
+                                           id='russianfan',
+                                           apikey=sysadmin.apikey)
+        # Since we did user_show as a sysadmin we should have got the user's
+        # api key.
+        assert 'apikey' in russianfan
+
+        # Try to purge the group with russianfan's API key.
+        result = tests.call_action_api(self.app, 'group_purge',
+                                       id=group['id'],
+                                       apikey=russianfan['apikey'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
 
 
 class TestGroupsVersion1(Version1TestCase, GroupsTestCase): pass
