@@ -12,7 +12,7 @@
   <li class="active"><a href="">{{ _('Edit') }}</a></li>
 {% endblock %}
 
-{% block edit_action %}
+{% block content_action %}
   {% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}
 {% endblock %}
 

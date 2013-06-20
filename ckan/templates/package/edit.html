@@ -13,7 +13,7 @@
   {% snippet 'package/snippets/resources.html', pkg=pkg, action='resource_edit' %}
 {% endblock %}
 
-{% block edit_action %}
+{% block content_action %}
   {% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn', icon='eye-open' %}
 {% endblock %}
 

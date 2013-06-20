@@ -2,11 +2,14 @@
 
 {% block subtitle %}{{ _('Edit datasets') }} - {{ super() }}{% endblock %}
 
+{% block page_primary_action %}
+  {% link_for _('Add dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+{% endblock %}
+
 {% block primary_content_inner %}
   <div class="clearfix">
     <h1 class="hide-heading">{{ _('Edit datasets') }}</h1>
     <div class="primary">
-      {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
       <h3 class="page-heading">
         {% block page_heading %}
         {%- if c.page.item_count -%}

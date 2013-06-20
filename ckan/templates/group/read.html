@@ -2,7 +2,7 @@
 
 {% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
-{% block add_action %}
+{% block page_primary_action %}
   {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
 {% endblock %}
 

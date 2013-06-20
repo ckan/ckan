@@ -7,13 +7,13 @@
   <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='group', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
-{% block edit_action %}
+{% block content_action %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
     {% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
-{% block page_header_tabs %}
+{% block content_primary_nav %}
   {{ h.build_nav_icon('group_read', _('Datasets'), id=c.group_dict.name) }}
   {{ h.build_nav_icon('group_activity', _('Activity Stream'), id=c.group_dict.name, offset=0) }}
   {{ h.build_nav_icon('group_about', _('About'), id=c.group_dict.name) }}

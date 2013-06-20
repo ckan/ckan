@@ -8,7 +8,7 @@
 
 {% block page_header %}{% endblock %}
 
-{% block add_action %}
+{% block page_primary_action %}
   {% if h.check_access('organization_create') %}
     {% link_for _('Add Organization'), controller='organization', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}

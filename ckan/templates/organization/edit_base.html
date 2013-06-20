@@ -12,14 +12,14 @@
   {% endblock %}
 {% endblock %}
 
-{% block edit_action %}
+{% block content_action %}
   {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
     {% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}
   {% endif %}
   {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
-{% block page_header_tabs %}
+{% block content_primary_nav %}
   {{ h.build_nav_icon('organization_edit', _('Edit'), id=c.group_dict.name) }}
   {{ h.build_nav_icon('organization_bulk_process', _('Datasets'), id=c.group_dict.name) }}
   {{ h.build_nav_icon('organization_members', _('Members'), id=c.group_dict.name) }}

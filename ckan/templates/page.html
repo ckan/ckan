@@ -72,20 +72,20 @@
                   <article class="module">
                     {% block page_header %}
                       <header class="module-content page-header">
-                        {% if self.edit_action() | trim %}
-                          <div class="edit_action">
-                            {% block edit_action %}{% endblock %}
+                        {% if self.content_action() | trim %}
+                          <div class="content_action">
+                            {% block content_action %}{% endblock %}
                           </div>
                         {% endif %}
                         <ul class="nav nav-tabs">
-                          {% block page_header_tabs %}{% endblock %}
+                          {% block content_primary_nav %}{% endblock %}
                         </ul>
                       </header>
                     {% endblock %}
                     <div class="module-content">
-                      {% if self.add_action() | trim %}
-                        <div class="add_action">
-                          {% block add_action %}{% endblock %}
+                      {% if self.page_primary_action() | trim %}
+                        <div class="page_primary_action">
+                          {% block page_primary_action %}{% endblock %}
                         </div>
                       {% endif %}
                       {% block primary_content_inner %}
