@@ -683,7 +683,7 @@ class UserCmd(CkanCommand):
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 4
+    max_args = 5
     min_args = 0
 
     def command(self):
@@ -802,7 +802,8 @@ class UserCmd(CkanCommand):
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
-            print e
+            print 'ERROR validating user details:'
+            print '  ', e
             sys.exit(1)
 
     def remove(self):
