@@ -1468,7 +1468,24 @@ def format_resource_items(items):
 
 def can_be_previewed(resource, package):
     data_dict = {'resource': resource, 'package': package}
-    return datapreview.can_be_previewed(data_dict)
+    format_lower = resource['format'].lower()
+    directly = False
+
+    if resource['url']:
+
+        direct_embed = config.get('ckan.preview.direct', '').split()
+        if not direct_embed:
+            direct_embed = datapreview.DEFAULT_DIRECT_EMBED
+        loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
+        if not loadable_in_iframe:
+            loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
+
+        if datapreview.can_be_previewed(data_dict):
+            return True
+        elif format_lower in direct_embed or format_lower in loadable_in_iframe:
+            return True
+
+    return False
 
 
 def resource_preview(resource, pkg_id):
