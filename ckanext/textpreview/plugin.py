@@ -1,12 +1,11 @@
-from logging import getLogger
+import logging
 
 import ckan.plugins as p
 
 from ckan.common import json
 
-log = getLogger(__name__)
+log = logging.getLogger(__name__)
 
-proxy = False
 try:
     import ckanext.resourceproxy.plugin as proxy
 except ImportError:
@@ -27,14 +26,8 @@ QUALITY = {
 
 
 class TextPreview(p.SingletonPlugin):
-    """This extension previews JSON(P)
+    '''This extension previews JSON(P).'''
 
-    This extension implements two interfaces
-
-      - ``IConfigurer`` allows to modify the configuration
-      - ``IConfigurable`` get the configuration
-      - ``IResourcePreview`` allows to add previews
-    """
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
@@ -42,29 +35,17 @@ class TextPreview(p.SingletonPlugin):
     proxy_is_enabled = False
 
     def update_config(self, config):
-        ''' Set up the resource library, public directory and
-        template directory for the preview
-        '''
+        text_formats = config.get('ckan.preview.text_formats', '').split()
+        self.text_formats = text_formats or DEFAULT_TEXT_FORMATS
 
-        self.text_formats = config.get(
-            'ckan.preview.text_formats', '').split()
-        if not self.text_formats:
-            self.text_formats = DEFAULT_TEXT_FORMATS
+        xml_formats = config.get('ckan.preview.xml_formats', '').split()
+        self.xml_formats = xml_formats or DEFAULT_XML_FORMATS
 
-        self.xml_formats = config.get(
-            'ckan.preview.xml_formats', '').split()
-        if not self.xml_formats:
-            self.xml_formats = DEFAULT_XML_FORMATS
+        json_formats = config.get('ckan.preview.json_formats', '').split()
+        self.json_formats = json_formats or DEFAULT_JSON_FORMATS
 
-        self.json_formats = config.get(
-            'ckan.preview.json_formats', '').split()
-        if not self.json_formats:
-            self.json_formats = DEFAULT_JSON_FORMATS
-
-        self.jsonp_formats = config.get(
-            'ckan.preview.jsonp_formats', '').split()
-        if not self.jsonp_formats:
-            self.jsonp_formats = DEFAULT_JSONP_FORMATS
+        jsonp_formats = config.get('ckan.preview.jsonp_formats', '').split()
+        self.jsonp_formats = jsonp_formats or DEFAULT_JSONP_FORMATS
 
         self.no_jsonp_formats = (self.text_formats +
                                  self.xml_formats +
@@ -75,13 +56,14 @@ class TextPreview(p.SingletonPlugin):
         p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
 
     def configure(self, config):
-        self.proxy_is_enabled = config.get(
-            'ckan.resource_proxy_enabled', False)
+        self.proxy_is_enabled = config.get('ckan.resource_proxy_enabled')
 
     def can_preview(self, data_dict):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
+
         quality = QUALITY.get(format_lower, 1)
+
         if format_lower in self.jsonp_formats:
             return {'can_preview': True, 'quality': quality}
         elif format_lower in self.no_jsonp_formats:
@@ -105,8 +87,8 @@ class TextPreview(p.SingletonPlugin):
         format_lower = resource['format'].lower()
         if (format_lower in self.no_jsonp_formats and
                 self.proxy_is_enabled and not resource['on_same_domain']):
-            p.toolkit.c.resource['url'] = proxy.get_proxified_resource_url(
-                data_dict)
+            url = proxy.get_proxified_resource_url(data_dict)
+            p.toolkit.c.resource['url'] = url
 
     def preview_template(self, context, data_dict):
         return 'text.html'
