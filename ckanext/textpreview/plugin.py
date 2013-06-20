@@ -18,6 +18,13 @@ DEFAULT_XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss']
 DEFAULT_JSON_FORMATS = ['json', 'gjson', 'geojson']
 DEFAULT_JSONP_FORMATS = ['jsonp']
 
+# returned preview quality will be one but can be overridden here
+QUALITY = {
+    'text/plain': 2,
+    'txt': 2,
+    'plain': 2,
+}
+
 
 class TextPreview(p.SingletonPlugin):
     """This extension previews JSON(P)
@@ -74,12 +81,17 @@ class TextPreview(p.SingletonPlugin):
     def can_preview(self, data_dict):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
+        quality = QUALITY.get(format_lower, 1)
         if format_lower in self.jsonp_formats:
-            return True
-        elif format_lower in self.no_jsonp_formats and (
-                self.proxy_is_enabled or resource['on_same_domain']):
-            return True
-        return False
+            return {'can_preview': True, 'quality': quality}
+        elif format_lower in self.no_jsonp_formats:
+            if self.proxy_is_enabled or resource['on_same_domain']:
+                return {'can_preview': True, 'quality': quality}
+            else:
+                return {'can_preview': False,
+                        'fixable': 'Enable resource_proxy',
+                        'quality': quality}
+        return {'can_preview': False}
 
     def setup_template_variables(self, context, data_dict):
         assert self.can_preview(data_dict)
