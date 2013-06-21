@@ -306,9 +306,34 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     model.repo.commit_and_remove()
 
 def group_purge(context, data_dict):
+    '''Purge a group.
+
+    Purging a group completely removes the group from the CKAN database,
+    whereas deleting a group simply marks the group as deleted (it will no
+    longer show up in the frontend, but is still in the db).
+
+    You must be authorized to purge the group.
+
+    :param id: the name or id of the group to be purged
+    :type id: string
+
+    '''
     return _group_or_org_purge(context, data_dict, is_org=False)
 
 def organization_purge(context, data_dict):
+    '''Purge an organization.
+
+    Purging an organization completely removes the organization from the CKAN
+    database, whereas deleting an organization simply marks the organization as
+    deleted (it will no longer show up in the frontend, but is still in the
+    db).
+
+    You must be authorized to purge the organization.
+
+    :param id: the name or id of the organization to be purged
+    :type id: string
+
+    '''
     return _group_or_org_purge(context, data_dict, is_org=True)
 
 def task_status_delete(context, data_dict):
