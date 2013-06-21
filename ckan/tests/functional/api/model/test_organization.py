@@ -63,20 +63,19 @@ class TestOrganizationPurging(object):
         '''Make an organization with a user and a dataset.'''
 
         # Make an organization with a user.
+        users = [{'name': self.org_member['name'],
+                  'capacity': 'member',
+                  },
+                 {'name': self.org_editor['name'],
+                  'capacity': 'editor',
+                  },
+                 {'name': self.org_admin['name'],
+                  'capacity': 'admin',
+                  }]
         organization = tests.call_action_api(self.app, 'organization_create',
                                              apikey=self.sysadmin.apikey,
                                              name=organization_name,
-                                             users=[
-                                              {'name': self.org_member['name'],
-                                               'capacity': 'member',
-                                               },
-                                              {'name': self.org_editor['name'],
-                                               'capacity': 'editor',
-                                               },
-                                              {'name': self.org_admin['name'],
-                                               'capacity': 'admin',
-                                               }]
-                                             )
+                                             users=users)
 
         # Add a dataset to the organization (have to do this separately
         # because the packages param of organization_create doesn't work).
@@ -94,17 +93,17 @@ class TestOrganizationPurging(object):
         assert self.package['name'] in [package_['name']
                                         for package_ in
                                         organization['packages']]
-        assert self.org_visitor['name'] not in [user['name']
-                                             for user in organization['users']]
-        assert self.org_member['name'] in [user['name']
-                                           for user in organization['users']
-                                           if user['capacity'] == 'member']
-        assert self.org_editor['name'] in [user['name']
-                                           for user in organization['users']
-                                           if user['capacity'] == 'editor']
-        assert self.org_admin['name'] in [user['name']
-                                          for user in organization['users']
-                                          if user['capacity'] == 'admin']
+        user_names = [user['name'] for user in organization['users']]
+        assert self.org_visitor['name'] not in user_names
+        members = [user['name'] for user in organization['users']
+                   if user['capacity'] == 'member']
+        assert self.org_member['name'] in members
+        editors = [user['name'] for user in organization['users']
+                   if user['capacity'] == 'editor']
+        assert self.org_editor['name'] in editors
+        admins = [user['name'] for user in organization['users']
+                  if user['capacity'] == 'admin']
+        assert self.org_admin['name'] in admins
 
         return organization
 
@@ -177,8 +176,8 @@ class TestOrganizationPurging(object):
                                            id=name,
                                            status=404,
                                            )
-            assert result == {'__type': 'Not Found Error',
-                            'message': 'Not found: Organization was not found'}
+            message = 'Not found: Organization was not found'
+            assert result == {'__type': 'Not Found Error', 'message': message}
 
     def test_organization_purge_with_missing_id(self):
         result = tests.call_action_api(self.app, 'organization_purge',
