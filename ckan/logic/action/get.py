@@ -981,6 +981,9 @@ def user_show(context, data_dict):
 
     user_dict = model_dictize.user_dictize(user_obj,context)
 
+    if context.get('return_minimal'):
+        return user_dict
+
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
 
