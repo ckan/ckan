@@ -12,5 +12,9 @@
 		<p class="empty">{{ _('There is no description for this organization') }}</p>
 	{% endif %}
 	{% endblock %}
+
+    {% block organization_extras %}
+      {% snippet 'snippets/additional_info.html', extras = h.sorted_extras(c.group_dict.extras) %}
+    {% endblock %}
 </section>
 {% endblock %}

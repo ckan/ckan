@@ -1,3 +1,9 @@
+.. External links in this file are done manually instead of using Sphinx stuff
+   like :doc:, :ref:, toctree etc.  because GitHub also renders this file as
+   reStructuredText when it shows its "guidelines for contributing" link when
+   you make a new issue or pull request, and Sphinx things like toctree don't
+   work there. See: https://github.com/blog/1184-contributing-guidelines
+
 ====================
 Contributing to CKAN
 ====================
@@ -6,52 +12,62 @@ Contributing to CKAN
 .. _CKAN issue tracker: https://github.com/okfn/ckan/issues
 .. _docs.ckan.org: http://docs.ckan.org
 
-(This section is about contributing code, if you want to contribute
-documentation see `Contributing to the CKAN Documentation`_.)
+CKAN is free open source software and code contributions are welcome, whether
+they're bug reports, source code, documentation or translations. The sections
+below will walk you through our processes for making different kinds of
+contributions to CKAN.
 
-CKAN is a free software project and code contributions are welcome. To
-contribute code to CKAN you should fork CKAN to your own GitHub account, push
-your code to a feature branch on your fork, then make a pull request for your
-branch on the central CKAN repo. We'll go through each step in detail below...
+.. contents::
+   :local:
+   :depth: 1
 
 
+----------------
+Reporting Issues
+----------------
+
+If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
+searching first to see if there's already an issue for your bug).
+
+.. _GitHub Issues: https://github.com/okfn/ckan/issues
+
+
+----------------
+Translating CKAN
+----------------
+
+For contributing translations to CKAN, see
+`Translating CKAN <http://docs.ckan.org/en/latest/i18n.html>`_.
+
+.. toctree::
+   :hidden:
+
+   i18n
+
+
+----------------
 Coding Standards
 ----------------
 
-When writing code for CKAN, try to follow our
-`coding standards <http://docs.ckan.org/en/latest/#for-ckan-developers>`_.
+When writing code for CKAN, try to respect our coding standards:
+
+.. toctree::
+   :hidden:
+
+   ckan-coding-standards
+   python-coding-standards
+   html-coding-standards
+   css-coding-standards
+   javascript-coding-standards
+
+* `CKAN Coding Standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
+* `Python Coding Standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
+* `HTML Coding Standards <http://docs.ckan.org/en/latest/html-coding-standards.html>`_
+* `CSS Coding Standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
+* `JavaScript Coding Standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
 
 
-Fork CKAN on GitHub
--------------------
-
-
-If you don't have access to the central `CKAN repo on GitHub`_ you should sign
-up for a free account on `GitHub.com <https://github.com/>`_ and
-`fork CKAN <https://help.github.com/articles/fork-a-repo>`_, so that you have somewhere to publish your CKAN code.
-
-You can now clone your CKAN fork to your development machine, create a new
-branch to commit your code on, and push your branch to your CKAN fork on GitHub
-to share your code with others.
-
-
-Feature Branches
-----------------
-
-Work for a feature or bug fix should be developed on a feature or bug branch
-forked from master. Each individual feature or bug fix should be developed on
-its own branch. The name of the branch should include the ticket number (if
-this work has a ticket in the `CKAN issue tracker`_), the branch type
-("feature" or "bug"), and a brief one-line synopsis of the purpose of the
-ticket, for example::
-
- 2298-feature-add-sort-by-controls-to-search-page
- 1518-bug-upload-file-with-spaces
-
-Naming branches this way makes it easy to search for a branch by its ticket
-number using GitHub's web interface.
-
-
+---------------
 Commit Messages
 ---------------
 
@@ -71,120 +87,150 @@ Generally, follow the `commit guidelines from the Pro Git book`_:
 
 .. _commit guidelines from the Pro Git book: http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
 
-If your commit has a ticket in the `CKAN issue tracker`_ put the ticket number
+If your commit has an issue in the `CKAN issue tracker`_ put the issue number
 at the start of the first line of the commit message like this: ``[#123]``.
 This makes the CKAN release manager's job much easier!
 
-Here is an example CKAN commit message::
+Here's an example of a good CKAN commit message::
 
  [#2505] Update source install instructions
 
  Following feedback from markw (see #2406).
 
 
-Keeping Up with master
-----------------------
-
-When developing on a branch you should periodically pull the latest commits
-from the master branch of the central CKAN repo into your feature branch, to
-prevent the two branches from diverging from each other too much and becoming
-difficult to merge.
-
-If you haven't already, add the central repo to your development repo as a
-remote::
-
-    git remote add central git://github.com/okfn/ckan.git
-    git fetch central
-
-Now, every now and then pull the latest commits from the central master branch
-into your feature branch. While on your feature branch, do::
-
-    git pull central master
 
 
-Pull Requests & Code Review
----------------------------
+-------------------------------
+Frontend Development Guidelines
+-------------------------------
+
+.. toctree::
+   :hidden:
+
+   frontend-development
+   templating
+   resources
+   template-tutorial
+   template-blocks
+   javascript-module-tutorial
+
+* `Frontend Development <http://docs.ckan.org/en/latest/frontend-development.html>`_
+* `Templating <http://docs.ckan.org/en/latest/templating.html>`_
+* `Resources <http://docs.ckan.org/en/latest/resources.html>`_
+* `Template Tutorial <http://docs.ckan.org/en/latest/template-tutorial.html>`_
+* `Template Blocks <http://docs.ckan.org/en/latest/template-blocks.html>`_
+* `JavaScript Module Tutorial <http://docs.ckan.org/en/latest/javascript-module-tutorial.html>`_
+
+
+---------------------
+Writing Documentation
+---------------------
+
+The quickest and easiest way to contribute documentation to CKAN is to sign up
+for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+
+**Tip**: Use the reStructuredText markup format when creating a wiki page,
+since reStructuredText is the format that docs.ckan.org uses, this will make
+moving the documentation from the wiki into docs.ckan.org later easier.
+
+For how to contribute to the offical CKAN documentation at docs.ckan.org, see
+the `documentation guidelines <http://docs.ckan.org/en/latest/documentation-guidelines.html>`_.
+
+.. toctree::
+   :hidden:
+
+   documentation-guidelines
+
+
+.. _making a pull request:
+
+---------------------
+Making a Pull Request
+---------------------
+
+Once you've written some CKAN code or documentation, you can submit it for
+review and merge into the central CKAN git repository by making a pull request.
+This section will walk you through the steps for making a pull request.
+
+
+#. Create a git branch
+
+   Each logically separate piece of work (e.g. a new feature, a bug fix, a new
+   docs page, or a set of improvements to a docs page) should be developed on
+   its own branch forked from the master branch.
+
+   The name of the branch should include the issue number (if this work has an
+   issue in the `CKAN issue tracker`_), the branch type (e.g. "feature" or
+   "bug"), and a brief one-line synopsis of the work, for example::
+
+    2298-feature-add-sort-by-controls-to-search-page
+    1518-bug-upload-file-with-spaces
+
+
+#. Fork CKAN on GitHub
+
+   Sign up for a free account on GitHub and
+   `fork CKAN <https://help.github.com/articles/fork-a-repo>`_, so that you
+   have somewhere to publish your work.
+
+   Add your CKAN fork to your local CKAN git repo as a git remote. Replace
+   ``USERNAME`` with  your GitHub username::
+
+       git remote add my_fork https://github.com/USERNAME/ckan
+
+
+#. Commit and push your changes
+
+   Commit your changes on your feature branch, and push your branch to GitHub.
+   For example, make sure you're currently on your feature branch then run
+   these commands::
+
+     git add doc/my_new_feature.rst
+     git commit -m "Add docs for my new feature"
+     git push my_fork my_branch
+
+   When writing your git commit messages, try to follow the `Commit Messages`_
+   guidelines.
+
+
+#. Send a pull request
+
+   Once your work on a branch is complete and is ready to be merged into the
+   master branch, `create a pull request on GitHub`_.  A member of the CKAN
+   team will review your work and provide feedback on the pull request page.
+   The reviewer may ask you to make some changes. Once your pull request has
+   passed the review, the reviewer will merge your code into the master branch
+   and it will become part of CKAN!
+
+   When submitting a pull request:
+
+   - Your branch should contain one logically separate piece of work, and not
+     any unrelated changes.
+
+   - You should have good commit messages, see `Commit Messages`_.
+
+   - Your branch should contain new or changed tests for any new or changed
+     code, and all the CKAN tests should pass on your branch, see
+     `Testing CKAN <http://docs.ckan.org/en/latest/test.html>`_.
+
+   - Your branch should contain new or updated documentation for any new or
+     updated code, see `Writing Documentation`_.
+
+   - Your branch should be up to date with the master branch of the central
+     CKAN repo, so pull the central master branch into your feature branch
+     before submitting your pull request.
+
+     For long-running feature branches, it's a good idea to pull master into
+     the feature branch periodically so that the two branches don't diverge too
+     much.
 
 .. _create a pull request on GitHub: https://help.github.com/articles/creating-a-pull-request
 
-Once your work on a branch is complete and is ready to be merged into the
-master branch, `create a pull request on GitHub`_.  A member of the CKAN team
-will review your code and provide feedback on the pull request page. The
-reviewer may ask you to make some changes to your code. Once the pull request
-has passed the code review, the reviewer will merge your code into the master
-branch and it will become part of CKAN!
 
-When submitting a pull request:
+Merging a Pull Request
+======================
 
-- Your branch should contain code for one feature or bug fix only,
-  see `Feature Branches`_.
-- Your branch should contain new or changed tests for any new or changed
-  code.
-- Your branch should contain new or updated documentation for any new or
-  updated code, see `Contributing to the CKAN Documentation`_.
-- Your branch should be up to date with the master branch of the central
-  CKAN repo, see `Keeping Up with master`_.
-- All the CKAN tests should pass on your branch, see
-  `Testing for Developers <http://docs.ckan.org/en/latest/test.html>`_.
-
-
-Merging
--------
-
-When merging a feature or bug branch into master:
+If you're reviewing a pull request for CKAN, when merging a branch into master:
 
 - Use the ``--no-ff`` option in the ``git merge`` command,
-
-
-======================================
-Contributing to the CKAN Documentation
-======================================
-
-Note: getting started with contributing to `docs.ckan.org`_ is a little
-complicated.  An easier way to contribute documentation to CKAN is to
-contribute to the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_. Docs
-started on the wiki can make it onto `docs.ckan.org`_ later.
-
-`docs.ckan.org`_ is created using `Sphinx <http://sphinx-doc.org/>`_. The
-source files are in
-`the doc directory of the CKAN git repo <https://github.com/okfn/ckan/tree/master/doc>`_.
-To edit these docs:
-
-1. If you haven't already, create a
-   `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
-   (virtualenv), activate it and clone the CKAN git repo into it. In this
-   example we'll create a virtualenv in a folder called ``pyenv``::
-
-    virtualenv --no-site-packages pyenv
-    . pyenv/bin/activate
-    pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-
-2. Install the Python dependencies necessary for building the CKAN docs into
-   your virtualenv::
-
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
-
-3. Fetch the git submodule that contains CKAN's custom Sphinx theme::
-
-    cd pyenv/src/ckan
-    git submodule init
-    git submodule update
-
-   Note: you may occassionally have to run ``git submodule update`` again,
-   when someone updates the submodule.
-
-4. Make changes to the documentation by using your text editor to edit the
-   ``pyenv/src/ckan/doc/*.rst`` files.
-
-5. Build the documentation locally, to preview your changes::
-
-    python setup.py build_sphinx
-
-   Now you can open the built HTML files in
-   ``pyenv/src/ckan/build/sphinx/html`` to see your changes, e.g.:
-   ``firefox pyenv/src/ckan/build/sphinx/html/index.html``.
-
-6. Finally, when you're ready to submit your contributions to the CKAN
-   project, follow the same process as for contributing code, see
-   `Contributing to CKAN`_.
-

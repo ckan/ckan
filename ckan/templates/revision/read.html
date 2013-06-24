@@ -16,6 +16,7 @@
       action="{{ h.url_for(controller='revision',
           action='edit',
           id=c.revision.id) }}"
+      data-module="basic-form"
       >
       <li>
         {% if rev.state != 'deleted' %}
