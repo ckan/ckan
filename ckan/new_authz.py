@@ -23,6 +23,7 @@ def clear_auth_functions_cache():
 def clean_action_name(action_name):
     ''' Used to convert old style action names into new style ones '''
     new_action_name = re.sub('package', 'dataset', action_name)
+    # CS: bad_spelling ignore
     return re.sub('licence', 'license', new_action_name)
 
 

@@ -133,7 +133,7 @@ def resource_show(context, data_dict):
     authorized = package_show(context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
     else:
         return {'success': True}
 

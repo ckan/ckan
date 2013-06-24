@@ -18,7 +18,7 @@ def package_create(context, data_dict=None):
 
         check2 = _check_group_auth(context,data_dict)
         if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
 
     return {'success': True}
 
