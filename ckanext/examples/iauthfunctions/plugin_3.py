@@ -35,5 +35,4 @@ class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions, inherit=False)
 
     def get_auth_functions(self):
-        return []
         return {'group_create': group_create}
