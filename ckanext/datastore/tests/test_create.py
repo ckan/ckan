@@ -1,5 +1,6 @@
 import json
 import nose
+from nose.tools import assert_equal
 
 import pylons
 import sqlalchemy.orm as orm
@@ -201,6 +202,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -218,6 +220,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
     def test_create_invalid_index(self):
         resource = model.Package.get('annakarenina').resources[0]

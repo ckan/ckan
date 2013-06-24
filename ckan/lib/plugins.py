@@ -230,9 +230,6 @@ class DefaultDatasetForm(object):
     def edit_template(self):
         return 'package/edit.html'
 
-    def comments_template(self):
-        return 'package/comments.html'
-
     def search_template(self):
         return 'package/search.html'
 

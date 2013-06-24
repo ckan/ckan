@@ -263,6 +263,12 @@ class BaseController(WSGIController):
         if not c.user:
             self._identify_user_default()
 
+        # If we have a user but not the userobj let's get the userobj.  This
+        # means that IAuthenticator extensions do not need to access the user
+        # model directly.
+        if c.user and not c.userobj:
+            c.userobj = model.User.by_name(c.user)
+
         # general settings
         if c.user:
             c.author = c.user

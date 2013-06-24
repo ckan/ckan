@@ -59,6 +59,12 @@ def int_validator(value, context):
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
 
+def natural_number_validator(value, context):
+    value = int_validator(value, context)
+    if value < 0:
+        raise Invalid(_('Must be natural number'))
+    return value
+
 def boolean_validator(value, context):
     if isinstance(value, bool):
         return value
@@ -431,6 +437,19 @@ def ignore_not_package_admin(key, data, errors, context):
         return
     data.pop(key)
 
+
+def ignore_not_sysadmin(key, data, errors, context):
+    '''Ignore the field if user not sysadmin or ignore_auth in context.'''
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+
+    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+        return
+
+    data.pop(key)
+
+
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
 
@@ -611,3 +630,12 @@ def role_exists(role, context):
     if role not in new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
+
+
+def list_of_strings(key, data, errors, context):
+    value = data.get(key)
+    if not isinstance(value, list):
+        raise Invalid(_('Not a list'))
+    for x in value:
+        if not isinstance(x, basestring):
+            raise Invalid('%s: %s' % (_('Not a string'), x))
