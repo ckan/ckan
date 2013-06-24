@@ -1,6 +1,7 @@
 import json
 import nose
 
+import pylons
 import sqlalchemy
 import sqlalchemy.orm as orm
 
@@ -36,13 +37,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                         {'book': 'warandpeace', 'author': 'tolstoy'}]
         }
 
-        #model.repo.rebuild_db()
-        #model.repo.clean_db()
-
-        import pylons
         engine = db._get_engine(
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod

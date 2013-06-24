@@ -1,28 +1,8 @@
-Front End Documentation
-=======================
+===============================
+Frontend Development Guidelines
+===============================
 
-The following is an index of other front-end CKAN documentation.
-
--  `HTML Coding Standards`_: The CKAN project HTML coding standards.
--  `CSS Coding Standards`_: The CKAN project CSS coding standards.
--  `JavaScript Coding Standards`_: The CKAN project JavaScript coding standards.
--  `Front End Testing`_: A guide for front end testing and browser support.
--  `Templating`_: A guide to the templating within CKAN.
--  `Resources`_: Documentation on how static resources get included in pages.
--  `Extension Templating`_: A quick guide to templating extensions.
--  `Basic Template Tutorial`_: A quick guide to creating a page.
--  `JavaScript Modules`_: A tutorial on building a CKAN JavaScript module.
-
-.. _HTML Coding Standards: ./html-coding-standards.html
-.. _CSS Coding Standards: ./css-coding-standards.html
-.. _JavaScript Coding Standards: ./javascript-coding-standards.html
-.. _Front End Testing: ./frontend-testing.html
-.. _Templating: ./templating.html
-.. _Resources: ./resources.html
-.. _Extension Templating: ./extension-templating.html
-.. _Basic Template Tutorial: ./template-tutorial.html
-.. _JavaScript Modules: ./javascript-module-tutorial.html
-
+------------------------------
 Install front end dependencies
 ------------------------------
 
@@ -49,6 +29,7 @@ style script.
 
     $ npm install less nodewatch
 
+--------------
 File Structure
 --------------
 
@@ -112,6 +93,7 @@ test
     dependencies and libraries. *spec* contains the actual test files.
     Each test file should be the filename with *.spec* appended.
 
+-----------
 Stylesheets
 -----------
 
@@ -149,17 +131,18 @@ There is a basic pattern primer available at:
 http://localhost:5000/testing/primer/ that shows all the main page
 elements that make up the CKAN core interface.
 
+----------
 JavaScript
 ----------
 
 The core of the CKAN JavaScript is split up into three areas.
 
 -  Core (such as i18n, pub/sub and API clients)
--  `JavaScript Modules`_ (small HTML components or widgets)
+-  :doc:`javascript-module-tutorial` (small HTML components or widgets)
 -  jQuery Plugins (very small reusable components)
 
 Core
-~~~~
+====
 
 Everything in the CKAN application lives on the ``ckan`` namespace.
 Currently there are four main components that make up the core.
@@ -170,7 +153,7 @@ Currently there are four main components that make up the core.
 - i18n/Jed
 
 Modules
-~~~~~~~
+=======
 
 Modules are the core of the CKAN website, every component that is
 interactive on the page should be a module. These are then initialized
@@ -205,12 +188,13 @@ factory function.
       }
     });
 
-.. Note::
-    A guide on creating your own modules is located in the
-    `JavaScript Modules`_ guide.
+.. note::
+
+   A guide on creating your own modules is located in the
+   :doc:`javascript-module-tutorial` guide.
 
 Publisher/Subscriber
-~~~~~~~~~~~~~~~~~~~~
+====================
 
 There is a simple pub/sub module included under ``ckan.pubsub`` it's
 methods are available to modules via
@@ -244,7 +228,7 @@ and allow different areas of the UI to update where relevant.
     });
 
 Client
-~~~~~~
+======
 
 Ideally no module should use jQuery.ajax() to make XHR requests to the
 CKAN API, all functionality should be provided via the client object.
@@ -260,7 +244,7 @@ CKAN API, all functionality should be provided via the client object.
     });
 
 i18n/Jed
-~~~~~~~~
+========
 
 `Jed <http://slexaxton.github.com/Jed/>`_ is a Gettext implementation in
 JavaScript. It is used throughout the application to create translatable
@@ -297,7 +281,7 @@ And we name the translate function passed into ``ckan.module()`` ``_``.
     });
 
 Life Cycle
-~~~~~~~~~~
+==========
 
 CKAN modules are intialised on dom ready. The ``ckan.module.initialize()``
 will look for all elements on the page with a ``data-module`` attribute and
@@ -317,8 +301,8 @@ Modules should also provide a ``teardown()`` method this isn't used at
 the moment except in the unit tests to restore state but may become
 useful in the future.
 
-Internationalisation
-~~~~~~~~~~~~~~~~~~~~
+Internationalization
+====================
 
 All strings within modules should be internationalised. Strings can be
 set in the ``options.i18n`` object and there is a ``.i18n()`` helper for
@@ -356,7 +340,7 @@ retrieving them.
 
 
 jQuery Plug-ins
----------------
+===============
 
 Any functionality that is not directly related to ckan should be
 packaged up in a jQuery plug-in if possible. This keeps the modules
@@ -367,7 +351,7 @@ Examples of these are ``jQuery.fn.slug()``, ``jQuery.fn.slugPreview()``
 and ``jQuery.proxyAll()``.
 
 Unit Tests
-----------
+==========
 
 There is currently a test suite available at:
 http://localhost:5000/base/test/index.html

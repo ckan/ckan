@@ -1,6 +1,6 @@
-======================
-Testing for Developers
-======================
+============
+Testing CKAN
+============
 
 If you're a CKAN developer, if you're developing an extension for CKAN, or if
 you're just installing CKAN from source, you should make sure that CKAN's tests
@@ -8,6 +8,7 @@ pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
 .. _basic-tests:
 
+----------------------------------
 Installing Additional Dependencies
 ----------------------------------
 
@@ -24,8 +25,9 @@ environment:
 
 .. parsed-literal::
 
-    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
+    pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
+-------------------
 Testing with SQLite
 -------------------
 
@@ -45,7 +47,7 @@ initial check but you should run the tests with PostgreSQL before deploying
 anything or releasing any code.
 
 Testing Core Extensions
-```````````````````````
+=======================
 
 CKAN's core extensions (those extensions that are kept in the CKAN codebase
 alongside CKAN itself) have their own tests. For example, to run the tests for
@@ -61,6 +63,7 @@ Or to run the CKAN tests and the core extensions tests together::
 
     nosetests --ckan ckan ckanext
 
+-----------------------
 Testing with PostgreSQL
 -----------------------
 
@@ -95,6 +98,7 @@ memory and turning off durability, as described
 
 .. _migrationtesting:
 
+-----------------
 Migration Testing
 -----------------
 
@@ -117,11 +121,12 @@ is how the database is created and upgraded in production.
    is that these are versioned files and people have checked in these by
    mistake, creating problems for other developers.
 
+---------------------
 Common error messages
 ---------------------
 
 ConfigError
-```````````
+===========
 
 ``nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'``
    This error can result when you run nosetests for two reasons:
@@ -133,13 +138,13 @@ ConfigError
         python -c "import pylons"
 
 OperationalError
-````````````````
+================
 
 ``OperationalError: (OperationalError) no such function: plainto_tsquery ...``
    This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
 
 nosetests
-`````````
+=========
 
 ``nosetests: error: no such option: --ckan``
    Nose is either unable to find ckan/ckan_nose_plugin.py in the python environment it is running in, or there is an error loading it. If there is an error, this will surface it::
@@ -167,3 +172,93 @@ nosetests
 
          pip freeze | grep -i nose
 
+
+-----------------
+Front-end Testing
+-----------------
+
+All new CKAN features should be coded so that they work in the
+following browsers:
+
+* Internet Explorer: 9, 8 and 7
+* Firefox: Latest + previous version
+* Chrome: Latest + previous version
+
+These browsers are determined by whatever has >= 1% share with the
+latest months data from: http://data.gov.uk/data/site-usage
+
+Install browser virtual machines
+================================
+
+In order to test in all the needed browsers you'll need access to
+all the above browser versions. Firefox and Chrome should be easy
+whatever platform you are on. Internet Explorer is a little trickier.
+You'll need Virtual Machines.
+
+We suggest you use https://github.com/xdissent/ievms to get your
+Internet Explorer virtual machines.
+
+Testing methodology
+===================
+
+Firstly we have a primer page. If you've touched any of the core
+front-end code you'll need to check if the primer is rendering
+correctly. The primer is located at:
+http://localhost:5000/testing/primer
+
+Secondly whilst writing a new feature you should endeavour to test
+in at least in your core browser and an alternative browser as often
+as you can.
+
+Thirdly you should fully test all new features that have a front-end
+element in all browsers before making your pull request into
+CKAN master.
+
+Common pitfalls & their fixes
+=============================
+
+Here's a few of the most common front end bugs and a list of their
+fixes.
+
+Reserved JS keywords
+--------------------
+
+Since IE has a stricter language definition in JS it really doesn't
+like you using JS reserved keywords method names, variables, etc...
+This is a good list of keywords not to use in your JavaScript:
+
+https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
+
+::
+
+  /* These are bad */
+  var a = {
+    default: 1,
+    delete: function() {}
+  };
+
+  /* These are good */
+  var a = {
+    default_value: 1,
+    remove: function() {}
+  };
+
+Unclosed JS arrays / objects
+----------------------------
+
+Internet Explorer doesn't like it's JS to have unclosed JS objects
+and arrays. For example:
+
+::
+
+  /* These are bad */
+  var a = {
+    b: 'c',
+  };
+  var a = ['b', 'c', ];
+
+  /* These are good */
+  var a = {
+    c: 'c'
+  };
+  var a = ['b', 'c'];

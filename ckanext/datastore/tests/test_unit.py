@@ -20,19 +20,6 @@ class TestTypeGetters(unittest.TestCase):
         assert db._get_list([u'foo', u'bar']) == ['foo', 'bar']
         assert db._get_list(['foo', ['bar', 'baz']]) == ['foo', ['bar', 'baz']]
 
-    def test_bool(self):
-        assert db._get_bool(None) is False
-        assert db._get_bool(False) is False
-        assert db._get_bool(True) is True
-        assert db._get_bool('', True) is True
-        assert db._get_bool('', False) is False
-        assert db._get_bool('True') is True
-        assert db._get_bool('False') is False
-        assert db._get_bool('1') is True
-        assert db._get_bool('0') is False
-        assert db._get_bool('on') is True
-        assert db._get_bool('off') is False
-
     def test_is_valid_field_name(self):
         assert db._is_valid_field_name("foo")
         assert db._is_valid_field_name("foo bar")

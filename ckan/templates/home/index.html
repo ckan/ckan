@@ -85,7 +85,7 @@
     {% for group in c.group_package_stuff %}
       <div class="span6">
         <div class="box">
-          {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+          {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=50, truncate_title=35 %}
         </div>
       </div>
     {% endfor %}
@@ -93,4 +93,5 @@
 {% endblock %}
 
 {# Remove the toolbar. #}
+
 {% block toolbar %}{% endblock %}

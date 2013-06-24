@@ -75,9 +75,6 @@ class PackageController(base.BaseController):
     def _edit_template(self, package_type):
         return lookup_package_plugin(package_type).edit_template()
 
-    def _comments_template(self, package_type):
-        return lookup_package_plugin(package_type).comments_template()
-
     def _search_template(self, package_type):
         return lookup_package_plugin(package_type).search_template()
 
@@ -221,7 +218,7 @@ class PackageController(base.BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license_id': _('Licence'),
+                    'license_id': _('License'),
                     }
 
             for facet in g.facets:
@@ -356,27 +353,6 @@ class PackageController(base.BaseController):
         template = template[:template.index('.') + 1] + format
 
         return render(template, loader_class=loader)
-
-    def comments(self, id):
-        package_type = self._get_package_type(id)
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
-        # check if package exists
-        try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-            c.pkg = context['package']
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
-
-        # used by disqus plugin
-        c.current_package_id = c.pkg.id
-
-        # render the package
-        package_saver.PackageSaver().render_package(c.pkg_dict)
-        return render(self._comments_template(package_type))
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -570,7 +546,9 @@ class PackageController(base.BaseController):
                                   action='resource_edit',
                                   resource_id=resource_id,
                                   id=id)
-        data = resource_dict
+        if not data:
+            data = resource_dict
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -609,6 +587,9 @@ class PackageController(base.BaseController):
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
+                except NotFound:
+                    abort(404,
+                      _('The dataset {id} could not be found.').format(id=id))
                 if not len(data_dict['resources']):
                     # no data so keep on page
                     msg = _('You must add at least one data resource')
@@ -638,6 +619,9 @@ class PackageController(base.BaseController):
                 return self.new_resource(id, data, errors, error_summary)
             except NotAuthorized:
                 abort(401, _('Unauthorized to create a resource'))
+            except NotFound:
+                abort(404,
+                    _('The dataset {id} could not be found.').format(id=id))
             if save_action == 'go-metadata':
                 # go to final stage of add dataset
                 redirect(h.url_for(controller='package',
@@ -662,7 +646,10 @@ class PackageController(base.BaseController):
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
-        pkg_dict = get_action('package_show')(context, {'id': id})
+        try:
+            pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('The dataset {id} could not be found.').format(id=id))
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
         if pkg_dict['state'] == 'draft':
@@ -1015,33 +1002,6 @@ class PackageController(base.BaseController):
                 is_included = True
         if not is_included:
             options.insert(1, (pkg.license_id, pkg.license_id))
-
-    def authz(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
-            abort(404, _('Dataset not found'))
-        # needed to add in the tab bar to the top of the auth page
-        c.pkg = pkg
-        c.pkgname = pkg.name
-        c.pkgtitle = pkg.title
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'package': pkg}
-            check_access('package_edit_permissions', context)
-            c.authz_editable = True
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-        except NotAuthorized:
-            c.authz_editable = False
-        if not c.authz_editable:
-            abort(401, _('User %r not authorized to edit %s '
-                               'authorizations') % (c.user, id))
-
-        roles = self._handle_update_of_authz(pkg)
-        self._prepare_authz_info_for_render(roles)
-
-        # c.related_count = len(pkg.related)
-
-        return render('package/authz.html')
 
     def delete(self, id):
 

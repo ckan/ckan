@@ -1,3 +1,4 @@
+'''API functions for deleting data from CKAN.'''
 
 import ckan.logic
 import ckan.logic.action
