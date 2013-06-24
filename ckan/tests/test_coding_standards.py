@@ -30,6 +30,9 @@ base_path = os.path.abspath(os.path.join(file_path, '..', '..'))
 def process_directory(directory):
     base_len = len(base_path) + 1
     for (dirpath, dirnames, filenames) in os.walk(directory):
+        # ignore hidden files and dir
+        filenames = [f for f in filenames if not f[0] == '.']
+        dirnames[:] = [d for d in dirnames if not d[0] == '.']
         for name in filenames:
             if name.endswith('.py'):
                 path = os.path.join(dirpath, name)
@@ -88,7 +91,6 @@ class TestNastyString(object):
         'ckan/tests/functional/api/test_revision_search.py',
         'ckan/tests/functional/test_pagination.py',
         'ckan/tests/models/test_package_relationships.py',
-        'ckanext/resourceproxy/controller.py',
     ]
     fails = {}
     passes = []
@@ -762,7 +764,6 @@ class TestPep8(object):
         'ckanext/pdfpreview/plugin.py',
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
-        'ckanext/resourceproxy/controller.py',
         'ckanext/resourceproxy/plugin.py',
         'ckanext/resourceproxy/tests/test_proxy.py',
         'ckanext/stats/controller.py',
