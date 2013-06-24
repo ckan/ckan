@@ -766,8 +766,8 @@ def term_translation_update_many(context, data_dict):
 
     if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error': ['term_translation_update_many needs to have a '
-                       'list of dicts in field data']}
+            {'error': 'term_translation_update_many needs to have a '
+                      'list of dicts in field data'}
         )
 
     context['defer_commit'] = True
