@@ -1468,8 +1468,10 @@ def format_resource_items(items):
 
 def can_be_previewed(resource, package):
     data_dict = {'resource': resource, 'package': package}
+    if datapreview.can_be_previewed(data_dict):
+        return True
+
     format_lower = resource['format'].lower()
-    directly = False
 
     if resource['url']:
 
@@ -1480,10 +1482,8 @@ def can_be_previewed(resource, package):
         if not loadable_in_iframe:
             loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-        if datapreview.can_be_previewed(data_dict):
-            return True
-        elif format_lower in direct_embed or format_lower in loadable_in_iframe:
-            return True
+        return (format_lower in direct_embed or
+            format_lower in loadable_in_iframe)
 
     return False
 
