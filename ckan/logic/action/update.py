@@ -321,7 +321,7 @@ def package_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Updated object %s' % str(pkg.name))
+    log.debug('Updated object %s' % pkg.name)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -764,11 +764,10 @@ def term_translation_update_many(context, data_dict):
     '''
     model = context['model']
 
-
-    if not data_dict.get('data') and isinstance(data_dict, list):
+    if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error':
-             'term_translation_update_many needs to have a list of dicts in field data'}
+            {'error': 'term_translation_update_many needs to have a '
+                      'list of dicts in field data'}
         )
 
     context['defer_commit'] = True
