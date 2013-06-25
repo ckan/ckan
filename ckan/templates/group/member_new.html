@@ -1,9 +1,9 @@
-{% extends "group/read_base.html" %}
+{% extends "group/edit_base.html" %}
 {% import 'macros/form.html' as form %}
 
 {% block primary_content_inner %}
   <div class="module-content">
-    {% link_for _('Back to all members'), controller='group', action='members', id=c.group_dict.id, class_='btn pull-right' %}
+    {% link_for _('Back to all members'), controller='group', action='members', id=c.group_dict.id, class_='btn pull-right', icon='arrow-left' %}
     <h1 class="page-heading">
       {% block page_heading %}{{ _('Edit Member') if c.user_name else _('Add Member') }}{% endblock %}
     </h1>
@@ -17,8 +17,30 @@
       {% endif %}
       {% set format_attrs = {'data-module': 'autocomplete'} %}
       {{ form.select('role', label=_('Role'), options=c.roles, selected='', error='', attrs=format_attrs) }}
-      <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" name="submit" >{{ _('Add') }}</button>
+      </div>
     </form>
     {% endblock %}
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  {{ super() }}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-large icon-info-sign"></i>
+      {{ _('What are roles?') }}
+    </h2>
+    <div class="module-content">
+      {% trans %}
+        <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as
+          manage group members.</p>
+        <p><strong>Editor:</strong> Can add and edit datasets, but not manage
+          group members.</p>
+        <p><strong>Member:</strong> Can view the group's private
+          datasets, but not add new datasets.</p>
+      {% endtrans %}
+    </div>
   </div>
 {% endblock %}

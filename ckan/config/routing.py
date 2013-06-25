@@ -290,6 +290,8 @@ def make_map():
                   ])))
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-sign'),
+        m.connect('group_edit', '/group/edit/{id}', action='edit',
+                  ckan_icon='edit')
         m.connect('group_members', '/group/members/{id}', action='members',
                   ckan_icon='group'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',

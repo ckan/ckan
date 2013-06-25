@@ -1,4 +1,4 @@
-{% extends "group/index.html" %}
+{% extends "group/edit_base.html" %}
 
 {% block add_action_content %}{% endblock %}
 
@@ -7,13 +7,11 @@
   <li class="active">{% block breadcrumb_link %}{{ h.nav_link(_('Add a Group'), controller='group', action='new') }}{% endblock %}</li>
 {% endblock %}
 
-{% block primary_content %}
-  <div class="module">
-    <div class="module-content">
-      <h1 class="page-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
-      {% block form %}
-        {{ c.form | safe }}
-      {% endblock %}
-    </div>
+{% block primary_content_inner %}
+  <div class="module-content">
+    <h1 class="hide-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
+    {% block form %}
+      {{ c.form | safe }}
+    {% endblock %}
   </div>
 {% endblock %}
