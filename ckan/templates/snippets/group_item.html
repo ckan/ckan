@@ -1,22 +1,22 @@
 <section class="group-list module module-narrow module-shallow">
-  <header class="module-heading media">
+  <header class="module-heading">
     {% set url=h.url_for(controller='group', action='read', id=group.name) %}
     {% set truncate=truncate or 0 %}
-    <a class="media-image" href="{{ url }}">
-      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="85" alt="{{ group.name }}" />
+    {% set truncate_title = truncate_title or 0 %}
+    {% set title = group.title or group.name %}
+    <a class="module-image" href="{{ url }}">
+      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
     </a>
-    <div class="media-content">
-      <h3 class="media-heading"><a href={{ url }}>{{ group.title or group.name }}</a></h3>
-      {% if group.description %}
-        {% if truncate == 0 %}
-          <p>{{ h.markdown_extract(group.description)|urlize }}</p>
-        {% else %}
-          <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
-        {% endif %}
+    <h3 class="media-heading"><a href="{{ url }}">{{ group.title or group.name }}</a></h3>
+    {% if group.description %}
+      {% if truncate == 0 %}
+        <p>{{ h.markdown_extract(group.description)|urlize }}</p>
       {% else %}
-        <p class="empty">{{ _('There is no description for this group') }}</p>
+        <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
       {% endif %}
-    </div>
+    {% else %}
+      <p class="empty">{{ _('There is no description for this group') }}</p>
+    {% endif %}
   </header>
   {% set list_class = "unstyled dataset-list" %}
   {% set item_class = "dataset-item module-content" %}

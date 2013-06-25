@@ -1,16 +1,18 @@
-===============
-CKAN Deployment
-===============
+==========================
+Deploying a Source Install
+==========================
 
-.. note:: If you used the package installation method your site will already
-          have been deployed using the Apache and modwsgi route described
-          below.
+Once you've installed CKAN from source by following the instructions in
+:doc:`install-from-source`, you can follow these instructions to deploy
+your CKAN site using a production web server (Apache), so that it's available
+to the Internet.
 
-This document covers how to deploy CKAN in a production setup where it is
-available on the Internet. This will usually involve connecting the CKAN web
-application to a web server such as Apache_ or Nginx_.
+.. note::
 
-As CKAN uses WSGI, a standard interface between web servers and Python web
+   If you installed CKAN from package you don't need to follow this section,
+   your site is already deployed using Apache and modwsgi as described below.
+
+Because CKAN uses WSGI, a standard interface between web servers and Python web
 applications, CKAN can be used with a number of different web server and
 deployment configurations including:
 
@@ -22,16 +24,15 @@ deployment configurations including:
 .. _Apache: http://httpd.apache.org/
 .. _Nginx: http://nginx.org/
 
-Deploying CKAN on Ubuntu using Apache and modwsgi
-=================================================
+This guide explains how to deploy CKAN using Apache and modwsgi on an Ubuntu
+server. These instructions have been tested on Ubuntu 12.04.
 
-Once you've installed CKAN on your Ubuntu server by following the instructions
-in :doc:`install-from-source`, you can follow these instructions to deploy your
-site using Apache and modwsgi. These instructions have been tested on Ubuntu
-12.04.
+If run into any problems following these instructions, see `Troubleshooting`_
+below.
 
-Create a ``production.ini`` File
---------------------------------
+-----------------------------------
+1. Create a ``production.ini`` File
+-----------------------------------
 
 Create your site's ``production.ini`` file, by copying the ``development.ini``
 file you created in :doc:`install-from-source` earlier:
@@ -40,8 +41,10 @@ file you created in :doc:`install-from-source` earlier:
 
     cp |development.ini| |production.ini|
 
-Install Apache and modwsgi
---------------------------
+
+-----------------------------
+2. Install Apache and modwsgi
+-----------------------------
 
 Install Apache_ (a web server) and modwsgi_ (an Apache module that adds WSGI
 support to Apache)::
@@ -50,8 +53,10 @@ support to Apache)::
 
 .. _modwsgi: https://code.google.com/p/modwsgi/ 
 
-Install an Email Server
------------------------
+
+--------------------------
+3. Install an Email Server
+--------------------------
 
 If one isn't installed already, install an email server to enable CKAN's email
 features (such as sending traceback emails to sysadmins when crashes occur, or
@@ -65,8 +70,9 @@ When asked to choose a Postfix configuration, choose *Internet Site* and press
 return.
 
 
-Create the WSGI Script File
----------------------------
+------------------------------
+4. Create the WSGI Script File
+------------------------------
 
 Create your site's WSGI script file |apache.wsgi| with the following
 contents:
@@ -88,8 +94,10 @@ WSGI script file. The script file then handles those requests by directing them
 on to your CKAN instance (after first configuring the Python environment for
 CKAN to run in).
 
-Create the Apache Config File
------------------------------
+
+--------------------------------
+5. Create the Apache Config File
+--------------------------------
 
 Create your site's Apache config file at |apache_config_file|, with the
 following contents:
@@ -120,8 +128,10 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
-Enable Your CKAN Site
----------------------
+
+------------------------
+6. Enable Your CKAN Site
+------------------------
 
 Finally, enable your CKAN site in Apache:
 
@@ -133,11 +143,13 @@ Finally, enable your CKAN site in Apache:
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
 
+
+---------------
 Troubleshooting
 ---------------
 
 Default Apache Welcome Page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===========================
 
 If you see a default Apache welcome page where your CKAN front page should be,
 it may be because the default Apache config file is overriding your CKAN config
@@ -149,7 +161,7 @@ file (both use port 80), so disable it and restart Apache:
     |reload_apache|
 
 403 Forbidden and 500 Internal Server Error
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===========================================
 
 If you see a 403 Forbidden or 500 Internal Server Error page where your CKAN
 front page should be, you may have a problem with your unix file permissions.
@@ -159,7 +171,7 @@ like ``-rw-r--r--`` and the permissions of each of its parent directories
 should look like ``drwxr-xr-x``.
 
 IOError: sys.stdout access restricted by mod_wsgi
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=================================================
 
 If you're getting 500 Internal Server Error pages and you see ``IOError:
 sys.stdout access restricted by mod_wsgi`` in your log files, it means that
@@ -181,14 +193,14 @@ not allowed to write to stdout. Possible solutions include:
 Also see https://code.google.com/p/modwsgi/wiki/ApplicationIssues
 
 Log Files
-~~~~~~~~~
+=========
 
 In general, if it's not working look in the log files in ``/var/log/apache2``
 for error messages. ``ckan_default.error.log`` should be particularly
 interesting.
 
 modwsgi wiki
-~~~~~~~~~~~~
+============
 
 Some pages on the modwsgi wiki have some useful information for troubleshooting modwsgi problems:
 
