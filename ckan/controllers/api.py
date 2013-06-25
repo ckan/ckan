@@ -83,6 +83,7 @@ class ApiController(base.BaseController):
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
                 response_msg = h.json.dumps(response_data)
+                response_msg = response_msg.replace('\"', '\\"')
                 # we need to sort unicode items like \uxxx
                 response_msg = response_msg.decode('unicode-escape')
                 # \n and \r will have been converted so we undo this

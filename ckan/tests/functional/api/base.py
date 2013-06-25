@@ -93,6 +93,8 @@ class ApiTestCase(object):
         data = self.loads(msg)
         self.assert_equal(data['name'], 'annakarenina')
         self.assert_equal(data['license_id'], 'other-open')
+        msg = msg.decode('utf-8')
+
         assert '"license_id": "other-open"' in msg, str(msg)
         assert 'russian' in msg, msg
         assert 'tolstoy' in msg, msg
