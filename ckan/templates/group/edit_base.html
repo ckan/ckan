@@ -1,5 +1,7 @@
 {% extends "group/read_base.html" %}
 
+{% set group = c.group_dict %}
+
 {% block actions_content %}
   <li>{% link_for _('View group'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}</li>
 {% endblock %}
