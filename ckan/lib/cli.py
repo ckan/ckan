@@ -5,6 +5,7 @@ import sys
 import logging
 from pprint import pprint
 import re
+import csv
 
 import paste.script
 from paste.registry import Registry
