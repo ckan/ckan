@@ -8,10 +8,8 @@ Example:
     {% snippet "organization/snippets/organization_list.html" %}
 
 #}
-<ul class="media-grid">
+<ul class="media-grid" data-module="media-grid">
   {% for organization in organizations %}
-    {% set first = loop.index0 % 3 == 0 %}
-    {% set last  = loop.index0 % 3 == 2 %}
-    {% snippet "organization/snippets/organization_item.html", organization=organization, first=first, last=last %}
+    {% snippet "organization/snippets/organization_item.html", organization=organization, position=loop.index %}
   {% endfor %}
 </ul>

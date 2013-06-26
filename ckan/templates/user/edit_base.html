@@ -13,7 +13,7 @@
     {% block page_header %}
       <header class="module-content page-header">
         <ul class="nav nav-tabs">
-          {% block page_header_tabs %}
+          {% block content_primary_nav %}
             {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
             {{ h.build_nav_icon('user_edit', _('Settings'), id=user.name) }}
           {% endblock %}

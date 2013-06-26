@@ -178,6 +178,10 @@ def group_edit_permissions(context, data_dict):
 
 def user_update(context, data_dict):
     user = context['user']
+    if not user and 'reset_key' not in data_dict:
+        return {'success': False,
+                'msg': _('Have to be logged in to edit user')}
+
     user_obj = logic_auth.get_user_object(context, data_dict)
     user_reset = ('reset_key' in data_dict and
                   data_dict['reset_key'] == user_obj.reset_key)
@@ -185,7 +189,7 @@ def user_update(context, data_dict):
     if not (user == user_obj.name) and not user_reset:
         return {'success': False,
                 'msg': _('User %s not authorized to edit user %s') %
-                        (str(user), user_obj.id)}
+                        (user, user_obj.id)}
 
     return {'success': True}
 
