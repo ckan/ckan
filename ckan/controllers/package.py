@@ -1153,9 +1153,8 @@ class PackageController(base.BaseController):
         return render('package/resource_read.html')
 
     def _resource_preview(self, data_dict):
-        format_lower = data_dict['resource']['format'].lower()
-        return bool(format_lower in datapreview.DEFAULT_DIRECT_EMBED +
-                    datapreview.DEFAULT_LOADABLE_IFRAME
+        return bool(datapreview.res_format(data_dict['resource'])
+                    in datapreview.direct() + datapreview.loadable()
                     or datapreview.get_preview_plugin(
                         data_dict, return_first=True))
 
