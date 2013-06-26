@@ -52,12 +52,15 @@ def _on_same_domain(data_dict):
     return compare_domains([ckan_url, resource_url])
 
 
-def get_preview_plugin(data_dict):
+def get_preview_plugin(data_dict, return_first=False):
     '''Determines whether there is an extension that can preview the resource.
 
     :param data_dict: contains a resource and package dict.
         The resource dict has to have a value for ``on_same_domain``
     :type data_dict: dictionary
+
+    :param return_first: If True return the first plugin that can preview
+    :type return_first: bool
 
     Returns a dict of plugins that can preview or ones that are fixable'''
 
@@ -76,6 +79,8 @@ def get_preview_plugin(data_dict):
             p_info.update(data)
         # if we can preview
         if p_info['can_preview']:
+            if return_first:
+                plugin
             plugins_that_can_preview.append(p_info)
         elif p_info.get('fixable'):
             plugins_fixable.append(p_info)

@@ -1,5 +1,4 @@
 {% set url = h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=res.id) %}
-{% set can_be_previewed = h.can_be_previewed(resource=res, package=pkg) %}
 <li class="resource-item">
   {% block resource_item_title %}
   <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
@@ -25,7 +24,7 @@
       {% block resource_item_explore_links %}
       <li>
         <a href="{{ url }}">
-          {% if can_be_previewed %}
+          {% if res.can_be_previewed %}
             <i class="icon-bar-chart"></i>
             {{ _('Preview') }}
           {% else %}
@@ -36,7 +35,7 @@
       </li>
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          {% if can_be_previewed %}
+          {% if res.can_be_previewed %}
             <i class="icon-download"></i>
             {{ _('Download') }}
           {% else %}
