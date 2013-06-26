@@ -73,8 +73,8 @@
     <label class="control-label" for="license_id">License</label>
     <div class="controls">
       <select id="license_id" name="license_id">
-        <py:for each="licence_desc, licence_id in c.licences">
-          <option value="${licence_id}" py:attrs="{'selected': 'selected' if data.get('license_id', '') == licence_id else None}" >${licence_desc}</option>
+        <py:for each="license_desc, license_id in c.licenses">
+          <option value="${license_id}" py:attrs="{'selected': 'selected' if data.get('license_id', '') == license_id else None}" >${license_desc}</option>
         </py:for>
       </select>
       <p id="license-instructions">(Don't worry if you don't know which license the data has been released under).</p>

@@ -1,3 +1,5 @@
+'''API functions for adding data to CKAN.'''
+
 import logging
 
 from pylons import config
@@ -99,6 +101,10 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
+    :param owner_org: the id of the dataset's owning organization, see
+        ``organization_list()`` or ``organization_list_for_user`` for
+        available values (optional)
+    :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
               in the context, in which case just the dataset id will be returned)
@@ -175,7 +181,7 @@ def package_create(context, data_dict):
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
-    log.debug('Created object %s' % str(pkg.name))
+    log.debug('Created object %s' % pkg.name)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -569,7 +575,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
-    log.debug('Created object %s' % str(group.name))
+    log.debug('Created object %s' % group.name)
     return model_dictize.group_dictize(group, context)
 
 
@@ -816,7 +822,7 @@ def user_create(context, data_dict):
 
     context['user_obj'] = user
     context['id'] = user.id
-    log.debug('Created user %s' % str(user.name))
+    log.debug('Created user %s' % user.name)
     return user_dict
 
 ## Modifications for rest api
@@ -882,7 +888,7 @@ def vocabulary_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+    log.debug('Created Vocabulary %s' % vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -1082,7 +1088,7 @@ def follow_dataset(context, data_dict):
     if model.UserFollowingDataset.is_following(userobj.id,
             validated_data_dict['id']):
         # FIXME really package model should have this logic and provide
-        # 'dispaly_name' like users and groups
+        # 'display_name' like users and groups
         pkgobj = model.Package.get(validated_data_dict['id'])
         name = pkgobj.title or pkgobj.name or pkgobj.id
         message = _(
