@@ -1495,30 +1495,22 @@ def resource_preview(resource, package):
     that embeds a web page, recline or a pdf preview.
     '''
 
-    format_lower = resource['format'].lower()
-    directly = False
-    url = ''
-
-    data_dict = {'resource': resource, 'package': package}
-
     if not resource['url']:
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
                        reason=_(u'The resource url is not specified.'))
-    direct_embed = config.get('ckan.preview.direct', '').split()
-    if not direct_embed:
-        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
-    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-    if not loadable_in_iframe:
-        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
+
+    format_lower = datapreview.res_format(resource)
+    directly = False
+    data_dict = {'resource': resource, 'package': package}
 
     if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
                       resource_id=resource['id'], id=package['id'], qualified=True)
-    elif format_lower in direct_embed:
+    elif format_lower in datapreview.direct():
         directly = True
         url = resource['url']
-    elif format_lower in loadable_in_iframe:
+    elif format_lower in datapreview.loadable():
         url = resource['url']
     else:
         reason = None
