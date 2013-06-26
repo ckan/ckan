@@ -1486,29 +1486,7 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def can_be_previewed(resource, package):
-    data_dict = {'resource': resource, 'package': package}
-    if datapreview.can_be_previewed(data_dict):
-        return True
-
-    format_lower = resource['format'].lower()
-
-    if resource['url']:
-
-        direct_embed = config.get('ckan.preview.direct', '').split()
-        if not direct_embed:
-            direct_embed = datapreview.DEFAULT_DIRECT_EMBED
-        loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-        if not loadable_in_iframe:
-            loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
-
-        return (format_lower in direct_embed or
-            format_lower in loadable_in_iframe)
-
-    return False
-
-
-def resource_preview(resource, pkg_id):
+def resource_preview(resource, package):
     '''
     Returns a rendered snippet for a embedded resource preview.
 
@@ -1521,7 +1499,7 @@ def resource_preview(resource, pkg_id):
     directly = False
     url = ''
 
-    data_dict = {'resource': resource, 'package': c.package}
+    data_dict = {'resource': resource, 'package': package}
 
     if not resource['url']:
         return snippet("dataviewer/snippets/no_preview.html",
@@ -1534,9 +1512,9 @@ def resource_preview(resource, pkg_id):
     if not loadable_in_iframe:
         loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-    if datapreview.get_preview_plugin(data_dict):
+    if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
-                      resource_id=resource['id'], id=pkg_id, qualified=True)
+                      resource_id=resource['id'], id=package['id'], qualified=True)
     elif format_lower in direct_embed:
         directly = True
         url = resource['url']
@@ -1676,7 +1654,6 @@ __allowed_functions__ = [
     'render_markdown',
     'format_resource_items',
     'resource_preview',
-    'can_be_previewed',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',
