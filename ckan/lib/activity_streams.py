@@ -256,7 +256,7 @@ def activity_list_to_html(context, activity_stream, extra_vars):
 
         if not activity_type in activity_stream_string_functions:
             raise NotImplementedError("No activity renderer for activity "
-                "type '%s'" % str(activity_type))
+                "type '%s'" % activity_type)
 
         if activity_type in activity_stream_string_icons:
             activity_icon = activity_stream_string_icons[activity_type]

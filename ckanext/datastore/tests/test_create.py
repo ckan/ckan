@@ -1,5 +1,6 @@
 import json
 import nose
+from nose.tools import assert_equal
 
 import pylons
 import sqlalchemy.orm as orm
@@ -26,7 +27,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -209,6 +210,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -226,6 +228,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
     def test_create_invalid_index(self):
         resource = model.Package.get('annakarenina').resources[0]

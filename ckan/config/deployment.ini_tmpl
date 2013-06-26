@@ -107,7 +107,7 @@ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain a
 ckan.locale_default = en
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
 ckan.locales_offered =
-ckan.locales_filtered_out =
+ckan.locales_filtered_out = en_GB
 
 
 ## Feeds Settings

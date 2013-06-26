@@ -1,10 +1,13 @@
-.. _changelog:
+.. This tocdepth stops Sphinx from putting every subsection title in this file
+   into the master table of contents.
+
+:tocdepth: 1
 
 ---------
 Changelog
 ---------
 
-v2.0.1
+v2.0.1 2013-06-11
 =================
 
 Bug fixes:
@@ -420,7 +423,7 @@ v1.5 2011-11-07
 Major:
  * New visual theme (#1108)
     * Package & Resource edit overhaul (#1294/#1348/#1351/#1368/#1296)
-    * JS and CSS reorganisation (#1282, #1349, #1380)
+    * JS and CSS reorganization (#1282, #1349, #1380)
  * Apache Solr used for search in core instead of Postgres (#1275, #1361, #1365)
  * Authorization system now embedded in the logic layer (#1253)
  * Captcha added for user registration (#1307, #1431)

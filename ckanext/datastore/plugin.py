@@ -53,7 +53,9 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        if not model.engine_is_pg():
+        read_engine = db._get_engine(
+            {'connection_url': self.read_url})
+        if not model.engine_is_pg(read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -77,13 +79,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
         @logic.side_effect_free
         def new_resource_show(context, data_dict):
-            engine = db._get_engine(
-                context,
-                {'connection_url': self.read_url}
-            )
             new_data_dict = resource_show(context, data_dict)
             try:
-                connection = engine.connect()
+                connection = read_engine.connect()
                 result = connection.execute(
                     'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
                     new_data_dict['id']
@@ -149,8 +147,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
-            connection = db._get_engine(None,
-                                        {'connection_url': url}).connect()
+            connection = db._get_engine({'connection_url': url}).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
                 is_writable = connection.execute(sql).first()[0]
@@ -175,10 +172,10 @@ class DatastorePlugin(p.SingletonPlugin):
         only user. A table is created by the write user to test the
         read only user.
         '''
-        write_connection = db._get_engine(None, {
-            'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(None, {
-            'connection_url': self.read_url}).connect()
+        write_connection = db._get_engine(
+            {'connection_url': self.write_url}).connect()
+        read_connection = db._get_engine(
+            {'connection_url': self.read_url}).connect()
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
@@ -222,8 +219,8 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine(None, {
-                'connection_url': self.write_url}).connect()
+            connection = db._get_engine(
+                {'connection_url': self.write_url}).connect()
             connection.execute(create_alias_table_sql)
         finally:
             connection.close()
