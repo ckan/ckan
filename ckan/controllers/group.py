@@ -524,7 +524,7 @@ class GroupController(base.BaseController):
             if id != group['name']:
                 self._force_reindex(group)
 
-            h.redirect_to('%s_read' % str(group['type']), id=group['name'])
+            h.redirect_to('%s_read' % group['type'], id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:

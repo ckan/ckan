@@ -27,8 +27,7 @@ See :doc:`install-from-package`.
 See :doc:`install-from-source`.
 
 If you've already setup a CKAN website and want to upgrade it to a newer
-version of CKAN, see :doc:`upgrading-a-package-install` or
-:doc:`upgrading-a-source-install`.
+version of CKAN, see :doc:`upgrading`.
 
 ------------
 
@@ -38,5 +37,3 @@ version of CKAN, see :doc:`upgrading-a-package-install` or
    install-from-package
    install-from-source
    deployment
-   upgrading-a-package-install
-   upgrading-a-source-install

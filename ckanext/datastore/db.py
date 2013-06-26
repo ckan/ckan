@@ -114,7 +114,7 @@ def _validate_int(i, field_name, non_negative=False):
         })
 
 
-def _get_engine(context, data_dict):
+def _get_engine(data_dict):
     '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
@@ -137,13 +137,18 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            connection.execute('''CREATE TYPE "nested"
-                AS (json {0}, extra text)'''.format(
-                'json' if native_json else 'text'))
-            _pg_types.clear()
-
-            log.info("Created nested type. Native JSON: {0}".format(
+            log.info("Create nested type. Native JSON: {0}".format(
                 native_json))
+
+            import pylons
+            data_dict = {
+                'connection_url': pylons.config['ckan.datastore.write_url']}
+            engine = _get_engine(data_dict)
+            with engine.begin() as connection:
+                connection.execute(
+                    'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
+                        'json' if native_json else 'text'))
+            _pg_types.clear()
 
             ## redo cache types with json now available.
             return _cache_types(context)
@@ -972,7 +977,7 @@ def create(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1037,7 +1042,7 @@ def upsert(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
 
@@ -1080,7 +1085,7 @@ def upsert(context, data_dict):
 
 
 def delete(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     _cache_types(context)
 
@@ -1104,7 +1109,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1126,7 +1131,7 @@ def search(context, data_dict):
 
 
 def search_sql(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1198,7 +1203,7 @@ def _change_privilege(context, data_dict, what):
 def make_private(context, data_dict):
     log.info('Making resource {0} private'.format(
         data_dict['resource_id']))
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1211,7 +1216,7 @@ def make_private(context, data_dict):
 def make_public(context, data_dict):
     log.info('Making resource {0} public'.format(
         data_dict['resource_id']))
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
