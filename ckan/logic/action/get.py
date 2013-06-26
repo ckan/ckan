@@ -418,9 +418,11 @@ def group_list_authz(context, data_dict):
       (optional, default: ``False``)
     :type available_only: boolean
 
-    :param am_member: only show groups user is a member of else sys_admins get all
-    :type am-am: bool
-      (optional, default: ``False``)
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
 
     :returns: the names of groups that the user is authorized to edit
     :rtype: list of strings
