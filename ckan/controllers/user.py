@@ -610,8 +610,11 @@ class UserController(base.BaseController):
 
     def _sane_came_from(self, url):
         '''Returns True if came_from is local'''
-        return not bool(not url
-                        # url has a scheme eg http://
-                        or urlparse(url).scheme
-                        # url starts with // which can be none relative
-                        or (len(url) >= 2 and url.startswith('//')))
+        if not url or (len(url) >= 2 and url.startswith('//')):
+            return False
+        parsed = urlparse(url)
+        if parsed.scheme:
+            domain = urlparse(h.url_for('/', qualified=True)).netloc
+            if domain != parsed.netloc:
+                return False
+        return True
