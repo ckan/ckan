@@ -4,7 +4,6 @@ from urlparse import urlparse
 
 from pylons import config
 
-import ckan.lib.i18n as i18n
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
@@ -16,7 +15,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.plugins as p
 
-from ckan.common import _, session, c, g, request
+from ckan.common import _, c, g, request
 
 log = logging.getLogger(__name__)
 
