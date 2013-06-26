@@ -1270,10 +1270,13 @@ def popular(type_, number, min=1, title=None):
 
 
 def groups_available(am_member=False):
-    ''' return a list of available groups
+    '''Return a list of the groups that the user is authorized to edit.
 
-    :param am_member: only show groups user is a member of
-    :type am-am: bool
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (optional, default: False)
+    :type am-member: boolean
+
     '''
     context = {}
     data_dict = {'available_only': True, 'am_member': am_member}
