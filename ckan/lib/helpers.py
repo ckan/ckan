@@ -1274,7 +1274,8 @@ def groups_available(am_member=False):
 
     :param am_member: if True return only the groups the logged-in user is a
       member of, otherwise return all groups that the user is authorized to
-      edit (optional, default: False)
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
     :type am-member: boolean
 
     '''
