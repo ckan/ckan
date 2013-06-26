@@ -1,5 +1,6 @@
 import logging
 from urllib import quote
+from urlparse import urlparse
 
 from pylons import config
 
@@ -332,7 +333,7 @@ class UserController(base.BaseController):
     def logged_in(self):
         # redirect if needed
         came_from = request.params.get('came_from', '')
-        if came_from:
+        if self._sane_came_from(came_from):
             return h.redirect_to(str(came_from))
 
         if c.user:
@@ -368,7 +369,7 @@ class UserController(base.BaseController):
     def logged_out(self):
         # redirect if needed
         came_from = request.params.get('came_from', '')
-        if came_from:
+        if self._sane_came_from(came_from):
             return h.redirect_to(str(came_from))
         h.redirect_to(controller='user', action='logged_out_page')
 
@@ -640,3 +641,11 @@ class UserController(base.BaseController):
                              or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
+
+    def _sane_came_from(self, url):
+        '''Returns True if came_from is local'''
+        return not bool(not url
+                        # url has a scheme eg http://
+                        or urlparse(url).scheme
+                        # url starts with // which can be none relative
+                        or (len(url) >= 2 and url.startswith('//')))
