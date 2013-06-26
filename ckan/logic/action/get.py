@@ -639,7 +639,7 @@ def user_list(context, data_dict):
     )
 
     if q:
-        query = model.User.search(q, query)
+        query = model.User.search(q, query, user_name=context.get('user'))
 
     if order_by == 'edits':
         query = query.order_by(_desc(
@@ -755,6 +755,7 @@ def package_show(context, data_dict):
         item.after_show(context, package_dict)
 
     return package_dict
+
 
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
@@ -980,6 +981,9 @@ def user_show(context, data_dict):
     _check_access('user_show',context, data_dict)
 
     user_dict = model_dictize.user_dictize(user_obj,context)
+
+    if context.get('return_minimal'):
+        return user_dict
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
