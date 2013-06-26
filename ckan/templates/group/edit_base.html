@@ -10,11 +10,11 @@
   {% endblock %}
 {% endblock %}
 
-{% block actions_content %}
-  <li>{% link_for _('View group'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}</li>
+{% block content_action %}
+  {% link_for _('View group'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}
 {% endblock %}
 
-{% block page_header_tabs %}
+{% block content_primary_nav %}
   {{ h.build_nav_icon('group_edit', _('Edit'), id=c.group_dict.name) }}
   {{ h.build_nav_icon('group_members', _('Members'), id=c.group_dict.name) }}
 {% endblock %}
