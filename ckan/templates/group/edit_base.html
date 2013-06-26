@@ -2,6 +2,14 @@
 
 {% set group = c.group_dict %}
 
+{% block breadcrumb_content %}
+  <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
+  {% block breadcrumb_content_inner %}
+    <li>{% link_for group.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
+    <li class="active">{% link_for _('Edit'), controller='group', action='edit', id=group.name %}</li>
+  {% endblock %}
+{% endblock %}
+
 {% block actions_content %}
   <li>{% link_for _('View group'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}</li>
 {% endblock %}
