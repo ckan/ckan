@@ -132,7 +132,7 @@ def datastore_upsert(context, data_dict):
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -176,7 +176,7 @@ def datastore_delete(context, data_dict):
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
@@ -260,7 +260,7 @@ def datastore_search(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
 
     # Resource only has to exist in the datastore (because it could be an alias)
     if not results.rowcount > 0:
@@ -391,5 +391,5 @@ def _resource_exists(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     return results.rowcount > 0
