@@ -2730,10 +2730,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 
 def member_roles_list(context, data_dict):
-    '''Returns the roles possible for members of groups and organizations.
+    '''Return the possible roles for members of groups and organizations.
 
-    :returns: the names and titles for roles that are possible for members in
-         groups and organizations
+    :returns: a list of dictionaries each with two keys: "text" (the display
+        name of the role, e.g. "Admin") and "value" (the internal name of the
+        role, e.g. "admin")
     :rtype: list of dictionaries
+
     '''
     return new_authz.roles_list()
