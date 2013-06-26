@@ -756,6 +756,7 @@ def package_show(context, data_dict):
 
     return package_dict
 
+
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
 
