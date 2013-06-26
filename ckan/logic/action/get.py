@@ -72,7 +72,7 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
-    from ckan.model.package import package_revision_table
+    package_revision_table = model.package_revision_table
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
