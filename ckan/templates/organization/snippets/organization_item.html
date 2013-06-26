@@ -2,37 +2,41 @@
 Renders a media item for a organization. This should be used in a list.
 
 organization - A organization dict.
-first - Pass true if this is the first item in a row.
-last  - Pass true if this is the last item in a row.
 
 Example:
 
     <ul class="media-grid">
       {% for organization in organizations %}
-        {% set first = loop.index0 % 3 == 0 %}
-        {% set last  = loop.index0 % 3 == 2 %}
-        {% snippet "organization/snippets/organization_item.html", organization=organization, first=first, last=last %}
+        {% snippet "organization/snippets/organization_item.html", organization=organization %}
       {% endfor %}
     </ul>
 #}
 {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
-<li class="media-item media media-vertical{% if first %} first{% endif %}{% if last %} last{% endif %}">
-  <a class="media-image" href="{{ url }}"><img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" /></a>
-  <div class="media-content">
-    <h3 class="media-heading">
-      <a href="{{ url }}" title="{{ _('View {name}').format(name=organization.display_name) }}">
-        {{ organization.display_name }}
-      </a>
-    </h3>
+<li class="media-item">
+  {% block image %}
+    <img src="{{ organization.image_url or '/base/images/placeholder-organization.png' }}" alt="{{ organization.name }}" class="media-image">
+  {% endblock %}
+  {% block title %}
+    <h3 class="media-heading">{{ organization.display_name }}</h3>
+  {% endblock %}
+  {% block description %}
     {% if organization.description %}
       <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
     {% else %}
       <p class="empty">{{ _('This organization has no description') }}</p>
     {% endif %}
+  {% endblock %}
+  {% block datasets %}
     {% if organization.packages %}
-      <a class="btn btn-small btn-primary" href="{{ url }}">{{ ungettext('{num} Dataset', '{num} Datasets', organization.packages).format(num=organization.packages) }}</a>
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.packages).format(num=organization.packages) }}</strong>
     {% else %}
-    <span class="btn btn-small disabled">{{ _('0 Datasets') }}</span>
+      <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
-  </div>
+  {% endblock %}
+  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
+    <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
+  </a>
 </li>
+{% if position is divisibleby 3 %}
+  <li class="clearfix js-hide"></li>
+{% endif %}

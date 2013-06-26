@@ -26,7 +26,7 @@ advanced documentation last:
 * :doc:`contributing` and :doc:`test` are for **testers**, **translators** and
   **core developers** who want to contribute to CKAN.
 
-* Finally, :doc:`configuration` and :doc:`releases` are **reference** docs
+* Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
   covering CKAN's config file options and the differences between CKAN
   releases.
 
@@ -36,6 +36,7 @@ advanced documentation last:
    :maxdepth: 2
 
    installing
+   upgrading
    getting-started
    features
    writing-extensions
@@ -44,4 +45,4 @@ advanced documentation last:
    contributing
    test
    configuration
-   releases
+   changelog

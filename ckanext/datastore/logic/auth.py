@@ -1,12 +1,12 @@
 import ckan.plugins as p
 
 
-def _datastore_auth(context, data_dict):
+def _datastore_auth(context, data_dict, privilege='resource_update'):
     if not 'id' in data_dict:
         data_dict['id'] = data_dict.get('resource_id')
     user = context.get('user')
 
-    authorized = p.toolkit.check_access('resource_update', context, data_dict)
+    authorized = p.toolkit.check_access(privilege, context, data_dict)
 
     if not authorized:
         return {
@@ -31,4 +31,8 @@ def datastore_delete(context, data_dict):
 
 
 def datastore_search(context, data_dict):
-    return {'success': True}
+    return _datastore_auth(context, data_dict, 'resource_show')
+
+
+def datastore_change_permissions(context, data_dict):
+    return _datastore_auth(context, data_dict)
