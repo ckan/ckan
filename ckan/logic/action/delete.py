@@ -291,16 +291,14 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-    if is_org:
-        group_or_org = 'organization'
-    else:
-        group_or_org = 'group'
 
     group = model.Group.get(id)
     context['group'] = group
     if group is None:
-        raise NotFound('{group_or_org} was not found'.format(
-            group_or_org=group_or_org.capitalize()))
+        if is_org:
+            raise NotFound('Organization was not found')
+        else:
+            raise NotFound('Group was not found')
 
     if is_org:
         _check_access('organization_purge', context, data_dict)
