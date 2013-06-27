@@ -1269,8 +1269,8 @@ def popular(type_, number, min=1, title=None):
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
 
-@maintain.deprecated('h.groups_available is deprecated, please use '
-        "h.get_action('group_list_authz', {'available_only': True}) instead")
+@maintain.deprecated('Please use '
+        "h.get_action('group_list_authz', {'available_only': True}) instead.")
 def groups_available():
     '''Return a list of available groups. Deprecated in CKAN 2.2.'''
     context = {'model': model, 'session': model.Session,
@@ -1279,9 +1279,9 @@ def groups_available():
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-@maintain.deprecated('h.organizations_available is deprecated, please use '
+@maintain.deprecated('Please use '
     "h.get_action('organization_list_for_user', {'permission': 'edit_group'}) "
-    'instead')
+    'instead.')
 def organizations_available(permission='edit_group'):
     '''Return a list of available organizations. Deprecated in CKAN 2.2.'''
     context = {'model': model, 'session': model.Session,
