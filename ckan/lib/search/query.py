@@ -289,7 +289,7 @@ class PackageSearchQuery(SearchQuery):
             conn.close()
 
 
-    def run(self, query):
+    def run(self, query, escape=False):
         '''
         Performs a dataset search using the given query.
 
@@ -362,6 +362,11 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e.reason))
         try:
+            # Extra escaping if requested.  This is mainly to allow us to
+            # output utf-8 encoded data correctly via the api.
+            if escape:
+                solr_response = solr_response.replace('\\n', '\\\\n') \
+                    .replace('\\r', '\\\\r')
             data = json.loads(solr_response)
             response = data['response']
             self.count = response.get('numFound', 0)
