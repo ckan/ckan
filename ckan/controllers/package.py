@@ -344,6 +344,11 @@ class PackageController(base.BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
 
+        # can the resources be previewed?
+        for resource in c.pkg_dict['resources']:
+            resource['can_be_previewed'] = self._resource_preview(
+                {'resource': resource, 'package': c.pkg_dict})
+
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
@@ -1142,7 +1147,16 @@ class PackageController(base.BaseController):
         c.datastore_api = '%s/api/action' % config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
+
+        c.resource['can_be_previewed'] = self._resource_preview(
+            {'resource': c.resource, 'package': c.package})
         return render('package/resource_read.html')
+
+    def _resource_preview(self, data_dict):
+        return bool(datapreview.res_format(data_dict['resource'])
+                    in datapreview.direct() + datapreview.loadable()
+                    or datapreview.get_preview_plugin(
+                        data_dict, return_first=True))
 
     def resource_download(self, id, resource_id):
         """
