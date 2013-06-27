@@ -81,13 +81,11 @@ class ApiController(base.BaseController):
         out = ''
         if response_data is not None:
             if content_type == 'json':
-                out = h.json.dumps(response_data)
-                # \" gets destroyed here so we need to protect them
-                out = out.replace('\"', '\\"')
-                # we need to sort unicode items like \uxxx
-                out = out.decode('unicode-escape')
-                # fix some chars
-                out = out.replace('\n', '\\n').replace('\r', '\\r')
+                out = h.json.dumps(response_data,
+                                   sort_keys=True,
+                                   indent=2,
+                                   separators=(',', ': '),
+                                   ensure_ascii=False)
             else:
                 out = response_data
             # Support "JSONP" callback.
@@ -561,7 +559,7 @@ class ApiController(base.BaseController):
                     # the search
                     if 'callback' in params:
                         del params['callback']
-                    results = query.run(params, escape=True)
+                    results = query.run(params)
                     # strip out the data dict if it exists.  This is because it
                     # breaks unicode output from the api
                     for x in results['results']:
@@ -600,7 +598,7 @@ class ApiController(base.BaseController):
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
-        results = h.render_markdown(raw_markdown)
+        results = unicode(h.render_markdown(raw_markdown))
 
         return self._finish_ok(results)
 
