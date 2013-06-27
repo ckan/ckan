@@ -321,6 +321,8 @@ def _group_or_org_purge(context, data_dict, is_org=False):
 def group_purge(context, data_dict):
     '''Purge a group.
 
+    .. warning:: Purging a group cannot be undone!
+
     Purging a group completely removes the group from the CKAN database,
     whereas deleting a group simply marks the group as deleted (it will no
     longer show up in the frontend, but is still in the db).
@@ -335,6 +337,8 @@ def group_purge(context, data_dict):
 
 def organization_purge(context, data_dict):
     '''Purge an organization.
+
+    .. warning:: Purging an organization cannot be undone!
 
     Purging an organization completely removes the organization from the CKAN
     database, whereas deleting an organization simply marks the organization as
