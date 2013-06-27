@@ -1,4 +1,4 @@
-'''Functional tests for the organizations-related APIs.
+'''Functional tests for the group_ and organization_purge APIs.
 
 '''
 import ckan.model as model
@@ -7,9 +7,8 @@ import ckan.tests as tests
 import paste
 import pylons.test
 
-
-class TestOrganizationPurging(object):
-    '''Tests for the organization_purge API.
+class TestGroupAndOrganizationPurging(object):
+    '''Tests for the group_ and organization_purge APIs.
 
     '''
     @classmethod
@@ -22,56 +21,50 @@ class TestOrganizationPurging(object):
         model.Session.commit()
         model.Session.remove()
 
-        # A package that will be added to our test organizations.
+        # A package that will be added to our test groups and organizations.
         cls.package = tests.call_action_api(cls.app, 'package_create',
-                                            name='org_package',
+                                            name='test_package',
                                             apikey=cls.sysadmin.apikey)
 
-        # A user who will not be a member of our test organizations.
-        cls.org_visitor = tests.call_action_api(cls.app, 'user_create',
-                                                name='non_member',
-                                                email='blah',
-                                                password='farm',
-                                                apikey=cls.sysadmin.apikey)
+        # A user who will not be a member of our test groups or organizations.
+        cls.visitor = tests.call_action_api(cls.app, 'user_create',
+                                            name='non_member',
+                                            email='blah',
+                                            password='farm',
+                                            apikey=cls.sysadmin.apikey)
 
-        # A user who will become a member of our test organizations.
-        cls.org_member = tests.call_action_api(cls.app, 'user_create',
-                                               name='member',
-                                               email='blah',
-                                               password='farm',
-                                               apikey=cls.sysadmin.apikey)
+        # A user who will become a member of our test groups and organizations.
+        cls.member = tests.call_action_api(cls.app, 'user_create',
+                                           name='member',
+                                           email='blah',
+                                           password='farm',
+                                           apikey=cls.sysadmin.apikey)
 
-        # A user who will become an editor of our test organizations.
-        cls.org_editor = tests.call_action_api(cls.app, 'user_create',
-                                               name='editor',
-                                               email='blah',
-                                               password='farm',
-                                               apikey=cls.sysadmin.apikey)
+        # A user who will become an editor of our test groups and organizations.
+        cls.editor = tests.call_action_api(cls.app, 'user_create',
+                                           name='editor',
+                                           email='blah',
+                                           password='farm',
+                                           apikey=cls.sysadmin.apikey)
 
-        # A user who will become an admin of our test organizations.
-        cls.org_admin = tests.call_action_api(cls.app, 'user_create',
-                                              name='admin',
-                                              email='blah',
-                                              password='farm',
-                                              apikey=cls.sysadmin.apikey)
+        # A user who will become an admin of our test groups and organizations.
+        cls.admin = tests.call_action_api(cls.app, 'user_create',
+                                          name='admin',
+                                          email='blah',
+                                          password='farm',
+                                          apikey=cls.sysadmin.apikey)
 
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
 
     def _organization_create(self, organization_name):
-        '''Make an organization with a user and a dataset.'''
+        '''Return an organization with some users and a dataset.'''
 
-        # Make an organization with a user.
-        users = [{'name': self.org_member['name'],
-                  'capacity': 'member',
-                  },
-                 {'name': self.org_editor['name'],
-                  'capacity': 'editor',
-                  },
-                 {'name': self.org_admin['name'],
-                  'capacity': 'admin',
-                  }]
+        # Make an organization with some users.
+        users = [{'name': self.member['name'], 'capacity': 'member'},
+                 {'name': self.editor['name'], 'capacity': 'editor'},
+                 {'name': self.admin['name'], 'capacity': 'admin'}]
         organization = tests.call_action_api(self.app, 'organization_create',
                                              apikey=self.sysadmin.apikey,
                                              name=organization_name,
@@ -86,96 +79,221 @@ class TestOrganizationPurging(object):
 
         return organization
 
-    def _test_organization_purge(self, org_name, by_id):
-        '''Create an organization with the given name, and test purging it.
+    def _group_create(self, group_name):
+        '''Return a group with some users and a dataset.'''
 
-        :param name: the name of the organization to create and purge
+        # Make a group with some users and a dataset.
+        group = tests.call_action_api(self.app, 'group_create',
+                                      apikey=self.sysadmin.apikey,
+                                      name=group_name,
+                                      users=[
+                                          {'name': self.member['name'],
+                                           'capacity': 'member',
+                                           },
+                                          {'name': self.editor['name'],
+                                           'capacity': 'editor',
+                                           },
+                                          {'name': self.admin['name'],
+                                           'capacity': 'admin',
+                                           }],
+                                      packages=[
+                                          {'id': self.package['name']}],
+                                      )
+
+        return group
+
+    def _test_group_or_organization_purge(self, name, by_id, is_org):
+        '''Create a group or organization with the given name, and test
+        purging it.
+
+        :param name: the name of the group or organization to create and purge
         :param by_id: if True, pass the organization's id to
             organization_purge, otherwise pass its name
         :type by_id: boolean
+        :param is_org: if True create and purge an organization, if False a
+            group
+        :type is_org: boolean
 
         '''
-        organization = self._organization_create(org_name)
-
-        # Purge the organization.
-        if by_id:
-            result = tests.call_action_api(self.app, 'organization_purge',
-                                           apikey=self.sysadmin.apikey,
-                                           id=organization['id'],
-                                           )
+        if is_org:
+            group_or_org = self._organization_create(name)
         else:
-            result = tests.call_action_api(self.app, 'organization_purge',
-                                           apikey=self.sysadmin.apikey,
-                                           id=organization['name'],
-                                           )
+            group_or_org = self._group_create(name)
+
+        # Purge the group or organization.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        if by_id:
+            identifier = group_or_org['id']
+        else:
+            identifier = group_or_org['name']
+        result = tests.call_action_api(self.app, action, id=identifier,
+                                       apikey=self.sysadmin.apikey,
+                                       )
         assert result is None
 
-        # Now trying to show the organization should give a 404.
-        result = tests.call_action_api(self.app, 'organization_show',
-                                       id=org_name, status=404)
+        # Now trying to show the group or organization should give a 404.
+        if is_org:
+            action = 'organization_show'
+        else:
+            action = 'group_show'
+        result = tests.call_action_api(self.app, action, id=name, status=404)
         assert result == {'__type': 'Not Found Error', 'message': 'Not found'}
 
-        # The organization should not appear in organization_list.
-        assert org_name not in tests.call_action_api(self.app,
-                                                     'organization_list')
+        # The group or organization should not appear in group_list or
+        # organization_list.
+        if is_org:
+            action = 'organization_list'
+        else:
+            action = 'group_list'
+        assert name not in tests.call_action_api(self.app, action)
 
-        # The package should no longer belong to the organization.
+        # The package should no longer belong to the group or organization.
         package = tests.call_action_api(self.app, 'package_show',
                                         id=self.package['name'])
-        assert package['organization'] is None
+        if is_org:
+            assert package['organization'] is None
+        else:
+            assert group_or_org['name'] not in [group_['name'] for group_
+                                                in package['groups']]
 
-        # TODO: Also want to assert that user is not in organization anymore,
-        # but how to get a user's organizations?
+        # TODO: Also want to assert that user is not in group or organization
+        # anymore, but how to get a user's groups or organizations?
 
-        # It should be possible to create a new organization with the same
-        # name as the purged one (you would not be able to do this if you had
-        # merely deleted the original organization).
-        new_org = tests.call_action_api(self.app, 'organization_create',
-                                        name=org_name,
-                                        apikey=self.sysadmin.apikey,
-                                        )
-        assert new_org['name'] == org_name
+        # It should be possible to create a new group or organization with the
+        # same name as the purged one (you would not be able to do this if you
+        # had merely deleted the original group or organization).
+        if is_org:
+            action = 'organization_create'
+        else:
+            action = 'group_create'
+        new_group_or_org = tests.call_action_api(self.app, action, name=name,
+                                                 apikey=self.sysadmin.apikey,
+                                                 )
+        assert new_group_or_org['name'] == name
 
-        # TODO: Should we do a model-level check, to check that the org is
-        # really purged?
+        # TODO: Should we do a model-level check, to check that the group or
+        # org is really purged?
 
     def test_organization_purge_by_name(self):
-        self._test_organization_purge('organization-to-be-purged', by_id=False)
+        '''A sysadmin should be able to purge an organization by name.'''
+
+        self._test_group_or_organization_purge('organization-to-be-purged',
+                                               by_id=False, is_org=True)
+
+    def test_group_purge_by_name(self):
+        '''A sysadmin should be able to purge a group by name.'''
+        self._test_group_or_organization_purge('group-to-be-purged',
+                                               by_id=False, is_org=False)
 
     def test_organization_purge_by_id(self):
-        self._test_organization_purge('organization-to-be-purged-2',
-                                      by_id=True)
+        '''A sysadmin should be able to purge an organization by id.'''
+        self._test_group_or_organization_purge('organization-to-be-purged-2',
+                                               by_id=True, is_org=True)
 
-    def test_organization_purge_with_invalid_id(self):
+    def test_group_purge_by_id(self):
+        '''A sysadmin should be able to purge a group by id.'''
+        self._test_group_or_organization_purge('group-to-be-purged-2',
+                                               by_id=True, is_org=False)
+
+    def _test_group_or_org_purge_with_invalid_id(self, is_org):
+
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
 
         for name in ('foo', 'invalid name', None, ''):
             # Try to purge an organization, but pass an invalid name.
-            result = tests.call_action_api(self.app, 'organization_purge',
+            result = tests.call_action_api(self.app, action,
                                            apikey=self.sysadmin.apikey,
                                            id=name,
                                            status=404,
                                            )
-            message = 'Not found: Organization was not found'
+            if is_org:
+                message = 'Not found: Organization was not found'
+            else:
+                message = 'Not found: Group was not found'
             assert result == {'__type': 'Not Found Error', 'message': message}
 
-    def test_organization_purge_with_missing_id(self):
-        result = tests.call_action_api(self.app, 'organization_purge',
+    def test_organization_purge_with_invalid_id(self):
+        '''
+        Trying to purge an organization with an invalid ID should give a 404.
+
+        '''
+        self._test_group_or_org_purge_with_invalid_id(is_org=True)
+
+    def test_group_purge_with_invalid_id(self):
+        '''Trying to purge a group with an invalid ID should give a 404.'''
+        self._test_group_or_org_purge_with_invalid_id(is_org=False)
+
+    def _test_group_or_org_purge_with_missing_id(self, is_org):
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action,
                                        apikey=self.sysadmin.apikey,
                                        status=409,
                                        )
         assert result == {'__type': 'Validation Error',
                           'id': ['Missing value']}
 
+    def test_organization_purge_with_missing_id(self):
+        '''Trying to purge an organization without passing an id should give
+        a 409.'''
+        self._test_group_or_org_purge_with_missing_id(is_org=True)
+
+    def test_group_purge_with_missing_id(self):
+        '''Trying to purge a group without passing an id should give a 409.'''
+        self._test_group_or_org_purge_with_missing_id(is_org=False)
+
+    def _test_visitors_cannot_purge_groups_or_orgs(self, is_org):
+        if is_org:
+            group_or_org = self._organization_create('org-to-be-purged-3')
+        else:
+            group_or_org = self._group_create('group-to-be-purged-3')
+
+        # Try to purge the group or organization without an API key.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action, id=group_or_org['id'],
+                                       status=403,
+                                       )
+        assert result == {'__type': 'Authorization Error',
+                          'message': 'Access denied'}
+
     def test_visitors_cannot_purge_organizations(self):
         '''Visitors (who aren't logged in) should not be authorized to purge
         organizations.
 
         '''
-        organization = self._organization_create('organization-to-be-purged-3')
+        self._test_visitors_cannot_purge_groups_or_orgs(is_org=True)
 
-        # Try to purge the organization without an API key.
-        result = tests.call_action_api(self.app, 'organization_purge',
-                                       id=organization['id'],
+    def test_visitors_cannot_purge_groups(self):
+        '''Visitors (who aren't logged in) should not be authorized to purge
+        groups.
+
+        '''
+        self._test_visitors_cannot_purge_groups_or_orgs(is_org=False)
+
+    def _test_users_cannot_purge_groups_or_orgs(self, is_org):
+        if is_org:
+            group_or_org = self._organization_create('org-to-be-purged-4')
+        else:
+            group_or_org = self._group_create('group-to-be-purged-4')
+
+        # Try to purge the group or organization with a non-member's API key.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action, id=group_or_org['id'],
+                                       apikey=self.visitor['apikey'],
                                        status=403,
                                        )
         assert result == {'__type': 'Authorization Error',
@@ -186,12 +304,28 @@ class TestOrganizationPurging(object):
         authorized to purge the organization.
 
         '''
-        organization = self._organization_create('organization-to-be-purged-4')
+        self._test_users_cannot_purge_groups_or_orgs(is_org=True)
 
-        # Try to purge the organization with a non-member's API key.
-        result = tests.call_action_api(self.app, 'organization_purge',
-                                       id=organization['id'],
-                                       apikey=self.org_visitor['apikey'],
+    def test_users_cannot_purge_groups(self):
+        '''Users who are not members of a group should not be authorized to
+        purge the group.
+
+        '''
+        self._test_users_cannot_purge_groups_or_orgs(is_org=False)
+
+    def _test_members_cannot_purge_groups_or_orgs(self, is_org):
+        if is_org:
+            group_or_org = self._organization_create('org-to-be-purged-5')
+        else:
+            group_or_org = self._group_create('group-to-be-purged-5')
+
+        # Try to purge the organization with an organization member's API key.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action, id=group_or_org['id'],
+                                       apikey=self.member['apikey'],
                                        status=403,
                                        )
         assert result == {'__type': 'Authorization Error',
@@ -202,12 +336,27 @@ class TestOrganizationPurging(object):
         organization.
 
         '''
-        organization = self._organization_create('organization-to-be-purged-5')
+        self._test_members_cannot_purge_groups_or_orgs(is_org=True)
 
-        # Try to purge the organization with an organization member's API key.
-        result = tests.call_action_api(self.app, 'organization_purge',
-                                       id=organization['id'],
-                                       apikey=self.org_member['apikey'],
+    def test_members_cannot_purge_groups(self):
+        '''Members of a group should not be authorized to purge the group.
+
+        '''
+        self._test_members_cannot_purge_groups_or_orgs(is_org=False)
+
+    def _test_editors_cannot_purge_groups_or_orgs(self, is_org):
+        if is_org:
+            group_or_org = self._organization_create('org-to-be-purged-6')
+        else:
+            group_or_org = self._group_create('group-to-be-purged-6')
+
+        # Try to purge the group or organization with an editor's API key.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action, id=group_or_org['id'],
+                                       apikey=self.editor['apikey'],
                                        status=403,
                                        )
         assert result == {'__type': 'Authorization Error',
@@ -218,12 +367,28 @@ class TestOrganizationPurging(object):
         organization.
 
         '''
-        organization = self._organization_create('organization-to-be-purged-6')
+        self._test_editors_cannot_purge_groups_or_orgs(is_org=True)
 
-        # Try to purge the organization with an editor's API key.
-        result = tests.call_action_api(self.app, 'organization_purge',
-                                       id=organization['id'],
-                                       apikey=self.org_editor['apikey'],
+    def test_editors_cannot_purge_groups(self):
+        '''Editors of a group should not be authorized to purge the group.
+
+        '''
+        self._test_editors_cannot_purge_groups_or_orgs(is_org=False)
+
+    def _test_admins_cannot_purge_groups_or_orgs(self, is_org):
+        if is_org:
+            group_or_org = self._organization_create('org-to-be-purged-7')
+        else:
+            group_or_org = self._group_create('group-to-be-purged-7')
+
+        # Try to purge the group or organization with an admin's API key.
+        if is_org:
+            action = 'organization_purge'
+        else:
+            action = 'group_purge'
+        result = tests.call_action_api(self.app, action,
+                                       id=group_or_org['id'],
+                                       apikey=self.admin['apikey'],
                                        status=403,
                                        )
         assert result == {'__type': 'Authorization Error',
@@ -234,13 +399,10 @@ class TestOrganizationPurging(object):
         organization.
 
         '''
-        organization = self._organization_create('organization-to-be-purged-7')
+        self._test_admins_cannot_purge_groups_or_orgs(is_org=True)
 
-        # Try to purge the organization with an admin's API key.
-        result = tests.call_action_api(self.app, 'organization_purge',
-                                       id=organization['id'],
-                                       apikey=self.org_admin['apikey'],
-                                       status=403,
-                                       )
-        assert result == {'__type': 'Authorization Error',
-                          'message': 'Access denied'}
+    def test_admins_cannot_purge_groups(self):
+        '''Admins of a group should not be authorized to purge the group.
+
+        '''
+        self._test_admins_cannot_purge_groups_or_orgs(is_org=False)
