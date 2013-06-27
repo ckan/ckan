@@ -4,13 +4,10 @@ from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 
 from nose.tools import assert_equal
-import paste
-import pylons.test
 
 from ckan.tests.functional.api.base import BaseModelApiTestCase
 from ckan.tests.functional.api.base import Api1TestCase as Version1TestCase
 from ckan.tests.functional.api.base import Api2TestCase as Version2TestCase
-import ckan.tests as tests
 
 
 class GroupsTestCase(BaseModelApiTestCase):
