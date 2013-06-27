@@ -54,7 +54,7 @@ class TestPdfPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -62,7 +62,7 @@ class TestPdfPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -70,7 +70,7 @@ class TestPdfPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -78,7 +78,7 @@ class TestPdfPreview(tests.WsgiAppCase):
                 'on_same_domain': False
             }
         }
-        assert not self.p.can_preview(data_dict)
+        assert not self.p.can_preview(data_dict)['can_preview']
 
     def test_js_included(self):
         res_id = self.resource['id']

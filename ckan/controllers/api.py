@@ -164,7 +164,7 @@ class ApiController(base.BaseController):
         except KeyError:
             log.error('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
-                _('Action name not known: %s') % str(logic_function))
+                _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver}
@@ -175,9 +175,9 @@ class ApiController(base.BaseController):
             request_data = self._get_request_data(try_url_params=
                                                   side_effect_free)
         except ValueError, inst:
-            log.error('Bad request data: %s' % str(inst))
+            log.error('Bad request data: %s' % inst)
             return self._finish_bad_request(
-                _('JSON Error: %s') % str(inst))
+                _('JSON Error: %s') % inst)
         if not isinstance(request_data, dict):
             # this occurs if request_data is blank
             log.error('Bad request data - not dict: %r' % request_data)
@@ -216,6 +216,7 @@ class ApiController(base.BaseController):
             error_dict['__type'] = 'Validation Error'
             return_dict['error'] = error_dict
             return_dict['success'] = False
+            # CS nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
@@ -340,7 +341,7 @@ class ApiController(base.BaseController):
             data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
-                _('JSON Error: %s') % str(inst))
+                _('JSON Error: %s') % inst)
 
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
@@ -363,6 +364,7 @@ class ApiController(base.BaseController):
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
         except ValidationError, e:
+            # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
@@ -402,7 +404,7 @@ class ApiController(base.BaseController):
             data_dict.update(request_data)
         except ValueError, inst:
             return self._finish_bad_request(
-                _('JSON Error: %s') % str(inst))
+                _('JSON Error: %s') % inst)
 
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
@@ -418,6 +420,7 @@ class ApiController(base.BaseController):
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
         except ValidationError, e:
+            # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
@@ -465,6 +468,7 @@ class ApiController(base.BaseController):
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
         except ValidationError, e:
+            # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
 
