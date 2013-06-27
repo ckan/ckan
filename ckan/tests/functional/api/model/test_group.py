@@ -302,26 +302,6 @@ class TestGroupPurging(object):
                                           {'id': self.package['name']}],
                                       )
 
-        # Let's just make sure that worked.
-        package = tests.call_action_api(self.app, 'package_show',
-                                        id=self.package['id'])
-        assert group['name'] in [group_['name']
-                                 for group_ in package['groups']]
-        group = tests.call_action_api(self.app, 'group_show', id=group['id'])
-        assert self.package['name'] in [package_['name'] for package_ in
-                                        group['packages']]
-        assert self.group_visitor['name'] not in [user['name']
-                                                  for user in group['users']]
-        assert self.group_member['name'] in [user['name']
-                                             for user in group['users']
-                                             if user['capacity'] == 'member']
-        assert self.group_editor['name'] in [user['name']
-                                             for user in group['users']
-                                             if user['capacity'] == 'editor']
-        assert self.group_admin['name'] in [user['name']
-                                            for user in group['users']
-                                            if user['capacity'] == 'admin']
-
         return group
 
     def _test_group_purge(self, group_name, by_id):

@@ -84,27 +84,6 @@ class TestOrganizationPurging(object):
                               owner_org=organization['name'],
                               apikey=self.sysadmin.apikey)
 
-        # Let's just make sure that worked.
-        package = tests.call_action_api(self.app, 'package_show',
-                                        id=self.package['id'])
-        assert package['organization']['name'] == organization['name']
-        organization = tests.call_action_api(self.app, 'organization_show',
-                                             id=organization['id'])
-        assert self.package['name'] in [package_['name']
-                                        for package_ in
-                                        organization['packages']]
-        user_names = [user['name'] for user in organization['users']]
-        assert self.org_visitor['name'] not in user_names
-        members = [user['name'] for user in organization['users']
-                   if user['capacity'] == 'member']
-        assert self.org_member['name'] in members
-        editors = [user['name'] for user in organization['users']
-                   if user['capacity'] == 'editor']
-        assert self.org_editor['name'] in editors
-        admins = [user['name'] for user in organization['users']
-                  if user['capacity'] == 'admin']
-        assert self.org_admin['name'] in admins
-
         return organization
 
     def _test_organization_purge(self, org_name, by_id):
