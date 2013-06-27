@@ -269,9 +269,8 @@ class GroupController(base.BaseController):
                         search_extras[param] = value
 
             fq = 'capacity:"public"'
-            group_list_authz = h.get_action('group_list_authz')
             user_member_of_orgs = [org['id'] for org
-                        in group_list_authz(data_dict={'permission': 'read'})]
+                in h.get_action('group_list_authz', {'permission': 'read'})]
 
             if (c.group and c.group.id in user_member_of_orgs):
                 fq = ''
