@@ -263,7 +263,7 @@ def group_delete(context, data_dict):
     return _group_or_org_delete(context, data_dict)
 
 def organization_delete(context, data_dict):
-    '''Delete a organization.
+    '''Delete an organization.
 
     You must be authorized to delete the organization.
 
