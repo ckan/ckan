@@ -99,9 +99,7 @@ def cs_filter(f, filter_, ignore_comment_lines=True):
 
 class TestBadSpellings(object):
 
-    BAD_SPELLING_BLACKLIST_FILES = [
-        'ckan/lib/navl/__init__.py',
-    ]
+    BAD_SPELLING_BLACKLIST_FILES = []
 
     # these are the bad spellings with the correct spelling
     # use LOWER case
