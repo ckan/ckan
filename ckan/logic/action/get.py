@@ -671,12 +671,13 @@ def user_list(context, data_dict):
 def package_relationships_list(context, data_dict):
     '''Return a dataset (package)'s relationships.
 
-    :param id: the id or name of the package
+    :param id: the id or name of the first package
     :type id: string
-    :param id2:
-    :type id2:
-    :param rel:
-    :type rel:
+    :param id2: the id or name of the second package
+    :type id: string
+    :param rel: relationship as string see
+        :func:`ckan.logic.action.create.package_relationship_create()` for the
+        relationship types (optional)
 
     :rtype: list of dictionaries
 
@@ -2800,4 +2801,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 
 def member_roles_list(context, data_dict):
+    '''Return the possible roles for members of groups and organizations.
+
+    :returns: a list of dictionaries each with two keys: "text" (the display
+        name of the role, e.g. "Admin") and "value" (the internal name of the
+        role, e.g. "admin")
+    :rtype: list of dictionaries
+
+    '''
     return new_authz.roles_list()
