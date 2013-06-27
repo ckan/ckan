@@ -238,7 +238,6 @@ class TestImportFromCkan(object):
         'ckan/lib/authenticator.py',
         'ckan/lib/base.py',
         'ckan/lib/munge.py',
-        'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
@@ -336,7 +335,6 @@ class TestImportFromCkan(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/stats.py',
         'ckanext/stats/tests/__init__.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
@@ -395,9 +393,7 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'bin/ckan_spam.py',
         'ckan/lib/helpers.py',
-        'ckan/lib/package_saver.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -490,7 +486,6 @@ class TestImportStar(object):
         'ckan/tests/pylons_controller.py',
         'ckan/tests/test_dumper.py',
         'ckan/tests/test_wsgi_ckanclient.py',
-        'ckanext/stats/stats.py',
         'fabfile.py',
     ]
     fails = {}
