@@ -274,6 +274,21 @@ def organization_delete(context, data_dict):
     return _group_or_org_delete(context, data_dict, is_org=True)
 
 def _group_or_org_purge(context, data_dict, is_org=False):
+    '''Purge a group or organization.
+
+    The group or organization will be completely removed from the database.
+    This cannot be undone!
+
+    Only sysadmins can purge groups or organizations.
+
+    :param id: the name or id of the group or organization to be purged
+    :type id: string
+
+    :param is_org: you should pass is_org=True if purging an organization,
+        otherwise False (optional, default: False)
+    :type is_org: boolean
+
+    '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
     if is_org:
