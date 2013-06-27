@@ -173,11 +173,8 @@ class TestNastyString(object):
     # The value is converted to a string anyway so the str() is unneeded in
     # any place.
 
-    NASTY_STR_BLACKLIST_FILES = [
-        'ckan/tests/functional/api/test_revision_search.py',
-        'ckan/tests/functional/test_pagination.py',
-        'ckan/tests/models/test_package_relationships.py',
-    ]
+    NASTY_STR_BLACKLIST_FILES = []
+
     fails = {}
     passes = []
     done = False
