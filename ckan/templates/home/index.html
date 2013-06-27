@@ -57,12 +57,15 @@
       {% block home_secondary_content %}
           <div class="module module-shallow module-narrow module-dark info box">
             {% block home_search %}
-              <form class="dataset-search module-content clearfix" method="get" action="{% url_for controller='package', action='search' %}">
+              <form class="module-content search-form" method="get" action="{% url_for controller='package', action='search' %}">
                 <h3 class="heading">{{ _("Search Your Data") }}</h3>
-                <span class="control-group search-giant">
+                <div class="search-input control-group search-giant">
                   <input type="text" class="search" name="q" value="{{ c.q }}" autocomplete="off" placeholder="{{ _('eg. Gold Prices') }}" />
-                  <button type="submit" value="{{ _('Search') }}">Submit</button>
-                </span>
+                  <button type="submit">
+                    <i class="icon-search"></i>
+                    <span>{{ _('Search') }}</span>
+                  </button>
+                </div>
               </form>
             {% endblock %}
             {% block home_tags %}
@@ -85,7 +88,7 @@
     {% for group in c.group_package_stuff %}
       <div class="span6">
         <div class="box">
-          {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=100 %}
+          {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=50, truncate_title=35 %}
         </div>
       </div>
     {% endfor %}
@@ -93,4 +96,5 @@
 {% endblock %}
 
 {# Remove the toolbar. #}
+
 {% block toolbar %}{% endblock %}

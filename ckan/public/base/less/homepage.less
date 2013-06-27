@@ -6,8 +6,11 @@
     position: relative;
     padding-bottom: 0;
   }
-  .search-giant input {
-    border-color: darken(@mastheadBackgroundColorEnd, 5);
+  .search-giant {
+    margin-bottom: 10px;
+    input {
+      border-color: darken(@mastheadBackgroundColorEnd, 5);
+    }
   }
   .page-heading {
     font-size: 18px;
@@ -21,9 +24,12 @@
     .module-content {
       .border-radius(3px 3px 0 0);
       background-color: @mastheadBackgroundColor;
+      border-bottom: none;
       .heading {
         margin-top: 0;
         margin-bottom: 7px;
+        font-size: 24px;
+        line-height: 40px;
       }
     }
   }
@@ -76,8 +82,14 @@
     max-height: 53px;
     .box-shadow(0 0 0 2px rgba(255, 255, 255, 0.5));
   }
+  .group-listing .box {
+    min-height: 275px;
+  }
   .group-list {
     margin-bottom: 0;
+    .dataset-content {
+      min-height: 70px;
+    }
   }
   .box .module {
     margin-top: 0;

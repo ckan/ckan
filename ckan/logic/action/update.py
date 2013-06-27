@@ -1,3 +1,5 @@
+'''API functions for updating existing data in CKAN.'''
+
 import logging
 import datetime
 import json
@@ -127,9 +129,9 @@ def related_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
+    session = context['session']
     schema = context.get('schema') or schema_.default_related_schema()
 
     related = model.Related.get(id)
@@ -146,6 +148,32 @@ def related_update(context, data_dict):
         raise ValidationError(errors)
 
     related = model_save.related_dict_save(data, context)
+
+    dataset_dict = None
+    if 'package' in context:
+        dataset = context['package']
+        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
+
+    related_dict = model_dictize.related_dictize(related, context)
+    activity_dict = {
+        'user_id': context['user'],
+        'object_id': related.id,
+        'activity_type': 'changed related item',
+    }
+    activity_dict['data'] = {
+        'related': related_dict,
+        'dataset': dataset_dict,
+    }
+    activity_create_context = {
+        'model': model,
+        'user': context['user'],
+        'defer_commit':True,
+        'session': session
+    }
+
+    _get_action('activity_create')(activity_create_context, activity_dict,
+                                   ignore_auth=True)
+
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.related_dictize(related, context)
@@ -170,7 +198,6 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
-    schema = context.get('schema') or schema_.default_update_resource_schema()
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -180,6 +207,13 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(
+            resource.resource_group.package.type)
+        schema = package_plugin.update_package_schema()['resources']
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -287,7 +321,7 @@ def package_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Updated object %s' % str(pkg.name))
+    log.debug('Updated object %s' % pkg.name)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -730,11 +764,10 @@ def term_translation_update_many(context, data_dict):
     '''
     model = context['model']
 
-
-    if not data_dict.get('data') and isinstance(data_dict, list):
+    if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error':
-             'term_translation_update_many needs to have a list of dicts in field data'}
+            {'error': 'term_translation_update_many needs to have a '
+                      'list of dicts in field data'}
         )
 
     context['defer_commit'] = True
@@ -887,10 +920,10 @@ def user_role_update(context, data_dict):
 
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     if not bool(new_user_ref):
-        raise logic.ParameterError('You must provide the "user" parameter.')
+        raise ValidationError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -903,13 +936,6 @@ def user_role_update(context, data_dict):
 
     domain_object = logic.action.get_domain_object(model, domain_object_ref)
     data_dict['id'] = domain_object.id
-#    if isinstance(domain_object, model.Package):
-#        _check_access('package_edit_permissions', context, data_dict)
-#    elif isinstance(domain_object, model.Group):
-#        _check_access('group_edit_permissions', context, data_dict)
-#    # Todo: 'system' object
-#    else:
-#        raise logic.ParameterError('Not possible to update roles for domain object type %s' % type(domain_object))
 
     # current_uors: in order to avoid either creating a role twice or
     # deleting one which is non-existent, we need to get the users\'
@@ -994,8 +1020,8 @@ def send_email_notifications(context, data_dict):
 
     if not converters.asbool(
             config.get('ckan.activity_streams_email_notifications')):
-        raise logic.ParameterError('ckan.activity_streams_email_notifications'
-                ' is not enabled in config')
+        raise ValidationError('ckan.activity_streams_email_notifications'
+                              ' is not enabled in config')
 
     email_notifications.get_and_send_notifications_for_all_users()
 

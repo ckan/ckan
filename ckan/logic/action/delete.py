@@ -1,3 +1,4 @@
+'''API functions for deleting data from CKAN.'''
 
 import ckan.logic
 import ckan.logic.action
@@ -168,7 +169,7 @@ def member_delete(context, data_dict=None):
 
     :param id: the id of the group
     :type id: string
-    :param object: the id of the object to be removed
+    :param object: the id or name of the object to be removed
     :type object: string
     :param object_type: the type of the object to be removed, e.g. ``package``
         or ``user``
@@ -177,17 +178,25 @@ def member_delete(context, data_dict=None):
     '''
     model = context['model']
 
-    group = model.Group.get(_get_or_bust(data_dict, 'id'))
-    obj_id, obj_type = _get_or_bust(data_dict, ['object', 'object_type'])
+    group_id, obj_id, obj_type = _get_or_bust(data_dict, ['id', 'object', 'object_type'])
+
+    group = model.Group.get(group_id)
+    if not group:
+        raise NotFound('Group was not found.')
+
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj = obj_class.get(obj_id)
+    if not obj:
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to remove a member from it
     _check_access('group_update', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
-            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.table_id == obj.id).\
             filter(model.Member.group_id == group.id).\
-            filter(model.Member.state    == "active").first()
+            filter(model.Member.state    == 'active').first()
     if member:
         rev = model.repo.new_revision()
         rev.author = context.get('user')
@@ -410,7 +419,8 @@ def _group_or_org_member_delete(context, data_dict=None):
 
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    user_id = data_dict.get('user_id')
+    user_id = data_dict.get('username')
+    user_id = data_dict.get('user_id') if user_id is None else user_id
     member_dict = {
         'id': group.id,
         'object': user_id,
@@ -425,9 +435,29 @@ def _group_or_org_member_delete(context, data_dict=None):
 
 
 def group_member_delete(context, data_dict=None):
+    '''Remove a user from a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be removed
+    :type username: string
+
+    '''
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
+    '''Remove a user from an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be removed
+    :type username: string
+
+    '''
     return _group_or_org_member_delete(context, data_dict)
 
 
