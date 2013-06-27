@@ -178,7 +178,7 @@ def package_create(context, data_dict):
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
-    log.debug('Created object %s' % str(pkg.name))
+    log.debug('Created object %s' % pkg.name)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -572,7 +572,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
-    log.debug('Created object %s' % str(group.name))
+    log.debug('Created object %s' % group.name)
     return model_dictize.group_dictize(group, context)
 
 
@@ -819,7 +819,7 @@ def user_create(context, data_dict):
 
     context['user_obj'] = user
     context['id'] = user.id
-    log.debug('Created user %s' % str(user.name))
+    log.debug('Created user %s' % user.name)
     return user_dict
 
 ## Modifications for rest api
@@ -885,7 +885,7 @@ def vocabulary_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+    log.debug('Created Vocabulary %s' % vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -1138,10 +1138,41 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
 def group_member_create(context, data_dict):
+    '''Make a user a member of a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be made member of the group
+    :type username: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('group_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict)
 
 def organization_member_create(context, data_dict):
+    '''Make a user a member of an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be made member of the
+        organization
+    :type username: string
+    :param role: role of the user in the organization. One of ``member``,
+        ``editor``, or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 

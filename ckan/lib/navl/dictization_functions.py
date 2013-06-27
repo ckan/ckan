@@ -116,7 +116,7 @@ def augment_data(data, schema):
 
     full_schema = make_full_schema(data, schema)
 
-    new_data = copy.deepcopy(data)
+    new_data = copy.copy(data)
 
     ## fill junk and extras
 

@@ -134,7 +134,7 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False):
+def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False, package_ids=None):
     '''
         Rebuilds the search index.
 
@@ -155,6 +155,13 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False, def
         log.info('Indexing just package %r...', pkg_dict['name'])
         package_index.remove_dict(pkg_dict)
         package_index.insert_dict(pkg_dict)
+    elif package_ids:
+        for package_id in package_ids:
+            pkg_dict = logic.get_action('package_show')(
+                {'model': model, 'ignore_auth': True, 'validate': False},
+                {'id': package_id})
+            log.info('Indexing just package %r...', pkg_dict['name'])
+            package_index.update_dict(pkg_dict, True)
     else:
         package_ids = [r[0] for r in model.Session.query(model.Package.id).
                        filter(model.Package.state == 'active').all()]

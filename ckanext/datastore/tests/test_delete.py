@@ -37,7 +37,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                         {'book': 'warandpeace', 'author': 'tolstoy'}]
         }
 
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 

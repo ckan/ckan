@@ -43,6 +43,9 @@ Example:
             <dd>{{ h.SI_number_span(organization.package_count) }}</dd>
           </dl>
         </div>
+        <div class="follow_button">
+          {{ h.follow_button('group', organization.id) }}
+        </div>
       {% endif %}
     </section>
   </div>

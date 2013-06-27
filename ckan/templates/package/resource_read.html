@@ -2,6 +2,13 @@
 
 {% set res = c.resource %}
 
+{% block head_extras -%}
+  {{ super() }}
+  {% set description = h.markdown_extract(res.description, extract_length=200) if res.description else h.markdown_extract(c.package.notes, extract_length=200) %}
+  <meta property="og:title" content="{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }} - {{ g.site_title }}">
+  <meta property="og:description" content="{{ description|forceescape }}">
+{% endblock -%}
+
 {% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block breadcrumb_content_selected %}{% endblock %}

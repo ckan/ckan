@@ -67,11 +67,53 @@ class TestAction(WsgiAppCase):
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
 
-        # Test GET request
+		# Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
+
+    def test_01_current_package_list_with_resources(self):
+        url = '/api/action/current_package_list_with_resources'
+
+        postparams = '%s=1' % json.dumps({
+            'limit': 1,
+            'offset': 1})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+        assert len(res['result']) == 1
+
+        postparams = '%s=1' % json.dumps({
+            'limit': '5'})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'limit': -2})
+        res = json.loads(self.app.post(url, params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'offset': 'a'})
+        res = json.loads(self.app.post(url, params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
+
+        postparams = '%s=1' % json.dumps({
+            'limit': 2,
+            'page': 1})
+        res = json.loads(self.app.post(url, params=postparams).body)
+        assert res['success']
+        assert len(res['result']) == 2
+
+        postparams = '%s=1' % json.dumps({
+            'limit': 1,
+            'page': 0})
+        res = json.loads(self.app.post(url,
+                         params=postparams,
+                         status=StatusCodes.STATUS_409_CONFLICT).body)
+        assert not res['success']
 
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
@@ -104,7 +146,7 @@ class TestAction(WsgiAppCase):
         assert not missing_keys, missing_keys
 
     def test_02_package_autocomplete_match_name(self):
-        postparams = '%s=1' % json.dumps({'q':'war'})
+        postparams = '%s=1' % json.dumps({'q':'war', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -115,7 +157,7 @@ class TestAction(WsgiAppCase):
         assert_equal(res_obj['result'][0]['match_displayed'], 'warandpeace')
 
     def test_02_package_autocomplete_match_title(self):
-        postparams = '%s=1' % json.dumps({'q':'a%20w'})
+        postparams = '%s=1' % json.dumps({'q':'a%20w', 'limit': 5})
         res = self.app.post('/api/action/package_autocomplete', params=postparams)
         res_obj = json.loads(res.body)
         assert_equal(res_obj['success'], True)
@@ -585,12 +627,14 @@ class TestAction(WsgiAppCase):
     def test_16_user_autocomplete(self):
         #Empty query
         postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/user_autocomplete', params=postparams)
+        res = self.app.post(
+            '/api/action/user_autocomplete',
+            params=postparams,
+            status=StatusCodes.STATUS_409_CONFLICT)
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith(
                 "Return a list of user names that contain a string.")
-        assert res_obj['result'] == []
-        assert res_obj['success'] is True
+        assert res_obj['success'] is False
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'joe'})
@@ -1278,7 +1322,7 @@ class TestActionPackageSearch(WsgiAppCase):
     def test_1_basic(self):
         params = {
                 'q':'tolstoy',
-                'facet.field': ('groups', 'tags', 'res_format', 'license'),
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
                 'rows': 20,
                 'start': 0,
             }
@@ -1291,7 +1335,9 @@ class TestActionPackageSearch(WsgiAppCase):
         assert_equal(result['results'][0]['name'], 'annakarenina')
 
         # Test GET request
-        url_params = urllib.urlencode(params)
+        params_json_list = params
+        params_json_list['facet.field'] = json.dumps(params['facet.field'])
+        url_params = urllib.urlencode(params_json_list)
         res = self.app.get('/api/action/package_search?{0}'.format(url_params))
         res = json.loads(res.body)
         result = res['result']
