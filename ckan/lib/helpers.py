@@ -86,9 +86,17 @@ def url_for_static(*args, **kw):
     '''Create url for static content that does not get translated
     eg css, js
     wrapper for routes.url_for'''
-    # make sure that if we specify the url that it is not unicode
+
+    def fix_arg(arg):
+        # make sure that if we specify the url that it is not unicode and
+        # starts with a /
+        arg = str(arg)
+        if not arg.startswith('/'):
+            arg = '/' + arg
+        return arg
+
     if args:
-        args = (str(args[0]), ) + args[1:]
+        args = (fix_arg(args[0]), ) + args[1:]
     my_url = _routes_default_url_for(*args, **kw)
     return my_url
 
@@ -601,6 +609,13 @@ def check_access(action, data_dict=None):
         authorized = False
 
     return authorized
+
+
+def get_action(action_name, data_dict=None):
+    '''Calls an action function from a template.'''
+    if data_dict is None:
+        data_dict = {}
+    return logic.get_action(action_name)({}, data_dict)
 
 
 def linked_user(user, maxlength=0, avatar=20):
@@ -1449,7 +1464,12 @@ def format_resource_items(items):
             continue
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
-            value = formatters.localised_filesize(int(value))
+            try:
+                value = formatters.localised_filesize(int(value))
+            except ValueError:
+                # Sometimes values that can't be converted to ints can sneak
+                # into the db. In this case, just leave them as they are.
+                pass
         elif isinstance(value, basestring):
             # check if strings are actually datetime/number etc
             if re.search(reg_ex_datetime, value):
@@ -1492,7 +1512,7 @@ def resource_preview(resource, pkg_id):
     if not loadable_in_iframe:
         loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-    if datapreview.can_be_previewed(data_dict):
+    if datapreview.get_preview_plugin(data_dict):
         url = url_for(controller='package', action='resource_datapreview',
                       resource_id=resource['id'], id=pkg_id, qualified=True)
     elif format_lower in direct_embed:
@@ -1574,6 +1594,7 @@ __allowed_functions__ = [
     'subnav_named_route',
     'default_group_type',
     'check_access',
+    'get_action',
     'linked_user',
     'group_name_to_title',
     'markdown_extract',

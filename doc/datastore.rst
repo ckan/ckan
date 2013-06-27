@@ -246,6 +246,17 @@ API Reference
 .. automodule:: ckanext.datastore.logic.action
    :members:
 
+
+.. _dump:
+
+Download resource as CSV
+------------------------
+
+A DataStore resource can be downloaded in the `CSV`_ file format from ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}``.
+
+.. _CSV: //en.wikipedia.org/wiki/Comma-separated_values
+
+
 .. _fields:
 
 Fields

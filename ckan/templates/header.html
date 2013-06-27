@@ -26,16 +26,20 @@
                 <span>{{ c.new_activities }}</span>
               </a>
             </li>
+            {% block header_account_settings_link %}
             <li>
               <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
                 <i class="icon-cog"></i>
               </a>
             </li>
+            {% endblock %}
+            {% block header_account_log_out_link %}
             <li>
               <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
                 <i class="icon-signout"></i>
               </a>
             </li>
+            {% endblock %}
             {% endblock %}
           </ul>
         </div>
