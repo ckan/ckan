@@ -54,7 +54,7 @@
 {% endif %}
 {% set existing_org = data.owner_org or data.group_id %}
 {% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
-  {% set organizations_available = h.organizations_available('create_dataset') %}
+  {% set organizations_available = h.get_action('organization_list_for_user')(data_dict={'permission': 'create_dataset'}) %}
   {% if organizations_available %}
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
