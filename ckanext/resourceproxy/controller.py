@@ -27,7 +27,7 @@ def proxy_resource(context, data_dict):
         did_get = False
         r = requests.head(url)
         if r.status_code == 405:
-            r = requests.get(url)
+            r = requests.get(url, stream=True)
             did_get = True
         r.raise_for_status()
 
@@ -38,14 +38,13 @@ def proxy_resource(context, data_dict):
                 allowed=MAX_FILE_SIZE, actual=cl))
 
         if not did_get:
-            r = requests.get(url)
+            r = requests.get(url, stream=True)
 
         base.response.content_type = r.headers['content-type']
         base.response.charset = r.encoding
 
         length = 0
-        for chunk in r.iter_content(chunk_size=CHUNK_SIZE,
-                                    decode_unicode=False):
+        for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
             base.response.body_file.write(chunk)
             length += len(chunk)
 
