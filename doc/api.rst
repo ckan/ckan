@@ -231,6 +231,8 @@ different sites running different versions of CKAN, the result of an API
 request that doesn't specify the API version number cannot be relied on.
 
 
+.. _api authentication:
+
 ---------------------------
 Authentication and API Keys
 ---------------------------

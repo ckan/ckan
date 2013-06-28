@@ -431,6 +431,73 @@ group, and allow or refuse the action:
     :end-before: class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
 
 
+Exception handling
+==================
+
+There are two bugs in our ``ExampleIAuthFunctionsPlugin3`` class that need to
+be fixed using exception handling. First, the class will crash if the site does
+not have a group named ``curators``.
+
+Try visiting the ``/group`` page in CKAN with our ``example_iauthfunctions_3``
+plugin activated in your CKAN config file and with no ``curators`` group in
+your site. If you have ``debug = false`` in your CKAN config file, you'll see
+something like this in your browser::
+
+    Error 500
+
+    Server Error
+
+    An internal server error occurred
+
+If you have ``debug = true`` in your CKAN config file, then you'll see a
+traceback page with details about the crash.
+
+You'll also get a ``500 Server Error`` if you try to create a group using the
+``group_create`` API action.
+
+To handle this situation where the site has no curators group without crashing,
+we'll have to handle the exceptio that CKAN's ``member_list`` function raises
+when it's asked to list the members of a group that doesn't exist:
+
+.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+    :start-after: # Get a list of the members of the 'curators' group.
+    :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
+
+With these ``try`` and ``except`` clauses added, we should be able to load the
+``/group`` page and add groups, even if there isn't already a group called
+curators.
+
+Second, ``ExampleIAuthFunctionsPlugin3`` will crash if a user who is not
+logged-in tries to create a group. If you logout of CKAN, and then visit
+``/group/new`` you'll see another ``500 Server Error``. You'll also get this
+error if you post to the :func:`group_create` API action without
+:ref:`providing an API key <api authentication>`.
+
+When the user isn't logged in, ``context['user']`` contains the user's IP
+address instead of a user name::
+
+    {'model': <module 'ckan.model' from ...>,
+     'user': u'127.0.0.1'}
+
+When we pass this IP address as the user name to
+:func:`convert_user_name_or_id_to_id`, the converter function will raise an
+exception because no user with that user name exists. We need to handle that
+exception as well:
+
+.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+    :start-after: # We have the logged-in user's user name, get their user id.
+    :end-before: # Finally, we can test whether the user is a member of the curators group.
+
+
+We're done!
+===========
+
+Here's our final, working ``plugin_4.py`` module in full:
+
+.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+
+
+
 Troubleshooting
 ===============
 
