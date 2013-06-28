@@ -1,8 +1,3 @@
-.. todo::
-
-   * Consistent title style
-   * Autodoc'd auth functons reference
-
 =======================
 Writing CKAN extensions
 =======================
@@ -17,7 +12,7 @@ enabled by following the setup instructions in each extension's documentation
 and the :doc:`data viewer <data-viewer>` also uses core extensions to enable
 data previews for different file formats.
 
-**External extensions** are CKAN extensions that do not come packaged with
+**External extensions** are CKAN extensions that don't come packaged with
 CKAN, but must be downloaded and installed separately. A good place to find
 external extensions is the
 `list of extensions on the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
@@ -25,10 +20,10 @@ Again, follow each extension's own documentation to install, setup and use the
 extension.
 
 This document covers everything you need to know to write your own CKAN
-extensions. The tutorial will introduce you to writing CKAN extensions, with a
-step-by-step walkthrough of the development of an example extension. After that
-comes all the reference documentation that extension developers need.
+extensions.
 
+
+.. _writing extensions tutorial:
 
 --------
 Tutorial
@@ -36,13 +31,13 @@ Tutorial
 
 This tutorial will walk you through the process of creating a simple CKAN
 extension, and introduce the core concepts that CKAN extension developers need
-to know along the way. As an example, we'll use the ``iauthfunctions``
+to know along the way. As an example, we'll use the ``example_iauthfunctions``
 extension that's packaged with CKAN. This is a simple CKAN extension that
 customizes some of CKAN's authorization rules.
 
 
-Install CKAN
-============
+Installing CKAN
+===============
 
 Before you can start developing a CKAN extension, you'll need a working source
 install of CKAN on your system. If you don't have a CKAN source install
@@ -50,8 +45,8 @@ already, follow the instructions in :doc:`install-from-source` before
 continuing.
 
 
-Create a new empty extension
-============================
+Creating a new extension
+========================
 
 .. topic:: Extensions
 
@@ -112,8 +107,8 @@ several settings that you'll update as you develop your project.
 source code files for our extension.
 
 
-Create a plugin class
-=====================
+Creating a plugin class
+=======================
 
 .. topic:: Plugins
 
@@ -126,8 +121,8 @@ with the following contents:
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v1.py
 
-Our plugin is a normal Python class, named ``IAuthFunctionsPlugin`` in this
-example, that inherits from CKAN's
+Our plugin is a normal Python class, named ``ExampleIAuthFunctionsPlugin`` in
+this example, that inherits from CKAN's
 :py:class:`~ckan.plugins.core.SingletonPlugin` class.
 
 .. todo:: Improve the note about Plugin vs SingletonPlugin.
@@ -144,6 +139,7 @@ example, that inherits from CKAN's
 
    Every CKAN plugin class must inherit from either
    :py:class:`~ckan.plugins.core.Plugin`
+   F
    or :py:class:`~ckan.plugins.core.SingletonPlugin`
    If you inherit from ``SingletonPlugin`` then only one object instance of
    your plugin class will be created when CKAN starts up, and whenever CKAN
@@ -155,8 +151,8 @@ example, that inherits from CKAN's
 
 .. _setup.py:
 
-Add the plugin to ``setup.py``
-==============================
+Adding the plugin to ``setup.py``
+=================================
 
 Now let's add our class to the ``entry_points`` in ``setup.py``.  This
 identifies the plugin class to CKAN once the extension is installed in CKAN's
@@ -166,12 +162,12 @@ the ``entry_points`` section like this::
 
     entry_points='''
         [ckan.plugins]
-        iauthfunctions=ckanext.iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
+        example_iauthfunctions=ckanext.iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
     ''',
 
 
-Install the extension
-=====================
+Installing the extension
+========================
 
 When you :doc:`install CKAN <installing>`, you create a Python `virtual
 environment <http://www.virtualenv.org>`_ in a directory on your system
@@ -179,6 +175,7 @@ environment <http://www.virtualenv.org>`_ in a directory on your system
 packages that CKAN depends on into this virtual environment.
 Before we can use our plugin, we must install our extension into our CKAN
 virtual environment.
+
 Make sure your virtualenv is activated, change to the extension's
 directory, and run ``python setup.py develop``:
 
@@ -194,16 +191,16 @@ directory, and run ``python setup.py develop``:
    ``python setup.py install`` and ``pip install``.
 
 
-Enable the plugin
-=================
+Enabling the plugin
+===================
 
 An extension's plugins must be added to the :ref:`ckan.plugins` setting your
 CKAN config file so that CKAN will call the plugins' methods.  The name that
 you gave to your plugin class in the :ref:`left-hand-side of the assignment in
-the setup.py file <setup.py>` (``iauthfunctions`` in this example) is the name
-you'll use for your plugin in CKAN's config file::
+the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
+the name you'll use for your plugin in CKAN's config file::
 
-    ckan.plugins = stats text_preview recline_preview iauthfunctions
+    ckan.plugins = stats text_preview recline_preview example_iauthfunctions
 
 You should now be able to start CKAN in the development web server and have it
 start up without any problems:
@@ -218,6 +215,7 @@ If your plugin is in the :ref:`ckan.plugins` setting and CKAN starts without
 crashing, then your plugin is installed and CKAN can find it. Of course, your
 plugin doesn't *do* anything yet.
 
+
 Troubleshooting
 ===============
 
@@ -226,7 +224,7 @@ Troubleshooting
 
 If CKAN crashes with a ``PluginNotFoundException`` like this::
 
-    ckan.plugins.core.PluginNotFoundException: iauthfunctions
+    ckan.plugins.core.PluginNotFoundException: example_iauthfunctions
 
 then:
 
@@ -245,13 +243,13 @@ If you get an ``ImportError`` from CKAN relating to your plugin, it's probably
 because the path to your plugin class in your ``setup.py`` file is wrong.
 
 
-Implement the IAuthFunctions plugin interface
-=============================================
+Implementing the IAuthFunctions plugin interface
+================================================
 
 .. topic:: Plugin interfaces
 
    CKAN provides a number of
-   :ref:`plugin interfaces <plugin-interfaces-reference>` that plugins must
+   :ref:`plugin interfaces <plugin interfaces reference>` that plugins must
    implement to hook into CKAN and modify or extend it. Each plugin interface
    defines a number of methods that a plugin that implements the interface must
    provide. CKAN will call your plugin's implementations of these methods, to
@@ -276,26 +274,32 @@ dictionary:
    ``ckan/logic/action/{create,delete,get,update}.py``.
 
    For example, when creating a dataset either using the web interface or using
-   the ``package_create`` API call,
-   ``ckan/logic/action/create.py:package_create()`` is called. There's also
-   ``package_show()`` and ``package_delete()``.
+   the :func:`~ckan.logic.action.create.package_create` API call,
+   :func:`ckan.logic.action.create.package_create` is called. There's also
+   :func:`ckan.logic.action.get.package_show`,
+   :func:`ckan.logic.action.update.package_update`, and
+   :func:`ckan.logic.action.delete.package_delete`.
+
+   For a full list of the action functions available in CKAN, see the
+   :ref:`api-reference`.
 
    Each action function has a corresponding authorization function in one of
    the four files ``ckan/logic/auth/{create,delete,get,update}.py``,
    CKAN calls this authorization function to decide whether
    the user is authorized to carry out the requested action. For example, when
    creating a new package using the web interface or API,
-   ``ckan/logic/auth/create.py:package_create()`` is called.
+   :func:`ckan.logic.auth.create.package_create` is called.
 
-   The ``IAuthFunctions`` plugin interface allows CKAN plugins to hook into
-   this authorization system to add their own authorization functions or
-   override the default authorization functions. In this way, plugins have
-   complete control to customize CKAN's auth.
+   The :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin interface
+   allows CKAN plugins to hook into this authorization system to add their own
+   authorization functions or override the default authorization functions. In
+   this way, plugins have complete control to customize CKAN's auth.
 
 Whenever a user tries to create a new group via the web interface or the API,
-CKAN calls ``ckan/logic/auth/create.py:group_create()`` to decide whether to
-allow the action. Let's override this function and simply prevent anyone from
-creating new groups. Edit your ``plugin.py`` file so that it looks like this:
+CKAN calls the :func:`~ckan.logic.auth.create.group_create` authorization
+function to decide whether to allow the action. Let's override this function
+and simply prevent anyone from creating new groups. Edit your ``plugin.py``
+file so that it looks like this:
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v2.py
 
@@ -309,18 +313,18 @@ Our ``ExampleIAuthFunctionsPlugin`` class now calls
 :class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and provides an
 implementation of the interface's
 :func:`~ckan.plugins.interfaces.IAuthFunctions.get_auth_functions`
-method that overrides the default ``group_create`` function with a custom
-one. This custom function simply returns ``{'success': False}`` to refuse to
-let anyone create a new group.
+method that overrides the default :func:`~ckan.logic.auth.create.group_create`
+function with a custom one. This custom function simply returns ``{'success':
+False}`` to refuse to let anyone create a new group.
 
 If you now restart CKAN and reload the ``/group`` page, as long as you're not a
 sysadmin user you should see the ``Add Group`` button disappear. The CKAN web
 interface automatically hides buttons that the user is not authorized to use.
 Visiting ``/group/new``  directly will redirect you to the login page. If you
-try to call ``group_create`` via the API, you'll receive an
-``AuthorizationError`` from CKAN::
+try to call :func:`~ckan.logic.action.create.group_create` via the API, you'll
+receive an ``AuthorizationError`` from CKAN::
 
-    $ http 127.0.0.1:5000/api/3/action/group_create Authorization:f0c9ba9a-3211-4c9d-be3c-aca412ca31e0 name=my_group
+    $ http 127.0.0.1:5000/api/3/action/group_create Authorization:*** name=my_group
     HTTP/1.0 403 Forbidden
     Access-Control-Allow-Headers: X-CKAN-API-KEY, Authorization, Content-Type
     Access-Control-Allow-Methods: POST, PUT, GET, DELETE, OPTIONS
@@ -337,7 +341,7 @@ try to call ``group_create`` via the API, you'll receive an
             "__type": "Authorization Error",
             "message": "Access denied"
         },
-        "help": "Create a new group.\n\n    You must be authorized to create groups.\n\n    Plugins may change the parameters of this function depending on the value\n    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.\n\n    :param name: the name of the group, a string between 2 and 100 characters\n        long, containing only lowercase alphanumeric characters, ``-`` and\n        ``_``\n    :type name: string\n    :param id: the id of the group (optional)\n    :type id: string\n    :param title: the title of the group (optional)\n    :type title: string\n    :param description: the description of the group (optional)\n    :type description: string\n    :param image_url: the URL to an image to be displayed on the group's page\n        (optional)\n    :type image_url: string\n    :param type: the type of the group (optional), ``IGroupForm`` plugins\n        associate themselves with different group types and provide custom\n        group handling behaviour for these types\n        Cannot be 'organization'\n    :type type: string\n    :param state: the current state of the group, e.g. ``'active'`` or\n        ``'deleted'``, only active groups show up in search results and\n        other lists of groups, this parameter will be ignored if you are not\n        authorized to change the state of the group (optional, default:\n        ``'active'``)\n    :type state: string\n    :param approval_status: (optional)\n    :type approval_status: string\n    :param extras: the group's extras (optional), extras are arbitrary\n        (key: value) metadata items that can be added to groups, each extra\n        dictionary should have keys ``'key'`` (a string), ``'value'`` (a\n        string), and optionally ``'deleted'``\n    :type extras: list of dataset extra dictionaries\n    :param packages: the datasets (packages) that belong to the group, a list\n        of dictionaries each with keys ``'name'`` (string, the id or name of\n        the dataset) and optionally ``'title'`` (string, the title of the\n        dataset)\n    :type packages: list of dictionaries\n    :param groups: the groups that belong to the group, a list of dictionaries\n        each with key ``'name'`` (string, the id or name of the group) and\n        optionally ``'capacity'`` (string, the capacity in which the group is\n        a member of the group)\n    :type groups: list of dictionaries\n    :param users: the users that belong to the group, a list of dictionaries\n        each with key ``'name'`` (string, the id or name of the user) and\n        optionally ``'capacity'`` (string, the capacity in which the user is\n        a member of the group)\n    :type users: list of dictionaries\n\n    :returns: the newly created group\n    :rtype: dictionary\n\n    ",
+        "help": "Create a new group...",
         "success": false
     }
 
@@ -346,15 +350,25 @@ new groups. Sysadmin users can always carry out any action, they bypass the
 authorization functions.
 
 
-The plugins toolkit
-===================
+Using the plugins toolkit
+=========================
 
-Let's make our custom ``group_create`` authorization function a little
-smarter, and allow only users who are members of a particular group named
-``curators`` to create new groups. Edit ``plugin.py`` so that it looks like
-this:
+Let's make our custom authorization function a little smarter, and allow only
+users who are members of a particular group named ``curators`` to create new
+groups.
+
+First run CKAN, login and then create a new group called ``curators``.  Then
+edit ``plugin.py`` so that it looks like this:
+
+.. note::
+
+   This version of ``plugin.py`` will crash if the user is not logged in or if
+   the site doesn't have a group called ``curators``. You'll want to create
+   a ``curators`` group in your CKAN before editing your plugin to look like
+   this. See :ref:`exception handling` below.
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+
 
 ``context``
 -----------
@@ -390,7 +404,7 @@ contains the details of the group the user wants to create::
 The plugins toolkit
 -------------------
 
-CKAN's :ref:`plugins toolkit <plugins-toolkit>` is a Python module containing
+CKAN's :ref:`plugins toolkit <plugins toolkit>` is a Python module containing
 core CKAN functions, classes and exceptions for use by CKAN extensions.
 
 The toolkit's :func:`~ckan.plugins.toolkit.get_action` function returns a CKAN
@@ -431,14 +445,22 @@ group, and allow or refuse the action:
     :end-before: class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
 
 
+.. _exception handling:
+
 Exception handling
 ==================
 
-There are two bugs in our ``ExampleIAuthFunctionsPlugin3`` class that need to
-be fixed using exception handling. First, the class will crash if the site does
-not have a group named ``curators``.
+There are two bugs in our ``plugin.py`` file that need to be fixed using
+exception handling. First, the class will crash if the site does not have a
+group named ``curators``.
 
-Try visiting the ``/group`` page in CKAN with our ``example_iauthfunctions_3``
+.. tip::
+
+   If you've already created a ``curators`` group and want to test what happens
+   when the site has no ``curators`` group, you can use CKAN's command line
+   interface to :ref:`clean and reinitialize your database <paster db>`.
+
+Try visiting the ``/group`` page in CKAN with our ``example_iauthfunctions``
 plugin activated in your CKAN config file and with no ``curators`` group in
 your site. If you have ``debug = false`` in your CKAN config file, you'll see
 something like this in your browser::
@@ -455,9 +477,11 @@ traceback page with details about the crash.
 You'll also get a ``500 Server Error`` if you try to create a group using the
 ``group_create`` API action.
 
-To handle this situation where the site has no curators group without crashing,
-we'll have to handle the exceptio that CKAN's ``member_list`` function raises
-when it's asked to list the members of a group that doesn't exist:
+To handle the situation where the site has no ``curators`` group without
+crashing, we'll have to handle the exception that CKAN's
+:func:`~ckan.logic.action.get.member_list` function raises when it's asked to
+list the members of a group that doesn't exist. Replace the ``member_list``
+line in your ``plugin.py`` file with these lines:
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # Get a list of the members of the 'curators' group.
@@ -465,12 +489,12 @@ when it's asked to list the members of a group that doesn't exist:
 
 With these ``try`` and ``except`` clauses added, we should be able to load the
 ``/group`` page and add groups, even if there isn't already a group called
-curators.
+``curators``.
 
-Second, ``ExampleIAuthFunctionsPlugin3`` will crash if a user who is not
-logged-in tries to create a group. If you logout of CKAN, and then visit
-``/group/new`` you'll see another ``500 Server Error``. You'll also get this
-error if you post to the :func:`group_create` API action without
+Second, ``plugin.py`` will crash if a user who is not logged-in tries to create
+a group. If you logout of CKAN, and then visit ``/group/new`` you'll see
+another ``500 Server Error``. You'll also get this error if you post to the
+:func:`~ckan.logic.action.create.group_create` API action without
 :ref:`providing an API key <api authentication>`.
 
 When the user isn't logged in, ``context['user']`` contains the user's IP
@@ -480,9 +504,11 @@ address instead of a user name::
      'user': u'127.0.0.1'}
 
 When we pass this IP address as the user name to
-:func:`convert_user_name_or_id_to_id`, the converter function will raise an
-exception because no user with that user name exists. We need to handle that
-exception as well:
+:func:`~ckan.logic.converters.convert_user_name_or_id_to_id`, the converter
+function will raise an exception because no user with that user name exists.
+We need to handle that exception as well, replace the
+``convert_user_name_or_id_to_id`` line in your ``plugin.py`` file with these
+lines:
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # We have the logged-in user's user name, get their user id.
@@ -492,10 +518,27 @@ exception as well:
 We're done!
 ===========
 
-Here's our final, working ``plugin_v4.py`` module in full:
+Here's our final, working ``plugin.py`` module in full:
 
 .. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
 
+In working through this tutorial, you've covered all the key concepts needed
+for writing CKAN extensions, including:
+
+* Creating an extension
+* Creating a plugin within your extension
+* Adding your plugin to your extension's ``setup.py`` file,
+  and installing your extension
+* Making your plugin implement one of CKAN's
+  :ref:`plugin interfaces <plugin interfaces reference>`
+* Using the :ref:`plugins toolkit <plugins toolkit>`
+* Handling exceptions
+
+You should now read the :ref:`publishing extensions`,
+:ref:`testing extensions`, and :ref:`localizing extensions` sections below,
+and also the :ref:`best practices for extensions`. For full documentation
+of the plugin interfaces and plugins toolkit available to extensions, see
+:ref:`writing extensions reference`.
 
 
 Troubleshooting
@@ -508,18 +551,18 @@ If you get an ``AttributeError`` like this one::
 
     AttributeError: 'ExampleIAuthFunctionsPlugin' object has no attribute 'get_auth_functions'
 
-.. todo:: Can you user inherit=True to avoid having to implement them all?
-
 it means that your plugin class does not implement one of the plugin
 interface's methods. A plugin must implement every method of every plugin
 interface that it implements.
+
+.. todo:: Can you user inherit=True to avoid having to implement them all?
 
 Other ``AttributeError``\ s can happen if your method returns the wrong type of
 value, check the documentation for each plugin interface method to see what
 your method should return.
 
 ``TypeError``
-------------
+-------------
 
 If you get a ``TypeError`` like this one::
 
@@ -530,6 +573,8 @@ A plugin has to implement each method in a plugin interface with the same
 parameters as in the interface.
 
 
+.. _publishing extensions:
+
 Publishing extensions
 =====================
 
@@ -539,13 +584,22 @@ Publishing extensions
    that tells users how they can install it with pip.
 
 
+.. _testing extensions:
+
 Testing extensions
 ==================
 
 .. todo:: Explain how to write tests for extensions.
 
-   Write tests for the iauthfunctions example extension, and use them as an
-   example.
+   Write tests for the example_iauthfunctions example extension, and use them
+   as an example.
+
+.. todo::
+
+   As far as *how* to write the tests themselves/best practices for
+   writing tests goes, this section should just link to CKAN's testing
+   guidelines, when some exist (they don't currently). There may be some
+   extension-specific stuff that can go here.
 
 Testing CKAN Extensions
 -----------------------
@@ -602,13 +656,17 @@ Here is an example test set-up::
 At this point you should be able to write your own plugins and extensions
 together with their tests.
 
+.. _localizing extensions:
+
 Localizing extensions
 =====================
 
 .. todo:: Explain how to internationalize extensions.
 
-   Internationalize the iauthfunctions example extension, and use it as an
-   example.
+   Internationalize the example_iauthfunctions example extension, and use it as
+   an example.
+
+.. _best practices for extensions:
 
 -------------------------------------
 Best practices for writing extensions
@@ -623,8 +681,8 @@ Use the plugins toolkit instead of importing CKAN
 =================================================
 
 Try to limit your extension to interacting with CKAN only through CKAN's
-:ref:`plugin interfaces <plugin-interfaces-reference>` and
-:ref:`plugins toolkit <plugins-toolkit>`. It's a good idea to keep your
+:ref:`plugin interfaces <plugin interfaces reference>` and
+:ref:`plugins toolkit <plugins toolkit>`. It's a good idea to keep your
 extension code separate from CKAN as much as possible, so that internal changes
 in CKAN from one release to the next don't break your extension.
 
@@ -637,11 +695,17 @@ write to core CKAN tables directly, add columns to core tables, or use foreign
 keys against core tables.
 
 
-.. _plugin-interfaces-reference:
+.. _writing extensions reference:
 
---------------------------------
+----------------------------------------------
+Reference documentation for writing extensions
+----------------------------------------------
+
+
+.. _plugin interfaces reference:
+
 CKAN plugin interfaces reference
---------------------------------
+================================
 
 .. automodule:: ckan.plugins.core
         :members:  SingletonPlugin, Plugin, implements
@@ -649,11 +713,11 @@ CKAN plugin interfaces reference
 .. automodule:: ckan.plugins.interfaces
         :members:
 
-.. _plugins-toolkit:
 
--------------------------
+.. _plugins toolkit:
+
 Plugins toolkit reference
--------------------------
+=========================
 
 As well as using the variables made available to them by implementing
 various plugin hooks, extensions will likely want to be able to use parts of
@@ -668,9 +732,9 @@ development of CKAN core progresses.  This interface is available in
 
    toolkit
 
------------------------------
+
 Converter functions reference
------------------------------
+=============================
 
 .. automodule:: ckan.logic.converters
    :members:
