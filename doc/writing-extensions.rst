@@ -124,7 +124,7 @@ Create a plugin class
 Now create the file ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``
 with the following contents:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_1.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v1.py
 
 Our plugin is a normal Python class, named ``IAuthFunctionsPlugin`` in this
 example, that inherits from CKAN's
@@ -297,7 +297,7 @@ CKAN calls ``ckan/logic/auth/create.py:group_create()`` to decide whether to
 allow the action. Let's override this function and simply prevent anyone from
 creating new groups. Edit your ``plugin.py`` file so that it looks like this:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_2.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v2.py
 
 .. todo::
 
@@ -354,7 +354,7 @@ smarter, and allow only users who are members of a particular group named
 ``curators`` to create new groups. Edit ``plugin.py`` so that it looks like
 this:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_3.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
 
 ``context``
 -----------
@@ -364,7 +364,7 @@ that CKAN passes to all authorization and action functions containing some
 computed variables. Our function gets the name of the logged-in user from
 ``context``:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_3.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get the user name of the logged-in user.
     :end-before: # Get a list of the members of the 'curators' group.
 
@@ -401,7 +401,7 @@ requests to the web interface or API. Our code uses
 :func:`~ckan.logic.action.get.member_list` action function, which it uses to
 get a list of the members of the ``curators`` group:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_3.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -419,14 +419,14 @@ convert user-provided data. Our code uses
 function, which it uses to convert the name of the logged-in user to their user
 ``id``:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_3.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
 Finally, we can test whether the logged-in user is a member of the ``curators``
 group, and allow or refuse the action:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_3.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Finally, we can test whether the user is a member of the curators group.
     :end-before: class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
 
@@ -459,7 +459,7 @@ To handle this situation where the site has no curators group without crashing,
 we'll have to handle the exceptio that CKAN's ``member_list`` function raises
 when it's asked to list the members of a group that doesn't exist:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -484,7 +484,7 @@ When we pass this IP address as the user name to
 exception because no user with that user name exists. We need to handle that
 exception as well:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
@@ -492,9 +492,9 @@ exception as well:
 We're done!
 ===========
 
-Here's our final, working ``plugin_4.py`` module in full:
+Here's our final, working ``plugin_v4.py`` module in full:
 
-.. literalinclude:: ../ckanext/examples/iauthfunctions/plugin_4.py
+.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v4.py
 
 
 
