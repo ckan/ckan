@@ -703,6 +703,7 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
+@logic.auth_audit_exempt
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
 
