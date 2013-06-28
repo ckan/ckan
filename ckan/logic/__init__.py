@@ -1,7 +1,7 @@
 import functools
 import logging
-import types
 import re
+import sys
 
 import formencode.validators
 
@@ -194,8 +194,16 @@ def flatten_to_string_key(dict):
 
 
 def check_access(action, context, data_dict=None):
-    user = context.get('user')
+    action = new_authz.clean_action_name(action)
 
+    try:
+        audit = context.get('__auth_audit', [])[-1]
+    except IndexError:
+        audit = ''
+    if audit == action:
+        context['__auth_audit'].pop()
+
+    user = context.get('user')
     log.debug('check access - user %r, action %s' % (user, action))
 
     if action:
@@ -281,13 +289,17 @@ def get_action(action):
             module = getattr(module, part)
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
-                # Only load functions from the action module.
-                if isinstance(v, types.FunctionType):
+                # Only load functions from the action module or already
+                # replaced functions.
+                if (hasattr(v, '__call__')
+                        and (v.__module__ == module_path
+                             or hasattr(v, '__replaced'))):
                     k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
                     # being side-effect free.
+                    # FIXME This looks wrong should it be an 'or' not 'and'
                     v.side_effect_free = getattr(v, 'side_effect_free', True)\
                         and action_module_name == 'get'
 
@@ -326,8 +338,31 @@ def get_action(action):
                 except TypeError:
                     # c not registered
                     pass
-                return _action(context, data_dict, **kw)
+
+                # Auth Auditing
+                # store this action name in the auth audit so we can see if
+                # check access was called on the function
+                context.setdefault('__auth_audit', [])
+                context['__auth_audit'].append(action_name)
+
+                # check_access(action_name, context, data_dict=None)
+                result = _action(context, data_dict, **kw)
+                try:
+                    if context['__auth_audit'][-1] == action_name:
+                        if action_name not in new_authz.auth_functions_list():
+                            log.debug('No auth function for %s' % action_name)
+                        elif not getattr(_action, 'auth_audit_exempt', False):
+                            raise Exception('Action Auth Audit: %s' % action_name)
+                except IndexError:
+                    pass
+                return result
             return wrapped
+
+        # If we have been called multiple times for example during tests then
+        # we need to make sure that we do not rewrap the actions.
+        if hasattr(_action, '__replaced'):
+            _actions[action_name] = _action.__replaced
+            continue
 
         fn = make_wrapped(_action, action_name)
         # we need to mirror the docstring
@@ -336,6 +371,22 @@ def get_action(action):
         if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
+
+
+        def replaced_action(action_name):
+            def warn(context, data_dict):
+                log.critical('Action `%s` is being called directly '
+                             'all action calls should be accessed via '
+                             'logic.get_action' % action_name)
+                return get_action(action_name)(context, data_dict)
+            return warn
+
+        # Store our wrapped function so it is available.  This is to prevent
+        # rewrapping of actions
+        module = sys.modules[_action.__module__]
+        r = replaced_action(action_name)
+        r.__replaced = fn
+        module.__dict__[action_name] = r
 
     return _actions.get(action)
 
@@ -400,6 +451,13 @@ def auth_sysadmins_check(action):
     return wrapper
 
 
+def auth_audit_exempt(action):
+    ''' Dirty hack to stop auth audit being done '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_audit_exempt = True
+    return wrapper
 
 class UnknownValidator(Exception):
     pass
