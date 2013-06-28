@@ -1565,12 +1565,13 @@ localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
 def new_activities():
-    # If the user is logged in add their number of new activities to the
-    # template context.
+    ''' Returns the number of activities for the current user.  See
+    ``logic.action.get.dashboard_new_activities_count`` for more details '''
     if not c.userobj:
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
+
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
