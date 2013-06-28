@@ -1,4 +1,3 @@
-
 def upgrade(migrate_engine):
 
     update_statement = '''
