@@ -11,3 +11,7 @@
 {% block breadcrumb_content_inner %}
   <li class="active"><a href="#">{{ _('Create an Organization') }}</a></li>
 {% endblock %}
+
+{% block secondary_content %}
+  {% snippet "organization/snippets/helper.html" %}
+{% endblock %}
