@@ -1565,8 +1565,12 @@ localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
 def new_activities():
-    ''' Returns the number of activities for the current user.  See
-    ``logic.action.get.dashboard_new_activities_count`` for more details '''
+    '''Return the number of activities for the current user.
+
+    See :func:`logic.action.get.dashboard_new_activities_count` for more
+    details.
+
+    '''
     if not c.userobj:
         return None
     action = logic.get_action('dashboard_new_activities_count')
