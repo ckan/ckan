@@ -196,6 +196,8 @@ def flatten_to_string_key(dict):
 def check_access(action, context, data_dict=None):
     action = new_authz.clean_action_name(action)
 
+    # Auth Auditing.  We remove this call from the __auth_audit stack to show
+    # we have called the auth function
     try:
         audit = context.get('__auth_audit', [])[-1]
     except IndexError:
