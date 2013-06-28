@@ -167,12 +167,12 @@ def related_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': context['user'],
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
 
-    _get_action('activity_create')(activity_create_context, activity_dict,
-                                   ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -515,11 +515,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_create_context = {
             'model': model,
             'user': user,
-            'defer_commit':True,
+            'defer_commit': True,
+            'ignore_auth': True,
             'session': session
         }
-        _get_action('activity_create')(activity_create_context, activity_dict,
-                ignore_auth=True)
+        _get_action('activity_create')(activity_create_context, activity_dict)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
@@ -606,10 +606,11 @@ def user_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 

@@ -325,10 +325,12 @@ def related_create(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+                                        activity_dict)
     session.commit()
 
     context["related"] = related
@@ -548,11 +550,12 @@ def _group_or_org_create(context, data_dict, is_org=False):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -798,6 +801,7 @@ def user_create(context, data_dict):
         'model': model,
         'user': context['user'],
         'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     activity_dict = {
@@ -806,7 +810,7 @@ def user_create(context, data_dict):
             'activity_type': 'new user',
             }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -895,7 +899,7 @@ def vocabulary_create(context, data_dict):
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
-def activity_create(context, activity_dict, ignore_auth=False):
+def activity_create(context, activity_dict, **kw):
     '''Create a new activity stream activity.
 
     You must be a sysadmin to create new activities.
@@ -917,6 +921,14 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+
+    # this action had a ignore_auth param which has been removed
+    # removed in 2.2
+    if 'ignore_auth' in kw:
+        raise Exception('Activity Stream calling parameters have changed '
+                        'ignore_auth must be passed in the context not as '
+                        'a param')
+
     if not paste.deploy.converters.asbool(
             config.get('ckan.activity_streams_enabled', 'true')):
         return
@@ -930,8 +942,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     else:
         activity_dict['revision_id'] = None
 
-    if not ignore_auth:
-        _check_access('activity_create', context, activity_dict)
+    _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = _validate(activity_dict, schema, context)
