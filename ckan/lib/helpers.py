@@ -611,6 +611,13 @@ def check_access(action, data_dict=None):
     return authorized
 
 
+def get_action(action_name, data_dict=None):
+    '''Calls an action function from a template.'''
+    if data_dict is None:
+        data_dict = {}
+    return logic.get_action(action_name)({}, data_dict)
+
+
 def linked_user(user, maxlength=0, avatar=20):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
@@ -1457,7 +1464,12 @@ def format_resource_items(items):
             continue
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
-            value = formatters.localised_filesize(int(value))
+            try:
+                value = formatters.localised_filesize(int(value))
+            except ValueError:
+                # Sometimes values that can't be converted to ints can sneak
+                # into the db. In this case, just leave them as they are.
+                pass
         elif isinstance(value, basestring):
             # check if strings are actually datetime/number etc
             if re.search(reg_ex_datetime, value):
@@ -1474,7 +1486,7 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def resource_preview(resource, pkg_id):
+def resource_preview(resource, package):
     '''
     Returns a rendered snippet for a embedded resource preview.
 
@@ -1483,30 +1495,22 @@ def resource_preview(resource, pkg_id):
     that embeds a web page, recline or a pdf preview.
     '''
 
-    format_lower = resource['format'].lower()
-    directly = False
-    url = ''
-
-    data_dict = {'resource': resource, 'package': c.package}
-
     if not resource['url']:
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
                        reason=_(u'The resource url is not specified.'))
-    direct_embed = config.get('ckan.preview.direct', '').split()
-    if not direct_embed:
-        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
-    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-    if not loadable_in_iframe:
-        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-    if datapreview.can_be_previewed(data_dict):
+    format_lower = datapreview.res_format(resource)
+    directly = False
+    data_dict = {'resource': resource, 'package': package}
+
+    if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
-                      resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in direct_embed:
+                      resource_id=resource['id'], id=package['id'], qualified=True)
+    elif format_lower in datapreview.direct():
         directly = True
         url = resource['url']
-    elif format_lower in loadable_in_iframe:
+    elif format_lower in datapreview.loadable():
         url = resource['url']
     else:
         reason = None
@@ -1582,6 +1586,7 @@ __allowed_functions__ = [
     'subnav_named_route',
     'default_group_type',
     'check_access',
+    'get_action',
     'linked_user',
     'group_name_to_title',
     'markdown_extract',

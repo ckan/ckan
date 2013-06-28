@@ -63,7 +63,6 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'characters': None}]
 
         engine = db._get_engine(
-                None,
                 {'connection_url': pylons.config['ckan.datastore.write_url']}
             )
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
@@ -101,6 +100,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
@@ -518,7 +518,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                                  u'published': None}]
         cls.expected_join_results = [{u'first': 1, u'second': 1}, {u'first': 1, u'second': 2}]
 
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -631,6 +631,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
@@ -669,6 +670,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,

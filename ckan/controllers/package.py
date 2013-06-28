@@ -344,6 +344,11 @@ class PackageController(base.BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
 
+        # can the resources be previewed?
+        for resource in c.pkg_dict['resources']:
+            resource['can_be_previewed'] = self._resource_preview(
+                {'resource': resource, 'package': c.pkg_dict})
+
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
@@ -1142,7 +1147,16 @@ class PackageController(base.BaseController):
         c.datastore_api = '%s/api/action' % config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
+
+        c.resource['can_be_previewed'] = self._resource_preview(
+            {'resource': c.resource, 'package': c.package})
         return render('package/resource_read.html')
+
+    def _resource_preview(self, data_dict):
+        return bool(datapreview.res_format(data_dict['resource'])
+                    in datapreview.direct() + datapreview.loadable()
+                    or datapreview.get_preview_plugin(
+                        data_dict, return_first=True))
 
     def resource_download(self, id, resource_id):
         """
@@ -1319,9 +1333,9 @@ class PackageController(base.BaseController):
         '''
         Embeded page for a resource data-preview.
 
-        Depending on the type, different previews are loaded.
-        This could be an img tag where the image is loaded directly or an iframe that
-        embeds a webpage, recline or a pdf preview.
+        Depending on the type, different previews are loaded.  This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, recline or a pdf preview.
         '''
         context = {
             'model': model,
@@ -1335,30 +1349,17 @@ class PackageController(base.BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
-            data_dict['resource']['on_same_domain'] = on_same_domain
 
-            # FIXME this wants to not use plugins as it is an imported name
-            # and we already import it an p should really only be in
-            # extensu=ions in my opinion also just make it look nice and be
-            # readable grrrrrr
-            plugins = p.PluginImplementations(p.IResourcePreview)
-            plugins_that_can_preview = [plugin for plugin in plugins
-                                    if plugin.can_preview(data_dict)]
-            if len(plugins_that_can_preview) == 0:
+            preview_plugin = datapreview.get_preview_plugin(data_dict)
+
+            if preview_plugin is None:
                 abort(409, _('No preview has been defined.'))
-            if len(plugins_that_can_preview) > 1:
-                log.warn('Multiple previews are possible. {0}'.format(
-                                            plugins_that_can_preview))
 
-            plugin = plugins_that_can_preview[0]
-            plugin.setup_template_variables(context, data_dict)
-
+            preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
-
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
         else:
-            return render(plugin.preview_template(context, data_dict))
+            return render(preview_plugin.preview_template(context, data_dict))

@@ -69,16 +69,17 @@ def package_list(context, data_dict):
     '''
     model = context["model"]
     api = context.get("api_version", 1)
-    ref_package_by = 'id' if api == 2 else 'name'
 
     _check_access('package_list', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state=='active')
-    query = query.filter(model.PackageRevision.current==True)
-
-    packages = query.all()
-    return [getattr(p, ref_package_by) for p in packages]
+    package_revision_table = model.package_revision_table
+    col = (package_revision_table.c.id
+        if api == 2 else package_revision_table.c.name)
+    query = _select([col])
+    query = query.where(_and_(package_revision_table.c.state=='active',
+        package_revision_table.c.current==True))
+    query = query.order_by(col)
+    return list(zip(*query.execute())[0])
 
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
@@ -639,7 +640,7 @@ def user_list(context, data_dict):
     )
 
     if q:
-        query = model.User.search(q, query)
+        query = model.User.search(q, query, user_name=context.get('user'))
 
     if order_by == 'edits':
         query = query.order_by(_desc(
@@ -670,12 +671,13 @@ def user_list(context, data_dict):
 def package_relationships_list(context, data_dict):
     '''Return a dataset (package)'s relationships.
 
-    :param id: the id or name of the package
+    :param id: the id or name of the first package
     :type id: string
-    :param id2:
-    :type id2:
-    :param rel:
-    :type rel:
+    :param id2: the id or name of the second package
+    :type id: string
+    :param rel: relationship as string see
+        :func:`ckan.logic.action.create.package_relationship_create()` for the
+        relationship types (optional)
 
     :rtype: list of dictionaries
 
@@ -755,6 +757,7 @@ def package_show(context, data_dict):
         item.after_show(context, package_dict)
 
     return package_dict
+
 
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
@@ -980,6 +983,9 @@ def user_show(context, data_dict):
     _check_access('user_show',context, data_dict)
 
     user_dict = model_dictize.user_dictize(user_obj,context)
+
+    if context.get('return_minimal'):
+        return user_dict
 
     revisions_q = model.Session.query(model.Revision
             ).filter_by(author=user_obj.name)
@@ -2795,4 +2801,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 
 def member_roles_list(context, data_dict):
+    '''Return the possible roles for members of groups and organizations.
+
+    :returns: a list of dictionaries each with two keys: "text" (the display
+        name of the role, e.g. "Admin") and "value" (the internal name of the
+        role, e.g. "admin")
+    :rtype: list of dictionaries
+
+    '''
     return new_authz.roles_list()
