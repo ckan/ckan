@@ -955,7 +955,7 @@ def package_relationship_create_rest(context, data_dict):
     relationship_dict = _get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
-def tag_create(context, tag_dict):
+def tag_create(context, data_dict):
     '''Create a new vocabulary tag.
 
     You must be a sysadmin to create vocabulary tags.
@@ -978,14 +978,14 @@ def tag_create(context, tag_dict):
     '''
     model = context['model']
 
-    _check_access('tag_create', context, tag_dict)
+    _check_access('tag_create', context, data_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
-    data, errors = _validate(tag_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
-    tag = model_save.tag_dict_save(tag_dict, context)
+    tag = model_save.tag_dict_save(data_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()

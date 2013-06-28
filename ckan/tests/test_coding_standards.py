@@ -911,7 +911,6 @@ class TestActionAuth(object):
 
     ACTION_FN_SIGNATURES_BLACKLIST = [
         'create: activity_create',
-        'create: tag_create',
     ]
 
     ACTION_NO_AUTH_BLACKLIST = [
