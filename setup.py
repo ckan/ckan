@@ -129,7 +129,7 @@ setup(
     example_iauthfunctions_v1=ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin
     example_iauthfunctions_v2=ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin
     example_iauthfunctions_v3=ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin
-    example_iauthfunctions_v4=ckanext.example_iauthfunctions.plugin_v4:ExampleIAuthFunctionsPlugin
+    example_iauthfunctions=ckanext.example_iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
