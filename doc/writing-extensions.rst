@@ -589,72 +589,70 @@ Publishing extensions
 Testing extensions
 ==================
 
-.. todo:: Explain how to write tests for extensions.
+CKAN extensions can have their own tests that are run using ``nosetests``
+in much the same way as running CKAN's own tests (see :doc:`test`).
 
-   Write tests for the example_iauthfunctions example extension, and use them
-   as an example.
+First, we need a CKAN config file to be used when running our tests.
+Create the file ``ckanext-iauthfunctions/test.ini`` with the following
+contents::
+
+    [app:main]
+    use = config:../ckan/test-core.ini
+
+The ``use`` line declares that this config file inherits the settings from the
+config file used to run CKAN's own tests (``../ckan`` should be the path to
+your CKAN source directory, relative to your ``test.ini`` file).
+
+The ``test.ini`` file is a CKAN config file just like your |development.ini|
+and |production.ini| files, and it can contain any
+:doc:`CKAN config file settings <configuration>` that you want CKAN to use
+when running your tests, for example::
+
+    [app:main]
+    use = config:../ckan/test-core.ini
+    ckan.site_title = My Test CKAN Site
+    ckan.site_description = A test site for testing my CKAN extension
+
+Next, make the directory that will contain our test modules::
+
+    mkdir ckanext-iauthfunctions/ckanext/iauthfunctions/tests/
+
+Finally, create the file
+``ckanext-iauthfunctions/ckanext/iauthfunctions/tests/test_iauthfunctions.py``
+with the following contents:
+
+.. literalinclude:: ../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
+   :end-before: class TestExampleIAuthFunctionsPluginV3
+
+To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
+directory and run this command::
+
+    nosetests --ckan --with-pylons=test.ini ckanext/iauthfunctions/tests
+
+Some notes on how these tests work:
+
+* Nose has lots of useful functions for testing, see the
+  `nose documentation <https://nose.readthedocs.org/en/latest/>`_.
+
+* We're using a :class:`paste.fixture.TestApp` object to simulate sending HTTP
+  requests to the CKAN API or frontend.
+  See `Testing Applications with Paste <http://pythonpaste.org/testing-applications.html>`_
+  for some documentation of this.
+
+* We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
+  requests to the CKAN API. This is a convenience function that CKAN provides
+  for its own tests.
+
+* You might also find it useful to read the
+  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
+
+* The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
 
 .. todo::
 
-   As far as *how* to write the tests themselves/best practices for
-   writing tests goes, this section should just link to CKAN's testing
-   guidelines, when some exist (they don't currently). There may be some
-   extension-specific stuff that can go here.
+   Link to CKAN guidelines for *how* to write tests, once those guidelines have
+   been written. Also add any more extension-specific testing details here.
 
-Testing CKAN Extensions
------------------------
-
-CKAN extensions ordinarily have their own ``test.ini`` that refers to the CKAN ``test.ini``, so you can run them in exactly the same way. For example::
-
-    cd ckanext-dgu
-    nosetests ckanext/stats/tests --ckan
-    nosetests ckanext/stats/tests --ckan --with-pylons=test-core.ini
-
-
-Testing Plugins
----------------
-
-When writing tests for your plugin code you will need setup and teardown code
-similar to the following to ensure that your plugin is loaded while testing::
-
-    from ckan import plugins
-
-    class TestMyPlugin(TestCase):
-
-       @classmethod
-       def setup_class(cls):
-           # Use the entry point name of your plugin as declared
-           # in your package's setup.py
-           plugins.load('my_plugin')
-
-       @classmethod
-       def teardown_class(cls):
-           plugins.reset()
-
-The exception to using ``plugins.load()`` is for when your plug-in is for routes.
-In this case, the plugin must be configured before the WSGI app is started.
-Here is an example test set-up::
-
-    from pylons import config
-    import paste.fixture
-    from ckan.config.middleware import make_app
-
-    class TestMyRoutesPlugin(TestCase):
-
-        @classmethod
-        def setup_class(cls):
-            cls._original_config = config.copy()
-            config['ckan.plugins'] = 'my_routes_plugin'
-            wsgiapp = make_app(config['global_conf'], **config.local_conf)
-            cls.app = paste.fixture.TestApp(wsgiapp)
-
-        @classmethod
-        def teardown_class(cls):
-            config.clear()
-            config.update(cls._original_config)
-
-At this point you should be able to write your own plugins and extensions
-together with their tests.
 
 .. _localizing extensions:
 

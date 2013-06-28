@@ -3,12 +3,10 @@
 '''
 import paste.fixture
 import pylons.test
-import nose.tools
 
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
-import ckan.lib.navl.dictization_functions as df
 
 
 class TestExampleIAuthFunctionsPlugin(object):
@@ -31,7 +29,7 @@ class TestExampleIAuthFunctionsPlugin(object):
         '''Nose runs this method before each test method in our test class.'''
 
         # Access CKAN's model directly (bad) to create a sysadmin user and save
-        # it again self for all test methods to access.
+        # it against self for all test methods to access.
         self.sysadmin = model.User(name='test_sysadmin', sysadmin=True)
         model.Session.add(self.sysadmin)
         model.Session.commit()
@@ -64,7 +62,7 @@ class TestExampleIAuthFunctionsPlugin(object):
                                            apikey=self.sysadmin.apikey,
                                            name='noncurator',
                                            email='email',
-                                            password='password')
+                                           password='password')
 
         # Create a user who will be a member of the curators group.
         curator = tests.call_action_api(self.app, 'user_create',
@@ -171,6 +169,9 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPlugin):
         when the site _does_ have a curators group but no user is logged-in.
 
         '''
+        import nose.tools
+        import ckan.lib.navl.dictization_functions as df
+
         noncurator, curator, curators_group = self._make_curators_group()
 
         with nose.tools.assert_raises(df.Invalid) as context:
