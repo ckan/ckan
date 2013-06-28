@@ -12,11 +12,25 @@ def convert_to_extras(key, data, errors, context):
     extras.append({'key': key[-1], 'value': data[key]})
 
 def convert_from_extras(key, data, errors, context):
+
+    def remove_from_extras(data, key):
+        to_remove = []
+        for data_key, data_value in data.iteritems():
+            if (data_key[0] == 'extras'
+                and data_key[1] == key):
+                to_remove.append(data_key)
+        for item in to_remove:
+            del data[item]
+
     for data_key, data_value in data.iteritems():
         if (data_key[0] == 'extras'
             and data_key[-1] == 'key'
             and data_value == key[-1]):
             data[key] = data[('extras', data_key[1], 'value')]
+            break
+    else:
+        return
+    remove_from_extras(data, data_key[1])
 
 def date_to_db(value, context):
     try:

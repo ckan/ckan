@@ -3,7 +3,7 @@
 import logging
 
 from pylons import config
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -58,7 +58,7 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    :param license_id: the id of the dataset's license, see ``licence_list()``
+    :param license_id: the id of the dataset's license, see ``license_list()``
         for available values (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
@@ -101,8 +101,8 @@ def package_create(context, data_dict):
         group, string), ``'title'`` (the title of the group, string), to see
         which groups exist call ``group_list()``
     :type groups: list of dictionaries
-    :param owner_org: the id of the dataset's owning organization, see 
-        ``organization_list()`` or ``organization_list_for_user`` for 
+    :param owner_org: the id of the dataset's owning organization, see
+        ``organization_list()`` or ``organization_list_for_user`` for
         available values (optional)
     :type owner_org: string
 
@@ -181,7 +181,7 @@ def package_create(context, data_dict):
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
-    log.debug('Created object %s' % str(pkg.name))
+    log.debug('Created object %s' % pkg.name)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -575,7 +575,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
-    log.debug('Created object %s' % str(group.name))
+    log.debug('Created object %s' % group.name)
     return model_dictize.group_dictize(group, context)
 
 
@@ -822,7 +822,7 @@ def user_create(context, data_dict):
 
     context['user_obj'] = user
     context['id'] = user.id
-    log.debug('Created user %s' % str(user.name))
+    log.debug('Created user %s' % user.name)
     return user_dict
 
 ## Modifications for rest api
@@ -888,7 +888,7 @@ def vocabulary_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+    log.debug('Created Vocabulary %s' % vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
@@ -914,7 +914,8 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
-    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+    if not paste.deploy.converters.asbool(
+            config.get('ckan.activity_streams_enabled', 'true')):
         return
 
     model = context['model']
@@ -1141,10 +1142,41 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
 def group_member_create(context, data_dict):
+    '''Make a user a member of a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be made member of the group
+    :type username: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('group_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict)
 
 def organization_member_create(context, data_dict):
+    '''Make a user a member of an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be made member of the
+        organization
+    :type username: string
+    :param role: role of the user in the organization. One of ``member``,
+        ``editor``, or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 
