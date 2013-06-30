@@ -698,7 +698,6 @@ class TestPep8(object):
         'ckan/migration/versions/063_org_changes.py',
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
-        'ckan/migration/versions/066_default_package_type.py',
         'ckan/migration/versions/067_turn_extras_to_strings.py',
         'ckan/misc.py',
         'ckan/model/__init__.py',

@@ -25,6 +25,7 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations, IGenshiStreamFilter, IAuthenticator
 import ckan.model as model
+import ckan.lib.maintain as maintain
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -224,15 +225,9 @@ class BaseController(WSGIController):
 
         i18n.handle_request(request, c)
 
-        # If the user is logged in add their number of new activities to the
-        # template context.
-        if c.userobj:
-            from ckan.logic import get_action
-            new_activities_count = get_action(
-                'dashboard_new_activities_count')
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
-            c.new_activities = new_activities_count(context, {})
+        maintain.deprecate_context_item(
+          'new_activities',
+          'Use `h.new_activities` instead.')
 
     def _identify_user(self):
         '''Try to identify the user
