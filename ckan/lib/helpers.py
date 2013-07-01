@@ -1278,18 +1278,24 @@ def popular(type_, number, min=1, title=None):
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
 
-def groups_available():
-    ''' return a list of available groups '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author}
-    data_dict = {'available_only': True}
+def groups_available(am_member=False):
+    '''Return a list of the groups that the user is authorized to edit.
+
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
+
+    '''
+    context = {}
+    data_dict = {'available_only': True, 'am_member': am_member}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user}
+    context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
