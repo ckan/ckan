@@ -468,7 +468,10 @@ def group_list_authz(context, data_dict):
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    return [{'id': group.id, 'name': group.name, 'type': group.type} for group in groups]
+    return [{'id': group.id,
+             'name': group.name,
+             'display_name': group.display_name,
+             'type': group.type} for group in groups]
 
 def organization_list_for_user(context, data_dict):
     '''Return the list of organizations that the user is a member of.
@@ -518,8 +521,11 @@ def organization_list_for_user(context, data_dict):
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id': org.id, 'name': org.name, 'title': org.title, 'type': org.type}
-            for org in orgs_q.all()]
+    return [{'id': org.id,
+             'name': org.name,
+             'title': org.title,
+             'display_name': org.display_name,
+             'type': org.type} for org in orgs_q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
