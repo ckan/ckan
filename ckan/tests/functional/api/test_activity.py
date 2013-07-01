@@ -18,6 +18,7 @@ from paste.deploy.converters import asbool
 import paste.fixture
 from nose import SkipTest
 from ckan.common import json
+import ckan.tests as tests
 
 
 ##def package_update(context, data_dict):
@@ -2207,3 +2208,53 @@ class TestActivity:
         assert activity_response_dict['result'][0]['user_id'] == user['id']
         assert (activity_response_dict['result'][0]['data']['related']['id'] ==
                 response_dict['result']['id'])
+
+    def test_no_activity_when_creating_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='another_test_org', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset',
+                owner_org=organization['id'], private=True)
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []
+
+    def test_no_activity_when_updating_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='test_org_3', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset_2',
+                owner_org=organization['id'], private=True)
+        dataset['notes'] = 'updated'
+        updated_dataset = tests.call_action_api(self.app, 'package_update',
+                apikey=user['apikey'], **dataset)
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []
+
+    def test_no_activity_when_deleting_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='test_org_4', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset_3',
+                owner_org=organization['id'], private=True)
+        deleted_dataset = tests.call_action_api(self.app, 'package_delete',
+                apikey=user['apikey'], id=dataset['id'])
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []
