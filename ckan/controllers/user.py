@@ -602,6 +602,24 @@ class UserController(base.BaseController):
 
         return render('user/dashboard.html')
 
+    def dashboard_datasets(self):
+        context = {'for_view': True}
+        data_dict = {'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        return render('user/dashboard_datasets.html')
+
+    def dashboard_organizations(self):
+        context = {'for_view': True}
+        data_dict = {'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        return render('user/dashboard_organizations.html')
+
+    def dashboard_groups(self):
+        context = {'for_view': True}
+        data_dict = {'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        return render('user/dashboard_groups.html')
+
     def follow(self, id):
         '''Start following this user.'''
         context = {'model': model,
