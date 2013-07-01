@@ -780,26 +780,35 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
-    '''Render a datetime object or timestamp string as a pretty string
-    (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a localised date or
+    in the requested format.
     If timestamp is badly formatted, then a blank string is returned.
+
+    :param datetime_: the date
+    :type datetime_: datetime or ISO string format
+    :param date_format: a date format
+    :type date_format: string
+    :param with_hours: should the `hours:mins` be shown
+    :type with_hours: bool
+
+    :rtype: string
     '''
-    if not date_format:
-        date_format = '%b %d, %Y'
-        if with_hours:
-            date_format += ', %H:%M'
-    if isinstance(datetime_, datetime.datetime):
-        return datetime_.strftime(date_format)
-    elif isinstance(datetime_, basestring):
+    if isinstance(datetime_, basestring):
         try:
             datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
             return ''
         except ValueError:
             return ''
-        return datetime_.strftime(date_format)
-    else:
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
         return ''
+    # if date_format was supplied we use it
+    if date_format:
+        return datetime_.strftime(date_format)
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=True,
+                                          with_hours=with_hours)
 
 
 def date_str_to_datetime(date_str):
