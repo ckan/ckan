@@ -49,6 +49,12 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+        # Make an organization, because private datasets must belong to one.
+        cls.organization = tests.call_action_api(
+            cls.app, 'organization_create',
+            name='test_org',
+            apikey=cls.sysadmin_user.apikey)
+
         cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
                                  u'_id': 1,
                                  u'nested': [u'b', {u'moo': u'moo'}],
@@ -106,6 +112,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             context,
             {'name': 'privatedataset',
              'private': True,
+             'owner_org' : self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -503,6 +510,12 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+        
+        # Make an organization, because private datasets must belong to one.
+        cls.organization = tests.call_action_api(
+            cls.app, 'organization_create',
+            name='test_org',
+            apikey=cls.sysadmin_user.apikey)
 
         cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
                                  u'_id': 1,
@@ -637,6 +650,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             context,
             {'name': 'privatedataset',
              'private': True,
+             'owner_org': self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -676,6 +690,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             context,
             {'name': 'privatedataset2',
              'private': False,
+             'owner_org': self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
