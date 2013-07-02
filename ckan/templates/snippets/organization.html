@@ -12,7 +12,10 @@ Example:
 #}
 
 {% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
-  <div class="module context-info">
+  <div class="module module-narrow module-shallow context-info">
+    {% if has_context_title %}
+      <h2 class="module-heading"><i class="icon-building"></i> {{ _('Organization') }}</h2>
+    {% endif %}
     <section class="module-content">
       <div class="image">
         <a href="{{ url }}">
