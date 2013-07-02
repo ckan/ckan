@@ -728,9 +728,13 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
+    package_dict = None
     if 'revision_id' not in context and 'revision_date' not in context:
-        package_dict = json.loads(search.show(name_or_id)['data_dict'])
-    else:
+        try:
+            package_dict = json.loads(search.show(name_or_id)['data_dict'])
+        except search.SearchError:
+            pass
+    if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
