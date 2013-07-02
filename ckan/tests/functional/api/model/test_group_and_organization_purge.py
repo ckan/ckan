@@ -7,6 +7,7 @@ import ckan.tests as tests
 import paste
 import pylons.test
 
+
 class TestGroupAndOrganizationPurging(object):
     '''Tests for the group_ and organization_purge APIs.
 
@@ -40,7 +41,8 @@ class TestGroupAndOrganizationPurging(object):
                                            password='farm',
                                            apikey=cls.sysadmin.apikey)
 
-        # A user who will become an editor of our test groups and organizations.
+        # A user who will become an editor of our test groups and
+        # organizations.
         cls.editor = tests.call_action_api(cls.app, 'user_create',
                                            name='editor',
                                            email='blah',
