@@ -262,6 +262,7 @@ class PackageController(BaseController):
             )
             c.facets = query['facets']
             c.search_facets = query['search_facets']
+            c.facet_ranges = query['facet_ranges']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)
