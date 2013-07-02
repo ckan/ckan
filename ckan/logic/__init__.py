@@ -320,6 +320,9 @@ def get_action(action):
                 )
             log.debug('Auth function %r was inserted', plugin.name)
             resolved_action_plugins[name] = plugin.name
+            # Extensions are exempted from the auth audit for now
+            # This needs to be resolved later
+            auth_function.auth_audit_exempt = True
             fetched_actions[name] = auth_function
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
@@ -355,6 +358,8 @@ def get_action(action):
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception('Action Auth Audit: %s' % action_name)
+                        # remove from audit stack
+                        context['__auth_audit'].pop()
                 except IndexError:
                     pass
                 return result
