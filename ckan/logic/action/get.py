@@ -735,14 +735,22 @@ def package_show(context, data_dict):
         and not any(k in context for k in no_cache_context))
     if use_cache:
         try:
-            package_dict = json.loads(search.show(name_or_id)['data_dict'])
-            if pkg.revision_id != package_dict.get('revision_id'):
-                package_dict = None
+            search_result = search.show(name_or_id)
         except (search.SearchError, socket.error):
             pass
+        else:
+            if 'validated_data_dict' in search_result:
+                package_dict = json.loads(search_result['validated_data_dict'])
+                package_dict_validated = True
+            else:
+                package_dict = json.loads(search_result['data_dict'])
+                package_dict_validated = False
+            if pkg.revision_id != package_dict.get('revision_id'):
+                package_dict = None
 
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict_validated = False
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -751,14 +759,16 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
+    if not package_dict_validated:
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
 
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+            if schema and context.get('validate', True):
+                package_dict, errors = _validate(package_dict, schema,
+                    context=context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
