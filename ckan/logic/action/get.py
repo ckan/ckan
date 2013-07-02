@@ -752,6 +752,9 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
+    for item in plugins.PluginImplementations(plugins.IPackageController):
+        item.read(pkg)
+
     package_dict = None
     if 'revision_id' not in context and 'revision_date' not in context:
         try:
@@ -761,17 +764,14 @@ def package_show(context, data_dict):
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.read(pkg)
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
-
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+        if schema and context.get('validate', True):
+            package_dict, errors = _validate(package_dict, schema, context=context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
