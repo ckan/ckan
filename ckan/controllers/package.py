@@ -198,7 +198,12 @@ class PackageController(BaseController):
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
+                        
+                        #if value starts with [, assume range facet filter query
+                        if value.startswith("["):
+                            fq += ' %s:%s' % (param, value)
+                        else:
+                            fq += ' %s:"%s"' % (param, value)
                         if param not in c.fields_grouped:
                             c.fields_grouped[param] = [value]
                         else:
