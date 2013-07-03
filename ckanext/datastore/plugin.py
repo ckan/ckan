@@ -79,7 +79,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         @logic.side_effect_free
         def new_resource_show(context, data_dict):
-            new_data_dict = resource_show(data_dict=data_dict)
+            new_data_dict = resource_show(context, data_dict)
             try:
                 connection = read_engine.connect()
                 result = connection.execute(
