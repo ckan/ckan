@@ -109,9 +109,9 @@ class PackageSearchIndex(SearchIndex):
 
         package_plugin = lib_plugins.lookup_package_plugin(pkg_dict['type'])
         schema = package_plugin.show_package_schema()
-        pkg_dict, errors = _validate(pkg_dict, schema, {
+        validated_pkg, errors = _validate(pkg_dict, schema, {
             'model': model, 'session': model.Session})
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
+        pkg_dict['data_dict'] = json.dumps(validated_pkg)
 
         # add to string field for sorting
         title = pkg_dict.get('title')
