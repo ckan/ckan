@@ -122,6 +122,17 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict[u'format'] = model_dictize._unified_resource_format(self.format)
         return _dict
 
+    def get_package_id(self):
+        '''Returns the package id for a resource. '''
+        query = meta.Session.query(ResourceGroupRevision) \
+            .filter(and_(ResourceGroupRevision.id==self.resource_group_id,
+                         ResourceGroupRevision.state == u'active',
+                         ResourceGroupRevision.current == True))
+        resource_group = query.first()
+        if resource_group is None:
+            return None
+        return resource_group.package_id
+
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
