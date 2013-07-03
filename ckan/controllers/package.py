@@ -205,7 +205,6 @@ class PackageController(BaseController):
                         else:
                             fq += ' %s:"%s"' % (param, value)
                         fields_grouped.setdefault(param, []).append(value)
->>>>>>> 5ef0435d3cdbc21b76562a8573b130bda7a6d2a3
                     else:
                         search_extras[param] = value
             c.fields_grouped = fields_grouped
