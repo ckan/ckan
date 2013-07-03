@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 from pylons.i18n import _
@@ -720,7 +721,7 @@ def package_show(context, data_dict):
     if 'revision_id' not in context and 'revision_date' not in context:
         try:
             package_dict = json.loads(search.show(name_or_id)['data_dict'])
-        except search.SearchError:
+        except (search.SearchError, socket.error):
             pass
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
