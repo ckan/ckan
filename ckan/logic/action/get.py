@@ -760,9 +760,13 @@ def package_show(context, data_dict):
     no_cache_context = ['revision_id', 'revision_date', 'schema']
     if not any(k in context for k in no_cache_context):
         try:
-            package_dict = json.loads(search.show(name_or_id)['data_dict'])
+            package_dict = search.show(name_or_id)['data_dict']
         except (search.SearchError, socket.error):
             pass
+        if not context.get('json_string', False):
+            package_dict = json.loads(package_dict)
+        else:
+            context['json_string_returned'] = True
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
 

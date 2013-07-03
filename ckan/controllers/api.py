@@ -34,6 +34,7 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
+    'json_string': 'application/json;charset=utf-8',
 }
 
 
@@ -161,7 +162,7 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver}
+                   'api_version': ver, 'json_string': True}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
@@ -185,6 +186,10 @@ class ApiController(base.BaseController):
         try:
             result = function(context, request_data)
             return_dict['success'] = True
+            if context.get('json_string_returned', False):
+                return_dict['result'] = 395108 # magic placeholder
+                return self._finish_ok(h.json.dumps(
+                    return_dict).replace('395108', result), 'json_string')
             return_dict['result'] = result
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))
