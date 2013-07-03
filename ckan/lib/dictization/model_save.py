@@ -87,9 +87,6 @@ def package_resource_list_save(res_dicts, package, context):
         else:
             resource.state = 'deleted'
         resource_list.append(resource)
-    tag_package_tag = dict((package_tag.tag, package_tag)
-                            for package_tag in
-                            package.package_tag_all)
 
 
 def package_extras_save(extra_dicts, obj, context):
