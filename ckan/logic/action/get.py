@@ -718,7 +718,8 @@ def package_show(context, data_dict):
     _check_access('package_show', context, data_dict)
 
     package_dict = None
-    if 'revision_id' not in context and 'revision_date' not in context:
+    no_cache_context = ['revision_id', 'revision_date', 'schema']
+    if not any(k in context for k in no_cache_context):
         try:
             package_dict = json.loads(search.show(name_or_id)['data_dict'])
         except (search.SearchError, socket.error):
