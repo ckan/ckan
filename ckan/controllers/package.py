@@ -198,7 +198,12 @@ class PackageController(BaseController):
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
+                        
+                        #if value starts with [, assume range facet filter query
+                        if value.startswith("["):
+                            fq += ' %s:%s' % (param, value)
+                        else:
+                            fq += ' %s:"%s"' % (param, value)
                         fields_grouped.setdefault(param, []).append(value)
                     else:
                         search_extras[param] = value
@@ -261,6 +266,7 @@ class PackageController(BaseController):
             )
             c.facets = query['facets']
             c.search_facets = query['search_facets']
+            c.facet_ranges = query['facet_ranges']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)

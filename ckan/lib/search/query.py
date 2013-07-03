@@ -15,7 +15,8 @@ _open_licenses = None
 VALID_SOLR_PARAMETERS = set([
     'q', 'fl', 'fq', 'rows', 'sort', 'start', 'wt', 'qf', 'bf', 'boost',
     'facet', 'facet.mincount', 'facet.limit', 'facet.field',
-    'extras', 'fq_list', 'tie', 'defType', 'mm'
+    'extras', 'fq_list', 'tie', 'defType', 'mm', 
+    'facet.range.end', 'facet.range', 'facet.range.gap', 'facet.range.start'
 ])
 
 # for (solr) package searches, this specifies the fields that are searched
@@ -349,8 +350,7 @@ class PackageSearchQuery(SearchQuery):
             # http://wiki.apache.org/solr/DisMaxQParserPlugin#mm_.28Minimum_.27Should.27_Match.29
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
-
-
+ 
         conn = make_connection()
         log.debug('Package query: %r' % query)
         try:
@@ -385,6 +385,9 @@ class PackageSearchQuery(SearchQuery):
             self.facets = data.get('facet_counts', {}).get('facet_fields', {})
             for field, values in self.facets.iteritems():
                 self.facets[field] = dict(zip(values[0::2], values[1::2]))
+                
+            self.facet_ranges = data.get('facet_counts', {}).get('facet_ranges', {})            
+                
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
