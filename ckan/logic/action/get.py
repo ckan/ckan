@@ -774,8 +774,8 @@ def package_show(context, data_dict):
         if schema and context.get('validate', True):
             package_dict, errors = _validate(package_dict, schema, context=context)
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_show(context, package_dict)
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            item.after_show(context, package_dict)
 
     return package_dict
 

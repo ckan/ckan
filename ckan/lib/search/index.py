@@ -107,10 +107,14 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        # store complete, show_package_schema-validated version
         package_plugin = lib_plugins.lookup_package_plugin(pkg_dict['type'])
         schema = package_plugin.show_package_schema()
-        validated_pkg, errors = _validate(pkg_dict, schema, {
-            'model': model, 'session': model.Session})
+        context = {'model': model, 'session': model.Session}
+        validated_pkg, errors = _validate(pkg_dict, schema, context)
+        for item in PluginImplementations(IPackageController):
+            item.after_show(context, validated_pkg)
+
         pkg_dict['data_dict'] = json.dumps(validated_pkg)
 
         # add to string field for sorting
