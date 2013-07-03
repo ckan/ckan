@@ -53,7 +53,7 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('webstore_url', types.UnicodeText),
     Column('webstore_last_updated', types.DateTime),
-    
+
     Column('extras', _types.JsonDictType),
     )
 
@@ -76,7 +76,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
-    def __init__(self, resource_group_id=None, url=u'', 
+    def __init__(self, resource_group_id=None, url=u'',
                  format=u'', description=u'', hash=u'',
                  extras=None,
                  **kwargs):
@@ -125,15 +125,12 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
-        query = meta.Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
-        query = query.filter(and_(
-            ResourceRevision.state == u'active', ResourceRevision.current == True
-        ))
+        query = meta.Session.query(Resource).filter(Resource.id==reference)
         resource = query.first()
         if resource == None:
-            resource = cls.by_name(reference)            
+            resource = cls.by_name(reference)
         return resource
-        
+
     @classmethod
     def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
@@ -198,7 +195,7 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
         for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
         return _dict
-        
+
     @classmethod
     def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
@@ -214,7 +211,7 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
-    
+
 
 ## Mappers
 
@@ -256,7 +253,7 @@ meta.mapper(ResourceGroup, resource_group_table, properties={
 vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
 ResourceRevision = vdm.sqlalchemy.create_object_version(
     meta.mapper, Resource, resource_revision_table)
-    
+
 vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, core.Revision, core.State)
 ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
     meta.mapper, ResourceGroup, resource_group_revision_table)
