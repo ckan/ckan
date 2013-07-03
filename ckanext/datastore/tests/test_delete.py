@@ -30,11 +30,14 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'aliases': 'books2',
+            'aliases': u'b\xfck2',
             'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
-                        {'book': 'warandpeace', 'author': 'tolstoy'}]
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'rating with %', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy',
+                         'rating with %': '90%'},
+                        {'book': 'warandpeace', 'author': 'tolstoy',
+                         'rating with %': '42%'}]
         }
 
         engine = db._get_engine(None,
@@ -73,13 +76,13 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         c = self.Session.connection()
 
         # alias should be deleted
-        results = c.execute("select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
+        results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
         assert results.rowcount == 0
 
         try:
             # check that data was actually deleted: this should raise a
             # ProgrammingError as the table should not exist any more
-            c.execute('select * from "{0}";'.format(resource_id))
+            c.execute(u'select * from "{0}";'.format(resource_id))
             raise Exception("Data not deleted")
         except sqlalchemy.exc.ProgrammingError as e:
             expected_msg = 'relation "{0}" does not exist'.format(resource_id)
@@ -110,7 +113,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
@@ -127,7 +130,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
@@ -144,7 +147,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()
