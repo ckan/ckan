@@ -69,6 +69,18 @@ def resource_delete(context, data_dict):
 
     _check_access('resource_delete',context, data_dict)
 
+    package_id = entity.get_package_id()
+
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    if 'resources' in pkg_dict and id in pkg_dict['resources']:
+        pkg_dict['resources'].remove(id)
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][-1]
+        raise ValidationError(errors)
+
     entity.delete()
     model.repo.commit()
 
