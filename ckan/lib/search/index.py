@@ -18,8 +18,12 @@ import ckan.model as model
 from ckan.plugins import (PluginImplementations,
                           IPackageController)
 import ckan.logic as logic
+import ckan.lib.plugins as lib_plugins
+import ckan.lib.navl.dictization_functions
 
 log = logging.getLogger(__name__)
+
+_validate = ckan.lib.navl.dictization_functions.validate
 
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
@@ -102,7 +106,16 @@ class PackageSearchIndex(SearchIndex):
     def index_package(self, pkg_dict, defer_commit=False):
         if pkg_dict is None:
             return
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
+
+        # store complete, show_package_schema-validated version
+        package_plugin = lib_plugins.lookup_package_plugin(pkg_dict['type'])
+        schema = package_plugin.show_package_schema()
+        context = {'model': model, 'session': model.Session}
+        validated_pkg, errors = _validate(pkg_dict, schema, context)
+        for item in PluginImplementations(IPackageController):
+            item.after_show(context, validated_pkg)
+
+        pkg_dict['data_dict'] = json.dumps(validated_pkg)
 
         # add to string field for sorting
         title = pkg_dict.get('title')

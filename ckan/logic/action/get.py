@@ -4,6 +4,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 import sqlalchemy
@@ -752,22 +753,34 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
-    package_dict = model_dictize.package_dictize(pkg, context)
-
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
+    package_dict = None
+    no_cache_context = ['revision_id', 'revision_date', 'schema']
+    if not any(k in context for k in no_cache_context):
+        try:
+            package_dict = search.show(name_or_id)['data_dict']
+        except (search.SearchError, socket.error):
+            pass
+        if not context.get('json_string', False):
+            package_dict = json.loads(package_dict)
+        else:
+            context['json_string_returned'] = True
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(pkg, context)
 
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_show(context, package_dict)
+        if schema and context.get('validate', True):
+            package_dict, errors = _validate(package_dict, schema, context=context)
+
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            item.after_show(context, package_dict)
 
     return package_dict
 
