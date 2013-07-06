@@ -48,4 +48,4 @@ fi
 cat test-core.ini
 
 # And finally, run the tests
-nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
+nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext  --with-coverage --cover-package=ckanext --cover-package=ckan

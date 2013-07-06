@@ -1,0 +1,3 @@
+[run]
+omit = /ckan/migration/*
+source = ckan, ckanext
