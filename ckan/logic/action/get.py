@@ -719,7 +719,9 @@ def package_show(context, data_dict):
 
     package_dict = None
     no_cache_context = ['revision_id', 'revision_date', 'schema']
-    if not any(k in context for k in no_cache_context):
+    use_cache = (context.get('use_cache', True)
+        and not any(k in context for k in no_cache_context))
+    if use_cache:
         try:
             package_dict = json.loads(search.show(name_or_id)['data_dict'])
             if pkg.revision_id != package_dict.get('revision_id'):
