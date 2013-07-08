@@ -728,8 +728,12 @@ def package_show(context, data_dict):
                 package_dict = None
         except (search.SearchError, socket.error):
             pass
+
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
+    elif context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
