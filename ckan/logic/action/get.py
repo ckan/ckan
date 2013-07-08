@@ -722,6 +722,8 @@ def package_show(context, data_dict):
     if not any(k in context for k in no_cache_context):
         try:
             package_dict = json.loads(search.show(name_or_id)['data_dict'])
+            if pkg.revision_id != package_dict.get('revision_id'):
+                package_dict = None
         except (search.SearchError, socket.error):
             pass
     if not package_dict:
