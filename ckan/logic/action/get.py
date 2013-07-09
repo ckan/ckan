@@ -730,16 +730,17 @@ def package_show(context, data_dict):
     _check_access('package_show', context, data_dict)
 
     package_dict = None
-    no_cache_context = ['revision_id', 'revision_date', 'schema']
     use_cache = (context.get('use_cache', True)
-        and not any(k in context for k in no_cache_context))
+        and not 'revision_id' in context
+        and not 'revision_date' in context)
     if use_cache:
         try:
             search_result = search.show(name_or_id)
         except (search.SearchError, socket.error):
             pass
         else:
-            if 'validated_data_dict' in search_result:
+            use_validated_cache = 'schema' not in context
+            if use_validated_cache and 'validated_data_dict' in search_result:
                 package_dict = json.loads(search_result['validated_data_dict'])
                 package_dict_validated = True
             else:
