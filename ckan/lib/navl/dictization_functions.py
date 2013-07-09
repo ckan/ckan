@@ -2,6 +2,8 @@ import copy
 import formencode as fe
 import inspect
 from pylons.i18n import _
+import json
+
 from pylons import config
 
 class Missing(object):
@@ -401,3 +403,11 @@ def unflatten(data):
         unflattened[key] = [unflattened[key][s] for s in sorted(unflattened[key])]
 
     return unflattened
+
+
+class MissingNullEncoder(json.JSONEncoder):
+    '''json encoder that treats missing objects as null'''
+    def default(self, obj):
+        if isinstance(obj, Missing):
+            return None
+        return json.JSONEncoder.default(self, obj)
