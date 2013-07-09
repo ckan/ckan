@@ -731,7 +731,8 @@ def package_show(context, data_dict):
 
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
-    elif context.get('for_view'):
+
+    if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             package_dict = item.before_view(package_dict)
 
