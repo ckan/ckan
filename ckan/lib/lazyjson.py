@@ -1,5 +1,6 @@
 import json
 
+
 class LazyJSONObject(object):
     '''An object that behaves like a dict returned from json.loads'''
     def __init__(self, json_string):
@@ -27,10 +28,10 @@ def _loads_method(name):
     return method
 
 for fn in ['__cmp__', '__contains__', '__delitem__', '__eq__', '__ge__',
-        '__getitem__', '__gt__', '__iter__', '__le__', '__len__', '__lt__',
-        '__ne__', '__setitem__', 'clear', 'copy', 'fromkeys', 'get', 'has_key',
-        'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop',
-        'popitem', 'setdefault', 'update', 'values']:
+           '__getitem__', '__gt__', '__iter__', '__le__', '__len__', '__lt__',
+           '__ne__', '__setitem__', 'clear', 'copy', 'fromkeys', 'get',
+           'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys',
+           'pop', 'popitem', 'setdefault', 'update', 'values']:
     setattr(LazyJSONObject, fn, _loads_method(fn))
 
 
