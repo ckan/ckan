@@ -110,7 +110,8 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['data_dict'] = json.dumps(pkg_dict)
 
         if config.get('ckan.cache_validated_datasets', True):
-            package_plugin = lib_plugins.lookup_package_plugin(pkg_dict['type'])
+            package_plugin = lib_plugins.lookup_package_plugin(
+                pkg_dict.get('type'))
 
             schema = package_plugin.show_package_schema()
             validated_pkg_dict, errors = _validate(pkg_dict, schema, {
