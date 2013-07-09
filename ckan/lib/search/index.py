@@ -116,7 +116,8 @@ class PackageSearchIndex(SearchIndex):
             schema = package_plugin.show_package_schema()
             validated_pkg_dict, errors = _validate(pkg_dict, schema, {
                 'model': model, 'session': model.Session})
-            pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict)
+            pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
+                cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
         # add to string field for sorting
         title = pkg_dict.get('title')
