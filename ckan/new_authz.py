@@ -296,13 +296,3 @@ def check_config_permission(permission):
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]
     return False
-
-
-
-def auth_is_registered_user():
-    ''' Do we have a logged in user '''
-    try:
-        context_user = c.user
-    except TypeError:
-        context_user = None
-    return bool(context_user)

@@ -5,7 +5,8 @@ def example_helper():
     '''An example template helper function.'''
 
     # Just return some example text.
-    return 'This is some example text.'
+    html = '<span class="example_itemplate">This is some example text.</span>'
+    return plugins.toolkit.literal(html)
 
 class ExampleITemplateHelpersPlugin(plugins.SingletonPlugin):
     '''An example that shows how to use the ITemplateHelpers plugin interface.
