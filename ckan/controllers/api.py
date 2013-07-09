@@ -16,6 +16,7 @@ import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
+import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _, c, request, response
 
@@ -34,7 +35,6 @@ CONTENT_TYPES = {
     'text': 'text/plain;charset=utf-8',
     'html': 'text/html;charset=utf-8',
     'json': 'application/json;charset=utf-8',
-    'json_string': 'application/json;charset=utf-8',
 }
 
 
@@ -83,7 +83,11 @@ class ApiController(base.BaseController):
         if response_data is not None:
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                response_msg = h.json.dumps(response_data)
+                try:
+                    response_msg = h.json.dumps(response_data)
+                except TypeError:
+                    response_msg = lazyjson.LazyJSONEncoder().encode(
+                        response_data)
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
@@ -186,11 +190,6 @@ class ApiController(base.BaseController):
         try:
             result = function(context, request_data)
             return_dict['success'] = True
-            if hasattr(result, 'to_json_string'):
-                return_dict['result'] = 463455395108 # magic placeholder
-                return self._finish_ok(h.json.dumps(
-                    return_dict).replace('463455395108',
-                    result.to_json_string()), 'json_string')
             return_dict['result'] = result
         except DataError, e:
             log.error('Format incorrect: %s - %s' % (e.error, request_data))

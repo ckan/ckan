@@ -34,3 +34,9 @@ for fn in ['__cmp__', '__contains__', '__delitem__', '__eq__', '__ge__',
     setattr(LazyJSONObject, fn, _loads_method(fn))
 
 
+class LazyJSONEncoder(json.JSONEncoder):
+    '''JSON encoder that handles LazyJSONObject elements'''
+    def _iterencode_default(self, o, markers=None):
+        if hasattr(o, 'to_json_string'):
+            return iter([o.to_json_string()])
+        return json.JSONEncoder._iterencode_default(self, o, markers)
