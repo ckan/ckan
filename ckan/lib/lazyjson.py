@@ -58,10 +58,11 @@ class LazyJSONEncoder(json.JSONEncoder):
             markers = {}
         else:
             markers = None
+
         def floatstr(o, allow_nan=self.allow_nan,
-                _repr=json_encoder.FLOAT_REPR,
-                _inf=json_encoder.PosInf,
-                _neginf=-json_encoder.PosInf):
+                     _repr=json_encoder.FLOAT_REPR,
+                     _inf=json_encoder.PosInf,
+                     _neginf=-json_encoder.PosInf):
             # Check for specials.  Note that this type of test is processor
             # and/or platform-specific, so do tests which don't depend on the
             # internals.
