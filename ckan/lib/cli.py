@@ -430,7 +430,7 @@ Default is false.'''
             ## sa session
             self._load_config()
             from ckan.lib.search import rebuild, commit
-            rebuild(package_ids=ids)
+            rebuild(package_ids=ids, refresh=True)
             commit()
 
         def chunks(l, n):
