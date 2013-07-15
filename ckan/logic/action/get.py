@@ -2,6 +2,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 from pylons.i18n import _
@@ -716,7 +717,24 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
-    package_dict = model_dictize.package_dictize(pkg, context)
+    package_dict = None
+    no_cache_context = ['revision_id', 'revision_date', 'schema']
+    use_cache = (context.get('use_cache', True)
+        and not any(k in context for k in no_cache_context))
+    if use_cache:
+        try:
+            package_dict = json.loads(search.show(name_or_id)['data_dict'])
+            if pkg.revision_id != package_dict.get('revision_id'):
+                package_dict = None
+        except (search.SearchError, socket.error):
+            pass
+
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(pkg, context)
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
