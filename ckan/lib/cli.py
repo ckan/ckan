@@ -418,7 +418,10 @@ Default is false.'''
         db_url = conf['sqlalchemy.url']
         engine = sa.create_engine(db_url)
         package_ids = []
-        result = engine.execute("select id from package where state = 'active';")
+        result = engine.execute("""
+            select id from package where state = 'active'
+            order by id;
+            """)
         for row in result:
             package_ids.append(row[0])
 
