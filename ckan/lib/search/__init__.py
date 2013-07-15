@@ -149,7 +149,7 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False, def
 
     package_index = index_for(model.Package)
     context = {'model': model, 'ignore_auth': True, 'validate': False,
-        'use_cache': False}
+        'use_cache': refresh}
 
     if package_id:
         pkg_dict = logic.get_action('package_show')(context,
