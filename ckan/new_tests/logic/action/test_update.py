@@ -5,10 +5,10 @@ import ckan.model as model
 import ckan.new_tests.logic as logic
 import ckan.new_tests.test_data as test_data
 
-def teardown_module():
-    print "Rebuilding db"
-    model.repo.rebuild_db()
-    print "db rebuilt"
+def setup_module():
+    model.Session.close_all()
+    model.repo.clean_db()
+    model.repo.init_db()
 
 # Tests for user_update:
 #
