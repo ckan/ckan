@@ -75,7 +75,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource_id = self.data['resource_id']
         c = self.Session.connection()
 
-        # alias should be deleted
+        # It's dangerous to build queries as someone could inject sql.
+        # It's okay here as it is a test but don't use it anyhwere else!
         results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
         assert results.rowcount == 0
 
