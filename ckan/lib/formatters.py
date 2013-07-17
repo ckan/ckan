@@ -68,35 +68,55 @@ _MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
                    _month_sept, _month_oct, _month_nov, _month_dec]
 
 
-def localised_nice_date(datetime_):
-    ''' Returns a friendly localised unicode representation of a datetime. '''
-    now = datetime.datetime.now()
-    date_diff = now - datetime_
-    days = date_diff.days
-    if days < 1 and now > datetime_:
-        # less than one day
-        seconds = date_diff.seconds
-        if seconds < 3600:
-            # less than one hour
-            if seconds < 60:
-                return _('Just now')
+def localised_nice_date(datetime_, show_date=False, with_hours=False):
+    ''' Returns a friendly localised unicode representation of a datetime.
+
+    :param datetime_: The date to format
+    :type datetime_: datetime
+    :param show_date: Show date not 2 days ago etc
+    :type show_date: bool
+    :param with_hours: should the `hours:mins` be shown for dates
+    :type with_hours: bool
+
+    :rtype: sting
+    '''
+    if not show_date:
+        now = datetime.datetime.now()
+        date_diff = now - datetime_
+        days = date_diff.days
+        if days < 1 and now > datetime_:
+            # less than one day
+            seconds = date_diff.seconds
+            if seconds < 3600:
+                # less than one hour
+                if seconds < 60:
+                    return _('Just now')
+                else:
+                    return ungettext('{mins} minute ago', '{mins} minutes ago',
+                                     seconds / 60).format(mins=seconds / 60)
             else:
-                return ungettext('{mins} minute ago', '{mins} minutes ago',
-                                 seconds / 60).format(mins=seconds / 60)
-        else:
-            return ungettext('{hours} hour ago', '{hours} hours ago',
-                             seconds / 3600).format(hours=seconds / 3600)
-    # more than one day
-    if days < 31:
-        return ungettext('{days} day ago', '{days} days ago',
-                         days).format(days=days)
+                return ungettext('{hours} hour ago', '{hours} hours ago',
+                                 seconds / 3600).format(hours=seconds / 3600)
+        # more than one day
+        if days < 31:
+            return ungettext('{days} day ago', '{days} days ago',
+                             days).format(days=days)
     # actual date
-    month = datetime_.month
-    day = datetime_.day
-    year = datetime_.year
-    month_name = _MONTH_FUNCTIONS[month - 1]()
-    return _('{month} {day}, {year}').format(month=month_name, day=day,
-                                             year=year)
+    details = {
+        'min': datetime_.minute,
+        'hour': datetime_.hour,
+        'day': datetime_.day,
+        'year': datetime_.year,
+        'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
+    }
+    if with_hours:
+        return (
+            # NOTE: This is for translating dates like `April 24, 2013, 10:45`
+            _('{month} {day}, {year}, {hour:02}:{min:02}').format(**details))
+    else:
+        return (
+            # NOTE: This is for translating dates like `April 24, 2013`
+            _('{month} {day}, {year}').format(**details))
 
 
 def localised_number(number):

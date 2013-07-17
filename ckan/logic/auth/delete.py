@@ -10,7 +10,7 @@ def package_delete(context, data_dict):
 
     authorized = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'delete_dataset')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (str(user),package.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (user, package.id)}
     else:
         return {'success': True}
 
@@ -32,7 +32,7 @@ def resource_delete(context, data_dict):
     authorized = package_delete(context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete resource %s') % (str(user), resource.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete resource %s') % (user, resource.id)}
     else:
         return {'success': True}
 
@@ -84,6 +84,14 @@ def group_delete(context, data_dict):
     else:
         return {'success': True}
 
+def group_purge(context, data_dict):
+    # Only sysadmins are authorized to purge groups.
+    return {'success': False}
+
+def organization_purge(context, data_dict):
+    # Only sysadmins are authorized to purge organizations.
+    return {'success': False}
+
 def organization_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
@@ -122,7 +130,7 @@ def _group_or_org_member_delete(context, data_dict):
     authorized = new_authz.has_user_permission_for_group_or_org(
         group.id, user, 'delete_member')
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete organization %s members') % (str(user),group.id)}
+        return {'success': False, 'msg': _('User %s not authorized to delete organization %s members') % (user, group.id)}
     else:
         return {'success': True}
     return {'success': True}

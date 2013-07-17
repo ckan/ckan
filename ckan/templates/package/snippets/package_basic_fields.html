@@ -31,8 +31,8 @@
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
     <select id="field-license" name="license_id" data-module="autocomplete">
-      {% for licence_desc, licence_id in licences|sort if licence_desc  %}
-        <option value="{{ licence_id }}" {% if data.get('license_id', 'notspecified') == licence_id %}selected="selected"{% endif %}>{{ licence_desc }}</option>
+      {% for license_desc, license_id in licenses|sort if license_desc  %}
+        <option value="{{ license_id }}" {% if data.get('license_id', 'notspecified') == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
@@ -52,23 +52,51 @@
 {% if data.group_id %}
   <input type="hidden" name="groups__0__id" value="{{ data.group_id }}" />
 {% endif %}
-{% set existing_org = data.owner_org or data.group_id %}
-{% if h.check_access('sysadmin') or data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
-  {% set organizations_available = h.organizations_available('create_dataset') %}
-  {% if organizations_available %}
+
+{% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
+{% set dataset_has_organization = data.owner_org or data.group_id %}
+{% set organizations_available = h.organizations_available('create_dataset') %}
+{% set user_is_sysadmin = h.check_access('sysadmin') %}
+{% set show_organizations_selector = organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+{% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+
+{% if show_organizations_selector and show_visibility_selector %}
+  <div data-module="dataset-visibility">
+{% endif %}
+
+{% if show_organizations_selector %}
+<div class="control-group">
+  <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+  <div class="controls">
+    <select id="field-organizations" name="owner_org" data-module="autocomplete">
+      <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
+      {% for organization in organizations_available %}
+        {# get out first org from users list only if there is not an existing org #}
+        {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
+        <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+{% endif %}
+
+{% if show_visibility_selector %}
+  {% block package_metadata_fields_visibility %}
     <div class="control-group">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+      <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
       <div class="controls">
-        <select id="field-organizations" name="owner_org" data-module="autocomplete">
-          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('Select an organization...') }}</option>
-          {% for organization in organizations_available %}
-            {# get out first org from users list only if there is not an existing org #}
-            {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
-            <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
+        <select id="field-private" name="private">
+          {% for option in [(true, _('Private')), (false, _('Public'))] %}
+          <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
           {% endfor %}
         </select>
       </div>
     </div>
-  {% endif %}
+  {% endblock %}
 {% endif %}
+
+{% if show_organizations_selector and show_visibility_selector %}
+  </div>
+{% endif %}
+
 {% endblock %}

@@ -18,6 +18,7 @@ __all__ = [
     'ITagController',
     'ITemplateHelpers',
     'IFacets',
+    'IAuthenticator',
 ]
 
 from inspect import isclass
@@ -201,12 +202,26 @@ class IResourcePreview(Interface):
 
     def can_preview(self, data_dict):
         '''
-        Return True if the extension can preview the resource. The ``data_dict``
-        contains the resource and the package.
+        Returns info on whether the plugin can preview the resource.
+
+        This can be done in two ways.
+        The old way is to just return True or False.
+        The new way is to return a dict with the following
+        {
+            'can_preview': bool - if the extension can preview the resource
+            'fixable': string - if the extension cannot preview but could for
+                                example if the resource_proxy was enabled.
+            'quality': int - how good the preview is 1-poor, 2-average, 3-good
+                          used if multiple extensions can preview
+        }
+
+        The ``data_dict`` contains the resource and the package.
 
         Make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
+        To find out how to preview resources that are on a
+        different domain, read :ref:`resource_proxy`.
         '''
 
     def setup_template_variables(self, context, data_dict):
@@ -687,16 +702,6 @@ class IDatasetForm(Interface):
 
         '''
 
-    def comments_template(self):
-        '''Return the path to the template for the dataset comments page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/comments.html'``.
-
-        :rtype: string
-
-        '''
-
     def search_template(self):
         '''Return the path to the template for use in the dataset search page.
 
@@ -855,9 +860,9 @@ class IGroupForm(Interface):
 class IFacets(Interface):
     ''' Allows specify which facets are displayed and also the names used.
 
-    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
-    to allow translatable dispaly names use _(...)
-    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    facet_dicts are in the form {'facet_name': 'display name', ...}
+    to allow translatable display names use _(...)
+    eg {'facet_name': _('display name'), ...} and ensure that this is
     created each time the function is called.
 
     The dict supplied is actually an ordered dict.
@@ -874,3 +879,32 @@ class IFacets(Interface):
     def organization_facets(self, facets_dict, organization_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
+
+
+class IAuthenticator(Interface):
+    '''EXPERIMENTAL
+
+    Allows custom authentication methods to be integrated into CKAN.
+    Currently it is experimental and the interface may change.'''
+
+
+    def identify(self):
+        '''called to identify the user.
+
+        If the user is identfied then it should set
+        c.user: The id of the user
+        c.userobj: The actual user object (this may be removed as a
+        requirement in a later release so that access to the model is not
+        required)
+        '''
+
+    def login(self):
+        '''called at login.'''
+
+    def logout(self):
+        '''called at logout.'''
+
+    def abort(self, status_code, detail, headers, comment):
+        '''called on abort.  This allows aborts due to authorization issues
+        to be overriden'''
+        return (status_code, detail, headers, comment)

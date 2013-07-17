@@ -6,4 +6,9 @@
 
 {% block page_heading %}{{ _('Create a Group') }}{% endblock %}
 
-{% block actions_content %}{% endblock %}
+{% block page_header %}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/helper.html" %}
+{% endblock %}
+

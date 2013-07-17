@@ -2,21 +2,6 @@
 
 {% block package_metadata_fields %}
 
-{% block package_metadata_fields_visibility %}
-{% if data.owner_org %}
-  <div class="control-group">
-    <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-    <div class="controls">
-      <select id="field-private" name="private" data-module="autocomplete">
-        {% for option in [(true, _('Private')), (false, _('Public'))] %}
-        <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-{% endif %}
-{% endblock %}
-
 {% block package_metadata_author %}
 {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
