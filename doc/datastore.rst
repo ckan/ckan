@@ -2,24 +2,18 @@
 DataStore Extension
 ===================
 
-The CKAN DataStore provides an *ad hoc* database for structured storage of data together
-with a powerful Web-accessible Data API, all seamlessly integrated into the CKAN
-API and authorization system. At the same time, we kept the layer between the
-underlying database and the user as thin as possible.
 
-The CKAN DataStore offers an API for reading, searching and filtering data without
-the need to download the entire file first. The DataStore is an ad hoc database which
-means that it is a collection of tables with unknown relationships. This allows
-you to search in one DataStore resource (a *table* in the database) as well as queries
-across DataStore resources.
+The CKAN DataStore extension provides an *ad hoc* database for storage of structured data from
+CKAN resources. Data can be pulled out of resource files and stored in
+the DataStore.
 
-Data can be written incrementally to the DataStore through the API. New data can be
-inserted, existing data can be updated or deleted. You can also add a new column to
-an existing table even if the DataStore resource already contains some data.
+When a resource is added to the DataStore, you get:
 
-A DataStore resource can not be created on its own. It is always required to have an
-associated CKAN resource. If data is stored in the DataStore, it will automatically be
-previewed by the :ref:`recline preview extension <data-explorer>`.
+* Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
+* The `The DataStore API`_: search, filter and update the data, without having to download
+  and upload the entire data file
+
+The DataStore is integrated into the :doc:`CKAN API <api>` and authorization system.
 
 .. contents::
    :depth: 1
@@ -229,9 +223,24 @@ There is no need for a read-only user or special permissions. Therefore the lega
 The DataStore API
 -----------------
 
-The DataStore API allows tabular data to be stored inside CKAN quickly and
-easily. Each resource in a CKAN instance can have an associated DataStore
-table. The API for using the DataStore is outlined below.
+The CKAN DataStore offers an API for reading, searching and filtering data without
+the need to download the entire file first. The DataStore is an ad hoc database which
+means that it is a collection of tables with unknown relationships. This allows
+you to search in one DataStore resource (a *table* in the database) as well as queries
+across DataStore resources.
+
+Data can be written incrementally to the DataStore through the API. New data can be
+inserted, existing data can be updated or deleted. You can also add a new column to
+an existing table even if the DataStore resource already contains some data.
+
+You will notice that we tried to keep the layer between the underlying PostgreSQL
+database and the API as thin as possible to allow you to use the features you would
+expect from a powerful database management system.
+
+A DataStore resource can not be created on its own. It is always required to have an
+associated CKAN resource. If data is stored in the DataStore, it will automatically be
+previewed by the :ref:`recline preview extension <data-explorer>`.
+
 
 Making a DataStore API Request
 ==============================
