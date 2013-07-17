@@ -1,4 +1,5 @@
 from logging import getLogger
+import urlparse
 
 import requests
 
@@ -15,12 +16,16 @@ def proxy_resource(context, data_dict):
     ''' Chunked proxy for resources. To make sure that the file is not too
     large, first, we try to get the content length from the headers.
     If the headers to not contain a content length (if it is a chinked
-    response), we only transfer as long as the transfered data is less
+    response), we only transfer as long as the transferred data is less
     than the maximum file size. '''
     resource_id = data_dict['resource_id']
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
+
+    parts = urlparse.urlsplit(url)
+    if not parts.scheme or not parts.netloc:
+        base.abort(409, detail='Invalid URL.')
 
     try:
         # first we try a HEAD request which may not be supported
