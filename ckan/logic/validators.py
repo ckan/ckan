@@ -50,9 +50,7 @@ def package_id_not_changed(value, context):
     return value
 
 def string_or_none(value, context):
-    if value is None:
-        return None
-    elif isinstance(value, basestring):
+    if value is None or isinstance(value, basestring):
         return value
     else:
         raise Invalid(_("Must be a string or null"))
