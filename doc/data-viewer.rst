@@ -144,7 +144,7 @@ set to one of the resource formats from above (case insensitive).
 
 .. seealso::
 
-   :ref:`The resourceproxy extension <resource_proxy>`
+   :ref:`The resourceproxy extension <resource-proxy>`
 
      If you want to preview linked-to text files (and not only files that have
      been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
@@ -168,7 +168,7 @@ have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
 
 .. seealso::
 
-   :ref:`The resourceproxy extension <resource_proxy>`
+   :ref:`The resourceproxy extension <resource-proxy>`
 
      If you want to preview linked-to PDF files (and not only files that have
      been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
