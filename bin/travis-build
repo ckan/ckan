@@ -52,4 +52,5 @@ nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
 
 # Run mocha tests
 npm install -g mocha-phantomjs phantomjs
+paster serve --reload development.ini &
 mocha-phantomjs -s webSecurityEnabled=false ckan/public/base/test/index.html
