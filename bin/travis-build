@@ -49,3 +49,7 @@ cat test-core.ini
 
 # And finally, run the tests
 nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
+
+# Run mocha tests
+npm install -g mocha-phantomjs phantomjs
+mocha-phantomjs -s webSecurityEnabled=false ckan/public/base/test/index.html
