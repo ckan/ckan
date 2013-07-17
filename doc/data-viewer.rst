@@ -19,11 +19,11 @@ use a custom widget.
 The data preview functionality that is provided by CKAN is described in
 the following sections:
 
-* `Viewing images and text files`_
-* `Viewing structured data: the Data Explorer`_
-* `Viewing JSON data`_
-* `Viewing PDF documents`_
-* `Embedding Previews In Other Web Pages`_
+* :ref:`image-preview`
+* :ref:`data-explorer`
+* :ref:`text-preview`
+* :ref:`pdf-preview`
+* :ref:`embed-previews`
 
 These sections list the resource formats that each extension can preview and
 provide instructions for how to enable each extension.
@@ -32,6 +32,8 @@ different types of resources.
 For more information on this topic see
 `Writing Extensions <writing-extensions.html>`_.
 
+
+.. _image-preview:
 
 Viewing images and text files
 -----------------------------
@@ -76,6 +78,7 @@ Note that these documents will be directly linked by the browser, so the
 way in which they are shown may vary. If you want to ensure for instance that
 XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
 
+
 .. _data-explorer:
 
 Viewing structured data: the Data Explorer
@@ -113,6 +116,8 @@ Or:
    reliable than viewing data that is in the DataStore.
 
 
+.. _text-preview:
+
 Viewing highlighted XML, JSON and plain text data
 -------------------------------------------------
 
@@ -146,6 +151,8 @@ enabled as well
 `same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_).
 
 
+.. _pdf-preview:
+
 Viewing PDF documents
 ---------------------
 
@@ -160,6 +167,8 @@ that have been added to a CKAN instance (and so are stored in
 the `Filestore <filestore.html>`_) as well as any external ``pdf`` documents.
 This extension uses Mozilla's `pdf.js <http://mozilla.github.io/pdf.js>`_ library.
 
+
+.. _embed-previews:
 
 Embedding Previews In Other Web Pages
 -------------------------------------
