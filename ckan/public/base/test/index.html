@@ -72,6 +72,8 @@
     <script src="./spec/plugins/jquery.form-warning.spec.js"></script>
 
     <script>
+      var is_headerless = ( typeof window.mochaPhantomJS != 'undefined' );
+
       /* Helper function for loading snippets from the ajax_snippets directory.
        * The filename should be provided and an optional object of query
        * string parameters. The returned snippet will be loaded into the
@@ -110,7 +112,14 @@
           params = {};
         }
 
-        return (new ckan.Client()).getTemplate(filename, params).error(function () {
+        var client_config = false;
+        if (is_headerless) {
+          client_config = {
+            endpoint: 'http://localhost:5000'
+          };
+        }
+
+        return (new ckan.Client(client_config)).getTemplate(filename, params).error(function () {
           throw new Error('Unable to load fixture: ' + filename);
         }).pipe(function (template) {
           var fixture = jQuery('#fixture').html(template);
@@ -133,7 +142,12 @@
         this.fixture.empty();
       });
 
-      mocha.run().globals(['ckan', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval']);
+      if (is_headerless) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
+
     </script>
   </body>
 </html>
