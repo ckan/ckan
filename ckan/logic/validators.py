@@ -49,7 +49,7 @@ def package_id_not_changed(value, context):
                       'This key is read-only' % (package.id, value))
     return value
 
-def must_be_string_or_none(value, context):
+def string_or_none(value, context):
     if value is None:
         return None
     elif isinstance(value, basestring):
