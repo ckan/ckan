@@ -276,6 +276,9 @@ def extras_unicode_convert(extras, context):
 
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(val, context):
+    if not isinstance(val, basestring):
+        raise Invalid(_('Names must be strings'))
+
     # check basic textual rules
     if val in ['new', 'edit', 'search']:
         raise Invalid(_('That name cannot be used'))
@@ -477,6 +480,9 @@ def user_name_validator(key, data, errors, context):
     model = context["model"]
     session = context["session"]
     user = context.get("user_obj")
+
+    if not isinstance(data[key], basestring):
+        raise Invalid(_('User names must be strings'))
 
     query = session.query(model.User.name).filter_by(name=data[key])
     if user:
