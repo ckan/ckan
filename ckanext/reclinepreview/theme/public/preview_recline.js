@@ -40,6 +40,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       }
 
       recline.Backend.DataProxy.timeout = 10000;
+      // will no be necessary any more with https://github.com/okfn/recline/pull/345
+      recline.Backend.DataProxy.dataproxy_url = '//jsonpdataproxy.appspot.com';
 
       // 2 situations
       // a) something was posted to the datastore - need to check for this

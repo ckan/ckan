@@ -75,7 +75,7 @@ env.ckan_instance_name = 'test' # e.g. test.ckan.net
 env.base_dir = os.getcwd() # e.g. /home/jsmith/var/srvc
 env.local_backup_dir = os.path.expanduser('~/db_backup')
 env.ckan_repo = 'https://github.com/okfn/ckan/raw/%s/'
-pip_requirements = 'pip-requirements.txt'
+pip_requirements = 'requirements.txt'
 env.skip_setup_db = False
 
 def config_local(base_dir, ckan_instance_name, db_user=None, db_host=None,
@@ -241,8 +241,8 @@ def deploy():
     pip_req = env.ckan_repo % env.revision + pip_requirements
     with cd(env.instance_path):
 
-        # get latest pip-requirements.txt
-        print 'Getting pip-requirements from revision: %s' % env.revision
+        # get latest requirements.txt
+        print 'Getting requirements from revision: %s' % env.revision
         latest_pip_file = urllib2.urlopen(pip_req)
         tmp_pip_requirements_filepath = os.path.join('/tmp', pip_requirements)
         local_pip_file = open(tmp_pip_requirements_filepath, 'w')
