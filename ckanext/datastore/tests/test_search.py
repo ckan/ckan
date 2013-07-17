@@ -34,12 +34,14 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'},
-                       {'id': u'characters', u'type': u'_text'}],
+                       {'id': u'characters', u'type': u'_text'},
+                       {'id': 'rating with %'}],
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
-                        u'characters': [u'Princess Anna', u'Sergius']},
+                        u'characters': [u'Princess Anna', u'Sergius'],
+                        'rating with %': '60%'},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}}
+                        'nested': {'a': 'b'}, 'rating with %': '99%'}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -60,13 +62,15 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                                  u'nested': [u'b', {u'moo': u'moo'}],
                                  u'b\xfck': u'annakarenina',
                                  u'author': u'tolstoy',
-                                 u'characters': [u'Princess Anna', u'Sergius']},
+                                 u'characters': [u'Princess Anna', u'Sergius'],
+                                 u'rating with %': u'60%'},
                                 {u'published': None,
                                  u'_id': 2,
                                  u'nested': {u'a': u'b'},
                                  u'b\xfck': u'warandpeace',
                                  u'author': u'tolstoy',
-                                 u'characters': None}]
+                                 u'characters': None,
+                                 u'rating with %': u'99%'}]
 
         engine = db._get_engine(
                 {'connection_url': pylons.config['ckan.datastore.write_url']}
@@ -349,9 +353,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 1
 
-        results = [extract(result['records'][0],
-            [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters'])]
-        assert results == [self.expected_records[0]], result['records']
+        results = [extract(result['records'][0], [
+            u'_id', u'author', u'b\xfck', u'nested',
+            u'published', u'characters', u'rating with %'])]
+        assert results == [self.expected_records[0]], results['records']
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -363,9 +368,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 2
         results = [extract(
-                record,
-                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
-            ) for record in result['records']]
+            record,
+            [u'_id', u'author', u'b\xfck', u'nested',
+             u'published', u'characters', u'rating with %']
+        ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
         expected_fields = [{u'type': u'int4', u'id': u'_id'},
@@ -389,10 +395,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 1
         results = [extract(
-                result['records'][0],
-                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
-            )]
-        assert results == [self.expected_records[0]], result['records']
+            result['records'][0],
+            [u'_id', u'author', u'b\xfck', u'nested', u'published',
+             u'characters', u'rating with %'])]
+        assert results == [self.expected_records[0]], results['records']
 
         for field in expected_fields:
             assert field in result['fields'], field
