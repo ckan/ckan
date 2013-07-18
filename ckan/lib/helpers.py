@@ -934,6 +934,21 @@ def time_ago_in_words_from_str(date_str, granularity='month'):
         return _('Unknown')
 
 
+def time_ago_from_timestamp(timestamp):
+    ''' Returns a string like `5 months ago` for a datetime relative to now
+    :param timestamp: the timestamp or datetime
+    :type timestamp: string or datetime
+
+    :rtype: string
+    '''
+    datetime_ = _datestamp_to_datetime(timestamp)
+    if not datetime_:
+        return _('Unknown')
+
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=False)
+
+
 def button_attr(enable, type='primary'):
     if enable:
         return 'class="btn %s"' % type
@@ -1696,6 +1711,7 @@ __allowed_functions__ = [
     'localised_filesize',
     'list_dict_filter',
     'new_activities',
+    'time_ago_from_timestamp',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
