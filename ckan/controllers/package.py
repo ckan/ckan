@@ -5,7 +5,6 @@ import datetime
 from pylons import config
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
-import genshi.template.loader
 from paste.deploy.converters import asbool
 
 import ckan.logic as logic
@@ -20,6 +19,7 @@ import ckan.model as model
 import ckan.lib.datapreview as datapreview
 import ckan.lib.plugins
 import ckan.plugins as p
+import lib.render
 
 from ckan.common import OrderedDict, _, json, request, c, g, response
 from home import CACHE_PARAMETERS
@@ -355,7 +355,7 @@ class PackageController(base.BaseController):
 
         try:
             return render(template, loader_class=loader)
-        except genshi.template.loader.TemplateNotFound:
+        except lib.render.TemplateNotFound:
             msg = _("Viewing {package_type} datasets in {format} format is "
                     "not supported (template file {file} not found).".format(
                     package_type=package_type, format=format, file=template))

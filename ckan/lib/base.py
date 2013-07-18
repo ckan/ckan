@@ -103,11 +103,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         # we remove it so any bad templates crash and burn
         del globs['url']
 
-        try:
-            template_path, template_type = lib.render.template_info(template_name)
-        except lib.render.TemplateNotFound:
-            template_type = 'genshi'
-            template_path = ''
+        template_path, template_type = lib.render.template_info(template_name)
 
         # snippets should not pass the context
         # but allow for legacy genshi templates
