@@ -264,8 +264,14 @@ class PackageController(base.BaseController):
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
-            limit = int(request.params.get('_%s_limit' % facet,
-                                           g.facets_default_number))
+            try:
+                limit = int(request.params.get('_%s_limit' % facet,
+                                               g.facets_default_number))
+            except ValueError:
+                abort(400, _('Parameter "{parameter_name}" is not '
+                             'an integer').format(
+                                 parameter_name='_%s_limit' % facet
+                             ))
             c.search_facets_limits[facet] = limit
 
         maintain.deprecate_context_item(
