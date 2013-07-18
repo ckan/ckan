@@ -27,6 +27,9 @@ pip install -r requirements.txt -r dev-requirements.txt --use-mirrors
 
 python setup.py develop
 
+# Install npm dpes for mocha
+npm install -g mocha-phantomjs phantomjs
+
 # Configure Solr
 echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
 # FIXME the solr schema cannot be hardcoded as it is dependent on the ckan version
@@ -51,6 +54,5 @@ cat test-core.ini
 nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
 
 # Run mocha tests
-npm install -g mocha-phantomjs phantomjs
 paster serve --reload test-core.ini &
 mocha-phantomjs http://localhost:5000/base/test/index.html
