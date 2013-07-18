@@ -209,7 +209,43 @@ class TestClass(object):
         assert timestamp >= before and timestamp <= after
 
     def test_user_update_with_custom_schema(self):
-        pass
+        '''Test that custom schemas passed to user_update do get used.
+
+        user_update allows a custom validation schema to be passed to it in the
+        context dict. This is just a simple test that if you pass a custom
+        schema user_update does at least call a custom method that's given in
+        the custom schema. We assume this means it did use the custom schema
+        instead of the default one for validation, so user_update's custom
+        schema feature does work.
+
+        '''
+        import mock
+        import ckan.logic.schema
+
+        user = helpers.call_action('user_create', **data.typical_user())
+
+        # A mock validator method, it doesn't do anything but it records what
+        # params it gets called with and how many times.
+        mock_validator = mock.MagicMock()
+
+        # Build a custom schema by taking the default schema and adding our
+        # mock method to its 'id' field.
+        schema = ckan.logic.schema.default_update_user_schema()
+        schema['id'].append(mock_validator)
+
+        # Call user_update and pass our custom schema in the context.
+        # FIXME: We have to pass email and password even though we're not
+        # trying to update them, or validation fails.
+        helpers.call_action('user_update', context={'schema': schema},
+                            id=user['name'], email=user['email'],
+                            password=data.typical_user()['password'],
+                            name='updated',
+                            )
+
+        # Since we passed user['name'] to user_update as the 'id' param,
+        # our mock validator method should have been called once with
+        # user['name'] as arg.
+        mock_validator.assert_called_once_with(user['name'])
 
     def test_user_update_with_deferred_commit(self):
         pass
