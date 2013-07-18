@@ -780,26 +780,35 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
-    '''Render a datetime object or timestamp string as a pretty string
-    (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a localised date or
+    in the requested format.
     If timestamp is badly formatted, then a blank string is returned.
+
+    :param datetime_: the date
+    :type datetime_: datetime or ISO string format
+    :param date_format: a date format
+    :type date_format: string
+    :param with_hours: should the `hours:mins` be shown
+    :type with_hours: bool
+
+    :rtype: string
     '''
-    if not date_format:
-        date_format = '%b %d, %Y'
-        if with_hours:
-            date_format += ', %H:%M'
-    if isinstance(datetime_, datetime.datetime):
-        return datetime_.strftime(date_format)
-    elif isinstance(datetime_, basestring):
+    if isinstance(datetime_, basestring):
         try:
             datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
             return ''
         except ValueError:
             return ''
-        return datetime_.strftime(date_format)
-    else:
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
         return ''
+    # if date_format was supplied we use it
+    if date_format:
+        return datetime_.strftime(date_format)
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=True,
+                                          with_hours=with_hours)
 
 
 def date_str_to_datetime(date_str):
@@ -1272,7 +1281,16 @@ def popular(type_, number, min=1, title=None):
 @maintain.deprecated('Please use '
         "h.get_action('group_list_authz', {'available_only': True}) instead.")
 def groups_available():
-    '''Return a list of available groups. Deprecated in CKAN 2.2.'''
+    '''Return a list of the groups that the user is authorized to edit.
+    Deprecated in CKAN 2.2
+
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
+
+    '''
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author}
     data_dict = {'available_only': True}
@@ -1284,8 +1302,7 @@ def groups_available():
     'instead.')
 def organizations_available(permission='edit_group'):
     '''Return a list of available organizations. Deprecated in CKAN 2.2.'''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user}
+    context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
@@ -1573,6 +1590,19 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+def new_activities():
+    '''Return the number of activities for the current user.
+
+    See :func:`logic.action.get.dashboard_new_activities_count` for more
+    details.
+
+    '''
+    if not c.userobj:
+        return None
+    action = logic.get_action('dashboard_new_activities_count')
+    return action({}, {})
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1657,6 +1687,7 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'new_activities',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
