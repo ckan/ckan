@@ -173,8 +173,15 @@ class TestClass(object):
         with nose.tools.assert_raises(logic.ValidationError) as context:
             helpers.call_action('user_update', **user)
 
-    # TODO: Valid and invalid values for the rest of the user model's fields.
+    def test_user_update_with_invalid_password(self):
+        user = helpers.call_action('user_create', **data.typical_user())
 
+        for password in (False, -1, 23, 30.7):
+            user['password'] = password
+            with nose.tools.assert_raises(logic.ValidationError) as context:
+                helpers.call_action('user_update', **user)
+
+    # TODO: Valid and invalid values for the rest of the user model's fields.
 
     def test_user_update_activity_stream(self):
         '''Test that the right activity is emitted when updating a user.'''
