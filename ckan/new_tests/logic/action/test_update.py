@@ -126,7 +126,7 @@ class TestClass(object):
     def test_user_update_to_name_that_already_exists(self):
         fred = helpers.call_action('user_create', **data.typical_user())
         bob = helpers.call_action('user_create', name='bob',
-                                   email='bob@bob.com', password='pass')
+                                  email='bob@bob.com', password='pass')
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
