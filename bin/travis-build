@@ -50,9 +50,10 @@ fi
 
 cat test-core.ini
 
-# And finally, run the tests
-nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
-
-# Run mocha tests
+# Run mocha front-end tests
 paster serve --reload test-core.ini &
 mocha-phantomjs http://localhost:5000/base/test/index.html
+kill %1
+
+# And finally, run the tests
+nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
