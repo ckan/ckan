@@ -607,7 +607,7 @@ class PackageController(base.BaseController):
 
         return render('package/new_resource.html', extra_vars=extra_vars)
 
-    def _get_data_from_post_params(self, data=None):
+    def _get_resource_data_from_post_params(self, data=None):
         data = data or clean_dict(dict_fns.unflatten(tuplize_dict(
             parse_params(request.POST))))
         if 'save' in data:
@@ -617,7 +617,7 @@ class PackageController(base.BaseController):
             del data['id']
         return (data, resource_id)
 
-    def _data_provided(self, data):
+    def _resource_data_provided(self, data):
         # See if we have any data that we are trying to save.
         for key, value in data.iteritems():
             if value and key != 'resource_type':
@@ -641,7 +641,8 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to create a resource'))
 
-    def _save_and_add_another(self, package_id, data, errors, error_summary):
+    def _resource_save_and_add_another(self, package_id, data, errors,
+                                       error_summary):
         '''Handle a click of the "Save & add another" button.
 
         (On the new resource page.)
@@ -649,7 +650,7 @@ class PackageController(base.BaseController):
         '''
         assert not data
         assert request.method == 'POST'
-        data, resource_id = self._get_data_from_post_params()
+        data, resource_id = self._get_resource_data_from_post_params()
         self._save_resource(package_id, resource_id, data)
         redirect(h.url_for(controller='package', action='new_resource',
             id=package_id))
@@ -660,9 +661,9 @@ class PackageController(base.BaseController):
         assert request.method == 'POST'
         assert not data
 
-        data, resource_id = self._get_data_from_post_params()
+        data, resource_id = self._get_resource_data_from_post_params()
 
-        if self._data_provided(data):
+        if self._resource_data_provided(data):
             self._save_resource(package_id, resource_id, data)
 
         redirect(h.url_for(controller='package', action='edit', id=package_id))
@@ -673,9 +674,9 @@ class PackageController(base.BaseController):
         assert not data
         assert request.method == 'POST'
 
-        data, resource_id = self._get_data_from_post_params()
+        data, resource_id = self._get_resource_data_from_post_params()
 
-        if self._data_provided(data):
+        if self._resource_data_provided(data):
             self._save_resource(package_id, resource_id, data)
             # Go to the next form.
             redirect(h.url_for(controller='package',
@@ -711,7 +712,7 @@ class PackageController(base.BaseController):
         '''Handle a click of the "Add" button on the new resource form.'''
 
         assert request.method == 'POST'
-        data, resource_id = self._get_data_from_post_params(data)
+        data, resource_id = self._get_resource_data_from_post_params(data)
         self._save_resource(package_id, resource_id, data)
         # Go back to the package read page.
         redirect(h.url_for(controller='package', action='read', id=package_id))
@@ -737,7 +738,7 @@ class PackageController(base.BaseController):
                         error_summary)
             elif button_clicked == 'again':
                 # The "Save & add another resource" button was clicked.
-                return self._save_and_add_another(id, data, errors,
+                return self._resource_save_and_add_another(id, data, errors,
                         error_summary)
             elif button_clicked == 'go-dataset':
                 # The "Previous" button was clicked.
@@ -764,7 +765,7 @@ class PackageController(base.BaseController):
             # resource form with validation errors to show to the user.
             errors = e.error_dict
             error_summary = e.error_summary
-            data, resource_id = self._get_data_from_post_params()
+            data, resource_id = self._get_resource_data_from_post_params()
             return self._render_new_resource_page(id, data, errors,
                     error_summary)
 
