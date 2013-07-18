@@ -110,7 +110,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %r' % str(value))
+        raise Invalid(_('Not found') + ': %s' % value)
     return value
 
 def package_id_or_name_exists(package_id_or_name, context):
@@ -267,7 +267,7 @@ def object_id_validator(key, activity_dict, errors, context):
         return object_id_validators[activity_type](object_id, context)
     else:
         raise Invalid('There is no object_id validator for '
-            'activity type "%s"' % str(activity_type))
+            'activity type "%s"' % activity_type)
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
@@ -436,6 +436,19 @@ def ignore_not_package_admin(key, data, errors, context):
     if key == ('state',) and context.get('allow_state_change'):
         return
     data.pop(key)
+
+
+def ignore_not_sysadmin(key, data, errors, context):
+    '''Ignore the field if user not sysadmin or ignore_auth in context.'''
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+
+    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+        return
+
+    data.pop(key)
+
 
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
@@ -619,6 +632,13 @@ def role_exists(role, context):
     return role
 
 
+def datasets_with_no_organization_cannot_be_private(key, data, errors,
+        context):
+    if data[key] is True and data.get(('owner_org',)) is None:
+        errors[key].append(
+                _("Datasets with no organization can't be private."))
+
+
 def list_of_strings(key, data, errors, context):
     value = data.get(key)
     if not isinstance(value, list):
@@ -626,3 +646,4 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+

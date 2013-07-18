@@ -54,7 +54,7 @@ class DatastorePlugin(p.SingletonPlugin):
             self.read_url = self.config['ckan.datastore.read_url']
 
         read_engine = db._get_engine(
-            None, {'connection_url': self.read_url})
+            {'connection_url': self.read_url})
         if not model.engine_is_pg(read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
@@ -147,8 +147,7 @@ class DatastorePlugin(p.SingletonPlugin):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
         for url in [self.ckan_url, self.write_url, self.read_url]:
-            connection = db._get_engine(None,
-                                        {'connection_url': url}).connect()
+            connection = db._get_engine({'connection_url': url}).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
                 is_writable = connection.execute(sql).first()[0]
@@ -173,10 +172,10 @@ class DatastorePlugin(p.SingletonPlugin):
         only user. A table is created by the write user to test the
         read only user.
         '''
-        write_connection = db._get_engine(None, {
-            'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(None, {
-            'connection_url': self.read_url}).connect()
+        write_connection = db._get_engine(
+            {'connection_url': self.write_url}).connect()
+        read_connection = db._get_engine(
+            {'connection_url': self.read_url}).connect()
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
@@ -220,8 +219,8 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine(None, {
-                'connection_url': self.write_url}).connect()
+            connection = db._get_engine(
+                {'connection_url': self.write_url}).connect()
             connection.execute(create_alias_table_sql)
         finally:
             connection.close()
@@ -246,7 +245,6 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        print "Load mapping"
         m.connect('/datastore/dump/{resource_id}',
                   controller='ckanext.datastore.controller:DatastoreController',
                   action='dump')

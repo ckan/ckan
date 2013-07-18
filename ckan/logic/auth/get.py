@@ -100,6 +100,8 @@ def package_show(context, data_dict):
         auth = new_authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
+    elif package.owner_org is None and package.state == 'active':
+        return {'success': True}
     else:
         # anyone can see a public package
         if not package.private and package.state == 'active':
@@ -133,7 +135,7 @@ def resource_show(context, data_dict):
     authorized = package_show(context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
     else:
         return {'success': True}
 

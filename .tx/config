@@ -1,5 +1,5 @@
 [main]
-host = http://www.transifex.net
+host = https://www.transifex.com
 
 [ckan.2-0]
 file_filter = ckan/i18n/<lang>/LC_MESSAGES/ckan.po

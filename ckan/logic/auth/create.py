@@ -4,23 +4,31 @@ import ckan.new_authz as new_authz
 from ckan.common import _
 
 
+@logic.auth_sysadmins_check
 def package_create(context, data_dict=None):
     user = context['user']
     if not new_authz.auth_is_registered_user():
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
+            or new_authz.check_config_permission('create_unowned_dataset') \
             or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
 
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
-    else:
 
-        check2 = _check_group_auth(context,data_dict)
-        if not check2:
-            return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
+    check2 = _check_group_auth(context,data_dict)
+    if not check2:
+        return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
 
+    # If an organization is given are we able to add a dataset to it?
+    data_dict = data_dict or {}
+    org_id = data_dict.get('organization_id')
+    if org_id and not new_authz.has_user_permission_for_group_or_org(
+            org_id, user, 'create_dataset'):
+        return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
     return {'success': True}
+
 
 def file_upload(context, data_dict=None):
     user = context['user']

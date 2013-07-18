@@ -263,7 +263,7 @@ def group_delete(context, data_dict):
     return _group_or_org_delete(context, data_dict)
 
 def organization_delete(context, data_dict):
-    '''Delete a organization.
+    '''Delete an organization.
 
     You must be authorized to delete the organization.
 
@@ -272,6 +272,86 @@ def organization_delete(context, data_dict):
 
     '''
     return _group_or_org_delete(context, data_dict, is_org=True)
+
+def _group_or_org_purge(context, data_dict, is_org=False):
+    '''Purge a group or organization.
+
+    The group or organization will be completely removed from the database.
+    This cannot be undone!
+
+    Only sysadmins can purge groups or organizations.
+
+    :param id: the name or id of the group or organization to be purged
+    :type id: string
+
+    :param is_org: you should pass is_org=True if purging an organization,
+        otherwise False (optional, default: False)
+    :type is_org: boolean
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    group = model.Group.get(id)
+    context['group'] = group
+    if group is None:
+        if is_org:
+            raise NotFound('Organization was not found')
+        else:
+            raise NotFound('Group was not found')
+
+    if is_org:
+        _check_access('organization_purge', context, data_dict)
+    else:
+        _check_access('group_purge', context, data_dict)
+
+    members = model.Session.query(model.Member)
+    members = members.filter(model.Member.group_id == group.id)
+    if members.count() > 0:
+        model.repo.new_revision()
+        for m in members.all():
+            m.delete()
+        model.repo.commit_and_remove()
+
+    group = model.Group.get(id)
+    model.repo.new_revision()
+    group.purge()
+    model.repo.commit_and_remove()
+
+def group_purge(context, data_dict):
+    '''Purge a group.
+
+    .. warning:: Purging a group cannot be undone!
+
+    Purging a group completely removes the group from the CKAN database,
+    whereas deleting a group simply marks the group as deleted (it will no
+    longer show up in the frontend, but is still in the db).
+
+    You must be authorized to purge the group.
+
+    :param id: the name or id of the group to be purged
+    :type id: string
+
+    '''
+    return _group_or_org_purge(context, data_dict, is_org=False)
+
+def organization_purge(context, data_dict):
+    '''Purge an organization.
+
+    .. warning:: Purging an organization cannot be undone!
+
+    Purging an organization completely removes the organization from the CKAN
+    database, whereas deleting an organization simply marks the organization as
+    deleted (it will no longer show up in the frontend, but is still in the
+    db).
+
+    You must be authorized to purge the organization.
+
+    :param id: the name or id of the organization to be purged
+    :type id: string
+
+    '''
+    return _group_or_org_purge(context, data_dict, is_org=True)
 
 def task_status_delete(context, data_dict):
     '''Delete a task status.
@@ -419,7 +499,8 @@ def _group_or_org_member_delete(context, data_dict=None):
 
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    user_id = data_dict.get('user_id')
+    user_id = data_dict.get('username')
+    user_id = data_dict.get('user_id') if user_id is None else user_id
     member_dict = {
         'id': group.id,
         'object': user_id,
@@ -434,9 +515,29 @@ def _group_or_org_member_delete(context, data_dict=None):
 
 
 def group_member_delete(context, data_dict=None):
+    '''Remove a user from a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be removed
+    :type username: string
+
+    '''
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
+    '''Remove a user from an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be removed
+    :type username: string
+
+    '''
     return _group_or_org_member_delete(context, data_dict)
 
 
