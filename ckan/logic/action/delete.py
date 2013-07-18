@@ -81,8 +81,8 @@ def resource_delete(context, data_dict):
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    entity.delete()
     model.repo.commit()
+
 
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.
