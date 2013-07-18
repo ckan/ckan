@@ -48,6 +48,28 @@ get_locales_dict = i18n.get_locales_dict
 log = logging.getLogger(__name__)
 
 
+def _datestamp_to_datetime(datetime_):
+    ''' Converts a datestamp to a datetime.  If a datetime is provided it
+    just gets returned.
+
+    :param datetime_: the timestamp
+    :type datetime_: string or datetime
+
+    :rtype: datetime
+    '''
+    if isinstance(datetime_, basestring):
+        try:
+            datetime_ = date_str_to_datetime(datetime_)
+        except TypeError:
+            return None
+        except ValueError:
+            return None
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
+        return None
+    return datetime_
+
+
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
@@ -793,15 +815,8 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     :rtype: string
     '''
-    if isinstance(datetime_, basestring):
-        try:
-            datetime_ = date_str_to_datetime(datetime_)
-        except TypeError:
-            return ''
-        except ValueError:
-            return ''
-    # check we are now a datetime
-    if not isinstance(datetime_, datetime.datetime):
+    datetime_ = _datestamp_to_datetime(datetime_)
+    if not datetime_:
         return ''
     # if date_format was supplied we use it
     if date_format:
