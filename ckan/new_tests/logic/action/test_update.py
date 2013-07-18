@@ -25,7 +25,7 @@ class TestClass(object):
         '''Test that updating a user's name works successfully.'''
 
         # The canonical form of a test has four steps:
-        # 1. Setup anything preconditions needed for the test.
+        # 1. Setup any preconditions needed for the test.
         # 2. Call the function that's being tested, once only.
         # 3. Make assertions about the return value and/or side-effects of
         #    of the function that's being tested.
