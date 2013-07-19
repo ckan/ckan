@@ -22,9 +22,9 @@ QUALITY = {
     'text/plain': 2,
     'txt': 2,
     'plain': 2,
-    'xml' : 2,
-    'json' : 2,
-    'jsonp' : 2,
+    'xml': 2,
+    'json': 2,
+    'jsonp': 2,
 }
 
 
