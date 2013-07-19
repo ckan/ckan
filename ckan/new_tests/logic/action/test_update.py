@@ -1,43 +1,4 @@
-'''Unit tests for ckan/logic/action/update.py.
-
-Notes:
-
-- All user_update tests are named test_user_update_*
-
-- Using the canonical test form from the Pylons guidelines
-  (i.e. each method tests One Thing and the method name explains what it tests)
-
-- Not testing auth here, that can be done in ckan.tests.logic.auth.*.py
-
-- But I am testing validation here, because some action functions do some of
-  their own validation, not all the validation is done in the schemas
-
-- The tests for each action function try to cover:
-  - Testing for success:
-    - Typical values
-    - Edge cases
-    - Multiple parameters in different combinations
-  - Testing for failure:
-    - Common mistakes
-    - Bizarre input
-    - Unicode
-
-- Cover the interface of the function (i.e. test all params and features)
-
-- Not storing anything (e.g. test data) against self in the test class,
-  instead have each test method call helper functions to get any test data
-  it needs
-
-  - I think it would be okay to create *read-only* data against self in
-    setup_class though
-
-- The tests are not ordered, and each one can be run on its own (db is rebuilt
-  after each test method)
-
-- Within reason, keep tests as clear and simple as possible even if it means
-  they get repetitive
-
-'''
+'''Unit tests for ckan/logic/action/update.py.'''
 import datetime
 
 import nose.tools
