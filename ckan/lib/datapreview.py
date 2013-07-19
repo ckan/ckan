@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 
 def direct():
-    ''' Directly embedable formats.'''
+    ''' Directly embeddable formats.'''
     direct_embed = config.get('ckan.preview.direct', '').split()
     return direct_embed or DEFAULT_DIRECT_EMBED
 
@@ -33,14 +33,14 @@ def loadable():
 
 
 def res_format(resource):
-    ''' The assummed resource format in lower case. '''
+    ''' The assumed resource format in lower case. '''
     if not resource['url']:
         return None
     return (resource['format'] or resource['url'].split('.')[-1]).lower()
 
 
 def compare_domains(urls):
-    ''' Return True if the domains of the provided are the same.
+    ''' Return True if the domains of the provided urls are the same.
     '''
     first_domain = None
     for url in urls:
