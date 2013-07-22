@@ -353,6 +353,8 @@ def load_environment(global_conf, app_conf):
     # Here we create the site user if they are not already in the database
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
-    except sqlalchemy.exc.ProgrammingError:
-        # The database is not initialised.  This is a bit dirty.
+    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
+        # (ProgrammingError for Postgres, OperationalError for SQLite)
+        # The database is not initialised.  This is a bit dirty.  This occurs
+        # when running tests.
         pass
