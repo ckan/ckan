@@ -87,6 +87,17 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
         return meta.Session.query(_package.Package).filter_by(
             id=self.table_id).all()
 
+    def __unicode__(self):
+        # refer to objects by name, not ID, to help debugging
+        if self.table_name == 'package':
+            table_info = 'package=%s' % meta.Session.query(_package.Package).get(self.table_id).name
+        elif self.table_name == 'group':
+            table_info = 'group=%s' % meta.Session.query(Group).get(self.table_id).name
+        else:
+            table_info = 'table_name=%s table_id=%s' % (self.table_name, self.table_id)
+        return u'<Member group=%s %s capacity=%s state=%s>' % \
+               (self.group.name if self.group else repr(self.group),
+                table_info, self.capacity, self.state)
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
@@ -145,17 +156,55 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             pass
 
     def get_children_groups(self, type='group'):
-        # Returns a list of dicts where each dict contains "id", "name",
-        # and "title" When querying with a CTE specifying a model in the
-        # query parameter causes problems as it returns only the first
-        # level deep apparently not recursing any deeper than that.  If
-        # we simplify and request only specific fields then if returns
-        # the full depth of the hierarchy.
-        results = meta.Session.query("id", "name", "title").\
-            from_statement(HIERARCHY_CTE).params(id=self.id, type=type).all()
-        return [{"id":idf, "name": name, "title": title}
-                for idf, name, title in results]
+        '''Returns the groups one level underneath this group in the hierarchy.
+        Groups come in a list of dicts, each keyed by "id", "name" and "title".
+        '''
+        # The original intention of this method was to provide the full depth of
+        # the tree, but the CTE was incorrect. This new query does what that old CTE
+        # actually did, but is now far simpler.
+        results =  meta.Session.query(Group.id, Group.name, Group.title).\
+                     filter_by(type=type).\
+                     join(Member, Member.table_id == Group.id).\
+                     filter_by(group=self).\
+                     filter_by(table_name='group').\
+                     filter_by(state='active').\
+                     all()
 
+        return [{'id':id_, 'name': name, 'title': title}
+                for id_, name, title in results]
+
+    def get_children_group_hierarchy(self, type='group'):
+        '''Returns the groups in all levels underneath this group in the hierarchy.
+
+        :rtype: a list of tuples, each one a Group and the ID its their parent
+        group.
+
+        e.g. >>> dept-health.get_children_group_hierarchy()
+             [(<Group nhs>, u'8a163ba7-5146-4325-90c8-fe53b25e28d0'),
+              (<Group wirral-ccg>, u'06e6dbf5-d801-40a1-9dc0-6785340b2ab4'),
+              (<Group newport-ccg>, u'd2e25b41-720c-4ba7-bc8f-bb34b185b3dd')]
+        '''
+        results = meta.Session.query(Group, 'parent_id').\
+            from_statement(HIERARCHY_DOWNWARDS_CTE).params(id=self.id, type=type).all()
+        return results
+
+    def get_parent_group_hierarchy(self, type='group'):
+        '''Returns this group's parent, parent's parent, parent's parent's parent
+        etc.. Sorted with the top level parent first.'''
+        return meta.Session.query(Group).\
+            from_statement(HIERARCHY_UPWARDS_CTE).params(id=self.id, type=type).all()
+
+    @classmethod
+    def get_top_level_groups(cls, type='group'):
+        '''Returns a list of the groups (of the specified type) which have
+        no parent groups.'''
+        return meta.Session.query(cls).\
+           outerjoin(Member, Member.table_id == Group.id and \
+                     Member.table_name == 'group' and \
+                     Member.state == 'active').\
+           filter(Member.id==None).\
+           filter(Group.type==type).\
+           order_by(Group.title).all()
 
     def packages(self, with_private=False, limit=None,
             return_query=False, context=None):
@@ -248,6 +297,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def get_groups(self, group_type=None, capacity=None):
         """ Get all groups that this group is within """
         import ckan.model as model
+        # DR: Why is this cached? Surely the members can change in the
+        #     lifetime of this Group?
         if '_groups' not in self.__dict__:
             self._groups = meta.Session.query(model.Group).\
                 join(model.Member, model.Member.group_id == model.Group.id and
@@ -314,15 +365,33 @@ MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
 
-HIERARCHY_CTE = """WITH RECURSIVE subtree(id) AS (
-        SELECT M.* FROM public.member AS M
-        WHERE M.table_name = 'group' AND M.state = 'active'
-        UNION
-        SELECT M.* FROM public.member M, subtree SG
-        WHERE M.table_id = SG.group_id AND M.table_name = 'group'
-        AND M.state = 'active')
 
-    SELECT G.* FROM subtree AS ST
-    INNER JOIN public.group G ON G.id = ST.table_id
-    WHERE group_id = :id AND G.type = :type and table_name='group'
-          and G.state='active'"""
+HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child AS
+(
+    -- non-recursive term
+    SELECT * FROM member
+    WHERE group_id = :id AND table_name = 'group' AND state = 'active'
+    UNION ALL
+    -- recursive term
+    SELECT m.* FROM member AS m, child AS c
+    WHERE m.group_id = c.table_id AND m.table_name = 'group'
+          AND m.state = 'active'
+)
+SELECT G.*, child.group_id as parent_id FROM child
+    INNER JOIN public.group G ON G.id = child.table_id
+    WHERE G.type = :type AND G.state='active';"""
+
+HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(id) AS (
+    -- non-recursive term
+    SELECT M.* FROM public.member AS M
+    WHERE table_id = :id AND M.table_name = 'group' AND M.state = 'active'
+    UNION
+    -- recursive term
+    SELECT M.* FROM public.member M
+    JOIN parenttree as PG ON PG.group_id = M.table_id
+    WHERE M.table_name = 'group' AND M.state = 'active'
+    )
+
+SELECT G.* FROM parenttree AS PT
+    INNER JOIN public.group G ON G.id = PT.group_id
+    WHERE G.type = :type AND G.state='active';"""
