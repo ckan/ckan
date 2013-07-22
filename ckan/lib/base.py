@@ -226,8 +226,8 @@ class BaseController(WSGIController):
         i18n.handle_request(request, c)
 
         maintain.deprecate_context_item(
-          'new_activities',
-          'Use `h.new_activities` instead.')
+            'new_activities',
+            'Use `h.new_activities` instead.')
 
     def _identify_user(self):
         '''Try to identify the user

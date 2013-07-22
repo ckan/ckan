@@ -52,7 +52,7 @@ class TestDatastoreDump(object):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(None, {
+        engine = db._get_engine({
             'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
