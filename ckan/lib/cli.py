@@ -1273,7 +1273,7 @@ class CreateTestDataCommand(CkanCommand):
                                     translations of terms
     create-test-data vocabs       - annakerenina, warandpeace, and some test
                                     vocabularies
-
+    create-test-data hierarchy    - hierarchy of groups
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1309,6 +1309,8 @@ class CreateTestDataCommand(CkanCommand):
             CreateTestData.create_translations_test_data()
         elif cmd == 'vocabs':
             CreateTestData.create_vocabs_test_data()
+        elif cmd == 'hierarchy':
+            CreateTestData.create_group_hierarchy_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError

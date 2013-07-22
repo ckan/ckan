@@ -39,6 +39,12 @@ class CreateTestData(object):
                               extra_user_names=extra_users)
 
     @classmethod
+    def create_group_hierarchy_test_data(cls, extra_users=[]):
+        cls.create_groups(group_hierarchy_groups)
+        cls.create_arbitrary(group_hierarchy_datasets,
+                             extra_user_names=group_hierarchy_users)
+
+    @classmethod
     def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
@@ -315,10 +321,9 @@ class CreateTestData(object):
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
         '''A more featured interface for creating groups.
-        All group fields can be filled, packages added and they can
-        have an admin user.'''
+        All group fields can be filled, packages added, can have
+        an admin user and be a member of other groups.'''
         rev = model.repo.new_revision()
-        # same name as user we create below
         rev.author = cls.author
         if admin_user_name:
             admin_users = [model.User.by_name(admin_user_name)]
@@ -327,7 +332,7 @@ class CreateTestData(object):
         assert isinstance(group_dicts, (list, tuple))
         group_attributes = set(('name', 'title', 'description', 'parent_id'))
         for group_dict in group_dicts:
-            if model.Group.by_name(group_dict['name']):
+            if model.Group.by_name(unicode(group_dict['name'])):
                 log.warning('Cannot create group "%s" as it already exists.' % \
                                 (group_dict['name']))
                 continue
@@ -346,7 +351,35 @@ class CreateTestData(object):
                 member = model.Member(group=group, table_id=pkg.id, table_name='package')
                 model.Session.add(member)
             model.Session.add(group)
-            model.setup_default_user_roles(group, admin_users)
+            admins = [model.User.by_name(user_name) \
+                      for user_name in group_dict.get('admins', [])] \
+                      + admin_users
+            for admin in admins:
+                member = model.Member(group=group, table_id=user.id,
+                                      table_name='user', capacity='admin')
+                model.Session.add(member)
+            editors = [model.User.by_name(user_name) \
+                      for user_name in group_dict.get('editors', [])]
+            for editor in editors:
+                member = model.Member(group=group, table_id=user.id,
+                                      table_name='user', capacity='editor')
+                model.Session.add(member)
+            # Need to commit the current Group for two reasons:
+            # 1. It might have a parent, and the Member will need the Group.id
+            #    value allocated on commit.
+            # 2. The next Group created may have this Group as a parent so
+            #    creation of the Member needs to refer to this one.
+            model.Session.commit()
+            rev = model.repo.new_revision()
+            rev.author = cls.author
+            # add it to a parent's group
+            if 'parent' in group_dict:
+                parent = model.Group.by_name(unicode(group_dict['parent']))
+                assert parent, group_dict['parent']
+                member = model.Member(group=parent, table_id=group.id,
+                                      table_name='group', capacity='parent')
+                model.Session.add(member)
+            #model.setup_default_user_roles(group, admin_users)
             cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
@@ -824,6 +857,44 @@ gov_items = [
         }
      }
     ]
+
+group_hierarchy_groups = [
+    {'name': 'department-of-health',
+     'title': 'Department of Health',
+     'contact-email': 'contact@doh.gov.uk'},
+    {'name': 'food-standards-agency',
+     'title': 'Food Standards Agency',
+     'contact-email': 'contact@fsa.gov.uk',
+     'parent': 'department-of-health'},
+    {'name': 'national-health-service',
+     'title': 'National Health Service',
+     'contact-email': 'contact@nhs.gov.uk',
+     'parent': 'department-of-health'},
+    {'name': 'nhs-wirral-ccg',
+     'title': 'NHS Wirral CCG',
+     'contact-email': 'contact@wirral.nhs.gov.uk',
+     'parent': 'national-health-service'},
+    {'name': 'nhs-southwark-ccg',
+     'title': 'NHS Southwark CCG',
+     'contact-email': 'contact@southwark.nhs.gov.uk',
+     'parent': 'national-health-service'},
+    {'name': 'cabinet-office',
+     'title': 'Cabinet Office',
+     'contact-email': 'contact@cabinet-office.gov.uk'},
+    ]
+
+group_hierarchy_datasets = [
+    {'name': 'doh-spend', 'title': 'Department of Health Spend Data',
+     'groups': ['department-of-health']},
+    {'name': 'nhs-spend', 'title': 'NHS Spend Data',
+     'groups': ['national-health-service']},
+    {'name': 'wirral-spend', 'title': 'Wirral Spend Data',
+     'groups': ['nhs-wirral-ccg']},
+    {'name': 'southwark-spend', 'title': 'Southwark Spend Data',
+     'groups': ['nhs-southwark-ccg']},
+    ]
+
+group_hierarchy_users = ['nhsadmin', 'nhseditor', 'wirraladmin', 'wirraleditor']
 
 # Some test terms and translations.
 terms = ('A Novel By Tolstoy',
