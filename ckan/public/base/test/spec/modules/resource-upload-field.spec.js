@@ -30,7 +30,7 @@ describe('ckan.modules.ResourceUploadFieldModule()', function () {
     it('should append the upload field to the module element', function () {
       this.module.initialize();
 
-      assert.ok(jQuery.contains(this.el, this.module.upload));
+      assert.ok(jQuery.contains(this.el[0], this.module.upload[0]));
     });
 
     it('should call .setupFileUpload()', function () {
