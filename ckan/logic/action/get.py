@@ -69,16 +69,17 @@ def package_list(context, data_dict):
     '''
     model = context["model"]
     api = context.get("api_version", 1)
-    ref_package_by = 'id' if api == 2 else 'name'
 
     _check_access('package_list', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state=='active')
-    query = query.filter(model.PackageRevision.current==True)
-
-    packages = query.all()
-    return [getattr(p, ref_package_by) for p in packages]
+    package_revision_table = model.package_revision_table
+    col = (package_revision_table.c.id
+        if api == 2 else package_revision_table.c.name)
+    query = _select([col])
+    query = query.where(_and_(package_revision_table.c.state=='active',
+        package_revision_table.c.current==True))
+    query = query.order_by(col)
+    return list(zip(*query.execute())[0])
 
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
@@ -417,13 +418,20 @@ def group_list_authz(context, data_dict):
       (optional, default: ``False``)
     :type available_only: boolean
 
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
+
     :returns: the names of groups that the user is authorized to edit
     :rtype: list of strings
 
     '''
     model = context['model']
     user = context['user']
-    available_only = data_dict.get('available_only',False)
+    available_only = data_dict.get('available_only', False)
+    am_member = data_dict.get('am_member', False)
 
     _check_access('group_list_authz',context, data_dict)
 
@@ -435,7 +443,7 @@ def group_list_authz(context, data_dict):
     if not user_id:
         return []
 
-    if not sysadmin:
+    if not sysadmin or am_member:
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
@@ -451,7 +459,7 @@ def group_list_authz(context, data_dict):
         .filter(model.Group.is_organization == False) \
         .filter(model.Group.state == 'active')
 
-    if not sysadmin:
+    if not sysadmin or am_member:
         q = q.filter(model.Group.id.in_(group_ids))
 
     groups = q.all()
@@ -461,7 +469,10 @@ def group_list_authz(context, data_dict):
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    return [{'id':group.id,'name':group.name} for group in groups]
+    return [{'id': group.id,
+             'name': group.name,
+             'display_name': group.display_name,
+             'type': group.type} for group in groups]
 
 def organization_list_for_user(context, data_dict):
     '''Return the list of organizations that the user is a member of.
@@ -484,35 +495,38 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
-    if sysadmin:
-        # Sysadmins can see all organizations
-        return [{'id':org.id,'name':org.name,'title':org.title} for org in orgs_q.all()]
+    if not sysadmin:
+        # for non-Sysadmins check they have the required permission
 
-    permission = data_dict.get('permission', 'edit_group')
+        permission = data_dict.get('permission', 'edit_group')
 
-    roles = ckan.new_authz.get_roles_with_permission(permission)
+        roles = ckan.new_authz.get_roles_with_permission(permission)
 
-    if not roles:
-        return []
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
-    if not user_id:
-        return []
+        if not roles:
+            return []
+        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        if not user_id:
+            return []
 
-    q = model.Session.query(model.Member) \
-        .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.capacity.in_(roles)) \
-        .filter(model.Member.table_id == user_id)
+        q = model.Session.query(model.Member) \
+            .filter(model.Member.table_name == 'user') \
+            .filter(model.Member.capacity.in_(roles)) \
+            .filter(model.Member.table_id == user_id)
 
-    group_ids = []
-    for row in q.all():
-        group_ids.append(row.group_id)
+        group_ids = []
+        for row in q.all():
+            group_ids.append(row.group_id)
 
-    if not group_ids:
-        return []
+        if not group_ids:
+            return []
 
-    q = orgs_q.filter(model.Group.id.in_(group_ids))
+        orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id':org.id,'name':org.name,'title':org.title} for org in q.all()]
+    return [{'id': org.id,
+             'name': org.name,
+             'title': org.title,
+             'display_name': org.display_name,
+             'type': org.type} for org in orgs_q.all()]
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -670,12 +684,13 @@ def user_list(context, data_dict):
 def package_relationships_list(context, data_dict):
     '''Return a dataset (package)'s relationships.
 
-    :param id: the id or name of the package
+    :param id: the id or name of the first package
     :type id: string
-    :param id2:
-    :type id2:
-    :param rel:
-    :type rel:
+    :param id2: the id or name of the second package
+    :type id: string
+    :param rel: relationship as string see
+        :func:`ckan.logic.action.create.package_relationship_create()` for the
+        relationship types (optional)
 
     :rtype: list of dictionaries
 
@@ -755,6 +770,7 @@ def package_show(context, data_dict):
         item.after_show(context, package_dict)
 
     return package_dict
+
 
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
@@ -2798,4 +2814,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 
 
 def member_roles_list(context, data_dict):
+    '''Return the possible roles for members of groups and organizations.
+
+    :returns: a list of dictionaries each with two keys: "text" (the display
+        name of the role, e.g. "Admin") and "value" (the internal name of the
+        role, e.g. "admin")
+    :rtype: list of dictionaries
+
+    '''
     return new_authz.roles_list()

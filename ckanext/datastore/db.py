@@ -114,7 +114,7 @@ def _validate_int(i, field_name, non_negative=False):
         })
 
 
-def _get_engine(context, data_dict):
+def _get_engine(data_dict):
     '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
     engine = _engines.get(connection_url)
@@ -137,13 +137,18 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            connection.execute('''CREATE TYPE "nested"
-                AS (json {0}, extra text)'''.format(
-                'json' if native_json else 'text'))
-            _pg_types.clear()
-
-            log.info("Created nested type. Native JSON: {0}".format(
+            log.info("Create nested type. Native JSON: {0}".format(
                 native_json))
+
+            import pylons
+            data_dict = {
+                'connection_url': pylons.config['ckan.datastore.write_url']}
+            engine = _get_engine(data_dict)
+            with engine.begin() as connection:
+                connection.execute(
+                    'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
+                        'json' if native_json else 'text'))
+            _pg_types.clear()
 
             ## redo cache types with json now available.
             return _cache_types(context)
@@ -334,14 +339,14 @@ def create_table(context, data_dict):
 
     fields = datastore_fields + supplied_fields + extra_fields
     sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'].replace('%', '%%'), f['type']) for f in fields])
+        f['id'], f['type']) for f in fields])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
         data_dict['resource_id'],
         sql_fields
     )
 
-    context['connection'].execute(sql_string)
+    context['connection'].execute(sql_string.replace('%', '%%'))
 
 
 def _get_aliases(context, data_dict):
@@ -454,9 +459,9 @@ def create_indexes(context, data_dict):
                             index)]
                 })
         fields_string = u', '.join(
-            ['(("{0}").json::text)'.format(field.replace('%', '%%'))
+            ['(("{0}").json::text)'.format(field)
                 if field in json_fields else
-                '"%s"' % field.replace('%', '%%')
+                '"%s"' % field
                 for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
@@ -464,6 +469,7 @@ def create_indexes(context, data_dict):
             name=generate_index_name(),
             fields=fields_string))
 
+    sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
     map(context['connection'].execute, sql_index_strings)
 
 
@@ -546,9 +552,9 @@ def alter_table(context, data_dict):
     for field in new_fields:
         sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
             data_dict['resource_id'],
-            field['id'].replace('%', '%%'),
+            field['id'],
             field['type'])
-        context['connection'].execute(sql)
+        context['connection'].execute(sql.replace('%', '%%'))
 
 
 def insert_data(context, data_dict):
@@ -914,9 +920,13 @@ def search_data(context, data_dict):
         rank=rank_column,
         resource=data_dict['resource_id'],
         ts_query=ts_query,
-        where=where_clause,
-        sort=sort, limit=limit, offset=offset)
-    results = context['connection'].execute(sql_string, [where_values])
+        where='{where}',
+        sort=sort,
+        limit=limit,
+        offset=offset)
+    sql_string = sql_string.replace('%', '%%')
+    results = context['connection'].execute(
+        sql_string.format(where=where_clause), [where_values])
 
     _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
@@ -972,7 +982,7 @@ def create(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1037,7 +1047,7 @@ def upsert(context, data_dict):
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
     '''
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
 
@@ -1080,7 +1090,7 @@ def upsert(context, data_dict):
 
 
 def delete(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     _cache_types(context)
 
@@ -1104,7 +1114,7 @@ def delete(context, data_dict):
 
 
 def search(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1119,14 +1129,19 @@ def search(context, data_dict):
                 'query': ['Search took too long']
             })
         raise ValidationError({
-            'query': ['Invalid query']
+            'query': ['Invalid query'],
+            'info': {
+                'statement': [e.statement],
+                'params': [e.params],
+                'orig': [str(e.orig)]
+            }
         })
     finally:
         context['connection'].close()
 
 
 def search_sql(context, data_dict):
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context)
@@ -1198,7 +1213,7 @@ def _change_privilege(context, data_dict, what):
 def make_private(context, data_dict):
     log.info('Making resource {0} private'.format(
         data_dict['resource_id']))
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:
@@ -1211,7 +1226,7 @@ def make_private(context, data_dict):
 def make_public(context, data_dict):
     log.info('Making resource {0} public'.format(
         data_dict['resource_id']))
-    engine = _get_engine(context, data_dict)
+    engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
     try:

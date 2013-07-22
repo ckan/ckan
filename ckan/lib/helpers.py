@@ -611,6 +611,13 @@ def check_access(action, data_dict=None):
     return authorized
 
 
+def get_action(action_name, data_dict=None):
+    '''Calls an action function from a template.'''
+    if data_dict is None:
+        data_dict = {}
+    return logic.get_action(action_name)({}, data_dict)
+
+
 def linked_user(user, maxlength=0, avatar=20):
     if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
         return user
@@ -773,26 +780,35 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
-    '''Render a datetime object or timestamp string as a pretty string
-    (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a localised date or
+    in the requested format.
     If timestamp is badly formatted, then a blank string is returned.
+
+    :param datetime_: the date
+    :type datetime_: datetime or ISO string format
+    :param date_format: a date format
+    :type date_format: string
+    :param with_hours: should the `hours:mins` be shown
+    :type with_hours: bool
+
+    :rtype: string
     '''
-    if not date_format:
-        date_format = '%b %d, %Y'
-        if with_hours:
-            date_format += ', %H:%M'
-    if isinstance(datetime_, datetime.datetime):
-        return datetime_.strftime(date_format)
-    elif isinstance(datetime_, basestring):
+    if isinstance(datetime_, basestring):
         try:
             datetime_ = date_str_to_datetime(datetime_)
         except TypeError:
             return ''
         except ValueError:
             return ''
-        return datetime_.strftime(date_format)
-    else:
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
         return ''
+    # if date_format was supplied we use it
+    if date_format:
+        return datetime_.strftime(date_format)
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=True,
+                                          with_hours=with_hours)
 
 
 def date_str_to_datetime(date_str):
@@ -1262,18 +1278,24 @@ def popular(type_, number, min=1, title=None):
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
 
-def groups_available():
-    ''' return a list of available groups '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author}
-    data_dict = {'available_only': True}
+def groups_available(am_member=False):
+    '''Return a list of the groups that the user is authorized to edit.
+
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
+
+    '''
+    context = {}
+    data_dict = {'available_only': True, 'am_member': am_member}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user}
+    context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
@@ -1479,7 +1501,7 @@ def format_resource_items(items):
     return sorted(output, key=lambda x: x[0])
 
 
-def resource_preview(resource, pkg_id):
+def resource_preview(resource, package):
     '''
     Returns a rendered snippet for a embedded resource preview.
 
@@ -1488,30 +1510,22 @@ def resource_preview(resource, pkg_id):
     that embeds a web page, recline or a pdf preview.
     '''
 
-    format_lower = resource['format'].lower()
-    directly = False
-    url = ''
-
-    data_dict = {'resource': resource, 'package': c.package}
-
     if not resource['url']:
         return snippet("dataviewer/snippets/no_preview.html",
                        resource_type=format_lower,
                        reason=_(u'The resource url is not specified.'))
-    direct_embed = config.get('ckan.preview.direct', '').split()
-    if not direct_embed:
-        direct_embed = datapreview.DEFAULT_DIRECT_EMBED
-    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-    if not loadable_in_iframe:
-        loadable_in_iframe = datapreview.DEFAULT_LOADABLE_IFRAME
 
-    if datapreview.can_be_previewed(data_dict):
+    format_lower = datapreview.res_format(resource)
+    directly = False
+    data_dict = {'resource': resource, 'package': package}
+
+    if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
-                      resource_id=resource['id'], id=pkg_id, qualified=True)
-    elif format_lower in direct_embed:
+                      resource_id=resource['id'], id=package['id'], qualified=True)
+    elif format_lower in datapreview.direct():
         directly = True
         url = resource['url']
-    elif format_lower in loadable_in_iframe:
+    elif format_lower in datapreview.loadable():
         url = resource['url']
     else:
         reason = None
@@ -1569,6 +1583,19 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+def new_activities():
+    '''Return the number of activities for the current user.
+
+    See :func:`logic.action.get.dashboard_new_activities_count` for more
+    details.
+
+    '''
+    if not c.userobj:
+        return None
+    action = logic.get_action('dashboard_new_activities_count')
+    return action({}, {})
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1587,6 +1614,7 @@ __allowed_functions__ = [
     'subnav_named_route',
     'default_group_type',
     'check_access',
+    'get_action',
     'linked_user',
     'group_name_to_title',
     'markdown_extract',
@@ -1652,6 +1680,7 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'new_activities',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

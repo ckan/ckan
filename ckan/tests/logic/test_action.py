@@ -10,6 +10,7 @@ import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
 import ckan.model as model
+import ckan.tests as tests
 from ckan.tests import WsgiAppCase
 from ckan.tests.functional.api import assert_dicts_equal_ignoring_ordering
 from ckan.tests import setup_test_search_index, search_related
@@ -223,12 +224,10 @@ class TestAction(WsgiAppCase):
 
     def test_03_create_private_package(self):
 
-        def _do_request(package_dict):
-            postparams = '%s=1' % json.dumps(package_dict)
-            res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-            package_created = json.loads(res.body)['result']
-            return package_created
+        # Make an organization, because private datasets must belong to one.
+        organization = tests.call_action_api(self.app, 'organization_create',
+                                             name='test_org',
+                                             apikey=self.sysadmin_user.apikey)
 
         # Create a dataset without specifying visibility
         package_dict = {
@@ -254,24 +253,32 @@ class TestAction(WsgiAppCase):
             'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
+            'owner_org': organization['id'],
             'version': u'0.7a',
         }
-
-        package_created = _do_request(package_dict)
+        package_created = tests.call_action_api(self.app, 'package_create',
+                                              apikey=self.sysadmin_user.apikey,
+                                              **package_dict)
         assert package_created['private'] is False
 
         # Create a new one, explicitly saying it is public
         package_dict['name'] = u'annakareninanew_vis_public'
         package_dict['private'] = False
 
-        package_created_public = _do_request(package_dict)
+        package_created_public = tests.call_action_api(self.app,
+                                              'package_create',
+                                              apikey=self.sysadmin_user.apikey,
+                                              **package_dict)
         assert package_created_public['private'] is False
 
         # Create a new one, explicitly saying it is private
         package_dict['name'] = u'annakareninanew_vis_private'
         package_dict['private'] = True
 
-        package_created_private = _do_request(package_dict)
+        package_created_private = tests.call_action_api(self.app,
+                                              'package_create',
+                                              apikey=self.sysadmin_user.apikey,
+                                              **package_dict)
         assert package_created_private['private'] is True
 
 
@@ -684,10 +691,11 @@ class TestAction(WsgiAppCase):
 
         resource_updated.pop('url')
         resource_updated.pop('revision_id')
+        resource_updated.pop('revision_timestamp')
         resource_created.pop('url')
         resource_created.pop('revision_id')
         resource_created.pop('revision_timestamp')
-        assert resource_updated == resource_created
+        assert_equal(resource_updated, resource_created)
 
     def test_20_task_status_update(self):
         package_created = self._add_basic_package(u'test_task_status_update')
@@ -896,7 +904,7 @@ class TestAction(WsgiAppCase):
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
     def test_29_group_package_show_pending(self):
-        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name, 'api_version': 2}
+        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name, 'api_version': 2, 'ignore_auth': True}
         group = {
             'name': 'test_group_pending_package',
             'packages': [{'id': model.Package.get('annakarenina').id}]
