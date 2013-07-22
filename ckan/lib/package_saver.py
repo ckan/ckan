@@ -1,9 +1,9 @@
-from sqlalchemy import orm
 import ckan.lib.helpers as h
-from ckan.lib.base import *
+import ckan.lib.base as base
+import ckan.model as model
 import ckan.rating
-from pylons import g
-from ckan.lib.dictization import table_dictize
+
+from ckan.common import g, c, _
 
 # Todo: Factor out unused original_name argument.
 
@@ -72,14 +72,14 @@ class PackageSaver(object):
         fs.validate()
         validates = not (errors or fs.errors)
         if not validates:
-            raise ValidationException(fs)
+            raise base.ValidationException(fs)
         # sync
         try:
             rev = model.repo.new_revision()
             rev.author = author
             rev.message = log_message
             fs.sync()
-        except Exception, inst:
+        except Exception:
             model.Session.rollback()
             raise
         else:

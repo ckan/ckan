@@ -99,9 +99,7 @@ def cs_filter(f, filter_, ignore_comment_lines=True):
 
 class TestBadSpellings(object):
 
-    BAD_SPELLING_BLACKLIST_FILES = [
-        'ckan/lib/navl/__init__.py',
-    ]
+    BAD_SPELLING_BLACKLIST_FILES = []
 
     # these are the bad spellings with the correct spelling
     # use LOWER case
@@ -173,11 +171,8 @@ class TestNastyString(object):
     # The value is converted to a string anyway so the str() is unneeded in
     # any place.
 
-    NASTY_STR_BLACKLIST_FILES = [
-        'ckan/tests/functional/api/test_revision_search.py',
-        'ckan/tests/functional/test_pagination.py',
-        'ckan/tests/models/test_package_relationships.py',
-    ]
+    NASTY_STR_BLACKLIST_FILES = []
+
     fails = {}
     passes = []
     done = False
@@ -243,7 +238,6 @@ class TestImportFromCkan(object):
         'ckan/lib/authenticator.py',
         'ckan/lib/base.py',
         'ckan/lib/munge.py',
-        'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
@@ -341,7 +335,6 @@ class TestImportFromCkan(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/stats.py',
         'ckanext/stats/tests/__init__.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
@@ -400,9 +393,7 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'bin/ckan_spam.py',
         'ckan/lib/helpers.py',
-        'ckan/lib/package_saver.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -495,7 +486,6 @@ class TestImportStar(object):
         'ckan/tests/pylons_controller.py',
         'ckan/tests/test_dumper.py',
         'ckan/tests/test_wsgi_ckanclient.py',
-        'ckanext/stats/stats.py',
         'fabfile.py',
     ]
     fails = {}
@@ -920,7 +910,6 @@ class TestActionAuth(object):
 
     ACTION_FN_SIGNATURES_BLACKLIST = [
         'create: activity_create',
-        'create: tag_create',
     ]
 
     ACTION_NO_AUTH_BLACKLIST = [
