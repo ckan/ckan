@@ -10,7 +10,7 @@ describe('ckan.initialize()', function () {
 
   it('should load the localisations for the current page', function () {
     ckan.initialize()
-    assert.called(!this.target);
+    assert.called(this.target);
   });
 
   it('should load the localisations into the i18n library', function () {
