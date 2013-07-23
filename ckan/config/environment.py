@@ -356,3 +356,6 @@ def load_environment(global_conf, app_conf):
     except sqlalchemy.exc.ProgrammingError:
         # The database is not initialised.  This is a bit dirty.
         pass
+    # if an extension or our code does not finish
+    # transaction properly db cli commands can fail
+    model.Session.remove()
