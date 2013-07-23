@@ -133,7 +133,12 @@
         this.fixture.empty();
       });
 
-      mocha.run().globals(['ckan', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval']);
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
+
     </script>
   </body>
 </html>
