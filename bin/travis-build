@@ -55,8 +55,15 @@ cat test-core.ini
 paster serve test-core.ini &
 sleep 5 # Make sure the server has fully started
 mocha-phantomjs http://localhost:5000/base/test/index.html
+# Did an error occur?
+MOCHA_ERROR=$?
 # We are done so kill ckan
 killall paster
 
 # And finally, run the nosetests
 nosetests --ckan --with-pylons=test-core.ini --nologcapture ckan ckanext
+# Did an error occur?
+NOSE_ERROR=$?
+
+# If an error occured in our tests make sure travis knows
+exit `expr $MOCHA_ERROR + $NOSE_ERROR`
