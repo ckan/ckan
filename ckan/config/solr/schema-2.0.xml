@@ -129,6 +129,7 @@
     <field name="title_string" type="string" indexed="true" stored="false" />
 
     <field name="data_dict" type="string" indexed="false" stored="true" />
+    <field name="validated_data_dict" type="string" indexed="false" stored="true" />
 
     <field name="_version_" type="string" indexed="true" stored="true"/>
 
