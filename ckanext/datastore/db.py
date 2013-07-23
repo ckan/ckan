@@ -339,14 +339,14 @@ def create_table(context, data_dict):
 
     fields = datastore_fields + supplied_fields + extra_fields
     sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'].replace('%', '%%'), f['type']) for f in fields])
+        f['id'], f['type']) for f in fields])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
         data_dict['resource_id'],
         sql_fields
     )
 
-    context['connection'].execute(sql_string)
+    context['connection'].execute(sql_string.replace('%', '%%'))
 
 
 def _get_aliases(context, data_dict):
@@ -459,9 +459,9 @@ def create_indexes(context, data_dict):
                             index)]
                 })
         fields_string = u', '.join(
-            ['(("{0}").json::text)'.format(field.replace('%', '%%'))
+            ['(("{0}").json::text)'.format(field)
                 if field in json_fields else
-                '"%s"' % field.replace('%', '%%')
+                '"%s"' % field
                 for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
@@ -469,6 +469,7 @@ def create_indexes(context, data_dict):
             name=generate_index_name(),
             fields=fields_string))
 
+    sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
     map(context['connection'].execute, sql_index_strings)
 
 
@@ -551,9 +552,9 @@ def alter_table(context, data_dict):
     for field in new_fields:
         sql = 'ALTER TABLE "{0}" ADD "{1}" {2}'.format(
             data_dict['resource_id'],
-            field['id'].replace('%', '%%'),
+            field['id'],
             field['type'])
-        context['connection'].execute(sql)
+        context['connection'].execute(sql.replace('%', '%%'))
 
 
 def insert_data(context, data_dict):
@@ -919,9 +920,13 @@ def search_data(context, data_dict):
         rank=rank_column,
         resource=data_dict['resource_id'],
         ts_query=ts_query,
-        where=where_clause,
-        sort=sort, limit=limit, offset=offset)
-    results = context['connection'].execute(sql_string, [where_values])
+        where='{where}',
+        sort=sort,
+        limit=limit,
+        offset=offset)
+    sql_string = sql_string.replace('%', '%%')
+    results = context['connection'].execute(
+        sql_string.format(where=where_clause), [where_values])
 
     _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
@@ -1124,7 +1129,12 @@ def search(context, data_dict):
                 'query': ['Search took too long']
             })
         raise ValidationError({
-            'query': ['Invalid query']
+            'query': ['Invalid query'],
+            'info': {
+                'statement': [e.statement],
+                'params': [e.params],
+                'orig': [str(e.orig)]
+            }
         })
     finally:
         context['connection'].close()

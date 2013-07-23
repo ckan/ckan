@@ -11,7 +11,7 @@ import domain_object
 # which isn't the case for paster commands.
 try:
     from ckan.common import _
-    _('')
+    _()
 except:
     def _(txt):
         return txt

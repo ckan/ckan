@@ -7,6 +7,15 @@
 Changelog
 ---------
 
+v2.2
+====
+
+API changes and deprecations:
+
+* The edit() and after_update() methods of IPackageController plugins are now
+  called when updating a resource using the web frontend or the
+  resource_update API action [#1052]
+
 v2.0.1 2013-06-11
 =================
 

@@ -15,7 +15,7 @@
       {{ _('What are sysadmins?') }}
     </h2>
     <div class="module-content">
-      {% set docs_url = "http://docs.ckan.org/{0}/{1}/paster.html#sysadmin-give-sysadmin-rights".format(request.environ.CKAN_LANG, g.ckan_doc_version) %}
+      {% set docs_url = "http://docs.ckan.org/en/{0}/paster.html#sysadmin-give-sysadmin-rights".format(g.ckan_doc_version) %}
       {% trans %}
         <p>A sysadmin is someone that has full control over a CKAN instance.
           You can only add CKAN sysadmins via the <code>sysadmin</code> paster

@@ -99,9 +99,7 @@ def cs_filter(f, filter_, ignore_comment_lines=True):
 
 class TestBadSpellings(object):
 
-    BAD_SPELLING_BLACKLIST_FILES = [
-        'ckan/lib/navl/__init__.py',
-    ]
+    BAD_SPELLING_BLACKLIST_FILES = []
 
     # these are the bad spellings with the correct spelling
     # use LOWER case
@@ -173,11 +171,8 @@ class TestNastyString(object):
     # The value is converted to a string anyway so the str() is unneeded in
     # any place.
 
-    NASTY_STR_BLACKLIST_FILES = [
-        'ckan/tests/functional/api/test_revision_search.py',
-        'ckan/tests/functional/test_pagination.py',
-        'ckan/tests/models/test_package_relationships.py',
-    ]
+    NASTY_STR_BLACKLIST_FILES = []
+
     fails = {}
     passes = []
     done = False
@@ -243,7 +238,6 @@ class TestImportFromCkan(object):
         'ckan/lib/authenticator.py',
         'ckan/lib/base.py',
         'ckan/lib/munge.py',
-        'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
@@ -341,7 +335,6 @@ class TestImportFromCkan(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/stats.py',
         'ckanext/stats/tests/__init__.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
@@ -400,9 +393,7 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'bin/ckan_spam.py',
         'ckan/lib/helpers.py',
-        'ckan/lib/package_saver.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -495,7 +486,6 @@ class TestImportStar(object):
         'ckan/tests/pylons_controller.py',
         'ckan/tests/test_dumper.py',
         'ckan/tests/test_wsgi_ckanclient.py',
-        'ckanext/stats/stats.py',
         'fabfile.py',
     ]
     fails = {}
@@ -592,7 +582,6 @@ class TestPep8(object):
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
-        'ckan/lib/datapreview.py',
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
         'ckan/lib/dictization/model_save.py',
@@ -699,7 +688,6 @@ class TestPep8(object):
         'ckan/migration/versions/063_org_changes.py',
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
-        'ckan/migration/versions/066_default_package_type.py',
         'ckan/migration/versions/067_turn_extras_to_strings.py',
         'ckan/misc.py',
         'ckan/model/__init__.py',
@@ -847,7 +835,6 @@ class TestPep8(object):
         'ckanext/example_itemplatehelpers/plugin.py',
         'ckanext/multilingual/plugin.py',
         'ckanext/multilingual/tests/test_multilingual_plugin.py',
-        'ckanext/pdfpreview/plugin.py',
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/resourceproxy/plugin.py',
@@ -923,7 +910,6 @@ class TestActionAuth(object):
 
     ACTION_FN_SIGNATURES_BLACKLIST = [
         'create: activity_create',
-        'create: tag_create',
     ]
 
     ACTION_NO_AUTH_BLACKLIST = [
@@ -993,16 +979,11 @@ class TestActionAuth(object):
 
     ACTION_NO_DOC_STR_BLACKLIST = [
         'create: group_create_rest',
-        'create: group_member_create',
-        'create: organization_member_create',
         'create: package_create_rest',
         'create: package_relationship_create_rest',
-        'delete: group_member_delete',
-        'delete: organization_member_delete',
         'delete: package_relationship_delete_rest',
         'get: get_site_user',
         'get: group_show_rest',
-        'get: member_roles_list',
         'get: package_show_rest',
         'get: tag_show_rest',
         'update: group_update_rest',
