@@ -31,13 +31,14 @@
       var field = element.find('input');
       var preview = $(options.template);
       var value = preview.find('.slug-preview-value');
+      var required = $('<div>').append($('.control-required', element).clone()).html();
 
       function setValue() {
         var val = escape(field.val()) || options.placeholder;
         value.text(val);
       }
 
-      preview.find('strong').text(options.i18n['URL'] + ':');
+      preview.find('strong').html(required + ' ' + options.i18n['URL'] + ':');
       preview.find('.slug-preview-prefix').text(options.prefix);
       preview.find('button').text(options.i18n['Edit']).click(function (event) {
         event.preventDefault();
