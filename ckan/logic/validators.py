@@ -632,6 +632,13 @@ def role_exists(role, context):
     return role
 
 
+def datasets_with_no_organization_cannot_be_private(key, data, errors,
+        context):
+    if data[key] is True and data.get(('owner_org',)) is None:
+        errors[key].append(
+                _("Datasets with no organization can't be private."))
+
+
 def list_of_strings(key, data, errors, context):
     value = data.get(key)
     if not isinstance(value, list):
@@ -639,3 +646,4 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+

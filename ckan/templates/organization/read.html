@@ -1,13 +1,12 @@
 {% extends "organization/read_base.html" %}
 
 {% block page_primary_action %}
-  {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
+  {% if h.check_access('package_create', {'organization_id': c.group_dict.id}) %}
     {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <div class="module-content">
     {% block groups_search_form %}
       {% set facets = {
         'fields': c.fields_grouped,
