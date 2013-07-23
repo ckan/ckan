@@ -54,6 +54,19 @@ group_revision_table = core.make_revisioned_table(group_table)
 class Member(vdm.sqlalchemy.RevisionedObjectMixin,
              vdm.sqlalchemy.StatefulObjectMixin,
              domain_object.DomainObject):
+    '''A Member object represents any other object being a 'member' of a
+    particular Group.
+
+    Meanings:
+    * Package - the Group is a collection of Packages
+                 - capacity is 'public', 'private'
+                   or 'organization' if the Group is an Organization
+                   (see ckan.logic.action.package_owner_org_update)
+    * User - the User is granted permissions for the Group
+                 - capacity is 'admin', 'editor' or 'member'
+    * Group - the Group (Member.group_id) is a child of the Group (Member.id)
+              in a hierarchy.
+    '''
     def __init__(self, group=None, table_id=None, group_id=None,
                  table_name=None, capacity='public', state='active'):
         self.group = group
@@ -175,6 +188,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def get_children_group_hierarchy(self, type='group'):
         '''Returns the groups in all levels underneath this group in the hierarchy.
+        The ordering is such that children always come after their parent.
 
         :rtype: a list of tuples, each one a Group and the ID its their parent
         group.
@@ -197,7 +211,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get_top_level_groups(cls, type='group'):
         '''Returns a list of the groups (of the specified type) which have
-        no parent groups.'''
+        no parent groups. Groups are sorted by title.
+        '''
         return meta.Session.query(cls).\
            outerjoin(Member, Member.table_id == Group.id and \
                      Member.table_name == 'group' and \
