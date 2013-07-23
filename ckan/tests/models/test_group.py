@@ -97,6 +97,8 @@ name_set_from_group_tuple = lambda tuples: set([t[0].name for t in tuples])
 name_set_from_groups = lambda groups: set([group.name for group in groups])
 names_from_groups = lambda groups: [group.name for group in groups]
 
+group_type = 'organization'
+
 class TestHierarchy:
     @classmethod
     def setup_class(self):
@@ -104,7 +106,7 @@ class TestHierarchy:
 
     def test_get_children_groups(self):
         res = model.Group.by_name(u'department-of-health').\
-              get_children_groups()
+              get_children_groups(type=group_type)
         # check groups
         assert_equal(name_set_from_dicts(res),
                      set(('national-health-service',
@@ -116,42 +118,42 @@ class TestHierarchy:
 
     def test_get_children_group_hierarchy__from_top(self):
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'department-of-health').\
-                                       get_children_group_hierarchy()),
+                                       get_children_group_hierarchy(type=group_type)),
                      set(('national-health-service', 'food-standards-agency',
                           'nhs-wirral-ccg', 'nhs-southwark-ccg')))
         # i.e. not cabinet-office
 
     def test_get_children_group_hierarchy__from_tier_two(self):
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'national-health-service').\
-                                       get_children_group_hierarchy()),
+                                       get_children_group_hierarchy(type=group_type)),
                      set(('nhs-wirral-ccg',
                           'nhs-southwark-ccg')))
         # i.e. not department-of-health or food-standards-agency
 
     def test_get_children_group_hierarchy__from_bottom_tier(self):
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'nhs-wirral-ccg').\
-                                       get_children_group_hierarchy()),
+                                       get_children_group_hierarchy(type=group_type)),
                      set())
 
     def test_get_parent_groups_up_hierarchy__from_top(self):
         assert_equal(names_from_groups(model.Group.by_name(u'department-of-health').\
-                                      get_parent_group_hierarchy()),
+                                      get_parent_group_hierarchy(type=group_type)),
                      [])
 
     def test_get_parent_groups_up_hierarchy__from_tier_two(self):
         assert_equal(names_from_groups(model.Group.by_name(u'national-health-service').\
-                                       get_parent_group_hierarchy()),
+                                       get_parent_group_hierarchy(type=group_type)),
                      ['department-of-health'])
 
     def test_get_parent_groups_up_hierarchy__from_tier_three(self):
         assert_equal(names_from_groups(model.Group.by_name(u'nhs-wirral-ccg').\
-                                       get_parent_group_hierarchy()),
+                                       get_parent_group_hierarchy(type=group_type)),
                      ['department-of-health',
                       'national-health-service'])
 
     def test_get_top_level_groups(self):
         assert_equal(names_from_groups(model.Group.by_name(u'nhs-wirral-ccg').\
-                                       get_top_level_groups()),
+                                       get_top_level_groups(type=group_type)),
                      ['cabinet-office', 'department-of-health'])
 
 class TestGroupRevisions:

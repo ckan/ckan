@@ -231,8 +231,12 @@ class CreateTestData(object):
                                     # session has not yet been committed at this point.
                                     # Fetch from the new_groups dict instead.
                                     group = new_groups[group_name]
-                            member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                            capacity = 'organization' if group.is_organization \
+                                       else 'public'
+                            member = model.Member(group=group, table_id=pkg.id, table_name='package', capacity=capacity)
                             model.Session.add(member)
+                            if group.is_organization:
+                                pkg.owner_org = group.id
                     elif attr == 'license':
                         pkg.license_id = val
                     elif attr == 'license_id':
@@ -330,7 +334,8 @@ class CreateTestData(object):
         else:
             admin_users = []
         assert isinstance(group_dicts, (list, tuple))
-        group_attributes = set(('name', 'title', 'description', 'parent_id'))
+        group_attributes = set(('name', 'title', 'description', 'parent_id',
+                                'type', 'is_organization'))
         for group_dict in group_dicts:
             if model.Group.by_name(unicode(group_dict['name'])):
                 log.warning('Cannot create group "%s" as it already exists.' % \
@@ -861,26 +866,39 @@ gov_items = [
 group_hierarchy_groups = [
     {'name': 'department-of-health',
      'title': 'Department of Health',
-     'contact-email': 'contact@doh.gov.uk'},
+     'contact-email': 'contact@doh.gov.uk',
+     'type': 'organization',
+     'is_organization': True
+     },
     {'name': 'food-standards-agency',
      'title': 'Food Standards Agency',
      'contact-email': 'contact@fsa.gov.uk',
-     'parent': 'department-of-health'},
+     'parent': 'department-of-health',
+     'type': 'organization',
+     'is_organization': True},
     {'name': 'national-health-service',
      'title': 'National Health Service',
      'contact-email': 'contact@nhs.gov.uk',
-     'parent': 'department-of-health'},
+     'parent': 'department-of-health',
+     'type': 'organization',
+     'is_organization': True},
     {'name': 'nhs-wirral-ccg',
      'title': 'NHS Wirral CCG',
      'contact-email': 'contact@wirral.nhs.gov.uk',
-     'parent': 'national-health-service'},
+     'parent': 'national-health-service',
+     'type': 'organization',
+     'is_organization': True},
     {'name': 'nhs-southwark-ccg',
      'title': 'NHS Southwark CCG',
      'contact-email': 'contact@southwark.nhs.gov.uk',
-     'parent': 'national-health-service'},
+     'parent': 'national-health-service',
+     'type': 'organization',
+     'is_organization': True},
     {'name': 'cabinet-office',
      'title': 'Cabinet Office',
-     'contact-email': 'contact@cabinet-office.gov.uk'},
+     'contact-email': 'contact@cabinet-office.gov.uk',
+     'type': 'organization',
+     'is_organization': True},
     ]
 
 group_hierarchy_datasets = [
