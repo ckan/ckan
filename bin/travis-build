@@ -52,7 +52,8 @@ cat test-core.ini
 
 # Run mocha front-end tests
 # We need ckan to be running for some tests
-paster serve --reload test-core.ini &
+paster serve test-core.ini &
+sleep 5 # Make sure the server has fully started
 mocha-phantomjs http://localhost:5000/base/test/index.html
 # We are done so kill ckan
 killall paster
