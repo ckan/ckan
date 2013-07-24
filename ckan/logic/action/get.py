@@ -471,7 +471,9 @@ def group_list_authz(context, data_dict):
 
     return [{'id': group.id,
              'name': group.name,
+             'title': group.title,
              'display_name': group.display_name,
+             'image_url': group.image_url,
              'type': group.type} for group in groups]
 
 def organization_list_for_user(context, data_dict):
