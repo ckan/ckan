@@ -7,7 +7,7 @@ import nose.tools
 
 
 def _data():
-    '''Return a data dict with some random data in it, suitable to be passed
+    '''Return a data dict with some arbitrary data in it, suitable to be passed
     to validators for testing.
 
     This is a function that returns a dict (rather than just a dict as a
@@ -19,7 +19,7 @@ def _data():
 
 
 def _errors():
-    '''Return an errors dict with some random errors in it, suitable to be
+    '''Return an errors dict with some arbitrary errors in it, suitable to be
     passed to validators for testing.
 
     This is a function that returns a dict (rather than just a dict as a
