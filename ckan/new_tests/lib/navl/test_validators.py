@@ -1,7 +1,33 @@
 '''Unit tests for ckan/lib/navl/validators.py.
 
 '''
+import copy
+
 import nose.tools
+
+
+def _data():
+    '''Return a data dict with some random data in it, suitable to be passed
+    to validators for testing.
+
+    This is a function that returns a dict (rather than just a dict as a
+    module-level variable) so that if one test method modifies the dict the
+    next test method gets a new clean copy.
+
+    '''
+    return {('other key',): 'other value'}
+
+
+def _errors():
+    '''Return an errors dict with some random errors in it, suitable to be
+    passed to validators for testing.
+
+    This is a function that returns a dict (rather than just a dict as a
+    module-level variable) so that if one test method modifies the dict the
+    next test method gets a new clean copy.
+
+    '''
+    return {('other key',): ['other error']}
 
 
 class TestValidators(object):
@@ -18,25 +44,18 @@ class TestValidators(object):
             # This is the key for the value that is going to be validated.
             key = ('key to be validated',)
 
-            # This is another random key that's going to be in the data and
-            # errors dict just so we can test that ignore_missing() doesn't
-            # modify it.
-            other_key = ('other key',)
+            # The data to pass to the validator function for validation.
+            data = _data()
+            if value != 'skip':
+                data[key] = value
 
-            if value == 'skip':
-                data = {}
-            else:
-                data = {key: value}
+            # The errors dict to pass to the validator function.
+            errors = _errors()
+            errors[key] = []
 
-            # Add some other random stuff into data, just so we can test that
-            # ignore_missing() doesn't modify it.
-            data[other_key] = 'other value'
-
-            errors = {key: []}
-
-            # Add some other random errors into errors, just so we can test
-            # that ignore_missing doesn't modify them.
-            errors[other_key] = ['other error']
+            # Make copies of the data and errors dicts for asserting later.
+            original_data = copy.deepcopy(data)
+            original_errors = copy.deepcopy(errors)
 
             with nose.tools.assert_raises(df.StopOnError):
                 validators.ignore_missing(
@@ -45,12 +64,14 @@ class TestValidators(object):
                     errors=errors,
                     context={})
 
-            # ignore_missing should remove the key being validated from the
-            # dict, but it should not remove other keys or add any keys.
-            assert data == {other_key: 'other value'}
+            # ignore_missing() should remove the key being validated from the
+            # data dict, but it should not remove other keys or add any keys.
+            if key in original_data:
+                del original_data[key]
+            assert data == original_data
 
-            # ignore_missing shouldn't modify the errors dict.
-            assert errors == {key: [], other_key: ['other error']}
+            # ignore_missing() shouldn't modify the errors dict.
+            assert errors == original_errors
 
     def test_ignore_missing_with_a_value(self):
         '''If data[key] is neither None or missing, ignore_missing() should do
