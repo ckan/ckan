@@ -870,7 +870,6 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/resource_show', params=postparams)
         result = json.loads(res.body)['result']
         resource_dict = resource_dictize(resource, {'model': model})
-        result.pop('revision_timestamp')
         assert result == resource_dict, (result, resource_dict)
 
     def test_27_get_site_user_not_authorized(self):
