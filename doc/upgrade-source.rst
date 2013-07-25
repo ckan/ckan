@@ -29,7 +29,7 @@ CKAN release you're upgrading to:
 
 #. Update CKAN's dependencies::
 
-     pip install --upgrade -r pip-requirements.txt
+     pip install --upgrade -r requirements.txt
 
 #. If you are upgrading to a new :ref:`major release <releases>` you need to
    update your Solr schema symlink.
