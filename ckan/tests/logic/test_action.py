@@ -370,7 +370,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
         # Sysadmin user can see everyone's api key
         res = self.app.post('/api/action/user_show', params=postparams,
@@ -380,7 +379,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
     def test_05_user_show_edits(self):
         postparams = '%s=1' % json.dumps({'id':'tester'})
