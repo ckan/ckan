@@ -296,7 +296,7 @@ def package_dictize(pkg, context):
         result_dict['license_title']= pkg.license_id
 
     # creation and modification date
-    result_dict['metadata_modified'] = context.pop('metadata_modified')
+    result_dict['metadata_modified'] = pkg.metadata_modified.isoformat()
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
 
