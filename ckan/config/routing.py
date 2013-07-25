@@ -10,11 +10,9 @@ import re
 from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
-from ckan.plugins import PluginImplementations, IRoutes
+import ckan.plugins as p
 
 named_routes = {}
-
-routing_plugins = PluginImplementations(IRoutes)
 
 
 class Mapper(_Mapper):
@@ -79,8 +77,8 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    from ckan.lib.plugins import register_package_plugins
-    from ckan.lib.plugins import register_group_plugins
+    import ckan.lib.plugins as lib_plugins
+    lib_plugins.reset_package_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -96,7 +94,7 @@ def make_map():
                 conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
 
     map.connect('home', '/', controller='home', action='index')
@@ -326,8 +324,8 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    register_package_plugins(map)
-    register_group_plugins(map)
+    lib_plugins.register_package_plugins(map)
+    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')
@@ -427,7 +425,7 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
 
     # sometimes we get requests for favicon.ico we should redirect to
