@@ -70,8 +70,8 @@ class TestValidators(object):
                 errors=errors,
                 context={})
 
-        # ignore_missing should remove the item from the dict.
-        assert key not in data
+        # ignore_missing shouldn't change the data dict.
+        assert data == {}
 
         # ignore_missing should not add any errors.
         assert errors[key] == []
