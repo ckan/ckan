@@ -23,8 +23,14 @@ tmp/*
 solr_runtime/*
 fl_notes.txt
 *.ini
+!tox.ini
 .noseids
 *~
+/.idea
+/.ropeproject
+/.cache
+/.tox
+/.venv*
 
 # custom style
 ckan/public/base/less/custom.less
