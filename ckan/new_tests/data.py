@@ -12,3 +12,19 @@ def typical_user():
             'email': 'fred@fred.com',
             'password': 'wilma',
             }
+
+
+def validator_data_dict():
+    '''Return a data dict with some arbitrary data in it, suitable to be passed
+    to validator functions for testing.
+
+    '''
+    return {('other key',): 'other value'}
+
+
+def validator_errors_dict():
+    '''Return an errors dict with some arbitrary errors in it, suitable to be
+    passed to validator functions for testing.
+
+    '''
+    return {('other key',): ['other error']}

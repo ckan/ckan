@@ -6,29 +6,7 @@ import copy
 
 import nose.tools
 
-
-def _data():
-    '''Return a data dict with some arbitrary data in it, suitable to be passed
-    to validators for testing.
-
-    This is a function that returns a dict (rather than just a dict as a
-    module-level variable) so that if one test method modifies the dict the
-    next test method gets a new clean copy.
-
-    '''
-    return {('other key',): 'other value'}
-
-
-def _errors():
-    '''Return an errors dict with some arbitrary errors in it, suitable to be
-    passed to validators for testing.
-
-    This is a function that returns a dict (rather than just a dict as a
-    module-level variable) so that if one test method modifies the dict the
-    next test method gets a new clean copy.
-
-    '''
-    return {('other key',): ['other error']}
+import ckan.new_tests.data as test_data
 
 
 class TestValidators(object):
@@ -50,12 +28,12 @@ class TestValidators(object):
             key = ('key to be validated',)
 
             # The data to pass to the validator function for validation.
-            data = _data()
+            data = test_data.validator_data_dict()
             if value != 'skip':
                 data[key] = value
 
             # The errors dict to pass to the validator function.
-            errors = _errors()
+            errors = test_data.validator_errors_dict()
             errors[key] = []
 
             # Make copies of the data and errors dicts for asserting later.
@@ -88,9 +66,9 @@ class TestValidators(object):
         import ckan.lib.navl.validators as validators
 
         key = ('key to be validated',)
-        data = _data()
+        data = test_data.validator_data_dict()
         data[key] = 'value to be validated'
-        errors = _errors()
+        errors = test_data.validator_errors_dict()
         errors[key] = []
 
         # Make copies of the data and errors dicts for asserting later.
