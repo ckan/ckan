@@ -33,9 +33,13 @@ def _errors():
 class TestValidators(object):
 
     def test_ignore_missing_with_value_missing(self):
-        '''If data[key] is None or dictization_functions.missing or if
-        key is not in data, then ignore_missing() should raise StopOnError.'''
+        '''ignore_missing() should raise StopOnError if:
 
+        - data[key] is None, or
+        - data[key] is dictization_functions.missing, or
+        - key is not in data
+
+        '''
         import ckan.lib.navl.dictization_functions as df
         import ckan.lib.navl.validators as validators
 
