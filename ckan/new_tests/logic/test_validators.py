@@ -2,10 +2,26 @@
 '''Unit tests for ckan/logic/validators.py.
 
 '''
+import copy
+
 import nose.tools
+
+import ckan.new_tests.helpers as helpers
+import ckan.new_tests.data as test_data
 
 
 class TestValidators(object):
+
+    @classmethod
+    def setup_class(cls):
+        # Initialize the test db (if it isn't already) and clean out any data
+        # left in it.
+        helpers.reset_db()
+
+    def setup(self):
+        import ckan.model as model
+        # Reset the db before each test method.
+        model.repo.rebuild_db()
 
     def test_name_validator_with_invalid_value(self):
         '''If given an invalid value name_validator() should do raise Invalid.
@@ -86,3 +102,129 @@ class TestValidators(object):
             result = validators.name_validator(valid_name, context={})
             assert result == valid_name, ('If given a valid string '
                 'name_validator() should return the string unmodified.')
+
+    def test_user_name_validator_with_non_string_value(self):
+        '''user_name_validator() should raise Invalid if given a non-string
+        value.
+
+        '''
+        import ckan.logic.validators as validators
+        import ckan.model as model
+        import ckan.lib.navl.dictization_functions as df
+
+        non_string_values = [
+            13,
+            23.7,
+            100L,
+            1.0j,
+            None,
+            True,
+            False,
+            ('a', 2, False),
+            [13, None, True],
+            {'foo': 'bar'},
+            lambda x: x**2,
+        ]
+
+        key = ('name',)
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': '',
+        }
+
+        for non_string_value in non_string_values:
+            data = test_data.validator_data_dict()
+            data[key] = non_string_value
+            errors = test_data.validator_errors_dict()
+            errors[key] = []
+
+            # Make copies of the data and errors dicts for asserting later.
+            original_data = copy.deepcopy(data)
+            original_errors = copy.deepcopy(errors)
+
+            with nose.tools.assert_raises(df.Invalid):
+                validators.user_name_validator(key, data, errors, context)
+
+            assert data == original_data, ("user_name_validator shouldn't "
+                                           'modify the data dict')
+
+            assert errors == original_errors, ("user_name_validator shouldn't "
+                                               'modify the errors dict')
+
+    def test_user_name_validator_with_a_name_that_already_exists(self):
+        '''user_name_validator() should add to the errors dict if given a
+        user name that already exists.
+
+        '''
+        import ckan.logic.validators as validators
+        import ckan.model as model
+
+        existing_user = helpers.call_action('user_create',
+                                            **test_data.typical_user())
+
+        # Try to create another user with the same name as the existing user.
+        data = test_data.validator_data_dict()
+        key = ('name',)
+        data[key] = existing_user['name']
+        errors = test_data.validator_errors_dict()
+        errors[key] = []
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': '',
+        }
+
+        # Make copies of the data and errors dicts for asserting later.
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+
+        result = validators.user_name_validator(key, data, errors, context)
+
+        assert result is None, ("user_name_validator() shouldn't return "
+                                "anything")
+
+        msg = 'That login name is not available.'
+        assert errors[key] == [msg], ('user_name_validator() should add to '
+                                      'the errors dict when given the name of '
+                                      'a user that already exists')
+
+        errors[key] = []
+        assert errors == original_errors, ('user_name_validator() should not '
+                                           'modify other parts of the errors '
+                                           'dict')
+
+        assert data == original_data, ('user_name_validator() should not '
+                                       'modify the data dict')
+
+    def test_user_name_validator_successful(self):
+        '''user_name_validator() should do nothing if given a valid name.'''
+
+        import ckan.logic.validators as validators
+        import ckan.model as model
+
+        data = test_data.validator_data_dict()
+        key = ('name',)
+        data[key] = 'new_user_name'
+        errors = test_data.validator_errors_dict()
+        errors[key] = []
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': '',
+        }
+
+        # Make copies of the data and errors dicts for asserting later.
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+
+        result = validators.user_name_validator(key, data, errors, context)
+
+        assert result is None, ("user_name_validator() shouldn't return "
+                                'anything')
+
+        assert data == original_data, ("user_name_validator shouldn't modify "
+                                       'the data dict')
+
+        assert errors == original_errors, ("user_name_validator shouldn't "
+                                           'modify the errors dict')
