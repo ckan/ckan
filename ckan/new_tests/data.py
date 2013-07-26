@@ -8,6 +8,8 @@ eg. a dict or list and then break the tests that follow it.
 
 
 def typical_user():
+    '''Return a dictionary representation of a typical, valid CKAN user.'''
+
     return {'name': 'fred',
             'email': 'fred@fred.com',
             'password': 'wilma',
