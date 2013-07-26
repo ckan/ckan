@@ -275,23 +275,39 @@ def extras_unicode_convert(extras, context):
     return extras
 
 name_match = re.compile('[a-z0-9_\-]*$')
-def name_validator(val, context):
-    if not isinstance(val, basestring):
+def name_validator(value, context):
+    '''Return the given value if it's a valid name, otherwise raise Invalid.
+
+    If it's a valid name, the given value will be returned unmodified.
+
+    This function applies general validation rules for names of packages,
+    groups, users, etc.
+
+    Most schemas also have their own custom name validator function to apply
+    custom validation rules after this function, for example a
+    ``package_name_validator()`` to check that no package with the given name
+    already exists.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``value`` is not
+        a valid name
+
+    '''
+    if not isinstance(value, basestring):
         raise Invalid(_('Names must be strings'))
 
     # check basic textual rules
-    if val in ['new', 'edit', 'search']:
+    if value in ['new', 'edit', 'search']:
         raise Invalid(_('That name cannot be used'))
 
-    if len(val) < 2:
+    if len(value) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
-    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(_('Name must be a maximum of %i characters long') % \
                       PACKAGE_NAME_MAX_LENGTH)
-    if not name_match.match(val):
+    if not name_match.match(value):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
-    return val
+    return value
 
 def package_name_validator(key, data, errors, context):
     model = context["model"]
