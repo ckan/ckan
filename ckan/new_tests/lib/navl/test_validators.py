@@ -86,17 +86,23 @@ class TestValidators(object):
         '''
         import ckan.lib.navl.validators as validators
 
-        key = ('foo',)
-        data = {key: 'bar'}
-        errors = {key: []}
+        key = ('key to be validated',)
+        data = _data()
+        data[key] = 'value to be validated'
+        errors = _errors()
+        errors[key] = []
+
+        # Make copies of the data and errors dicts for asserting later.
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
 
         result = validators.ignore_missing(key=key, data=data, errors=errors,
                                            context={})
 
         assert result is None
 
-        # ignore_missing shouldn't remove or modify the value.
-        assert data.get(key) == 'bar'
+        assert data == original_data, ("ignore_missing() shouldn't modify the "
+                                       "data dict")
 
-        # ignore_missing shouldn't add any errors.
-        assert errors[key] == []
+        assert errors == original_errors, ("ignore_missing() shouldn't modify "
+                                           "the errors dict")
