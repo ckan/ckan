@@ -524,9 +524,11 @@ def user_password_validator(key, data, errors, context):
     value = data[key]
 
     if isinstance(value, Missing):
-        errors[('password',)].append(_('Your password must be 4 characters or longer'))
+        pass
     elif not isinstance(value, basestring):
         errors[('password',)].append(_('Passwords must be strings'))
+    elif value == '':
+        pass
     elif len(value) < 4:
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 

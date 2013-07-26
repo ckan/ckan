@@ -130,11 +130,23 @@ class TestClass(object):
             helpers.call_action('user_update', **user)
 
     def test_user_update_with_empty_password(self):
-        user = helpers.call_action('user_create', **data.typical_user())
+        '''If an empty password is passed to user_update, nothing should
+        happen.
 
-        user['password'] = ''
-        with nose.tools.assert_raises(logic.ValidationError) as context:
-            helpers.call_action('user_update', **user)
+        No error (e.g. a validation error) is raised, but the password is not
+        changed either.
+
+        '''
+        user_dict = data.typical_user()
+        original_password = user_dict['password']
+        user_dict = helpers.call_action('user_create', **user_dict)
+
+        user_dict['password'] = ''
+        helpers.call_action('user_update', **user_dict)
+
+        import ckan.model as model
+        updated_user = model.User.get(user_dict['id'])
+        assert updated_user.validate_password(original_password)
 
     def test_user_update_with_null_password(self):
         user = helpers.call_action('user_create', **data.typical_user())
