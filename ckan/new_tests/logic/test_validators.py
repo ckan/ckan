@@ -4,6 +4,7 @@
 '''
 import copy
 
+import mock
 import nose.tools
 
 import ckan.new_tests.helpers as helpers
@@ -109,7 +110,6 @@ class TestValidators(object):
 
         '''
         import ckan.logic.validators as validators
-        import ckan.model as model
         import ckan.lib.navl.dictization_functions as df
 
         non_string_values = [
@@ -126,13 +126,12 @@ class TestValidators(object):
             lambda x: x**2,
         ]
 
-        key = ('name',)
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': '',
-        }
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+        # model.User.get(some_user_id) needs to return None for this test.
+        mock_model.User.get.return_value = None
 
+        key = ('name',)
         for non_string_value in non_string_values:
             data = test_data.validator_data_dict()
             data[key] = non_string_value
@@ -144,7 +143,8 @@ class TestValidators(object):
             original_errors = copy.deepcopy(errors)
 
             with nose.tools.assert_raises(df.Invalid):
-                validators.user_name_validator(key, data, errors, context)
+                validators.user_name_validator(key, data, errors,
+                                               context={'model': mock_model})
 
             assert data == original_data, ("user_name_validator shouldn't "
                                            'modify the data dict')
@@ -158,28 +158,25 @@ class TestValidators(object):
 
         '''
         import ckan.logic.validators as validators
-        import ckan.model as model
 
-        existing_user = helpers.call_action('user_create',
-                                            **test_data.typical_user())
+        # Mock ckan.model. model.User.get('user_name') will return another mock
+        # object rather than None, which will simulate an existing user with
+        # the same user name in the database.
+        mock_model = mock.MagicMock()
 
-        # Try to create another user with the same name as the existing user.
         data = test_data.validator_data_dict()
         key = ('name',)
-        data[key] = existing_user['name']
+        data[key] = 'user_name'
         errors = test_data.validator_errors_dict()
         errors[key] = []
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': '',
-        }
 
         # Make copies of the data and errors dicts for asserting later.
         original_data = copy.deepcopy(data)
         original_errors = copy.deepcopy(errors)
 
-        result = validators.user_name_validator(key, data, errors, context)
+        # Try to create another user with the same name as the existing user.
+        result = validators.user_name_validator(key, data, errors,
+                                                context={'model': mock_model})
 
         assert result is None, ("user_name_validator() shouldn't return "
                                 "anything")
@@ -201,24 +198,25 @@ class TestValidators(object):
         '''user_name_validator() should do nothing if given a valid name.'''
 
         import ckan.logic.validators as validators
-        import ckan.model as model
 
         data = test_data.validator_data_dict()
         key = ('name',)
         data[key] = 'new_user_name'
         errors = test_data.validator_errors_dict()
         errors[key] = []
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': '',
-        }
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+        # model.User.get(user_name) should return None, to simulate that no
+        # user with that name exists in the database.
+        mock_model.User.get.return_value = None
 
         # Make copies of the data and errors dicts for asserting later.
         original_data = copy.deepcopy(data)
         original_errors = copy.deepcopy(errors)
 
-        result = validators.user_name_validator(key, data, errors, context)
+        result = validators.user_name_validator(key, data, errors,
+                                                context={'model': mock_model})
 
         assert result is None, ("user_name_validator() shouldn't return "
                                 'anything')
@@ -227,4 +225,8 @@ class TestValidators(object):
                                        'the data dict')
 
         assert errors == original_errors, ("user_name_validator shouldn't "
-                                           'modify the errors dict')
+                                           'modify the errors dict if given a'
+                                           'valid user name')
+
+    # TODO: Test user_name_validator()'s behavior when there's a 'user_obj' in
+    # the context dict.
