@@ -180,6 +180,7 @@ class TestValidators(object):
             '99',
             '--',
             '__',
+            u'fred-flintstone_9',
         ]
 
         for valid_name in valid_names:
