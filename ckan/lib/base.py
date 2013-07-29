@@ -19,12 +19,13 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan.lib import i18n
-import lib.render
+import ckan.lib.i18n as i18n
+import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter
+import ckan.plugins as p
 import ckan.model as model
+import ckan.lib.maintain as maintain
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -42,6 +43,12 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
+    if status_code == 401:
+        # Allow IAuthenticator plugins to alter the abort
+        for item in p.PluginImplementations(p.IAuthenticator):
+            result = item.abort(status_code, detail, headers, comment)
+            (status_code, detail, headers, comment) = result
+
     if detail and status_code != 503:
         h.flash_error(detail)
     # #1267 Convert detail to plain text, since WebOb 0.9.7.1 (which comes
@@ -98,8 +105,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         try:
-            template_path, template_type = lib.render.template_info(template_name)
-        except lib.render.TemplateNotFound:
+            template_path, template_type = render_.template_info(template_name)
+        except render_.TemplateNotFound:
             template_type = 'genshi'
             template_path = ''
 
@@ -139,7 +146,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         )
         stream = template.generate(**globs)
 
-        for item in PluginImplementations(IGenshiStreamFilter):
+        for item in p.PluginImplementations(p.IGenshiStreamFilter):
             stream = item.filter(stream)
 
         if loader_class == NewTextTemplate:
@@ -213,25 +220,17 @@ class BaseController(WSGIController):
         c.__timer = time.time()
         c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
+
         self._identify_user()
+
         i18n.handle_request(request, c)
 
-        # If the user is logged in add their number of new activities to the
-        # template context.
-        if c.userobj:
-            from ckan.logic import get_action
-            new_activities_count = get_action(
-                'dashboard_new_activities_count')
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
-            c.new_activities = new_activities_count(context, {})
+        maintain.deprecate_context_item(
+            'new_activities',
+            'Use `h.new_activities` instead.')
 
     def _identify_user(self):
-        '''
-        Identifies the user using two methods:
-        a) If he has logged into the web interface then repoze.who will
-           set REMOTE_USER.
-        b) For API calls he may set a header with his API key.
+        '''Try to identify the user
         If the user is identified then:
           c.user = user name (unicode)
           c.userobj = user object
@@ -239,13 +238,46 @@ class BaseController(WSGIController):
         otherwise:
           c.user = None
           c.userobj = None
-          c.author = user\'s IP address (unicode)
-        '''
+          c.author = user's IP address (unicode)'''
         # see if it was proxied first
         c.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
         if not c.remote_addr:
             c.remote_addr = request.environ.get('REMOTE_ADDR',
                                                 'Unknown IP Address')
+
+        # Authentication plugins get a chance to run here break as soon as a
+        # user is identified.
+        authenticators = p.PluginImplementations(p.IAuthenticator)
+        if authenticators:
+            for item in authenticators:
+                item.identify()
+                if c.user:
+                    break
+
+        # We haven't identified the user so try the default methods
+        if not c.user:
+            self._identify_user_default()
+
+        # If we have a user but not the userobj let's get the userobj.  This
+        # means that IAuthenticator extensions do not need to access the user
+        # model directly.
+        if c.user and not c.userobj:
+            c.userobj = model.User.by_name(c.user)
+
+        # general settings
+        if c.user:
+            c.author = c.user
+        else:
+            c.author = c.remote_addr
+        c.author = unicode(c.author)
+
+    def _identify_user_default(self):
+        '''
+        Identifies the user using two methods:
+        a) If they logged into the web interface then repoze.who will
+           set REMOTE_USER.
+        b) For API calls they may set a header with an API key.
+        '''
 
         # environ['REMOTE_USER'] is set by repoze.who if it authenticates
         # a user's cookie or OpenID. But repoze.who doesn't check the user
@@ -277,11 +309,6 @@ class BaseController(WSGIController):
             c.userobj = self._get_user_for_apikey()
             if c.userobj is not None:
                 c.user = c.userobj.name
-        if c.user:
-            c.author = c.user
-        else:
-            c.author = c.remote_addr
-        c.author = unicode(c.author)
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""

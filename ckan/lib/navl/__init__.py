@@ -1,1 +1,1 @@
-__licence__ = 'MIT'
+__license__ = 'MIT'

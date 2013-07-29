@@ -41,13 +41,13 @@ Example:
   </li>
   <li class="last {{ s3 }}">
     {% if s3 != 'complete' %}
-      <span class="highlight">{{ _('Additional data') }}</span>
+      <span class="highlight">{{ _('Additional info') }}</span>
     {% else %}
       {% if s1 == 'active' or s2 == 'active' %}
         {# stage 1 #}
-        <button class="highlight" name="save" value="go-metadata" type="submit">{{ _('Additional data') }}</button>
+        <button class="highlight" name="save" value="go-metadata" type="submit">{{ _('Additional info') }}</button>
       {% else %}
-        {% link_for _('Additional data'), controller='package', action='new', class_="highlight" %}{{ s2 }}
+        {% link_for _('Additional info'), controller='package', action='new', class_="highlight" %}{{ s2 }}
       {% endif %}
     {% endif %}
   </li>

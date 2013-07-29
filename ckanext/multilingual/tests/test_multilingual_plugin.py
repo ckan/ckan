@@ -41,6 +41,9 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
 
     @classmethod
     def teardown(cls):
+        ckan.plugins.unload('multilingual_dataset')
+        ckan.plugins.unload('multilingual_group')
+        ckan.plugins.unload('multilingual_tag')
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear()
 
@@ -298,6 +301,12 @@ class TestDatasetSearchIndex():
         for data_dict in data_dicts:
             ckan.logic.action.update.term_translation_update(context,
                     data_dict)
+
+    @classmethod
+    def teardown(cls):
+        ckan.plugins.unload('multilingual_dataset')
+        ckan.plugins.unload('multilingual_group')
+
 
     def test_translate_terms(self):
 

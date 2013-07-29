@@ -1,6 +1,8 @@
 import json
 import nose
+from nose.tools import assert_equal
 
+import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -21,29 +23,17 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
-        cls._configure_iconfigurable_plugins()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        import pylons
         engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-
-    @classmethod
-    def _configure_iconfigurable_plugins(cls):
-        import pylons.config as config
-        from ckan.plugins import PluginImplementations
-        from ckan.plugins.interfaces import IConfigurable
-        for plugin in PluginImplementations(IConfigurable):
-            plugin.configure(config)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -81,9 +71,48 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         data = {
             'resource_id': resource.id,
-            'aliases': u'fo%25bar',
+            'aliases': u'fo%25bar',  # alias with percent
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_create_duplicate_alias_name(self):
+        resource = model.Package.get('annakarenina').resources[0]
+        data = {
+            'resource_id': resource.id,
+            'aliases': u'myalias'
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=200)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        # try to create another table with the same alias
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'aliases': u'myalias'
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        # try to create an alias that is a resource id
+        resource = model.Package.get('annakarenina').resources[1]
+        data = {
+            'resource_id': resource.id,
+            'aliases': model.Package.get('annakarenina').resources[0].id
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -173,6 +202,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -190,6 +220,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
     def test_create_invalid_index(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -255,21 +286,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data = {
             'resource_id': resource.id,
             'aliases': aliases,
-            'fields': [{'id': 'boo%k', 'type': 'text'},
+            'fields': [{'id': 'boo%k', 'type': 'text'},  # column with percent
                        {'id': 'author', 'type': 'json'}],
             'indexes': [['boo%k', 'author'], 'author'],
-            'records': [
-                        {'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+            'records': [{'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
                         {'boo%k': 'annakarenina', 'author': ['tolstoy', 'putin']},
                         {'boo%k': 'warandpeace'}]  # treat author as null
         }
-        ### Firstly test to see if resource things it has datastore table
+        ### Firstly test to see whether resource has no datastore table yet
         postparams = '%s=1' % json.dumps({'id': resource.id})
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/resource_show', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
-        assert res_dict['result']['datastore_active'] == False
+        assert res_dict['result']['datastore_active'] is False
 
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -324,7 +354,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = self.app.post('/api/action/resource_show', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
-        assert res_dict['result']['datastore_active'] == True
+        assert res_dict['result']['datastore_active']
 
         #######  insert again simple
         data2 = {
@@ -476,10 +506,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
-        #######  insert with paramter id rather than resource_id which is a shortcut
+        #######  insert with parameter id rather than resource_id which is a shortcut
         data8 = {
             'id': resource.id,
-            'records': [{'boo%k': 'warandpeace'}]
+             # insert with percent
+            'records': [{'boo%k': 'warandpeace', 'author': '99% good'}]
         }
 
         postparams = '%s=1' % json.dumps(data8)
