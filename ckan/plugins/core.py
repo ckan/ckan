@@ -237,15 +237,13 @@ def _get_service(plugin_name):
 
     if isinstance(plugin_name, basestring):
         for group in GROUPS:
-            try:
-                (plugin,) = iter_entry_points(
-                    group=group,
-                    name=plugin_name
-                )
+            iterator = iter_entry_points(
+                group=group,
+                name=plugin_name
+            )
+            plugin = next(iterator, None)
+            if plugin:
                 return plugin.load()(name=plugin_name)
-            except ValueError:
-                pass
-            else:
-                raise PluginNotFoundException(plugin_name)
+        raise PluginNotFoundException(plugin_name)
     else:
         raise TypeError('Expected a plugin name', plugin_name)

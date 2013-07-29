@@ -164,3 +164,7 @@ class TestPlugins(object):
         with plugins.use_plugin('auth_plugin'):
             assert new_authz.is_authorized('package_list', {}) != package_list_original
         assert new_authz.is_authorized('package_list', {}) == package_list_original
+
+    @raises(plugins.PluginNotFoundException)
+    def test_inexistent_plugin_loading(self):
+        plugins.load('inexistent-plugin')
