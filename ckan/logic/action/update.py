@@ -419,9 +419,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
-        schema = group_plugin.form_to_db_schema_options({'type': 'update',
-                                                         'api': 'api_version' in context,
-                                                         'context': context})
+        schema = group_plugin.form_to_db_schema_options({
+            'type': 'update',
+            'api': 'api_version' in context,
+            'context': context,
+        })
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
@@ -458,10 +460,14 @@ def _group_or_org_update(context, data_dict, is_org=False):
 
     # when editing an org we do not want to update the packages if using the
     # new templates.
-    if ((not is_org)
-        and not converters.asbool(
-            config.get('ckan.legacy_templates', False))
-        and 'api_version' not in context):
+
+    # if ((not is_org)
+    #     and not converters.asbool(
+    #         config.get('ckan.legacy_templates', False))
+    #     and 'api_version' not in context):
+    if not (is_org
+            or converters.asbool(config.get('ckan.legacy_templates', False))
+            or 'api_version' in context):
         context['prevent_packages_update'] = True
     group = model_save.group_dict_save(data, context)
 
@@ -507,7 +513,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # activity.
     if group.state == u'deleted':
         if session.query(ckan.model.Activity).filter_by(
-            object_id=group.id, activity_type='deleted').all():
+                object_id=group.id, activity_type='deleted').all():
             # A 'deleted group' activity for this group has already been
             # emitted.
             # FIXME: What if the group was deleted and then activated again?
@@ -867,13 +873,14 @@ def vocabulary_update(context, data_dict):
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
-    if data_dict.has_key('name'):
+    if 'name' in data_dict:
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 
     _check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or schema_.default_update_vocabulary_schema()
+    schema = context.get('schema') \
+        or schema_.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -930,8 +937,9 @@ def user_role_update(context, data_dict):
     '''
     model = context['model']
 
-    new_user_ref = data_dict.get(
-        'user') # the user who is being given the new role
+    # the user who is being given the new role
+    new_user_ref = data_dict.get('user')
+
     if not bool(new_user_ref):
         raise ValidationError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
@@ -955,7 +963,8 @@ def user_role_update(context, data_dict):
     # deleting one which is non-existent, we need to get the users\'
     # current roles (if any)
     current_role_dicts = _get_action('roles_show')(context, data_dict)['roles']
-    current_roles = set([role_dict['role'] for role_dict in current_role_dicts])
+    current_roles = \
+        set([role_dict['role'] for role_dict in current_role_dicts])
 
     # Whenever our desired state is different from our current state,
     # change it.
@@ -983,10 +992,9 @@ def user_role_bulk_update(context, data_dict):
     :returns: the updated roles of all users and authorization groups for the
         domain object
     :rtype: dictionary
-
     '''
     # Collate all the roles for each user
-    roles_by_user = {} # user:roles
+    roles_by_user = {}  # user:roles
     for user_role_dict in data_dict['user_roles']:
         user = user_role_dict.get('user')
         if user:
@@ -1034,7 +1042,7 @@ def send_email_notifications(context, data_dict):
         _check_access('send_email_notifications', context, data_dict)
 
     if not converters.asbool(
-        config.get('ckan.activity_streams_email_notifications')):
+            config.get('ckan.activity_streams_email_notifications')):
         raise ValidationError('ckan.activity_streams_email_notifications'
                               ' is not enabled in config')
 

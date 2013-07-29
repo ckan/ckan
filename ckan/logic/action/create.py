@@ -108,7 +108,8 @@ def package_create(context, data_dict):
     :type owner_org: string
 
     :returns: the newly created dataset (unless 'return_id_only' is set to True
-              in the context, in which case just the dataset id will be returned)
+              in the context, in which case just the dataset id will be
+              returned)
     :rtype: dictionary
 
     '''
@@ -197,7 +198,8 @@ def package_create(context, data_dict):
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
-    :param package_id: id of package that the resource needs should be added to.
+    :param package_id:
+        id of package that the resource needs should be added to.
     :type package_id: string
     :param url: url of resource
     :type url: string
@@ -671,9 +673,9 @@ def organization_create(context, data_dict):
     Plugins may change the parameters of this function depending on the value
     of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
 
-    :param name: the name of the organization, a string between 2 and 100 characters
-        long, containing only lowercase alphanumeric characters, ``-`` and
-        ``_``
+    :param name: the name of the organization, a string between 2 and 100
+        characters long, containing only lowercase alphanumeric characters,
+        dashes (``-``) and underscores (``_``).
     :type name: string
     :param id: the id of the organization (optional)
     :type id: string
@@ -681,36 +683,43 @@ def organization_create(context, data_dict):
     :type title: string
     :param description: the description of the organization (optional)
     :type description: string
-    :param image_url: the URL to an image to be displayed on the organization's page
+    :param image_url:
+        the URL to an image to be displayed on the organization's page
         (optional)
     :type image_url: string
+
     :param state: the current state of the organization, e.g. ``'active'`` or
         ``'deleted'``, only active organizations show up in search results and
-        other lists of organizations, this parameter will be ignored if you are not
-        authorized to change the state of the organization (optional, default:
-        ``'active'``)
+        other lists of organizations, this parameter will be ignored if
+        you are not authorized to change the state of the organization
+        (optional, default: ``'active'``)
     :type state: string
+
     :param approval_status: (optional)
     :type approval_status: string
+
     :param extras: the organization's extras (optional), extras are arbitrary
-        (key: value) metadata items that can be added to organizations, each extra
-        dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        (key: value) metadata items that can be added to organizations,
+        each extra dictionary should have keys ``'key'`` (a string),
+        ``'value'`` (a string), and optionally ``'deleted'``
     :type extras: list of dataset extra dictionaries
-    :param packages: the datasets (packages) that belong to the organization, a list
-        of dictionaries each with keys ``'name'`` (string, the id or name of
-        the dataset) and optionally ``'title'`` (string, the title of the
-        dataset)
+
+    :param packages:
+        the datasets (packages) that belong to the organization, a list
+        of dictionaries each with keys ``'name'`` (string, the id or name
+        of the dataset) and optionally ``'title'`` (string, the title
+        of the dataset)
     :type packages: list of dictionaries
-    :param users: the users that belong to the organization, a list of dictionaries
+
+    :param users:
+        the users that belong to the organization, a list of dictionaries
         each with key ``'name'`` (string, the id or name of the user) and
         optionally ``'capacity'`` (string, the capacity in which the user is
         a member of the organization)
     :type users: list of dictionaries
 
     :returns: the newly created organization
-    :rtype: dictionary
-
+    :rtype: dict
     '''
     # wrapper for creating organizations
     data_dict['type'] = 'organization'
@@ -725,8 +734,9 @@ def rating_create(context, data_dict):
 
     :param package: the name or id of the dataset to rate
     :type package: string
-    :param rating: the rating to give to the dataset, an integer between 1 and
-        5
+
+    :param rating: the rating to give to the dataset, an integer
+        between 1 and 5
     :type rating: int
 
     :returns: a dictionary with two keys: ``'rating average'`` (the average
@@ -754,7 +764,8 @@ def rating_create(context, data_dict):
         else:
             package = model.Package.get(package_ref)
             if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
-                opts_err = _('Rating must be between %i and %i.') % (ratings.MIN_RATING, ratings.MAX_RATING)
+                opts_err = _('Rating must be between %i and %i.') \
+                    % (ratings.MIN_RATING, ratings.MAX_RATING)
             elif not package:
                 opts_err = _('Not found') + ': %r' % package_ref
     if opts_err:
@@ -1090,7 +1101,7 @@ def follow_dataset(context, data_dict):
 
     '''
 
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise logic.NotAuthorized(
             _("You must be logged in to follow a dataset."))
 
@@ -1151,7 +1162,8 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     if result:
         user_id = result.id
     else:
-        message = _(u'User {username} does not exist.').format(username=username)
+        message = _(u'User {username} does not exist.')\
+            .format(username=username)
         raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
@@ -1233,8 +1245,8 @@ def follow_group(context, data_dict):
         raise logic.NotAuthorized(
             _("You must be logged in to follow a group."))
 
-    schema = context.get('schema',
-            ckan.logic.schema.default_follow_group_schema())
+    schema = context.get('schema')\
+        or ckan.logic.schema.default_follow_group_schema()
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 

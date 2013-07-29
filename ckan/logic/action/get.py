@@ -48,7 +48,7 @@ _text = sqlalchemy.text
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
     for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package,context)
+        result_dict = model_dictize.package_dictize(package, context)
         package_list.append(result_dict)
     return package_list
 
@@ -59,7 +59,7 @@ def site_read(context, data_dict=None):
 
     :rtype: boolean
     '''
-    _check_access('site_read',context,data_dict)
+    _check_access('site_read', context, data_dict)
     return True
 
 
@@ -76,7 +76,7 @@ def package_list(context, data_dict):
 
     package_revision_table = model.package_revision_table
     col = (package_revision_table.c.id
-        if api == 2 else package_revision_table.c.name)
+           if api == 2 else package_revision_table.c.name)
     query = _select([col])
     query = query.where(_and_(package_revision_table.c.state == 'active',
                               package_revision_table.c.current == True))
@@ -94,9 +94,14 @@ def current_package_list_with_resources(context, data_dict):
         at most ``limit`` datasets per page and only one page will be returned
         at a time (optional)
     :type limit: int
-    :param offset: when ``limit`` is given, the offset to start returning packages from
+
+    :param offset:
+        when ``limit`` is given, the offset to start returning packages from
     :type offset: int
-    :param page: when ``limit`` is given, which page to return, Deprecated use ``offset``
+
+    :param page:
+        when ``limit`` is given, which page to return,
+        Deprecated use ``offset``
     :type page: int
 
     :rtype: list of dictionaries
@@ -165,7 +170,7 @@ def package_revision_list(context, data_dict):
     if pkg is None:
         raise NotFound
 
-    _check_access('package_revision_list',context, data_dict)
+    _check_access('package_revision_list', context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in pkg.all_related_revisions:
@@ -192,9 +197,10 @@ def related_show(context, data_dict=None):
     if related is None:
         raise NotFound
 
-    _check_access('related_show',context, data_dict)
+    _check_access('related_show', context, data_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_related_schema()
+    schema = context.get('schema') \
+        or ckan.logic.schema.default_related_schema()
     related_dict = model_dictize.related_dictize(related, context)
     related_dict, errors = _validate(related_dict, schema, context=context)
 
@@ -250,7 +256,7 @@ def related_list(context, data_dict=None):
             }
             s = sortables.get(sort, None)
             if s:
-                related_list = related_list.order_by( s() )
+                related_list = related_list.order_by(s())
 
         if data_dict.get('featured', False):
             related_list = related_list.filter(model.Related.featured == 1)
@@ -397,15 +403,19 @@ def organization_list(context, data_dict):
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
+
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
         'name' and 'packages'
     :type sort: string
-    :param organizations: a list of names of the groups to return, if given only
-        groups whose names are in this list will be returned (optional)
+
+    :param organizations: a list of names of the groups to return,
+        if given only groups whose names are in this list will be
+        returned (optional)
     :type organizations: list of strings
+
     :param all_fields: return full group dictionaries instead of  just names
-        (optional, default: ``False``)
+        (optional, defaults to ``False``)
     :type all_fields: boolean
 
     :rtype: list of strings
@@ -503,7 +513,7 @@ def organization_list_for_user(context, data_dict):
     model = context['model']
     user = context['user']
 
-    _check_access('organization_list_for_user',context, data_dict)
+    _check_access('organization_list_for_user', context, data_dict)
     sysadmin = new_authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
@@ -891,10 +901,9 @@ def _group_or_org_show(context, data_dict, is_org=False):
         raise NotFound
 
     if is_org:
-        _check_access('organization_show',context, data_dict)
+        _check_access('organization_show', context, data_dict)
     else:
-        _check_access('group_show',context, data_dict)
-
+        _check_access('group_show', context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context)
 
@@ -909,15 +918,15 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
     try:
         schema = group_plugin.db_to_form_schema_options({
-            'type':'show',
+            'type': 'show',
             'api': 'api_version' in context,
-            'context': context })
+            'context': context})
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
 
     group_dict['num_followers'] = logic.get_action('group_follower_count')(
-            {'model': model, 'session': model.Session},
-            {'id': group_dict['id']})
+        {'model': model, 'session': model.Session},
+        {'id': group_dict['id']})
 
     if schema:
         group_dict, errors = _validate(group_dict, schema, context=context)
@@ -973,7 +982,8 @@ def group_package_show(context, data_dict):
     _check_access('group_show', context, data_dict)
 
     result = []
-    for pkg_rev in group.packages(limit=limit,
+    for pkg_rev in group.packages(
+            limit=limit,
             return_query=context.get('return_query')):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
@@ -997,8 +1007,8 @@ def tag_show(context, data_dict):
     context['tag'] = tag
     if tag is None:
         raise NotFound
-    _check_access('tag_show',context, data_dict)
-    return model_dictize.tag_dictize(tag,context)
+    _check_access('tag_show', context, data_dict)
+    return model_dictize.tag_dictize(tag, context)
 
 
 def user_show(context, data_dict):
@@ -1017,7 +1027,7 @@ def user_show(context, data_dict):
     '''
     model = context['model']
 
-    obj_id = data_dict.get('id',None)
+    obj_id = data_dict.get('id', None)
     provided_user = data_dict.get('user_obj', None)
     if obj_id:
         user_obj = model.User.get(obj_id)
@@ -1091,13 +1101,10 @@ def group_show_rest(context, data_dict):
 
 
 def tag_show_rest(context, data_dict):
-    _check_access('tag_show_rest',context, data_dict)
-
+    _check_access('tag_show_rest', context, data_dict)
     logic.get_action('tag_show')(context, data_dict)
     tag = context['tag']
-
     tag_dict = model_dictize.tag_to_api(tag, context)
-
     return tag_dict
 
 
@@ -1226,8 +1233,8 @@ def user_autocomplete(context, data_dict):
     user_list = []
     for user in query.all():
         result_dict = {}
-        for k in ['id', 'name', 'fullname']:
-                result_dict[k] = getattr(user,k)
+        for k in ('id', 'name', 'fullname'):
+            result_dict[k] = getattr(user, k)
         user_list.append(result_dict)
     return user_list
 
@@ -1407,7 +1414,8 @@ def package_search(context, data_dict):
             ## if the index has got a package that is not in ckan then
             ## ignore it.
             if not pkg:
-                log.warning('package %s in index but not in database' % package)
+                log.warning('package {0} in index but not in database'
+                            ''.format(package))
                 continue
 
             ## use data in search index if there
@@ -1421,7 +1429,7 @@ def package_search(context, data_dict):
                 results.append(package_dict)
 
             else:
-                results.append(model_dictize.package_dictize(pkg,context))
+                results.append(model_dictize.package_dictize(pkg, context))
 
         count = query.count
         facets = query.facets
@@ -1467,7 +1475,7 @@ def package_search(context, data_dict):
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_results = item.after_search(search_results,data_dict)
+        search_results = item.after_search(search_results, data_dict)
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
@@ -1711,7 +1719,8 @@ def _tag_search(context, data_dict):
         return [], 0
 
     for term in terms:
-        escaped_term = misc.escape_sql_like_special_characters(term, escape='\\')
+        escaped_term = \
+            misc.escape_sql_like_special_characters(term, escape='\\')
         q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
     count = q.count()
@@ -1814,9 +1823,12 @@ def task_status_show(context, data_dict):
     else:
         query = model.Session.query(model.TaskStatus)\
             .filter(_and_(
-                model.TaskStatus.entity_id == _get_or_bust(data_dict, 'entity_id'),
-                model.TaskStatus.task_type == _get_or_bust(data_dict, 'task_type'),
-                model.TaskStatus.key == _get_or_bust(data_dict, 'key')
+                model.TaskStatus.entity_id
+                == _get_or_bust(data_dict, 'entity_id'),
+                model.TaskStatus.task_type
+                == _get_or_bust(data_dict, 'task_type'),
+                model.TaskStatus.key
+                == _get_or_bust(data_dict, 'key')
             ))
         task_status = query.first()
 
@@ -1923,7 +1935,8 @@ def roles_show(context, data_dict):
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     user_ref = data_dict.get('user')
 
-    domain_object = ckan.logic.action.get_domain_object(model, domain_object_ref)
+    domain_object = \
+        ckan.logic.action.get_domain_object(model, domain_object_ref)
     if isinstance(domain_object, model.Package):
         query = session.query(model.PackageRole).join('package')
     elif isinstance(domain_object, model.Group):
@@ -2144,8 +2157,8 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
+    activity_objects = model.activity.group_activity_list(
+        org_id, limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2220,7 +2233,7 @@ def user_activity_list_html(context, data_dict):
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
-        }
+    }
     return activity_streams.activity_list_to_html(
         context, activity_stream, extra_vars)
 
@@ -2251,9 +2264,10 @@ def package_activity_list_html(context, data_dict):
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
-        }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-            extra_vars)
+    }
+    return activity_streams.activity_list_to_html(
+        context, activity_stream, extra_vars)
+
 
 def group_activity_list_html(context, data_dict):
     '''Return a group's activity stream as HTML.
@@ -2281,9 +2295,10 @@ def group_activity_list_html(context, data_dict):
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
-        }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-            extra_vars)
+    }
+    return activity_streams.activity_list_to_html(
+        context, activity_stream, extra_vars)
+
 
 def organization_activity_list_html(context, data_dict):
     '''Return a organization's activity stream as HTML.
@@ -2299,6 +2314,7 @@ def organization_activity_list_html(context, data_dict):
     '''
     activity_stream = organization_activity_list(context, data_dict)
     return activity_streams.activity_list_to_html(context, activity_stream)
+
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -2318,17 +2334,17 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    activity_stream = recently_changed_packages_activity_list(context,
-            data_dict)
+    activity_stream = recently_changed_packages_activity_list(
+        context, data_dict)
     offset = int(data_dict.get('offset', 0))
     extra_vars = {
         'controller': 'package',
         'action': 'activity',
         'id': data_dict['id'],
         'offset': offset,
-        }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-            extra_vars)
+    }
+    return activity_streams.activity_list_to_html(
+        context, activity_stream, extra_vars)
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
@@ -2348,9 +2364,10 @@ def user_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    return _follower_count(context, data_dict,
-            ckan.logic.schema.default_follow_user_schema(),
-            context['model'].UserFollowingUser)
+    return _follower_count(
+        context, data_dict,
+        ckan.logic.schema.default_follow_user_schema(),
+        context['model'].UserFollowingUser)
 
 
 def dataset_follower_count(context, data_dict):
@@ -2362,9 +2379,10 @@ def dataset_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    return _follower_count(context, data_dict,
-            ckan.logic.schema.default_follow_dataset_schema(),
-            context['model'].UserFollowingDataset)
+    return _follower_count(
+        context, data_dict,
+        ckan.logic.schema.default_follow_dataset_schema(),
+        context['model'].UserFollowingDataset)
 
 
 def group_follower_count(context, data_dict):
@@ -2376,9 +2394,10 @@ def group_follower_count(context, data_dict):
     :rtype: int
 
     '''
-    return _follower_count(context, data_dict,
-            ckan.logic.schema.default_follow_group_schema(),
-            context['model'].UserFollowingGroup)
+    return _follower_count(
+        context, data_dict,
+        ckan.logic.schema.default_follow_group_schema(),
+        context['model'].UserFollowingGroup)
 
 
 def _follower_list(context, data_dict, default_schema, FollowerClass):
@@ -2410,9 +2429,10 @@ def user_follower_list(context, data_dict):
 
     '''
     _check_access('user_follower_list', context, data_dict)
-    return _follower_list(context, data_dict,
-            ckan.logic.schema.default_follow_user_schema(),
-            context['model'].UserFollowingUser)
+    return _follower_list(
+        context, data_dict,
+        ckan.logic.schema.default_follow_user_schema(),
+        context['model'].UserFollowingUser)
 
 
 def dataset_follower_list(context, data_dict):
@@ -2425,9 +2445,10 @@ def dataset_follower_list(context, data_dict):
 
     '''
     _check_access('dataset_follower_list', context, data_dict)
-    return _follower_list(context, data_dict,
-            ckan.logic.schema.default_follow_dataset_schema(),
-            context['model'].UserFollowingDataset)
+    return _follower_list(
+        context, data_dict,
+        ckan.logic.schema.default_follow_dataset_schema(),
+        context['model'].UserFollowingDataset)
 
 
 def group_follower_list(context, data_dict):
@@ -2440,9 +2461,10 @@ def group_follower_list(context, data_dict):
 
     '''
     _check_access('group_follower_list', context, data_dict)
-    return _follower_list(context, data_dict,
-            ckan.logic.schema.default_follow_group_schema(),
-            context['model'].UserFollowingGroup)
+    return _follower_list(
+        context, data_dict,
+        ckan.logic.schema.default_follow_group_schema(),
+        context['model'].UserFollowingGroup)
 
 
 def _am_following(context, data_dict, default_schema, FollowerClass):
@@ -2474,9 +2496,10 @@ def am_following_user(context, data_dict):
     :rtype: boolean
 
     '''
-    return _am_following(context, data_dict,
-            ckan.logic.schema.default_follow_user_schema(),
-            context['model'].UserFollowingUser)
+    return _am_following(
+        context, data_dict,
+        ckan.logic.schema.default_follow_user_schema(),
+        context['model'].UserFollowingUser)
 
 
 def am_following_dataset(context, data_dict):
@@ -2488,9 +2511,10 @@ def am_following_dataset(context, data_dict):
     :rtype: boolean
 
     '''
-    return _am_following(context, data_dict,
-            ckan.logic.schema.default_follow_dataset_schema(),
-            context['model'].UserFollowingDataset)
+    return _am_following(
+        context, data_dict,
+        ckan.logic.schema.default_follow_dataset_schema(),
+        context['model'].UserFollowingDataset)
 
 
 def am_following_group(context, data_dict):
@@ -2502,15 +2526,17 @@ def am_following_group(context, data_dict):
     :rtype: boolean
 
     '''
-    return _am_following(context, data_dict,
-            ckan.logic.schema.default_follow_group_schema(),
-            context['model'].UserFollowingGroup)
+    return _am_following(
+        context, data_dict,
+        ckan.logic.schema.default_follow_group_schema(),
+        context['model'].UserFollowingGroup)
 
 
 def _followee_count(context, data_dict, FollowerClass):
     if not context.get('skip_validation'):
-        schema = context.get('schema',
-                ckan.logic.schema.default_follow_user_schema())
+        schema = context.get(
+            'schema',
+            ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -2530,17 +2556,20 @@ def followee_count(context, data_dict):
 
     '''
     model = context['model']
-    followee_users = _followee_count(context, data_dict,
-            model.UserFollowingUser)
+    followee_users = _followee_count(
+        context, data_dict,
+        model.UserFollowingUser)
 
     # followee_users has validated data_dict so the following functions don't
     # need to validate it again.
     context['skip_validation'] = True
 
-    followee_datasets = _followee_count(context, data_dict,
-            model.UserFollowingDataset)
-    followee_groups = _followee_count(context, data_dict,
-            model.UserFollowingGroup)
+    followee_datasets = _followee_count(
+        context, data_dict,
+        model.UserFollowingDataset)
+    followee_groups = _followee_count(
+        context, data_dict,
+        model.UserFollowingGroup)
 
     return sum((followee_users, followee_datasets, followee_groups))
 
@@ -2554,8 +2583,9 @@ def user_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    return _followee_count(context, data_dict,
-            context['model'].UserFollowingUser)
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingUser)
 
 
 def dataset_followee_count(context, data_dict):
@@ -2567,8 +2597,9 @@ def dataset_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    return _followee_count(context, data_dict,
-            context['model'].UserFollowingDataset)
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingDataset)
 
 
 def group_followee_count(context, data_dict):
@@ -2580,8 +2611,9 @@ def group_followee_count(context, data_dict):
     :rtype: int
 
     '''
-    return _followee_count(context, data_dict,
-            context['model'].UserFollowingGroup)
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingGroup)
 
 
 def followee_list(context, data_dict):
@@ -2606,8 +2638,8 @@ def followee_list(context, data_dict):
 
     '''
     _check_access('followee_list', context, data_dict)
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
+    schema = context.get('schema') \
+        or ckan.logic.schema.default_follow_user_schema()
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -2696,8 +2728,8 @@ def dataset_followee_list(context, data_dict):
         _check_access('dataset_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
-        schema = context.get('schema') or (
-                ckan.logic.schema.default_follow_user_schema())
+        schema = context.get('schema') \
+            or ckan.logic.schema.default_follow_user_schema()
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -2708,11 +2740,13 @@ def dataset_followee_list(context, data_dict):
     followees = model.UserFollowingDataset.followee_list(user_id)
 
     # Convert the list of Follower objects to a list of Package objects.
-    datasets = [model.Package.get(followee.object_id) for followee in followees]
+    datasets = (model.Package.get(followee.object_id)
+                for followee in followees)
     datasets = [dataset for dataset in datasets if dataset is not None]
 
     # Dictize the list of Package objects.
-    return [model_dictize.package_dictize(dataset, context) for dataset in datasets]
+    return [model_dictize.package_dictize(dataset, context)
+            for dataset in datasets]
 
 
 def group_followee_list(context, data_dict):
@@ -2728,8 +2762,8 @@ def group_followee_list(context, data_dict):
         _check_access('group_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
-        schema = context.get('schema',
-                ckan.logic.schema.default_follow_user_schema())
+        schema = context.get('schema') \
+            or ckan.logic.schema.default_follow_user_schema()
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
@@ -2855,7 +2889,7 @@ def dashboard_new_activities_count(context, data_dict):
     '''
     _check_access('dashboard_new_activities_count', context, data_dict)
     activities = logic.get_action('dashboard_activity_list')(
-            context, data_dict)
+        context, data_dict)
     return len([activity for activity in activities if activity['is_new']])
 
 

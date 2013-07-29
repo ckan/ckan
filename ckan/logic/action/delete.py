@@ -146,9 +146,9 @@ def related_delete(context, data_dict):
     user = context['user']
     userobj = model.User.get(user)
 
-    id = _get_or_bust(data_dict, 'id')
+    id_ = _get_or_bust(data_dict, 'id')
 
-    entity = model.Related.get(id)
+    entity = model.Related.get(id_)
 
     if entity is None:
         raise NotFound
@@ -440,7 +440,7 @@ def tag_delete(context, data_dict):
     '''
     model = context['model']
 
-    if not data_dict.has_key('id') or not data_dict['id']:
+    if not data_dict.get('id'):
         raise ValidationError({'id': _('id not in data')})
     tag_id_or_name = _get_or_bust(data_dict, 'id')
 
@@ -475,7 +475,7 @@ def package_relationship_delete_rest(context, data_dict):
 def _unfollow(context, data_dict, schema, FollowerClass):
     model = context['model']
 
-    if not context.has_key('user'):
+    if 'user' not in context:
         raise ckan.logic.NotAuthorized(
             _("You must be logged in to unfollow something."))
     userobj = model.User.get(context['user'])
