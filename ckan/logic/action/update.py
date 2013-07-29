@@ -34,8 +34,8 @@ NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
-def _make_latest_rev_active(context, q):
 
+def _make_latest_rev_active(context, q):
     session = context['model'].Session
 
     old_current = q.filter_by(current=True).first()
@@ -43,7 +43,8 @@ def _make_latest_rev_active(context, q):
         old_current.current = False
         session.add(old_current)
 
-    latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
+    latest_rev = q.filter_by(
+        expired_timestamp=datetime.datetime(9999, 12, 31)).one()
     latest_rev.current = True
     if latest_rev.state in ('pending-deleted', 'deleted'):
         latest_rev.state = 'deleted'
@@ -64,6 +65,7 @@ def _make_latest_rev_active(context, q):
     else:
         context['latest_revision_date'] = latest_rev.revision_timestamp
         context['latest_revision'] = latest_rev.revision_id
+
 
 def make_latest_pending_package_active(context, data_dict):
     '''TODO: What does this function do?
@@ -177,7 +179,6 @@ def related_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.related_dictize(related, context)
-
 
 
 def resource_update(context, data_dict):
@@ -304,9 +305,8 @@ def package_update(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
+    _get_action('package_owner_org_update')(
+        context_org_update, {'id': pkg.id, 'organization_id': pkg.owner_org})
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
@@ -326,9 +326,10 @@ def package_update(context, data_dict):
     # we could update the dataset so we should still be able to read it.
     context['ignore_auth'] = True
     output = data_dict['id'] if return_id_only \
-            else _get_action('package_show')(context, {'id': data_dict['id']})
+        else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
@@ -339,13 +340,15 @@ def _update_package_relationship(relationship, comment, context):
         rev = model.repo.new_revision()
         rev.author = context["user"]
         rev.message = (_(u'REST API: Update package relationship: %s %s %s') %
-            (relationship.subject, relationship.type, relationship.object))
+                       (relationship.subject, relationship.type,
+                        relationship.object))
         relationship.comment = comment
         if not context.get('defer_commit'):
             model.repo.commit_and_remove()
     rel_dict = relationship.as_dict(package=relationship.subject,
                                     ref_package_by=ref_package_by)
     return rel_dict
+
 
 def package_relationship_update(context, data_dict):
     '''Update a relationship between two datasets (packages).
@@ -372,14 +375,16 @@ def package_relationship_update(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or schema_.default_update_relationship_schema()
+    schema = context.get(
+        'schema') or schema_.default_update_relationship_schema()
 
-    id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
+    id1, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
-    pkg1 = model.Package.get(id)
+    pkg1 = model.Package.get(id1)
     pkg2 = model.Package.get(id2)
+
     if not pkg1:
-        raise NotFound('Subject package %r was not found.' % id)
+        raise NotFound('Subject package %r was not found.' % id1)
     if not pkg2:
         return NotFound('Object package %r was not found.' % id2)
 
@@ -398,6 +403,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
+
 def _group_or_org_update(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
@@ -413,9 +419,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
-        schema = group_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
-                                               'context': context})
+        schema = group_plugin.form_to_db_schema_options({
+            'type': 'update',
+            'api': 'api_version' in context,
+            'context': context,
+        })
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
@@ -460,18 +468,19 @@ def _group_or_org_update(context, data_dict, is_org=False):
     group = model_save.group_dict_save(data, context)
 
     if parent:
-        parent_group = model.Group.get( parent )
+        parent_group = model.Group.get(parent)
         if parent_group and not parent_group in group.get_groups(group.type):
             # Delete all of this groups memberships
-            current = session.query(model.Member).\
-               filter(model.Member.table_id == group.id).\
-               filter(model.Member.table_name == "group").all()
+            current = session.query(model.Member). \
+                filter(model.Member.table_id == group.id). \
+                filter(model.Member.table_name == "group").all()
             if current:
                 log.debug('Parents of group %s deleted: %r', group.name,
                           [membership.group.name for membership in current])
             for c in current:
                 session.delete(c)
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
+            member = model.Member(group=parent_group, table_id=group.id,
+                                  table_name='group')
             session.add(member)
             log.debug('Group %s is made child of group %s',
                       group.name, parent_group.name)
@@ -490,10 +499,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_type = 'changed group'
 
     activity_dict = {
-            'user_id': model.User.by_name(user.decode('utf8')).id,
-            'object_id': group.id,
-            'activity_type': activity_type,
-            }
+        'user_id': model.User.by_name(user.decode('utf8')).id,
+        'object_id': group.id,
+        'activity_type': activity_type,
+    }
     # Handle 'deleted' groups.
     # When the user marks a group as deleted this comes through here as
     # a 'changed' group activity. We detect this and change it to a 'deleted'
@@ -510,8 +519,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
             activity_dict['activity_type'] = 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
-                'group': dictization.table_dictize(group, context)
-                }
+            'group': dictization.table_dictize(group, context)
+        }
         activity_create_context = {
             'model': model,
             'user': user,
@@ -527,6 +536,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         model.repo.commit()
 
     return model_dictize.group_dictize(group, context)
+
 
 def group_update(context, data_dict):
     '''Update a group.
@@ -547,6 +557,7 @@ def group_update(context, data_dict):
     '''
     return _group_or_org_update(context, data_dict)
 
+
 def organization_update(context, data_dict):
     '''Update a organization.
 
@@ -562,6 +573,7 @@ def organization_update(context, data_dict):
 
     '''
     return _group_or_org_update(context, data_dict, is_org=True)
+
 
 def user_update(context, data_dict):
     '''Update a user account.
@@ -599,10 +611,10 @@ def user_update(context, data_dict):
     user = model_save.user_dict_save(data, context)
 
     activity_dict = {
-            'user_id': user.id,
-            'object_id': user.id,
-            'activity_type': 'changed user',
-            }
+        'user_id': user.id,
+        'object_id': user.id,
+        'activity_type': 'changed user',
+    }
     activity_create_context = {
         'model': model,
         'user': user,
@@ -617,6 +629,7 @@ def user_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.user_dictize(user, context)
+
 
 def task_status_update(context, data_dict):
     '''Update a task status.
@@ -672,6 +685,7 @@ def task_status_update(context, data_dict):
     session.close()
     return model_dictize.task_status_dictize(task_status, context)
 
+
 def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
@@ -694,6 +708,7 @@ def task_status_update_many(context, data_dict):
     if not context.get('defer_commit'):
         model.Session.commit()
     return {'results': results}
+
 
 def term_translation_update(context, data_dict):
     '''Create or update a term translation.
@@ -731,7 +746,7 @@ def term_translation_update(context, data_dict):
     update = trans_table.update()
     update = update.where(trans_table.c.term == data['term'])
     update = update.where(trans_table.c.lang_code == data['lang_code'])
-    update = update.values(term_translation = data['term_translation'])
+    update = update.values(term_translation=data['term_translation'])
 
     conn = model.Session.connection()
     result = conn.execute(update)
@@ -744,6 +759,7 @@ def term_translation_update(context, data_dict):
         model.Session.commit()
 
     return data
+
 
 def term_translation_update_many(context, data_dict):
     '''Create or update many term translations at once.
@@ -779,7 +795,6 @@ def term_translation_update_many(context, data_dict):
 ## Modifications for rest api
 
 def package_update_rest(context, data_dict):
-
     model = context['model']
     id = data_dict.get("id")
     request_id = context['id']
@@ -791,8 +806,8 @@ def package_update_rest(context, data_dict):
     if id and id != pkg.id:
         pkg_from_data = model.Package.get(id)
         if pkg_from_data != pkg:
-            error_dict = {id:('Cannot change value of key from %s to %s. '
-                'This key is read-only') % (pkg.id, id)}
+            error_dict = {id: ('Cannot change value of key from %s to %s. '
+                               'This key is read-only') % (pkg.id, id)}
             raise ValidationError(error_dict)
 
     context["package"] = pkg
@@ -809,8 +824,8 @@ def package_update_rest(context, data_dict):
 
     return package_dict
 
-def group_update_rest(context, data_dict):
 
+def group_update_rest(context, data_dict):
     model = context['model']
     id = _get_or_bust(data_dict, "id")
     group = model.Group.get(id)
@@ -827,6 +842,7 @@ def group_update_rest(context, data_dict):
     group_dict = model_dictize.group_to_api(group, context)
 
     return group_dict
+
 
 def vocabulary_update(context, data_dict):
     '''Update a tag vocabulary.
@@ -853,13 +869,14 @@ def vocabulary_update(context, data_dict):
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
 
     data_dict['id'] = vocab.id
-    if data_dict.has_key('name'):
+    if 'name' in data_dict:
         if data_dict['name'] == vocab.name:
             del data_dict['name']
 
     _check_access('vocabulary_update', context, data_dict)
 
-    schema = context.get('schema') or schema_.default_update_vocabulary_schema()
+    schema = context.get('schema') \
+        or schema_.default_update_vocabulary_schema()
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -872,8 +889,8 @@ def vocabulary_update(context, data_dict):
 
     return model_dictize.vocabulary_dictize(updated_vocab, context)
 
-def package_relationship_update_rest(context, data_dict):
 
+def package_relationship_update_rest(context, data_dict):
     # rename keys
     key_map = {'id': 'subject',
                'id2': 'object',
@@ -885,9 +902,11 @@ def package_relationship_update_rest(context, data_dict):
     # these values.
     data_dict = logic.action.rename_keys(data_dict, key_map, destructive=True)
 
-    relationship_dict = _get_action('package_relationship_update')(context, data_dict)
+    relationship_dict = _get_action('package_relationship_update')(context,
+                                                                   data_dict)
 
     return relationship_dict
+
 
 def user_role_update(context, data_dict):
     '''Update a user or authorization group's roles for a domain object.
@@ -914,12 +933,15 @@ def user_role_update(context, data_dict):
     '''
     model = context['model']
 
-    new_user_ref = data_dict.get('user') # the user who is being given the new role
+    # the user who is being given the new role
+    new_user_ref = data_dict.get('user')
+
     if not bool(new_user_ref):
         raise ValidationError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise ValidationError(
+            'Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -937,7 +959,8 @@ def user_role_update(context, data_dict):
     # deleting one which is non-existent, we need to get the users\'
     # current roles (if any)
     current_role_dicts = _get_action('roles_show')(context, data_dict)['roles']
-    current_roles = set([role_dict['role'] for role_dict in current_role_dicts])
+    current_roles = \
+        set([role_dict['role'] for role_dict in current_role_dicts])
 
     # Whenever our desired state is different from our current state,
     # change it.
@@ -952,6 +975,7 @@ def user_role_update(context, data_dict):
 
     return _get_action('roles_show')(context, data_dict)
 
+
 def user_role_bulk_update(context, data_dict):
     '''Update the roles of many users or authorization groups for an object.
 
@@ -964,10 +988,9 @@ def user_role_bulk_update(context, data_dict):
     :returns: the updated roles of all users and authorization groups for the
         domain object
     :rtype: dictionary
-
     '''
     # Collate all the roles for each user
-    roles_by_user = {} # user:roles
+    roles_by_user = {}  # user:roles
     for user_role_dict in data_dict['user_roles']:
         user = user_role_dict.get('user')
         if user:
@@ -975,7 +998,7 @@ def user_role_bulk_update(context, data_dict):
             if user not in roles_by_user:
                 roles_by_user[user] = []
             roles_by_user[user].extend(roles)
-    # For each user, update its roles
+        # For each user, update its roles
     for user in roles_by_user:
         uro_data_dict = {'user': user,
                          'roles': roles_by_user[user],
@@ -991,11 +1014,11 @@ def dashboard_mark_activities_old(context, data_dict):
 
     '''
     _check_access('dashboard_mark_activities_old', context,
-            data_dict)
+                  data_dict)
     model = context['model']
     user_id = model.User.get(context['user']).id
     model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.now())
+        datetime.datetime.now())
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -1051,10 +1074,9 @@ def package_owner_org_update(context, data_dict):
         org = None
         pkg.owner_org = None
 
-
     members = model.Session.query(model.Member) \
-            .filter(model.Member.table_id == pkg.id) \
-            .filter(model.Member.capacity == 'organization')
+        .filter(model.Member.table_id == pkg.id) \
+        .filter(model.Member.capacity == 'organization')
 
     need_update = True
     for member_obj in members:
@@ -1092,11 +1114,11 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current == True) \
-        .update(update_dict, synchronize_session=False)
+    q = model.Session.query(model.package_revision_table)
+    q = q.filter(model.PackageRevision.id.in_(datasets))
+    q = q.filter(model.PackageRevision.owner_org == org_id)
+    q = q.filter(model.PackageRevision.current == True)  # noqa
+    q.update(update_dict, synchronize_session=False)
 
     model.Session.commit()
 
@@ -1133,7 +1155,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             q = []
     if len(q):
         process_solr(' OR '.join(q))
-    # finally commit the changes
+        # finally commit the changes
     psi.commit()
 
 
@@ -1150,6 +1172,7 @@ def bulk_update_private(context, data_dict):
     _check_access('bulk_update_private', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': True})
 
+
 def bulk_update_public(context, data_dict):
     ''' Make a list of datasets public
 
@@ -1162,6 +1185,7 @@ def bulk_update_public(context, data_dict):
 
     _check_access('bulk_update_public', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'private': False})
+
 
 def bulk_update_delete(context, data_dict):
     ''' Make a list of datasets deleted
