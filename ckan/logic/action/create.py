@@ -781,8 +781,7 @@ def rating_create(context, data_dict):
 
 
 def user_create(context, data_dict):
-    '''
-    Create a new user.
+    '''Create a new user.
 
     You must be authorized to create users.
 

@@ -53,8 +53,7 @@ def package_delete(context, data_dict):
 
 
 def resource_delete(context, data_dict):
-    '''
-    Delete a resource from a dataset.
+    '''Delete a resource from a dataset.
 
     You must be a sysadmin or the owner of the resource to delete it.
 

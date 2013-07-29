@@ -54,8 +54,7 @@ def _package_list_with_resources(context, package_revision_list):
 
 
 def site_read(context, data_dict=None):
-    '''
-    Return ``True``.
+    '''Return ``True``.
 
     :rtype: boolean
     '''
@@ -64,8 +63,7 @@ def site_read(context, data_dict=None):
 
 
 def package_list(context, data_dict):
-    '''
-    Return a list of the names of the site's datasets (packages).
+    '''Return a list of the names of the site's datasets (packages).
 
     :rtype: list of strings
     '''
@@ -86,8 +84,7 @@ def package_list(context, data_dict):
 
 
 def current_package_list_with_resources(context, data_dict):
-    '''
-    Return a list of the site's datasets (packages) and their resources.
+    '''Return a list of the site's datasets (packages) and their resources.
 
     The list is sorted most-recently-modified first.
 
@@ -145,8 +142,7 @@ def current_package_list_with_resources(context, data_dict):
 
 
 def revision_list(context, data_dict):
-    '''
-    Return a list of the IDs of the site's revisions.
+    '''Return a list of the IDs of the site's revisions.
 
     :rtype: list of strings
     '''
@@ -159,8 +155,7 @@ def revision_list(context, data_dict):
 
 
 def package_revision_list(context, data_dict):
-    '''
-    Return a dataset (package)'s revisions as a list of dictionaries.
+    '''Return a dataset (package)'s revisions as a list of dictionaries.
 
     :param id: the id or name of the dataset
     :type id: string
@@ -181,8 +176,7 @@ def package_revision_list(context, data_dict):
 
 
 def related_show(context, data_dict=None):
-    '''
-    Return a single related item.
+    '''Return a single related item.
 
     :param id: the id of the related item to show
     :type id: string
@@ -209,8 +203,7 @@ def related_show(context, data_dict=None):
 
 
 def related_list(context, data_dict=None):
-    '''
-    Return a dataset's related items.
+    '''Return a dataset's related items.
 
     Either the ``id`` or the ``dataset`` parameter must be given.
 
@@ -270,8 +263,7 @@ def related_list(context, data_dict=None):
 
 
 def member_list(context, data_dict=None):
-    '''
-    Return the members of a group.
+    '''Return the members of a group.
 
     The user must have permission to 'get' the group.
 
@@ -373,8 +365,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
 
 def group_list(context, data_dict):
-    '''
-    Return a list of the names of the site's groups.
+    '''Return a list of the names of the site's groups.
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
@@ -398,8 +389,7 @@ def group_list(context, data_dict):
 
 
 def organization_list(context, data_dict):
-    '''
-    Return a list of the names of the site's organizations.
+    '''Return a list of the names of the site's organizations.
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
@@ -428,8 +418,7 @@ def organization_list(context, data_dict):
 
 
 def group_list_authz(context, data_dict):
-    '''
-    Return the list of groups that the user is authorized to edit.
+    '''Return the list of groups that the user is authorized to edit.
 
     :param available_only: remove the existing groups in the package
       (optional, default: ``False``)
@@ -497,8 +486,7 @@ def group_list_authz(context, data_dict):
 
 
 def organization_list_for_user(context, data_dict):
-    '''
-    Return the list of organizations that the user is a member of.
+    '''Return the list of organizations that the user is a member of.
 
     :param permission:
         the permission the user has against the returned organizations
@@ -557,8 +545,7 @@ def organization_list_for_user(context, data_dict):
 
 
 def group_revision_list(context, data_dict):
-    '''
-    Return a group's revisions.
+    '''Return a group's revisions.
 
     :param id: the name or id of the group
     :type id: string
@@ -584,7 +571,6 @@ def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
     :rtype: list of dictionaries
-
     '''
     model = context["model"]
 
@@ -614,7 +600,6 @@ def tag_list(context, data_dict):
     :type all_fields: boolean
 
     :rtype: list of dictionaries
-
     '''
     model = context['model']
 
@@ -727,7 +712,6 @@ def package_relationships_list(context, data_dict):
         relationship types (optional)
 
     :rtype: list of dictionaries
-
     '''
     ## TODO: needs to work with dictization layer
     model = context['model']
@@ -775,7 +759,6 @@ def package_show(context, data_dict):
     :type id: string
 
     :rtype: dictionary
-
     '''
     model = context['model']
     context['session'] = model.Session
@@ -817,7 +800,6 @@ def resource_show(context, data_dict):
     :type id: string
 
     :rtype: dictionary
-
     '''
     model = context['model']
     obj_id = _get_or_bust(data_dict, 'id')
@@ -839,7 +821,6 @@ def resource_status_show(context, data_dict):
     :type id: string
 
     :rtype: list of (status, date_done, traceback, task_status) dictionaries
-
     '''
 
     try:
@@ -869,8 +850,7 @@ def resource_status_show(context, data_dict):
 
 
 def revision_show(context, data_dict):
-    '''
-    Return the details of a revision.
+    '''Return the details of a revision.
 
     :param id: the id of the revision
     :type id: string
@@ -967,7 +947,6 @@ def group_package_show(context, data_dict):
     :type limit: int
 
     :rtype: list of dictionaries
-
     '''
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
@@ -992,8 +971,7 @@ def group_package_show(context, data_dict):
 
 
 def tag_show(context, data_dict):
-    '''
-    Return the details of a tag and all its datasets.
+    '''Return the details of a tag and all its datasets.
 
     :param id: the name or id of the tag
     :type id: string
@@ -1013,8 +991,7 @@ def tag_show(context, data_dict):
 
 
 def user_show(context, data_dict):
-    '''
-    Return a user account.
+    '''Return a user account.
 
     Either the ``id`` or the ``user_obj`` parameter must be given.
 
@@ -1024,7 +1001,6 @@ def user_show(context, data_dict):
     :type user_obj: user dictionary
 
     :rtype: dictionary
-
     '''
     model = context['model']
 
@@ -1110,8 +1086,7 @@ def tag_show_rest(context, data_dict):
 
 
 def package_autocomplete(context, data_dict):
-    '''
-    Return a list of datasets (packages) that match a string.
+    '''Return a list of datasets (packages) that match a string.
 
     Datasets with names or titles that contain the query string will be
     returned.
@@ -1167,8 +1142,7 @@ def package_autocomplete(context, data_dict):
 
 
 def format_autocomplete(context, data_dict):
-    '''
-    Return a list of resource formats whose names contain a string.
+    '''Return a list of resource formats whose names contain a string.
 
     :param q: the string to search for
     :type q: string
@@ -1211,8 +1185,7 @@ def format_autocomplete(context, data_dict):
 
 
 def user_autocomplete(context, data_dict):
-    '''
-    Return a list of user names that contain a string.
+    '''Return a list of user names that contain a string.
 
     :param q: the string to search for
     :type q: string
@@ -1242,8 +1215,7 @@ def user_autocomplete(context, data_dict):
 
 
 def package_search(context, data_dict):
-    '''
-    Searches for packages satisfying a given search criteria.
+    '''Searches for packages satisfying a given search criteria.
 
     This action accepts solr search query parameters (details below), and
     returns a dictionary of results, including dictized datasets that match
@@ -1490,8 +1462,7 @@ def package_search(context, data_dict):
 
 
 def resource_search(context, data_dict):
-    '''
-    Searches for resources satisfying a given search criteria.
+    '''Searches for resources satisfying a given search criteria.
 
     It returns a dictionary with 2 fields: ``count`` and ``results``.  The
     ``count`` field contains the total number of Resources found without the
@@ -1975,8 +1946,7 @@ def roles_show(context, data_dict):
 
 
 def status_show(context, data_dict):
-    '''
-    Return a dictionary with information about the site's configuration.
+    '''Return a dictionary with information about the site's configuration.
 
     :rtype: dictionary
     '''
@@ -1992,8 +1962,7 @@ def status_show(context, data_dict):
 
 
 def vocabulary_list(context, data_dict):
-    '''
-    Return a list of all the site's tag vocabularies.
+    '''Return a list of all the site's tag vocabularies.
 
     :rtype: list of dictionaries
     '''
@@ -2334,7 +2303,6 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     :type limit: int
 
     :rtype: string
-
     '''
     activity_stream = recently_changed_packages_activity_list(
         context, data_dict)
@@ -2364,7 +2332,6 @@ def user_follower_count(context, data_dict):
     :type id: string
 
     :rtype: int
-
     '''
     return _follower_count(
         context, data_dict,
@@ -2394,7 +2361,6 @@ def group_follower_count(context, data_dict):
     :type id: string
 
     :rtype: int
-
     '''
     return _follower_count(
         context, data_dict,
@@ -2428,7 +2394,6 @@ def user_follower_list(context, data_dict):
     :type id: string
 
     :rtype: list of dictionaries
-
     '''
     _check_access('user_follower_list', context, data_dict)
     return _follower_list(
@@ -2896,7 +2861,7 @@ def dashboard_new_activities_count(context, data_dict):
 
 
 def _unpick_search(sort, allowed_fields=None, total=None):
-    ''' This is a helper function that takes a sort string
+    '''This is a helper function that takes a sort string
     eg 'name asc, last_modified desc' and returns a list of
     split field order eg [('name', 'asc'), ('last_modified', 'desc')]
     allowed_fields can limit which field names are ok.

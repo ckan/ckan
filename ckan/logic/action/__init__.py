@@ -6,8 +6,7 @@ from ckan.lib.base import _
 
 
 def rename_keys(dict_, key_map, reverse=False, destructive=False):
-    '''
-    Returns a dict that has particular keys renamed,
+    '''Returns a dict that has particular keys renamed,
     according to the key_map.
 
     Rename is by default non-destructive, so if the intended new
@@ -29,8 +28,7 @@ def rename_keys(dict_, key_map, reverse=False, destructive=False):
 
 
 def get_domain_object(model, domain_object_ref):
-    '''
-    For an id or name, return the corresponding domain object.
+    '''For an id or name, return the corresponding domain object.
     (First match returned, in order: system, package, group,
     auth_group, user).
     '''
