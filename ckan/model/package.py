@@ -30,7 +30,8 @@ PACKAGE_VERSION_MAX_LENGTH = 100
 
 ## Our Domain Object Tables
 package_table = Table('package', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+        Column('id', types.UnicodeText, primary_key=True,
+               default=_types.make_uuid),
         Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
                nullable=False, unique=True),
         Column('title', types.UnicodeText),
@@ -86,10 +87,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if len(self.resource_groups_all) == 0:
             return []
 
-        assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
-                self.resource_groups_all[0].resources_all
-                if resource.state <> 'deleted']
+        assert len(self.resource_groups_all) == 1, \
+            "can only use resources on packages if there is "\
+            "only one resource_group"
+        return [
+            resource for resource in
+            self.resource_groups_all[0].resources_all
+            if resource.state <> 'deleted'
+        ]
 
     def related_packages(self):
         return [self]
