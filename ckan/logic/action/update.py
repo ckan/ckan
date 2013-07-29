@@ -1118,11 +1118,11 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current == True) \
-        .update(update_dict, synchronize_session=False)
+    q = model.Session.query(model.package_revision_table)
+    q = q.filter(model.PackageRevision.id.in_(datasets))
+    q = q.filter(model.PackageRevision.owner_org == org_id)
+    q = q.filter(model.PackageRevision.current == True)  # noqa
+    q.update(update_dict, synchronize_session=False)
 
     model.Session.commit()
 

@@ -79,6 +79,7 @@ def package_list(context, data_dict):
            if api == 2 else package_revision_table.c.name)
     query = _select([col])
     query = query.where(_and_(package_revision_table.c.state == 'active',
+                              # noqa
                               package_revision_table.c.current == True))
     query = query.order_by(col)
     return list(zip(*query.execute())[0])
@@ -130,7 +131,7 @@ def current_package_list_with_resources(context, data_dict):
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.current == True)
+    query = query.filter(model.PackageRevision.current == True)  # noqa
 
     query = query.order_by(
         model.package_revision_table.c.revision_timestamp.desc())
@@ -347,7 +348,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
     query = query.filter(model.GroupRevision.state == 'active')
-    query = query.filter(model.GroupRevision.current == True)
+    query = query.filter(model.GroupRevision.current == True)  # noqa
     if groups:
         query = query.filter(model.GroupRevision.name.in_(groups))
     if q:
@@ -472,9 +473,9 @@ def group_list_authz(context, data_dict):
         if not group_ids:
             return []
 
-    q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == False) \
-        .filter(model.Group.state == 'active')
+    q = model.Session.query(model.Group)
+    q = q.filter(model.Group.is_organization == False)  # noqa
+    q = q.filter(model.Group.state == 'active')
 
     if not sysadmin or am_member:
         q = q.filter(model.Group.id.in_(group_ids))
@@ -516,9 +517,9 @@ def organization_list_for_user(context, data_dict):
     _check_access('organization_list_for_user', context, data_dict)
     sysadmin = new_authz.is_sysadmin(user)
 
-    orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
-        .filter(model.Group.state == 'active')
+    q = model.Session.query(model.Group)
+    q = q.filter(model.Group.is_organization == True)  # noqa
+    q = q.filter(model.Group.state == 'active')
 
     if not sysadmin:
         # for non-Sysadmins check they have the required permission
@@ -545,14 +546,14 @@ def organization_list_for_user(context, data_dict):
         if not group_ids:
             return []
 
-        orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
+        q = q.filter(model.Group.id.in_(group_ids))
 
     return [{'id': org.id,
              'name': org.name,
              'title': org.title,
              'display_name': org.display_name,
              'image_url': org.image_url,
-             'type': org.type} for org in orgs_q.all()]
+             'type': org.type} for org in q.all()]
 
 
 def group_revision_list(context, data_dict):
@@ -694,7 +695,7 @@ def user_list(context, data_dict):
         query = query.order_by(
             _case(
                 [(_or_(
-                    model.User.fullname == None,
+                    model.User.fullname == None,  # noqa
                     model.User.fullname == ''),
                   model.User.name)],
                 else_=model.User.fullname
@@ -1140,7 +1141,7 @@ def package_autocomplete(context, data_dict):
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.current == True)
+    query = query.filter(model.PackageRevision.current == True)  # noqa
     query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
                               model.PackageRevision.title.ilike(like_q)))
     query = query.limit(limit)
@@ -1199,6 +1200,7 @@ def format_autocomplete(context, data_dict):
         .filter(
             _and_(
                 model.ResourceRevision.state == 'active',
+                # noqa
                 model.ResourceRevision.current == True))\
         .filter(model.ResourceRevision.format.ilike(like_q)) \
         .group_by(model.ResourceRevision.format) \
@@ -1407,7 +1409,7 @@ def package_search(context, data_dict):
                 .filter(model.PackageRevision.id == package)\
                 .filter(_and_(
                     model.PackageRevision.state == u'active',
-                    model.PackageRevision.current == True
+                    model.PackageRevision.current == True,  # noqa
                 ))
             pkg = pkg_query.first()
 
@@ -1706,7 +1708,7 @@ def _tag_search(context, data_dict):
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
-        q = q.filter(model.Tag.vocabulary_id == None)
+        q = q.filter(model.Tag.vocabulary_id == None)  # noqa
         # If we're searching free tags, limit results to tags that are
         # currently applied to a package.
         q = q.distinct().join(model.Tag.package_tags)
