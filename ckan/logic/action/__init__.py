@@ -2,7 +2,8 @@ from copy import deepcopy
 import re
 
 from ckan.logic import NotFound
-from ckan.lib.base import _, abort
+from ckan.lib.base import _
+
 
 def rename_keys(dict_, key_map, reverse=False, destructive=False):
     '''Returns a dict that has particular keys renamed,
@@ -11,22 +12,26 @@ def rename_keys(dict_, key_map, reverse=False, destructive=False):
     Rename is by default non-destructive, so if the intended new
     key name already exists, it won\'t do that rename.
 
-    To reverse the change, set reverse=True.'''
+    To reverse the change, set reverse=True.
+    '''
     new_dict = deepcopy(dict_)
     for key, mapping in key_map.items():
         if reverse:
             key, mapping = (mapping, key)
-        if (not destructive) and new_dict.has_key(mapping):
+        if (not destructive) and (mapping in new_dict):
             continue
-        if dict_.has_key(key):
+        if key in dict_:
             value = dict_[key]
             new_dict[mapping] = value
             del new_dict[key]
     return new_dict
 
+
 def get_domain_object(model, domain_object_ref):
     '''For an id or name, return the corresponding domain object.
-    (First match returned, in order: system, package, group, auth_group, user).'''
+    (First match returned, in order: system, package, group,
+    auth_group, user).
+    '''
     if domain_object_ref in ('system', 'System'):
         return model.System
     pkg = model.Package.get(domain_object_ref)
@@ -40,8 +45,9 @@ def get_domain_object(model, domain_object_ref):
         return user
     raise NotFound('Domain object %r not found' % domain_object_ref)
 
+
 def error_summary(error_dict):
-    ''' Do some i18n stuff on the error_dict keys '''
+    '''Do some i18n stuff on the error_dict keys'''
 
     def prettify(field_name):
         field_name = re.sub('(?<!\w)[Uu]rl(?!\w)', 'URL',

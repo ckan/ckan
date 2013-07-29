@@ -515,9 +515,10 @@ def alter_table(context, data_dict):
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:
                 raise ValidationError({
-                    'fields': [('Supplied field "{0}" not '
-                                'present or in wrong order').format(
-                                    field['id'])]
+                    'fields': [
+                        u'Supplied field "{0}" not present or in wrong order'
+                        u''.format(field['id']),
+                    ]
                 })
             ## no need to check type as field already defined.
             continue
