@@ -33,17 +33,26 @@ class TestDatastoreDump(object):
         cls.data = {
             'resource_id': resource.id,
             'aliases': 'books',
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'published'},
-                       {'id': u'characters', u'type': u'_text'}],
-            'records': [{u'b\xfck': 'annakarenina',
-                        'author': 'tolstoy',
-                        'published': '2005-03-01',
-                        'nested': ['b', {'moo': 'moo'}],
-                        u'characters': [u'Princess Anna', u'Sergius']},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}}]
+            'fields': [
+                {'id': u'b\xfck', 'type': 'text'},
+                {'id': 'author', 'type': 'text'},
+                {'id': 'published'},
+                {'id': u'characters', u'type': u'_text'},
+            ],
+            'records': [
+                {
+                    u'b\xfck': 'annakarenina',
+                    'author': 'tolstoy',
+                    'published': '2005-03-01',
+                    'nested': ['b', {'moo': 'moo'}],
+                    u'characters': [u'Princess Anna', u'Sergius'],
+                },
+                {
+                    u'b\xfck': 'warandpeace',
+                    'author': 'tolstoy',
+                    'nested': {'a': 'b'},
+                }
+            ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
         auth = {'Authorization': str(cls.sysadmin_user.apikey)}

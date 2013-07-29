@@ -194,17 +194,17 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params, groups=id)
 
-        return self.output_feed(results,
-                                feed_title=u'%s - Group: "%s"' % (g.site_title,
-                                group_dict['title']),
-                                feed_description=u'Recently created or '
-                                'updated datasets on %s by group: "%s"' %
-                                (g.site_title, group_dict['title']),
-                                feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/groups/%s.atom' % id),
-                                feed_url=feed_url,
-                                navigation_urls=navigation_urls)
+        return self.output_feed(
+            results,
+            feed_title=u'{0} - Group: "{1}"'
+                       u''.format(g.site_title, group_dict['title']),
+            feed_description=u'Recently created or '
+            u'updated datasets on {0} by group: "[{1}"'
+            u''.format(g.site_title, group_dict['title']),
+            feed_link=alternate_url,
+            feed_guid=_create_atom_id(u'/feeds/groups/%s.atom' % id),
+            feed_url=feed_url,
+            navigation_urls=navigation_urls)
 
     def tag(self, id):
         data_dict, params = self._parse_url_params()
@@ -226,17 +226,15 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params, tags=id)
 
-        return self.output_feed(results,
-                                feed_title=u'%s - Tag: "%s"' %
-                                (g.site_title, id),
-                                feed_description=u'Recently created or '
-                                'updated datasets on %s by tag: "%s"' %
-                                (g.site_title, id),
-                                feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/tag/%s.atom' % id),
-                                feed_url=feed_url,
-                                navigation_urls=navigation_urls)
+        return self.output_feed(
+            results,
+            feed_title=u'{0} - Tag: "{1}"'.format(g.site_title, id),
+            feed_description=u'Recently created or updated datasets '
+                             u'on {2} by tag: "{1}"'.format(g.site_title, id),
+            feed_link=alternate_url,
+            feed_guid=_create_atom_id(u'/feeds/tag/{0}.atom'.format(id)),
+            feed_url=feed_url,
+            navigation_urls=navigation_urls)
 
     def general(self):
         data_dict, params = self._parse_url_params()
@@ -256,15 +254,15 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(params)
 
-        return self.output_feed(results,
-                                feed_title=g.site_title,
-                                feed_description=u'Recently created or '
-                                'updated datasets on %s' % g.site_title,
-                                feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/dataset.atom'),
-                                feed_url=feed_url,
-                                navigation_urls=navigation_urls)
+        return self.output_feed(
+            results,
+            feed_title=g.site_title,
+            feed_description=u'Recently created or updated datasets on {0}'
+                             u''.format(g.site_title),
+            feed_link=alternate_url,
+            feed_guid=_create_atom_id(u'/feeds/dataset.atom'),
+            feed_url=feed_url,
+            navigation_urls=navigation_urls)
 
     # TODO check search params
     def custom(self):
@@ -309,16 +307,17 @@ class FeedController(base.BaseController):
 
         alternate_url = self._alternate_url(request.params)
 
-        return self.output_feed(results,
-                                feed_title=u'%s - Custom query' % g.site_title,
-                                feed_description=u'Recently created or updated'
-                                ' datasets on %s. Custom query: \'%s\'' %
-                                (g.site_title, q),
-                                feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/custom.atom?%s' % search_url_params),
-                                feed_url=feed_url,
-                                navigation_urls=navigation_urls)
+        return self.output_feed(
+            results,
+            feed_title=u'%s - Custom query' % g.site_title,
+            feed_description=u'Recently created or updated'
+            u' datasets on %s. Custom query: \'%s\'' %
+            (g.site_title, q),
+            feed_link=alternate_url,
+            feed_guid=_create_atom_id(
+                u'/feeds/custom.atom?{0}'.format(search_url_params)),
+            feed_url=feed_url,
+            navigation_urls=navigation_urls)
 
     def output_feed(self, results, feed_title, feed_description,
                     feed_link, feed_url, navigation_urls, feed_guid):
