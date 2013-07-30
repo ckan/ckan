@@ -40,9 +40,9 @@ class CreateTestData(object):
 
     @classmethod
     def create_group_hierarchy_test_data(cls, extra_users=[]):
+        cls.create_users(group_hierarchy_users)
         cls.create_groups(group_hierarchy_groups)
-        cls.create_arbitrary(group_hierarchy_datasets,
-                             extra_user_names=group_hierarchy_users)
+        cls.create_arbitrary(group_hierarchy_datasets)
 
     @classmethod
     def create_test_user(cls):
@@ -347,7 +347,7 @@ class CreateTestData(object):
             for key in group_dict:
                 if key in group_attributes:
                     setattr(group, key, group_dict[key])
-                else:
+                elif key not in ('admins', 'editors', 'parent'):
                     group.extras[key] = group_dict[key]
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
@@ -360,13 +360,13 @@ class CreateTestData(object):
                       for user_name in group_dict.get('admins', [])] \
                       + admin_users
             for admin in admins:
-                member = model.Member(group=group, table_id=user.id,
+                member = model.Member(group=group, table_id=admin.id,
                                       table_name='user', capacity='admin')
                 model.Session.add(member)
             editors = [model.User.by_name(user_name) \
                       for user_name in group_dict.get('editors', [])]
             for editor in editors:
-                member = model.Member(group=group, table_id=user.id,
+                member = model.Member(group=group, table_id=editor.id,
                                       table_name='user', capacity='editor')
                 model.Session.add(member)
             # Need to commit the current Group for two reasons:
@@ -881,13 +881,17 @@ group_hierarchy_groups = [
      'contact-email': 'contact@nhs.gov.uk',
      'parent': 'department-of-health',
      'type': 'organization',
-     'is_organization': True},
+     'is_organization': True,
+     'editors': ['nhseditor'],
+     'admins': ['nhsadmin']},
     {'name': 'nhs-wirral-ccg',
      'title': 'NHS Wirral CCG',
      'contact-email': 'contact@wirral.nhs.gov.uk',
      'parent': 'national-health-service',
      'type': 'organization',
-     'is_organization': True},
+     'is_organization': True,
+     'editors': ['wirraleditor'],
+     'admins': ['wirraladmin']},
     {'name': 'nhs-southwark-ccg',
      'title': 'NHS Southwark CCG',
      'contact-email': 'contact@southwark.nhs.gov.uk',
@@ -912,7 +916,11 @@ group_hierarchy_datasets = [
      'groups': ['nhs-southwark-ccg']},
     ]
 
-group_hierarchy_users = ['nhsadmin', 'nhseditor', 'wirraladmin', 'wirraleditor']
+group_hierarchy_users = [{'name': 'nhsadmin', 'password': 'pass'},
+                         {'name': 'nhseditor', 'password': 'pass'},
+                         {'name': 'wirraladmin', 'password': 'pass'},
+                         {'name': 'wirraleditor', 'password': 'pass'},
+                         ]
 
 # Some test terms and translations.
 terms = ('A Novel By Tolstoy',

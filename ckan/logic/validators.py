@@ -36,7 +36,8 @@ def owner_org_validator(key, data, errors, context):
     group_id = group.id
     user = context['user']
     user = model.User.get(user)
-    if not(user.sysadmin or user.is_in_group(group_id)):
+    if not(user.sysadmin or new_authz.has_user_permission_for_group_or_org(
+        group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
