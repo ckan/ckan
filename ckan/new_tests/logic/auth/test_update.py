@@ -2,7 +2,7 @@
 
 '''
 import ckan.new_tests.helpers as helpers
-import ckan.new_tests.data as data
+import ckan.new_tests.factories as factories
 
 
 class TestUpdate(object):
@@ -35,7 +35,7 @@ class TestUpdate(object):
     def test_user_update_visitor_cannot_update_user(self):
         '''Visitors should not be able to update users' accounts.'''
 
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
         user['name'] = 'updated'
 
         # Try to update the user, but without passing any API key.
@@ -49,9 +49,8 @@ class TestUpdate(object):
     def test_user_update_user_cannot_update_another_user(self):
         '''Users should not be able to update other users' accounts.'''
 
-        fred = helpers.call_action('user_create', **data.typical_user())
-        bob = helpers.call_action('user_create', name='bob',
-                                  email='bob@bob.com', password='pass')
+        fred = factories.User(name='fred')
+        bob  = factories.User(name='bob')
         fred['name'] = 'updated'
 
         # Make Bob try to update Fred's user account.
@@ -62,7 +61,7 @@ class TestUpdate(object):
     def test_user_update_user_can_update_herself(self):
         '''Users should be authorized to update their own accounts.'''
 
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         context = {'user': user['name']}
         user['name'] = 'updated'
