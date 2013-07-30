@@ -396,17 +396,17 @@ SELECT G.*, child.group_id as parent_id FROM child
     INNER JOIN public.group G ON G.id = child.table_id
     WHERE G.type = :type AND G.state='active';"""
 
-HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(id) AS (
+HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     -- non-recursive term
-    SELECT M.* FROM public.member AS M
+    SELECT 0, M.* FROM public.member AS M
     WHERE table_id = :id AND M.table_name = 'group' AND M.state = 'active'
     UNION
     -- recursive term
-    SELECT M.* FROM public.member M
-    JOIN parenttree as PG ON PG.group_id = M.table_id
-    WHERE M.table_name = 'group' AND M.state = 'active'
+    SELECT PG.depth + 1, M.* FROM parenttree PG, public.member M
+    WHERE PG.group_id = M.table_id AND M.table_name = 'group' AND M.state = 'active'
     )
 
-SELECT G.* FROM parenttree AS PT
+SELECT G.*, PT.depth FROM parenttree AS PT
     INNER JOIN public.group G ON G.id = PT.group_id
-    WHERE G.type = :type AND G.state='active';"""
+    WHERE G.type = :type AND G.state='active'
+    ORDER BY PT.depth DESC;"""
