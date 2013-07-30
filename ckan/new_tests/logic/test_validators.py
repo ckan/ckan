@@ -8,7 +8,7 @@ import mock
 import nose.tools
 
 import ckan.new_tests.helpers as helpers
-import ckan.new_tests.data as test_data
+import ckan.new_tests.factories as factories
 
 
 class TestValidators(object):
@@ -133,9 +133,9 @@ class TestValidators(object):
 
         key = ('name',)
         for non_string_value in non_string_values:
-            data = test_data.validator_data_dict()
+            data = factories.validator_data_dict()
             data[key] = non_string_value
-            errors = test_data.validator_errors_dict()
+            errors = factories.validator_errors_dict()
             errors[key] = []
 
             # Make copies of the data and errors dicts for asserting later.
@@ -164,10 +164,10 @@ class TestValidators(object):
         # the same user name in the database.
         mock_model = mock.MagicMock()
 
-        data = test_data.validator_data_dict()
+        data = factories.validator_data_dict()
         key = ('name',)
         data[key] = 'user_name'
-        errors = test_data.validator_errors_dict()
+        errors = factories.validator_errors_dict()
         errors[key] = []
 
         # Make copies of the data and errors dicts for asserting later.
@@ -199,10 +199,10 @@ class TestValidators(object):
 
         import ckan.logic.validators as validators
 
-        data = test_data.validator_data_dict()
+        data = factories.validator_data_dict()
         key = ('name',)
         data[key] = 'new_user_name'
-        errors = test_data.validator_errors_dict()
+        errors = factories.validator_errors_dict()
         errors[key] = []
 
         # Mock ckan.model.
