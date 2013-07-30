@@ -60,6 +60,8 @@ class TestAuth(tests.WsgiAppCase):
 
 
 class TestAuthOrgs(TestAuth):
+    # NB: These tests are dependent on each other, so don't run them
+    #     separately.
 
     def test_01_create_users(self):
         # actual roles assigned later
@@ -90,6 +92,7 @@ class TestAuthOrgs(TestAuth):
 
     def test_03_create_dataset_no_org(self):
 
+        # no owner_org supplied
         dataset = {'name': 'admin_create_no_org'}
         self._call_api('package_create', dataset, 'sysadmin', 409)
 
@@ -106,7 +109,7 @@ class TestAuthOrgs(TestAuth):
                    'owner_org': 'org_no_user'}
         self._call_api('package_create', dataset, 'sysadmin', 200)
 
-        dataset = {'name': 'user_create_with_org',
+        dataset = {'name': 'user_create_with_no_org',
                    'owner_org': 'org_with_user'}
         self._call_api('package_create', dataset, 'no_org', 403)
 
@@ -138,7 +141,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add dataset to org admin does not belong to.
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
         #admin not able to make dataset not owned by a org
         dataset = {'name': user + '_dataset_bad'}
@@ -146,7 +149,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add org to not existant org
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
     def test_07_add_datasets(self):
         self._add_datasets('org_admin')
@@ -317,7 +320,7 @@ class TestAuthOrgHierarchy(TestAuth):
     def test_08_update_datasets_6(self):
         dataset = {'name': 'adataset', 'owner_org': 'nhs-wirral-ccg'}
         self._call_api('package_update', dataset, 'nhseditor', 409)
-        
+
     def test_09_delete_datasets_1(self):
         dataset = {'id': 'doh-spend'}
         try:
