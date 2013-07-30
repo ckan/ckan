@@ -173,6 +173,7 @@ setup(
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+    homepage = ckanext.homepage.plugin:HomepagePlugin
 
     [ckan.test_plugins]
     routes_plugin=tests.ckantestplugins:RoutesPlugin

@@ -1,0 +1,36 @@
+{% ckan_extends %}
+
+{% block primary_content %}
+  <div role="main" class="hero">
+    <div class="container">
+      <div class="row">
+        <div class="span6 slot1">{{ self.homepage_slot_1() }}</div>
+        <div class="span6 slot2">{{ self.homepage_slot_2() }}</div>
+      </div>
+    </div>
+  </div>
+  <div role="main">
+    <div class="container">
+      <div class="row">
+        <div class="span6 slot3">{{ self.homepage_slot_3() }}</div>
+        <div class="span6 slot4">{{ self.homepage_slot_4() }}</div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block homepage_slot_1 %}
+  {% snippet 'home/snippets/promoted.html', intro=g.site_intro_text %}
+{% endblock %}
+
+{% block homepage_slot_2 %}
+  {% snippet 'home/snippets/search.html', query=c.q, tags=h.get_facet_items_dict('tags', limit=3), placeholder=_('eg. Gold Prices') %}
+{% endblock %}
+
+{% block homepage_slot_3 %}
+  {% snippet 'home/snippets/featured_group.html', group=h.get_featured_group() %}
+{% endblock %}
+
+{% block homepage_slot_4 %}
+  {% snippet 'home/snippets/featured_organization.html', organization=h.get_featured_organization() %}
+{% endblock %}
