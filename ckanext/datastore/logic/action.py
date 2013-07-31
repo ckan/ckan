@@ -26,16 +26,20 @@ def datastore_create(context, data_dict):
     times to initially insert more data, add fields, change the aliases or indexes
     as well as the primary keys.
 
-    To create a datastore resource and a CKAN resource at the same time,
-    provide a valid ``package_id`` and omit the ``resource_id``.
+    To create an empty datastore resource and a CKAN resource at the same time,
+    provide ``resource`` with a valid ``package_id`` and omit the ``resource_id``.
+
+    If you want to create a datastore resource from the content of a file,
+    provide ``resource`` with a valid ``url``.
 
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
-    :param package_id: package in which a new resource will be crated.
-    use instead of ``resource_id``.
-    :type package_id: string
+    :param resource: resource dictionary that is passed to
+        :meth:`~ckan.logic.action.create.resource_create`.
+        Use instead of ``resource_id`` (optional)
+    :type resource: dictionary
     :param aliases: names for read only aliases of the resource. (optional)
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata. (optional)
@@ -60,35 +64,47 @@ def datastore_create(context, data_dict):
     '''
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
+    resource = data_dict.pop('resource', None)
     data_dict, errors = _validate(data_dict, schema, context)
     if records:
         data_dict['records'] = records
+    if resource:
+        data_dict['resource'] = resource
     if errors:
         raise p.toolkit.ValidationError(errors)
 
     p.toolkit.check_access('datastore_create', context, data_dict)
 
-    if 'package_id' in data_dict and 'resource_id' in data_dict:
+    if 'resource' in data_dict and 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
-            'resource_id': ['package_id cannot be used with resource_id']
+            'resource': ['resource cannot be used with resource_id']
         })
 
-    if not 'package_id' in data_dict and not 'resource_id' in data_dict:
+    if not 'resource' in data_dict and not 'resource_id' in data_dict:
         raise p.toolkit.ValidationError({
-            'resource_id': ['resource_id or package_id required']
+            'resource_id': ['resource_id or resource required']
         })
 
-    # create ckan resource if package_id was provided
-    if 'package_id' in data_dict:
-        res = p.toolkit.get_action('resource_create')(context, {
-            'package_id': data_dict['package_id'],
-            'url': '_tmp'
-        })
-        res['url'] = h.url_for(
-            controller='ckanext.datastore.controller:DatastoreController',
-            action='dump', resource_id=res['id'])
-        p.toolkit.get_action('resource_update')(context, res)
+    if 'resource' in data_dict:
+        has_url = 'url' in data_dict['resource']
+        data_dict['resource'].setdefault('url', '_tmp')
+        res = p.toolkit.get_action('resource_create')(context,
+                                                      data_dict['resource'])
         data_dict['resource_id'] = res['id']
+
+        # create resource from file
+        if has_url:
+            p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': res['id'],
+                'set_url_to_dump': True
+            })
+        # create empty resource
+        # have to set the url here because we need the resource id
+        else:
+            res['url'] = h.url_for(
+                controller='ckanext.datastore.controller:DatastoreController',
+                action='dump', resource_id=res['id'])
+            p.toolkit.get_action('resource_update')(context, res)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 

@@ -524,7 +524,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')
         data = {
-            'package_id': package.id
+            'resource': {'package_id': package.id}
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -540,12 +540,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         # disabled until #547 fixes problems with the plugins in tests
         #assert res['url'] == '/datastore/dump/' + res['id'], res
 
-    def test_cant_provide_resource_and_package_id(self):
+    def test_cant_provide_resource_and_resource_id(self):
         package = model.Package.get('annakarenina')
         resource = package.resources[0]
         data = {
             'resource_id': resource.id,
-            'package_id': package.id
+            'resource': {'package_id': package.id}
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}

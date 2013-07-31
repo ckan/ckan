@@ -68,7 +68,6 @@ def json_validator(value, context):
 def datastore_create_schema():
     schema = {
         'resource_id': [ignore_missing, unicode, resource_id_exists],
-        'package_id': [ignore_missing, unicode, package_id_exists],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
