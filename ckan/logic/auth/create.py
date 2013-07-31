@@ -105,12 +105,20 @@ def rating_create(context, data_dict):
 
 
 def user_create(context, data_dict=None):
+    # create_user_via_api is deprecated
+    using_api = 'api_version' in context
+    create_user_via_api = new_authz.check_config_permission(
+            'create_user_via_api')
+
     create_user = new_authz.check_config_permission(
             'anon_create_user')
 
     if not create_user:
         return {'success': False, 'msg': _('Not authorized to '
             'create users')}
+    elif using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=context.get('user'))}
     else:
         return {'success': True}
 

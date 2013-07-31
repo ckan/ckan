@@ -275,13 +275,14 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
     # these are prefixed with ckan.auth. in config to override
     'anon_create_dataset': False,
+    'anon_create_user': True,
     'create_dataset_if_not_in_organization': True,
     'create_unowned_dataset': True,
     'user_create_groups': True,
     'user_create_organizations': True,
     'user_delete_groups': True,
     'user_delete_organizations': True,
-    'anon_create_user': True,
+    'create_user_via_api': False,
 }
 
 CONFIG_PERMISSIONS = {}
