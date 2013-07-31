@@ -72,7 +72,7 @@ this.ckan.module('slug-preview-slug', function (jQuery, _) {
         // Horrible hack to make sure that IE7 rerenders the subsequent
         // DOM children correctly now that we've render the slug preview element
         // We should drop this horrible hack ASAP
-        if (jQuery.browser.msie && jQuery.browser.version == '7.0') {
+        if (jQuery('html').hasClass('ie7')) {
           jQuery('.btn').on('click', preview, function(){ 
             jQuery('.controls').ie7redraw();
           });

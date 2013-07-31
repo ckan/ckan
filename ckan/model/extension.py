@@ -27,6 +27,13 @@ class ObserverNotifier(object):
 
     observers = None
 
+
+class PluginMapperExtension(MapperExtension):
+    """
+    Extension that calls plugins implementing IMapper on SQLAlchemy
+    MapperExtension events
+    """
+
     def notify_observers(self, func):
         """
         Call func(observer) for all registered observers.
@@ -34,15 +41,8 @@ class ObserverNotifier(object):
         :param func: Any callable, which will be called for each observer
         :returns: EXT_CONTINUE if no errors encountered, otherwise EXT_STOP
         """
-        for observer in self.observers:
+        for observer in plugins.PluginImplementations(plugins.IMapper):
             func(observer)
-
-class PluginMapperExtension(MapperExtension, ObserverNotifier):
-    """
-    Extension that calls plugins implementing IMapper on SQLAlchemy
-    MapperExtension events
-    """
-    observers = plugins.PluginImplementations(plugins.IMapper)
 
     def before_insert(self, mapper, connection, instance):
         return self.notify_observers(
@@ -75,13 +75,22 @@ class PluginMapperExtension(MapperExtension, ObserverNotifier):
         )
 
 
-class PluginSessionExtension(SessionExtension, ObserverNotifier):
+class PluginSessionExtension(SessionExtension):
     """
-    Class that calls plugins implementing IMapper on SQLAlchemy
+    Class that calls plugins implementing ISession on SQLAlchemy
     SessionExtension events
     """
 
-    observers = plugins.PluginImplementations(plugins.ISession)
+    def notify_observers(self, func):
+        """
+        Call func(observer) for all registered observers.
+
+        :param func: Any callable, which will be called for each observer
+        :returns: EXT_CONTINUE if no errors encountered, otherwise EXT_STOP
+        """
+        for observer in plugins.PluginImplementations(plugins.ISession):
+            func(observer)
+
 
     def after_begin(self, session, transaction, connection):
         return self.notify_observers(

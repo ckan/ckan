@@ -1,10 +1,10 @@
 import datetime
 
 from pylons import config
-from sqlalchemy import *
+from sqlalchemy import Table, select, func, and_
 
 import ckan.plugins as p
-from ckan import model
+import ckan.model as model
 
 cache_enabled = p.toolkit.asbool(config.get('ckanext.stats.cache_enabled', 'True'))
 

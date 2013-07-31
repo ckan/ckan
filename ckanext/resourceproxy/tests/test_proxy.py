@@ -63,7 +63,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         config.clear()
         config.update(cls._original_config)
         model.repo.rebuild_db()
-        plugins.reset()
 
     def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'

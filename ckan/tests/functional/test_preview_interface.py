@@ -6,54 +6,14 @@ import ckan.model as model
 import ckan.lib.create_test_data as create_test_data
 import ckan.tests.functional.base as base
 import ckan.plugins as plugins
-import ckan.tests.mock_plugin as mock
 import ckan.lib.dictization.model_dictize as model_dictize
-
-
-class MockResourcePreviewExtension(mock.MockSingletonPlugin):
-    plugins.implements(plugins.IResourcePreview)
-
-    def __init__(self):
-        from collections import defaultdict
-        self.calls = defaultdict(int)
-
-    def can_preview(self, data_dict):
-        assert(isinstance(data_dict['resource'], dict))
-        assert(isinstance(data_dict['package'], dict))
-        assert('on_same_domain' in data_dict['resource'])
-
-        self.calls['can_preview'] += 1
-        return data_dict['resource']['format'].lower() == 'mock'
-
-    def setup_template_variables(self, context, data_dict):
-        self.calls['setup_template_variables'] += 1
-
-    def preview_template(self, context, data_dict):
-        assert(isinstance(data_dict['resource'], dict))
-        assert(isinstance(data_dict['package'], dict))
-
-        self.calls['preview_templates'] += 1
-        return 'tests/mock_resource_preview_template.html'
-
-
-class JsonMockResourcePreviewExtension(MockResourcePreviewExtension):
-    def can_preview(self, data_dict):
-        super(JsonMockResourcePreviewExtension, self).can_preview(data_dict)
-        return data_dict['resource']['format'].lower() == 'json'
-
-    def preview_template(self, context, data_dict):
-        super(JsonMockResourcePreviewExtension, self).preview_template(context, data_dict)
-        self.calls['preview_templates'] += 1
-        return 'tests/mock_json_resource_preview_template.html'
 
 
 class TestPluggablePreviews(base.FunctionalTestCase):
     @classmethod
     def setup_class(cls):
-        cls.plugin = MockResourcePreviewExtension()
-        plugins.load(cls.plugin)
-        json_plugin = JsonMockResourcePreviewExtension()
-        plugins.load(json_plugin)
+        plugins.load('test_resource_preview', 'test_json_resource_preview')
+        cls.plugin = plugins.get_plugin('test_resource_preview')
 
         create_test_data.CreateTestData.create()
 
@@ -71,7 +31,7 @@ class TestPluggablePreviews(base.FunctionalTestCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        plugins.unload(cls.plugin)
+        plugins.unload('test_resource_preview', 'test_json_resource_preview')
 
     def test_hook(self):
         testpackage = self.package

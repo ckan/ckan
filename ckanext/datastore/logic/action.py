@@ -36,15 +36,15 @@ def datastore_create(context, data_dict):
     :param package_id: package in which a new resource will be crated.
     use instead of ``resource_id``.
     :type package_id: string
-    :param aliases: names for read only aliases of the resource.
+    :param aliases: names for read only aliases of the resource. (optional)
     :type aliases: list or comma separated string
-    :param fields: fields/columns and their extra metadata.
+    :param fields: fields/columns and their extra metadata. (optional)
     :type fields: list of dictionaries
-    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
+    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]  (optional)
     :type records: list of dictionaries
-    :param primary_key: fields that represent a unique key
+    :param primary_key: fields that represent a unique key (optional)
     :type primary_key: list or comma separated string
-    :param indexes: indexes on table
+    :param indexes: indexes on table (optional)
     :type indexes: list or comma separated string
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key`` replaces the exising
@@ -97,7 +97,7 @@ def datastore_create(context, data_dict):
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
-                'alias': ['"{0}" is not a valid alias name'.format(alias)]
+                'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
     # create a private datastore resource, if necessary
@@ -136,10 +136,10 @@ def datastore_upsert(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
-    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}]
+    :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}] (optional)
     :type records: list of dictionaries
-    :param method: The method to use to put the data into the datastore.
-                   Possible options are: upsert (default), insert, update
+    :param method: the method to use to put the data into the datastore.
+                   Possible options are: upsert, insert, update (optional, default: upsert)
     :type method: string
 
     **Results:**
@@ -161,12 +161,12 @@ def datastore_upsert(context, data_dict):
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
@@ -180,10 +180,10 @@ def datastore_upsert(context, data_dict):
 def datastore_delete(context, data_dict):
     '''Deletes a table or a set of records from the DataStore.
 
-    :param resource_id: resource id that the data will be deleted from.
+    :param resource_id: resource id that the data will be deleted from. (optional)
     :type resource_id: string
     :param filters: filters to apply before deleting (eg {"name": "fred"}).
-                   If missing delete whole table and all dependent views.
+                   If missing delete whole table and all dependent views. (optional)
     :type filters: dictionary
 
     **Results:**
@@ -205,12 +205,12 @@ def datastore_delete(context, data_dict):
     res_id = data_dict['resource_id']
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     res_exists = results.rowcount > 0
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
@@ -232,19 +232,19 @@ def datastore_search(context, data_dict):
 
     :param resource_id: id or alias of the resource to be searched against
     :type resource_id: string
-    :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"}
+    :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
-    :param q: full text query
+    :param q: full text query (optional)
     :type q: string
-    :param plain: treat as plain text query (default: true)
+    :param plain: treat as plain text query (optional, default: true)
     :type plain: bool
-    :param language: language of the full text query (default: english)
+    :param language: language of the full text query (optional, default: english)
     :type language: string
-    :param limit: maximum number of rows to return (default: 100)
+    :param limit: maximum number of rows to return (optional, default: 100)
     :type limit: int
-    :param offset: offset this number of rows
+    :param offset: offset this number of rows (optional)
     :type offset: int
-    :param fields: fields to return (default: all fields in original order)
+    :param fields: fields to return (optional, default: all fields in original order)
     :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
                  e.g.: "fieldname1, fieldname2 desc"
@@ -289,7 +289,7 @@ def datastore_search(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
 
     # Resource only has to exist in the datastore (because it could be an alias)
     if not results.rowcount > 0:
@@ -378,7 +378,7 @@ def datastore_make_private(context, data_dict):
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
@@ -404,7 +404,7 @@ def datastore_make_public(context, data_dict):
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
@@ -434,5 +434,5 @@ def _resource_exists(context, data_dict):
 
     resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
                                         WHERE name = :id AND alias_of IS NULL''')
-    results = db._get_engine(None, data_dict).execute(resources_sql, id=res_id)
+    results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     return results.rowcount > 0

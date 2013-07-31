@@ -59,7 +59,7 @@ terminal::
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+    pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
 b. Fetch CKAN's git submodules

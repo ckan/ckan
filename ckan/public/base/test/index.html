@@ -110,7 +110,7 @@
           params = {};
         }
 
-        return (new ckan.Client()).getTemplate(filename, params).error(function () {
+        return  (new ckan.Client()).getTemplate(filename, params).fail(function () {
           throw new Error('Unable to load fixture: ' + filename);
         }).pipe(function (template) {
           var fixture = jQuery('#fixture').html(template);
@@ -133,7 +133,12 @@
         this.fixture.empty();
       });
 
-      mocha.run().globals(['ckan', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval']);
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
+
     </script>
   </body>
 </html>

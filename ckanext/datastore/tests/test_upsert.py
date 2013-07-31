@@ -48,7 +48,7 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -271,12 +271,13 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
+        p.unload('datastore')
         rebuild_all_dbs(cls.Session)
 
     def test_insert_non_existing_field(self):
@@ -375,12 +376,13 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
+        p.unload('datastore')
         rebuild_all_dbs(cls.Session)
 
     def test_update_basic(self):
