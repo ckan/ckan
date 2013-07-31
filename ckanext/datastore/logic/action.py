@@ -1,6 +1,8 @@
 import logging
-import pylons
+import json
 
+import pylons
+import requests
 import sqlalchemy
 
 import ckan.lib.navl.dictization_functions
@@ -441,6 +443,9 @@ def datapusher_submit(context, data_dict):
     '''
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
+    requests.post('http://datapusher.ckan.org/job', data=json.dumps({
+        'foo': 'bar'
+    }))
 
 
 def _resource_exists(context, data_dict):

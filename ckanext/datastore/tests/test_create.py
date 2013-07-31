@@ -1,4 +1,5 @@
 import json
+import httpretty
 import nose
 from nose.tools import assert_equal
 
@@ -539,6 +540,25 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
         # disabled until #547 fixes problems with the plugins in tests
         #assert res['url'] == '/datastore/dump/' + res['id'], res
+
+    @httpretty.activate
+    def test_providing_res_with_url_calls_datapusher_correctly(self):
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+
+        package = model.Package.get('annakarenina')
+        data = {
+            'resource': {'package_id': package.id, 'url': 'demo.ckan.org'}
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        self.app.post('/api/action/datastore_create', params=postparams,
+                      extra_environ=auth, status=200)
+
+        body = json.loads(httpretty.last_request().body)
+        assert body == {'foo': 'bar'}, body
 
     def test_cant_provide_resource_and_resource_id(self):
         package = model.Package.get('annakarenina')
