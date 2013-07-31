@@ -378,7 +378,8 @@ def datastore_make_public(context, data_dict):
             u'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
+
     db.make_public(context, data_dict)
 
 
