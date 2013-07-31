@@ -11,6 +11,204 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+def returns_arg(message):
+    '''A decorator that tests that the decorated function returns the argument
+    that it is called with, unmodified.
+
+    :param message: the message that will be printed if the function doesn't
+        return the same argument that it was called with and the assert fails
+    :type message: string
+
+    Usage:
+
+        @returns_arg('user_name_validator() should return the same arg that '
+                     'it is called with, when called with a valid arg')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(function):
+        def call_and_assert(arg, context=None):
+            if context is None:
+                context = {}
+            result = function(arg, context=context)
+            assert result == arg, message
+            return result
+        return call_and_assert
+    return decorator
+
+
+def returns_None(message):
+    '''A decorator that asserts that the decorated function returns None.
+
+    :param message: the message that will be printed if the function doesn't
+        return None and the assert fails
+    :type message: string
+
+    Usage:
+
+        @returns_None('user_name_validator() should return None when given '
+                       'valid input')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(function):
+        def call_and_assert(*args, **kwargs):
+            result = function(*args, **kwargs)
+            assert result is None, message
+            return result
+        return call_and_assert
+    return decorator
+
+
+def raises_Invalid(function):
+    '''A decorator that asserts that the decorated function raises
+    dictization_functions.Invalid.
+
+    Usage:
+
+        @raises_Invalid
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def call_and_assert(*args, **kwargs):
+        import ckan.lib.navl.dictization_functions as df
+        with nose.tools.assert_raises(df.Invalid):
+            return function(*args, **kwargs)
+    return call_and_assert
+
+
+def does_not_modify_data_dict(message):
+    '''A decorator  that asserts that the decorated validator doesn't modify
+    its `data` dict param.
+
+    :param message: the message that will be printed if the function does
+        modify the data dict and the assert fails
+    :type message: string
+
+    Usage:
+
+        @does_not_modify_data_dict('user_name_validator() should not modify '
+                                   'the data dict')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(validator):
+        def call_and_assert(key, data, errors, context=None):
+            if context is None:
+                context = {}
+            # Make a copy of the data dict so we can assert against it later.
+            original_data_dict = copy.deepcopy(data)
+            result = validator(key, data, errors, context=context)
+            assert data == original_data_dict, message
+            return result
+        return call_and_assert
+    return decorator
+
+
+def does_not_modify_errors_dict(message):
+    '''A decorator that asserts that the decorated validator doesn't modify its
+    `errors` dict param.
+
+    :param message: the message that will be printed if the function does
+        modify the errors dict and the assert fails
+    :type message: string
+
+    Usage:
+
+        @does_not_modify_errors_dict('user_name_validator() should not modify '
+                                     'the errors dict')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(validator):
+        def call_and_assert(key, data, errors, context=None):
+            if context is None:
+                context = {}
+            # Make a copy of the errors dict so we can assert against it later.
+            original_errors_dict = copy.deepcopy(errors)
+            result = validator(key, data, errors, context=context)
+            assert errors == original_errors_dict, message
+            return result
+        return call_and_assert
+    return decorator
+
+
+def does_not_modify_other_keys_in_errors_dict(message):
+    '''A decorator that asserts that the decorated validator doesn't add,
+    modify the value of, or remove any other keys from its `errors` dict param.
+
+    The function *may* modify its own errors `key`.
+
+    :param message: the message that will be printed if the function does
+        modify another key in the errors dict and the assert fails
+    :type message: string
+
+    Usage:
+
+        @does_not_modify_other_keys_in_errors_dict('user_name_validator() '
+            'should not modify other keys in the errors dict')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(validator):
+        def call_and_assert(key, data, errors, context=None):
+            if context is None:
+                context = {}
+            # Make a copy of the errors dict so we can assert against it later.
+            original_errors_dict = copy.deepcopy(errors)
+            result = validator(key, data, errors, context=context)
+            # Copy the errors dict because we don't want to modify it.
+            errors = copy.deepcopy(errors)
+            errors[key] = []
+            assert errors == original_errors_dict, message
+            return result
+        return call_and_assert
+    return decorator
+
+
+def adds_message_to_errors_dict(error_message, message):
+    '''A decorator that asserts the the decorated validator adds a given
+    error message to the `errors` dict.
+
+    :param error_message: the error message that the validator is expected to
+        add to the `errors` dict
+    :type error_message: string
+
+    :param message: the message that will be printed if the function doesn't
+        add the right error message to the errors dict, and the assert fails
+    :type message: string
+
+    Usage:
+
+        @adds_message_to_errors_dict('That login name is not available.',
+            'user_name_validator() should add to the errors dict when called '
+            'with a user name with already exists')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors)
+
+    '''
+    def decorator(validator):
+        def call_and_assert(key, data, errors, context):
+            result = validator(key, data, errors, context)
+            assert errors[key] == [error_message], message
+            return result
+        return call_and_assert
+    return decorator
+
+
 class TestValidators(object):
 
     @classmethod
@@ -29,7 +227,6 @@ class TestValidators(object):
 
         '''
         import ckan.logic.validators as validators
-        import ckan.lib.navl.dictization_functions as df
         import ckan.model as model
 
         invalid_values = [
@@ -73,8 +270,10 @@ class TestValidators(object):
         ]
 
         for invalid_value in invalid_values:
-            with nose.tools.assert_raises(df.Invalid):
-                validators.name_validator(invalid_value, context={})
+            @raises_Invalid
+            def call_validator(*args, **kwargs):
+                return validators.name_validator(*args, **kwargs)
+            call_validator(invalid_value, context={})
 
     def test_name_validator_with_valid_value(self):
         '''If given a valid string name_validator() should do nothing and
@@ -100,9 +299,11 @@ class TestValidators(object):
         ]
 
         for valid_name in valid_names:
-            result = validators.name_validator(valid_name, context={})
-            assert result == valid_name, ('If given a valid string '
-                'name_validator() should return the string unmodified.')
+            @returns_arg('If given a valid string name_validator() should '
+                         'return the string unmodified')
+            def call_validator(*args, **kwargs):
+                return validators.name_validator(*args, **kwargs)
+            call_validator(valid_name)
 
     def test_user_name_validator_with_non_string_value(self):
         '''user_name_validator() should raise Invalid if given a non-string
@@ -110,7 +311,6 @@ class TestValidators(object):
 
         '''
         import ckan.logic.validators as validators
-        import ckan.lib.navl.dictization_functions as df
 
         non_string_values = [
             13,
@@ -138,19 +338,14 @@ class TestValidators(object):
             errors = factories.validator_errors_dict()
             errors[key] = []
 
-            # Make copies of the data and errors dicts for asserting later.
-            original_data = copy.deepcopy(data)
-            original_errors = copy.deepcopy(errors)
-
-            with nose.tools.assert_raises(df.Invalid):
-                validators.user_name_validator(key, data, errors,
-                                               context={'model': mock_model})
-
-            assert data == original_data, ("user_name_validator shouldn't "
-                                           'modify the data dict')
-
-            assert errors == original_errors, ("user_name_validator shouldn't "
-                                               'modify the errors dict')
+            @does_not_modify_errors_dict('user_name_validator() should not '
+                                         'modify the errors dict')
+            @does_not_modify_data_dict('user_name_validator() should not '
+                                       'modify the data dict')
+            @raises_Invalid
+            def call_validator(*args, **kwargs):
+                return validators.user_name_validator(*args, **kwargs)
+            call_validator(key, data, errors, context={'model': mock_model})
 
     def test_user_name_validator_with_a_name_that_already_exists(self):
         '''user_name_validator() should add to the errors dict if given a
@@ -170,29 +365,18 @@ class TestValidators(object):
         errors = factories.validator_errors_dict()
         errors[key] = []
 
-        # Make copies of the data and errors dicts for asserting later.
-        original_data = copy.deepcopy(data)
-        original_errors = copy.deepcopy(errors)
-
-        # Try to create another user with the same name as the existing user.
-        result = validators.user_name_validator(key, data, errors,
-                                                context={'model': mock_model})
-
-        assert result is None, ("user_name_validator() shouldn't return "
-                                "anything")
-
-        msg = 'That login name is not available.'
-        assert errors[key] == [msg], ('user_name_validator() should add to '
-                                      'the errors dict when given the name of '
-                                      'a user that already exists')
-
-        errors[key] = []
-        assert errors == original_errors, ('user_name_validator() should not '
-                                           'modify other parts of the errors '
-                                           'dict')
-
-        assert data == original_data, ('user_name_validator() should not '
-                                       'modify the data dict')
+        @does_not_modify_other_keys_in_errors_dict('user_name_validator() '
+                'should not modify other keys in the errors dict')
+        @does_not_modify_data_dict('user_name_validator() should not modify '
+                                   'the data dict')
+        @returns_None('user_name_validator() should return None if called '
+                      'with a user name that already exists')
+        @adds_message_to_errors_dict('That login name is not available.',
+                'user_name_validator() should add to the errors dict when '
+                'called with the name of a user that already exists')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
 
     def test_user_name_validator_successful(self):
         '''user_name_validator() should do nothing if given a valid name.'''
@@ -211,22 +395,16 @@ class TestValidators(object):
         # user with that name exists in the database.
         mock_model.User.get.return_value = None
 
-        # Make copies of the data and errors dicts for asserting later.
-        original_data = copy.deepcopy(data)
-        original_errors = copy.deepcopy(errors)
-
-        result = validators.user_name_validator(key, data, errors,
-                                                context={'model': mock_model})
-
-        assert result is None, ("user_name_validator() shouldn't return "
-                                'anything')
-
-        assert data == original_data, ("user_name_validator shouldn't modify "
-                                       'the data dict')
-
-        assert errors == original_errors, ("user_name_validator shouldn't "
-                                           'modify the errors dict if given a'
-                                           'valid user name')
+        @does_not_modify_errors_dict('user_name_validator() should not '
+                                     'modify the errors dict when given '
+                                     'valid input')
+        @does_not_modify_data_dict('user_name_validator() should not modify '
+                                   'the data dict when given valid input')
+        @returns_None('user_name_validator() should return None when given '
+                      'valid input')
+        def call_validator(*args, **kwargs):
+            return validators.user_name_validator(*args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
 
     # TODO: Test user_name_validator()'s behavior when there's a 'user_obj' in
     # the context dict.
