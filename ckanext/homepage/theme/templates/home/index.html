@@ -1,36 +1,52 @@
 {% ckan_extends %}
 
+{% set homepage_layout = 1 %}
+
+{% block homepage_layout_class %} homepage-{{ homepage_layout }}{% endblock %}
+
 {% block primary_content %}
   <div role="main" class="hero">
     <div class="container">
-      <div class="row">
-        <div class="span6 slot1">{{ self.homepage_slot_1() }}</div>
-        <div class="span6 slot2">{{ self.homepage_slot_2() }}</div>
+      <div class="row row1">
+        <div class="span6 col1">{{ self.row1_col1() }}</div>
+        <div class="span6 col2">{{ self.row1_col2() }}</div>
       </div>
     </div>
   </div>
   <div role="main">
     <div class="container">
-      <div class="row">
-        <div class="span6 slot3">{{ self.homepage_slot_3() }}</div>
-        <div class="span6 slot4">{{ self.homepage_slot_4() }}</div>
+      <div class="row row2">
+        <div class="span6 col1">{{ self.row2_col1() }}</div>
+        <div class="span6 col2">{{ self.row2_col2() }}</div>
       </div>
     </div>
   </div>
 {% endblock %}
 
-{% block homepage_slot_1 %}
-  {% snippet 'home/snippets/promoted.html', intro=g.site_intro_text %}
+{% block row1_col1 %}
+  {% if homepage_layout == 1 %}
+    {% snippet 'home/snippets/promoted.html' %}
+  {% elif homepage_layout == 2 %}
+    {% snippet 'home/snippets/search.html' %}
+  {% endif %}
 {% endblock %}
 
-{% block homepage_slot_2 %}
-  {% snippet 'home/snippets/search.html', query=c.q, tags=h.get_facet_items_dict('tags', limit=3), placeholder=_('eg. Gold Prices') %}
+{% block row1_col2 %}
+  {% if homepage_layout == 1 %}
+    {% snippet 'home/snippets/search.html' %}
+  {% elif homepage_layout == 2 %}
+    {% snippet 'home/snippets/featured_dataset.html' %}
+  {% endif %}
 {% endblock %}
 
-{% block homepage_slot_3 %}
-  {% snippet 'home/snippets/featured_group.html', group=h.get_featured_group() %}
+{% block row2_col1 %}
+  {% if homepage_layout == 1 %}
+    {% snippet 'home/snippets/featured_group.html' %}
+  {% elif homepage_layout == 2 %}
+    {% snippet 'home/snippets/stats.html' %}
+  {% endif %}
 {% endblock %}
 
-{% block homepage_slot_4 %}
-  {% snippet 'home/snippets/featured_organization.html', organization=h.get_featured_organization() %}
+{% block row2_col2 %}
+  {% snippet 'home/snippets/featured_organization.html' %}
 {% endblock %}

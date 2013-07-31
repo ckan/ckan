@@ -6,7 +6,7 @@
 {% block toolbar %}{% endblock %}
 
 {% block content %}
-  <div class="homepage">
+  <div class="homepage{% block homepage_layout_class %}{% endblock %}">
     <div class="container">
       {{ self.flash() }}
     </div>

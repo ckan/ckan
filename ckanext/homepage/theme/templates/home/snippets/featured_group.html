@@ -1,3 +1,5 @@
+{% set group = h.get_featured_group() %}
+
 <div class="box">
   {% snippet 'snippets/group_item.html', group=group, truncate=50, truncate_title=35 %}
 </div>
