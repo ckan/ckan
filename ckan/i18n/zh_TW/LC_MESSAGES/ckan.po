@@ -1,25 +1,27 @@
-# Chinese (Taiwan) translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2012
-# whisky <whisky@ystaiwan.org.tw>, 2013
 # charlesc <yeouhsin@gmail.com>, 2013
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012
+# robin.cloud <dio.paper@gmail.com>, 2013
+# u10313335 <u103133.u103135@gmail.com>, 2013
+# whisky <whisky@ystaiwan.org.tw>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
-"PO-Revision-Date: 2013-04-24 09:12+0000\n"
-"Last-Translator: whisky <whisky@ystaiwan.org.tw>\n"
-"Language-Team: Chinese (Taiwan) "
-"(http://www.transifex.com/projects/p/ckan/language/zh_TW/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2013-07-22 02:44+0000\n"
+"Last-Translator: u10313335 <u103133.u103135@gmail.com>\n"
+"Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/ckan/language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/new_authz.py:82
 #, python-format
@@ -224,7 +226,7 @@ msgstr "未知的註冊：%s"
 #: ckan/controllers/api.py:575
 #, python-format
 msgid "Malformed qjson value: %r"
-msgstr ""
+msgstr "畸形的 qjson 值: %r"
 
 #: ckan/controllers/api.py:585
 msgid "Request params must be in form of a json encoded dictionary."
@@ -302,7 +304,7 @@ msgstr "授權"
 
 #: ckan/controllers/group.py:401
 msgid "Not authorized to perform bulk update"
-msgstr ""
+msgstr "未被授權批次更新"
 
 #: ckan/controllers/group.py:418
 msgid "Unauthorized to create a group"
@@ -399,12 +401,10 @@ msgstr "本網站目前無法運作。資料庫沒有初始化。"
 
 #: ckan/controllers/home.py:98
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"請 <a href=\"{link}\">更新你的個人資料</a> 並且輸入你的電子郵件地址以及全名。{site} "
-"若你需要重設密碼請使用你的電子郵件地址。"
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "請 <a href=\"{link}\">更新你的個人資料</a> 並且輸入你的電子郵件地址以及全名。{site} 若你需要重設密碼請使用你的電子郵件地址。"
 
 #: ckan/controllers/home.py:101
 #, python-format
@@ -484,7 +484,7 @@ msgstr "沒有更新資料集的權限"
 #: ckan/controllers/package.py:597 ckan/controllers/package.py:629
 #: ckan/controllers/package.py:657
 msgid "The dataset {id} could not be found."
-msgstr ""
+msgstr "找不到 {id} 資料集."
 
 #: ckan/controllers/package.py:600
 msgid "You must add at least one data resource"
@@ -674,7 +674,7 @@ msgstr "標籤不存在"
 
 #: ckan/controllers/user.py:147
 msgid "Unauthorized to register as a user."
-msgstr ""
+msgstr "無權登錄為用戶."
 
 #: ckan/controllers/user.py:163
 msgid "Unauthorized to create a user"
@@ -708,7 +708,7 @@ msgstr "沒有使用者的詳細說明"
 
 #: ckan/controllers/user.py:234
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "無權修改使用者."
 
 #: ckan/controllers/user.py:252 ckan/controllers/user.py:293
 #: ckan/controllers/user.py:472
@@ -740,7 +740,7 @@ msgstr " (如果使用OpenID，OpenID並沒有與使用者帳號連結)"
 
 #: ckan/controllers/user.py:384
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "無權要求重設密碼."
 
 #: ckan/controllers/user.py:413
 #, python-format
@@ -763,7 +763,7 @@ msgstr "無法寄送重設的連結： %s"
 
 #: ckan/controllers/user.py:443
 msgid "Unauthorized to reset password."
-msgstr ""
+msgstr "無權重設密碼."
 
 #: ckan/controllers/user.py:458
 msgid "Invalid reset key. Please try again."
@@ -830,12 +830,13 @@ msgid "{actor} updated their profile"
 msgstr "{actor} 更新了基本資料"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr ""
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgstr "{actor} 更新了 {dataset} 資料集的 {related_type} {related_item} "
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} 更新了 {related_type} {related_item}"
 
 #: ckan/lib/activity_streams.py:92
 msgid "{actor} deleted the group {group}"
@@ -902,12 +903,13 @@ msgid "{actor} started following {group}"
 msgstr "{actor}開始關注{group}群組"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr ""
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgstr "{actor} 增加了 {dataset} 資料集的 {related_type} {related_item} "
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} 增加了 {related_type} {related_item} "
 
 #: ckan/lib/email_notifications.py:103
 msgid "1 new activity from {site_title}"
@@ -1051,7 +1053,7 @@ msgstr "未知的"
 
 #: ckan/lib/helpers.py:951
 msgid "Unnamed resource"
-msgstr ""
+msgstr "佚名的資源"
 
 #: ckan/lib/helpers.py:998
 msgid "Created new dataset."
@@ -1077,15 +1079,15 @@ msgstr[0] "目前瀏覽數：{number}"
 
 #: ckan/lib/helpers.py:1507
 msgid "The resource url is not specified."
-msgstr ""
+msgstr "資源的 url 未被指定."
 
 #: ckan/lib/helpers.py:1525
 msgid "No preview handler for resource of type {0}"
-msgstr ""
+msgstr "沒有型態 {0} 之資源可使用的預覽處理器。"
 
 #: ckan/lib/helpers.py:1529
 msgid "The resource format is not specified."
-msgstr ""
+msgstr "資源格式尚未被指定."
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1109,12 +1111,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   %(reset_link)s\n"
-msgstr ""
-"你已經要求重置在 %(site_title)s 上的密碼。 \n"
-"\n"
-"請點擊連結已確認此請求 :\n"
-"\n"
-"   %(reset_link)s\n"
+msgstr "你已經要求重置在 %(site_title)s 上的密碼。 \n\n請點擊連結已確認此請求 :\n\n   %(reset_link)s\n"
 
 #: ckan/lib/mailer.py:136 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
@@ -1195,7 +1192,8 @@ msgstr "標籤字串 \"%s\" 不存在"
 #: ckan/logic/converters.py:120 ckan/logic/validators.py:148
 #: ckan/logic/validators.py:165 ckan/logic/validators.py:625
 #: ckan/templates/group/member_new.html:17
-#: ckan/templates/group/member_new.html:20 ckan/templates/group/members.html:14
+#: ckan/templates/group/member_new.html:20
+#: ckan/templates/group/members.html:14
 #: ckan/templates/organization/member_new.html:19
 #: ckan/templates/organization/member_new.html:22
 #: ckan/templates/organization/members.html:17
@@ -1237,7 +1235,7 @@ msgstr "無效的整數"
 
 #: ckan/logic/validators.py:65
 msgid "Must be natural number"
-msgstr ""
+msgstr "必須是自然數"
 
 #: ckan/logic/validators.py:83
 msgid "Date format incorrect"
@@ -1389,15 +1387,15 @@ msgstr "角色不存在"
 
 #: ckan/logic/validators.py:638
 msgid "Not a list"
-msgstr ""
+msgstr "不是列表"
 
 #: ckan/logic/validators.py:641
 msgid "Not a string"
-msgstr ""
+msgstr "不是字串"
 
 #: ckan/logic/validators.py:647
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "非組織的資料集不能私有."
 
 #: ckan/logic/action/create.py:153 ckan/logic/action/create.py:505
 #, python-format
@@ -1454,7 +1452,7 @@ msgstr "你必須登入才能關注資料集"
 
 #: ckan/logic/action/create.py:1129
 msgid "User {username} does not exist."
-msgstr ""
+msgstr " 使用者 {username} 不存在."
 
 #: ckan/logic/action/create.py:1199 ckan/logic/action/create.py:1207
 msgid "You must be logged in to follow a group."
@@ -1501,7 +1499,7 @@ msgstr "你並沒有關注{0}"
 
 #: ckan/logic/action/get.py:115
 msgid "Must be larger than 0"
-msgstr ""
+msgstr "必須大於 0"
 
 #: ckan/logic/action/get.py:1526
 msgid "Do not specify if using \"query\" parameter"
@@ -1563,7 +1561,7 @@ msgstr "使用者 %s 沒有權限編輯群組"
 #: ckan/logic/auth/create.py:29
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
+msgstr "使用者 %s 沒授權增加資料集到這個組織"
 
 #: ckan/logic/auth/create.py:51
 msgid "You must be a sysadmin to create a featured related item"
@@ -1728,7 +1726,7 @@ msgstr "使用者 %s 沒有權限編輯群組的許可 %s"
 
 #: ckan/logic/auth/update.py:183
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "需經登入以編輯用戶。"
 
 #: ckan/logic/auth/update.py:191
 #, python-format
@@ -1764,7 +1762,7 @@ msgstr "授權類型未指定"
 
 #: ckan/model/license.py:187
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
-msgstr ""
+msgstr "開放資料共用公共領域貢獻和授權條款 (PDDL)。"
 
 #: ckan/model/license.py:197
 msgid "Open Data Commons Open Database License (ODbL)"
@@ -1980,9 +1978,9 @@ msgstr "無法取得上傳檔案的資料"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr ""
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "你現在正在上傳一個檔案，確定要離開當前頁面及停止上傳檔案嗎？"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:32
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2005,7 +2003,8 @@ msgstr "網址"
 #: ckan/templates/package/resource_read.html:30
 #: ckan/templates/related/snippets/related_item.html:38
 #: ckan/templates/user/edit.html:12 ckan/templates/user/read_base.html:14
-#: ckan/templates_legacy/_util.html:11 ckan/templates_legacy/js_strings.html:16
+#: ckan/templates_legacy/_util.html:11
+#: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/group/layout.html:24
 msgid "Edit"
 msgstr "編輯"
@@ -2039,9 +2038,7 @@ msgstr "開放知識基金會"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:11
 msgid "Sysadmin settings"
@@ -2088,8 +2085,9 @@ msgstr "註冊"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:42
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:7
-#: ckan/templates/user/read_base.html:27 ckan/templates/user/read_base.html:62
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:7 ckan/templates/user/read_base.html:27
+#: ckan/templates/user/read_base.html:62
 #: ckan/templates_legacy/group/edit_form.html:10
 #: ckan/templates_legacy/group/new_group_form.html:101
 #: ckan/templates_legacy/group/read.html:45
@@ -2140,7 +2138,8 @@ msgstr "系統管理員"
 msgid "Config"
 msgstr "設置"
 
-#: ckan/templates/admin/config.html:9 ckan/templates/admin/confirm_reset.html:7
+#: ckan/templates/admin/config.html:9
+#: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
 msgstr "確定要重設設置嗎？"
 
@@ -2159,31 +2158,20 @@ msgstr "CKAN 設置選項"
 #: ckan/templates/admin/config.html:26
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-msgstr ""
-" <p><strong>Site Title:</strong> 這是CKAN標題的範例，將會出現在CKAN的許多地方</p> "
-"<p><strong>Style:</strong> 您可以從現有的配色方案清單中選擇，做些簡單的變化，快速的讓客製化主題運作。</p> "
-"<p><strong>Site Tag Logo:</strong>這是會出現在所有CKAN範例模板的Logo。</p> "
-"<p><strong>About:</strong>此段文字將出現在此CKAN範例，｢關於｣頁面<a "
-"href=\"%(about_url)s\"></a>.</p> <p><strong>Intro Text:</strong> "
-"此段文字將出現在此CKAN範例，首頁歡迎訪客頁面 <a href=\"%(home_url)s\">home page</a></p> "
-"<p><strong>Custom CSS:</strong> "
-"這是一個CSS的區塊，將會出現在有<code>&lt;head&gt;</code> 標籤的每個頁面。 "
-"若您需要更完整的客製化範例，建議您閱讀此文件： <a href=\"%(docs_url)s\" "
-"target=\"_blank\"></a>.</p> "
+msgstr " <p><strong>Site Title:</strong> 這是CKAN標題的範例，將會出現在CKAN的許多地方</p> <p><strong>Style:</strong> 您可以從現有的配色方案清單中選擇，做些簡單的變化，快速的讓客製化主題運作。</p> <p><strong>Site Tag Logo:</strong>這是會出現在所有CKAN範例模板的Logo。</p> <p><strong>About:</strong>此段文字將出現在此CKAN範例，｢關於｣頁面<a href=\"%(about_url)s\"></a>.</p> <p><strong>Intro Text:</strong> 此段文字將出現在此CKAN範例，首頁歡迎訪客頁面 <a href=\"%(home_url)s\">home page</a></p> <p><strong>Custom CSS:</strong> 這是一個CSS的區塊，將會出現在有<code>&lt;head&gt;</code> 標籤的每個頁面。 若您需要更完整的客製化範例，建議您閱讀此文件： <a href=\"%(docs_url)s\" target=\"_blank\"></a>.</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2196,8 +2184,8 @@ msgstr "什麼是系統管理員？"
 
 #: ckan/templates/admin/index.html:19
 msgid ""
-" <p>A sysadmin is someone that has full control over a CKAN instance. You"
-" can only add CKAN sysadmins via the <code>sysadmin</code> paster "
+" <p>A sysadmin is someone that has full control over a CKAN instance. You "
+"can only add CKAN sysadmins via the <code>sysadmin</code> paster "
 "command.</p> "
 msgstr " <p>系統管理員是擁有所有CKAN權限的人。 你只能透過<code>系統管理員</code>才能增加CKAN的系統管理員</p> "
 
@@ -2207,29 +2195,28 @@ msgstr "閱讀文檔"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr ""
+msgstr "CKAN資料API。"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
-msgstr ""
+msgstr "透過一擁有強大查詢功能支援的網路API來存取資源之資料。"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
-msgstr ""
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr "更進一步的資訊在<a href=\"http://docs.ckan.org/en/latest/datastore.html\" target=\"_blank\">主要的CKAN資料API和資料儲存的文件中</a>。</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr ""
+msgstr "終端點。"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
-msgstr ""
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr "可使用下列之CKAN action API所提供的功能來存取資料API。"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
@@ -2238,43 +2225,43 @@ msgstr "建立"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr ""
+msgstr "更新 / 插入。"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr ""
+msgstr "查詢。"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr ""
+msgstr "查詢 (透過SQL)。"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "查詢。"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "查詢之範例 (前5個結果)。"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
-msgstr ""
+msgstr "查詢之範例 (包含字串 'jones' 的結果)。"
 
 #: ckan/templates/ajax_snippets/api_info.html:81
 msgid "Query example (via SQL statement)"
-msgstr ""
+msgstr "查詢之範例 (透過SQL指令敘述)。"
 
 #: ckan/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr ""
+msgstr "範例：Javascript。"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
+msgstr "使用jQuery對資料API發出一個簡單的ajax(JSONP)請求。"
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr ""
+msgstr "範例：Python。"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
@@ -2294,7 +2281,7 @@ msgstr "你的瀏覽器不支援此頁框"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr ""
+msgstr "無法預覽。"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
@@ -2443,7 +2430,7 @@ msgstr "編輯群組"
 
 #: ckan/templates/group/edit_base.html:14
 msgid "View group"
-msgstr ""
+msgstr "查看群組。"
 
 #: ckan/templates/group/edit_base.html:19 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:25
@@ -2489,13 +2476,14 @@ msgstr "新增群組"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "搜尋群組。"
 
 #: ckan/templates/group/index.html:27
 msgid "There are currently no groups for this site"
 msgstr "此網站上目前沒有任何群組"
 
-#: ckan/templates/group/index.html:29 ckan/templates/organization/index.html:29
+#: ckan/templates/group/index.html:29
+#: ckan/templates/organization/index.html:29
 msgid "How about creating one?"
 msgstr "建立一個群組如何？"
 
@@ -2527,19 +2515,22 @@ msgstr "新增成員"
 msgid "Username"
 msgstr "使用者名稱"
 
-#: ckan/templates/group/member_new.html:23 ckan/templates/group/members.html:15
+#: ckan/templates/group/member_new.html:23
+#: ckan/templates/group/members.html:15
 #: ckan/templates/organization/member_new.html:25
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "角色"
 
-#: ckan/templates/group/member_new.html:26 ckan/templates/group/members.html:27
+#: ckan/templates/group/member_new.html:26
+#: ckan/templates/group/members.html:27
 #: ckan/templates/organization/member_new.html:28
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "確定要刪除這個成員嗎？"
 
-#: ckan/templates/group/member_new.html:27 ckan/templates/group/members.html:32
+#: ckan/templates/group/member_new.html:27
+#: ckan/templates/group/members.html:32
 #: ckan/templates/group/snippets/group_form.html:76
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:29
@@ -2582,9 +2573,9 @@ msgstr "腳色是什麼？"
 msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage group members.</p> <p><strong>Editor:</strong> Can add and edit "
-"datasets, but not manage group members.</p> <p><strong>Member:</strong> "
-"Can view the group's private datasets, but not add new datasets.</p> "
-msgstr ""
+"datasets, but not manage group members.</p> <p><strong>Member:</strong> Can "
+"view the group's private datasets, but not add new datasets.</p> "
+msgstr "<p><strong>管理者：</strong> 可新增/編輯和刪除資料集，也可管理群組成員。</p> \n<p><strong>編輯人員：</strong> 可新增和編輯資料集，但不能管理群組成員。</p>\n<p><strong>一般成員：</strong>可查看群組的私有資料集，但無法新增資料集。</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:7
 msgid "Create a Group"
@@ -2608,7 +2599,7 @@ msgstr "新增資料集"
 
 #: ckan/templates/group/read.html:18 ckan/templates/organization/read.html:19
 msgid "Search datasets..."
-msgstr ""
+msgstr "搜尋資料集。"
 
 #: ckan/templates/group/snippets/feeds.html:3
 #: ckan/templates/organization/snippets/feeds.html:3
@@ -2703,18 +2694,16 @@ msgstr "什麼是群組？"
 #: ckan/templates/group/snippets/helper.html:7
 msgid ""
 " <p>Groups allow you to group together datasets under a community (for "
-"example, Civil Liberty data) or topic (e.g. Transport, Health, "
-"Environment) to make it easier for users to browse datasets by theme. "
-"Datasets can be part of a group, but do not belong to the group for "
-"editing or authorisation purposes.</p> "
-msgstr ""
-" <p>群組的功能：你可以將資料集匯集在一個社群(例如：Civil Liberty data) 或主題中 "
-"(例如：交通、健康、環境)，讓使用者可以更方便的根據主題瀏覽資料集。資料集可以是群組的一部分，但群組不具有編輯或授權的權限</p> "
+"example, Civil Liberty data) or topic (e.g. Transport, Health, Environment) "
+"to make it easier for users to browse datasets by theme. Datasets can be "
+"part of a group, but do not belong to the group for editing or authorisation"
+" purposes.</p> "
+msgstr " <p>群組的功能：你可以將資料集匯集在一個社群(例如：Civil Liberty data) 或主題中 (例如：交通、健康、環境)，讓使用者可以更方便的根據主題瀏覽資料集。資料集可以是群組的一部分，但群組不具有編輯或授權的權限</p> "
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "比較。"
 
 #: ckan/templates/group/snippets/info.html:12
 #: ckan/templates/package/snippets/package_context.html:7
@@ -2779,8 +2768,8 @@ msgstr "歡迎來到CKAN"
 
 #: ckan/templates/home/index.html:33
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
 msgstr "這是一個關於CKAN或網站的簡介資訊。目前沒有文案，但很快就會有。"
 
 #: ckan/templates/home/index.html:45
@@ -2804,14 +2793,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2820,26 +2808,13 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>CKAN是世界上開放原始碼資料入口平台的領導者。</p> <p>CKAN是一個瀏覽和使用資料完整現成的軟體– "
-"透過提供工具以簡化發布、分享、查找和使用資料(包含儲存資料以及強大的資料API)。CKAN的目的是讓資料的發布者(國家和地區的政府、企業和組織)想要使他們的資料開放、可用。</p>"
-" <p>CKAN在世界各地的官方及民間組織的資料網站被廣泛的使用，如英國的<a "
-"href=\"http://data.gov.uk\">data.gov.uk</a>以及歐盟的<a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>、巴西的<a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>、荷蘭政府入口網站以及美國、英國、阿根廷、芬蘭和許多其他國家的城市地方政府網站。</p>"
-" <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN試用:"
-" <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> "
-"其他相關資料： <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr " <p>CKAN是世界上開放原始碼資料入口平台的領導者。</p> <p>CKAN是一個瀏覽和使用資料完整現成的軟體– 透過提供工具以簡化發布、分享、查找和使用資料(包含儲存資料以及強大的資料API)。CKAN的目的是讓資料的發布者(國家和地區的政府、企業和組織)想要使他們的資料開放、可用。</p> <p>CKAN在世界各地的官方及民間組織的資料網站被廣泛的使用，如英國的<a href=\"http://data.gov.uk\">data.gov.uk</a>以及歐盟的<a href=\"http://publicdata.eu/\">publicdata.eu</a>、巴西的<a href=\"http://dados.gov.br/\">dados.gov.br</a>、荷蘭政府入口網站以及美國、英國、阿根廷、芬蘭和許多其他國家的城市地方政府網站。</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN試用: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> 其他相關資料： <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/macros/form.html:120
 msgid ""
-"You can use <a "
-"href=\"http://daringfireball.net/projects/markdown/syntax\" "
+"You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
 "target=\"_blank\">Markdown formatting</a> here"
-msgstr ""
-"您可以在此使用<a href=\"http://daringfireball.net/projects/markdown/syntax\" "
-"target=\"_blank\">Markdown格式</a>"
+msgstr "您可以在此使用<a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">Markdown格式</a>"
 
 #: ckan/templates/macros/form.html:226
 #: ckan/templates/snippets/search_form.html:60
@@ -2873,15 +2848,15 @@ msgstr "組織表單"
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr ""
+msgstr "編輯資料集。"
 
 #: ckan/templates/organization/bulk_process.html:6
 msgid "Add dataset"
-msgstr ""
+msgstr "新增資料集。"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr ""
+msgstr "根據 \"{query}\" 找到。"
 
 #: ckan/templates/organization/bulk_process.html:18
 #: ckan/templates/snippets/search_result_text.html:16
@@ -2890,11 +2865,11 @@ msgstr "根據\"{query}\"找不到任何資料集"
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr ""
+msgstr "設為公開。"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr ""
+msgstr "設為非公開。"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:20
@@ -2911,8 +2886,8 @@ msgstr "刪除"
 #: ckan/templates/package/read.html:13
 #: ckan/templates/package/snippets/package_basic_fields.html:89
 #: ckan/templates/snippets/package_item.html:28
-#: ckan/templates/snippets/private.html:3 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:92
+#: ckan/templates/snippets/private.html:3
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 msgid "Private"
 msgstr "非公開"
 
@@ -2923,7 +2898,7 @@ msgstr "此資料集沒有說明。"
 
 #: ckan/templates/organization/bulk_process.html:90
 msgid "This organization has no datasets associated to it"
-msgstr ""
+msgstr "沒有任何資料集和這個組織有關聯。"
 
 #: ckan/templates/organization/bulk_process.html:99
 #: ckan/templates/package/search.html:30
@@ -2971,7 +2946,7 @@ msgstr "新增組織"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "搜尋組織。"
 
 #: ckan/templates/organization/index.html:27
 msgid "There are currently no organizations for this site"
@@ -2982,12 +2957,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-" <p><strong>管理者：</strong>可以新增/編輯和刪除資料集，以及管理組織成員。</p> "
-"<p><strong>編輯：</strong> 可以新增和編輯資料集，但無法管理組織成員。</p> "
-"<p><strong>一般成員：</strong> 可以瀏覽組織的私有資料集，但無法新增資料集。</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr " <p><strong>管理者：</strong>可以新增/編輯和刪除資料集，以及管理組織成員。</p> <p><strong>編輯：</strong> 可以新增和編輯資料集，但無法管理組織成員。</p> <p><strong>一般成員：</strong> 可以瀏覽組織的私有資料集，但無法新增資料集。</p> "
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3012,16 +2984,13 @@ msgstr "組織是什麼？"
 #: ckan/templates/organization/snippets/help.html:7
 #: ckan/templates/organization/snippets/helper.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and "
-"authorisation its members, giving individual users the right to publish "
-"datasets from that particular organisation (e.g. Office of National "
-"Statistics).</p> "
-msgstr ""
-" <p>組織扮演部門、單位發布資料集的角色 (例如：衛生部門)。這意味著資料集是屬於一個部門，而不是屬於單一使用者。</p> "
-"<p>在組織李，管理員可以分配角色，並授權其成員，讓個人使用者有權從特定組織發布資料集 (例如：國家檔案管理局).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorisation its members, giving"
+" individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
+msgstr " <p>組織扮演部門、單位發布資料集的角色 (例如：衛生部門)。這意味著資料集是屬於一個部門，而不是屬於單一使用者。</p> <p>在組織裡，管理員可以分配角色，並授權其成員，讓個人使用者有權從特定組織發布資料集 (例如：國家檔案管理局).</p> "
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3037,9 +3006,9 @@ msgstr "一些關於我的組織的資訊..."
 
 #: ckan/templates/organization/snippets/organization_form.html:77
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
-msgstr ""
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
+msgstr "你確定要刪除這個組織嗎？這樣會刪除屬於這個組織的所有公開和非公開之資料集。"
 
 #: ckan/templates/organization/snippets/organization_form.html:81
 msgid "Save Organization"
@@ -3052,7 +3021,7 @@ msgstr "此組織沒有說明"
 #: ckan/templates/organization/snippets/organization_item.html:37
 #: ckan/templates/organization/snippets/organization_item.html:38
 msgid "View {organization_name}"
-msgstr ""
+msgstr "查看 {organization_name}。"
 
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
@@ -3065,9 +3034,8 @@ msgstr "資料集是什麼？"
 
 #: ckan/templates/package/base_form_page.html:17
 msgid ""
-" Datasets are simply used to group related pieces of data. These can then"
-" be found under a single url with a description and licensing "
-"information. "
+" Datasets are simply used to group related pieces of data. These can then be"
+" found under a single url with a description and licensing information. "
 msgstr "資料集用來簡單地組織相關資料。如此就可以透過一個網址、描述或許可訊息被找到。"
 
 #: ckan/templates/package/confirm_delete.html:11
@@ -3111,14 +3079,14 @@ msgstr "任何包含了實用資料的檔案或連結都可以作為資源。"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr "這是此資料集在%(timestamp)s時發佈的較舊的版本。可能會與<a href=\"%(url)s\">目前版本</a>有所不同"
 
 #: ckan/templates/package/read_base.html:40
 #, python-format
-msgid "This is the current revision of this dataset, as edited at %(timestamp)s."
+msgid ""
+"This is the current revision of this dataset, as edited at %(timestamp)s."
 msgstr "這是此資料集目前的最新版本，在%(timestamp)s時發佈。"
 
 #: ckan/templates/package/related_list.html:6
@@ -3154,7 +3122,7 @@ msgstr "API終端"
 #: ckan/templates/package/resource_read.html:40
 #: ckan/templates/package/snippets/resource_item.html:43
 msgid "Go to resource"
-msgstr ""
+msgstr "前往存取資源。"
 
 #: ckan/templates/package/resource_read.html:42
 #: ckan/templates/package/snippets/resource_item.html:40
@@ -3336,9 +3304,7 @@ msgstr "例如：經濟、醫療衛生、政府"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"使用協定以及其他相關資訊請見<a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+msgstr "使用協定以及其他相關資訊請見<a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 msgid "Organization"
@@ -3362,8 +3328,8 @@ msgstr "此資料集沒有說明"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"Important: By submitting content, you agree to release your contributions"
-" under the Open Database License."
+"Important: By submitting content, you agree to release your contributions "
+"under the Open Database License."
 msgstr "重要：在發佈內容之前，請確認您同意在Open Database License之下提供您所發佈的內容。"
 
 #: ckan/templates/package/snippets/package_form.html:37
@@ -3485,7 +3451,8 @@ msgstr "探索"
 
 #: ckan/templates/package/snippets/resource_item.html:29
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
-#: ckan/templates_legacy/_util.html:12 ckan/templates_legacy/js_strings.html:16
+#: ckan/templates_legacy/_util.html:12
+#: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/importer/importer.html:26
 #: ckan/templates_legacy/package/resource_read.html:148
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:27
@@ -3494,7 +3461,7 @@ msgstr "預覽"
 
 #: ckan/templates/package/snippets/resource_item.html:32
 msgid "More information"
-msgstr ""
+msgstr "更多資訊。"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
@@ -3503,8 +3470,8 @@ msgstr "資料與資源"
 #: ckan/templates/package/snippets/resources_list.html:26
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a> "
 msgstr " <p class=\"empty\">此資料集中沒有資料，<a href=\"%(url)s\">新增一些如何？</a> "
 
 #: ckan/templates/package/snippets/revisions_table.html:24
@@ -3535,13 +3502,11 @@ msgstr "相關物件是什麼？"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-" <p>關聯媒體可以是任何跟資料集有關的APP、文章、物件或想法。</p> "
-"<p>舉例來說，它可能是一個自定義視覺化圖像，圖形或長條圖，一個使用了部分或全部資料的APP，甚至是一則關於此資料集的新聞故事。</p> "
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr " <p>關聯媒體可以是任何跟資料集有關的APP、文章、物件或想法。</p> <p>舉例來說，它可能是一個自定義視覺化圖像，圖形或長條圖，一個使用了部分或全部資料的APP，甚至是一則關於此資料集的新聞故事。</p> "
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3560,9 +3525,7 @@ msgstr "創新應用"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-" <p>所有物件總數：<strong>%(item_count)s</strong>個，顯示其中的<strong>%(first)s - "
-"%(last)s</strong></p> "
+msgstr " <p>所有物件總數：<strong>%(item_count)s</strong>個，顯示其中的<strong>%(first)s - %(last)s</strong></p> "
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3579,8 +3542,8 @@ msgstr "APP是什麼？"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
 msgstr "這些應用程式是根據資料集內的資料產生創新的想法而誕生。"
 
 #: ckan/templates/related/dashboard.html:58
@@ -3666,7 +3629,7 @@ msgstr "你確定要刪除這個相關物件嗎？"
 
 #: ckan/templates/related/snippets/related_item.html:16
 msgid "Go to {related_item_type}"
-msgstr ""
+msgstr "前往 {related_item_type}。"
 
 #: ckan/templates/related/snippets/related_item.html:23
 msgid "This item has no description"
@@ -3674,12 +3637,12 @@ msgstr "此物件沒有說明。"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr ""
+msgstr "差異。"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "版本差異。"
 
 #: ckan/templates/revision/diff.html:44
 #: ckan/templates_legacy/revision/diff.html:32
@@ -3688,7 +3651,7 @@ msgstr "差異"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr ""
+msgstr "沒有差異。"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
@@ -3763,15 +3726,15 @@ msgstr "清除全部"
 
 #: ckan/templates/snippets/facet_list.html:73
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "顯示更多 {facet_type}。"
 
 #: ckan/templates/snippets/facet_list.html:75
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "僅顯示熱門的 {facet_type}。"
 
 #: ckan/templates/snippets/facet_list.html:79
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "沒有 {facet_type} 符合這個搜尋結果。"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -3915,7 +3878,7 @@ msgstr "編輯"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr ""
+msgstr "搜尋標籤。"
 
 #: ckan/templates/user/dashboard.html:4 ckan/templates/user/edit.html:7
 #: ckan/templates/user/edit_base.html:5
@@ -3935,12 +3898,12 @@ msgstr "我的資料集"
 #: ckan/templates/user/dashboard.html:20
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "我的組織。"
 
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "我的群組。"
 
 #: ckan/templates/user/dashboard.html:33
 msgid "Activity from items that you follow"
@@ -3960,11 +3923,11 @@ msgstr "馬上建立一個？"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "你不屬於任何群組之成員。"
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "你不屬於任何組織之成員。"
 
 #: ckan/templates/user/edit.html:10 ckan/templates/user/list.html:6
 #: ckan/templates/user/list.html:13 ckan/templates/user/read_base.html:8
@@ -3981,8 +3944,7 @@ msgstr "帳號資訊"
 
 #: ckan/templates/user/edit.html:24
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "您的個人資料：讓其他CKAN使用者了解你是誰以及你從事什麼。"
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4188,8 +4150,8 @@ msgstr "請求重置"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr "輸入您的使用者名稱，我們將會寄給您新的密碼至您的電子信箱。"
 
 #: ckan/templates/user/snippets/back_to_user_action.html:1
@@ -4264,9 +4226,7 @@ msgstr "尚未有評分"
 msgid ""
 "–\n"
 "    rate it now"
-msgstr ""
-"–\n"
-"    馬上評分"
+msgstr "–\n    馬上評分"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Checking..."
@@ -4421,7 +4381,8 @@ msgstr "你可以在這裡使用%a Markdown標示語言格式 %b。"
 
 #: ckan/templates_legacy/js_strings.html:16
 #, python-format
-msgid "Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
+msgid ""
+"Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
 msgstr "資料都是 %a ISO格式 %b ，例如：%c2012-12-25%d or %c2010-05-31T14:30%d."
 
 #: ckan/templates_legacy/js_strings.html:16
@@ -4634,10 +4595,10 @@ msgstr "什麼是群組？"
 
 #: ckan/templates_legacy/group/index.html:12
 msgid ""
-"Whilst tags are great at collecting datasets together, there are "
-"occasions when you want to restrict users from editing a collection. A "
-"[1:group] can be set-up to specify which users have permission to add or "
-"remove datasets from it."
+"Whilst tags are great at collecting datasets together, there are occasions "
+"when you want to restrict users from editing a collection. A [1:group] can "
+"be set-up to specify which users have permission to add or remove datasets "
+"from it."
 msgstr "雖然標籤對於整合資料集而言很重要，但有其他方式可以限制使用者編輯整理.  可以設置[1:group] 來指定許可的使用者，增加或移除資料集。"
 
 #: ckan/templates_legacy/group/layout.html:18
@@ -4738,25 +4699,22 @@ msgstr "[1:你輸入的搜尋 \"%(query)s\". ]找到了%(number_of_results)s 個
 #: ckan/templates_legacy/home/about.html:14
 msgid ""
 "What was the [1:average price] of a house in the UK in 1935? When will "
-"India's projected population [2:overtake] that of China? Where can you "
-"see [3:publicly-funded art] in Seattle? Data to answer many, many "
-"questions like these is out there on the Internet somewhere - but it is "
-"not always easy to find."
+"India's projected population [2:overtake] that of China? Where can you see "
+"[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
+" these is out there on the Internet somewhere - but it is not always easy to"
+" find."
 msgstr "政府資料開放不僅能讓官員和政府組織受到監督，還能產生經濟效益，不論是直接節省政府開支、提昇服務效能、提高採購效益，或是間接地為民間帶來經濟利益與其他效益。"
 
 #: ckan/templates_legacy/home/about.html:16
 #, python-format
 msgid ""
-"%(site_title)s is a community-run catalogue of useful sets of data on the"
-" Internet. You can collect links here to data from around the web for "
-"yourself and others to use, or search for data that others have "
-"collected. Depending on the type of data (and its conditions of use), "
-"%(site_title)s may also be able to store a copy of the data or host it in"
-" a database, and provide some basic visualisation tools."
-msgstr ""
-"%(site_title)s 是一個有用的網路上社群運用的目錄 "
-"。你可以蒐集網路上的連結讓自己或他人使用，或者搜尋其他人蒐集的資料。根據資料的類型(以及使用條件)，%(site_title)s "
-"也可以儲存資料的副本在資料庫中，並提供一些基礎的視覺化工具。"
+"%(site_title)s is a community-run catalogue of useful sets of data on the "
+"Internet. You can collect links here to data from around the web for "
+"yourself and others to use, or search for data that others have collected. "
+"Depending on the type of data (and its conditions of use), %(site_title)s "
+"may also be able to store a copy of the data or host it in a database, and "
+"provide some basic visualisation tools."
+msgstr "%(site_title)s 是一個有用的網路上社群運用的目錄 。你可以蒐集網路上的連結讓自己或他人使用，或者搜尋其他人蒐集的資料。根據資料的類型(以及使用條件)，%(site_title)s 也可以儲存資料的副本在資料庫中，並提供一些基礎的視覺化工具。"
 
 #: ckan/templates_legacy/home/about.html:23
 msgid "How it works"
@@ -4765,25 +4723,23 @@ msgstr "如何運作"
 #: ckan/templates_legacy/home/about.html:25
 msgid ""
 "This site is running a powerful piece of open-source data cataloguing "
-"software called [1:CKAN], written and maintained by the [2:Open Knowledge"
-" Foundation]. Each 'dataset' record on CKAN contains a description of the"
-" data and other useful information, such as what formats it is available "
-"in, who owns it and whether it is freely available, and what subject "
-"areas the data is about. Other users can improve or add to this "
-"information (CKAN keeps a fully versioned history)."
-msgstr ""
-"本網站透過一個功能強大的開源碼編目軟體[1:CKAN]運作，由[2:開放知識基金會]編寫及維護. "
-"每個CKAN上記錄的資料集包含了資料集的說明以及其他有用的資訊，例如格式、擁有者、是否免費提供、屬於哪個學科領域。其他使用者可以在CKAN上改善及增加資訊(CKAN保有完整的版本歷史紀錄)。"
+"software called [1:CKAN], written and maintained by the [2:Open Knowledge "
+"Foundation]. Each 'dataset' record on CKAN contains a description of the "
+"data and other useful information, such as what formats it is available in, "
+"who owns it and whether it is freely available, and what subject areas the "
+"data is about. Other users can improve or add to this information (CKAN "
+"keeps a fully versioned history)."
+msgstr "本網站透過一個功能強大的開源碼編目軟體[1:CKAN]運作，由[2:開放知識基金會]編寫及維護. 每個CKAN上記錄的資料集包含了資料集的說明以及其他有用的資訊，例如格式、擁有者、是否免費提供、屬於哪個學科領域。其他使用者可以在CKAN上改善及增加資訊(CKAN保有完整的版本歷史紀錄)。"
 
 #: ckan/templates_legacy/home/about.html:27
 msgid ""
-"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub]"
-" is an openly editable open data catalogue, in the style of Wikipedia. "
-"The UK Government uses CKAN to run [2:data.gov.uk], which currently lists"
-" 8,000 government datasets. Official public data from most European "
-"countries is listed in a CKAN catalogue at [3:publicdata.eu]. There is a "
-"comprehensive list of catalogues like these around the world at "
-"[4:datacatalogs.org], which is itself powered by CKAN."
+"CKAN powers a number of data catalogues on the Internet. [1:The Data Hub] is"
+" an openly editable open data catalogue, in the style of Wikipedia. The UK "
+"Government uses CKAN to run [2:data.gov.uk], which currently lists 8,000 "
+"government datasets. Official public data from most European countries is "
+"listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
+"list of catalogues like these around the world at [4:datacatalogs.org], "
+"which is itself powered by CKAN."
 msgstr "CKAN在網路上提供一些資料目錄。[1:資料中心]是一個公開的可編輯的開放資料目錄，以維基百科的形式呈現。英國政府使用CKAN運做[2:data.gov.uk]，目前已有8000個政府資料集。大多數歐洲國家的官方公開資料都在[3:publicdata.eu]的CKAN目錄中。[4:datacatalogs.org]上有一個全世界較完整的CKAN目錄清單，也是透過CKAN運作。"
 
 #: ckan/templates_legacy/home/about.html:30
@@ -4794,27 +4750,22 @@ msgstr "開放資料以及開放知識基金會"
 #, python-format
 msgid ""
 "Most of the data indexed at %(site_title)s is openly licensed, meaning "
-"anyone is free to use or re-use it however they like. Perhaps someone "
-"will take that nice dataset of a city's public art that you found, and "
-"add it to a tourist map - or even make a neat app for your phone that'll "
-"help you find artworks when you visit the city. Open data means more "
-"enterprise, collaborative science and transparent government. You can "
-"read more about open data in the [1:Open Data Handbook]."
-msgstr ""
-"在%(site_title)s的索引資料都是公開授權，意味著任何人都可以自由使用或再製。也許有人會將一個城市的公共藝術資料添加到的旅遊地圖中 - "
-"甚至一個簡便的手機應用程式會幫你在你所在的城市找到的藝術品。開放資料意味著更多企業、整合科學和透明的政府。你可以在[1:開放資料手冊]中取得更多資訊。"
+"anyone is free to use or re-use it however they like. Perhaps someone will "
+"take that nice dataset of a city's public art that you found, and add it to "
+"a tourist map - or even make a neat app for your phone that'll help you find"
+" artworks when you visit the city. Open data means more enterprise, "
+"collaborative science and transparent government. You can read more about "
+"open data in the [1:Open Data Handbook]."
+msgstr "在%(site_title)s的索引資料都是公開授權，意味著任何人都可以自由使用或再製。也許有人會將一個城市的公共藝術資料添加到的旅遊地圖中 - 甚至一個簡便的手機應用程式會幫你在你所在的城市找到的藝術品。開放資料意味著更多企業、整合科學和透明的政府。你可以在[1:開放資料手冊]中取得更多資訊。"
 
 #: ckan/templates_legacy/home/about.html:34
 msgid ""
-"The [1:Open Knowledge Foundation] is a non-profit organisation "
-"[2:promoting] open knowledge: writing and improving CKAN is one of the "
-"ways we do that. If you want to get involved with its design or code, "
-"join the discussion or development [3:mailing lists], or take a look at "
-"the [4:OKFN] site to find out about our other projects."
-msgstr ""
-"[1:開放知識基金會] 是一個非營利組織 [2:宣傳] "
-"開放知識：編寫及改善CKAN是我們正在做的方法之一。如果你想要參與設計或編碼、或參與討論、開發 [3:郵件清單], 或看一看 [4:OKFN] "
-"網站了解我們其他的計畫。"
+"The [1:Open Knowledge Foundation] is a non-profit organisation [2:promoting]"
+" open knowledge: writing and improving CKAN is one of the ways we do that. "
+"If you want to get involved with its design or code, join the discussion or "
+"development [3:mailing lists], or take a look at the [4:OKFN] site to find "
+"out about our other projects."
+msgstr "[1:開放知識基金會] 是一個非營利組織 [2:宣傳] 開放知識：編寫及改善CKAN是我們正在做的方法之一。如果你想要參與設計或編碼、或參與討論、開發 [3:郵件清單], 或看一看 [4:OKFN] 網站了解我們其他的計畫。"
 
 #: ckan/templates_legacy/home/index.html:13
 msgid "Welcome to"
@@ -4836,9 +4787,7 @@ msgstr "個資料集"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr ""
-"你可以 \n"
-"            瀏覽、學習和下載"
+msgstr "你可以 \n            瀏覽、學習和下載"
 
 #: ckan/templates_legacy/home/index.html:32
 msgid "Share data"
@@ -4848,9 +4797,7 @@ msgstr "分享資料"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "          to find other people interested in your data."
-msgstr ""
-"新增並分享你擁有的資料集給其他人並且\n"
-"        找到其他對你的資料有興趣的人。"
+msgstr "新增並分享你擁有的資料集給其他人並且\n        找到其他對你的資料有興趣的人。"
 
 #: ckan/templates_legacy/home/index.html:38
 msgid "Create a dataset »"
@@ -4868,9 +4815,7 @@ msgstr "合作"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
-"了解更多關於開放資料的工作及發展 \n"
-"        參考這些資料:"
+msgstr "了解更多關於開放資料的工作及發展 \n        參考這些資料:"
 
 #: ckan/templates_legacy/home/index.html:54
 msgid "GetTheData.org"
@@ -4992,11 +4937,9 @@ msgstr "儲存前(在新視窗開啟)。"
 #: ckan/templates_legacy/package/edit_form.html:31
 msgid ""
 "[1:Important:] By submitting content, you agree to release your "
-"contributions under the [2:Open Database License]. Please [3:refrain] "
-"from editing this page if you are [4:not] happy to do this."
-msgstr ""
-"[1:重要：]發布資料前，你同意透過 [2:Open Database License]釋出資料。 如果你[4:不]同意，請 "
-"[3:不要]繼續編輯此頁面。"
+"contributions under the [2:Open Database License]. Please [3:refrain] from "
+"editing this page if you are [4:not] happy to do this."
+msgstr "[1:重要：]發布資料前，你同意透過 [2:Open Database License]釋出資料。 如果你[4:不]同意，請 [3:不要]繼續編輯此頁面。"
 
 #: ckan/templates_legacy/package/editresources.html:6
 msgid "- Edit Resources - Datasets"
@@ -5102,8 +5045,8 @@ msgstr "無法新增群組"
 
 #: ckan/templates_legacy/package/new_package_form.html:122
 msgid ""
-"Comma-separated terms that may link this dataset to similar ones. For "
-"more information on conventions, see [1:this wiki page]."
+"Comma-separated terms that may link this dataset to similar ones. For more "
+"information on conventions, see [1:this wiki page]."
 msgstr "用逗號區隔可能會連結到相似的資料集。更多詳細資訊請參閱[1:維基頁面]."
 
 #: ckan/templates_legacy/package/new_package_form.html:123
@@ -5116,8 +5059,7 @@ msgstr "新增資料"
 
 #: ckan/templates_legacy/package/new_package_form.html:132
 msgid ""
-"Upload or link data files, APIs and other materials related to your "
-"dataset."
+"Upload or link data files, APIs and other materials related to your dataset."
 msgstr "上傳或連結資料檔案、API和其他相關元件到你的資料集。"
 
 #: ckan/templates_legacy/package/new_package_form.html:139
@@ -5138,8 +5080,8 @@ msgstr "API的網址"
 
 #: ckan/templates_legacy/package/new_package_form.html:193
 msgid ""
-"The name of the main contact, for enquiries about this particular "
-"dataset, using the e-mail address in the following field."
+"The name of the main contact, for enquiries about this particular dataset, "
+"using the e-mail address in the following field."
 msgstr "主要聯絡人的名稱，用來查詢特定的資料集，使用電子郵件地址。"
 
 #: ckan/templates_legacy/package/new_package_form.html:198
@@ -5148,8 +5090,8 @@ msgstr "作者的電子郵件"
 
 #: ckan/templates_legacy/package/new_package_form.html:208
 msgid ""
-"If there is another important contact person (in addition to the person "
-"in the Author field) then provide details here."
+"If there is another important contact person (in addition to the person in "
+"the Author field) then provide details here."
 msgstr "如果有其他比提供者更重要的聯絡人(除了作者)，請詳述在此。"
 
 #: ckan/templates_legacy/package/new_package_form.html:213
@@ -5166,8 +5108,8 @@ msgstr "例如 1.2.0"
 
 #: ckan/templates_legacy/package/new_package_form.html:230
 msgid ""
-"Adding custom fields to the dataset such as \"location:uk\" can help "
-"users find it in the search engine. This data will also appear under"
+"Adding custom fields to the dataset such as \"location:uk\" can help users "
+"find it in the search engine. This data will also appear under"
 msgstr "加入自訂的欄位，例如 \"location:uk\" 。可以幫助使用者在搜尋引擎中找到。此資料也將出現在"
 
 #: ckan/templates_legacy/package/new_package_form.html:230
@@ -5198,16 +5140,15 @@ msgstr "簡要說明你所做的變更..."
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr ""
-"如果你沒有登入，將會記錄你的IP位址\n"
-"    [1:按此登入] 在儲存之前(以新視窗開啟)"
+msgstr "如果你沒有登入，將會記錄你的IP位址\n    [1:按此登入] 在儲存之前(以新視窗開啟)"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "Important:"
 msgstr "重要："
 
 #: ckan/templates_legacy/package/new_package_form.html:305
-msgid "By submitting content, you agree to release your contributions under the"
+msgid ""
+"By submitting content, you agree to release your contributions under the"
 msgstr "送出內容之前，你同意將此提供給"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
@@ -5299,9 +5240,7 @@ msgstr "採集來源"
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr ""
-"[1:Dataset page] 於 \n"
-"            [2:%(harvest_catalogue_name)s]"
+msgstr "[1:Dataset page] 於 \n            [2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates_legacy/package/resource_embedded_dataviewer.html:87
 #: ckan/templates_legacy/package/resource_read.html:58
@@ -5370,9 +5309,7 @@ msgstr "轉儲"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr ""
-"[1:搜尋時發生錯誤] \n"
-"            請再試一次。"
+msgstr "[1:搜尋時發生錯誤] \n            請再試一次。"
 
 #: ckan/templates_legacy/package/search.html:54
 #, python-format
@@ -5505,9 +5442,7 @@ msgstr "資料集-"
 msgid ""
 ",\n"
 "      Tag -"
-msgstr ""
-",\n"
-"標籤 -"
+msgstr ",\n標籤 -"
 
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:19
 msgid "Embed this view"
@@ -5525,9 +5460,7 @@ msgstr "非開放授權"
 msgid ""
 "This upload form is valid for a limited time (usually 1h or so). If the\n"
 "    form expires please reload the page."
-msgstr ""
-"此上傳表格有時效限制(通常為1小時). 如果\n"
-"    表格毀損，請重新整理網頁。"
+msgstr "此上傳表格有時效限制(通常為1小時). 如果\n    表格毀損，請重新整理網頁。"
 
 #: ckan/templates_legacy/storage/index.html:33
 msgid "File:"
@@ -5642,8 +5575,8 @@ msgstr "更改你的使用者名稱"
 
 #: ckan/templates_legacy/user/edit_user_form.html:66
 msgid ""
-"Changing your username will log you out, and require you to log back in "
-"with the new username"
+"Changing your username will log you out, and require you to log back in with"
+" the new username"
 msgstr "必須登出才能變更使用者名稱，並且會要求你用心的使用者名稱登入"
 
 #: ckan/templates_legacy/user/followers.html:6
@@ -5722,8 +5655,8 @@ msgstr "使用 Open ID 登入"
 
 #: ckan/templates_legacy/user/login.html:62
 msgid ""
-"NB: To set-up your OpenID for this site, you first need to [1:Register] "
-"and then edit your Profile to provide your OpenID."
+"NB: To set-up your OpenID for this site, you first need to [1:Register] and "
+"then edit your Profile to provide your OpenID."
 msgstr "NB:若想要在這個網站上設置你的OpenID，你必須先 [1:註冊]且編輯你的個人資料，以提供OpenID。"
 
 #: ckan/templates_legacy/user/login.html:64
@@ -5743,15 +5676,9 @@ msgid ""
 "OpenID is service that allows you to log-on to many different websites\n"
 "          using a single identity. Find out [1:more\n"
 "          about OpenID] and [2:how to get an\n"
-"          OpenID enabled account]. Probably the simplest way is sign up "
-"with a\n"
+"          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr ""
-"OpenID服務可以讓你在許多不同網站上登入\n"
-"          利用同一個ID。 查看 [1:更多\n"
-"          關於 OpenID] 以及 [2:如何取得\n"
-"          OpenID 帳號]. 最簡單的方法就是註冊 a\n"
-"          免費 OpenID 提供者，例如 [3:https://www.myopenid.com/]."
+msgstr "OpenID服務可以讓你在許多不同網站上登入\n          利用同一個ID。 查看 [1:更多\n          關於 OpenID] 以及 [2:如何取得\n          OpenID 帳號]. 最簡單的方法就是註冊 a\n          免費 OpenID 提供者，例如 [3:https://www.myopenid.com/]."
 
 #: ckan/templates_legacy/user/login.html:83
 msgid "Sign in with OpenID"
@@ -5855,7 +5782,7 @@ msgstr "使用者名稱："
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
-msgstr ""
+msgstr "資料儲存之資源不存在。"
 
 #: ckanext/datastore/logic/action.py:140 ckanext/datastore/logic/action.py:184
 #: ckanext/datastore/logic/action.py:268 ckanext/datastore/logic/action.py:352
@@ -5901,71 +5828,27 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n"
-"\n"
-"Permission is hereby granted, free of charge, to any person obtaining\n"
-"a copy of this software and associated documentation files (the\n"
-"\"Software\"), to deal in the Software without restriction, including\n"
-"without limitation the rights to use, copy, modify, merge, publish,\n"
-"distribute, sublicense, and/or sell copies of the Software, and to\n"
-"permit persons to whom the Software is furnished to do so, subject to\n"
-"the following conditions:\n"
-"\n"
-"The above copyright notice and this permission notice shall be\n"
-"included in all copies or substantial portions of the Software.\n"
-"\n"
-"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-"EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-"MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-"NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n"
-"LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
-"OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-"WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
-"Compiler, using the following command:\n"
-"\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
-"\n"
-" * jquery-ui-1.8.16.custom.min.js \n"
-" * jquery.event.drag-2.0.min.js\n"
-"\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
-"built file to make easier to handle compatibility problems.\n"
-"\n"
-"Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "This compiled version of SlickGrid has been obtained with the Google Closure\nCompiler, using the following command:\n\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nThere are two other files required for the SlickGrid view to work properly:\n\n * jquery-ui-1.8.16.custom.min.js \n * jquery.event.drag-2.0.min.js\n\nThese are included in the Recline source, but have not been included in the\nbuilt file to make easier to handle compatibility problems.\n\nPlease check SlickGrid license in the included MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -6090,251 +5973,10 @@ msgstr "資料集排行榜"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
 msgstr "挑選一個資料集屬性，找出哪個目錄中擁有最多該屬性的資料集。例如：標籤、群組、授權、res_format、國家。"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
 msgstr "選擇地區"
-
-#~ msgid "Parameter Error"
-#~ msgstr "參數錯誤"
-
-#~ msgid "Malformed qjson value"
-#~ msgstr "格式不正確的qjson值"
-
-#~ msgid "Cannot render description"
-#~ msgstr "無法呈現的說明"
-
-#~ msgid "Licence"
-#~ msgstr "授權"
-
-#~ msgid "Error: Could not parse About text"
-#~ msgstr "錯誤：無法分析文件"
-
-#~ msgid "{actor} created the link to related {related_type} {related_item}"
-#~ msgstr "{actor}建立了相關連結：{related_type} {related_item}"
-
-#~ msgid "no name"
-#~ msgstr "沒有名稱"
-
-#~ msgid "Cannot render package description"
-#~ msgstr "無法提供組件說明"
-
-#~ msgid "Open Data Commons Public Domain Dedication and Licence (PDDL)"
-#~ msgstr "Open Data Commons Public Domain Dedication and Licence (PDDL)"
-
-#~ msgid "This resource cannot be previewed."
-#~ msgstr "此資源無法預覽"
-
-#~ msgid "Edit a Group"
-#~ msgstr "編輯一個群組"
-
-#~ msgid "Edit Member:"
-#~ msgstr "編輯成員："
-
-#~ msgid "Info"
-#~ msgstr "資訊"
-
-#~ msgid "Organizations of Datasets"
-#~ msgstr "資料集的組織"
-
-#~ msgid "Add member"
-#~ msgstr "新增成員"
-
-#~ msgid "Are you sure you want to delete this Organization?"
-#~ msgstr "你確定要刪除這個組織嗎？"
-
-#~ msgid ""
-#~ "Data API is unavailable for this "
-#~ "resource as no data has been "
-#~ "pushed to it yet"
-#~ msgstr "此資源的Data API目前無法使用。"
-
-#~ msgid ""
-#~ " <strong>There was an error while "
-#~ "searching.</strong> Please try again. "
-#~ msgstr " <strong>搜尋時發生錯誤。</strong> 請再試一次。"
-
-#~ msgid "Go to {type}"
-#~ msgstr "前往 {type}"
-
-#~ msgid "Show More {facet}"
-#~ msgstr "顯示更多{facet}"
-
-#~ msgid "Show Only Popular {facet}"
-#~ msgstr "僅顯示熱門的{facet}"
-
-#~ msgid "There are no filters for this search"
-#~ msgstr "搜尋不到篩選的結果"
-
-#~ msgid "You do not have any datasets"
-#~ msgstr "你沒有任何資料集"
-
-#~ msgid "Add to Groups"
-#~ msgstr "新增至群組"
-
-#~ msgid "Select a group..."
-#~ msgstr "選取一個群組..."
-
-#~ msgid ""
-#~ "There was a problem with your "
-#~ "submission,                              please correct"
-#~ " it and try again"
-#~ msgstr "你送出的內容有誤，請更正並再試一次"
-
-#~ msgid "There is a problem with the system configuration"
-#~ msgstr "系統設定有一些問題"
-
-#~ msgid "Your application has been submitted"
-#~ msgstr "你的應用程式已經送出"
-
-#~ msgid ""
-#~ "There was a problem with your "
-#~ "submission, please correct it and try"
-#~ " again"
-#~ msgstr "你送出的內容有誤，請更正並再試一次"
-
-#~ msgid "Please choose an organization to add the dataset to"
-#~ msgstr "請選擇此資料集的上層組織"
-
-#~ msgid ""
-#~ "Dear administrator,\n"
-#~ "\n"
-#~ "A request has been made for membership of your organization"
-#~ msgstr ""
-#~ "管理者您好，\n"
-#~ "\n"
-#~ "有會員想要申請成為您的組織成員。"
-
-#~ msgid "by"
-#~ msgstr "by"
-
-#~ msgid "{% if requester.fullname %}("
-#~ msgstr "{% if requester.fullname %}("
-
-#~ msgid ""
-#~ "){% end %}\n"
-#~ "\n"
-#~ "The reason given for the request was:\n"
-#~ "\n"
-#~ "\""
-#~ msgstr ""
-#~ "){% end %}\n"
-#~ "\n"
-#~ "該請求所提出的原因是：\n"
-#~ "\n"
-#~ "\""
-
-#~ msgid ""
-#~ "\"\n"
-#~ "\n"
-#~ "Please contact the user to verify "
-#~ "and then if you would like to "
-#~ "add this user you can do so "
-#~ "by visiting"
-#~ msgstr ""
-#~ "\"\n"
-#~ "\n"
-#~ "請聯絡使用者進行確認，如果想要增加這個使用者可以透過訪問。"
-
-#~ msgid ""
-#~ "If you do not wish to add "
-#~ "this user you can safely disregard "
-#~ "this email."
-#~ msgstr "如果你不希望增加這個使用者，你可以忽略此電子郵件。"
-
-#~ msgid ""
-#~ " <p>Organizations allow you to add "
-#~ "both users and datasets to it in"
-#~ " order to control who can access "
-#~ "and manage your datasets</p> "
-#~ msgstr "<p>組織允許您新增使用者和資料集，以控制誰可以瀏覽和管理您的資料集</p> "
-
-#~ msgid "Create an organization"
-#~ msgstr "建立一個組織"
-
-#~ msgid ""
-#~ " <p>An organization can be set-up"
-#~ " to specify which users have "
-#~ "permission to add or remove datasets "
-#~ "from it.</p> "
-#~ msgstr "<p>組織可以設定指定那些使用者擁有新增或移除資料集的權限。</p> "
-
-#~ msgid "Add Dataset to Organization"
-#~ msgstr "新增一個資料集至群組"
-
-#~ msgid "Manage Users"
-#~ msgstr "管理使用者"
-
-#~ msgid "Apply for membership"
-#~ msgstr "申請會員資格"
-
-#~ msgid "Reason"
-#~ msgstr "原因"
-
-#~ msgid ""
-#~ "Please explain to the owner your "
-#~ "reasons for wishing to become an "
-#~ "editor of this organization"
-#~ msgstr "請向資料擁有者說明為何你想要成為此組織的編輯者"
-
-#~ msgid "Send request"
-#~ msgstr "送出請求"
-
-#~ msgid "The URL for the image that is associated with this organization."
-#~ msgstr "代表組織的圖檔網址"
-
-#~ msgid "Parent Organization"
-#~ msgstr "上層組織"
-
-#~ msgid "No parent organization"
-#~ msgstr "沒有上層組織"
-
-#~ msgid "Manage users"
-#~ msgstr "管理使用者"
-
-#~ msgid "There are no users currently in this publisher."
-#~ msgstr "此發布者內目前沒有任何使用者"
-
-#~ msgid "Organization History"
-#~ msgstr "組織歷史"
-
-#~ msgid "What Are Organizations?"
-#~ msgstr "組織是什麼？"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. An "
-#~ "[1:organization] can be set-up to "
-#~ "specify which users have permission to"
-#~ " add or remove datasets from it."
-#~ msgstr "雖然標籤功能對於尋找資料集而言相當方便，但有些情況還是需要能夠限制使用者編輯的功能。建立[1:組織] 可以為個別的使用者指派編輯權限。"
-
-#~ msgid "Join"
-#~ msgstr "加入"
-
-#~ msgid "List Organizations"
-#~ msgstr "列出組織"
-
-#~ msgid "Add an Organization"
-#~ msgstr "新增一個組織"
-
-#~ msgid "Add an organization"
-#~ msgstr "新增一個組織"
-
-#~ msgid "Cannot add to any organizations. Please join an organization"
-#~ msgstr "無法加入任何組織。請加入一個組織。"
-
-#~ msgid "Users:"
-#~ msgstr "使用者 : "
-
-#~ msgid "There are no users currently in this organization."
-#~ msgstr "目前此組織內沒有任何使用者"
-
-#~ msgid "Add users"
-#~ msgstr "新增使用者"
-
