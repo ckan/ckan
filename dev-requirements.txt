@@ -7,3 +7,5 @@ pep8==1.4.5
 pip-tools==0.3.1
 Sphinx==1.2b1
 polib==1.0.3
+mock==1.0.1
+factory-boy==2.1.1
