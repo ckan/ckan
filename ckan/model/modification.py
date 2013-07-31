@@ -1,7 +1,6 @@
 import logging
 
 import ckan.plugins as plugins
-import extension
 import domain_object
 import package as _package
 import resource
@@ -10,7 +9,7 @@ log = logging.getLogger(__name__)
 
 __all__ = ['DomainObjectModificationExtension']
 
-class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.ObserverNotifier):
+class DomainObjectModificationExtension(plugins.SingletonPlugin):
     """
     A domain object level interface to change notifications
 
@@ -19,7 +18,18 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.Obser
     """
 
     plugins.implements(plugins.ISession, inherit=True)
-    observers = plugins.PluginImplementations(plugins.IDomainObjectModification)
+
+    def notify_observers(self, func):
+        """
+        Call func(observer) for all registered observers.
+
+        :param func: Any callable, which will be called for each observer
+        :returns: EXT_CONTINUE if no errors encountered, otherwise EXT_STOP
+        """
+        for observer in plugins.PluginImplementations(
+                plugins.IDomainObjectModification):
+            func(observer)
+
 
     def before_commit(self, session):
 
@@ -63,7 +73,8 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin, extension.Obser
 
 
     def notify(self, entity, operation):
-        for observer in self.observers:
+        for observer in plugins.PluginImplementations(
+                plugins.IDomainObjectModification):
             try:
                 observer.notify(entity, operation)
             except Exception, ex:

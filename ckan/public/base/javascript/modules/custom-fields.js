@@ -17,7 +17,7 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      * Returns nothing.
      */
     initialize: function () {
-      if (!jQuery.browser.msie || !jQuery.browser.version == '7.0') {
+      if (!jQuery('html').hasClass('ie7')) {
         jQuery.proxyAll(this, /_on/);
 
         var delegated = this.options.fieldSelector + ':last input:first';

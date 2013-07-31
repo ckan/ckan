@@ -14,7 +14,7 @@ authors = {}
 
 import os
 
-from sqlobject import *
+import sqlobject
 
 import loadconfig
 path = os.path.abspath(cfg_path)
@@ -36,7 +36,7 @@ def purge_packages_by_name():
     pkg = model.Package.byName(pkg_name)
     # for efficiency reasons best to have revisions in descending order
     sel = model.PackageRevision.select(
-            AND(model.PackageRevision.q.baseID==pkg.id,
+            sqlobject.AND(model.PackageRevision.q.baseID==pkg.id,
                 model.PackageRevision.q.revisionID>=start_at_id),
             orderBy=-model.PackageRevision.q.revisionID,
             )
