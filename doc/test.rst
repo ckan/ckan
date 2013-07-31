@@ -7,9 +7,9 @@ you're just installing CKAN from source, you should make sure that CKAN's tests
 pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
 
-----------------------------------
-Installing Additional Dependencies
-----------------------------------
+-------------------------------
+Install additional dependencies
+-------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at |development.ini|, then activate your
@@ -27,9 +27,9 @@ environment:
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
 
------------------------------
-Setting up the test databases
------------------------------
+-------------------------
+Set up the test databases
+-------------------------
 
 .. versionchanged:: 2.1
    Previously |postgres| tests used the databases defined in your
@@ -47,9 +47,9 @@ This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
 
 
------------------
-Running the tests
------------------
+-------------
+Run the tests
+-------------
 
 To run CKAN's tests using PostgreSQL as the database, you have to give the
 ``--with-pylons=test-core.ini`` option on the command line. This command will
@@ -65,7 +65,7 @@ memory and turning off durability, as described
 .. _migrationtesting:
 
 -----------------
-Migration Testing
+Migration testing
 -----------------
 
 If you're a CKAN developer or extension developer and your new code requires a
