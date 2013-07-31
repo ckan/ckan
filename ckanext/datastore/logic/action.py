@@ -422,7 +422,8 @@ def datapusher_submit(context, data_dict):
         to the :ref:`datastore dump <dump>` URL after the data has been imported.
     :type set_url_to_dump: boolean
     '''
-    pass
+
+    p.toolkit.check_access('datapusher_submit', context, data_dict)
 
 
 def _resource_exists(context, data_dict):
