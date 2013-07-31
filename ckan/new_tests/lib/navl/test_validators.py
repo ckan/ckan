@@ -6,7 +6,7 @@ import copy
 
 import nose.tools
 
-import ckan.new_tests.data as test_data
+import ckan.new_tests.factories as factories
 
 
 class TestValidators(object):
@@ -28,12 +28,12 @@ class TestValidators(object):
             key = ('key to be validated',)
 
             # The data to pass to the validator function for validation.
-            data = test_data.validator_data_dict()
+            data = factories.validator_data_dict()
             if value != 'skip':
                 data[key] = value
 
             # The errors dict to pass to the validator function.
-            errors = test_data.validator_errors_dict()
+            errors = factories.validator_errors_dict()
             errors[key] = []
 
             # Make copies of the data and errors dicts for asserting later.
@@ -66,9 +66,9 @@ class TestValidators(object):
         import ckan.lib.navl.validators as validators
 
         key = ('key to be validated',)
-        data = test_data.validator_data_dict()
+        data = factories.validator_data_dict()
         data[key] = 'value to be validated'
-        errors = test_data.validator_errors_dict()
+        errors = factories.validator_errors_dict()
         errors[key] = []
 
         # Make copies of the data and errors dicts for asserting later.

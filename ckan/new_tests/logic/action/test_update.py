@@ -6,7 +6,7 @@ import mock
 
 import ckan.logic as logic
 import ckan.new_tests.helpers as helpers
-import ckan.new_tests.data as data
+import ckan.new_tests.factories as factories
 
 
 def datetime_from_string(s):
@@ -49,7 +49,7 @@ class TestClass(object):
         # 4. Do absolutely nothing else!
 
         # 1. Setup.
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         # 2. Call the function that is being tested, once only.
         # FIXME we have to pass the email address and password to user_update
@@ -57,7 +57,7 @@ class TestClass(object):
         # fails.
         helpers.call_action('user_update', id=user['name'],
                             email=user['email'],
-                            password=data.typical_user()['password'],
+                            password=factories.User.attributes()['password'],
                             name='updated',
                             )
 
@@ -70,21 +70,22 @@ class TestClass(object):
         # 4. Do absolutely nothing else!
 
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = data.typical_user()
+        user_dict = factories.User.attributes()
         user_dict['id'] = "there's no user with this id"
+
         with nose.tools.assert_raises(logic.NotFound) as context:
             helpers.call_action('user_update', **user_dict)
         # TODO: Could assert the actual error message, not just the exception?
         # (Could also do this with many of the tests below.)
 
     def test_user_update_with_no_id(self):
-        user_dict = data.typical_user()
+        user_dict = factories.User.attributes()
         assert 'id' not in user_dict
         with nose.tools.assert_raises(logic.ValidationError) as context:
             helpers.call_action('user_update', **user_dict)
 
     def test_user_update_with_invalid_name(self):
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         invalid_names = ('', 'a', False, 0, -1, 23, 'new', 'edit', 'search',
                          'a'*200, 'Hi!', )
@@ -94,9 +95,8 @@ class TestClass(object):
                 helpers.call_action('user_update', **user)
 
     def test_user_update_to_name_that_already_exists(self):
-        fred = helpers.call_action('user_create', **data.typical_user())
-        bob = helpers.call_action('user_create', name='bob',
-                                  email='bob@bob.com', password='pass')
+        fred = factories.User(name='fred')
+        bob  = factories.User(name='bob')
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
@@ -107,7 +107,7 @@ class TestClass(object):
     def test_user_update_password(self):
         '''Test that updating a user's password works successfully.'''
 
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         # FIXME we have to pass the email address to user_update even though
         # we're not updating it, otherwise validation fails.
@@ -123,7 +123,7 @@ class TestClass(object):
         assert updated_user.validate_password('new password')
 
     def test_user_update_with_short_password(self):
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         user['password'] = 'xxx'  # This password is too short.
         with nose.tools.assert_raises(logic.ValidationError) as context:
@@ -137,9 +137,9 @@ class TestClass(object):
         changed either.
 
         '''
-        user_dict = data.typical_user()
+        user_dict = factories.User.attributes()
         original_password = user_dict['password']
-        user_dict = helpers.call_action('user_create', **user_dict)
+        user_dict = factories.User(**user_dict)
 
         user_dict['password'] = ''
         helpers.call_action('user_update', **user_dict)
@@ -149,14 +149,14 @@ class TestClass(object):
         assert updated_user.validate_password(original_password)
 
     def test_user_update_with_null_password(self):
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         user['password'] = None
         with nose.tools.assert_raises(logic.ValidationError) as context:
             helpers.call_action('user_update', **user)
 
     def test_user_update_with_invalid_password(self):
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         for password in (False, -1, 23, 30.7):
             user['password'] = password
@@ -168,7 +168,7 @@ class TestClass(object):
     def test_user_update_activity_stream(self):
         '''Test that the right activity is emitted when updating a user.'''
 
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
         before = datetime.datetime.now()
 
         # FIXME we have to pass the email address and password to user_update
@@ -176,7 +176,7 @@ class TestClass(object):
         # fails.
         helpers.call_action('user_update', id=user['name'],
                             email=user['email'],
-                            password=data.typical_user()['password'],
+                            password=factories.User.attributes()['password'],
                             name='updated',
                             )
 
@@ -203,7 +203,7 @@ class TestClass(object):
         '''
         import ckan.logic.schema
 
-        user = helpers.call_action('user_create', **data.typical_user())
+        user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
         # params it gets called with and how many times.
@@ -219,7 +219,7 @@ class TestClass(object):
         # trying to update them, or validation fails.
         helpers.call_action('user_update', context={'schema': schema},
                             id=user['name'], email=user['email'],
-                            password=data.typical_user()['password'],
+                            password=factories.User.attributes()['password'],
                             name='updated',
                             )
 
