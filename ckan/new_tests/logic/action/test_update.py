@@ -96,7 +96,7 @@ class TestClass(object):
 
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name='fred')
-        bob  = factories.User(name='bob')
+        bob = factories.User(name='bob')
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name

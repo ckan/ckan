@@ -41,6 +41,12 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
+def generate_email(user):
+    '''Return an email address for the given User factory stub object.'''
+
+    return '{0}@ckan.org'.format(user.name).lower()
+
+
 class User(factory.Factory):
     '''A factory class for creating CKAN users.'''
 
@@ -54,13 +60,11 @@ class User(factory.Factory):
     about = 'Just another test user.'
 
     # Generate a different user name param for each user that gets created.
-    name = factory.Sequence(
-            lambda n: 'test_user_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_user_{n}'.format(n=n))
 
     # Compute the email param for each user based on the values of the other
     # params above.
-    email = factory.LazyAttribute(
-            lambda a: '{0}@ckan.org'.format(a.name).lower())
+    email = factory.LazyAttribute(generate_email)
 
     # I'm not sure how to support factory_boy's .build() feature in CKAN,
     # so I've disabled it here.

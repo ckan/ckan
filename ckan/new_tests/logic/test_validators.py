@@ -366,14 +366,16 @@ class TestValidators(object):
         errors[key] = []
 
         @does_not_modify_other_keys_in_errors_dict('user_name_validator() '
-                'should not modify other keys in the errors dict')
+                                                   'should not modify other '
+                                                   'keys in the errors dict')
         @does_not_modify_data_dict('user_name_validator() should not modify '
                                    'the data dict')
         @returns_None('user_name_validator() should return None if called '
                       'with a user name that already exists')
         @adds_message_to_errors_dict('That login name is not available.',
-                'user_name_validator() should add to the errors dict when '
-                'called with the name of a user that already exists')
+                                     'user_name_validator() should add to the '
+                                     'errors dict when called with the name '
+                                     'of a user that already exists')
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})

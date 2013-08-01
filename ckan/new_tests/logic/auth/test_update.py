@@ -50,7 +50,7 @@ class TestUpdate(object):
         '''Users should not be able to update other users' accounts.'''
 
         fred = factories.User(name='fred')
-        bob  = factories.User(name='bob')
+        bob = factories.User(name='bob')
         fred['name'] = 'updated'
 
         # Make Bob try to update Fred's user account.
