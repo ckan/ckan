@@ -1,8 +1,8 @@
 Babel==1.3
-Genshi==0.6
 Beaker==1.6.4
 FormAlchemy==1.4.3
 FormEncode==1.2.6
+Genshi==0.6
 Jinja2==2.7
 Mako==0.8.1
 MarkupSafe==0.18
@@ -20,8 +20,9 @@ WebHelpers==1.3
 WebOb==1.0.8
 WebTest==1.4.3
 apachemiddleware==0.1.1
-argparse==1.1
+argparse==1.2.1
 decorator==3.4.0
+distribute==0.7.3
 fanstatic==0.12
 nose==1.3.0
 ofs==0.4.1
