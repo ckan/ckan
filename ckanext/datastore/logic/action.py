@@ -9,7 +9,6 @@ import sqlalchemy
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-import ckan.lib.helpers as h
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
 
@@ -104,7 +103,7 @@ def datastore_create(context, data_dict):
         # create empty resource
         # have to set the url here because we need the resource id
         else:
-            res['url'] = h.url_for(
+            res['url'] = p.toolkit.url_for(
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=res['id'])
             p.toolkit.get_action('resource_update')(context, res)
