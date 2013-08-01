@@ -5,6 +5,6 @@ docutils==0.8.1
 httpretty==0.6.0
 nose==1.2.1
 pep8==1.4.6
-pip-tools==0.3.1
+-e git+https://github.com/nvie/pip-tools@future#egg=pip-tools
 Sphinx==1.2b1
 polib==1.0.3

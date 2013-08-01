@@ -1,8 +1,11 @@
+# The file contains the direct ckan requirements.
+# Use pip-compile to create a requirements.txt file from this
+
 Babel>=0.9.6
 Genshi==0.6
 Jinja2>=2.6
 Pylons==0.9.7
-WebTest==1.4.3',  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
+WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
 apachemiddleware>=0.1.1
 babel>=0.9.6
 fanstatic==0.12
