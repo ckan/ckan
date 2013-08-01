@@ -198,20 +198,6 @@ def test_default():
     assert converted_data == {('1',): 'default', ('0',): '0 value'}, converted_data
 
 
-def test_ignore_missing():
-    schema = {
-        "__junk": [ignore],
-        "__extras": [ignore, default("weee")],
-        "0": [default("default")],
-        "1": [ignore_missing, default("default")],
-    }
-
-    converted_data, errors = validate_flattened(data, schema)
-
-    assert not errors
-    assert converted_data == {('0',): '0 value'}, converted_data
-
-
 def test_flatten():
 
     data = {'extras': [{'key': 'genre', 'value': u'horror'},
