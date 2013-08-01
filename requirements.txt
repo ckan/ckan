@@ -1,7 +1,8 @@
+# This file lists CKAN's dependencies so that you can install them (e.g. into
 # a Python virtual environment) after you have installed CKAN, with a command
 # instructions in CKAN's documentation for full installation instructions.
-# like: pip install -r requirements.txt. See the Install from Source
-# This file lists CKAN's dependencies so that you can install them (e.g. into
+# like: pip install -r requirements.txt. See the Install from Source docs
+
 apachemiddleware==0.1.1
 Babel==0.9.6
 Beaker==1.6.4
