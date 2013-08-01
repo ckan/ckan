@@ -236,6 +236,31 @@ class TestClass(object):
         # user['name'] as arg.
         mock_validator.assert_called_once_with(user['name'])
 
+    def test_user_update_multiple(self):
+        '''Test that updating multiple user attributes at once works.'''
+
+        user = factories.User()
+
+        params = {
+            'id': user['id'],
+            'name': 'updated_name',
+            'fullname': 'updated full name',
+            'about': 'updated about',
+            # FIXME: We shouldn't have to put email here since we're not
+            # updating it, but user_update sucks.
+            'email': user['email'],
+            # FIXME: We shouldn't have to put password here since we're not
+            # updating it, but user_update sucks.
+            'password': factories.User.attributes()['password'],
+        }
+
+        helpers.call_action('user_update', **params)
+
+        updated_user = helpers.call_action('user_show', id=user['id'])
+        assert updated_user['name'] == 'updated_name'
+        assert updated_user['fullname'] == 'updated full name'
+        assert updated_user['about'] == 'updated about'
+
     def test_user_update_with_deferred_commit(self):
         '''Test that user_update()'s deferred_commit option works.
 
