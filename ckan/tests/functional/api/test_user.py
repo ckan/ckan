@@ -80,23 +80,3 @@ class TestUserActions(object):
         assert 'email' in user_dict
         assert 'apikey' in user_dict
         assert 'password' not in user_dict
-
-    def test_user_update_simple(self):
-        '''Simple update of a user by themselves.'''
-        context = {
-            'model': model,
-            'session': model.Session,
-            'user': 'annafan',
-        }
-
-        data_dict = {
-            'id': 'annafan',
-            'email': 'anna@example.com',
-        }
-
-        user_dict = logic.get_action('user_update')(context, data_dict)
-
-        assert_equal(user_dict['email'], 'anna@example.com')
-        assert 'apikey' in user_dict
-        assert 'password' not in user_dict
-
