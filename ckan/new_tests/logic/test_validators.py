@@ -78,7 +78,7 @@ def raises_Invalid(function):
     '''
     def call_and_assert(*args, **kwargs):
         import ckan.lib.navl.dictization_functions as df
-        with nose.tools.assert_raises(df.Invalid):
+        with nose.tools.assert_raises(df.Invalid) as context:
             return function(*args, **kwargs)
     return call_and_assert
 
