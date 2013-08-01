@@ -22,7 +22,7 @@ WebTest==1.4.3
 apachemiddleware==0.1.1
 argparse==1.2.1
 decorator==3.4.0
-distribute==0.7.3
+distribute==0.6.34
 fanstatic==0.12
 nose==1.3.0
 ofs==0.4.1
@@ -32,14 +32,14 @@ python-openid==2.2.5
 pytz==2013b
 pyutilib.component.core==4.6
 repoze.lru==0.6
+repoze.who==1.0.19
 repoze.who-friendlyform==1.0.8
 repoze.who.plugins.openid==0.5.3
-repoze.who==1.0.19
 requests==1.1.0
-setuptools==0.9.8
 simplejson==3.3.0
 solrpy==0.9.5
 sqlalchemy-migrate==0.7.2
 unicodecsv==0.9.4
 vdm==0.11
+wsgiref==0.1.2
 zope.interface==4.0.5
