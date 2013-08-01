@@ -40,9 +40,9 @@ class TestValidators(object):
             original_data = copy.deepcopy(data)
             original_errors = copy.deepcopy(errors)
 
-            with nose.tools.assert_raises(df.StopOnError) as context:
-                validators.ignore_missing(key=key, data=data, errors=errors,
-                                          context={})
+            nose.tools.assert_raises(df.StopOnError,
+                                     validators.ignore_missing, key=key,
+                                     data=data, errors=errors, context={})
 
             assert key not in data, ('When given a value of {value} '
                                      'ignore_missing() should remove the item '

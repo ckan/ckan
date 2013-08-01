@@ -79,16 +79,16 @@ class TestClass(object):
         user_dict = factories.User.attributes()
         user_dict['id'] = "there's no user with this id"
 
-        with nose.tools.assert_raises(logic.NotFound) as context:
-            helpers.call_action('user_update', **user_dict)
+        nose.tools.assert_raises(logic.NotFound, helpers.call_action,
+                                 'user_update', **user_dict)
         # TODO: Could assert the actual error message, not just the exception?
         # (Could also do this with many of the tests below.)
 
     def test_user_update_with_no_id(self):
         user_dict = factories.User.attributes()
         assert 'id' not in user_dict
-        with nose.tools.assert_raises(logic.ValidationError) as context:
-            helpers.call_action('user_update', **user_dict)
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'user_update', **user_dict)
 
     def test_user_update_with_invalid_name(self):
         user = factories.User()
@@ -97,8 +97,9 @@ class TestClass(object):
                          'a'*200, 'Hi!', )
         for name in invalid_names:
             user['name'] = name
-            with nose.tools.assert_raises(logic.ValidationError) as context:
-                helpers.call_action('user_update', **user)
+            nose.tools.assert_raises(logic.ValidationError,
+                                     helpers.call_action, 'user_update',
+                                     **user)
 
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name='fred')
@@ -107,8 +108,8 @@ class TestClass(object):
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
         fred['name'] = bob['name']
-        with nose.tools.assert_raises(logic.ValidationError) as context:
-            helpers.call_action('user_update', **fred)
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'user_update', **fred)
 
     def test_user_update_password(self):
         '''Test that updating a user's password works successfully.'''
@@ -132,8 +133,8 @@ class TestClass(object):
         user = factories.User()
 
         user['password'] = 'xxx'  # This password is too short.
-        with nose.tools.assert_raises(logic.ValidationError) as context:
-            helpers.call_action('user_update', **user)
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'user_update', **user)
 
     def test_user_update_with_empty_password(self):
         '''If an empty password is passed to user_update, nothing should
@@ -158,16 +159,17 @@ class TestClass(object):
         user = factories.User()
 
         user['password'] = None
-        with nose.tools.assert_raises(logic.ValidationError) as context:
-            helpers.call_action('user_update', **user)
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'user_update', **user)
 
     def test_user_update_with_invalid_password(self):
         user = factories.User()
 
         for password in (False, -1, 23, 30.7):
             user['password'] = password
-            with nose.tools.assert_raises(logic.ValidationError) as context:
-                helpers.call_action('user_update', **user)
+            nose.tools.assert_raises(logic.ValidationError,
+                                     helpers.call_action, 'user_update',
+                                     **user)
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
 
