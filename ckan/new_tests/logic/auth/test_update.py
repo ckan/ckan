@@ -7,14 +7,6 @@ import ckan.new_tests.factories as factories
 
 class TestUpdate(object):
 
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
-    def setup(self):
-        import ckan.model as model
-        model.repo.rebuild_db()
-
     # TODO: Probably all auth function tests want this? Move to helpers.py?
     def _call_auth(self, auth_name, context=None, **kwargs):
         '''Call a ckan.logic.auth function more conveniently for testing.

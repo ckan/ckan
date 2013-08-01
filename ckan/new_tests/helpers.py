@@ -8,7 +8,12 @@ import ckan.logic as logic
 def reset_db():
     '''Reset CKAN's database.
 
-    Each test module or class should call this function in its setup method.
+    If a test class uses the database, then it should call this function in
+    its setup() method to make sure that it has a clean database to start with
+    (nothing left over from other test classes or from previous test runs).
+
+    If a test class doesn't use the database (and most test classes shouldn't
+    need to) then it doesn't need to call this function.
 
     '''
     # Close any database connections that have been left open.

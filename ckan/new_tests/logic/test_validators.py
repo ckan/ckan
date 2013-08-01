@@ -211,17 +211,6 @@ def adds_message_to_errors_dict(error_message, message):
 
 class TestValidators(object):
 
-    @classmethod
-    def setup_class(cls):
-        # Initialize the test db (if it isn't already) and clean out any data
-        # left in it.
-        helpers.reset_db()
-
-    def setup(self):
-        import ckan.model as model
-        # Reset the db before each test method.
-        model.repo.rebuild_db()
-
     def test_name_validator_with_invalid_value(self):
         '''If given an invalid value name_validator() should do raise Invalid.
 

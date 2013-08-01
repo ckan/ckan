@@ -22,13 +22,19 @@ class TestClass(object):
 
     @classmethod
     def setup_class(cls):
+
         # Initialize the test db (if it isn't already) and clean out any data
         # left in it.
+        # You should only do this in your setup_class() method if your test
+        # class uses the db, most test classes shouldn't need to.
         helpers.reset_db()
 
     def setup(self):
         import ckan.model as model
+
         # Reset the db before each test method.
+        # You should only do this in your setup() method if your test class
+        # uses the db, most test classes shouldn't need to.
         model.repo.rebuild_db()
 
     def teardown(self):
