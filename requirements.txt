@@ -6,7 +6,7 @@ FormEncode==1.2.6
 Jinja2==2.7
 Mako==0.8.1
 MarkupSafe==0.18
-Pairtree==T
+Pairtree==0.7.1-T
 Paste==1.7.5.1
 PasteDeploy==1.5.0
 PasteScript==1.7.5
