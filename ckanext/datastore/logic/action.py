@@ -1,5 +1,6 @@
 import logging
 import json
+import urlparse
 
 import pylons
 import requests
@@ -442,9 +443,22 @@ def datapusher_submit(context, data_dict):
     :type set_url_to_dump: boolean
     '''
 
+    # ToDo: add task
+    # ToDo: handle set_url_to_dump
+
     p.toolkit.check_access('datapusher_submit', context, data_dict)
-    requests.post('http://datapusher.ckan.org/job', data=json.dumps({
-        'foo': 'bar'
+
+    datapusher_url = pylons.config.get(
+        'datapusher.url', 'http://datapusher.ckan.org/')
+
+    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
+    requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
+        'api_key': user['apikey'],
+        'job_type': 'push_to_datastore',
+        'metadata': {
+            'ckan_url': pylons.config['ckan.site_url'],
+            'resource_id': data_dict['resource_id']
+        }
     }))
 
 

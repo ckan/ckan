@@ -543,7 +543,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
-        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.POST,
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
             content_type='application/json',
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
@@ -557,8 +558,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         self.app.post('/api/action/datastore_create', params=postparams,
                       extra_environ=auth, status=200)
 
-        body = json.loads(httpretty.last_request().body)
-        assert body == {'foo': 'bar'}, body
+        assert len(package.resources) == 4, len(package.resources)
+        resource = package.resources[3]
+        data = json.loads(httpretty.last_request().body)
+        assert data['metadata']['resource_id'] == resource.id, data
 
     def test_cant_provide_resource_and_resource_id(self):
         package = model.Package.get('annakarenina')
