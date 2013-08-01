@@ -23,7 +23,9 @@ sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
 sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
 
-pip install -r requirements.txt -r dev-requirements.txt --use-mirrors
+export PIP_USE_MIRRORS=true
+pip install -r requirements.txt
+pip install -r dev-requirements.txt
 
 python setup.py develop
 
