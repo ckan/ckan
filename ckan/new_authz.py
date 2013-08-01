@@ -11,13 +11,86 @@ from ckan.common import OrderedDict, _, c
 
 log = getLogger(__name__)
 
-# This is a private cache used by get_auth_function() and should never
-# be accessed directly
+
 class AuthFunctions:
+    ''' This is a private cache used by get_auth_function() and should never be
+    accessed directly we will create an instance of it and then remove it.'''
     _functions = {}
 
+    def clear(self):
+        ''' clear any stored auth functions. '''
+        self._functions.clear()
+
+    def keys(self):
+        ''' Return a list of known auth functions.'''
+        if not self._functions:
+            self._build()
+        return self._functions.keys()
+
+    def get(self, function):
+        ''' Return the requested auth function. '''
+        if not self._functions:
+            self._build()
+        return self._functions.get(function)
+
+    def _build(self):
+        ''' Gather the auth functions.
+
+        First get the default ones in the ckan/logic/auth directory Rather than
+        writing them out in full will use __import__ to load anything from
+        ckan.auth that looks like it might be an authorisation function'''
+
+        module_root = 'ckan.logic.auth'
+
+        for auth_module_name in ['get', 'create', 'update', 'delete']:
+            module_path = '%s.%s' % (module_root, auth_module_name,)
+            try:
+                module = __import__(module_path)
+            except ImportError:
+                log.debug('No auth module for action "%s"' % auth_module_name)
+                continue
+
+            for part in module_path.split('.')[1:]:
+                module = getattr(module, part)
+
+            for key, v in module.__dict__.items():
+                if not key.startswith('_'):
+                    key = clean_action_name(key)
+                    self._functions[key] = v
+
+        # Then overwrite them with any specific ones in the plugins:
+        resolved_auth_function_plugins = {}
+        fetched_auth_functions = {}
+        for plugin in p.PluginImplementations(p.IAuthFunctions):
+            for name, auth_function in plugin.get_auth_functions().items():
+                name = clean_action_name(name)
+                if name in resolved_auth_function_plugins:
+                    raise Exception(
+                        'The auth function %r is already implemented in %r' % (
+                            name,
+                            resolved_auth_function_plugins[name]
+                        )
+                    )
+                log.debug('Auth function %r was inserted', plugin.name)
+                resolved_auth_function_plugins[name] = plugin.name
+                fetched_auth_functions[name] = auth_function
+        # Use the updated ones in preference to the originals.
+        self._functions.update(fetched_auth_functions)
+
+_AuthFunctions = AuthFunctions()
+#remove the class
+del AuthFunctions
+
+
 def clear_auth_functions_cache():
-    AuthFunctions._functions.clear()
+    _AuthFunctions.clear()
+
+
+def auth_functions_list():
+    '''Returns a list of the names of the auth functions available.  Currently
+    this is to allow the Auth Audit to know if an auth function is available
+    for a given action.'''
+    return _AuthFunctions.keys()
 
 
 def clean_action_name(action_name):
@@ -46,6 +119,7 @@ def is_sysadmin(username):
         return True
     return False
 
+
 def get_group_or_org_admin_ids(group_id):
     if not group_id:
         return []
@@ -57,18 +131,20 @@ def get_group_or_org_admin_ids(group_id):
         .filter(model.Member.capacity == 'admin')
     return [a.table_id for a in q.all()]
 
+
 def is_authorized_boolean(action, context, data_dict=None):
     ''' runs the auth function but just returns True if allowed else False
     '''
     outcome = is_authorized(action, context, data_dict=data_dict)
     return outcome.get('success', False)
 
+
 def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
     action = clean_action_name(action)
-    auth_function = _get_auth_function(action)
+    auth_function = _AuthFunctions.get(action)
     if auth_function:
         # sysadmins can do anything unless the auth_sysadmins_check
         # decorator was used in which case they are treated like all other
@@ -81,6 +157,7 @@ def is_authorized(action, context, data_dict=None):
     else:
         raise ValueError(_('Authorization function not found: %s' % action))
 
+
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
@@ -88,14 +165,18 @@ ROLE_PERMISSIONS = OrderedDict([
     ('member', ['read']),
 ])
 
+
 def _trans_role_admin():
     return _('Admin')
+
 
 def _trans_role_editor():
     return _('Editor')
 
+
 def _trans_role_member():
     return _('Member')
+
 
 def trans_role(role):
     module = sys.modules[__name__]
@@ -108,6 +189,7 @@ def roles_list():
     for role in ROLE_PERMISSIONS:
         roles.append(dict(text=trans_role(role), value=role))
     return roles
+
 
 def roles_trans():
     ''' return dict of roles with translation '''
@@ -175,6 +257,7 @@ def users_role_for_group_or_org(group_id, user_name):
         return row.capacity
     return None
 
+
 def has_user_permission_for_some_org(user_name, permission):
     ''' Check if the user has the given permission for the group '''
     user_id = get_user_id_for_username(user_name, allow_none=True)
@@ -205,6 +288,7 @@ def has_user_permission_for_some_org(user_name, permission):
 
     return bool(q.count())
 
+
 def get_user_id_for_username(user_name, allow_none=False):
     ''' Helper function to get user id '''
     # first check if we have the user object already and get from there
@@ -221,54 +305,6 @@ def get_user_id_for_username(user_name, allow_none=False):
         return None
     raise Exception('Not logged in user')
 
-def _get_auth_function(action):
-
-    if action in AuthFunctions._functions:
-        return AuthFunctions._functions.get(action)
-
-    # Otherwise look in all the plugins to resolve all possible
-    # First get the default ones in the ckan/logic/auth directory
-    # Rather than writing them out in full will use __import__
-    # to load anything from ckan.auth that looks like it might
-    # be an authorisation function
-
-    module_root = 'ckan.logic.auth'
-
-    for auth_module_name in ['get', 'create', 'update','delete']:
-        module_path = '%s.%s' % (module_root, auth_module_name,)
-        try:
-            module = __import__(module_path)
-        except ImportError,e:
-            log.debug('No auth module for action "%s"' % auth_module_name)
-            continue
-
-        for part in module_path.split('.')[1:]:
-            module = getattr(module, part)
-
-        for key, v in module.__dict__.items():
-            if not key.startswith('_'):
-                key = clean_action_name(key)
-                AuthFunctions._functions[key] = v
-
-    # Then overwrite them with any specific ones in the plugins:
-    resolved_auth_function_plugins = {}
-    fetched_auth_functions = {}
-    for plugin in p.PluginImplementations(p.IAuthFunctions):
-        for name, auth_function in plugin.get_auth_functions().items():
-            name = clean_action_name(name)
-            if name in resolved_auth_function_plugins:
-                raise Exception(
-                    'The auth function %r is already implemented in %r' % (
-                        name,
-                        resolved_auth_function_plugins[name]
-                    )
-                )
-            log.debug('Auth function %r was inserted', plugin.name)
-            resolved_auth_function_plugins[name] = plugin.name
-            fetched_auth_functions[name] = auth_function
-    # Use the updated ones in preference to the originals.
-    AuthFunctions._functions.update(fetched_auth_functions)
-    return AuthFunctions._functions.get(action)
 
 CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
@@ -285,6 +321,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
 
 CONFIG_PERMISSIONS = {}
 
+
 def check_config_permission(permission):
     ''' Returns the permission True/False based on config '''
     # set up perms if not already done
@@ -296,7 +333,6 @@ def check_config_permission(permission):
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]
     return False
-
 
 
 def auth_is_registered_user():
