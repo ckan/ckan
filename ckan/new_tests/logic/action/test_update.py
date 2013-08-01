@@ -18,7 +18,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f')
 
 
-class TestClass(object):
+class TestUpdate(object):
 
     @classmethod
     def setup_class(cls):
