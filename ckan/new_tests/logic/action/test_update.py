@@ -171,6 +171,26 @@ class TestClass(object):
                                      helpers.call_action, 'user_update',
                                      **user)
 
+    def test_user_update_without_email_address(self):
+        '''You have to pass an email address when you call user_update.
+
+        Even if you don't want to change the user's email address, you still
+        have to pass their current email address to user_update.
+
+        FIXME: The point of this feature seems to be to prevent people from
+        removing email addresses from user accounts, but making them post the
+        current email address every time they post to user update is just
+        annoying, they should be able to post a dict with no 'email' key to
+        user_update and it should simply not change the current email.
+
+        '''
+        user = factories.User()
+        del user['email']
+
+        nose.tools.assert_raises(logic.ValidationError,
+                                 helpers.call_action, 'user_update',
+                                 **user)
+
     # TODO: Valid and invalid values for the rest of the user model's fields.
 
     def test_user_update_activity_stream(self):
