@@ -281,6 +281,64 @@ class TestClass(object):
         assert updated_user['fullname'] == 'updated full name'
         assert updated_user['about'] == 'updated about'
 
+    def test_user_update_does_not_return_password(self):
+        '''The user dict that user_update returns should not include the user's
+        password.'''
+
+        user = factories.User()
+
+        params = {
+            'id': user['id'],
+            'name': 'updated_name',
+            'fullname': 'updated full name',
+            'about': 'updated about',
+            'email': user['email'],
+            'password': factories.User.attributes()['password'],
+        }
+
+        updated_user = helpers.call_action('user_update', **params)
+        assert 'password' not in updated_user
+
+    def test_user_update_does_not_return_apikey(self):
+        '''The user dict that user_update returns should not include the user's
+        API key.'''
+
+        user = factories.User()
+
+        params = {
+            'id': user['id'],
+            'name': 'updated_name',
+            'fullname': 'updated full name',
+            'about': 'updated about',
+            'email': user['email'],
+            'password': factories.User.attributes()['password'],
+        }
+
+        updated_user = helpers.call_action('user_update', **params)
+        assert 'apikey' not in updated_user
+
+    def test_user_update_does_not_return_reset_key(self):
+        '''The user dict that user_update returns should not include the user's
+        reset key.'''
+
+        import ckan.lib.mailer
+        import ckan.model
+
+        user = factories.User()
+        ckan.lib.mailer.create_reset_key(ckan.model.User.get(user['id']))
+
+        params = {
+            'id': user['id'],
+            'name': 'updated_name',
+            'fullname': 'updated full name',
+            'about': 'updated about',
+            'email': user['email'],
+            'password': factories.User.attributes()['password'],
+        }
+
+        updated_user = helpers.call_action('user_update', **params)
+        assert 'reset_key' not in updated_user
+
     def test_user_update_with_deferred_commit(self):
         '''Test that user_update()'s deferred_commit option works.
 
