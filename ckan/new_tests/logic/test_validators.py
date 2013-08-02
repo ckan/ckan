@@ -7,7 +7,6 @@ import copy
 import mock
 import nose.tools
 
-import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
