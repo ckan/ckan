@@ -22,11 +22,9 @@ def reset_db():
 
     # Clean out any data from the db. This prevents tests failing due to data
     # leftover from other tests or from previous test runs.
-    model.repo.clean_db()
-
-    # Initialize the db. This prevents CKAN from crashing if the tests are run
-    # and the test db has not been initialized.
-    model.repo.init_db()
+    for table in reversed(model.meta.metadata.sorted_tables):
+        model.meta.Session.execute(table.delete())
+    model.meta.Session.commit()
 
 
 def call_action(action_name, context=None, **kwargs):
