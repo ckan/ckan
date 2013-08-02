@@ -43,6 +43,17 @@ respectively.
 
       Your local CKAN configuration file in |config_dir| will not be replaced.
 
+   .. note::
+
+     The install process will uninstall any existing CKAN extensions or other
+     libraries located in the ``src`` directory of the CKAN virtualenv. To 
+     enable them again, the installation process will iterate all folders in
+     the ``src`` directory, reinstall the requirements listed in
+     ``pip-requirements.txt`` and ``requirements.txt`` files and run 
+     ``python setup.py develop`` for each. If you are using a custom extension
+     which does not use this requirements file names or is located elsewhere,
+     you will need to manually reenable it.
+
 #. If there have been changes in the database schema (check the
    :doc:`changelog` to find out) you need to update your CKAN database's
    schema using the ``db upgrade`` command.
