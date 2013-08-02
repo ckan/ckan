@@ -217,19 +217,6 @@ Default value: ``3600``
 
 Controls CKAN static files' cache max age, if we're serving and caching them.
 
-.. _moderated:
-
-moderated
-^^^^^^^^^
-
-Example::
-
-  moderated = True
-
-Default value: (none)
-
-This controls if new datasets will require moderation approval before going public.
-
 .. _ckan.tracking_enabled:
 
 ckan.tracking_enabled
