@@ -22,6 +22,27 @@ respectively.
 
     sudo dpkg -i python-ckan_2.1_amd64.deb
 
+   .. note::
+
+      If you have changed the |apache| or |nginx| configuration files, you will
+      get a prompt like the following, asking whether to keep your local changes
+      or replace the files. You generally would like to keep your local changes
+      (option ``N``, which is the default), but you can look at the differences
+      between versions selecting option ``D``::
+
+       Configuration file `/etc/apache2/sites-available/ckan_default'
+        ==> File on system created by you or by a script.
+        ==> File also in package provided by package maintainer.
+          What would you like to do about it ?  Your options are:
+           Y or I  : install the package maintainer's version
+           N or O  : keep your currently-installed version
+             D     : show the differences between the versions
+             Z     : start a shell to examine the situation
+        The default action is to keep your current version.
+       *** ckan_default (Y/I/N/O/D/Z) [default=N] ?
+
+      Your local CKAN configuration file in |config_dir| will not be replaced.
+
 #. If there have been changes in the database schema (check the
    :doc:`changelog` to find out) you need to update your CKAN database's
    schema using the ``db upgrade`` command.
