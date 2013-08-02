@@ -768,8 +768,9 @@ def term_translation_update_many(context, data_dict):
 
     context['defer_commit'] = True
 
+    action = _get_action('term_translation_update')
     for num, row in enumerate(data_dict['data']):
-        term_translation_update(context, row)
+        action(context, row)
 
     model.Session.commit()
 
