@@ -202,7 +202,7 @@ def check_access(action, context, data_dict=None):
         audit = context.get('__auth_audit', [])[-1]
     except IndexError:
         audit = ''
-    if audit == action:
+    if audit and audit[0] == action:
         context['__auth_audit'].pop()
 
     user = context.get('user')
@@ -346,14 +346,17 @@ def get_action(action):
 
                 # Auth Auditing
                 # store this action name in the auth audit so we can see if
-                # check access was called on the function
+                # check access was called on the function we store the id of
+                # the action incase the action is wrapped inside an action
+                # of the same name.  this happens in the datastore
                 context.setdefault('__auth_audit', [])
-                context['__auth_audit'].append(action_name)
+                context['__auth_audit'].append((action_name, id(_action)))
 
                 # check_access(action_name, context, data_dict=None)
                 result = _action(context, data_dict, **kw)
                 try:
-                    if context['__auth_audit'][-1] == action_name:
+                    audit = context['__auth_audit'][-1]
+                    if audit[0] == action_name and audit[1] == id(_action):
                         if action_name not in new_authz.auth_functions_list():
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
