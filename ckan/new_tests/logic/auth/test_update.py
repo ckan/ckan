@@ -38,6 +38,10 @@ class TestUpdate(object):
         result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
+        # FIXME: This is a terrible error message, containing both 127.0.0.1
+        # and Fred's user id (not his name).
+        assert result['msg'] == ('User 127.0.0.1 not authorized to edit user '
+                                 'fred_user_id')
 
     def test_user_update_user_cannot_update_another_user(self):
         '''Users should not be able to update other users' accounts.'''
@@ -69,6 +73,9 @@ class TestUpdate(object):
         result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
+        # FIXME: This error message should contain Fred's user name not his id.
+        assert result['msg'] == ('User bob not authorized to edit user '
+                                 'fred_user_id')
 
     def test_user_update_user_can_update_herself(self):
         '''Users should be authorized to update their own accounts.'''
@@ -131,5 +138,7 @@ class TestUpdate(object):
         result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
+        # FIXME: Be nice if this error message was a complete sentence.
+        assert result['msg'] == 'Have to be logged in to edit user'
 
     # TODO: Tests for user_update's reset_key behavior.
