@@ -52,3 +52,43 @@ def call_action(action_name, context=None, **kwargs):
     context.setdefault('user', '127.0.0.1')
     context.setdefault('ignore_auth', True)
     return logic.get_action(action_name)(context=context, data_dict=kwargs)
+
+
+def call_auth(auth_name, context, **kwargs):
+    '''Call a ckan.logic.auth function and return the result.
+
+    This is just a convenience function for tests in
+    ckan.new_tests.logic.auth to use.
+
+    Usage:
+
+        result = self._call_auth('user_update', context=context,
+                                    id='some_user_id',
+                                    name='updated_user_name')
+
+    :param auth_name: the name of the auth function to call, e.g.
+        ``'user_update'``
+    :type auth_name: string
+
+    :param context: the context dict to pass to the auth function, must
+        contain 'user' and 'model' keys,
+        e.g. ``{'user': 'fred', 'model': my_mock_model_object}``
+    :type context: dict
+
+    :param kwargs: any arguments to be passed to the auth function, these
+        will be wrapped in a dict and passed to the auth function as its
+        ``data_dict`` argument
+
+    :type kwargs: keyword arguments
+
+    '''
+    import ckan.logic.auth.update
+
+    assert 'user' in context, ('Test methods must put a user name in the '
+                               'context dict')
+    assert 'model' in context, ('Test methods must put a model in the '
+                                'context dict')
+
+    # FIXME: Do we want to go through check_access() here?
+    auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
+    return auth_function(context=context, data_dict=kwargs)

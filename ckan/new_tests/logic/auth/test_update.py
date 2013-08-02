@@ -3,24 +3,10 @@
 '''
 import mock
 
+import ckan.new_tests.helpers as helpers
+
 
 class TestUpdate(object):
-
-    # TODO: Probably all auth function tests want this? Move to helpers.py?
-    def _call_auth(self, auth_name, context=None, **kwargs):
-        '''Call a ckan.logic.auth function more conveniently for testing.
-
-        '''
-        import ckan.logic.auth.update
-
-        assert 'user' in context, ('Test methods must put a user name in the '
-                                   'context dict')
-        assert 'model' in context, ('Test methods must put a model in the '
-                                    'context dict')
-
-        # FIXME: Do we want to go through check_access() here?
-        auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
-        return auth_function(context=context, data_dict=kwargs)
 
     def test_user_update_visitor_cannot_update_user(self):
         '''Visitors should not be able to update users' accounts.'''
@@ -49,7 +35,7 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = self._call_auth('user_update', context=context, **params)
+        result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
 
@@ -80,7 +66,7 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = self._call_auth('user_update', context=context, **params)
+        result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
 
@@ -113,7 +99,7 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = self._call_auth('user_update', context=context, **params)
+        result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is True
 
@@ -142,7 +128,7 @@ class TestUpdate(object):
             'id': mock_user.id,
             'name': 'updated_user_name',
         }
-        result = self._call_auth('user_update', context=context, **params)
+        result = helpers.call_auth('user_update', context=context, **params)
 
         assert result['success'] is False
 
