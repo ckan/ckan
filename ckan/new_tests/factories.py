@@ -1,37 +1,39 @@
-'''A collection of factory classes for building CKAN users, datasets, etc.
+'''This is a collection of factory classes for building CKAN users, datasets,
+etc.
 
-These are meant to be used by tests to create any objects or "test fixtures"
-that are needed for the tests. They're written using factory_boy:
+These are meant to be used by tests to create any objects that are needed for
+the tests. They're written using ``factory_boy``:
 
-    http://factoryboy.readthedocs.org/en/latest/
+http://factoryboy.readthedocs.org/en/latest/
 
 These are not meant to be used for the actual testing, e.g. if you're writing a
-test for the user_create action function then call user_create, don't test it
-via the User factory below.
+test for the :py:func:`~ckan.logic.action.create.user_create` function then
+call :py:func:`~ckan.new_tests.helpers.call_action`, don't test it
+via the :py:class:`~ckan.new_tests.factories.User` factory below.
 
-Usage:
+Usage::
 
-    # Create a user with the factory's default attributes, and get back a
-    # user dict:
-    user_dict = factories.User()
+ # Create a user with the factory's default attributes, and get back a
+ # user dict:
+ user_dict = factories.User()
 
-    # You can create a second user the same way. For attributes that can't be
-    # the same (e.g. you can't have two users with the same name) a new value
-    # will be generated each time you use the factory:
-    another_user_dict = factories.User()
+ # You can create a second user the same way. For attributes that can't be
+ # the same (e.g. you can't have two users with the same name) a new value
+ # will be generated each time you use the factory:
+ another_user_dict = factories.User()
 
-    # Create a user and specify your own user name and email (this works
-    # with any params that CKAN's user_create() accepts):
-    custom_user_dict = factories.User(name='bob', email='bob@bob.com')
+ # Create a user and specify your own user name and email (this works
+ # with any params that CKAN's user_create() accepts):
+ custom_user_dict = factories.User(name='bob', email='bob@bob.com')
 
-    # Get a user dict containing the attributes (name, email, password, etc.)
-    # that the factory would use to create a user, but without actually
-    # creating the user in CKAN:
-    user_attributes_dict = factories.User.attributes()
+ # Get a user dict containing the attributes (name, email, password, etc.)
+ # that the factory would use to create a user, but without actually
+ # creating the user in CKAN:
+ user_attributes_dict = factories.User.attributes()
 
-    # If you later want to create a user using these attributes, just pass them
-    # to the factory:
-    user = factories.User(**user_attributes_dict)
+ # If you later want to create a user using these attributes, just pass them
+ # to the factory:
+ user = factories.User(**user_attributes_dict)
 
 '''
 import factory
@@ -41,7 +43,7 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
-def generate_email(user):
+def _generate_email(user):
     '''Return an email address for the given User factory stub object.'''
 
     return '{0}@ckan.org'.format(user.name).lower()
@@ -64,7 +66,7 @@ class User(factory.Factory):
 
     # Compute the email param for each user based on the values of the other
     # params above.
-    email = factory.LazyAttribute(generate_email)
+    email = factory.LazyAttribute(_generate_email)
 
     # I'm not sure how to support factory_boy's .build() feature in CKAN,
     # so I've disabled it here.

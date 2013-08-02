@@ -44,6 +44,8 @@ class TestUpdate(object):
         # method aborts with an exception or something.)
         mock.patch.stopall()
 
+    ## START-AFTER
+
     def test_user_update_name(self):
         '''Test that updating a user's name works successfully.'''
 
@@ -52,12 +54,12 @@ class TestUpdate(object):
         # 2. Call the function that's being tested, once only.
         # 3. Make assertions about the return value and/or side-effects of
         #    of the function that's being tested.
-        # 4. Do absolutely nothing else!
+        # 4. Do nothing else!
 
         # 1. Setup.
         user = factories.User()
 
-        # 2. Call the function that is being tested, once only.
+        # 2. Call the function that's being tested, once only.
         # FIXME we have to pass the email address and password to user_update
         # even though we're not updating those fields, otherwise validation
         # fails.
@@ -73,7 +75,9 @@ class TestUpdate(object):
         # entire dict, only assert what we're actually testing.
         assert updated_user['name'] == 'updated'
 
-        # 4. Do absolutely nothing else!
+        # 4. Do nothing else!
+
+    ## END-BEFORE
 
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
@@ -81,14 +85,14 @@ class TestUpdate(object):
 
         nose.tools.assert_raises(logic.NotFound, helpers.call_action,
                                  'user_update', **user_dict)
-        # TODO: Could assert the actual error message, not just the exception?
-        # (Could also do this with many of the tests below.)
 
     def test_user_update_with_no_id(self):
         user_dict = factories.User.attributes()
         assert 'id' not in user_dict
         nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
                                  'user_update', **user_dict)
+
+    ## START-FOR-LOOP-EXAMPLE
 
     def test_user_update_with_invalid_name(self):
         user = factories.User()
@@ -100,6 +104,8 @@ class TestUpdate(object):
             nose.tools.assert_raises(logic.ValidationError,
                                      helpers.call_action, 'user_update',
                                      **user)
+
+    ## END-FOR-LOOP-EXAMPLE
 
     def test_user_update_to_name_that_already_exists(self):
         fred = factories.User(name='fred')
@@ -339,6 +345,8 @@ class TestUpdate(object):
         updated_user = helpers.call_action('user_update', **params)
         assert 'reset_key' not in updated_user
 
+    ## START-COMPLEX-MOCK-EXAMPLE
+
     def test_user_update_with_deferred_commit(self):
         '''Test that user_update()'s deferred_commit option works.
 
@@ -406,3 +414,5 @@ class TestUpdate(object):
         # Assert that user_update did *not* call our mock model object's
         # model.repo.commit() method.
         assert not mock_model.repo.commit.called
+
+    ## END-COMPLEX-MOCK-EXAMPLE

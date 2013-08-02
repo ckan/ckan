@@ -2,21 +2,21 @@
 Testing coding standards
 ========================
 
+**All new code, or changes to existing code, should have new or updated tests
+before being merged into master**. This document gives some guidelines for
+developers who are writing tests or reviewing code for CKAN.
 
-------------------------------------------------
-Transitioning from the legacy tests to new tests
-------------------------------------------------
+
+--------------------------------------
+Transitioning from legacy to new tests
+--------------------------------------
 
 CKAN is an old code base with a large legacy test suite in
-:mod:`ckan.legacy_tests`. The legacy tests are difficult to maintain and
+:mod:`ckan.tests`. The legacy tests are difficult to maintain and
 extend, but are too many to be replaced all at once in a single effort.  So
 we're following this strategy:
 
-.. todo:: The legacy tests haven't actually been moved to ``ckan.legacy_tests``
-   yet.
-
-#. The legacy test suite has been moved to :mod:`ckan.legacy_tests`.
-#. The new test suite has been started in :mod:`ckan.tests`.
+#. A new test suite has been started in :mod:`ckan.new_tests`.
 #. For now, we'll run both the legacy tests and the new tests before
    merging something into the master branch.
 #. Whenever we add new code, or change existing code, we'll add new-style tests
@@ -30,7 +30,7 @@ we're following this strategy:
    it first, refactor, then delete the relevant legacy tests.
 
 In this way we can incrementally extend the new tests to cover CKAN one "island
-of code" at a time, and eventually we can delete the :mod:`legacy_tests`
+of code" at a time, and eventually we can delete the legacy :mod:`ckan.tests`
 directory entirely.
 
 
@@ -38,117 +38,79 @@ directory entirely.
 Guidelines for writing new-style tests
 --------------------------------------
 
-.. important::
+We want the tests in :mod:`ckan.new_tests` to be:
 
-   All new code, or changes to existing code, should have new or updated tests
-   before getting merged into master.
+Fast
+  * Use the ``mock`` library to avoid pulling in other parts of CKAN
+    (especially the database), see :ref:`mock`.
 
-.. todo::
+  * Don't share setup code between tests (e.g. in test class ``setup()`` or
+    ``setup_class()`` methods, saved against the ``self`` attribute of test
+    classes, or in test helper modules).
 
-   Maybe give a short list of what we want from the new-style tests at the top
-   here.
+    Instead write helper functions that create test objects and return them,
+    and have each test method call just the helpers it needs to do the setup
+    that it needs.
 
-This section gives guidelines and examples to follow when writing or reviewing
-new-style tests. The subsections below cover:
+Independent
+  * Each test module, class and method should be able to be run on its own.
 
-#. `What should be tested?`_ Which parts of CKAN code should have tests,
-   and which don't have to?
-#. `How should tests be organized?`_ When adding tests for some code, or
-   looking for the tests for some code, how do you know where the tests should
-   be?
-#. `How detailed should tests be?`_ When writing the tests for a function or
-   method, how many tests should you write and what should the tests cover?
-#. `How should tests be written?`_ What's the formula and guidelines for
-   writing a *good* test?
+  * Tests shouldn't be tightly coupled to each other, changing a test shouldn't
+    affect other tests.
+
+Clear
+  It should be quick and easy to see what went wrong when a test fails, or
+  to see what a test does and how it works if you have to debug or update
+  a test.
+
+  You shouldn't have to figure out what a complex test method does, or go and
+  look up a lot of code in other files to understand a test method.
+
+  * Tests should follow the canonical form for a unit test, see
+    :ref:`test recipe`.
+
+  * Write lots of small, simple test methods not a few big, complex tests.
+
+  * Each test method should test just One Thing.
+
+  * The name of a test method should clearly explain the intent of the test.
+    See :ref:`naming`.
+
+  * Test methods and helper functions should have docstrings.
+
+  * Assert statements in tests should have assert messages to explain why the
+    test is doing this assert, e.g.::
+
+      assert result['success'] is False, ("Users shouldn't be able to update "
+                                          "other users' accounts")
+
+    Assert messages are printed out when tests fail, so the user can often see
+    what went wrong without even having to look into the test file.
+
+Easy to find
+  It should be easy to know where to add new tests for some new or changed
+  code, or to find the existing tests for some code.
+
+  * See :ref:`organization`
+
+  * See :ref:`naming`.
+
+Easy to write
+  Writing lots of small, clear and simple tests that all follow similar
+  recipes and organization should make tests easy to write, as well as easy
+  to read.
+
+The follow sections give some more specific guidelines and tips for writing
+CKAN tests.
 
 
-What should be tested?
-======================
-
-.. note::
-
-   When we say that *all* functions/methods of a module/class should have
-   tests, we mean all *public* functions/methods that the module/class exports
-   for use by other modules/classes in CKAN or by extensions or templates.
-
-   *Private* helper methods (with names beginning with ``_``) never have to
-   have their own tests, although they can have tests if helpful.
-
-:mod:`ckan.logic.action`
-  All action functions should have tests. Note that the tests for an action
-  function *don't* need to cover authorization, because the authorization
-  functions have their own tests. But action function tests *do* need to cover
-  validation, more on that later.
-
-:mod:`ckan.logic.auth`
-  All auth functions should have tests.
-
-:mod:`ckan.logic.converters`, :mod:`ckan.logic.validators`
-  All converter and validator functions should have unit tests.
-  Although these functions are tested indirectly by the action function
-  tests, this may not catch all the converters and validators and all their
-  options, and converters and validators are not only used by the action
-  functions but are also available to plugins. Having unit tests will also
-  help to clarify the intended behavior of each converter and validator.
-
-:mod:`ckan.logic.schema.py`
-  We *don't* write tests for each schema. The validation done by the schemas
-  is instead tested indirectly by the action function tests. The reason for
-  this is that CKAN actually does validation in multiple places: some
-  validation is done using schemas, some validation is done in the action
-  functions themselves, some is done in dictization, and some in the model.
-  By testing all the different valid and invalid inputs at the action function
-  level, we catch it all in one place.
-
-:mod:`ckan.controllers`
-  All controller methods should have tests.
-
-:mod:`ckan.model` and :mod:`ckan.lib`
-  All "non-trivial" model and lib functions and methods should have tests.
-
-  .. todo:: Define "trivial" with an example.
-
-  Some code is used by extensions or templates, for example the template
-  helpers in :mod:`ckan.lib.helpers`. If a function or method is available to
-  extensions or templates then it should have tests, even if you think
-  it's trivial.
-
-:mod:`ckan.plugins`
-  The plugin interfaces in :mod:`ckan.plugins.interfaces` are not directly
-  testable because they don't contain any code, *but*:
-
-  * Each plugin interface should have an example plugin in :mod:`ckan.ckanext`
-    and the example plugin should have its own functional tests.
-
-  * The tests for the code that calls the plugin interface methods should test
-    that the methods are called correctly.
-
-    For example :func:`ckan.logic.action.get.package_show` calls
-    :meth:`ckan.plugins.interfaces.IDatasetForm.read`, so the
-    :func:`~ckan.logic.action.get.package_show` tests should include tests
-    that :meth:`~ckan.plugins.interfaces.IDatasetForm.read` is called at the
-    right times and with the right parameters.
-
-    Everything in :mod:`ckan.plugins.toolkit` should have tests, because these
-    functions are part of the API for extensions to use. But
-    :mod:`~ckan.plugins.toolkit` imports most of these functions from elsewhere
-    in CKAN, so the tests should be elsewhere also, in the test modules for the
-    modules where the functions are defined.
-
-:mod:`ckan.migration`
-  All migration scripts should have tests.
-
-:mod:`ckan.ckanext`
-  Within extensions, follow the same guidelines as for CKAN core. For example
-  if an extension adds an action function then the action function should have
-  tests, etc.
-
+.. _organization:
 
 How should tests be organized?
 ==============================
 
-The organization of test modules in :mod:`ckan.tests` mirrors the organization
-of the source modules in :mod:`ckan`::
+The organization of test modules in :mod:`ckan.new_tests` mirrors the
+organization of the source modules in :mod:`ckan`::
 
   ckan/
     tests/
@@ -178,18 +140,91 @@ of the source modules in :mod:`ckan`::
 
 There are a few exceptional test modules that don't fit into this structure,
 for example PEP8 tests and coding standards tests. These modules can just go in
-the top-level ``ckan/tests/`` directory. There shouldn't be too many of these.
+the top-level ``ckan/new_tests/`` directory. There shouldn't be too many of these.
+
+
+.. _naming:
+
+Naming test methods
+-------------------
+
+`The name of a test method should clearly explain the intent of the test <http://docs.pylonsproject.org/en/latest/community/testing.html#rule-name-tcms-to-indicate-what-they-test>`_.
+
+Test method names are printed out when tests fail, so the user can often
+see what went wrong without having to look into the test file. When they
+do need to look into the file to debug or update a test, the test name
+helps to clarify the test.
+
+Do this even if it means your method name gets really long, since we don't
+write code that calls our test methods there's no advantage to having short
+test method names.
+
+Some modules in CKAN contain large numbers of loosely related functions.
+For example, :mod:`ckan.logic.action.update` contains all functions for
+updating things in CKAN. This means that
+:mod:`ckan.new_tests.logic.action.test_update` is going to contain an even larger
+number of test functions.
+
+So as well as the name of each test method explaining the intent of the test,
+it's important to name the test function after the function it's testing, for
+example all the tests for ``user_update`` should be named
+``test_user_update_*``.
+
+Good test names:
+
+* ``test_user_update_with_id_that_does_not_exist``
+* ``test_user_update_with_no_id``
+* ``test_user_update_with_invalid_name``
+
+Bad test names:
+
+* ``test_user_update``
+* ``test_update_pkg_1``
+* ``test_package``
+
+.. _test recipe:
+
+Recipe for a test method
+========================
+
+The `Pylons Unit Testing Guidelines <http://docs.pylonsproject.org/en/latest/community/testing.html#tips-for-avoiding-bad-unit-tests>`_
+give the following recipe for all unit test methods to follow:
+
+1. Set up the preconditions for the method / function being tested.
+2. Call the method / function exactly one time, passing in the values
+   established in the first step.
+3. Make assertions about the return value, and / or any side effects.
+4. Do absolutely nothing else.
+
+Most CKAN tests should follow this form.
+
+One common exception is when you want to use a ``for`` loop to call the
+function being tested multiple times, passing it lots of different arguments
+that should all produce the same return value and/or side effects. For example,
+this test from :py:mod:`ckan.new_tests.logic.action.test_update`:
+
+.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
+   :start-after: ## START-FOR-LOOP-EXAMPLE
+   :end-before: ## END-FOR-LOOP-EXAMPLE
+
+The behavior of :py:func:`~ckan.logic.action.update.user_update` is the same
+for every invalid value.
+We do want to test :py:func:`~ckan.logic.action.update.user_update` with lots
+of different invalid names, but we obviously don't want to write a dozen
+separate test methods that are all the same apart from the value used for the
+invalid user name. We don't really want to define a helper method and a dozen
+test methods that call it either. So we use a simple loop. Technically this
+test calls the function being tested more than once, but there's only one line
+of code that calls it.
 
 
 How detailed should tests be?
 =============================
 
-When you're writing the tests for a function or method, how many tests should
-you write and what should the tests cover? Generally, what we're trying to do
-is test the *interfaces* between modules in a way that supports modularization:
-if you change the code within a function, method, class or module, if you don't
-break any of that code's unit tests you should be able to expect that CKAN as a
-whole will not be broken.
+Generally, what we're trying to do is test the *interfaces* between modules in
+a way that supports modularization: if you change the code within a function,
+method, class or module, if you don't break any of that code's unit tests you
+should be able to expect that CKAN as a whole will not be broken.
 
 As a general guideline, the tests for a function or method should:
 
@@ -213,128 +248,188 @@ As a general guideline, the tests for a function or method should:
 - Cover the interface of the function: test all the parameters and features of
   the function
 
-.. todo::
 
-   What about sanity tests? For example I should be able to convert a value
-   to an extra using convert_to_extras() and then convert it back again using
-   convert_from_extras() and get the same value back.
+.. _factory-boy:
 
-   Private functions and methods that are only used within the module (and
-   whose names should begin with underscores) *may* have tests, but don't have
-   to.
+Creating test objects: :py:mod:`ckan.new_tests.factories`
+---------------------------------------------------------
 
-
-How should tests be written?
-============================
-
-In general, follow the `Pylons Unit Testing Guidelines
-<http://docs.pylonsproject.org/en/latest/community/testing.html>`_.
-We'll give some additional, CKAN-specific guidelines below:
+.. automodule:: ckan.new_tests.factories
+   :members:
 
 
-Naming test methods
--------------------
-
-Some modules in CKAN contain large numbers of more-or-less unrelated functions.
-For example, :mod:`ckan.logic.action.update` contains all functions for
-updating things in CKAN. This means that
-:mod:`ckan.tests.logic.action.test_update` is going to contain an even larger
-number of test functions.
-
-So in addition to the name of each test function clearly explaining the intent
-of the test, it's important to name the test function after the function it's
-testing, for example all the tests for ``user_update`` should be named
-``test_user_update_*``:
-
-* ``test_user_update_name``
-* ``test_user_update_password``
-* ``test_user_update_with_id_that_does_not_exist``
-* etc.
-
-It's also a good idea to keep all the ``user_update`` tests next to each other
-in the file, and to order the tests for each function in the same order as the
-functions are ordered in the source file.
-
-In smaller modules putting the source function name in the test function names
-may not be necessary, but for a lot of modules in CKAN it's probably a good
-idea.
-
-:mod:`ckan.tests.helpers` and :mod:`ckan.tests.data`
+Test helper functions: :mod:`ckan.new_tests.helpers`
 ----------------------------------------------------
 
-.. todo::
-
-   There are some test helper functions here. Explain what they're for and
-   maybe autodoc them here.
+.. automodule:: ckan.new_tests.helpers
+   :members:
 
 
-:mod:`ckan.tests.logic.action`
-------------------------------
+.. _mock:
 
-Tests for action functions should use the
-:func:`ckan.tests.helpers.call_action` function to call the action functions.
-
-One thing :func:`~ckan.tests.helpers.call_action` does is to add
-``ignore_auth: True`` into the ``context`` dict that's passed to the action
-function. This means CKAN will not call the action function's authorization
-function. :mod:`ckan.tests.logic.action` should not test authorization
-(e.g. testing that users that should not be authorized cannot call an action,
-etc.) because the authorization functions are tested separately in
-:mod:`ckan.tests.logic.auth`.
-
-Action function tests *should* test the logic of the actions themselves, and
-*should* test validation (e.g. that various kinds of valid input work as
-expected, and invalid inputs raise the expected exceptions).
-
-.. todo::
-
-   Insert some examples here.
-
-
-:mod:`ckan.tests.controllers`
+Mocking: the ``mock`` library
 -----------------------------
 
-Tests for controller methods should work by simulating HTTP requests and
-testing the HTML that they get back.
+We use the `mock library <http://www.voidspace.org.uk/python/mock/>`_ to
+replace parts of CKAN with mock objects. This allows a CKAN
+function to be tested independently of other parts of CKAN or third-party
+libraries that the function uses. This generally makes the test simpler and
+faster (especially when :py:mod:`ckan.model` is mocked out so that the tests
+don't touch the database). With mock objects we can also make assertions about
+what methods the function called on the mock object and with which arguments.
 
-In general the tests for a controller shouldn't need to be too detailed,
-because there shouldn't be a lot of complicated logic and code in controller
-classes (the logic should be handled in :mod:`ckan.logic` and :mod:`ckan.lib`,
-for example). The tests for a controller should:
+A mock object is a special object that allows user code to access any attribute
+name or call any method name (and pass any parameters) on the object, and the
+code will always get another mock object back:
 
-* Make sure that the template renders without crashing.
+.. code-block:: python
 
-* Test that the page contents seem basically correct, or test certain important
-  elements in the page contents (but don't do too much HTML parsing).
+    >>> import mock
+    >>> my_mock = mock.MagicMock()
+    >>> my_mock.foo
+    <MagicMock name='mock.foo' id='56032400'>
+    >>> my_mock.bar
+    <MagicMock name='mock.bar' id='54093968'>
+    >>> my_mock.foobar()
+    <MagicMock name='mock.foobar()' id='54115664'>
+    >>> my_mock.foobar(1, 2, 'barfoo')
+    <MagicMock name='mock.foobar()' id='54115664'>
 
-* Test that submitting any forms on the page works without crashing and has
-  the expected side-effects.
+When a test needs a mock object to actually have some behavior besides always
+returning other mock objects, it can set the value of a certain attribute on
+the mock object, set the return value of a certain method, specify that a
+certain method should raise a certain exception, etc.
 
-When asserting side-effects after submitting a form, controller tests should
-user the :func:`ckan.tests.helpers.call_action` function. For example after
-creating a new user by submitting the new user form, a test could call the
-:func:`~ckan.logic.action.get.user_show` action function to verify that the
-user was created with the correct values.
+You should read the mock library's documentation to really understand what's
+going on, but here's an example of a test from
+:py:mod:`ckan.new_tests.logic.auth.test_update` that tests the
+:py:func:`~ckan.logic.auth.update.user_update` authorization function and mocks
+out :py:mod:`ckan.model`:
 
-.. warning::
+.. literalinclude:: ../ckan/new_tests/logic/auth/test_update.py
+   :start-after: ## START-AFTER
+   :end-before: ## END-BEFORE
 
-   Some CKAN controllers *do* contain a lot of complicated logic code.  These
-   controllers should be refactored to move the logic into :mod:`ckan.logic` or
-   :mod:`ckan.lib` where it can be tested easily.  Unfortunately in cases like
-   this it may be necessary to write a lot of controller tests to get this
-   code's behavior into a test harness before it can be safely refactored.
+Here's a much more complex example that patches a number of CKAN modules with
+mock modules, replaces CKAN functions with mock functions with mock behavior,
+and makes assertions about how CKAN called the mock objects (you shouldn't
+have to do mocking as complex as this too often!):
 
-.. todo::
+.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
+   :language: python
+   :start-after: ## START-COMPLEX-MOCK-EXAMPLE
+   :end-before: ## END-COMPLEX-MOCK-EXAMPLE
 
-   How exactly should controller tests work? (e.g. with a webtest testapp and
-   beautifulsoup?)
+----
 
-   Insert examples here.
+The following sections will give specific guidelines and examples for writing
+tests for each module in CKAN.
+
+.. note::
+
+   When we say that *all* functions should have tests in the sections below, we
+   mean all *public* functions that the module or class exports for use by
+   other modules or classes in CKAN or by extensions or templates.
+
+   *Private* helper methods (with names beginning with ``_``) never have to
+   have their own tests, although they can have tests if helpful.
+
+Writing :mod:`ckan.logic.action` tests
+--------------------------------------
+
+.. automodule:: ckan.new_tests.logic.action
 
 
-Mocking
--------
+Writing :mod:`ckan.logic.auth` tests
+------------------------------------
 
-.. todo::
+.. automodule:: ckan.new_tests.logic.auth
 
-   Some examples of how (and when/where) to use the ``mock`` library in CKAN.
+
+Writing converter and validator tests
+-------------------------------------
+
+**All converter and validator functions should have unit tests.**
+
+Although these converter and validator functions are tested indirectly by the
+action function tests, this may not catch all the converters and validators and
+all their options, and converters and validators are not only used by the
+action functions but are also available to plugins. Having unit tests will also
+help to clarify the intended behavior of each converter and validator.
+
+CKAN's action functions call
+:py:func:`ckan.lib.navl.dictization_functions.validate` to validate data posted
+by the user. Each action function passes a schema from
+:py:mod:`ckan.logic.schema` to
+:py:func:`~ckan.lib.navl.dictization_functions.validate`. The schema gives
+:py:func:`~ckan.lib.navl.dictization_functions.validate` lists of validation
+and conversion functions to apply to the user data. These validation and
+conversion functions are defined in :py:mod:`ckan.logic.validators`,
+:py:mod:`ckan.logic.converters` and :py:mod:`ckan.lib.navl.validators`.
+
+Most validator and converter tests should be unit tests that test the validator
+or converter function in isolation, without bringing in other parts of CKAN or
+touching the database.  This requires using the ``mock`` library to mock
+``ckan.model``, see :ref:`mock`.
+
+When testing validators, we often want to make the same assertions in many
+tests: assert that the validator didn't modify the ``data`` dict, assert that
+the validator didn't modify the ``errors`` dict, assert that the validator
+raised ``Invalid``, etc. Decorator functions are defined at the top of
+validator test modules like :py:mod:`ckan.new_tests.logic.test_validators` to
+make these common asserts easy. To use one of these decorators you have to:
+
+1. Define a nested function inside your test method, that simply calls the
+   validator function that you're trying to test.
+2. Apply the decorators that you want to this nested function.
+3. Call the nested function.
+
+Here's an example of a simple validator test that uses this technique:
+
+.. literalinclude:: ../ckan/new_tests/logic/test_validators.py
+   :start-after: ## START-AFTER
+   :end-before: ## END-BEFORE
+
+
+No tests for :mod:`ckan.logic.schema.py`
+----------------------------------------
+
+.. automodule:: ckan.new_tests.logic.test_schema
+
+
+Writing :mod:`ckan.controllers` tests
+-------------------------------------
+
+.. automodule:: ckan.new_tests.controllers
+
+
+Writing :mod:`ckan.model` tests
+-------------------------------
+
+.. automodule:: ckan.new_tests.model
+
+
+Writing :mod:`ckan.lib` tests
+-----------------------------
+
+.. automodule:: ckan.new_tests.lib
+
+
+Writing :mod:`ckan.plugins` tests
+---------------------------------
+
+.. automodule:: ckan.new_tests.plugins
+
+
+Writing :mod:`ckan.migration` tests
+-----------------------------------
+
+.. automodule:: ckan.new_tests.migration
+
+
+Writing :mod:`ckan.ckanext` tests
+---------------------------------
+
+Within extensions, follow the same guidelines as for CKAN core. For example if
+an extension adds an action function then the action function should have
+tests, etc.

@@ -292,6 +292,8 @@ class TestValidators(object):
                 return validators.name_validator(*args, **kwargs)
             call_validator(valid_name)
 
+    ## START-AFTER
+
     def test_user_name_validator_with_non_string_value(self):
         '''user_name_validator() should raise Invalid if given a non-string
         value.
@@ -325,14 +327,16 @@ class TestValidators(object):
             errors = factories.validator_errors_dict()
             errors[key] = []
 
-            @does_not_modify_errors_dict('user_name_validator() should not '
-                                         'modify the errors dict')
-            @does_not_modify_data_dict('user_name_validator() should not '
-                                       'modify the data dict')
+            @does_not_modify_errors_dict(
+                'user_name_validator() should not modify the errors dict')
+            @does_not_modify_data_dict(
+                'user_name_validator() should not modify the data dict')
             @raises_Invalid
             def call_validator(*args, **kwargs):
                 return validators.user_name_validator(*args, **kwargs)
             call_validator(key, data, errors, context={'model': mock_model})
+
+    ## END-BEFORE
 
     def test_user_name_validator_with_a_name_that_already_exists(self):
         '''user_name_validator() should add to the errors dict if given a

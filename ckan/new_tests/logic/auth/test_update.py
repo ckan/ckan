@@ -43,8 +43,12 @@ class TestUpdate(object):
         assert result['msg'] == ('User 127.0.0.1 not authorized to edit user '
                                  'fred_user_id')
 
+    ## START-AFTER
+
     def test_user_update_user_cannot_update_another_user(self):
         '''Users should not be able to update other users' accounts.'''
+
+        # 1. Setup.
 
         # Make a mock ckan.model.User object, Fred.
         fred = mock.MagicMock()
@@ -65,6 +69,8 @@ class TestUpdate(object):
         # The logged-in user is going to be Bob, not Fred.
         context['user'] = 'bob'
 
+        # 2. Call the function that's being tested, once only.
+
         # Make Bob try to update Fred's user account.
         params = {
             'id': fred.id,
@@ -72,10 +78,16 @@ class TestUpdate(object):
         }
         result = helpers.call_auth('user_update', context=context, **params)
 
+        # 3. Make assertions about the return value and/or side-effects.
+
         assert result['success'] is False
         # FIXME: This error message should contain Fred's user name not his id.
         assert result['msg'] == ('User bob not authorized to edit user '
                                  'fred_user_id')
+
+        # 4. Do nothing else!
+
+    ## END-BEFORE
 
     def test_user_update_user_can_update_herself(self):
         '''Users should be authorized to update their own accounts.'''

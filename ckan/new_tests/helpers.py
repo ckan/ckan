@@ -1,4 +1,20 @@
-'''A collection of test helper functions.
+'''This is a collection of helper functions for use in tests.
+
+We want to avoid using sharing test helper functions between test modules as
+much as possible, and we definitely don't want to share test fixtures between
+test modules, or to introduce a complex hierarchy of test class subclasses,
+etc.
+
+We want to reduce the amount of "travel" that a reader needs to undertake to
+understand a test method -- reducing the number of other files they need to go
+and read to understand what the test code does. And we want to avoid tightly
+coupling test modules to each other by having them share code.
+
+But some test helper functions just increase the readability of tests so much
+and make writing tests so much easier, that it's worth having them despite the
+potential drawbacks.
+
+This module is reserved for these very useful functions.
 
 '''
 import ckan.model as model
@@ -8,12 +24,14 @@ import ckan.logic as logic
 def reset_db():
     '''Reset CKAN's database.
 
-    If a test class uses the database, then it should call this function in
-    its setup() method to make sure that it has a clean database to start with
+    If a test class uses the database, then it should call this function in its
+    ``setup()`` method to make sure that it has a clean database to start with
     (nothing left over from other test classes or from previous test runs).
 
     If a test class doesn't use the database (and most test classes shouldn't
     need to) then it doesn't need to call this function.
+
+    :returns: ``None``
 
     '''
     # Close any database connections that have been left open.
@@ -28,21 +46,34 @@ def reset_db():
 
 
 def call_action(action_name, context=None, **kwargs):
-    '''Call the given ckan.logic.action function with the given context
-    and params.
+    '''Call the named ``ckan.logic.action`` and return the result.
 
-    For example:
+    For example::
 
         call_action('user_create', name='seanh', email='seanh@seanh.com',
                     password='pass')
 
-    This is just a nicer way for user code to call action functions, nicer than
-    either calling the action function directly or via get_action().
+    Any keyword arguments given will be wrapped in a dict and passed to the
+    action function as its ``data_dict`` argument.
 
-    If accepted this function should eventually be moved to
-    ckan.logic.call_action() and the current get_action() function should be
+    This is just a nicer way for user code to call action functions, nicer than
+    either calling the action function directly or via
+    :py:func:`ckan.logic.get_action`.
+
+    This function should eventually be moved to
+    :py:func:`ckan.logic.call_action` and the current
+    :py:func:`ckan.logic.get_action` function should be
     deprecated. The tests may still need their own wrapper function for
-    logic.call_action(), e.g. to insert 'ignore_auth': True into the context.
+    :py:func:`ckan.logic.call_action`, e.g. to insert ``'ignore_auth': True``
+    into the ``context`` dict.
+
+    :param action_name: the name of the action function to call, e.g.
+        ``'user_update'``
+    :type action_name: string
+    :param context: the context dict to pass to the action function
+        (optional, if no context is given a default one will be supplied)
+    :type context: dict
+    :returns: the dict or other value that the action function returns
 
     '''
     if context is None:
@@ -53,31 +84,30 @@ def call_action(action_name, context=None, **kwargs):
 
 
 def call_auth(auth_name, context, **kwargs):
-    '''Call a ckan.logic.auth function and return the result.
+    '''Call the named ``ckan.logic.auth`` function and return the result.
 
     This is just a convenience function for tests in
-    ckan.new_tests.logic.auth to use.
+    :py:mod:`ckan.new_tests.logic.auth` to use.
 
-    Usage:
+    Usage::
 
-        result = self._call_auth('user_update', context=context,
-                                    id='some_user_id',
-                                    name='updated_user_name')
+        result = helpers.call_auth('user_update', context=context,
+                                   id='some_user_id',
+                                   name='updated_user_name')
 
     :param auth_name: the name of the auth function to call, e.g.
         ``'user_update'``
     :type auth_name: string
 
     :param context: the context dict to pass to the auth function, must
-        contain 'user' and 'model' keys,
+        contain ``'user'`` and ``'model'`` keys,
         e.g. ``{'user': 'fred', 'model': my_mock_model_object}``
     :type context: dict
 
-    :param kwargs: any arguments to be passed to the auth function, these
-        will be wrapped in a dict and passed to the auth function as its
-        ``data_dict`` argument
-
-    :type kwargs: keyword arguments
+    :returns: the dict that the auth function returns, e.g.
+        ``{'success': True}`` or ``{'success': False, msg: '...'}``
+        or just ``{'success': False}``
+    :rtype: dict
 
     '''
     import ckan.logic.auth.update
