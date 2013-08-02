@@ -8,13 +8,13 @@ Upgrading a CKAN 2 package install to a new minor release
    themes or extensions you're using, check the changelog, and backup your
    database. See :ref:`upgrading`.
 
-:ref:`Minor releases <releases>` are distributed in separated packages, so
-for example CKAN ``2.0.X`` and ``2.1.X`` will be installed using the
+Each :ref:`minor release <releases>` is distributed in its own package,
+so for example CKAN ``2.0.X`` and ``2.1.X`` will be installed using the
 ``python-ckan_2.0_amd64.deb`` and ``python-ckan_2.1_amd64.deb`` packages
 respectively.
 
-#. Download the CKAN package (replace the version number with the relevant
-   one)::
+#. Download the CKAN package for the new minor release you want to upgrade
+   to (replace the version number with the relevant one)::
 
     wget http://packaging.ckan.org/python-ckan_2.1_amd64.deb
 
@@ -28,7 +28,7 @@ respectively.
       get a prompt like the following, asking whether to keep your local changes
       or replace the files. You generally would like to keep your local changes
       (option ``N``, which is the default), but you can look at the differences
-      between versions selecting option ``D``::
+      between versions by selecting option ``D``::
 
        Configuration file `/etc/apache2/sites-available/ckan_default'
         ==> File on system created by you or by a script.
@@ -47,12 +47,12 @@ respectively.
 
      The install process will uninstall any existing CKAN extensions or other
      libraries located in the ``src`` directory of the CKAN virtualenv. To 
-     enable them again, the installation process will iterate all folders in
+     enable them again, the installation process will iterate over all folders in
      the ``src`` directory, reinstall the requirements listed in
      ``pip-requirements.txt`` and ``requirements.txt`` files and run 
      ``python setup.py develop`` for each. If you are using a custom extension
-     which does not use this requirements file names or is located elsewhere,
-     you will need to manually reenable it.
+     which does not use this requirements file name or is located elsewhere,
+     you will need to manually reinstall it.
 
 #. If there have been changes in the database schema (check the
    :doc:`changelog` to find out) you need to update your CKAN database's
