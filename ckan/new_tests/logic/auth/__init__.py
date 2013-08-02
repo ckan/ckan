@@ -5,8 +5,8 @@ isolation, without bringing in other parts of CKAN or touching the database.
 This requires using the ``mock`` library to mock ``ckan.model``, see
 :ref:`mock`.
 
-Tests for auth functions should use the :func:`ckan.new_tests.helpers.call_auth`
-function to call auth functions.
+Tests for auth functions should use the
+:func:`ckan.new_tests.helpers.call_auth` function to call auth functions.
 
 Here's an example of a simple :py:mod:`ckan.logic.auth` test:
 
