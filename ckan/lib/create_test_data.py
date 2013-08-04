@@ -519,8 +519,9 @@ left arrow <
 
     @classmethod
     def create_user(cls, name='', **kwargs):
-        cls._create_user_without_commit(name, **kwargs)
+        user = cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
+        return user
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],

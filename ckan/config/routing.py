@@ -359,6 +359,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
+        m.connect('user_delete', '/user/delete/{id}', action='delete')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')
