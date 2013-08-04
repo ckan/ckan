@@ -7,6 +7,7 @@ from nose.plugins.skip import SkipTest
 from pylons import config
 import datetime
 
+import vdm.sqlalchemy
 import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -334,6 +335,11 @@ class TestAction(WsgiAppCase):
 
 
     def test_04_user_list(self):
+        # Create deleted user to make sure he won't appear in the user_list
+        deleted_user = CreateTestData.create_user('deleted_user')
+        deleted_user.delete()
+        model.repo.commit()
+
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)
         res_obj = json.loads(res.body)
@@ -555,6 +561,33 @@ class TestAction(WsgiAppCase):
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
+    def test_user_delete(self):
+        name = 'normal_user'
+        CreateTestData.create_user(name)
+        user = model.User.get(name)
+        user_dict = {'id': user.id}
+        postparams = '%s=1' % json.dumps(user_dict)
+
+        res = self.app.post('/api/action/user_delete', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        deleted_user = model.User.get(name)
+        assert res_obj['success'] is True
+        assert deleted_user.is_deleted(), deleted_user
+
+    def test_user_delete_requires_data_dict_with_key_id(self):
+        user_dict = {'name': 'normal_user'}
+        postparams = '%s=1' % json.dumps(user_dict)
+
+        res = self.app.post('/api/action/user_delete', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] is False
+        assert res_obj['error']['id'] == ['Missing value']
+
     def test_13_group_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/group_list', params=postparams)
@@ -633,6 +666,11 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False
 
     def test_16_user_autocomplete(self):
+        # Create deleted user to make sure he won't appear in the user_list
+        deleted_user = CreateTestData.create_user('joe')
+        deleted_user.delete()
+        model.repo.commit()
+
         #Empty query
         postparams = '%s=1' % json.dumps({})
         res = self.app.post(

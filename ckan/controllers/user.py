@@ -178,6 +178,21 @@ class UserController(base.BaseController):
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
+    def delete(self, id):
+        '''Delete user with id passed as parameter'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user}
+        data_dict = {'id': id}
+
+        try:
+            get_action('user_delete')(context, data_dict)
+            user_index = h.url_for(controller='user', action='index')
+            h.redirect_to(user_index)
+        except NotAuthorized:
+            msg = _('Unauthorized to delete user with id "{user_id}".')
+            abort(401, msg.format(user_id=id))
+
     def _save_new(self, context):
         try:
             data_dict = logic.clean_dict(unflatten(

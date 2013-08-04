@@ -76,6 +76,10 @@
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
         </dl>
+        <dl>
+          <dt>{{ _('State') }}</dt>
+          <dd>{{ user.state }}</dd>
+        </dl>
         {% if c.is_myself %}
         <dl>
           <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
