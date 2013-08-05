@@ -13,7 +13,7 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
-from ckan.config.middleware import make_app
+import ckan.config.middleware as middleware
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
@@ -32,7 +32,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
 
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")

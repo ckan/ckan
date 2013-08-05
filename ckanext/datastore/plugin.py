@@ -224,7 +224,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
-				   'datapusher_submit': action.datapusher_submit,
+                   'datapusher_submit': action.datapusher_submit,
                    'resource_show': self.resource_show_action,
                   }
         if not self.legacy_mode:
