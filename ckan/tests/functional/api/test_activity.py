@@ -351,6 +351,7 @@ class TestActivity:
         details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
+
         assert len(details) == 5, "There should be five activity details."
 
         detail_ids = [detail['object_id'] for detail in details]
