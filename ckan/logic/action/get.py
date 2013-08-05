@@ -826,6 +826,8 @@ def resource_status_show(context, data_dict):
 
     return result_list
 
+
+@logic.auth_audit_exempt
 def revision_show(context, data_dict):
     '''Return the details of a revision.
 
@@ -1008,7 +1010,7 @@ def user_show(context, data_dict):
 
     revisions_list = []
     for revision in revisions_q.limit(20).all():
-        revision_dict = revision_show(context,{'id':revision.id})
+        revision_dict = logic.get_action('revision_show')(context,{'id':revision.id})
         revision_dict['state'] = revision.state
         revisions_list.append(revision_dict)
     user_dict['activity'] = revisions_list
@@ -1020,7 +1022,7 @@ def user_show(context, data_dict):
 
     for dataset in dataset_q:
         try:
-            dataset_dict = package_show(context, {'id': dataset.id})
+            dataset_dict = logic.get_action('package_show')(context, {'id': dataset.id})
         except logic.NotAuthorized:
             continue
         user_dict['datasets'].append(dataset_dict)
@@ -2554,9 +2556,10 @@ def followee_list(context, data_dict):
 
     # Get the followed objects.
     # TODO: Catch exceptions raised by these *_followee_list() functions?
+    # FIXME should we be changing the context like this it seems dangerous
     followee_dicts = []
     context['skip_validation'] = True
-    context['skip_authorization'] = True
+    context['ignore_auth'] = True
     for followee_list_function, followee_type in (
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
@@ -2591,8 +2594,7 @@ def user_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    if not context.get('skip_authorization'):
-        _check_access('user_followee_list', context, data_dict)
+    _check_access('user_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
         schema = context.get('schema') or (
@@ -2622,8 +2624,7 @@ def dataset_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    if not context.get('skip_authorization'):
-        _check_access('dataset_followee_list', context, data_dict)
+    _check_access('dataset_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
         schema = context.get('schema') or (
@@ -2654,8 +2655,7 @@ def group_followee_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    if not context.get('skip_authorization'):
-        _check_access('group_followee_list', context, data_dict)
+    _check_access('group_followee_list', context, data_dict)
 
     if not context.get('skip_validation'):
         schema = context.get('schema',

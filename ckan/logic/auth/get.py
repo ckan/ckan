@@ -254,14 +254,17 @@ def followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def user_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def dataset_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
