@@ -55,6 +55,22 @@ Patch Releases
   - New dependencies
   - Big refactorings or new features in critical parts of the code
 
+Users should always run the latest patch release for the minor release they
+are on, as they contain important bug fixes and security updates. As they
+don't include backwards incompatible changes, the upgrade process (as
+described in :doc:`upgrade-package-to-patch-release`) should be
+straightforward.
+
+Outdated patch releases will no longer be supported after a newer patch
+release has been released. For example once CKAN 2.0.2 has been released,
+CKAN 2.0.1 will no longer be supported.
+
+Releases are announced on the ``ckan-announce`` mailing list, a low-volume
+list that CKAN instance maintainers can subscribe to in order to be up to date
+with upcoming releases. You can sign up to the list here:
+
+http://lists.okfn.org/mailman/listinfo/ckan-announce
+
 .. _release process:
 
 ---------------
@@ -81,6 +97,7 @@ of CKAN, we will:
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
+.. _ckan-announce: http://lists.okfn.org/mailman/listinfo/ckan-announce
 
 At some point during the beta period a **strings freeze** will begin.
 That means that no changes to translatable strings are allowed on the release
@@ -93,6 +110,8 @@ At some point before the final release, we'll announce an **end of
 translations** after which no new translations will be pulled into the release
 branch. At this point we'll deploy the translations to `beta.ckan.org`_ and
 we'll put out a request for people to test CKAN in their languages.
+
+The upcoming releases are announced on the `ckan-announce`_ mailing list.
 
 Release branches are not merged back into master. All changes on a release
 branch are cherry-picked from master (or merged from special branches based on
