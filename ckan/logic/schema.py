@@ -74,6 +74,7 @@ def default_resource_schema():
         'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
+        'url_type': [ignore_missing, unicode],
         'mimetype': [ignore_missing, unicode],
         'mimetype_inner': [ignore_missing, unicode],
         'webstore_url': [ignore_missing, unicode],
@@ -210,6 +211,7 @@ def default_show_package_schema():
         'webstore_url': [],
         'mimetype_inner': [],
         'resource_type': [],
+        'url_type': [],
     })
 
     schema.update({
@@ -238,6 +240,7 @@ def default_show_package_schema():
     # validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
+    schema['creator_user_id'] = []
     schema['num_resources'] = []
     schema['num_tags'] = []
     schema['organization'] = []
