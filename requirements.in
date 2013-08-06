@@ -1,0 +1,31 @@
+# The file contains the direct ckan requirements.
+# Use pip-compile to create a requirements.txt file from this
+
+Babel>=0.9.6,<1.0.0  # newer versions cause problems with when switching languages
+Jinja2==2.6  # newer version causes problem in CkanInternationalizationExtension.parse
+			 # when creating a new dataset
+Pylons==0.9.7
+Genshi==0.6
+WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
+apachemiddleware>=0.1.1
+fanstatic==0.12
+FormAlchemy>=1.4.2
+ofs==0.4.1
+Pairtree==0.7.1-T
+paste==1.7.5.1
+psycopg2==2.4.5
+python-dateutil>=1.5.0,<2.0.0
+pyutilib.component.core==4.5.3
+repoze.who-friendlyform==1.0.8
+repoze.who.plugins.openid==0.5.3
+repoze.who==1.0.19
+requests==1.1.0
+Routes==1.13
+solrpy==0.9.5
+sqlalchemy-migrate==0.7.2
+SQLAlchemy==0.7.8
+vdm==0.11
+WebHelpers==1.3
+WebOb==1.0.8
+zope.interface==4.0.1
+unicodecsv>=0.9

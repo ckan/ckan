@@ -517,7 +517,7 @@ def alter_table(context, data_dict):
                 raise ValidationError({
                     'fields': [('Supplied field "{0}" not '
                                 'present or in wrong order').format(
-                                    field['id'])]
+                        field['id'])]
                 })
             ## no need to check type as field already defined.
             continue
