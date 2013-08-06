@@ -1,8 +1,9 @@
 # The file contains the direct ckan requirements.
 # Use pip-compile to create a requirements.txt file from this
 
-Babel>=0.9.6
-Jinja2>=2.6
+Babel>=0.9.6,<1.0.0  # newer versions cause problems with when switching languages
+Jinja2==2.6  # newer version causes problem in CkanInternationalizationExtension.parse
+			 # when creating a new dataset
 Pylons==0.9.7
 Genshi==0.6
 WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
