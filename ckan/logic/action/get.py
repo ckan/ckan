@@ -2258,7 +2258,6 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     extra_vars = {
         'controller': 'package',
         'action': 'activity',
-        'id': data_dict['id'],
         'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream,
