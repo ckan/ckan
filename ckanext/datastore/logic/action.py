@@ -441,6 +441,11 @@ def datapusher_submit(context, data_dict):
     :param set_url_to_dump: If set to true, the URL of the resource will be set
         to the :ref:`datastore dump <dump>` URL after the data has been imported.
     :type set_url_to_dump: boolean
+
+    Returns ``True`` if the job has been submitted and ``False`` if the job
+    has not been submitted, i.e. when the datapusher is not configured.
+
+    :rtype: boolean
     '''
 
     if 'id' in data_dict:
@@ -454,6 +459,10 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = pylons.config.get(
         'datapusher.url', 'http://datapusher.ckan.org/')
+
+    # no datapusher url means the datapusher should not be used
+    if not datapusher_url:
+        return False
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
     requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
@@ -474,6 +483,8 @@ def datapusher_submit(context, data_dict):
         'last_updated': str(datetime.datetime.now()),
         'state': 'pending',
     })
+
+    return True
 
 
 def _resource_exists(context, data_dict):
