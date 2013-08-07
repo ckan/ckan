@@ -2825,4 +2825,5 @@ def member_roles_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('member_roles_list', context, data_dict)
     return new_authz.roles_list()
