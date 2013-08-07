@@ -267,6 +267,7 @@ Fields define the column names and the type of the data in a column. A field is 
     {
         "id":    # a string which defines the column name
         "type":  # the data type for the column
+        "default": # the default value for a field
     }
 
 Field **types are optional** and will be guessed by the DataStore from the provided data. However, setting the types ensures that future inserts will not fail because of wrong types. See :ref:`valid-types` for details on which types are valid.
@@ -277,10 +278,12 @@ Example::
         {
             "id": "foo",
             "type": "int4"
+            "default": "now() NOT NULL"
         },
         {
             "id": "bar"
             # type is optional
+            # default is optional
         }
     ]
 
