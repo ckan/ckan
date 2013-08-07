@@ -591,6 +591,34 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['error']['__type'] == 'Validation Error'
 
+    @httpretty.activate
+    def test_send_datapusher_creates_task(self):
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        context = {
+            'ignore_auth': True,
+            'user': self.sysadmin_user.name
+        }
+
+        p.toolkit.get_action('datapusher_submit')(context, {
+            'resource_id': resource.id
+        })
+
+        task = p.toolkit.get_action('task_status_show')(context, {
+            'entity_id': resource.id,
+            'task_type': 'datapusher',
+            'key': 'datapusher'
+        })
+
+        assert task['state'] == 'pending', task
+
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
 

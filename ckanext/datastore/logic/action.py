@@ -1,6 +1,7 @@
 import logging
 import json
 import urlparse
+import datetime
 
 import pylons
 import requests
@@ -442,6 +443,10 @@ def datapusher_submit(context, data_dict):
     :type set_url_to_dump: boolean
     '''
 
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
+    res_id = _get_or_bust(data_dict, 'resource_id')
+
     # ToDo: add task
     # ToDo: handle set_url_to_dump
 
@@ -456,9 +461,19 @@ def datapusher_submit(context, data_dict):
         'job_type': 'push_to_datastore',
         'metadata': {
             'ckan_url': pylons.config['ckan.site_url'],
-            'resource_id': data_dict['resource_id']
+            'resource_id': res_id
         }
     }))
+
+    p.toolkit.get_action('task_status_update')(context, {
+        'entity_id': res_id,
+        'entity_type': 'resource',
+        'task_type': 'datapusher',
+        'key': 'datapusher',
+        'value': datapusher_url,
+        'last_updated': str(datetime.datetime.now()),
+        'state': 'pending',
+    })
 
 
 def _resource_exists(context, data_dict):
