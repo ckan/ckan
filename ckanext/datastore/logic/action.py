@@ -102,11 +102,9 @@ def datastore_create(context, data_dict):
                 'set_url_to_dump': True
             })
         # create empty resource
-        # have to set the url here because we need the resource id
         else:
-            res['url'] = p.toolkit.url_for(
-                controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=res['id'])
+            # no need to set the full url because it will be set in before_show
+            res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']

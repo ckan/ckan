@@ -22,6 +22,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IAuthFunctions)
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IResourceController, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
@@ -246,3 +247,13 @@ class DatastorePlugin(p.SingletonPlugin):
                   controller='ckanext.datastore.controller:DatastoreController',
                   action='dump')
         return m
+
+    def before_show(self, resource_dict):
+        ''' Modify the resource url of datastore resources so that
+        they link to the datastore dumps.
+        '''
+        if resource_dict['url_type'] == 'datastore':
+            resource_dict['url'] = p.toolkit.url_for(
+                controller='ckanext.datastore.controller:DatastoreController',
+                action='dump', resource_id=resource_dict['id'])
+        return resource_dict
