@@ -551,7 +551,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         res = tests.call_action_api(
             self.app, 'resource_show', id=res_dict['result']['resource_id'])
-        # disabled until #547 fixes problems with the plugins in tests
         assert res['url'] == '/datastore/dump/' + res['id'], res
 
     @httpretty.activate

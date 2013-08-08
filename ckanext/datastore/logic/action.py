@@ -450,8 +450,7 @@ def datapusher_submit(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    # ToDo: add task
-    # ToDo: handle set_url_to_dump
+    # TODO: handle set_url_to_dump
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
@@ -479,7 +478,7 @@ def datapusher_submit(context, data_dict):
         'key': 'datapusher',
         'value': datapusher_url,
         'last_updated': str(datetime.datetime.now()),
-        'state': 'pending',
+        'state': 'pending'
     })
 
     return True
