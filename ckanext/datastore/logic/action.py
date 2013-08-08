@@ -462,10 +462,15 @@ def datapusher_submit(context, data_dict):
     if not datapusher_url:
         return False
 
+    callback_url = p.toolkit.url_for(
+        controller='api', action='action', logic_function='datapusher_hook',
+        ver=3, qualified=True)
+
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
     requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
         'api_key': user['apikey'],
         'job_type': 'push_to_datastore',
+        'result_url': callback_url,
         'metadata': {
             'ckan_url': pylons.config['ckan.site_url'],
             'resource_id': res_id
