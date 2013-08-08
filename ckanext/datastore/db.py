@@ -338,8 +338,12 @@ def create_table(context, data_dict):
                 })
 
     fields = datastore_fields + supplied_fields + extra_fields
-    sql_fields = u", ".join([u'"{0}" {1}'.format(
-        f['id'], f['type']) for f in fields])
+    sql_fields=u", "
+    for f in fields
+        if 'default' in f.keys()
+            sql_fields = sql_fields + u'"{0}" {1} {2}'.format( f['id'], f['type'], f['default'])
+        else
+            sql_fields = sql_fields + u'"{0}" {1}'.format( f['id'], f['type'])
 
     sql_string = u'CREATE TABLE "{0}" ({1});'.format(
         data_dict['resource_id'],
