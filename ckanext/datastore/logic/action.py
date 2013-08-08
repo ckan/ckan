@@ -485,6 +485,31 @@ def datapusher_submit(context, data_dict):
     return True
 
 
+def datapusher_hook(context, data_dict):
+    """ Update datapusher task. This action is typically called by the
+    datapusher whenever the status of a job changes.
+
+    Expects a job with ``status``, ``metadata``.
+    """
+
+    # TODO: use a schema to validate
+
+    p.toolkit.check_access('datapusher_submit', context, data_dict)
+
+    res_id = data_dict['metadata']['resource_id']
+
+    task = p.toolkit.get_action('task_status_show')(context, {
+        'entity_id': res_id,
+        'task_type': 'datapusher',
+        'key': 'datapusher'
+    })
+
+    task['state'] = data_dict['status']
+    task['last_updated'] = str(datetime.datetime.now())
+
+    p.toolkit.get_action('task_status_update')(context, task)
+
+
 def _resource_exists(context, data_dict):
     # Returns true if the resource exists in CKAN and in the datastore
     model = _get_or_bust(context, 'model')
