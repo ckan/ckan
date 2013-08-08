@@ -5,6 +5,7 @@ from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
 from pylons import config
+import datetime
 
 import ckan
 from ckan.lib.create_test_data import CreateTestData
@@ -1401,6 +1402,8 @@ class TestActionPackageSearch(WsgiAppCase):
         rev = model.repo.new_revision()
         pkg = model.Package.get('warandpeace')
         pkg.title = "War and Peace [UPDATED]"
+
+        pkg.metadata_modified = datetime.datetime.utcnow()
         model.repo.commit_and_remove()
 
         res = self.app.post('/api/action/package_search', params=search_params)
@@ -1412,6 +1415,7 @@ class TestActionPackageSearch(WsgiAppCase):
         rev = model.repo.new_revision()
         pkg = model.Package.get('annakarenina')
         pkg.title = "A Novel By Tolstoy [UPDATED]"
+        pkg.metadata_modified = datetime.datetime.utcnow()
         model.repo.commit_and_remove()
 
         res = self.app.post('/api/action/package_search', params=search_params)
