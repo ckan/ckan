@@ -95,6 +95,12 @@ respectively.
 
     sudo service jetty restart
 
+#. If you have any CKAN extensions installed from source, you may need to
+   checkout newer versions of the extensions that work with the new CKAN
+   version. Refer to the documentation for each extension. We recommend
+   disabling all extensions on your ini file and re-enable them one by one
+   to make sure they are working fine.
+
 #. Rebuild your search index by running the ``ckan search-index rebuild``
    command:
 
