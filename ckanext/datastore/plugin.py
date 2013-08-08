@@ -240,7 +240,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions}
+                'datastore_change_permissions': auth.datastore_change_permissions,
+                'datapusher_submit': auth.datapusher_submit}
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',
