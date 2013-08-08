@@ -424,8 +424,8 @@ def group_list_authz(context, data_dict):
       (optional, default: False)
     :type am-member: boolean
 
-    :returns: the names of groups that the user is authorized to edit
-    :rtype: list of strings
+    :returns: list of dictized groups that the user is authorized to edit
+    :rtype: list of dicts
 
     '''
     model = context['model']
@@ -479,8 +479,8 @@ def organization_list_for_user(context, data_dict):
       (optional, default: ``edit_group``)
     :type permission: string
 
-    :returns: the names of organizations the user is authorized to do specific permission
-    :rtype: list of strings
+    :returns: list of dictized organizations that the user is authorized to edit
+    :rtype: list of dicts
 
     '''
     model = context['model']
