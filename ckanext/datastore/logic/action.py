@@ -384,7 +384,7 @@ def datastore_make_private(context, data_dict):
     private or a new DataStore table is created for a CKAN resource
     that belongs to a private dataset.
 
-    :param resource_id: if of resource that should become private
+    :param resource_id: id of resource that should become private
     :type resource_id: string
     '''
     if 'id' in data_dict:
