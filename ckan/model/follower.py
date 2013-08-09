@@ -80,8 +80,8 @@ class ModelFollowingModel(domain_object.DomainObject):
                 .filter(sqlalchemy.and_(follower_alias.id == follower_id,\
                 cls.follower_id == follower_alias.id,\
                 cls.object_id == object_alias.id,\
-                follower_alias.state != vdm.sqlalchemy.State.DELETED,\
-                object_alias.state != vdm.sqlalchemy.State.DELETED,\
+                follower_alias.state != ckan.model.State.DELETED,\
+                object_alias.state != ckan.model.State.DELETED,\
                 object_alias.id == object_id))
 
         return query

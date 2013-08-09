@@ -7,7 +7,6 @@ import datetime
 
 from pylons import config
 import sqlalchemy
-import vdm.sqlalchemy
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -674,7 +673,7 @@ def user_list(context, data_dict):
         )
 
     # Filter deleted users
-    query = query.filter(model.User.state != vdm.sqlalchemy.State.DELETED)
+    query = query.filter(model.User.state != model.State.DELETED)
 
     ## hack for pagination
     if context.get('return_query'):
@@ -1186,7 +1185,7 @@ def user_autocomplete(context, data_dict):
     limit = data_dict.get('limit', 20)
 
     query = model.User.search(q)
-    query = query.filter(model.User.state != vdm.sqlalchemy.State.DELETED)
+    query = query.filter(model.User.state != model.State.DELETED)
     query = query.limit(limit)
 
     user_list = []
