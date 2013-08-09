@@ -167,7 +167,9 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return q.count()
 
     def is_deleted(self):
-        return self.state == vdm.sqlalchemy.State.DELETED
+        # have to import here to avoid circular imports
+        import ckan.model as model
+        return self.state == model.State.DELETED
 
     def is_in_group(self, group):
         return group in self.get_group_ids()
