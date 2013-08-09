@@ -3,6 +3,7 @@ import datetime
 import sqlalchemy
 import vdm.sqlalchemy
 
+import core
 import ckan.model
 import domain_object
 
@@ -80,8 +81,8 @@ class ModelFollowingModel(domain_object.DomainObject):
                 .filter(sqlalchemy.and_(follower_alias.id == follower_id,\
                 cls.follower_id == follower_alias.id,\
                 cls.object_id == object_alias.id,\
-                follower_alias.state != ckan.model.State.DELETED,\
-                object_alias.state != ckan.model.State.DELETED,\
+                follower_alias.state != core.State.DELETED,\
+                object_alias.state != core.State.DELETED,\
                 object_alias.id == object_id))
 
         return query

@@ -9,6 +9,7 @@ from sqlalchemy import types, Column, Table
 import vdm.sqlalchemy
 
 import meta
+import core
 import types as _types
 import domain_object
 
@@ -167,9 +168,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return q.count()
 
     def is_deleted(self):
-        # have to import here to avoid circular imports
-        import ckan.model as model
-        return self.state == model.State.DELETED
+        return self.state == core.State.DELETED
 
     def is_in_group(self, group):
         return group in self.get_group_ids()
