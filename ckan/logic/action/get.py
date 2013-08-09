@@ -14,6 +14,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
+import ckan.model.core as core
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -665,7 +666,7 @@ def user_list(context, data_dict):
         )
 
     # Filter deleted users
-    query = query.filter(model.User.state != model.State.DELETED)
+    query = query.filter(model.User.state != core.State.DELETED)
 
     ## hack for pagination
     if context.get('return_query'):
@@ -1177,7 +1178,7 @@ def user_autocomplete(context, data_dict):
     limit = data_dict.get('limit', 20)
 
     query = model.User.search(q)
-    query = query.filter(model.User.state != model.State.DELETED)
+    query = query.filter(model.User.state != core.State.DELETED)
     query = query.limit(limit)
 
     user_list = []
