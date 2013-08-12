@@ -11,6 +11,8 @@ import ckan.model as model
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
+DEFAULT_FORMATS = []
+
 
 class DatastoreException(Exception):
     pass
@@ -39,6 +41,9 @@ class DatastorePlugin(p.SingletonPlugin):
         # available and permissions do not have to be changed. In legacy mode, the
         # datastore runs on PG prior to 9.0 (for example 8.4).
         self.legacy_mode = 'ckan.datastore.read_url' not in self.config
+
+        datapusher_formats = config.get('datapusher.formats', '').split()
+        self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
@@ -118,7 +123,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 package = p.toolkit.get_action('package_show')(context, {
                     'id': entity.get_package_id()
                 })
-                if not package['private']:
+                if (not package['private'] and
+                        entity.format in self.datapusher_formats):
                     p.toolkit.get_action('datapusher_submit')(context, {
                         'resource_id': entity.id
                     })
