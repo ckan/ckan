@@ -64,10 +64,26 @@ class TestAuthUsers(TestAuth):
         # We can't reuse the username with the other tests because we can't
         # rebuild_db(), because in the setup_class we get the sysadmin. If we
         # rebuild the DB, we would delete the sysadmin as well.
-        username = 'other_username'
+        username = 'deleted_user'
         self.create_user(username)
         user = model.User.get(username)
         user.delete()
+
+        assert not new_authz.is_authorized_boolean('always_success', {'user': username})
+
+        del new_authz._AuthFunctions._functions['always_success']
+
+    def test_auth_pending_users_are_always_unauthorized(self):
+        always_success = lambda x,y: {'success': True}
+        new_authz._AuthFunctions._build()
+        new_authz._AuthFunctions._functions['always_success'] = always_success
+        # We can't reuse the username with the other tests because we can't
+        # rebuild_db(), because in the setup_class we get the sysadmin. If we
+        # rebuild the DB, we would delete the sysadmin as well.
+        username = 'pending_user'
+        self.create_user(username)
+        user = model.User.get(username)
+        user.state = model.State.PENDING
 
         assert not new_authz.is_authorized_boolean('always_success', {'user': username})
 

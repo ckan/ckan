@@ -106,12 +106,6 @@ def is_sysadmin(username):
     return user and user.sysadmin
 
 
-def is_deleted(username):
-    ''' Returns True if username is deleted '''
-    user = _get_user(username)
-    return user and user.is_deleted()
-
-
 def _get_user(username):
     ''' Try to get the user from c, if possible, and fallback to using the DB '''
     if not username:
@@ -154,15 +148,18 @@ def is_authorized(action, context, data_dict=None):
     auth_function = _AuthFunctions.get(action)
     if auth_function:
         username = context.get('user')
-        # deleted users are always unauthorized
-        if is_deleted(username):
-            return {'success': False}
-        # sysadmins can do anything unless the auth_sysadmins_check
-        # decorator was used in which case they are treated like all other
-        # users.
-        elif is_sysadmin(username):
-            if not getattr(auth_function, 'auth_sysadmins_check', False):
-                return {'success': True}
+        user = _get_user(username)
+
+        if user:
+            # inactive users are always unauthorized
+            if not user.is_active():
+                return {'success': False}
+            # sysadmins can do anything unless the auth_sysadmins_check
+            # decorator was used in which case they are treated like all other
+            # users.
+            elif user.sysadmin:
+                if not getattr(auth_function, 'auth_sysadmins_check', False):
+                    return {'success': True}
 
         return auth_function(context, data_dict)
     else:

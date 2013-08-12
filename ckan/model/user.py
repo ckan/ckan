@@ -167,8 +167,19 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
 
+    def activate(self):
+        ''' Activate the user '''
+        self.state = core.State.ACTIVE
+
+    def set_pending(self):
+        ''' Set the user as pending '''
+        self.state = core.State.PENDING
+
     def is_deleted(self):
         return self.state == core.State.DELETED
+
+    def is_pending(self):
+        return self.state == core.State.PENDING
 
     def is_in_group(self, group):
         return group in self.get_group_ids()

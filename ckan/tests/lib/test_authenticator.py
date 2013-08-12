@@ -34,6 +34,15 @@ class TestUsernamePasswordAuthenticator(object):
 
         assert self.authenticate(environ, identity) is None
 
+    def test_authenticate_fails_if_user_is_pending(self):
+        environ = {}
+        password = 'somepass'
+        user = CreateTestData.create_user('a_user', **{'password': password})
+        identity = {'login': user.name, 'password': password}
+        user.set_pending()
+
+        assert self.authenticate(environ, identity) is None
+
     def test_authenticate_fails_if_password_is_wrong(self):
         environ = {}
         user = CreateTestData.create_user('a_user')
@@ -95,6 +104,16 @@ class TestOpenIDAuthenticator(object):
         openid = 'some-openid-key'
         user = CreateTestData.create_user('a_user', **{'openid': openid})
         user.delete()
+        identity = {'login': user.name,
+                    'repoze.who.plugins.openid.userid': openid}
+
+        assert self.authenticate(environ, identity) is None
+
+    def test_authenticate_fails_if_user_is_deleted(self):
+        environ = {}
+        openid = 'some-openid-key'
+        user = CreateTestData.create_user('a_user', **{'openid': openid})
+        user.set_pending()
         identity = {'login': user.name,
                     'repoze.who.plugins.openid.userid': openid}
 

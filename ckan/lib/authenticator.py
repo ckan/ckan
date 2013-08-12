@@ -14,7 +14,7 @@ class OpenIDAuthenticator(object):
         if 'repoze.who.plugins.openid.userid' in identity:
             openid = identity['repoze.who.plugins.openid.userid']
             user = User.by_openid(openid)
-            if user is None or user.is_deleted():
+            if user is None or not user.is_active():
                 return None
             else:
                 return user.name
@@ -33,8 +33,8 @@ class UsernamePasswordAuthenticator(object):
 
         if user is None:
             log.debug('Login failed - username %r not found', login)
-        elif user.is_deleted():
-            log.debug('Login as %r failed - user is deleted', login)
+        elif not user.is_active():
+            log.debug('Login as %r failed - user isn\'t active', login)
         elif not user.validate_password(identity['password']):
             log.debug('Login as %r failed - password not valid', login)
         else:
