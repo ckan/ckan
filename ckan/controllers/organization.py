@@ -18,7 +18,7 @@ class OrganizationController(group.GroupController):
         return 'organization/new_organization_form.html'
 
     def _form_to_db_schema(self, group_type=None):
-        return lookup_group_plugin(group_type).form_to_db_schema()
+        return group.lookup_group_plugin(group_type).form_to_db_schema()
 
     def _db_to_form_schema(self, group_type=None):
         '''This is an interface to manipulate data from the database
@@ -44,7 +44,7 @@ class OrganizationController(group.GroupController):
         return 'organization/read.html'
 
     def _history_template(self, group_type):
-        return lookup_group_plugin(group_type).history_template()
+        return group.lookup_group_plugin(group_type).history_template()
 
     def _edit_template(self, group_type):
         return 'organization/edit.html'

@@ -619,7 +619,7 @@ def user_list(context, data_dict):
     )
 
     if q:
-        query = model.User.search(q, query)
+        query = model.User.search(q, query, user_name=context.get('user'))
 
     if order_by == 'edits':
         query = query.order_by(_desc(
@@ -2187,7 +2187,6 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     extra_vars = {
         'controller': 'package',
         'action': 'activity',
-        'id': data_dict['id'],
         'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream,
