@@ -466,15 +466,36 @@ def datapusher_submit(context, data_dict):
         ver=3, qualified=True)
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
-    requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
-        'api_key': user['apikey'],
-        'job_type': 'push_to_datastore',
-        'result_url': callback_url,
-        'metadata': {
-            'ckan_url': pylons.config['ckan.site_url'],
-            'resource_id': res_id
-        }
-    }))
+    try:
+        r = requests.post(
+            urlparse.urljoin(datapusher_url, 'job'),
+            headers={
+                #'Content-Type': 'application/json'
+            },
+            data=json.dumps({
+                'api_key': user['apikey'],
+                'job_type': 'push_to_datastore',
+                'result_url': callback_url,
+                'metadata': {
+                    'ckan_url': pylons.config['ckan.site_url'],
+                    'resource_id': res_id
+                }
+            }))
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError, e:
+        raise p.toolkit.ValidationError({'datapusher': {
+            'message': 'Could not connect to DataPusher.',
+            'details': str(e)}})
+    except requests.exceptions.HTTPError, e:
+        m = 'An Error occurred while sending the job: {0}'.format(e.message)
+        try:
+            body = e.response.json()
+        except ValueError:
+            body = e.response.text
+        raise p.toolkit.ValidationError({'datapusher': {
+            'message': m,
+            'details': body,
+            'status_code': r.status_code}})
 
     p.toolkit.get_action('task_status_update')(context, {
         'entity_id': res_id,
