@@ -20,6 +20,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IResourceUrlChange)
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
@@ -95,12 +96,32 @@ class DatastorePlugin(p.SingletonPlugin):
 
             self.resource_show_action = new_resource_show
 
-    def notify(self, entity, operation):
+    def notify(self, entity, operation=None):
+        '''
+        if not isinstance(entity, model.Resource):
+            return
+        if operation:
+            if operation == model.domain_object.DomainObjectOperation.new:
+                self._create_datastorer_task(entity)
+        else:
+            # if operation is None, resource URL has been changed, as the
+            # notify function in IResourceUrlChange only takes 1 parameter
+            self._create_datastorer_task(entity)
+        '''
+        context = {'model': model, 'ignore_auth': True}
+        if isinstance(entity, model.Resource):
+            if (operation == model.domain_object.DomainObjectOperation.new
+                    or not operation):
+                # if operation is None, resource URL has been changed, as
+                # the notify function in IResourceUrlChange only takes
+                # 1 parameter
+                p.toolkit.get_action('datapusher_submit')(context, {
+                    'resource_id': entity.id
+                })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
-            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
