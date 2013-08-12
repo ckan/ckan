@@ -115,9 +115,13 @@ class DatastorePlugin(p.SingletonPlugin):
                 # if operation is None, resource URL has been changed, as
                 # the notify function in IResourceUrlChange only takes
                 # 1 parameter
-                p.toolkit.get_action('datapusher_submit')(context, {
-                    'resource_id': entity.id
+                package = p.toolkit.get_action('package_show')(context, {
+                    'id': entity.get_package_id()
                 })
+                if not package['private']:
+                    p.toolkit.get_action('datapusher_submit')(context, {
+                        'resource_id': entity.id
+                    })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
