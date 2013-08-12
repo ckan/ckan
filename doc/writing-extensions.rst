@@ -683,13 +683,13 @@ Some notes on how these tests work:
 
 .. _localizing extensions:
 
-Localizing extensions
-=====================
+Internationalizing and localizing extensions
+============================================
 
-.. todo:: Explain how to internationalize extensions.
+.. todo::
 
-   Internationalize the example_iauthfunctions example extension, and use it as
-   an example.
+   Show how to internationalize and localize the example extension.
+
 
 .. _best practices for extensions:
 
