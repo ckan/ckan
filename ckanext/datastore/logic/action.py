@@ -593,8 +593,7 @@ def datapusher_status(context, data_dict):
         raise p.toolkit.ValidationError(
             {'configuration': ['DataPusher not configured.']})
 
-    url = urlparse.urljoin(datapusher_url, 'job', task_id['value'])
-
+    url = urlparse.urljoin(datapusher_url, 'job' + '/' + task_id['value'])
     return {
         'status': task_id['state'],
         'job_id': task_id['value'],
