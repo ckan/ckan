@@ -429,6 +429,13 @@ def datastore_make_public(context, data_dict):
     db.make_public(context, data_dict)
 
 
+def datapusher_enabled(context, data_dict):
+    """ Returns True if the DataPusher is configured """
+
+    datapusher_url = pylons.config.get('datapusher.url')
+    return True if datapusher_url else False
+
+
 def datapusher_submit(context, data_dict):
     ''' Submit a job to the datapusher. The datapusher is a service that
     imports tabular data into the datastore.
@@ -548,6 +555,53 @@ def datapusher_hook(context, data_dict):
         task['last_updated'] = str(datetime.datetime.now())
 
     p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
+
+
+def datapusher_status(context, data_dict):
+    """ Get the status of a datapusher job for a certain resource.
+
+    :param resource_id: The resource id of the resource that you want the
+        datapusher status for.
+    :type resource_id: string
+    """
+
+    p.toolkit.check_access('datapusher_status', context, data_dict)
+
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
+    res_id = _get_or_bust(data_dict, 'resource_id')
+
+    try:
+        task_id = p.toolkit.get_action('task_status_show')(context, {
+            'entity_id': res_id,
+            'task_type': 'datapusher',
+            'key': 'job_id'
+        })
+    except p.toolkit.ObjectNotFound:
+        return {
+            'status': 'unknown'
+        }
+
+    task_key = p.toolkit.get_action('task_status_show')(context, {
+        'entity_id': res_id,
+        'task_type': 'datapusher',
+        'key': 'job_key'
+    })
+
+    datapusher_url = pylons.config.get('datapusher.url')
+    if not datapusher_url:
+        raise p.toolkit.ValidationError(
+            {'configuration': ['DataPusher not configured.']})
+
+    url = urlparse.urljoin(datapusher_url, 'job', task_id['value'])
+
+    return {
+        'status': task_id['state'],
+        'job_id': task_id['value'],
+        'job_url': url,
+        'last_updated': task_id['last_updated'],
+        'job_key': task_key['value']
+    }
 
 
 def _resource_exists(context, data_dict):

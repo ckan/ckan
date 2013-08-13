@@ -256,8 +256,10 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
+                   'datapusher_enabled': action.datapusher_enabled,
                    'datapusher_submit': action.datapusher_submit,
                    'datapusher_hook': action.datapusher_hook,
+                   'datapusher_status': action.datapusher_status,
                    'resource_show': self.resource_show_action,
                   }
         if not self.legacy_mode:
@@ -273,7 +275,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
                 'datastore_change_permissions': auth.datastore_change_permissions,
-                'datapusher_submit': auth.datapusher_submit}
+                'datapusher_submit': auth.datapusher_submit,
+                'datapusher_status': auth.datapusher_status}
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',

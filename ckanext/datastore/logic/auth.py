@@ -38,5 +38,9 @@ def datapusher_submit(context, data_dict):
     return _datastore_auth(context, data_dict)
 
 
+def datapusher_status(context, data_dict):
+    return _datastore_auth(context, data_dict)
+
+
 def datastore_change_permissions(context, data_dict):
     return _datastore_auth(context, data_dict)
