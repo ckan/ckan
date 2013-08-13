@@ -1,6 +1,15 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v1.8.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix for using harvesters with organization setup
+ * Refactor for user update logic
+ * Tweak resources visibility query
+
+
 v1.8.1 2013-05-10
 =================
 
@@ -14,7 +23,9 @@ v1.8 2012-10-19
 ===============
 
 Note: This version requires a requirements upgrade on source installations
+
 Note: This version requires a database upgrade
+
 Note: This version does not require a Solr schema upgrade
 
 Major:
@@ -62,6 +73,14 @@ API changes and deprecation:
    `c.facets`) has been superseded by use of the improved facet data structure,
    `c.search_facets`.  The old data structure is still available on `c.facets`,
    but is deprecated, and will be removed in future versions. (#2313)
+
+
+v1.7.4 2013-08-13
+=================
+
+Bug fixes:
+ * Refactor for user update logic
+ * Tweak resources visibility query
 
 
 v1.7.3 2013-05-10
