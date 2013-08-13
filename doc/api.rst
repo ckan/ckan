@@ -93,7 +93,7 @@ The response is a JSON dictionary with three keys:
    The API aims to always return ``200 OK`` as the status code of its HTTP
    response, whether there were errors with the request or not, so it's
    important to always check the value of the ``"success"`` key in the response
-   dictionary and (if success is ``False``) check the value of the ``"error"``
+   dictionary and (if success is ``false``) check the value of the ``"error"``
    key.
 
 .. note::
