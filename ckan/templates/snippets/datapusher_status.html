@@ -1,0 +1,19 @@
+{# Datapusher status indicator
+
+resource: the resource
+
+#}
+{% if resource.datastore_active %}
+  {% set datapusher_enabled = h.get_action('datapusher_enabled') %}
+	{% if datapusher_enabled %}
+		{% set job = h.get_action('datapusher_status', data_dict={'resource_id': resource.id}) %}
+	  {% set status = job.status %}
+	  {% set datapusher_job_url = job.job_url %}
+	  {% set title =  _('Datapusher status: {status}').format(status=status) %}
+	  {% if status == 'unknown' %}
+	  	<i title="{{ _(title) }}" class="datapusher-status status-{{ status }} icon-circle icon-large"></i>
+	  {% else %}
+	  	<a href="{{ datapusher_job_url }}" class="datapusher-status-link" title="{{ _(title) }}"><i class="datapusher-status status-{{ status }} icon-circle icon-large"></i></a>
+  	{% endif %}
+  {% endif %}
+{% endif %}
