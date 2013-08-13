@@ -64,6 +64,13 @@ def site_read(context,data_dict=None):
 def package_list(context, data_dict):
     '''Return a list of the names of the site's datasets (packages).
 
+    :param limit: if given, the list of datasets will be broken into pages of
+        at most ``limit`` datasets per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+
     :rtype: list of strings
 
     '''
