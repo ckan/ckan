@@ -436,9 +436,10 @@ def datapusher_submit(context, data_dict):
     :param resource_id: The resource id of the resource that the data
         should be imported in. The resource's URL will be used to get the data.
     :type resource_id: string
-    :param set_url_to_dump: If set to true, the URL of the resource will be set
-        to the :ref:`datastore dump <dump>` URL after the data has been imported.
-    :type set_url_to_dump: boolean
+    :param set_url_type: If set to true, the ``url_type`` of the resource will
+        be set to ``datastore`` and the resource URL will automatically point
+        to the :ref:`datastore dump <dump>` URL. (optional, default: False)
+    :type set_url_type: boolean
 
     Returns ``True`` if the job has been submitted and ``False`` if the job
     has not been submitted, i.e. when the datapusher is not configured.
@@ -450,12 +451,9 @@ def datapusher_submit(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    # TODO: handle set_url_to_dump
-
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
-    datapusher_url = pylons.config.get(
-        'datapusher.url', 'http://datapusher.ckan.org/')
+    datapusher_url = pylons.config.get('datapusher.url')
 
     # no datapusher url means the datapusher should not be used
     if not datapusher_url:
@@ -478,7 +476,8 @@ def datapusher_submit(context, data_dict):
                 'result_url': callback_url,
                 'metadata': {
                     'ckan_url': pylons.config['ckan.site_url'],
-                    'resource_id': res_id
+                    'resource_id': res_id,
+                    'set_url_type': data_dict.get('set_url_type', False)
                 }
             }))
         r.raise_for_status()
@@ -521,7 +520,7 @@ def datapusher_hook(context, data_dict):
     """ Update datapusher task. This action is typically called by the
     datapusher whenever the status of a job changes.
 
-    Expects a job with ``status``, ``metadata``.
+    Expects a job with ``status`` and ``metadata`` with a ``resource_id``.
     """
 
     # TODO: use a schema to validate
