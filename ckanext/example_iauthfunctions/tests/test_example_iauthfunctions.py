@@ -174,11 +174,9 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPlugin):
 
         noncurator, curator, curators_group = self._make_curators_group()
 
-        with nose.tools.assert_raises(toolkit.Invalid) as context:
-            tests.call_action_api(self.app, 'group_create',
-                                  name='this_group_should_not_be_created',
-                                  status=403)
-        assert context.exception.error == 'Not found: User'
+        nose.tools.assert_raises(toolkit.Invalid, tests.call_action_api,
+            self.app, 'group_create', name='this_group_should_not_be_created',
+            status=403)
 
 
 class TestExampleIAuthFunctionsPluginV2(TestExampleIAuthFunctionsPlugin):
