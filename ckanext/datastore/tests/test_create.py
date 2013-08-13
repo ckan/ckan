@@ -556,6 +556,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
+        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
