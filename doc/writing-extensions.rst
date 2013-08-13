@@ -722,6 +722,15 @@ keys against core tables.
 
 .. _writing extensions reference:
 
+
+Use branches to support multiple versions of CKAN
+=================================================
+
+.. todo::
+
+   Explain the recommended approach for supporting different versions of CKAN
+   in an extension by using different branches.
+
 ----------------------------------------------
 Reference documentation for writing extensions
 ----------------------------------------------
