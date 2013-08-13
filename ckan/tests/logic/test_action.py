@@ -60,14 +60,21 @@ class TestAction(WsgiAppCase):
         return json.loads(res.body)['result']
 
     def test_01_package_list(self):
-        postparams = '%s=1' % json.dumps({})
-        res = json.loads(self.app.post('/api/action/package_list', params=postparams).body)
+        res = json.loads(self.app.post('/api/action/package_list',
+                         headers={'content-type': 'application/json'}).body)
         assert res['success'] is True
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
+
+        postparams = '%s=1' % json.dumps({'limit': 1})
+        res = json.loads(self.app.post('/api/action/package_list',
+                         params=postparams).body)
+        assert res['success'] is True
+        assert len(res['result']) == 1
+        assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
 		# Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
