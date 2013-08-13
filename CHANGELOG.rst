@@ -92,6 +92,10 @@ Deprecated and removed:
  * The ``json_preview`` plugin has been replaced by a new ``text_preview``
    one. Please update your config files if using it. (#226)
 
+Known issues:
+ * Under certain authorization setups the forntend for the groups functionality
+   may not work as expected (See #1176 #1175).
+
 
 v2.0.2 2013-08-13
 =================
@@ -109,9 +113,6 @@ Bug fixes:
  * Fix missing close breadcrumb tag in org templates (#1071)
  * Fix recently_changed_packages_activity_stream function (#1159)
  * Fix Recline map sidebar not showing in IE 7-8 (#1133)
- * Refactor for user update logic
- * Tweak resources visibility query
-
 
 
 v2.0.1 2013-06-11
@@ -296,6 +297,7 @@ Bug fixes:
  * Refactor for user update logic
  * Tweak resources visibility query
 
+
 v1.8.1 2013-05-10
 =================
 
@@ -367,6 +369,7 @@ v1.7.4 2013-08-13
 Bug fixes:
  * Refactor for user update logic
  * Tweak resources visibility query
+
 
 v1.7.3 2013-05-10
 =================
