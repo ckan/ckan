@@ -470,7 +470,7 @@ def datapusher_submit(context, data_dict):
         r = requests.post(
             urlparse.urljoin(datapusher_url, 'job'),
             headers={
-                #'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
             data=json.dumps({
                 'api_key': user['apikey'],
@@ -497,15 +497,22 @@ def datapusher_submit(context, data_dict):
             'details': body,
             'status_code': r.status_code}})
 
-    p.toolkit.get_action('task_status_update')(context, {
+    empty_task = {
         'entity_id': res_id,
         'entity_type': 'resource',
         'task_type': 'datapusher',
-        'key': 'datapusher',
-        'value': datapusher_url,
         'last_updated': str(datetime.datetime.now()),
         'state': 'pending'
-    })
+    }
+
+    tasks = []
+    for (k, v) in [('job_id', r.json()['job_id']),
+                   ('job_key', r.json()['job_key'])]:
+        t = empty_task.copy()
+        t['key'] = k
+        t['value'] = v
+        tasks.append(t)
+    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
 
     return True
 
@@ -523,16 +530,25 @@ def datapusher_hook(context, data_dict):
 
     res_id = data_dict['metadata']['resource_id']
 
-    task = p.toolkit.get_action('task_status_show')(context, {
+    task_id = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
         'task_type': 'datapusher',
-        'key': 'datapusher'
+        'key': 'job_id'
     })
 
-    task['state'] = data_dict['status']
-    task['last_updated'] = str(datetime.datetime.now())
+    task_key = p.toolkit.get_action('task_status_show')(context, {
+        'entity_id': res_id,
+        'task_type': 'datapusher',
+        'key': 'job_key'
+    })
 
-    p.toolkit.get_action('task_status_update')(context, task)
+    tasks = [task_id, task_key]
+
+    for task in tasks:
+        task['state'] = data_dict['status']
+        task['last_updated'] = str(datetime.datetime.now())
+
+    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
 
 
 def _resource_exists(context, data_dict):
