@@ -64,6 +64,13 @@ def site_read(context,data_dict=None):
 def package_list(context, data_dict):
     '''Return a list of the names of the site's datasets (packages).
 
+    :param limit: if given, the list of datasets will be broken into pages of
+        at most ``limit`` datasets per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+
     :rtype: list of strings
 
     '''
@@ -72,6 +79,12 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
+    schema = context.get('schema', logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+
     package_revision_table = model.package_revision_table
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
@@ -79,6 +92,14 @@ def package_list(context, data_dict):
     query = query.where(_and_(package_revision_table.c.state=='active',
         package_revision_table.c.current==True))
     query = query.order_by(col)
+
+    limit = data_dict.get('limit')
+    if limit:
+        query = query.limit(limit)
+
+    offset = data_dict.get('offset')
+    if offset:
+        query = query.offset(offset)
     return list(zip(*query.execute())[0])
 
 def current_package_list_with_resources(context, data_dict):
