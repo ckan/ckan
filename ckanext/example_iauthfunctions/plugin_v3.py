@@ -15,9 +15,6 @@ def group_create(context, data_dict=None):
     # only interested in the user_ids.
     member_ids = [member_tuple[0] for member_tuple in members]
 
-    # FIXME: An extension shouldn't have to do this.
-    context['session'] = context['model'].Session
-
     # We have the logged-in user's user name, get their user id.
     convert_user_name_or_id_to_id = toolkit.get_converter(
             'convert_user_name_or_id_to_id')

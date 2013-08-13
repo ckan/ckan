@@ -194,6 +194,19 @@ def flatten_to_string_key(dict):
     return untuplize_dict(flattented)
 
 
+def _prepopulate_context(context):
+    if context is None:
+        context = {}
+    context.setdefault('model', model)
+    context.setdefault('session', model.Session)
+    try:
+        context.setdefault('user', c.user or c.author)
+    except TypeError:
+        # c not registered
+        pass
+    return context
+
+
 def check_access(action, context, data_dict=None):
     user = context.get('user')
 
@@ -205,6 +218,9 @@ def check_access(action, context, data_dict=None):
         #    # TODO Check the API key is valid at some point too!
         #    log.debug('Valid API key needed to make changes')
         #    raise NotAuthorized
+
+        context = _prepopulate_context(context)
+
         logic_authorization = new_authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
@@ -221,6 +237,7 @@ def check_access(action, context, data_dict=None):
 _actions = {}
 def clear_actions_cache():
     _actions.clear()
+
 
 def get_action(action):
     '''Return the ckan.logic.action function named by the given string.
@@ -318,15 +335,8 @@ def get_action(action):
                 if kw:
                     log.critical('%s was pass extra keywords %r'
                                  % (_action.__name__, kw))
-                if context is None:
-                    context = {}
-                context.setdefault('model', model)
-                context.setdefault('session', model.Session)
-                try:
-                    context.setdefault('user', c.user or c.author)
-                except TypeError:
-                    # c not registered
-                    pass
+
+                context = _prepopulate_context(context)
                 return _action(context, data_dict, **kw)
             return wrapped
 
