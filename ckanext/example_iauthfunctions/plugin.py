@@ -1,10 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-# FIXME: Shouldn't have to import thise here (it's needed for the
-# Invalid exception class below).
-import ckan.lib.navl.dictization_functions as df
-
 
 def group_create(context, data_dict=None):
 
@@ -30,7 +26,7 @@ def group_create(context, data_dict=None):
             'convert_user_name_or_id_to_id')
     try:
         user_id = convert_user_name_or_id_to_id(user_name, context)
-    except df.Invalid:
+    except toolkit.Invalid:
         # The user doesn't exist (e.g. they're not logged-in).
         return {'success': False,
                 'msg': 'You must be logged-in as a member of the curators '

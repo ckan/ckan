@@ -49,6 +49,7 @@ class _Toolkit(object):
         'UnknownConverter',     # convertor not found exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
+        'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
 
@@ -71,6 +72,7 @@ class _Toolkit(object):
         import ckan
         import ckan.lib.base as base
         import ckan.logic as logic
+        import ckan.logic.validators as logic_validators
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
@@ -101,6 +103,7 @@ class _Toolkit(object):
         t['ValidationError'] = logic.ValidationError
         t['UnknownConverter'] = logic.UnknownConverter
         t['UnknownValidator'] = logic.UnknownValidator
+        t['Invalid'] = logic_validators.Invalid
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm

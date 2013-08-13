@@ -7,6 +7,7 @@ import pylons.test
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
+import ckan.plugins.toolkit as toolkit
 
 
 class TestExampleIAuthFunctionsPlugin(object):
@@ -170,11 +171,10 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPlugin):
 
         '''
         import nose.tools
-        import ckan.lib.navl.dictization_functions as df
 
         noncurator, curator, curators_group = self._make_curators_group()
 
-        with nose.tools.assert_raises(df.Invalid) as context:
+        with nose.tools.assert_raises(toolkit.Invalid) as context:
             tests.call_action_api(self.app, 'group_create',
                                   name='this_group_should_not_be_created',
                                   status=403)
