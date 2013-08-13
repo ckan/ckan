@@ -1,6 +1,25 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+
+v2.0.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix markdown in group descriptions (#303)
+ * Fix resource proxy encoding errors (#896)
+ * Fix datastore exception on first run (#907)
+ * Enable streaming in resource proxy (#989)
+ * Fix in user search (#1024)
+ * Fix Celery configuration to allow overriding from config (#1027)
+ * Undefined function on organizations controller (#1036)
+ * Fix license not translated in orgs/groups (#1040)
+ * Fix link to documentation from the footer (#1062)
+ * Fix missing close breadcrumb tag in org templates (#1071)
+ * Fix recently_changed_packages_activity_stream function (#1159)
+ * Fix Recline map sidebar not showing in IE 7-8 (#1133)
+
+
 v2.0.1 2013-06-11
 =================
 
@@ -175,6 +194,15 @@ Deprecated and removed:
  * Removed deprecated datetime_to_datestr() template helper function (#2257)
 
 
+v1.8.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix for using harvesters with organization setup
+ * Refactor for user update logic
+ * Tweak resources visibility query
+
+
 v1.8.1 2013-05-10
 =================
 
@@ -238,6 +266,14 @@ API changes and deprecation:
    `c.facets`) has been superseded by use of the improved facet data structure,
    `c.search_facets`.  The old data structure is still available on `c.facets`,
    but is deprecated, and will be removed in future versions. (#2313)
+
+
+v1.7.4 2013-08-13
+=================
+
+Bug fixes:
+ * Refactor for user update logic
+ * Tweak resources visibility query
 
 
 v1.7.3 2013-05-10
