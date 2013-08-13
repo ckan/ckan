@@ -4,7 +4,6 @@ import logging
 
 from pylons import config as pylons_config
 from pkg_resources import iter_entry_points, VersionConflict
-#from celery.loaders.base import BaseLoader
 
 log = logging.getLogger(__name__)
 
@@ -49,16 +48,16 @@ for entry_point in iter_entry_points(group='ckan.celery_task'):
         log.critical(error)
         pass
 
-celery.conf.update(default_config)
-celery.loader.conf.update(default_config)
-
 try:
     for key, value in config.items('app:celery'):
         if key in LIST_PARAMS:
-            celery.conf[key.upper()] = value.split()
-            celery.loader.conf[key.upper()] = value.split()
+            default_config[key.upper()] = value.split()
         else:
-            celery.conf[key.upper()] = value
-            celery.loader.conf[key.upper()] = value.split()
+            default_config[key.upper()] = value
 except ConfigParser.NoSectionError:
     pass
+
+# Thes update of configuration means it is only possible to set each
+# key once so this is done once all of the options have been decided.
+celery.conf.update(default_config)
+celery.loader.conf.update(default_config)

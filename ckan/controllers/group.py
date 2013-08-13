@@ -246,9 +246,9 @@ class GroupController(BaseController):
             facets = OrderedDict()
 
             default_facet_titles = {'groups': _('Groups'),
-                              'tags': _('Tags'),
-                              'res_format': _('Formats'),
-                              'license': _('Licence'), }
+                                    'tags': _('Tags'),
+                                    'res_format': _('Formats'),
+                                    'license_id': _('License')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
