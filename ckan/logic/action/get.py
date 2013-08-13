@@ -760,6 +760,10 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
+    for resource_dict in package_dict['resources']:
+        for item in plugins.PluginImplementations(plugins.IResourceController):
+            resource_dict = item.before_show(resource_dict)
+
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
     if 'schema' in context:
         schema = context['schema']
