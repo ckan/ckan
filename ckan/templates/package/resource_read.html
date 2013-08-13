@@ -26,8 +26,8 @@
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
-            <li>{% snippet 'snippets/datapusher_status.html', resource=res %}</li>
             {% if h.check_access('package_update', {'id':pkg.id }) %}
+              <li>{% snippet 'snippets/datapusher_status.html', resource=res %}</li>
               <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
             {% if res.url %}
