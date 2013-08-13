@@ -1453,8 +1453,11 @@ def resource_search(context, data_dict):
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
-    # TODO: should we check for user authentication first?
-    q = model.Session.query(model.Resource)
+    q = model.Session.query(model.Resource).join(model.ResourceGroup).join(model.Package)
+    q = q.filter(model.Package.state == 'active')
+    q = q.filter(model.Package.private == False)
+    q = q.filter(model.Resource.state == 'active')
+
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
