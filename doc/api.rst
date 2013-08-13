@@ -318,6 +318,28 @@ http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callbac
 Action API Reference
 --------------------
 
+.. note::
+
+   If you call one of the action functions listed below and the function
+   raises an exception, the API will return a JSON dictionary with keys
+   ``"success": false`` and and an ``"error"`` key indicating the exception
+   that was raised.
+
+   For example :py:func:`~ckan.logic.action.get.member_list` (which returns a
+   list of the members of a group) raises :py:class:`~ckan.logic.NotFound` if
+   the group doesn't exist. If you called it over the API, you'd get back a
+   JSON dict like this::
+
+    {
+        "success": false
+        "error": {
+            "__type": "Not Found Error",
+            "message": "Not found"
+        },
+        "help": "...",
+    }
+
+
 ckan.logic.action.get
 =====================
 
