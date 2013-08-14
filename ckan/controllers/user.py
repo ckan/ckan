@@ -479,6 +479,7 @@ class UserController(base.BaseController):
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
                 user_dict['reset_key'] = c.reset_key
+                user_dict['state'] = model.State.ACTIVE
                 user = get_action('user_update')(context, user_dict)
 
                 h.flash_success(_("Your password has been reset."))

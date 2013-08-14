@@ -955,3 +955,21 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          id='randomness',  # i.e. incorrect
                          key='randomness')
         res = self.app.get(offset, status=404)
+
+    def test_perform_reset_activates_pending_user(self):
+        password = 'password'
+        params = { 'password1': password, 'password2': password }
+        user = CreateTestData.create_user(name='username',
+                                          email='user@email.com')
+        user.set_pending()
+        create_reset_key(user)
+        assert user.is_pending(), user.state
+
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id,
+                         key=user.reset_key)
+        res = self.app.post(offset, params=params, status=302)
+
+        user = model.User.get(user.id)
+        assert user.is_active(), user
