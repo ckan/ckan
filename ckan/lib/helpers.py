@@ -1168,6 +1168,16 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
+def canonical_search_url():
+    ''' Return a url with all parameters removed except for the pagination parameter
+    This is useful for creating canonical urls for search pages, so that search engines do not
+    index many multiples of different search pages due to other search and faceting parameters
+    '''
+    try:
+        page_param = [(k, v) for k, v in request.params.items() if k == 'page']
+        return _search_url(page_param)
+    except ckan.exceptions.CkanUrlException:
+        return _search_url(None)
 
 def include_resource(resource):
     r = getattr(fanstatic_resources, resource)
@@ -1612,6 +1622,7 @@ __allowed_functions__ = [
            'follow_button',
            'follow_count',
            'remove_url_param',
+           'canonical_search_url',
            'add_url_param',
            'groups_available',
            'organizations_available',
