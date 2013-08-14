@@ -80,6 +80,22 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
 
     :rtype: sting
     '''
+
+    def months_between(date1, date2):
+        if date1 > date2:
+            date1, date2 = date2, date1
+        m1 = date1.year * 12 + date1.month
+        m2 = date2.year * 12 + date2.month
+        months = m2 - m1
+        if date1.day > date2.day:
+            months -= 1
+        elif date1.day == date2.day:
+            seconds1 = date1.hour * 3600 + date1.minute + date1.second
+            seconds2 = date2.hour * 3600 + date2.minute + date2.second
+            if seconds1 > seconds2:
+                months -= 1
+        return months
+
     if not show_date:
         now = datetime.datetime.now()
         date_diff = now - datetime_
@@ -98,9 +114,16 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
                 return ungettext('{hours} hour ago', '{hours} hours ago',
                                  seconds / 3600).format(hours=seconds / 3600)
         # more than one day
-        if days < 31:
+        months = months_between(datetime_, now)
+
+        if months < 1:
             return ungettext('{days} day ago', '{days} days ago',
                              days).format(days=days)
+        if months < 13:
+            return ungettext('{months} month ago', '{months} months ago',
+                             months).format(months=months)
+        return ungettext('over {years} year ago', 'over {years} years ago',
+                         months / 12).format(years=months / 12)
     # actual date
     details = {
         'min': datetime_.minute,
