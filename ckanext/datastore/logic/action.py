@@ -461,10 +461,15 @@ def datapusher_submit(context, data_dict):
     if not datapusher_url:
         return False
 
+    callback_url = p.toolkit.url_for(
+        controller='api', action='action', logic_function='datapusher_hook',
+        ver=3, qualified=True)
+
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
     requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
         'api_key': user['apikey'],
         'job_type': 'push_to_datastore',
+        'result_url': callback_url,
         'metadata': {
             'ckan_url': pylons.config['ckan.site_url'],
             'resource_id': res_id
@@ -482,6 +487,31 @@ def datapusher_submit(context, data_dict):
     })
 
     return True
+
+
+def datapusher_hook(context, data_dict):
+    """ Update datapusher task. This action is typically called by the
+    datapusher whenever the status of a job changes.
+
+    Expects a job with ``status``, ``metadata``.
+    """
+
+    # TODO: use a schema to validate
+
+    p.toolkit.check_access('datapusher_submit', context, data_dict)
+
+    res_id = data_dict['metadata']['resource_id']
+
+    task = p.toolkit.get_action('task_status_show')(context, {
+        'entity_id': res_id,
+        'task_type': 'datapusher',
+        'key': 'datapusher'
+    })
+
+    task['state'] = data_dict['status']
+    task['last_updated'] = str(datetime.datetime.now())
+
+    p.toolkit.get_action('task_status_update')(context, task)
 
 
 def _resource_exists(context, data_dict):
