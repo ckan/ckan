@@ -335,8 +335,8 @@ class TrackingMiddleware(object):
             key = ''.join([
                 environ['HTTP_USER_AGENT'],
                 environ['REMOTE_ADDR'],
-                environ['HTTP_ACCEPT_LANGUAGE'],
-                environ['HTTP_ACCEPT_ENCODING'],
+                environ.get('HTTP_ACCEPT_LANGUAGE', ''),
+                environ.get('HTTP_ACCEPT_ENCODING', ''),
             ])
             key = hashlib.md5(key).hexdigest()
             # store key/data here
