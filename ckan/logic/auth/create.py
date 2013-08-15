@@ -4,10 +4,9 @@ import ckan.new_authz as new_authz
 from ckan.common import _
 
 
-@logic.auth_sysadmins_check
 def package_create(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_registered_user():
+    if not new_authz.auth_is_registered_user() and not user:
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
