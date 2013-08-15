@@ -395,6 +395,7 @@ def default_user_schema():
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
+        'state': [ignore_missing],
     }
     return schema
 

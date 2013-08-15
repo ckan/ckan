@@ -447,7 +447,7 @@ class UserController(base.BaseController):
         # FIXME We should reset the reset key when it is used to prevent
         # reuse of the url
         context = {'model': model, 'session': model.Session,
-                   'user': c.user,
+                   'user': c.user or id,
                    'keep_sensitive_data': True}
 
         data_dict = {'id': id}

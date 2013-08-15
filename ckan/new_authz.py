@@ -151,8 +151,8 @@ def is_authorized(action, context, data_dict=None):
         user = _get_user(username)
 
         if user:
-            # inactive users are always unauthorized
-            if not user.is_active():
+            # deleted users are always unauthorized
+            if user.is_deleted():
                 return {'success': False}
             # sysadmins can do anything unless the auth_sysadmins_check
             # decorator was used in which case they are treated like all other

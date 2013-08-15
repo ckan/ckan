@@ -6,6 +6,7 @@ from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
 from pylons import config
 import datetime
+import mock
 
 import vdm.sqlalchemy
 import ckan
@@ -560,6 +561,55 @@ class TestAction(WsgiAppCase):
             res_obj = json.loads(res.body)
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
+
+    def test_user_invite(self):
+        email_username = 'invited_user$ckan'
+        email = '%s@email.com' % email_username
+        user_dict = {'email': email}
+        postparams = '%s=1' % json.dumps(user_dict)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        res = self.app.post('/api/action/user_invite', params=postparams,
+                            extra_environ=extra_environ)
+
+        res_obj = json.loads(res.body)
+        user = model.User.get(res_obj['result']['id'])
+        expected_username = email_username.replace('$', '')
+        assert res_obj['success'] is True, res_obj
+        assert user.email == email, (user.email, email)
+        assert user.name.startswith(expected_username), (user.name, expected_username)
+        assert user.is_pending(), user
+        assert user.reset_key is not None, user
+
+    def test_user_invite_without_email_raises_error(self):
+        user_dict = {}
+        postparams = '%s=1' % json.dumps(user_dict)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        res = self.app.post('/api/action/user_invite', params=postparams,
+                            extra_environ=extra_environ,
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] is False, res_obj
+        assert 'email' in res_obj['error'], res_obj
+
+    @mock.patch('ckan.logic.action.create._get_random_username_from_email')
+    def test_user_invite_should_work_even_if_tried_username_already_exists(self, random_username_mock):
+        email = 'invited_user@email.com'
+        user_dict = {'email': email}
+        postparams = '%s=1' % json.dumps(user_dict)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        usernames = ['first', 'first', 'second']
+        random_username_mock.side_effect = lambda email: usernames.pop(0)
+
+        for _ in range(2):
+            res = self.app.post('/api/action/user_invite', params=postparams,
+                                extra_environ=extra_environ)
+
+            res_obj = json.loads(res.body)
+            assert res_obj['success'] is True, res_obj
 
     def test_user_delete(self):
         name = 'normal_user'

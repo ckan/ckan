@@ -7,3 +7,4 @@ nose==1.3.0
 pep8==1.4.6
 Sphinx==1.2b1
 polib==1.0.3
+mock==1.0.1

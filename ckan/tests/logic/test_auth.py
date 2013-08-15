@@ -49,6 +49,12 @@ class TestAuth(tests.WsgiAppCase):
 
 
 class TestAuthUsers(TestAuth):
+    def test_only_sysadmins_can_invite_users(self):
+        username = 'normal_user'
+        self.create_user(username)
+
+        assert not new_authz.is_authorized_boolean('user_invite', {'user': username})
+
     def test_only_sysadmins_can_delete_users(self):
         username = 'username'
         user = {'id': username}
@@ -68,22 +74,6 @@ class TestAuthUsers(TestAuth):
         self.create_user(username)
         user = model.User.get(username)
         user.delete()
-
-        assert not new_authz.is_authorized_boolean('always_success', {'user': username})
-
-        del new_authz._AuthFunctions._functions['always_success']
-
-    def test_auth_pending_users_are_always_unauthorized(self):
-        always_success = lambda x,y: {'success': True}
-        new_authz._AuthFunctions._build()
-        new_authz._AuthFunctions._functions['always_success'] = always_success
-        # We can't reuse the username with the other tests because we can't
-        # rebuild_db(), because in the setup_class we get the sysadmin. If we
-        # rebuild the DB, we would delete the sysadmin as well.
-        username = 'pending_user'
-        self.create_user(username)
-        user = model.User.get(username)
-        user.state = model.State.PENDING
 
         assert not new_authz.is_authorized_boolean('always_success', {'user': username})
 
