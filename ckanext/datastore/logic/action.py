@@ -1,6 +1,10 @@
 import logging
-import pylons
+import json
+import urlparse
+import datetime
 
+import pylons
+import requests
 import sqlalchemy
 
 import ckan.lib.navl.dictization_functions
@@ -25,10 +29,20 @@ def datastore_create(context, data_dict):
     times to initially insert more data, add fields, change the aliases or indexes
     as well as the primary keys.
 
+    To create an empty datastore resource and a CKAN resource at the same time,
+    provide ``resource`` with a valid ``package_id`` and omit the ``resource_id``.
+
+    If you want to create a datastore resource from the content of a file,
+    provide ``resource`` with a valid ``url``.
+
     See :ref:`fields` and :ref:`records` for details on how to lay out records.
 
     :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
+    :param resource: resource dictionary that is passed to
+        :meth:`~ckan.logic.action.create.resource_create`.
+        Use instead of ``resource_id`` (optional)
+    :type resource: dictionary
     :param aliases: names for read only aliases of the resource. (optional)
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata. (optional)
@@ -53,13 +67,45 @@ def datastore_create(context, data_dict):
     '''
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
+    resource = data_dict.pop('resource', None)
     data_dict, errors = _validate(data_dict, schema, context)
     if records:
         data_dict['records'] = records
+    if resource:
+        data_dict['resource'] = resource
     if errors:
         raise p.toolkit.ValidationError(errors)
 
     p.toolkit.check_access('datastore_create', context, data_dict)
+
+    if 'resource' in data_dict and 'resource_id' in data_dict:
+        raise p.toolkit.ValidationError({
+            'resource': ['resource cannot be used with resource_id']
+        })
+
+    if not 'resource' in data_dict and not 'resource_id' in data_dict:
+        raise p.toolkit.ValidationError({
+            'resource_id': ['resource_id or resource required']
+        })
+
+    if 'resource' in data_dict:
+        has_url = 'url' in data_dict['resource']
+        data_dict['resource'].setdefault('url', '_tmp')
+        res = p.toolkit.get_action('resource_create')(context,
+                                                      data_dict['resource'])
+        data_dict['resource_id'] = res['id']
+
+        # create resource from file
+        if has_url:
+            p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': res['id'],
+                'set_url_to_dump': True
+            })
+        # create empty resource
+        else:
+            # no need to set the full url because it will be set in before_show
+            res['url_type'] = 'datastore'
+            p.toolkit.get_action('resource_update')(context, res)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -381,6 +427,61 @@ def datastore_make_public(context, data_dict):
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
 
     db.make_public(context, data_dict)
+
+
+def datapusher_submit(context, data_dict):
+    ''' Submit a job to the datapusher. The datapusher is a service that
+    imports tabular data into the datastore.
+
+    :param resource_id: The resource id of the resource that the data
+        should be imported in. The resource's URL will be used to get the data.
+    :type resource_id: string
+    :param set_url_to_dump: If set to true, the URL of the resource will be set
+        to the :ref:`datastore dump <dump>` URL after the data has been imported.
+    :type set_url_to_dump: boolean
+
+    Returns ``True`` if the job has been submitted and ``False`` if the job
+    has not been submitted, i.e. when the datapusher is not configured.
+
+    :rtype: boolean
+    '''
+
+    if 'id' in data_dict:
+        data_dict['resource_id'] = data_dict['id']
+    res_id = _get_or_bust(data_dict, 'resource_id')
+
+    # TODO: handle set_url_to_dump
+
+    p.toolkit.check_access('datapusher_submit', context, data_dict)
+
+    datapusher_url = pylons.config.get(
+        'datapusher.url', 'http://datapusher.ckan.org/')
+
+    # no datapusher url means the datapusher should not be used
+    if not datapusher_url:
+        return False
+
+    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
+    requests.post(urlparse.urljoin(datapusher_url, 'job'), data=json.dumps({
+        'api_key': user['apikey'],
+        'job_type': 'push_to_datastore',
+        'metadata': {
+            'ckan_url': pylons.config['ckan.site_url'],
+            'resource_id': res_id
+        }
+    }))
+
+    p.toolkit.get_action('task_status_update')(context, {
+        'entity_id': res_id,
+        'entity_type': 'resource',
+        'task_type': 'datapusher',
+        'key': 'datapusher',
+        'value': datapusher_url,
+        'last_updated': str(datetime.datetime.now()),
+        'state': 'pending'
+    })
+
+    return True
 
 
 def _resource_exists(context, data_dict):
