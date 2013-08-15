@@ -5,6 +5,7 @@ import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
+import ckanext.datastore.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
 
@@ -26,6 +27,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(p.ITemplateHelpers)
 
     legacy_mode = False
     resource_show_action = None
@@ -293,3 +295,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
         return resource_dict
+
+    def get_helpers(self):
+        return {
+            'datapusher_status': helpers.datapusher_status,
+            'datapusher_enabled': helpers.datapusher_enabled}

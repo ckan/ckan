@@ -4,9 +4,8 @@ resource: the resource
 
 #}
 {% if resource.datastore_active %}
-  {% set datapusher_enabled = h.get_action('datapusher_enabled') %}
-	{% if datapusher_enabled %}
-		{% set job = h.get_action('datapusher_status', data_dict={'resource_id': resource.id}) %}
+	{% if h.datapusher_enabled() %}
+		{% set job = h.datapusher_status(resource.id) %}
 	  {% set title =  _('Datapusher status: {status}.').format(status=job.status) %}
 	  {% if job.status == 'unknown' %}
 	  	<i title="{{ _(title) }}" class="datapusher-status status-{{ job.status }} icon-circle icon-large"></i>

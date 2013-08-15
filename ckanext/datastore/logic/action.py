@@ -571,16 +571,11 @@ def datapusher_status(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    try:
-        task_id = p.toolkit.get_action('task_status_show')(context, {
-            'entity_id': res_id,
-            'task_type': 'datapusher',
-            'key': 'job_id'
-        })
-    except p.toolkit.ObjectNotFound:
-        return {
-            'status': 'unknown'
-        }
+    task_id = p.toolkit.get_action('task_status_show')(context, {
+        'entity_id': res_id,
+        'task_type': 'datapusher',
+        'key': 'job_id'
+    })
 
     task_key = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
