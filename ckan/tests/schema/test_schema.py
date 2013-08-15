@@ -80,6 +80,14 @@ class TestPackage:
         assert data['my_field'] == 'hola'
         assert data['extras'][0]['key'] ==  'another_extra'
 
+    def test_whitespace_stripped_from_title(self):
+        context = {'model': ckan.model,
+                   'session': ckan.model.Session}
+        schema = ckan.logic.schema.default_create_package_schema()
+        data_dict = {'title': "    title_with_whitespace    "}
+        data, _ = validate(data_dict, schema, context)
+        assert data['title'] == "title_with_whitespace"
+
 class TestTag:
     def test_tag_name_validation(self):
         context = {'model': ckan.model}

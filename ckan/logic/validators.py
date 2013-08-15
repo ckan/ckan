@@ -647,3 +647,5 @@ def list_of_strings(key, data, errors, context):
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
+def strip_whitespace(value, context):
+    return value.strip()
