@@ -447,10 +447,8 @@ class UserController(base.BaseController):
         # FIXME We should reset the reset key when it is used to prevent
         # reuse of the url
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or id,
+                   'user': id,
                    'keep_sensitive_data': True}
-
-        data_dict = {'id': id}
 
         try:
             check_access('user_reset', context)
@@ -458,6 +456,7 @@ class UserController(base.BaseController):
             abort(401, _('Unauthorized to reset password.'))
 
         try:
+            data_dict = {'id': id}
             user_dict = get_action('user_show')(context, data_dict)
 
             # Be a little paranoid, and get rid of sensitive data that's
