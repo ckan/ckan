@@ -2,6 +2,7 @@ import json
 import httpretty
 import nose
 import sys
+import datetime
 from nose.tools import assert_equal
 
 import pylons
@@ -562,18 +563,17 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
 
         package = model.Package.get('annakarenina')
-        data = {
-            'resource': {'package_id': package.id, 'url': 'demo.ckan.org'}
-        }
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        self.app.post('/api/action/datastore_create', params=postparams,
-                      extra_environ=auth, status=200)
+
+        tests.call_action_api(
+            self.app, 'datastore_create', apikey=self.sysadmin_user.apikey,
+            resource=dict(package_id=package.id, url='demo.ckan.org'))
 
         assert len(package.resources) == 4, len(package.resources)
         resource = package.resources[3]
         data = json.loads(httpretty.last_request().body)
         assert data['metadata']['resource_id'] == resource.id, data
+        assert data['result_url'].endswith('/action/datapusher_hook'), data
+        assert data['result_url'].startswith('http://'), data
 
     def test_cant_provide_resource_and_resource_id(self):
         package = model.Package.get('annakarenina')
@@ -617,6 +617,45 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         })
 
         assert task['state'] == 'pending', task
+
+    def test_datapusher_hook(self):
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        context = {
+            'user': self.sysadmin_user.name
+        }
+
+        p.toolkit.get_action('task_status_update')(context, {
+            'entity_id': resource.id,
+            'entity_type': 'resource',
+            'task_type': 'datapusher',
+            'key': 'datapusher',
+            'value': True,
+            'last_updated': str(datetime.datetime.now()),
+            'state': 'pending'
+        })
+
+        data = {
+            'status': 'success',
+            'metadata': {
+                'resource_id': resource.id
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datapusher_hook', params=postparams,
+                            extra_environ=auth, status=200)
+        print res.body
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        task = tests.call_action_api(
+            self.app, 'task_status_show', entity_id=resource.id,
+            task_type='datapusher', key='datapusher')
+
+        assert task['state'] == 'success', task
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
