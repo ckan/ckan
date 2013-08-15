@@ -2003,5 +2003,7 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.options = self.options
         root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
         root = os.path.abspath(root)
-        cmd.args = (root,)
+        ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
+        ckanext = os.path.abspath(ckanext)
+        cmd.args = (root, ckanext)
         cmd.command()
