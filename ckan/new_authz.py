@@ -9,6 +9,8 @@ import ckan.plugins as p
 import ckan.model as model
 from ckan.common import OrderedDict, _, c
 
+import ckan.lib.maintain as maintain
+
 log = getLogger(__name__)
 
 # This is a private cache used by get_auth_function() and should never
@@ -297,9 +299,14 @@ def check_config_permission(permission):
         return CONFIG_PERMISSIONS[permission]
     return False
 
-
-
+@maintain.deprecated('Use auth_is_loggedin_user instead')
 def auth_is_registered_user():
+    '''
+    This function is deprecated, please use the auth_is_loggedin_user instead
+    '''
+    return auth_is_loggedin_user()
+
+def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
         context_user = c.user
