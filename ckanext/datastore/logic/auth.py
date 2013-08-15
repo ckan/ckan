@@ -34,5 +34,9 @@ def datastore_search(context, data_dict):
     return _datastore_auth(context, data_dict, 'resource_show')
 
 
+def datapusher_submit(context, data_dict):
+    return _datastore_auth(context, data_dict)
+
+
 def datastore_change_permissions(context, data_dict):
     return _datastore_auth(context, data_dict)

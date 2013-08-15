@@ -773,6 +773,10 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
+    for resource_dict in package_dict['resources']:
+        for item in plugins.PluginImplementations(plugins.IResourceController):
+            resource_dict = item.before_show(resource_dict)
+
     package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
     if 'schema' in context:
         schema = context['schema']
@@ -807,7 +811,12 @@ def resource_show(context, data_dict):
         raise NotFound
 
     _check_access('resource_show', context, data_dict)
-    return model_dictize.resource_dictize(resource, context)
+    resource_dict = model_dictize.resource_dictize(resource, context)
+
+    for item in plugins.PluginImplementations(plugins.IResourceController):
+        resource_dict = item.before_show(resource_dict)
+
+    return resource_dict
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
