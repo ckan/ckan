@@ -460,11 +460,10 @@ def datapusher_submit(context, data_dict):
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
-    datapusher_url = pylons.config.get('datapusher.url')
-
-    # no datapusher url means the datapusher should not be used
-    if not datapusher_url:
+    if not p.toolkit.get_action('datapusher_enabled')(context):
         return False
+
+    datapusher_url = pylons.config.get('datapusher.url')
 
     callback_url = p.toolkit.url_for(
         controller='api', action='action', logic_function='datapusher_hook',
