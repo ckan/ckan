@@ -648,4 +648,7 @@ def list_of_strings(key, data, errors, context):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
 def strip_whitespace(value, context):
-    return value.strip()
+    try:
+        return value.strip()
+    except AttributeError:
+        return value
