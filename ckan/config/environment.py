@@ -105,6 +105,7 @@ def _warn_deprecated_configs(app_conf):
                  'and will be removed soon. Please use '
                  '`ckan.auth.anon_create_user` instead.')
 
+
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object.  This code should only need to be run once.
@@ -370,7 +371,7 @@ def update_config():
 
     # clear other caches
     logic.clear_actions_cache()
-    new_authz.clear_auth_cache()
+    new_authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
     try:
@@ -381,3 +382,6 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
+    # if an extension or our code does not finish
+    # transaction properly db cli commands can fail
+    model.Session.remove()

@@ -76,7 +76,7 @@ class TestCreateUser(PylonsTestCase):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.auth.anon_create_user'] = False
-        new_authz.clear_auth_cache()
+        new_authz.clear_auth_functions_cache()
         wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
                 **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -86,7 +86,7 @@ class TestCreateUser(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.clear_auth_cache()
+        new_authz.clear_auth_functions_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()
