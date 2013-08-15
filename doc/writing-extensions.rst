@@ -138,7 +138,8 @@ Testing Plugins
 When writing tests for your plugin code you will need setup and teardown code
 similar to the following to ensure that your plugin is loaded while testing::
 
-    from ckan import plugins
+    import ckan.plugins as plugins
+
 
     class TestMyPlugin(TestCase):
 
@@ -156,9 +157,11 @@ The exception to using ``plugins.load()`` is for when your plug-in is for routes
 In this case, the plugin must be configured before the WSGI app is started.
 Here is an example test set-up::
 
-    from pylons import config
+    import pylons.config as config
     import paste.fixture
-    from ckan.config.middleware import make_app
+
+    import ckan.config.middleware as middleware
+
 
     class TestMyRoutesPlugin(TestCase):
 
@@ -166,7 +169,7 @@ Here is an example test set-up::
         def setup_class(cls):
             cls._original_config = config.copy()
             config['ckan.plugins'] = 'my_routes_plugin'
-            wsgiapp = make_app(config['global_conf'], **config.local_conf)
+            wsgiapp = middleware.make_app(config['global_conf'], **config)
             cls.app = paste.fixture.TestApp(wsgiapp)
 
         @classmethod
