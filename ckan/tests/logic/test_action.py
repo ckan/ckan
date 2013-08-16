@@ -562,7 +562,8 @@ class TestAction(WsgiAppCase):
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
-    def test_user_invite(self):
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_user_invite(self, mail_user):
         email_username = 'invited_user$ckan'
         email = '%s@email.com' % email_username
         user_dict = {'email': email}
@@ -574,14 +575,32 @@ class TestAction(WsgiAppCase):
 
         res_obj = json.loads(res.body)
         user = model.User.get(res_obj['result']['id'])
-        expected_username = email_username.replace('$', '')
+        expected_username = email_username.replace('$', '-')
         assert res_obj['success'] is True, res_obj
         assert user.email == email, (user.email, email)
         assert user.name.startswith(expected_username), (user.name, expected_username)
         assert user.is_pending(), user
         assert user.reset_key is not None, user
 
-    def test_user_invite_without_email_raises_error(self):
+    @mock.patch('ckan.lib.mailer.send_invite')
+    def test_user_invite_sends_email(self, send_invite):
+        email_username = 'invited_user'
+        email = '%s@email.com' % email_username
+        user_dict = {'email': email}
+        postparams = '%s=1' % json.dumps(user_dict)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        res = self.app.post('/api/action/user_invite', params=postparams,
+                            extra_environ=extra_environ)
+
+        res_obj = json.loads(res.body)
+        user = model.User.get(res_obj['result']['id'])
+        assert res_obj['success'] is True, res_obj
+        assert send_invite.called
+        assert send_invite.call_args[0][0].id == res_obj['result']['id']
+
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_user_invite_without_email_raises_error(self, mail_user):
         user_dict = {}
         postparams = '%s=1' % json.dumps(user_dict)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -596,6 +615,8 @@ class TestAction(WsgiAppCase):
 
     @mock.patch('ckan.logic.action.create._get_random_username_from_email')
     def test_user_invite_should_work_even_if_tried_username_already_exists(self, random_username_mock):
+        patcher = mock.patch('ckan.lib.mailer.mail_user')
+        patcher.start()
         email = 'invited_user@email.com'
         user_dict = {'email': email}
         postparams = '%s=1' % json.dumps(user_dict)
@@ -610,6 +631,7 @@ class TestAction(WsgiAppCase):
 
             res_obj = json.loads(res.body)
             assert res_obj['success'] is True, res_obj
+        patcher.stop()
 
     def test_user_delete(self):
         name = 'normal_user'

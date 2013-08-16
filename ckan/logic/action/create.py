@@ -18,6 +18,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
+import ckan.lib.mailer as mailer
 
 from ckan.common import _
 
@@ -840,7 +841,17 @@ def user_create(context, data_dict):
     return user_dict
 
 def user_invite(context, data_dict):
-    '''docstring'''
+    '''Invite a new user.
+
+    You must be authorized to invite users.
+
+    :param email: the email address for the new user
+    :type email: string
+
+    :returns: the newly created yser
+    :rtype: dictionary
+
+    '''
     _check_access('user_invite', context, data_dict)
 
     user_invite_schema = {
@@ -852,7 +863,6 @@ def user_invite(context, data_dict):
 
     while True:
         try:
-            import ckan.lib.mailer
             name = _get_random_username_from_email(data_dict['email'])
             password = str(random.SystemRandom().random())
             data_dict['name'] = name
@@ -860,7 +870,7 @@ def user_invite(context, data_dict):
             data_dict['state'] = ckan.model.State.PENDING
             user_dict = _get_action('user_create')(context, data_dict)
             user = ckan.model.User.get(user_dict['id'])
-            ckan.lib.mailer.create_reset_key(user)
+            mailer.send_invite(user)
             return model_dictize.user_dictize(user, context)
         except ValidationError as e:
             if 'name' not in e.error_dict:
@@ -868,7 +878,7 @@ def user_invite(context, data_dict):
 
 def _get_random_username_from_email(email):
     localpart = email.split('@')[0]
-    cleaned_localpart = re.sub(r'[^\w]', '', localpart)
+    cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
     random_number = random.SystemRandom().random() * 10000
     name = '%s-%d' % (cleaned_localpart, random_number)
     return name
