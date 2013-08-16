@@ -313,3 +313,20 @@ def auth_is_loggedin_user():
     except TypeError:
         context_user = None
     return bool(context_user)
+
+def auth_is_anon_user(context):
+    ''' Is this an anonymous user?
+        eg Not logged in if a web request and not user defined in context
+        if logic functions called directly
+
+        See ckan/lib/base.py:232 for pylons context object logic
+    '''
+    try:
+        is_anon_user = (not bool(c.user) and bool(c.author))
+    except TypeError:
+        # No c object set, this is not a call done via the web interface,
+        # but directly, eg from an extension
+        context_user = context.get('user')
+        is_anon_user = not bool(context_user)
+
+    return is_anon_user
