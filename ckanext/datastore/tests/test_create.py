@@ -38,6 +38,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
+        p.load('datapusher')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -49,6 +50,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
+        p.unload('datapusher')
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
