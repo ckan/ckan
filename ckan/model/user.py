@@ -181,20 +181,21 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
     def is_pending(self):
         return self.state == core.State.PENDING
 
-    def is_in_group(self, group):
-        return group in self.get_group_ids()
+    def is_in_group(self, group_id):
+        return group_id in self.get_group_ids()
 
-    def is_in_groups(self, groupids):
+    def is_in_groups(self, group_ids):
         ''' Given a list of group ids, returns True if this user is in
         any of those groups '''
         guser = set(self.get_group_ids())
-        gids = set(groupids)
+        gids = set(group_ids)
 
         return len(guser.intersection(gids)) > 0
 
-    def get_group_ids(self, group_type=None):
+    def get_group_ids(self, group_type=None, capacity=None):
         ''' Returns a list of group ids that the current user belongs to '''
-        return [g.id for g in self.get_groups(group_type=group_type)]
+        return [g.id for g in
+                self.get_groups(group_type=group_type, capacity=capacity)]
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model

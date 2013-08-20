@@ -562,12 +562,18 @@ class TestAction(WsgiAppCase):
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
-    @mock.patch('ckan.lib.mailer.mail_user')
-    def test_user_invite(self, mail_user):
+    @mock.patch('ckan.lib.mailer.send_invite')
+    def test_user_invite(self, send_invite):
         email_username = 'invited_user$ckan'
         email = '%s@email.com' % email_username
-        user_dict = {'email': email}
-        postparams = '%s=1' % json.dumps(user_dict)
+        organization_name = 'an_organization'
+        CreateTestData.create_groups([{'name': organization_name}])
+        role = 'member'
+        organization = model.Group.get(organization_name)
+        params = {'email': email,
+                  'organization_id': organization.id,
+                  'role': role}
+        postparams = '%s=1' % json.dumps(params)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
 
         res = self.app.post('/api/action/user_invite', params=postparams,
@@ -575,27 +581,14 @@ class TestAction(WsgiAppCase):
 
         res_obj = json.loads(res.body)
         user = model.User.get(res_obj['result']['id'])
-        expected_username = email_username.replace('$', '-')
         assert res_obj['success'] is True, res_obj
         assert user.email == email, (user.email, email)
-        assert user.name.startswith(expected_username), (user.name, expected_username)
         assert user.is_pending(), user
-        assert user.reset_key is not None, user
-
-    @mock.patch('ckan.lib.mailer.send_invite')
-    def test_user_invite_sends_email(self, send_invite):
-        email_username = 'invited_user'
-        email = '%s@email.com' % email_username
-        user_dict = {'email': email}
-        postparams = '%s=1' % json.dumps(user_dict)
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-
-        res = self.app.post('/api/action/user_invite', params=postparams,
-                            extra_environ=extra_environ)
-
-        res_obj = json.loads(res.body)
-        user = model.User.get(res_obj['result']['id'])
-        assert res_obj['success'] is True, res_obj
+        expected_username = email_username.replace('$', '-')
+        assert user.name.startswith(expected_username), (user.name,
+                                                         expected_username)
+        group_ids = user.get_group_ids(capacity=role)
+        assert organization.id in group_ids, (group_ids, organization.id)
         assert send_invite.called
         assert send_invite.call_args[0][0].id == res_obj['result']['id']
 
@@ -618,8 +611,14 @@ class TestAction(WsgiAppCase):
         patcher = mock.patch('ckan.lib.mailer.mail_user')
         patcher.start()
         email = 'invited_user@email.com'
-        user_dict = {'email': email}
-        postparams = '%s=1' % json.dumps(user_dict)
+        organization_name = 'an_organization'
+        CreateTestData.create_groups([{'name': organization_name}])
+        role = 'member'
+        organization = model.Group.get(organization_name)
+        params = {'email': email,
+                  'organization_id': organization.id,
+                  'role': role}
+        postparams = '%s=1' % json.dumps(params)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
 
         usernames = ['first', 'first', 'second']

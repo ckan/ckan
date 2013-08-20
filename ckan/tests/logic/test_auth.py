@@ -1,3 +1,5 @@
+import mock
+
 import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
@@ -49,11 +51,10 @@ class TestAuth(tests.WsgiAppCase):
 
 
 class TestAuthUsers(TestAuth):
-    def test_only_sysadmins_can_invite_users(self):
-        username = 'normal_user'
-        self.create_user(username)
-
-        assert not new_authz.is_authorized_boolean('user_invite', {'user': username})
+    @mock.patch('ckan.logic.auth.create.organization_member_create')
+    def test_invite_user_delegates_to_organization_member_create(self, organization_member_create):
+        new_authz.is_authorized_boolean('user_invite', {})
+        organization_member_create.assert_called()
 
     def test_only_sysadmins_can_delete_users(self):
         username = 'username'

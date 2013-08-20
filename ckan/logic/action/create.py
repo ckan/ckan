@@ -843,19 +843,25 @@ def user_create(context, data_dict):
 def user_invite(context, data_dict):
     '''Invite a new user.
 
-    You must be authorized to invite users.
+    You must be authorized to create organization members.
 
-    :param email: the email address for the new user
+    :param email: the email of the user to be invited to the organization
     :type email: string
+    :param organization_id: the id or name of the organization
+    :type organization_id: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
 
     :returns: the newly created yser
     :rtype: dictionary
-
     '''
     _check_access('user_invite', context, data_dict)
 
     user_invite_schema = {
-        'email': [validators.not_empty, unicode]
+        'email': [validators.not_empty, unicode],
+        'organization_id': [validators.not_empty],
+        'role': [validators.not_empty],
     }
     _, errors = _validate(data_dict, user_invite_schema, context)
     if errors:
@@ -870,6 +876,12 @@ def user_invite(context, data_dict):
             data_dict['state'] = ckan.model.State.PENDING
             user_dict = _get_action('user_create')(context, data_dict)
             user = ckan.model.User.get(user_dict['id'])
+            member_dict = {
+                'username': user.id,
+                'id': data_dict['organization_id'],
+                'role': data_dict['role']
+            }
+            _get_action('organization_member_create')(context, member_dict)
             mailer.send_invite(user)
             return model_dictize.user_dictize(user, context)
         except ValidationError as e:
@@ -1187,7 +1199,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    result = session.query(model.User).filter_by(name=username).first()
+    result = model.User.get(username)
     if result:
         user_id = result.id
     else:

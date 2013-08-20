@@ -114,8 +114,10 @@ class TestMailer(SmtpServerHarness, PylonsTestCase):
         # reset link tested in user functional test
 
     def test_send_invite_email(self):
+        user = model.User.by_name(u'bob')
+        assert user.reset_key is None, user
         # send email
-        mailer.send_invite(model.User.by_name(u'bob'))
+        mailer.send_invite(user)
 
         # check it went to the mock smtp server
         msgs = self.get_smtp_messages()
@@ -127,5 +129,6 @@ class TestMailer(SmtpServerHarness, PylonsTestCase):
         expected_body = self.mime_encode(test_msg,
                                          u'bob') 
         assert expected_body in msg[3], '%r not in %r' % (expected_body, msg[3])
+        assert user.reset_key is not None, user
         
         # reset link tested in user functional test
