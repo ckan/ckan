@@ -1,10 +1,6 @@
 import logging
-import json
-import urlparse
-import datetime
 
 import pylons
-import requests
 import sqlalchemy
 
 import ckan.lib.navl.dictization_functions
@@ -101,11 +97,16 @@ def datastore_create(context, data_dict):
                 'resource_id': res['id'],
                 'set_url_type': True
             })
+            # since we'll overwrite the datastore resource anyway, we
+            # don't need to create it here
+            return
         # create empty resource
         else:
             # no need to set the full url because it will be set in before_show
             res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
+    else:
+        _check_read_only(context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 

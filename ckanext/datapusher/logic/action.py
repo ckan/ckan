@@ -17,7 +17,7 @@ _validate = ckan.lib.navl.dictization_functions.validate
 
 
 def datapusher_enabled(context, data_dict):
-    """ Returns True if the DataPusher is configured """
+    ''' Returns True if the DataPusher is configured '''
 
     datapusher_url = pylons.config.get('datapusher.url')
     return True if datapusher_url else False
@@ -30,15 +30,15 @@ def datapusher_submit(context, data_dict):
     :param resource_id: The resource id of the resource that the data
         should be imported in. The resource's URL will be used to get the data.
     :type resource_id: string
-    :param set_url_type: If set to true, the ``url_type`` of the resource will
+    :param set_url_type: If set to True, the ``url_type`` of the resource will
         be set to ``datastore`` and the resource URL will automatically point
         to the :ref:`datastore dump <dump>` URL. (optional, default: False)
-    :type set_url_type: boolean
+    :type set_url_type: bool
 
     Returns ``True`` if the job has been submitted and ``False`` if the job
     has not been submitted, i.e. when the datapusher is not configured.
 
-    :rtype: boolean
+    :rtype: bool
     '''
 
     schema = context.get('schema', dpschema.datapusher_submit_schema())
@@ -113,11 +113,11 @@ def datapusher_submit(context, data_dict):
 
 
 def datapusher_hook(context, data_dict):
-    """ Update datapusher task. This action is typically called by the
+    ''' Update datapusher task. This action is typically called by the
     datapusher whenever the status of a job changes.
 
     Expects a job with ``status`` and ``metadata`` with a ``resource_id``.
-    """
+    '''
 
     # TODO: use a schema to validate
 
@@ -147,12 +147,12 @@ def datapusher_hook(context, data_dict):
 
 
 def datapusher_status(context, data_dict):
-    """ Get the status of a datapusher job for a certain resource.
+    ''' Get the status of a datapusher job for a certain resource.
 
     :param resource_id: The resource id of the resource that you want the
         datapusher status for.
     :type resource_id: string
-    """
+    '''
 
     p.toolkit.check_access('datapusher_status', context, data_dict)
 
