@@ -99,7 +99,7 @@ def datastore_create(context, data_dict):
         if has_url:
             p.toolkit.get_action('datapusher_submit')(context, {
                 'resource_id': res['id'],
-                'set_url_to_dump': True
+                'set_url_type': True
             })
         # create empty resource
         else:
