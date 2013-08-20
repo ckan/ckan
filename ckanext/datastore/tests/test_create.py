@@ -17,7 +17,7 @@ import ckan.tests as tests
 import ckan.config.middleware as middleware
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 # avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
@@ -45,6 +45,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):

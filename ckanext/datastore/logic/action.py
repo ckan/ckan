@@ -35,6 +35,8 @@ def datastore_create(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param resource: resource dictionary that is passed to
         :meth:`~ckan.logic.action.create.resource_create`.
         Use instead of ``resource_id`` (optional)
@@ -154,6 +156,8 @@ def datastore_upsert(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}] (optional)
     :type records: list of dictionaries
     :param method: the method to use to put the data into the datastore.
@@ -174,6 +178,10 @@ def datastore_upsert(context, data_dict):
     if errors:
         raise p.toolkit.ValidationError(errors)
 
+    p.toolkit.check_access('datastore_upsert', context, data_dict)
+
+    _check_read_only(context, data_dict)
+
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
@@ -187,8 +195,6 @@ def datastore_upsert(context, data_dict):
             u'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    p.toolkit.check_access('datastore_upsert', context, data_dict)
-
     result = db.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url')
@@ -200,6 +206,8 @@ def datastore_delete(context, data_dict):
 
     :param resource_id: resource id that the data will be deleted from. (optional)
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param filters: filters to apply before deleting (eg {"name": "fred"}).
                    If missing delete whole table and all dependent views. (optional)
     :type filters: dictionary
@@ -218,6 +226,10 @@ def datastore_delete(context, data_dict):
     if errors:
         raise p.toolkit.ValidationError(errors)
 
+    p.toolkit.check_access('datastore_delete', context, data_dict)
+
+    _check_read_only(context, data_dict)
+
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
@@ -230,8 +242,6 @@ def datastore_delete(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             u'Resource "{0}" was not found.'.format(res_id)
         ))
-
-    p.toolkit.check_access('datastore_delete', context, data_dict)
 
     result = db.delete(context, data_dict)
     result.pop('id', None)
@@ -431,7 +441,7 @@ def datastore_make_public(context, data_dict):
 
 
 def _resource_exists(context, data_dict):
-    # Returns true if the resource exists in CKAN and in the datastore
+    ''' Returns true if the resource exists in CKAN and in the datastore '''
     model = _get_or_bust(context, 'model')
     res_id = _get_or_bust(data_dict, 'resource_id')
     if not model.Resource.get(res_id):
@@ -441,3 +451,18 @@ def _resource_exists(context, data_dict):
                                         WHERE name = :id AND alias_of IS NULL''')
     results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     return results.rowcount > 0
+
+
+def _check_read_only(context, data_dict):
+    ''' Raises exception if the resource is read-only.
+    Make sure the resource id is in resource_id
+    '''
+    if data_dict.get('force'):
+        return
+    res = p.toolkit.get_action('resource_show')(
+        context, {'id': data_dict['resource_id']})
+    if res.get('url_type') != 'datastore':
+        raise p.toolkit.ValidationError({
+            'read-only': ['Cannot edit read-only resource. Either pass'
+                          '"force=True" or change url-type to "datastore"']
+        })
