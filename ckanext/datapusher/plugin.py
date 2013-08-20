@@ -47,7 +47,8 @@ class DatapusherPlugin(p.SingletonPlugin):
                     'id': entity.get_package_id()
                 })
                 if (not package['private'] and
-                        entity.format in self.datapusher_formats):
+                        entity.format in self.datapusher_formats and
+                        entity.url_type != 'datapusher'):
                     p.toolkit.get_action('datapusher_submit')(context, {
                         'resource_id': entity.id
                     })

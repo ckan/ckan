@@ -9,6 +9,7 @@ import requests
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+import ckanext.datapusher.logic.schema as dpschema
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -40,9 +41,12 @@ def datapusher_submit(context, data_dict):
     :rtype: boolean
     '''
 
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
+    schema = context.get('schema', dpschema.datapusher_submit_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+
+    res_id = data_dict['resource_id']
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
