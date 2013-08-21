@@ -137,6 +137,8 @@ Customizing CKAN's CSS
    * Use Fanstatic to add a CSS file
    * Use Bootstrap's CSS files and CKAN core's
    * See the CKAN style guide
+   * custom.less: Edit ckan/public/base/less/custom.less and then run ./bin/less
+     or ./bin/less --production
 
 
 -----------------------------
