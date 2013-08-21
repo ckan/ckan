@@ -1217,7 +1217,7 @@ class TestAction(WsgiAppCase):
         package = ckan.tests.call_action_api(app, 'package_create',
                 apikey=self.sysadmin_user.apikey, name='foobarbaz', owner_org=org['id'])
 
-        print package['owner_org']
+        assert package['owner_org']
         package['owner_org'] = ''
         res = ckan.tests.call_action_api(app, 'package_update',
                 apikey=self.sysadmin_user.apikey, **package)
