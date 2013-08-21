@@ -1,0 +1,4 @@
+# This will install the requirements used to build the docs
+
+-r requirements.txt
+-r dev-requirements.txt
