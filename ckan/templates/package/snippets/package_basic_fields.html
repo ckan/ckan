@@ -10,7 +10,7 @@
 {% set domain = domain|replace("http://", "")|replace("https://", "") %}
 {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>'} %}
 
-{{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs) }}
+{{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 {% endblock %}
 
 {% block package_basic_fields_custom %}
@@ -98,5 +98,7 @@
 {% if show_organizations_selector and show_visibility_selector %}
   </div>
 {% endif %}
+
+{{ form.required_message() }}
 
 {% endblock %}

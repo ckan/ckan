@@ -45,6 +45,7 @@ class TestPaginationPackage(TestController):
         packages = []
         for i in range(cls.num_packages_in_large_group):
             packages.append({
+                # CS: nasty_string ignore
                 'name': u'dataset_%s' % str(i).zfill(2),
                 'groups': u'group_00'
             })
@@ -86,6 +87,7 @@ class TestPaginationGroup(TestController):
         # create enough of each here so that we can test pagination
         cls.num_groups = 22
 
+        # CS: nasty_string ignore
         groups = [u'group_%s' % str(i).zfill(2) for i in range(0, cls.num_groups)]
 
         CreateTestData.create_arbitrary(
@@ -118,6 +120,7 @@ class TestPaginationUsers(TestController):
         # create enough of each here so that we can test pagination
         cls.num_users = 21
 
+        # CS: nasty_string ignore
         users = [u'user_%s' % str(i).zfill(2) for i in range(cls.num_users)]
 
         CreateTestData.create_arbitrary(

@@ -23,7 +23,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
-        cls._configure_iconfigurable_plugins()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -35,13 +34,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-
-    @classmethod
-    def _configure_iconfigurable_plugins(cls):
-        from ckan.plugins import PluginImplementations
-        from ckan.plugins.interfaces import IConfigurable
-        for plugin in PluginImplementations(IConfigurable):
-            plugin.configure(pylons.config)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -79,7 +71,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         data = {
             'resource_id': resource.id,
-            'aliases': u'fo%25bar',
+            'aliases': u'fo%25bar',  # alias with percent
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}]
         }
@@ -294,7 +286,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data = {
             'resource_id': resource.id,
             'aliases': aliases,
-            'fields': [{'id': 'boo%k', 'type': 'text'},
+            'fields': [{'id': 'boo%k', 'type': 'text'},  # column with percent
                        {'id': 'author', 'type': 'json'}],
             'indexes': [['boo%k', 'author'], 'author'],
             'records': [{'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
@@ -362,7 +354,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = self.app.post('/api/action/resource_show', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
-        assert res_dict['result']['datastore_active'] == True
+        assert res_dict['result']['datastore_active']
 
         #######  insert again simple
         data2 = {
@@ -514,10 +506,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
-        #######  insert with paramter id rather than resource_id which is a shortcut
+        #######  insert with parameter id rather than resource_id which is a shortcut
         data8 = {
             'id': resource.id,
-            'records': [{'boo%k': 'warandpeace'}]
+             # insert with percent
+            'records': [{'boo%k': 'warandpeace', 'author': '99% good'}]
         }
 
         postparams = '%s=1' % json.dumps(data8)

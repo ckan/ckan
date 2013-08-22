@@ -38,7 +38,7 @@
     {% endblock %}
 
     {% block basic_fields_url %}
-    {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
+    {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large'], is_required=true) }}
     {% endblock %}
 
     {% block basic_fields_name %}
@@ -58,6 +58,9 @@
     </span>
     {% endcall %}
     {% endblock %}
+
+    {{ form.required_message() }}
+
   {% endblock %}
 
   {% block metadata_fields %}

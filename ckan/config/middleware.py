@@ -63,6 +63,9 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
+    # we want to be able to retrieve the routes middleware to be able to update
+    # the mapper.  We store it in the pylons config to allow this.
+    config['routes.middleware'] = app
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
 

@@ -68,7 +68,7 @@ def datastore_create(context, data_dict):
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
-                'alias': ['"{0}" is not a valid alias name'.format(alias)]
+                'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
     # create a private datastore resource, if necessary
@@ -137,7 +137,7 @@ def datastore_upsert(context, data_dict):
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
@@ -181,7 +181,7 @@ def datastore_delete(context, data_dict):
 
     if not res_exists:
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
@@ -349,7 +349,7 @@ def datastore_make_private(context, data_dict):
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
     p.toolkit.check_access('datastore_change_permissions', context, data_dict)
@@ -375,10 +375,11 @@ def datastore_make_public(context, data_dict):
 
     if not _resource_exists(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
-            'Resource "{0}" was not found.'.format(res_id)
+            u'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    data_dict['connection_url'] = pylons.config.get('ckan.datastore.write_url')
+    p.toolkit.check_access('datastore_change_permissions', context, data_dict)
+
     db.make_public(context, data_dict)
 
 
