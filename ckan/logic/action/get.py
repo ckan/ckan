@@ -786,7 +786,11 @@ def package_show(context, data_dict):
             else:
                 package_dict = json.loads(search_result['data_dict'])
                 package_dict_validated = False
-            if pkg.revision_id != package_dict.get('revision_id'):
+            metadata_modified = pkg.metadata_modified.isoformat()
+            search_metadata_modified = search_result['metadata_modified']
+            # solr stores less precice datetime,
+            # truncate to 22 charactors to get good enough match
+            if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
 
     if not package_dict:
