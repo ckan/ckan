@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="ckan" version="2.0">
+<schema name="ckan" version="2.2">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -58,7 +58,7 @@
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
             <filter class="solr.ASCIIFoldingFilterFactory"/>
-	    <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" side="front"/>
+            <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="15" side="front"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
