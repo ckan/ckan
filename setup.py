@@ -108,6 +108,7 @@ setup(
             ('ckanext/ecportal/templates/package/new_package_form.html',
              'ignore', None),
             ('ckanext/ecportal/templates/publisher/edit.html', 'ignore', None),
+            ('ckanext/ecportal/templates/publisher/form.html', 'ignore', None),
             ('ckanext/ecportal/templates/publisher/new.html', 'ignore', None),
             ('ckanext/ecportal/templates/publisher/history.html',
              'ignore', None),
