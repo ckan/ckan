@@ -302,6 +302,14 @@ class TestSearch(TestController):
         result = search.query_for(model.Package).run({'q': u'groups:ukgov tags:us'})
         assert result['count'] == 2, self._pkg_names(result)
 
+    def test_trigram_filter(self):
+        result = search.query_for(model.Package).run({'q': u'title:go'})
+        assert result['count'] == 0
+
+        result = search.query_for(model.Package).run({'q': u'title:gov'})
+        assert result['count'] == 4
+
+
 class TestSearchOverall(TestController):
     @classmethod
     def setup_class(cls):
