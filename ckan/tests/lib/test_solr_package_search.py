@@ -79,11 +79,6 @@ class TestSearch(TestController):
         assert result['count'] == 1, result
         assert self._pkg_names(result) == 'gils', result
 
-    def test_1_name_multiple_results(self):
-        result = search.query_for(model.Package).run({'q': u'gov'})
-        assert self._check_entity_names(result, ('us-gov-images', 'usa-courts-gov')), self._pkg_names(result)
-        assert result['count'] == 4, self._pkg_names(result)
-
     def test_1_name_token(self):
         result = search.query_for(model.Package).run({'q': u'name:gils'})
         assert self._pkg_names(result) == 'gils', self._pkg_names(result)
