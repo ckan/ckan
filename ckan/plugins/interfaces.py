@@ -873,26 +873,73 @@ class IGroupForm(Interface):
     ##### End of hooks                                                   #####
 
 class IFacets(Interface):
-    ''' Allows specify which facets are displayed and also the names used.
+    '''Customize the search facets shown on search pages.
 
-    facet_dicts are in the form {'facet_name': 'display name', ...}
-    to allow translatable display names use _(...)
-    eg {'facet_name': _('display name'), ...} and ensure that this is
-    created each time the function is called.
+    By implementing this interface plugins can customize the search facets that
+    are displayed for filtering search results on the dataset search page,
+    organization pages and group pages.
 
-    The dict supplied is actually an ordered dict.
+    The ``facets_dict`` passed to each of the functions below is an
+    ``OrderedDict`` in which the keys are ??? and the values are the titles
+    that will be shown for the facets in the web interface. The order of the
+    keys in the dict determine the order that facets appear in on the page.
+    For example::
+
+        {'groups': _('Groups'),
+         'tags': _('Tags'),
+         'res_format': _('Formats'),
+         'license': _('Licence')}
+
     '''
-
     def dataset_facets(self, facets_dict, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for the dataset search page.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param package_type: ???
+        :type package_type: ???
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def group_facets(self, facets_dict, group_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for a group's page.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param group_type: ???
+        :type group_type: ???
+
+        :param package_type: ???
+        :type package_type: ???
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def organization_facets(self, facets_dict, organization_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for an organization's page.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param organization_type: ???
+        :type organization_type: ???
+
+        :param package_type: ???
+        :type package_type: ???
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
 
