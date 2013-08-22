@@ -2149,8 +2149,7 @@ def activity_detail_list(context, data_dict):
     # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    activity_detail_objects = model.Session.query(
-        model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
+    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
