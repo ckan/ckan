@@ -155,8 +155,9 @@ def package_create(context, data_dict):
     admins = []
     if user:
         user_obj = model.User.by_name(user.decode('utf8'))
-        admins = [user_obj]
-        data['creator_user_id'] = user_obj.id
+        if user_obj:
+            admins = [user_obj]
+            data['creator_user_id'] = user_obj.id
 
     pkg = model_save.package_dict_save(data, context)
 
