@@ -4,6 +4,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 import sqlalchemy
@@ -768,7 +769,37 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
-    package_dict = model_dictize.package_dictize(pkg, context)
+    package_dict = None
+    use_cache = (context.get('use_cache', True)
+        and not 'revision_id' in context
+        and not 'revision_date' in context)
+    if use_cache:
+        try:
+            search_result = search.show(name_or_id)
+        except (search.SearchError, socket.error):
+            pass
+        else:
+            use_validated_cache = 'schema' not in context
+            if use_validated_cache and 'validated_data_dict' in search_result:
+                package_dict = json.loads(search_result['validated_data_dict'])
+                package_dict_validated = True
+            else:
+                package_dict = json.loads(search_result['data_dict'])
+                package_dict_validated = False
+            metadata_modified = pkg.metadata_modified.isoformat()
+            search_metadata_modified = search_result['metadata_modified']
+            # solr stores less precice datetime,
+            # truncate to 22 charactors to get good enough match
+            if metadata_modified[:22] != search_metadata_modified[:22]:
+                package_dict = None
+
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict_validated = False
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
@@ -777,14 +808,15 @@ def package_show(context, data_dict):
         for item in plugins.PluginImplementations(plugins.IResourceController):
             resource_dict = item.before_show(resource_dict)
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
-
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+    if not package_dict_validated:
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
+            if schema and context.get('validate', True):
+                package_dict, errors = _validate(package_dict, schema,
+                    context=context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
