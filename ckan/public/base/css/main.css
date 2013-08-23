@@ -8098,6 +8098,11 @@ iframe {
   padding-bottom: 20px !important;
   margin-bottom: 0 !important;
 }
+.ie8 .lang-dropdown,
+.ie7 .lang-dropdown {
+  position: relative !important;
+  top: -90px !important;
+}
 .ie7 .alert {
   position: relative;
 }

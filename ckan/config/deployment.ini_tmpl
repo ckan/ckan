@@ -133,6 +133,12 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
+## Datapusher settings
+
+# Make sure you have set up the DataStore
+
+datapusher.formats = csv
+datapusher.url = http://datapusher.ckan.org/
 
 ## Activity Streams Settings
 

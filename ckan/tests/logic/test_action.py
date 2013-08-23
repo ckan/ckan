@@ -5,6 +5,7 @@ from pprint import pprint
 from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
 from pylons import config
+import datetime
 
 import ckan
 from ckan.lib.create_test_data import CreateTestData
@@ -59,14 +60,21 @@ class TestAction(WsgiAppCase):
         return json.loads(res.body)['result']
 
     def test_01_package_list(self):
-        postparams = '%s=1' % json.dumps({})
-        res = json.loads(self.app.post('/api/action/package_list', params=postparams).body)
+        res = json.loads(self.app.post('/api/action/package_list',
+                         headers={'content-type': 'application/json'}).body)
         assert res['success'] is True
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
         assert res['help'].startswith(
             "Return a list of the names of the site's datasets (packages).")
+
+        postparams = '%s=1' % json.dumps({'limit': 1})
+        res = json.loads(self.app.post('/api/action/package_list',
+                         params=postparams).body)
+        assert res['success'] is True
+        assert len(res['result']) == 1
+        assert 'warandpeace' in res['result'] or 'annakarenina' in res['result']
 
 		# Test GET request
         res = json.loads(self.app.get('/api/action/package_list').body)
@@ -1401,6 +1409,8 @@ class TestActionPackageSearch(WsgiAppCase):
         rev = model.repo.new_revision()
         pkg = model.Package.get('warandpeace')
         pkg.title = "War and Peace [UPDATED]"
+
+        pkg.metadata_modified = datetime.datetime.utcnow()
         model.repo.commit_and_remove()
 
         res = self.app.post('/api/action/package_search', params=search_params)
@@ -1412,6 +1422,7 @@ class TestActionPackageSearch(WsgiAppCase):
         rev = model.repo.new_revision()
         pkg = model.Package.get('annakarenina')
         pkg.title = "A Novel By Tolstoy [UPDATED]"
+        pkg.metadata_modified = datetime.datetime.utcnow()
         model.repo.commit_and_remove()
 
         res = self.app.post('/api/action/package_search', params=search_params)

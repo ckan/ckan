@@ -152,10 +152,14 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    pkg = model_save.package_dict_save(data, context)
     admins = []
     if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
+        user_obj = model.User.by_name(user.decode('utf8'))
+        if user_obj:
+            admins = [user_obj]
+            data['creator_user_id'] = user_obj.id
+
+    pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
@@ -703,6 +707,7 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
+@logic.auth_audit_exempt
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
 
