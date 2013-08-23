@@ -208,6 +208,15 @@ def check_access(action, context, data_dict=None):
     user = context.get('user')
     log.debug('check access - user %r, action %s' % (user, action))
 
+    if not 'auth_user_obj' in context:
+        context['auth_user_obj'] = None
+
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            context['__auth_user_obj_checked'] = True
+            if context.get('user') and not context.get('auth_user_obj'):
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+
     if action:
         #if action != model.Action.READ and user in
         # (model.PSEUDO_USER__VISITOR, ''):
