@@ -556,6 +556,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
+        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
@@ -613,7 +614,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         task = p.toolkit.get_action('task_status_show')(context, {
             'entity_id': resource.id,
             'task_type': 'datapusher',
-            'key': 'datapusher'
+            'key': 'job_id'
         })
 
         assert task['state'] == 'pending', task
@@ -630,8 +631,18 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'entity_id': resource.id,
             'entity_type': 'resource',
             'task_type': 'datapusher',
-            'key': 'datapusher',
-            'value': True,
+            'key': 'job_id',
+            'value': 'my_id',
+            'last_updated': str(datetime.datetime.now()),
+            'state': 'pending'
+        })
+
+        p.toolkit.get_action('task_status_update')(context, {
+            'entity_id': resource.id,
+            'entity_type': 'resource',
+            'task_type': 'datapusher',
+            'key': 'job_key',
+            'value': 'my_key',
             'last_updated': str(datetime.datetime.now()),
             'state': 'pending'
         })
@@ -653,7 +664,13 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         task = tests.call_action_api(
             self.app, 'task_status_show', entity_id=resource.id,
-            task_type='datapusher', key='datapusher')
+            task_type='datapusher', key='job_id')
+
+        assert task['state'] == 'success', task
+
+        task = tests.call_action_api(
+            self.app, 'task_status_show', entity_id=resource.id,
+            task_type='datapusher', key='job_key')
 
         assert task['state'] == 'success', task
 
