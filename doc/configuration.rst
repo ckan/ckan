@@ -1065,23 +1065,23 @@ Only used with the Google storage backend.
 DataPusher Settings
 -------------------
 
-.. _datapusher.formats:
+.. _ckan.datapusher.formats:
 
-datapusher.formats
+ckan.datapusher.formats
 ^^^^^^^^^^^^^^^^^^
 
 Example::
-  datapusher.formats = csv xls xlsx
+  ckan.datapusher.formats = csv xls xlsx
 
 .. todo:: Expand
 
-.. _datapusher.url
+.. _ckan.datapusher.url
 
-datapusher.url
+ckan.datapusher.url
 ^^^^^^^^^^^^^^
 
 Example::
-  datapusher.url = http://datapusher.ckan.org/
+  ckan.datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 

@@ -138,8 +138,8 @@ ckan.feeds.author_link =
 
 # Make sure you have set up the DataStore
 
-datapusher.formats = csv
-datapusher.url = http://datapusher.ckan.org/
+ckan.datapusher.formats = csv
+ckan.datapusher.url = http://datapusher.ckan.org/
 
 ## Activity Streams Settings
 

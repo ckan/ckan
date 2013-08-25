@@ -53,7 +53,7 @@ def datapusher_submit(context, data_dict):
     if not p.toolkit.get_action('datapusher_enabled')(context):
         return False
 
-    datapusher_url = pylons.config.get('datapusher.url')
+    datapusher_url = pylons.config.get('ckan.datapusher.url')
 
     callback_url = p.toolkit.url_for(
         controller='api', action='action', logic_function='datapusher_hook',
@@ -172,7 +172,7 @@ def datapusher_status(context, data_dict):
         'key': 'job_key'
     })
 
-    datapusher_url = pylons.config.get('datapusher.url')
+    datapusher_url = pylons.config.get('ckan.datapusher.url')
     if not datapusher_url:
         raise p.toolkit.ValidationError(
             {'configuration': ['DataPusher not configured.']})
