@@ -88,20 +88,27 @@ def datastore_create(context, data_dict):
 
     if 'resource' in data_dict:
         has_url = 'url' in data_dict['resource']
-        data_dict['resource'].setdefault('url', '_tmp')
+        # A datastore only resource does not have a url in the db
+        data_dict['resource'].setdefault('url', '_datastore_only_resource')
         res = p.toolkit.get_action('resource_create')(context,
                                                       data_dict['resource'])
         data_dict['resource_id'] = res['id']
 
         # create resource from file
         if has_url:
-            p.toolkit.get_action('datapusher_submit')(context, {
-                'resource_id': res['id'],
-                'set_url_type': True
-            })
+            try:
+                p.toolkit.get_action('datapusher_submit')(context, {
+                    'resource_id': res['id'],
+                    'set_url_type': True
+                })
+            except KeyError:
+                raise p.toolkit.ValidationError({'resource': [
+                    'The datapusher has to be enabled.']})
+
             # since we'll overwrite the datastore resource anyway, we
             # don't need to create it here
             return
+
         # create empty resource
         else:
             # no need to set the full url because it will be set in before_show

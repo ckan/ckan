@@ -23,7 +23,6 @@ class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
     p.implements(p.IDomainObjectModification, inherit=True)
-    p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
 
     legacy_mode = False
@@ -32,8 +31,13 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.get('datapusher.formats', '').split()
+        datapusher_formats = config.get('ckan.datapusher.formats', '').split()
         self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
+
+        datapusher_url = config.get('ckan.datapusher.url')
+        if not datapusher_url:
+            raise Exception(
+                'Config option `ckan.datapusher.url` has to be set.')
 
     def notify(self, entity, operation=None):
         if isinstance(entity, model.Resource):
@@ -54,8 +58,7 @@ class DatapusherPlugin(p.SingletonPlugin):
                     })
 
     def get_actions(self):
-        return {'datapusher_enabled': action.datapusher_enabled,
-                'datapusher_submit': action.datapusher_submit,
+        return {'datapusher_submit': action.datapusher_submit,
                 'datapusher_hook': action.datapusher_hook,
                 'datapusher_status': action.datapusher_status}
 
@@ -63,17 +66,6 @@ class DatapusherPlugin(p.SingletonPlugin):
         return {'datapusher_submit': auth.datapusher_submit,
                 'datapusher_status': auth.datapusher_status}
 
-    def before_show(self, resource_dict):
-        ''' Modify the resource url of datastore resources so that
-        they link to the datastore dumps.
-        '''
-        if resource_dict['url_type'] == 'datastore':
-            resource_dict['url'] = p.toolkit.url_for(
-                controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=resource_dict['id'])
-        return resource_dict
-
     def get_helpers(self):
         return {
-            'datapusher_status': helpers.datapusher_status,
-            'datapusher_enabled': helpers.datapusher_enabled}
+            'datapusher_status': helpers.datapusher_status}

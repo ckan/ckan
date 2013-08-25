@@ -9,7 +9,3 @@ def datapusher_status(resource_id):
         return {
             'status': 'unknown'
         }
-
-
-def datapusher_enabled():
-    return toolkit.get_action('datapusher_enabled')({})

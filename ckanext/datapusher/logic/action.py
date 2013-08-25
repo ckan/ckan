@@ -16,13 +16,6 @@ _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
 
-def datapusher_enabled(context, data_dict):
-    ''' Returns True if the DataPusher is configured '''
-
-    datapusher_url = pylons.config.get('datapusher.url')
-    return True if datapusher_url else False
-
-
 def datapusher_submit(context, data_dict):
     ''' Submit a job to the datapusher. The datapusher is a service that
     imports tabular data into the datastore.
@@ -49,9 +42,6 @@ def datapusher_submit(context, data_dict):
     res_id = data_dict['resource_id']
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
-
-    if not p.toolkit.get_action('datapusher_enabled')(context):
-        return False
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
