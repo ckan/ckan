@@ -2,6 +2,7 @@ import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey, desc, or_
 
+import ckan.model
 import meta
 import types as _types
 import domain_object
@@ -61,6 +62,11 @@ class ActivityDetail(domain_object.DomainObject):
             self.data = {}
         else:
             self.data = data
+
+    @classmethod
+    def by_activity_id(cls, activity_id):
+        return ckan.model.Session.query(cls) \
+                .filter_by(activity_id = activity_id).all()
 
 
 meta.mapper(ActivityDetail, activity_detail_table, properties = {
