@@ -222,7 +222,7 @@ class IResourcePreview(Interface):
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
         To find out how to preview resources that are on a
-        different domain, read :ref:`resource_proxy`.
+        different domain, read :ref:`resource-proxy`.
         '''
 
     def setup_template_variables(self, context, data_dict):
