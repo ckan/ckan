@@ -19,12 +19,12 @@ use a custom widget.
 The data preview functionality that is provided by CKAN is described in
 the following sections:
 
-* `Viewing images and text files`_
-* `Viewing structured data: the Data Explorer`_
-* `Viewing highlighted XML, JSON and plain text data`_
-* `Viewing PDF documents`_
-* `Viewing remote resources: the resource proxy`_
-* `Embedding Previews In Other Web Pages`_
+* :ref:`image-preview`
+* :ref:`data-explorer`
+* :ref:`text-preview`
+* :ref:`pdf-preview`
+* :ref:`resource-proxy`
+* :ref:`embed-previews`
 
 These sections list the resource formats that each extension can preview and
 provide instructions for how to enable each extension.
@@ -33,6 +33,8 @@ different types of resources.
 For more information on this topic see
 `Writing Extensions <writing-extensions.html>`_.
 
+
+.. _image-preview:
 
 Viewing images and text files
 -----------------------------
@@ -77,6 +79,7 @@ Note that these documents will be directly linked by the browser, so the
 way in which they are shown may vary. If you want to ensure for instance that
 XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
 
+
 .. _data-explorer:
 
 Viewing structured data: the Data Explorer
@@ -114,6 +117,8 @@ Or:
    reliable than viewing data that is in the DataStore.
 
 
+.. _text-preview:
+
 Viewing highlighted XML, JSON and plain text data
 -------------------------------------------------
 
@@ -139,12 +144,14 @@ set to one of the resource formats from above (case insensitive).
 
 .. seealso::
 
-   :ref:`The resourceproxy extension <resource_proxy>`
+   :ref:`The resourceproxy extension <resource-proxy>`
 
      If you want to preview linked-to text files (and not only files that have
      been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
      as well.
 
+
+.. _pdf-preview:
 
 Viewing PDF documents
 ---------------------
@@ -161,14 +168,14 @@ have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
 
 .. seealso::
 
-   :ref:`The resourceproxy extension <resource_proxy>`
+   :ref:`The resourceproxy extension <resource-proxy>`
 
      If you want to preview linked-to PDF files (and not only files that have
      been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
      as well.
 
 
-.. _resource_proxy:
+.. _resource-proxy:
 
 Viewing remote resources: the resource proxy
 --------------------------------------------
@@ -196,6 +203,7 @@ To find out whether the resource proxy is enabled, check ``ckan.resource_proxy_e
 from the config. You can find a complete example in the
 `CKAN source <https://github.com/okfn/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
 
+.. _embed-previews:
 
 Embedding Previews In Other Web Pages
 -------------------------------------
