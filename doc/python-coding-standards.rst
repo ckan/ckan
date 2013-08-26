@@ -125,6 +125,8 @@ CKAN docstrings deviate from PEP 257 in a couple of ways:
   values (see below)
 
 
+.. _Referencing other code objects:
+
 Referencing other code objects with ``:py:``
 --------------------------------------------
 
