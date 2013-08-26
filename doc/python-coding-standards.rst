@@ -104,6 +104,75 @@ as it changes over time. So:
 - Keep docstrings simple: use plain, concise English.
 - Try to avoid repetition.
 
+
+Documenting exceptions raised with ``:raises``
+``````````````````````````````````````````````
+
+There are a few guidelines that CKAN code should follow regarding exceptions:
+
+1. **All public functions that CKAN exports for third-party code to use
+   should document any exceptions they raise**. See below for how to document
+   exceptions raised.
+
+   For example the template helper functions in :py:mod:`ckan.lib.helpers`,
+   anything imported into :py:mod:`ckan.plugins.toolkit`, and all of the
+   action API functions defined in :py:mod:`ckan.logic.action`, should list
+   exceptions raised in their docstrings.
+
+   This is because CKAN themes, extensions and API clients need to be able to
+   call CKAN code without crashing, so they need to know what exceptions they
+   should handle (and extension developers shouldn't have to understand the
+   CKAN core source code).
+
+2. On the other hand, **internal functions that are only used within CKAN
+   shouldn't list exceptions in their docstrings**.
+
+   This is because it would be difficult to keep all the exception lists up to
+   date with the actual code behaviour, so the docstrings would become more
+   misleading than useful.
+
+3. **Code should only raise exceptions from within its allowed set**.
+
+   Each module in CKAN has a set of zero or more exceptions, defined somewhere
+   near the module, that code in that module is allowed to raise. For example
+   ``ckan/logic/__init__.py`` defines a number of exception types for code
+   in ``ckan/logic/`` to use. CKAN code should never raise exceptions types
+   defined elsewhere in CKAN, in third-party code or in the Python standard
+   library.
+
+4. **All code should catch any exceptions raised by called functions**, and
+   either handle the exception, re-raise the exception (if it's from the code's
+   set of allowed exception types), or wrap the exception in an allowed
+   exception type and re-raise it.
+
+   This is to make it easy for a CKAN core developer to look at the source code
+   of an internal function, scan it for the keyword ``raise``, and see what
+   types of exception the function may raise, so they know what exceptions they
+   need to catch if they're going to call the function. Developers shouldn't
+   have to read the source of all the functions that a function calls (and
+   the functions they call...) to find out what exceptions she needs to catch
+   to call a function without crashing.
+
+.. todo::
+
+   Insert examples of how to re-raise and how to wrap-and-re-raise an
+   exception.
+
+Use ``:raises:`` to document exceptions raised by public functions. The
+docstring should say what type of exception is raised and under what
+conditions. Use ``:py:class:`` to reference exception types. For example::
+
+    def member_list(context, data_dict=None):
+        '''Return the members of a group.
+
+        ... (parameters and return values documented here) ...
+
+        :raises: :py:class:`ckan.logic.NotFound`: if the group doesn't exist
+
+        '''
+
+
+
 PEP 257 (Docstring Conventions)
 ```````````````````````````````
 
