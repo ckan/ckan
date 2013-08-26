@@ -1075,7 +1075,7 @@ Example::
 
 .. todo:: Expand
 
-.. _datapusher.url
+.. _datapusher.url:
 
 datapusher.url
 ^^^^^^^^^^^^^^
