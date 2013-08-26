@@ -1,5 +1,5 @@
 =======================
-Python Coding Standards
+Python coding standards
 =======================
 
 For Python code style follow `PEP 8`_ plus the guidelines below.
@@ -12,7 +12,7 @@ Some good links about Python code style:
 - `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
 
 
-Commit Formatting Cleanups on master
+Commit formatting cleanups on master
 ------------------------------------
 
 Clean up formatting and PEP 8 issues on master, not on a feature branch.
@@ -20,7 +20,7 @@ Unless of course you're changing that piece of code anyway.  This will help
 avoid spurious merge conflicts, and aid in reading pull requests.
 
 
-Use Single Quotes
+Use single quotes
 -----------------
 
 Use single-quotes for string literals, e.g. ``'my-identifier'``, *but* use
@@ -82,7 +82,7 @@ When logging:
 
 .. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
 
-String Formatting
+String formatting
 ------------------
 
 Don't use the old ``%s`` style string formatting, e.g. ``"i am a %s" % sub``.
@@ -198,7 +198,7 @@ CKAN docstrings deviate from PEP 257 in a couple of ways:
 - We use Sphinx directives for documenting parameters, exceptions and return
   values (see below)
 
-Sphinx Field Lists
+Sphinx field lists
 ``````````````````
 
 Use `Sphinx field lists`_ for documenting the parameters, exceptions and
@@ -262,7 +262,7 @@ You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
 
 .. _Action API Docstrings:
 
-Action API Docstrings
+Action API docstrings
 `````````````````````
 
 Docstrings from CKAN's action API are processed with `autodoc`_ and
@@ -311,7 +311,7 @@ Example of a ckan.logic.action API docstring:
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
 
 
-Some Helpful Tools for Python Code Quality
+Some helpful tools for Python code quality
 ------------------------------------------
 
 There are various tools that can help you to check your Python code for PEP8
