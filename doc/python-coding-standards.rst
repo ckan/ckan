@@ -119,6 +119,8 @@ CKAN docstrings deviate from PEP 257 in a couple of ways:
 - We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
   double quotes"""`` (put triple single quotes around one-line docstrings as
   well as multi-line ones, it makes them easier to expand later)
+- We use Sphinx domain object cross-references to cross-reference to other
+  code objects (see below)
 - We use Sphinx directives for documenting parameters, exceptions and return
   values (see below)
 
