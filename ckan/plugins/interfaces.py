@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceController',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -221,7 +222,7 @@ class IResourcePreview(Interface):
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
         To find out how to preview resources that are on a
-        different domain, read :ref:`resource_proxy`.
+        different domain, read :ref:`resource-proxy`.
         '''
 
     def setup_template_variables(self, context, data_dict):
@@ -430,6 +431,20 @@ class IPackageController(Interface):
              sent to the template.
         '''
         return pkg_dict
+
+
+class IResourceController(Interface):
+    """
+    Hook into the resource controller.
+    (see IGroupController)
+    """
+
+    def before_show(self, resource_dict):
+        '''
+            Extensions will receive the validated data dict before the resource
+            is ready for display.
+        '''
+        return resource_dict
 
 
 class IPluginObserver(Interface):
