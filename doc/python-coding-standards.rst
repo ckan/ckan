@@ -85,7 +85,7 @@ When logging:
 String Formatting
 ------------------
 
-Don't use the old `%s` style string formatting, e.g. ``"i am a %s" % sub``.
+Don't use the old ``%s`` style string formatting, e.g. ``"i am a %s" % sub``.
 This kind of string formatting is not helpful for internationalization and is
 going away in Python 3.
 
