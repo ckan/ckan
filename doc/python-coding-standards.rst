@@ -111,7 +111,7 @@ as it changes over time. So:
 
 - All modules and all public functions, classes and methods exported by a
   module should normally have docstrings (see `PEP 257`_).
-- Keep docstrings short, describe only what's necessary and no more,
+- Keep docstrings short, describe only what's necessary and no more.
 - Keep docstrings simple: use plain, concise English.
 - Try to avoid repetition.
 
