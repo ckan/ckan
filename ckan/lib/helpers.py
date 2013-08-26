@@ -1311,8 +1311,11 @@ def popular(type_, number, min=1, title=None):
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
 
-def groups_available(am_member=False):
+@maintain.deprecated('Please use '
+        "h.get_action('group_list_authz', {'available_only': True}) instead.")
+def groups_available():
     '''Return a list of the groups that the user is authorized to edit.
+    Deprecated in CKAN 2.2
 
     :param am_member: if True return only the groups the logged-in user is a
       member of, otherwise return all groups that the user is authorized to
@@ -1321,13 +1324,17 @@ def groups_available(am_member=False):
     :type am-member: boolean
 
     '''
-    context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    context = {'model': model, 'session': model.Session,
+               'user': c.user or c.author}
+    data_dict = {'available_only': True}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
+@maintain.deprecated('Please use '
+    "h.get_action('organization_list_for_user', {'permission': 'edit_group'}) "
+    'instead.')
 def organizations_available(permission='edit_group'):
-    ''' return a list of available organizations '''
+    '''Return a list of available organizations. Deprecated in CKAN 2.2.'''
     context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)

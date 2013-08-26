@@ -270,7 +270,8 @@ class GroupController(base.BaseController):
 
             fq = 'capacity:"public"'
             user_member_of_orgs = [org['id'] for org
-                                   in h.organizations_available('read')]
+                in logic.get_action('group_list_authz',
+                                    {'permission': 'read'})]
 
             if (c.group and c.group.id in user_member_of_orgs):
                 fq = ''
