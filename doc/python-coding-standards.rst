@@ -108,6 +108,21 @@ as it changes over time. So:
 - Try to avoid repetition.
 
 
+PEP 257 (Docstring Conventions)
+```````````````````````````````
+
+Generally, follow `PEP 257`_ for docstrings. We'll only describe the ways that
+CKAN differs from or extends PEP 257 below.
+
+CKAN docstrings deviate from PEP 257 in a couple of ways:
+
+- We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
+  double quotes"""`` (put triple single quotes around one-line docstrings as
+  well as multi-line ones, it makes them easier to expand later)
+- We use Sphinx directives for documenting parameters, exceptions and return
+  values (see below)
+
+
 Referencing other code objects with ``:py:``
 --------------------------------------------
 
@@ -154,8 +169,6 @@ referenced, which helps to keep the docs up to date as the code changes.
 
    (But you should always use the fully qualified name in your docstring or
    ``*.rst`` file.)
-
-
 
 
 Documenting exceptions raised with ``:raises``
@@ -225,21 +238,6 @@ conditions. Use ``:py:class:`` to reference exception types. For example::
         '''
 
 
-
-PEP 257 (Docstring Conventions)
-```````````````````````````````
-
-Generally, follow `PEP 257`_ for docstrings. We'll only describe the ways that
-CKAN differs from or extends PEP 257 below.
-
-CKAN docstrings deviate from PEP 257 in a couple of ways:
-
-- We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
-  double quotes"""`` (put triple single quotes around one-line docstrings as
-  well as multi-line ones, it makes them easier to expand later)
-- We use Sphinx directives for documenting parameters, exceptions and return
-  values (see below)
-
 Sphinx field lists
 ``````````````````
 
@@ -284,7 +282,6 @@ Example of a longer docstring:
         :rtype: list of ckan.model.tag.Tag objects
 
         '''
-
 
 The phrases that follow ``:param foo:``, ``:type foo:``, or ``:returns:``
 should not start with capital letters or end with full stops. These should be
