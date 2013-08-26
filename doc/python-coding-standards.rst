@@ -116,6 +116,56 @@ as it changes over time. So:
 - Try to avoid repetition.
 
 
+Referencing other code objects with ``:py:``
+--------------------------------------------
+
+If you want to refer to another Python or JavaScript module, function or class
+etc. in a docstring (or from a ``.rst`` file), use `Sphinx domain object
+cross-references
+<http://sphinx-doc.org/domains.html#cross-referencing-python-objects>`_, for
+example::
+
+    See :py:mod:`ckan.lib.helpers`.
+
+    See :py:func:`ckan.logic.action.create.package_create`.
+
+    See :py:class:`ckan.logic.NotFound`.
+
+For the full list of types of cross-reference,  see the
+`Sphinx docs <http://sphinx-doc.org/domains.html#cross-referencing-python-objects>`_.
+
+
+.. note::
+
+   These kinds of cross-references can also be used to reference other types
+   of object besides Python objects, for example `JavaScript objects <http://sphinx-doc.org/domains.html#the-javascript-domain>`_
+   or even command-line scripts and options and environment variables. See
+   `the Sphinx docs <http://sphinx-doc.org/domains.html>`_ for the full
+   details.
+
+
+Cross-referencing objects like this means that Sphinx will style the reference
+with the right CSS, and hyperlink the reference to the docs for the referenced
+object. Sphinx can also generate error messages when non-existent objects are
+referenced, which helps to keep the docs up to date as the code changes.
+
+.. tip::
+
+   Sphinx will render a cross-reference like
+   ``:py:func:`ckan.logic.action.create.package_create``` as the full name of
+   the function: :py:func:`ckan.logic.action.create.package_create`. If you want the
+   docs to contain only the local name of the function (e.g. just
+   :py:func:`~ckan.logic.action.create.package_create`), put a ``~`` at the
+   start::
+
+    :py:func:`~ckan.logic.action.create.package_create`
+
+   (But you should always use the fully qualified name in your docstring or
+   ``*.rst`` file.)
+
+
+
+
 Documenting exceptions raised with ``:raises``
 ``````````````````````````````````````````````
 
