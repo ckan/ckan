@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceController',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -202,12 +203,26 @@ class IResourcePreview(Interface):
 
     def can_preview(self, data_dict):
         '''
-        Return True if the extension can preview the resource. The ``data_dict``
-        contains the resource and the package.
+        Returns info on whether the plugin can preview the resource.
+
+        This can be done in two ways.
+        The old way is to just return True or False.
+        The new way is to return a dict with the following
+        {
+            'can_preview': bool - if the extension can preview the resource
+            'fixable': string - if the extension cannot preview but could for
+                                example if the resource_proxy was enabled.
+            'quality': int - how good the preview is 1-poor, 2-average, 3-good
+                          used if multiple extensions can preview
+        }
+
+        The ``data_dict`` contains the resource and the package.
 
         Make sure to ckeck the ``on_same_domain`` value of the
         resource or the url if your preview requires the resource to be on
         the same domain because of the same origin policy.
+        To find out how to preview resources that are on a
+        different domain, read :ref:`resource_proxy`.
         '''
 
     def setup_template_variables(self, context, data_dict):
@@ -416,6 +431,20 @@ class IPackageController(Interface):
              sent to the template.
         '''
         return pkg_dict
+
+
+class IResourceController(Interface):
+    """
+    Hook into the resource controller.
+    (see IGroupController)
+    """
+
+    def before_show(self, resource_dict):
+        '''
+            Extensions will receive the validated data dict before the resource
+            is ready for display.
+        '''
+        return resource_dict
 
 
 class IPluginObserver(Interface):
@@ -683,16 +712,6 @@ class IDatasetForm(Interface):
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/edit.html'``.
-
-        :rtype: string
-
-        '''
-
-    def comments_template(self):
-        '''Return the path to the template for the dataset comments page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/comments.html'``.
 
         :rtype: string
 

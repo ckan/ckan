@@ -146,7 +146,7 @@ class TestComplicated:
 
     def test_rels(self):
         rels = model.Package.by_name(u'homer').relationships
-        assert len(rels) == 5, '%i: %s' % (len(rels), [str(rel) for rel in rels])
+        assert len(rels) == 5, '%i: %s' % (len(rels), [rel for rel in rels])
         def check(rels, subject, type, object):
             for rel in rels:
                 if rel.subject.name == subject and rel.type == type and rel.object.name == object:
@@ -201,7 +201,7 @@ class TestComplicated:
     def test_01_rels(self):
         "audit the simpsons family relationships"
         rels = model.Package.by_name(u'homer').get_relationships()
-        assert len(rels) == 5, '%i: %s' % (len(rels), [str(rel) for rel in rels])
+        assert len(rels) == 5, '%i: %s' % (len(rels), [rel for rel in rels])
         def check(rels, subject, type, object):
             for rel in rels:
                 if rel.subject.name == subject and rel.type == type and rel.object.name == object:

@@ -16,10 +16,11 @@ this.ckan.module('related-item', function (jQuery, _) {
       truncate: 55,
       truncateMore: null,
       truncateLess: null,
-      truncatePrefix: ' (',
-      truncateSuffix: ')',
+      truncatePrefix: '',
+      truncateSuffix: '',
       truncateSelector: '.prose',
       expandedClass: 'expanded',
+      hasExpanderClass: 'is-expander',
       i18n: {
         more: _('show more'),
         less: _('show less')
@@ -46,6 +47,11 @@ this.ckan.module('related-item', function (jQuery, _) {
       this.collapsedHeight = this.el.height();
       this.truncated.on('expand.truncate', this._onExpand);
       this.truncated.on('collapse.truncate', this._onCollapse);
+
+      if ($('.truncator-link', this.description).length > 0) {
+        this.el.addClass(options.hasExpanderClass);
+      }
+
     },
 
     /* Event handler called when the truncated text expands.

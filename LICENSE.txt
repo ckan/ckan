@@ -22,7 +22,7 @@ Note
 ====
 
 CKAN is sometimes packaged directly with other software (listed in
-pip-requirements.txt, pip-requirements-test.txt and pip-requirements-docs.txt).
+requirements.txt and dev-requirements.txt).
 In these cases, we are required to list the licenses of the packaged softare
 too. They are all AGPL compatible and read as follows in the next sections.
 

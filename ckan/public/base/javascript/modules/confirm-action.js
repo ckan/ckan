@@ -50,7 +50,10 @@ this.ckan.module('confirm-action', function (jQuery, _) {
       this.modal.modal('show');
 
       // Center the modal in the middle of the screen.
-      this.modal.css('margin-top', this.modal.height() * -0.5);
+      this.modal.css({
+        'margin-top': this.modal.height() * -0.5,
+        'top': '50%'
+      });
     },
 
     /* Performs the action for the current item.

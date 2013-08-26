@@ -42,5 +42,5 @@ def test_string_to_time_delta():
                     minutes=23, seconds=34, milliseconds=87, microseconds=465)
     assert email_notifications.string_to_timedelta('.123456') == (
             datetime.timedelta(milliseconds=123, microseconds=456))
-    nose.tools.assert_raises(logic.ParameterError,
+    nose.tools.assert_raises(logic.ValidationError,
         email_notifications.string_to_timedelta, 'foobar')

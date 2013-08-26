@@ -27,7 +27,8 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
         uploadSuccess: _('Resource uploaded'),
         uploadError: _('Unable to upload file'),
         authError: _('Unable to authenticate upload'),
-        metadataError: _('Unable to get data for uploaded file')
+        metadataError: _('Unable to get data for uploaded file'),
+        uploadingWarning: _('You are uploading a file. Are you sure you want to navigate away and stop this upload?')
       },
       template: [
         '<span class="resource-upload-field">',
@@ -51,6 +52,8 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       this.upload = jQuery(this.options.template);
       this.setupFileUpload();
       this.el.append(this.upload);
+
+      jQuery(window).on('beforeunload', this._onWindowUpload);
     },
 
     /* Sets up the jQuery.fileUpload() plugin with the provided options.
@@ -172,6 +175,18 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
       return jQuery.date.toISOString() + '/' + filename;
     },
 
+    /* Attaches the beforeunload event to window to prevent away navigation
+     * whilst a upload is happening
+     *
+     * is_uploading: Boolean of whether we're uploading right now
+     *
+     * Returns nothing
+     */
+    uploading: function(is_uploading) {
+      var method = is_uploading ? 'on' : 'off';
+      jQuery(window)[method]('beforeunload', this._onWindowBeforeUnload);
+    },
+
     /* Callback called when the jQuery file upload plugin receives a file.
      *
      * event - The jQuery event object.
@@ -180,6 +195,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
      * Returns nothing.
      */
     _onUploadAdd: function (event, data) {
+      this.uploading(true);
       if (data.files && data.files.length) {
         var key = this.generateKey(data.files[0].name);
 
@@ -217,6 +233,7 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     */
     _onUploadComplete: function () {
       this.loading(false);
+      this.uploading(false);
     },
 
     /* Callback function for a successful Auth request. This cannot be
@@ -257,6 +274,15 @@ this.ckan.module('resource-upload-field', function (jQuery, _, i18n) {
     _onMetadataError: function () {
       this.sandbox.notify(this.i18n('metadataError'));
       this._onUploadComplete();
+    },
+
+    /* Called before the window unloads whilst uploading */
+    _onWindowBeforeUnload: function(event) {
+      var message = this.i18n('uploadingWarning');
+      if (event.originalEvent.returnValue) {
+        event.originalEvent.returnValue = message;
+      }
+      return message;
     }
   };
 });

@@ -6,24 +6,19 @@
   <li class="active">{% link_for _('Organizations'), controller='organization', action='index' %}</li>
 {% endblock %}
 
-{% block add_action_content %}
+{% block page_header %}{% endblock %}
+
+{% block page_primary_action %}
   {% if h.check_access('organization_create') %}
     {% link_for _('Add Organization'), controller='organization', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
   {% endif %}
 {% endblock %}
 
-{% block primary_content %}
-  <div class="module">
-    <div class="module-content">
+{% block primary_content_inner %}
       <h1 class="hide-heading">{% block page_heading %}{{ _('Organizations') }}{% endblock %}</h1>
       {% block organizations_search_form %}
-      {% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search organizations...') %}
+        {% snippet 'snippets/search_form.html', type='organization', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search organizations...'), show_empty=request.params %}
       {% endblock %}
-      <h2 class="is-search-title">
-        {% block organizations_search_result_text %}
-        {% snippet 'snippets/search_result_text.html', query=c.q, count=c.page.item_count, type='organization' %}
-        {% endblock %}
-      </h2>
       {% block organizations_list %}
       {% if c.page.items or request.params %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
@@ -36,29 +31,11 @@
         </p>
       {% endif %}
       {% endblock %}
-    </div>
     {% block page_pagination %}
     {{ c.page.pager() }}
     {% endblock %}
-  </div>
 {% endblock %}
 
 {% block secondary_content %}
-  <div class="module module-narrow module-shallow">
-    <h2 class="module-heading">
-      <i class="icon-info-sign"></i>
-      {{ _('What are Organizations?') }}
-    </h2>
-    <div class="module-content">
-      {% trans %}
-        <p>Organizations act like publishing departments for datasets (for
-          example, the Department of Health). This means that datasets can be
-          published by and belong to a department instead of an individual
-          user.</p>
-        <p>Within organizations, admins can assign roles and authorisation its
-          members, giving individual users the right to publish datasets from
-          that particular organisation (e.g. Office of National Statistics).</p>
-      {% endtrans %}
-    </div>
-  </div>
+  {% snippet "organization/snippets/helper.html" %}
 {% endblock %}

@@ -281,7 +281,7 @@ class GroupController(base.BaseController):
             default_facet_titles = {'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
-                                    'license': _('License')}
+                                    'license_id': _('License')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -524,7 +524,7 @@ class GroupController(base.BaseController):
             if id != group['name']:
                 self._force_reindex(group)
 
-            h.redirect_to('%s_read' % str(group['type']), id=group['name'])
+            h.redirect_to('%s_read' % group['type'], id=group['name'])
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
         except NotFound, e:

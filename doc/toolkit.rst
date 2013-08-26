@@ -42,6 +42,10 @@ templates via h.example_helper() ::
 
 The following functions, classes and exceptions are provided by the toolkit.
 
+*class* **BAseController**
+  Base class for building controllers.
+
+
 *class* **CkanCommand**
   Base class for building paster functions.
 
@@ -150,3 +154,36 @@ The following functions, classes and exceptions are provided by the toolkit.
 **requires_ckan_version** (*min_version, max_version=None*)
   Check that the ckan version is correct for the plugin.
 
+
+**request** object
+  This is the http request and contains the environ, cookies etc.
+
+
+**response** object
+  This is the http response.
+
+
+**abort** (*error_code, error_message*)
+  Aborts the current request.
+
+
+**redirect**
+  This causes a http redirect to be returned to the client.
+
+
+**url_for**
+  This function can be used to create urls.
+
+
+**side_effect_free** decorator
+  This marks action functions as accessible via the action api.
+
+
+**auth_sysadmins_check** decorator
+  This marks auth functions as needing to be run for sys admins.  Usually
+  sysadmins are automatically allowed to run actions etc.
+
+
+**get_or_bust** (*data_dict, keys*)
+    Try and get values from dictionary and if they are not there
+    raise a ValidationError.

@@ -34,7 +34,10 @@ def _get_locales():
     locale_order = config.get('ckan.locale_order', '').split()
 
     locales = ['en']
-    i18n_path = os.path.dirname(ckan.i18n.__file__)
+    if config.get('ckan.i18n_directory'):
+        i18n_path = os.path.join(config.get('ckan.i18n_directory'), 'i18n')
+    else:
+        i18n_path = os.path.dirname(ckan.i18n.__file__)
     locales += [l for l in os.listdir(i18n_path) if localedata.exists(l)]
 
     assert locale_default in locales, \

@@ -3,10 +3,8 @@
 {% block subtitle %}{{ _('Activity Stream') }} - {{ c.group_dict.title or c.group_dict.name }}{% endblock %}
 
 {% block primary_content_inner %}
-<section class="module-content">
 	<h2 class="hide-heading">{% block page_heading %}{{ _('Activity Stream') }}{% endblock %}</h2>
 	{% block activity_stream %}
 	{{ c.group_activity_stream | safe }}
 	{% endblock %}
-</section>
 {% endblock %}

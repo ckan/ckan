@@ -15,44 +15,23 @@ guidelines below are soft rules.
 Having said that, we suggest just one hard rule: **no new feature (or change to
 an existing feature) should be missing from the docs** (but see `todo`_).
 
-----
-
-The guidelines below are broken into four sections:
-
-:ref:`getting-started`
-  Walks you through downloading the source files for CKAN's docs, editing them,
-  and submitting your work to the CKAN project.
-
-:ref:`structure`
- Describes the intended structure and audiences of the docs, so we know:
-
- * Where to add new pages and sections
- * What sections a new page should have
- * Who we're writing the docs for:
-
-   * How much technical detail to go into
-   * How much knowledge can be assumed
-
-:ref:`style`
-  Covers things like what tone to use, how to capitalize section titles, etc.
-  Having a consistent style will make the docs nice and easy to read and give
-  them a complete, quality feel.
-
-:ref:`sphinx tips`
-  Gives some useful tips about using Sphinx.
-
 .. seealso::
 
    Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
      A series of blog posts about writing technical docs, a lot of our
      guidelines were based on this.
 
+.. contents::
+   :local:
 
 .. _getting-started:
 
 ------------------
 1. Getting started
 ------------------
+
+This section will walk you through downloading the source files for CKAN's
+docs, editing them, and submitting your work to the CKAN project.
 
 CKAN's documentation is created using `Sphinx <http://sphinx-doc.org/>`_,
 which in turn uses `Docutils <http://docutils.sourceforge.net/>`_
@@ -75,12 +54,18 @@ Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
 install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
-terminal::
+terminal:
+
+.. versionchanged:: 2.1
+   In CKAN 2.0 and earlier the requirements file was called
+   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
+
+::
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+    pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
 b. Fetch CKAN's git submodules
@@ -163,6 +148,10 @@ suggestion for what sections the page should have is:
 .. 
     http://jacobian.org/writing/great-documentation/technical-style/
 
+This section covers things like what tone to use, how to capitalize section
+titles, etc.  Having a consistent style will make the docs nice and easy to
+read and give them a complete, quality feel.
+
 
 Use American spelling
 =====================
@@ -230,6 +219,26 @@ Wrong:
 
 For lots of examples of this done right, see
 `Django's table of contents <https://docs.djangoproject.com/en/1.5/contents/>`_.
+
+In Sphinx, use the following section title styles::
+
+    ===============
+    Top-level title
+    ===============
+
+    ------------------
+    Second-level title
+    ------------------
+
+    Third-level title
+    =================
+
+    Fourth-level title
+    ------------------
+
+If you need more than four levels of headings, you're probably doing something
+wrong, but see:
+http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
 
 
 Be conversational
@@ -307,35 +316,27 @@ identifiable pieces:
 4. Sphinx
 ---------
 
+This section gives some useful tips about using Sphinx.
+
+
+Don't introduce any new Sphinx warnings
+=======================================
+
+When you build the docs, Sphinx prints out warnings about any broken
+cross-references, syntax errors, etc. We aim not to have any of these warnings,
+so when adding to or editing the docs make sure your changes don't introduce
+any new ones.
+
+It's best to delete the ``build`` directory and completely rebuild the docs, to
+check for any warnings::
+
+    rm -rf build; python setup.py build_sphinx
+
 
 Maximum line length
 ===================
 
 As with Python code, try to limit all lines to a maximum of 79 characters.
-
-
-Headings
-========
-
-Use::
-
-    =================
-    Top-Level Heading
-    =================
-
-    --------------------
-    Second-Level Heading
-    --------------------
-
-    Third-Level Heading
-    ===================
-
-    Fourth-Level Heading
-    --------------------
-
-If you need more than four levels of headings, you're probably doing something
-wrong, but see:
-http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
 
 
 Cross-references and links

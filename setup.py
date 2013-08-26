@@ -17,10 +17,6 @@ setup(
     description=__description__,
     keywords='data packaging component tool server',
     long_description =__long_description__,
-    install_requires=[
-    ],
-    extras_require = {
-    },
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
@@ -129,6 +125,20 @@ setup(
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+
+    [ckan.test_plugins]
+    routes_plugin=tests.ckantestplugins:RoutesPlugin
+    mapper_plugin=tests.ckantestplugins:MapperPlugin
+    session_plugin=tests.ckantestplugins:SessionPlugin
+    mapper_plugin2=tests.ckantestplugins:MapperPlugin2
+    authorizer_plugin=tests.ckantestplugins:AuthorizerPlugin
+    test_observer_plugin=tests.ckantestplugins:PluginObserverPlugin
+    action_plugin=tests.ckantestplugins:ActionPlugin
+    auth_plugin=tests.ckantestplugins:AuthPlugin
+    test_group_plugin=tests.ckantestplugins:MockGroupControllerPlugin
+    test_package_controller_plugin=tests.ckantestplugins:MockPackageControllerPlugin
+    test_resource_preview=tests.ckantestplugins:MockResourcePreviewExtension
+    test_json_resource_preview=tests.ckantestplugins:JsonMockResourcePreviewExtension
 
     [babel.extractors]
     ckan = ckan.lib.extract:extract_ckan

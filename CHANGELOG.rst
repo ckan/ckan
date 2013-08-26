@@ -1,8 +1,135 @@
-.. _changelog:
+.. This tocdepth stops Sphinx from putting every subsection title in this file
+   into the master table of contents.
+
+:tocdepth: 1
 
 ---------
 Changelog
 ---------
+
+v2.2
+====
+
+API changes and deprecations:
+
+* The edit() and after_update() methods of IPackageController plugins are now
+  called when updating a resource using the web frontend or the
+  resource_update API action [#1052]
+
+
+v2.1 2013-08-13
+===============
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade
+
+.. note:: The ``json_preview`` plugin has been renamed to ``text_preview``
+ (see #266). If you are upgrading CKAN from a previous version you need
+ to change the plugin name on your CKAN config file after upgrading to avoid
+ a PluginNotFound exception.
+
+
+Major:
+ * Bulk updates of datasets within organizations (delete, make public/private) (#278)
+ * Organizations and Groups search (#303)
+ * Generic text preview extension for JSON, XML and plain text files (#226)
+ * Improve consistency of the Action API (#473)
+ * IAuthenticator interface for plugging into authorization platforms (Work
+   in progress) (#1007)
+ * New clearer dashboard with more information easier to access (#626)
+ * New ``rebuild_fast`` command to speed up reindex using multiple cores (#700)
+ * Complete restructure of the documentation, with updated sections on
+   installation, upgrading, release process, etc and guidelines on how to write
+   new documentation (#769 and multiple others)
+
+Minor:
+ * Add group members page to templates (#844)
+ * Show search facets on organization page (#776)
+ * Changed default sort ordering (#869)
+ * More consistent display of buttons across pages (#890)
+ * History page ported to new templates (#368)
+ * More blocks to templates to allow furhter customization (#688)
+ * Improve imports from lib.helpers (#262)
+ * Add support for callback parameter on Action API (#414)
+ * Create site_user at startup (#952)
+ * Add warning before deleting an organization (#803)
+ * Remove flags from language selector (#822)
+ * Hide the Data API button when datastore is disabled (#752)
+ * Pin all requirements and separate minimal requirements in a separate file (#491, #1149)
+ * Better preview plugin selection (#1002)
+ * Add new functions to the plugins toolkit (#1015)
+ * Improve ExampleIDatasetFormPlugin (#2750)
+ * Extend h.sorted_extras() to do substitutions and auto clean keys (#440)
+ * Separate default database for development and testing (#517)
+ * More descriptive Solr exceptions when indexing (#674)
+ * Validate datastore input through schemas (#905)
+
+Bug fixes:
+ * Fix 500 on password reset (#264)
+ * Fix exception when indexing a wrong date on a _date field (#267)
+ * Fix datastore permissions issues (#652)
+ * Placeholder images are not linked with h.url_for_static (#948)
+ * Explore dropdown menu is hidden behind other resources in IE (#915)
+ * Buttons interrupt file uploading (#902)
+ * Fix resource proxy encoding errors (#896)
+ * Enable streaming in resource proxy (#989)
+ * Fix cache_dir and beaker paths on deployment.ini_tmpl (#888)
+ * Fix multiple issues on create dataset form on IE (#881)
+ * Fix internal server error when adding member (#869)
+ * Fix license faceting (#853)
+ * Fix exception in dashboard (#830)
+ * Fix Google Analytics integration (#827)
+ * Fix ValueError when resource size is not an integer (#1009)
+ * Catch NotFound on new resource when package does not exist (#1010)
+ * Fix Celery configuration to allow overriding from config (#1027)
+ * came_from after login is validated to not redidirect to another site (#1039)
+ * And many, many more!
+
+Deprecated and removed:
+ * The ``json_preview`` plugin has been replaced by a new ``text_preview``
+   one. Please update your config files if using it. (#226)
+
+Known issues:
+ * Under certain authorization setups the forntend for the groups functionality
+   may not work as expected (See #1176 #1175).
+
+
+v2.0.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix markdown in group descriptions (#303)
+ * Fix resource proxy encoding errors (#896)
+ * Fix datastore exception on first run (#907)
+ * Enable streaming in resource proxy (#989)
+ * Fix in user search (#1024)
+ * Fix Celery configuration to allow overriding from config (#1027)
+ * Undefined function on organizations controller (#1036)
+ * Fix license not translated in orgs/groups (#1040)
+ * Fix link to documentation from the footer (#1062)
+ * Fix missing close breadcrumb tag in org templates (#1071)
+ * Fix recently_changed_packages_activity_stream function (#1159)
+ * Fix Recline map sidebar not showing in IE 7-8 (#1133)
+
+
+v2.0.1 2013-06-11
+=================
+
+Bug fixes:
+ * Use IDatasetForm schema for resource_update (#897)
+ * Fixes for CKAN being run on a non-root URL (#948, #913)
+ * Fix resource edit errors losing info (#580)
+ * Fix Czech translation (#900)
+ * Allow JSON filters for datastore_search on GET requests (#917)
+ * Install vdm from the Python Package Index (#764)
+ * Allow extra parameters on Solr queries (#739)
+ * Create site user at startup if it does not exist (#952)
+ * Fix modal popups positioning (#828)
+ * Fix wrong redirect on dataset form on IE (#963)
+
 
 v2.0 2013-05-10
 ===============
@@ -162,6 +289,15 @@ Deprecated and removed:
  * Removed deprecated datetime_to_datestr() template helper function (#2257)
 
 
+v1.8.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix for using harvesters with organization setup
+ * Refactor for user update logic
+ * Tweak resources visibility query
+
+
 v1.8.1 2013-05-10
 =================
 
@@ -225,6 +361,14 @@ API changes and deprecation:
    `c.facets`) has been superseded by use of the improved facet data structure,
    `c.search_facets`.  The old data structure is still available on `c.facets`,
    but is deprecated, and will be removed in future versions. (#2313)
+
+
+v1.7.4 2013-08-13
+=================
+
+Bug fixes:
+ * Refactor for user update logic
+ * Tweak resources visibility query
 
 
 v1.7.3 2013-05-10
@@ -404,7 +548,7 @@ v1.5 2011-11-07
 Major:
  * New visual theme (#1108)
     * Package & Resource edit overhaul (#1294/#1348/#1351/#1368/#1296)
-    * JS and CSS reorganisation (#1282, #1349, #1380)
+    * JS and CSS reorganization (#1282, #1349, #1380)
  * Apache Solr used for search in core instead of Postgres (#1275, #1361, #1365)
  * Authorization system now embedded in the logic layer (#1253)
  * Captcha added for user registration (#1307, #1431)
