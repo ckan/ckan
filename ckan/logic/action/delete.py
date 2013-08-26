@@ -69,8 +69,20 @@ def resource_delete(context, data_dict):
 
     _check_access('resource_delete',context, data_dict)
 
-    entity.delete()
+    package_id = entity.get_package_id()
+
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    if 'resources' in pkg_dict and id in pkg_dict['resources']:
+        pkg_dict['resources'].remove(id)
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][-1]
+        raise ValidationError(errors)
+
     model.repo.commit()
+
 
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.
@@ -151,11 +163,12 @@ def related_delete(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
 
-    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
     session.commit()
 
     entity.delete()

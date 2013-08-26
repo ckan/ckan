@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceController',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -430,6 +431,20 @@ class IPackageController(Interface):
              sent to the template.
         '''
         return pkg_dict
+
+
+class IResourceController(Interface):
+    """
+    Hook into the resource controller.
+    (see IGroupController)
+    """
+
+    def before_show(self, resource_dict):
+        '''
+            Extensions will receive the validated data dict before the resource
+            is ready for display.
+        '''
+        return resource_dict
 
 
 class IPluginObserver(Interface):

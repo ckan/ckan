@@ -63,7 +63,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         config.clear()
         config.update(cls._original_config)
         model.repo.rebuild_db()
-        plugins.reset()
 
     def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'
@@ -130,7 +129,17 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert result.status == 409, result.status
         assert 'too large' in result.body, result.body
 
-    def test_resource_proxy_non_existent(self):
+    @httpretty.activate
+    def test_invalid_url(self):
+        self.data_dict = set_resource_url('javascript:downloadFile(foo)')
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url, status='*')
+        assert result.status == 409, result.status
+        assert 'Invalid URL' in result.body, result.body
+
+
+    def test_non_existent_url(self):
         self.data_dict = set_resource_url('http://foo.bar')
 
         def f1():
