@@ -12,14 +12,6 @@ Some good links about Python code style:
 - `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
 
 
-Commit formatting cleanups on master
-------------------------------------
-
-Clean up formatting and PEP 8 issues on master, not on a feature branch.
-Unless of course you're changing that piece of code anyway.  This will help
-avoid spurious merge conflicts, and aid in reading pull requests.
-
-
 Use single quotes
 -----------------
 
