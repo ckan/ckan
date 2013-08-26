@@ -61,6 +61,17 @@ Imports
 Logging
 -------
 
+We use `the Python standard library's logging module <http://docs.python.org/2.6/library/logging.html>`_
+to log messages in CKAN, e.g.::
+
+    import logging
+    ...
+    logger = logging.getLogger(__name__)
+    ...
+    logger.debug('some debug message')
+
+When logging:
+
 - Keep log messages short.
 
 - Don't include object representations in the log message.  It *is* useful
