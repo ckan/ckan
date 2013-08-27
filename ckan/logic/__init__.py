@@ -310,9 +310,10 @@ def get_action(action):
 
                     # Whitelist all actions defined in logic/action/get.py as
                     # being side-effect free.
-                    # FIXME This looks wrong should it be an 'or' not 'and'
-                    v.side_effect_free = getattr(v, 'side_effect_free', True)\
-                        and action_module_name == 'get'
+                    if action_module_name == 'get' and \
+                       not hasattr(v, 'side_effect_free'):
+                        v.side_effect_free = True 
+
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
