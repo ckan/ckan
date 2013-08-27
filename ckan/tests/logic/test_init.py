@@ -3,7 +3,7 @@ import nose.tools as tools
 import ckan.model as model
 import ckan.logic as logic
 
-from ckan.lib.create_test_data import CreateTestData
+from ckan.lib import create_test_data
 
 
 class TestMemberLogic(object):
@@ -14,11 +14,16 @@ class TestMemberLogic(object):
                             model,
                             'inexistent_model_name')
 
-class TestCheckAccess(object):
 
+class TestCheckAccess(object):
 
     @classmethod
     def setup_class(cls):
+        model.Session.close_all()
+        model.repo.delete_all()
+
+    @classmethod
+    def teardown_class(cls):
         model.Session.close_all()
         model.repo.delete_all()
 
@@ -27,7 +32,7 @@ class TestCheckAccess(object):
 
     def test_check_access_auth_user_obj_is_set(self):
 
-        CreateTestData.create_test_user()
+        create_test_data.CreateTestData.create_test_user()
 
         user_name = 'tester'
         context = {'user': user_name}
@@ -40,7 +45,7 @@ class TestCheckAccess(object):
 
     def test_check_access_auth_user_obj_is_not_set_when_ignoring_auth(self):
 
-        CreateTestData.create_test_user()
+        create_test_data.CreateTestData.create_test_user()
 
         user_name = 'tester'
         context = {'user': user_name, 'ignore_auth': True}
