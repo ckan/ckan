@@ -1644,3 +1644,57 @@ class TestBulkActions(WsgiAppCase):
 
         res = self.app.get('/api/action/package_search?q=*:*')
         assert json.loads(res.body)['result']['count'] == 0
+
+
+class TestGroupOrgView(WsgiAppCase):
+
+    @classmethod
+    def setup_class(cls):
+        model.Session.add_all([
+            model.User(name=u'sysadmin', apikey=u'sysadmin',
+                       password=u'sysadmin', sysadmin=True),
+        ])
+        model.Session.commit()
+
+        org_dict = '%s=1' % json.dumps({
+            'name': 'org',
+        })
+        res = cls.app.post('/api/action/organization_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=org_dict)
+        cls.org_id = json.loads(res.body)['result']['id']
+
+        group_dict = '%s=1' % json.dumps({
+            'name': 'group',
+        })
+        res = cls.app.post('/api/action/group_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=group_dict)
+        cls.group_id = json.loads(res.body)['result']['id']
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_view_org(self):
+        res = cls.app.post('/api/action/organization_show',
+                params=self.org_dict)
+        res_json = json.loads(res.body)
+        assert res['success'] = True
+
+        res = cls.app.post('/api/action/group_show',
+                params=self.org_dict)
+        res_json = json.loads(res.body)
+        assert res['success'] = True
+
+    def test_2_view_group(self):
+        res = cls.app.post('/api/action/group_show',
+                params=self.group_dict)
+        res_json = json.loads(res.body)
+        assert res['success'] = True
+
+        res = cls.app.post('/api/action/organization_show',
+                params=self.group_dict)
+        res_json = json.loads(res.body)
+        assert res['success'] = True
+
