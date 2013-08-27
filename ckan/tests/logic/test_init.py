@@ -3,7 +3,7 @@ import nose.tools as tools
 import ckan.model as model
 import ckan.logic as logic
 
-from ckan.lib import create_test_data
+import ckan.lib.create_test_data as create_test_data
 
 
 class TestMemberLogic(object):
@@ -24,8 +24,7 @@ class TestCheckAccess(object):
 
     @classmethod
     def teardown_class(cls):
-        model.Session.close_all()
-        model.repo.delete_all()
+        model.repo.rebuild_db()
 
     def setup(self):
         model.repo.rebuild_db()
