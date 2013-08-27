@@ -57,7 +57,7 @@ def url_with_params(url, params):
 
 def search_url(params, package_type=None):
     if not package_type or package_type == 'dataset':
-        url = h.url_for(controller='package', action='search')
+        url = h.url_for(controller=c.controller, action='search')
     else:
         url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
