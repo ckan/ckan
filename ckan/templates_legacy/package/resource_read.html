@@ -146,8 +146,7 @@
     <div class="resource-preview">
       <div class="preview-header">
         <h3>Preview</h3>
-
-        ${ h.resource_preview(c.resource, c.package.id) }
+          ${ h.resource_preview(c.resource, c.package) }
         <a py:if="c.pkg.private" title="Cannot embed as resource is private." style="display: none;" class="btn disabled" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
         <a py:if="not c.pkg.private" style="display: none;" class="btn btn-primary" data-toggle="modal" href=".modal-data-viewer-embed-dialog">Embed</a>
       </div>

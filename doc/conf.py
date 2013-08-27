@@ -48,6 +48,7 @@ rst_epilog = '''
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
+.. |restart_apache| replace:: sudo service apache2 restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -62,9 +63,12 @@ rst_epilog = '''
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo',
-    'sphinx.ext.autosummary']
+              'sphinx.ext.autosummary']
 autodoc_member_order = 'bysource'
 todo_include_todos = True
+
+todo_include_todos = True
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -81,7 +85,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'CKAN Documentation'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2012, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
+copyright = u'''&copy; 2009-2013, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
     Licensed under <a
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />

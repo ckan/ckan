@@ -19,12 +19,13 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan.lib import i18n
-import lib.render
+import ckan.lib.i18n as i18n
+import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter, IAuthenticator
+import ckan.plugins as p
 import ckan.model as model
+import ckan.lib.maintain as maintain
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -44,7 +45,7 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 def abort(status_code=None, detail='', headers=None, comment=None):
     if status_code == 401:
         # Allow IAuthenticator plugins to alter the abort
-        for item in PluginImplementations(IAuthenticator):
+        for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)
             (status_code, detail, headers, comment) = result
 
@@ -104,8 +105,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         try:
-            template_path, template_type = lib.render.template_info(template_name)
-        except lib.render.TemplateNotFound:
+            template_path, template_type = render_.template_info(template_name)
+        except render_.TemplateNotFound:
             template_type = 'genshi'
             template_path = ''
 
@@ -145,7 +146,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         )
         stream = template.generate(**globs)
 
-        for item in PluginImplementations(IGenshiStreamFilter):
+        for item in p.PluginImplementations(p.IGenshiStreamFilter):
             stream = item.filter(stream)
 
         if loader_class == NewTextTemplate:
@@ -224,15 +225,9 @@ class BaseController(WSGIController):
 
         i18n.handle_request(request, c)
 
-        # If the user is logged in add their number of new activities to the
-        # template context.
-        if c.userobj:
-            from ckan.logic import get_action
-            new_activities_count = get_action(
-                'dashboard_new_activities_count')
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
-            c.new_activities = new_activities_count(context, {})
+        maintain.deprecate_context_item(
+            'new_activities',
+            'Use `h.new_activities` instead.')
 
     def _identify_user(self):
         '''Try to identify the user
@@ -252,7 +247,7 @@ class BaseController(WSGIController):
 
         # Authentication plugins get a chance to run here break as soon as a
         # user is identified.
-        authenticators = PluginImplementations(IAuthenticator)
+        authenticators = p.PluginImplementations(p.IAuthenticator)
         if authenticators:
             for item in authenticators:
                 item.identify()
@@ -262,6 +257,12 @@ class BaseController(WSGIController):
         # We haven't identified the user so try the default methods
         if not c.user:
             self._identify_user_default()
+
+        # If we have a user but not the userobj let's get the userobj.  This
+        # means that IAuthenticator extensions do not need to access the user
+        # model directly.
+        if c.user and not c.userobj:
+            c.userobj = model.User.by_name(c.user)
 
         # general settings
         if c.user:

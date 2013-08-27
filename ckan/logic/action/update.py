@@ -167,12 +167,12 @@ def related_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': context['user'],
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
 
-    _get_action('activity_create')(activity_create_context, activity_dict,
-                                   ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -207,31 +207,26 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+    del context["resource"]
 
-    if 'schema' in context:
-        schema = context['schema']
+    package_id = resource.resource_group.package.id
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    for n, p in enumerate(pkg_dict['resources']):
+        if p['id'] == id:
+            break
     else:
-        package_plugin = lib_plugins.lookup_package_plugin(
-            resource.resource_group.package.type)
-        schema = package_plugin.update_package_schema()['resources']
+        logging.error('Could not find resource ' + id)
+        raise NotFound(_('Resource was not found.'))
+    pkg_dict['resources'][n] = data_dict
 
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name", "")
-
-    resource = model_save.resource_dict_save(data, context)
-    if not context.get('defer_commit'):
-        model.repo.commit()
-    return model_dictize.resource_dictize(resource, context)
-
+    return pkg_dict['resources'][n]
 
 
 def package_update(context, data_dict):
@@ -304,6 +299,11 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
+    #avoid revisionioning by updating directly
+    model.Session.query(model.Package).filter_by(id=pkg.id).update(
+        {"metadata_modified": datetime.datetime.utcnow()})
+    model.Session.refresh(pkg)
+
     pkg = model_save.package_dict_save(data, context)
 
     context_org_update = context.copy()
@@ -321,7 +321,7 @@ def package_update(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Updated object %s' % str(pkg.name))
+    log.debug('Updated object %s' % pkg.name)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -520,11 +520,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_create_context = {
             'model': model,
             'user': user,
-            'defer_commit':True,
+            'defer_commit': True,
+            'ignore_auth': True,
             'session': session
         }
-        _get_action('activity_create')(activity_create_context, activity_dict,
-                ignore_auth=True)
+        _get_action('activity_create')(activity_create_context, activity_dict)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
@@ -611,10 +611,11 @@ def user_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 
@@ -764,17 +765,17 @@ def term_translation_update_many(context, data_dict):
     '''
     model = context['model']
 
-
-    if not data_dict.get('data') and isinstance(data_dict, list):
+    if not (data_dict.get('data') and isinstance(data_dict.get('data'), list)):
         raise ValidationError(
-            {'error':
-             'term_translation_update_many needs to have a list of dicts in field data'}
+            {'error': 'term_translation_update_many needs to have a '
+                      'list of dicts in field data'}
         )
 
     context['defer_commit'] = True
 
+    action = _get_action('term_translation_update')
     for num, row in enumerate(data_dict['data']):
-        term_translation_update(context, row)
+        action(context, row)
 
     model.Session.commit()
 
@@ -921,10 +922,10 @@ def user_role_update(context, data_dict):
 
     new_user_ref = data_dict.get('user') # the user who is being given the new role
     if not bool(new_user_ref):
-        raise logic.ParameterError('You must provide the "user" parameter.')
+        raise ValidationError('You must provide the "user" parameter.')
     domain_object_ref = _get_or_bust(data_dict, 'domain_object')
     if not isinstance(data_dict['roles'], (list, tuple)):
-        raise logic.ParameterError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
+        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
     desired_roles = set(data_dict['roles'])
 
     if new_user_ref:
@@ -1021,8 +1022,8 @@ def send_email_notifications(context, data_dict):
 
     if not converters.asbool(
             config.get('ckan.activity_streams_email_notifications')):
-        raise logic.ParameterError('ckan.activity_streams_email_notifications'
-                ' is not enabled in config')
+        raise ValidationError('ckan.activity_streams_email_notifications'
+                              ' is not enabled in config')
 
     email_notifications.get_and_send_notifications_for_all_users()
 

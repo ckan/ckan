@@ -52,6 +52,14 @@ class _Toolkit(object):
         'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
+        'response',             # response object for cookies etc
+        'BaseController',       # Allow controllers to be created
+        'abort',                # abort actions
+        'redirect_to',          # allow redirections
+        'url_for',              # create urls
+        'get_or_bust',          # helpful for actions
+        'side_effect_free',     # actions can be accessed via api
+        'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -73,9 +81,11 @@ class _Toolkit(object):
         import ckan.lib.base as base
         import ckan.logic as logic
         import ckan.logic.validators as logic_validators
+        import ckan.lib.helpers as h
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
+        import pylons
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -107,6 +117,15 @@ class _Toolkit(object):
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
+
+        t['response'] = pylons.response
+        t['BaseController'] = base.BaseController
+        t['abort'] = base.abort
+        t['redirect_to'] = h.redirect_to
+        t['url_for'] = h.url_for
+        t['get_or_bust'] = logic.get_or_bust
+        t['side_effect_free'] = logic.side_effect_free
+        t['auth_sysadmins_check'] = logic.auth_sysadmins_check
 
         # class functions
         t['render_snippet'] = self._render_snippet

@@ -162,11 +162,10 @@ This section will walk you through the steps for making a pull request.
    its own branch forked from the master branch.
 
    The name of the branch should include the issue number (if this work has an
-   issue in the `CKAN issue tracker`_), the branch type (e.g. "feature" or
-   "bug"), and a brief one-line synopsis of the work, for example::
+   issue in the `CKAN issue tracker`_), and a brief one-line synopsis of the work,
+   for example::
 
-    2298-feature-add-sort-by-controls-to-search-page
-    1518-bug-upload-file-with-spaces
+    2298-add-sort-by-controls-to-search-page
 
 
 #. Fork CKAN on GitHub

@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceController',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
@@ -195,19 +196,40 @@ class IResourceUrlChange(Interface):
 
 
 class IResourcePreview(Interface):
-    """
-    Hook into the resource previews in helpers.py. This lets you
-    create custom previews for example for xml files.
-    """
+    '''Add custom data previews for resource file-types.
 
+    '''
     def can_preview(self, data_dict):
-        '''
-        Return True if the extension can preview the resource. The ``data_dict``
-        contains the resource and the package.
+        '''Return info on whether the plugin can preview the resource.
 
-        Make sure to ckeck the ``on_same_domain`` value of the
-        resource or the url if your preview requires the resource to be on
-        the same domain because of the same origin policy.
+        This can be done in two ways:
+
+        1. The old way is to just return ``True`` or ``False``.
+
+        2. The new way is to return a dict with  three keys:
+
+           ``'can_preview'`` (``boolean``)
+             ``True`` if the extension can preview the resource.
+
+           ``'fixable'`` (``string``)
+             A string explaining how preview for the resource could be enabled,
+             for example if the ``resource_proxy`` plugin was enabled.
+
+           ``'quality'`` (``int``)
+             How good the preview is: ``1`` (poor), ``2`` (average) or
+             ``3`` (good). When multiple preview extensions can preview the
+             same resource, this is used to determine which extension will
+             be used.
+
+        :param data_dict: the resource to be previewed and the dataset that it
+          belongs to.
+        :type data_dict: dictionary
+
+        Make sure to check the ``on_same_domain`` value of the resource or the
+        url if your preview requires the resource to be on the same domain
+        because of the same-origin policy.  To find out how to preview
+        resources that are on a different domain, read :ref:`resource-proxy`.
+
         '''
 
     def setup_template_variables(self, context, data_dict):
@@ -416,6 +438,20 @@ class IPackageController(Interface):
              sent to the template.
         '''
         return pkg_dict
+
+
+class IResourceController(Interface):
+    """
+    Hook into the resource controller.
+    (see IGroupController)
+    """
+
+    def before_show(self, resource_dict):
+        '''
+            Extensions will receive the validated data dict before the resource
+            is ready for display.
+        '''
+        return resource_dict
 
 
 class IPluginObserver(Interface):
@@ -715,16 +751,6 @@ class IDatasetForm(Interface):
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/edit.html'``.
-
-        :rtype: string
-
-        '''
-
-    def comments_template(self):
-        '''Return the path to the template for the dataset comments page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/comments.html'``.
 
         :rtype: string
 

@@ -184,7 +184,7 @@ class LicenseOpenDataCommonsPDDL(DefaultLicense):
 
     @property
     def title(self):
-        return _("Open Data Commons Public Domain Dedication and Licence (PDDL)")
+        return _("Open Data Commons Public Domain Dedication and License (PDDL)")
 
 class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
     domain_data = True
@@ -279,10 +279,12 @@ class LicenseOpenGovernment(DefaultLicense):
     domain_content = True
     id = "uk-ogl"
     is_okd_compliant = True
+    # CS: bad_spelling ignore
     url = "http://reference.data.gov.uk/id/open-government-licence"
 
     @property
     def title(self):
+        # CS: bad_spelling ignore
         return _("UK Open Government Licence (OGL)")
 
 class LicenseCreativeCommonsNonCommercial(DefaultLicense):

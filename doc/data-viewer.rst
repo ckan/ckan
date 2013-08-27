@@ -19,11 +19,12 @@ use a custom widget.
 The data preview functionality that is provided by CKAN is described in
 the following sections:
 
-* `Viewing images and text files`_
-* `Viewing structured data: the Data Explorer`_
-* `Viewing highlighted XML, JSON and plain text data`_
-* `Viewing PDF documents`_
-* `Embedding Previews In Other Web Pages`_
+* :ref:`image-preview`
+* :ref:`data-explorer`
+* :ref:`text-preview`
+* :ref:`pdf-preview`
+* :ref:`resource-proxy`
+* :ref:`embed-previews`
 
 These sections list the resource formats that each extension can preview and
 provide instructions for how to enable each extension.
@@ -32,6 +33,8 @@ different types of resources.
 For more information on this topic see
 `Writing Extensions <writing-extensions.html>`_.
 
+
+.. _image-preview:
 
 Viewing images and text files
 -----------------------------
@@ -77,6 +80,8 @@ way in which they are shown may vary. If you want to ensure for instance that
 XML based documents are correctly previewed, have a look at `Viewing highlighted XML, JSON and plain text data`_.
 
 
+.. _data-explorer:
+
 Viewing structured data: the Data Explorer
 ------------------------------------------
 
@@ -112,14 +117,14 @@ Or:
    reliable than viewing data that is in the DataStore.
 
 
+.. _text-preview:
+
 Viewing highlighted XML, JSON and plain text data
 -------------------------------------------------
 
 **Configuration required:** The ``text_preview`` extension must be added to
-``ckan.plugins`` in your CKAN configuration file. If you wish to view
-external files resources as well, the ``resource_proxy`` extension must also
-be enabled.
-These extensions are part of CKAN and so do not need to be installed
+``ckan.plugins`` in your CKAN configuration file.
+This extension is part of CKAN and does not need to be installed
 separately.
 
 **Resource formats:**
@@ -133,32 +138,72 @@ separately.
 * ``text/plain``, ``txt``, ``plain``
    (can be configured  by setting ``ckan.preview.text_formats``)
 
-The ``text_preview`` extension provides previews of many file types that have been
-added to a CKAN instance
-(and so are stored in the `Filestore <filestore.html>`_).
-To view the data the resource format must be set to one of the resource formats
-from above (case insensitive).
+The ``text_preview`` extension provides previews of many file types that have
+been added to a CKAN instance.  To view the data the resource format must be
+set to one of the resource formats from above (case insensitive).
 
-To also view remote resources, the ``resource_proxy`` extension must be
-enabled as well
-(this is required in order to get around the
-`same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_).
+.. seealso::
 
+   :ref:`The resourceproxy extension <resource-proxy>`
+
+     If you want to preview linked-to text files (and not only files that have
+     been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
+     as well.
+
+
+.. _pdf-preview:
 
 Viewing PDF documents
 ---------------------
 
 **Configuration required:** The ``pdf_preview`` extension must be added to
-``ckan.plugins`` in your CKAN configuration file.
-This extension is part of CKAN and so does not need to be installed separately.
+``ckan.plugins`` in your CKAN configuration file.  This extension is part of
+CKAN and does not need to be installed separately.
 
 **Resource formats:** ``pdf``, ``x-pdf``, ``acrobat``, ``vnd.pdf``.
 
-The ``pdf_preview`` extension provides previews of any ``pdf`` documents
-that have been added to a CKAN instance (and so are stored in
-the `Filestore <filestore.html>`_) as well as any external ``pdf`` documents.
-This extension uses Mozilla's `pdf.js <http://mozilla.github.io/pdf.js>`_ library.
+The ``pdf_preview`` extension provides previews of any ``pdf`` documents that
+have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
+<http://mozilla.github.io/pdf.js>`_ library.
 
+.. seealso::
+
+   :ref:`The resourceproxy extension <resource-proxy>`
+
+     If you want to preview linked-to PDF files (and not only files that have
+     been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
+     as well.
+
+
+.. _resource-proxy:
+
+Viewing remote resources: the resource proxy
+--------------------------------------------
+
+**Configuration required:** The ``resource_proxy`` extension must be added to
+``ckan.plugins`` in your CKAN configuration file.
+This extension is part of CKAN and so does not need to be installed separately.
+
+This extension must be enabled if you wish to preview resources that are on a
+different domain. That means if this extension is not enabled, e.g.
+PDF, or JSON files that are on ``www.example.com`` while CKAN is on
+``www.ckan.org`` cannot be previewed by any extension.
+
+Previewing is prevented by the
+`same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_ which
+prevents files from different domains (different *origins*) from being loaded
+into browsers. This extension gets around the same origin policy by pretending
+that all files are served from the same domain (same *origin*) that
+CKAN is on (e.g. ``www.ckan.org``).
+
+If you are writing a custom preview extension that requires resources to be
+proxied, you need to replace the URL that is used to load the file. This can
+be done using the function :func:`ckanext.resourceproxy.plugin.get_proxified_resource_url`.
+To find out whether the resource proxy is enabled, check ``ckan.resource_proxy_enabled``
+from the config. You can find a complete example in the
+`CKAN source <https://github.com/okfn/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
+
+.. _embed-previews:
 
 Embedding Previews In Other Web Pages
 -------------------------------------

@@ -199,18 +199,24 @@ class User(domain_object.DomainObject):
         return groups
 
     @classmethod
-    def search(cls, querystr, sqlalchemy_query=None):
+    def search(cls, querystr, sqlalchemy_query=None, user_name=None):
         '''Search name, fullname, email and openid. '''
         if sqlalchemy_query is None:
             query = meta.Session.query(cls)
         else:
             query = sqlalchemy_query
         qstr = '%' + querystr + '%'
-        query = query.filter(or_(
+        filters = [
             cls.name.ilike(qstr),
-            cls.fullname.ilike(qstr), cls.openid.ilike(qstr),
-            cls.email.ilike(qstr)
-            ))
+            cls.fullname.ilike(qstr),
+            cls.openid.ilike(qstr),
+        ]
+        # sysadmins can search on user emails
+        import ckan.new_authz as new_authz
+        if user_name and new_authz.is_sysadmin(user_name):
+            filters.append(cls.email.ilike(qstr))
+
+        query = query.filter(or_(*filters))
         return query
 
 meta.mapper(User, user_table,

@@ -54,12 +54,18 @@ Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
 install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
-terminal::
+terminal:
+
+.. versionchanged:: 2.1
+   In CKAN 2.0 and earlier the requirements file was called
+   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
+
+::
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+    pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
 b. Fetch CKAN's git submodules

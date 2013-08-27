@@ -10,11 +10,9 @@ import re
 from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
-from ckan.plugins import PluginImplementations, IRoutes
+import ckan.plugins as p
 
 named_routes = {}
-
-routing_plugins = PluginImplementations(IRoutes)
 
 
 class Mapper(_Mapper):
@@ -79,8 +77,8 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    from ckan.lib.plugins import register_package_plugins
-    from ckan.lib.plugins import register_group_plugins
+    import ckan.lib.plugins as lib_plugins
+    lib_plugins.reset_package_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -96,7 +94,7 @@ def make_map():
                 conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
 
     map.connect('home', '/', controller='home', action='index')
@@ -279,7 +277,6 @@ def make_map():
                   requirements=dict(action='|'.join([
                       'edit',
                       'delete',
-                      'members',
                       'member_new',
                       'member_delete',
                       'history',
@@ -291,6 +288,10 @@ def make_map():
                   ])))
         m.connect('group_about', '/group/about/{id}', action='about',
                   ckan_icon='info-sign'),
+        m.connect('group_edit', '/group/edit/{id}', action='edit',
+                  ckan_icon='edit')
+        m.connect('group_members', '/group/members/{id}', action='members',
+                  ckan_icon='group'),
         m.connect('group_activity', '/group/activity/{id}/{offset}',
                   action='activity', ckan_icon='time'),
         m.connect('group_read', '/group/{id}', action='read',
@@ -323,8 +324,8 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    register_package_plugins(map)
-    register_group_plugins(map)
+    lib_plugins.register_package_plugins(map)
+    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')
@@ -343,9 +344,15 @@ def make_map():
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
-        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_dashboard', '/dashboard', action='dashboard',
                   ckan_icon='list')
+        m.connect('user_dashboard_datasets', '/dashboard/datasets',
+                  action='dashboard_datasets', ckan_icon='sitemap')
+        m.connect('user_dashboard_groups', '/dashboard/groups',
+                  action='dashboard_groups', ckan_icon='group')
+        m.connect('user_dashboard_organizations', '/dashboard/organizations',
+                  action='dashboard_organizations', ckan_icon='building')
+        m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')
         m.connect('user_followers', '/user/followers/{id:.*}',
@@ -418,7 +425,7 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
 
     # sometimes we get requests for favicon.ico we should redirect to

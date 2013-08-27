@@ -1,16 +1,29 @@
 import json
+import httpretty
 import nose
+import sys
+import datetime
+from nose.tools import assert_equal
 
 import pylons
+from pylons import config
 import sqlalchemy.orm as orm
+import paste.fixture
 
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
+import ckan.config.middleware as middleware
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs
+
+
+# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
+if sys.version_info < (2, 7, 0):
+    import socket
+    socket.setdefaulttimeout(1)
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):
@@ -19,14 +32,16 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
-        cls._configure_iconfigurable_plugins()
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        engine = db._get_engine(None,
+        engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
@@ -34,13 +49,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
-
-    @classmethod
-    def _configure_iconfigurable_plugins(cls):
-        from ckan.plugins import PluginImplementations
-        from ckan.plugins.interfaces import IConfigurable
-        for plugin in PluginImplementations(IConfigurable):
-            plugin.configure(pylons.config)
 
     def test_create_requires_auth(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -78,7 +86,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         data = {
             'resource_id': resource.id,
-            'aliases': u'fo%25bar',
+            'aliases': u'fo%25bar',  # alias with percent
             'fields': [{'id': 'book', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}]
         }
@@ -209,6 +217,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
         resource = model.Package.get('annakarenina').resources[0]
         data = {
@@ -226,6 +235,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is False
+        assert_equal(res_dict['error']['__type'], 'Validation Error')
 
     def test_create_invalid_index(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -291,7 +301,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         data = {
             'resource_id': resource.id,
             'aliases': aliases,
-            'fields': [{'id': 'boo%k', 'type': 'text'},
+            'fields': [{'id': 'boo%k', 'type': 'text'},  # column with percent
                        {'id': 'author', 'type': 'json'}],
             'indexes': [['boo%k', 'author'], 'author'],
             'records': [{'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
@@ -359,7 +369,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = self.app.post('/api/action/resource_show', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
-        assert res_dict['result']['datastore_active'] == True
+        assert res_dict['result']['datastore_active']
 
         #######  insert again simple
         data2 = {
@@ -511,10 +521,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
-        #######  insert with paramter id rather than resource_id which is a shortcut
+        #######  insert with parameter id rather than resource_id which is a shortcut
         data8 = {
             'id': resource.id,
-            'records': [{'boo%k': 'warandpeace'}]
+             # insert with percent
+            'records': [{'boo%k': 'warandpeace', 'author': '99% good'}]
         }
 
         postparams = '%s=1' % json.dumps(data8)
@@ -524,6 +535,144 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True, res_dict
+
+    def test_create_ckan_resource_in_package(self):
+        package = model.Package.get('annakarenina')
+        data = {
+            'resource': {'package_id': package.id}
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=200)
+        res_dict = json.loads(res.body)
+
+        assert 'resource_id' in res_dict['result']
+        assert len(model.Package.get('annakarenina').resources) == 3
+
+        res = tests.call_action_api(
+            self.app, 'resource_show', id=res_dict['result']['resource_id'])
+        assert res['url'] == '/datastore/dump/' + res['id'], res
+
+    @httpretty.activate
+    def test_providing_res_with_url_calls_datapusher_correctly(self):
+        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+
+        package = model.Package.get('annakarenina')
+
+        tests.call_action_api(
+            self.app, 'datastore_create', apikey=self.sysadmin_user.apikey,
+            resource=dict(package_id=package.id, url='demo.ckan.org'))
+
+        assert len(package.resources) == 4, len(package.resources)
+        resource = package.resources[3]
+        data = json.loads(httpretty.last_request().body)
+        assert data['metadata']['resource_id'] == resource.id, data
+        assert data['result_url'].endswith('/action/datapusher_hook'), data
+        assert data['result_url'].startswith('http://'), data
+
+    def test_cant_provide_resource_and_resource_id(self):
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+        data = {
+            'resource_id': resource.id,
+            'resource': {'package_id': package.id}
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['error']['__type'] == 'Validation Error'
+
+    @httpretty.activate
+    def test_send_datapusher_creates_task(self):
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        context = {
+            'ignore_auth': True,
+            'user': self.sysadmin_user.name
+        }
+
+        p.toolkit.get_action('datapusher_submit')(context, {
+            'resource_id': resource.id
+        })
+
+        task = p.toolkit.get_action('task_status_show')(context, {
+            'entity_id': resource.id,
+            'task_type': 'datapusher',
+            'key': 'job_id'
+        })
+
+        assert task['state'] == 'pending', task
+
+    def test_datapusher_hook(self):
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        context = {
+            'user': self.sysadmin_user.name
+        }
+
+        p.toolkit.get_action('task_status_update')(context, {
+            'entity_id': resource.id,
+            'entity_type': 'resource',
+            'task_type': 'datapusher',
+            'key': 'job_id',
+            'value': 'my_id',
+            'last_updated': str(datetime.datetime.now()),
+            'state': 'pending'
+        })
+
+        p.toolkit.get_action('task_status_update')(context, {
+            'entity_id': resource.id,
+            'entity_type': 'resource',
+            'task_type': 'datapusher',
+            'key': 'job_key',
+            'value': 'my_key',
+            'last_updated': str(datetime.datetime.now()),
+            'state': 'pending'
+        })
+
+        data = {
+            'status': 'success',
+            'metadata': {
+                'resource_id': resource.id
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datapusher_hook', params=postparams,
+                            extra_environ=auth, status=200)
+        print res.body
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+
+        task = tests.call_action_api(
+            self.app, 'task_status_show', entity_id=resource.id,
+            task_type='datapusher', key='job_id')
+
+        assert task['state'] == 'success', task
+
+        task = tests.call_action_api(
+            self.app, 'task_status_show', entity_id=resource.id,
+            task_type='datapusher', key='job_key')
+
+        assert task['state'] == 'success', task
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]

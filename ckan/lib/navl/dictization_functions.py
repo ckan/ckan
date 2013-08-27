@@ -1,6 +1,7 @@
 import copy
 import formencode as fe
 import inspect
+import json
 from pylons import config
 
 from ckan.common import _
@@ -117,7 +118,7 @@ def augment_data(data, schema):
 
     full_schema = make_full_schema(data, schema)
 
-    new_data = copy.deepcopy(data)
+    new_data = copy.copy(data)
 
     ## fill junk and extras
 
@@ -402,3 +403,11 @@ def unflatten(data):
         unflattened[key] = [unflattened[key][s] for s in sorted(unflattened[key])]
 
     return unflattened
+
+
+class MissingNullEncoder(json.JSONEncoder):
+    '''json encoder that treats missing objects as null'''
+    def default(self, obj):
+        if isinstance(obj, Missing):
+            return None
+        return json.JSONEncoder.default(self, obj)

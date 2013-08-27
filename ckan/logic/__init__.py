@@ -1,7 +1,7 @@
 import functools
 import logging
-import types
 import re
+import sys
 
 import formencode.validators
 
@@ -13,6 +13,7 @@ import ckan.plugins as p
 from ckan.common import _, c
 
 log = logging.getLogger(__name__)
+_validate = df.validate
 
 
 class AttributeDict(dict):
@@ -46,13 +47,11 @@ class NotAuthorized(ActionError):
     pass
 
 
-class ParameterError(ActionError):
-    pass
-
-
-class ValidationError(ParameterError):
+class ValidationError(ActionError):
 
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
+        if not isinstance(error_dict, dict):
+            error_dict = {'message': error_dict}
         # tags errors are a mess so let's clean them up
         if 'tags' in error_dict:
             tag_errors = []
@@ -208,8 +207,18 @@ def _prepopulate_context(context):
 
 
 def check_access(action, context, data_dict=None):
-    user = context.get('user')
+    action = new_authz.clean_action_name(action)
 
+    # Auth Auditing.  We remove this call from the __auth_audit stack to show
+    # we have called the auth function
+    try:
+        audit = context.get('__auth_audit', [])[-1]
+    except IndexError:
+        audit = ''
+    if audit and audit[0] == action:
+        context['__auth_audit'].pop()
+
+    user = context.get('user')
     log.debug('check access - user %r, action %s' % (user, action))
 
     if action:
@@ -299,13 +308,17 @@ def get_action(action):
             module = getattr(module, part)
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
-                # Only load functions from the action module.
-                if isinstance(v, types.FunctionType):
+                # Only load functions from the action module or already
+                # replaced functions.
+                if (hasattr(v, '__call__')
+                        and (v.__module__ == module_path
+                             or hasattr(v, '__replaced'))):
                     k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
                     # being side-effect free.
+                    # FIXME This looks wrong should it be an 'or' not 'and'
                     v.side_effect_free = getattr(v, 'side_effect_free', True)\
                         and action_module_name == 'get'
 
@@ -324,6 +337,9 @@ def get_action(action):
                 )
             log.debug('Auth function %r was inserted', plugin.name)
             resolved_action_plugins[name] = plugin.name
+            # Extensions are exempted from the auth audit for now
+            # This needs to be resolved later
+            auth_function.auth_audit_exempt = True
             fetched_actions[name] = auth_function
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
@@ -337,8 +353,36 @@ def get_action(action):
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
-                return _action(context, data_dict, **kw)
+
+                # Auth Auditing
+                # store this action name in the auth audit so we can see if
+                # check access was called on the function we store the id of
+                # the action incase the action is wrapped inside an action
+                # of the same name.  this happens in the datastore
+                context.setdefault('__auth_audit', [])
+                context['__auth_audit'].append((action_name, id(_action)))
+
+                # check_access(action_name, context, data_dict=None)
+                result = _action(context, data_dict, **kw)
+                try:
+                    audit = context['__auth_audit'][-1]
+                    if audit[0] == action_name and audit[1] == id(_action):
+                        if action_name not in new_authz.auth_functions_list():
+                            log.debug('No auth function for %s' % action_name)
+                        elif not getattr(_action, 'auth_audit_exempt', False):
+                            raise Exception('Action Auth Audit: %s' % action_name)
+                        # remove from audit stack
+                        context['__auth_audit'].pop()
+                except IndexError:
+                    pass
+                return result
             return wrapped
+
+        # If we have been called multiple times for example during tests then
+        # we need to make sure that we do not rewrap the actions.
+        if hasattr(_action, '__replaced'):
+            _actions[action_name] = _action.__replaced
+            continue
 
         fn = make_wrapped(_action, action_name)
         # we need to mirror the docstring
@@ -347,6 +391,22 @@ def get_action(action):
         if getattr(_action, 'side_effect_free', False):
             fn.side_effect_free = True
         _actions[action_name] = fn
+
+
+        def replaced_action(action_name):
+            def warn(context, data_dict):
+                log.critical('Action `%s` is being called directly '
+                             'all action calls should be accessed via '
+                             'logic.get_action' % action_name)
+                return get_action(action_name)(context, data_dict)
+            return warn
+
+        # Store our wrapped function so it is available.  This is to prevent
+        # rewrapping of actions
+        module = sys.modules[_action.__module__]
+        r = replaced_action(action_name)
+        r.__replaced = fn
+        module.__dict__[action_name] = r
 
     return _actions.get(action)
 
@@ -362,19 +422,20 @@ def get_or_bust(data_dict, keys):
     e.g single_value = get_or_bust(data_dict, 'a_key')
         value_1, value_2 = get_or_bust(data_dict, ['key1', 'key2'])
     '''
-    values = []
-    errors = {}
 
     if isinstance(keys, basestring):
         keys = [keys]
-    for key in keys:
-        try:
-            value = data_dict[key]
-            values.append(value)
-        except KeyError:
-            errors[key] = _('Missing value')
+
+    import ckan.logic.schema as schema
+    schema = schema.create_schema_for_required_keys(keys)
+
+    data_dict, errors = _validate(data_dict, schema)
+
     if errors:
         raise ValidationError(errors)
+
+    # preserve original key order
+    values = [data_dict[key] for key in keys]
     if len(values) == 1:
         return values[0]
     return tuple(values)
@@ -410,6 +471,13 @@ def auth_sysadmins_check(action):
     return wrapper
 
 
+def auth_audit_exempt(action):
+    ''' Dirty hack to stop auth audit being done '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_audit_exempt = True
+    return wrapper
 
 class UnknownValidator(Exception):
     pass

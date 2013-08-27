@@ -2,20 +2,34 @@
 
 {% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
 
+{% block page_primary_action %}
+  {% link_for _('Add Dataset'), controller='package', action='new', group=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+{% endblock %}
+
 {% block primary_content_inner %}
-  <div class="module-content">
-    {% block packages_list %}
-    {% include "package/snippets/search_form.html" %}
-    {% endblock %}
-  </div>
+  {% block groups_search_form %}
+    {% set facets = {
+      'fields': c.fields_grouped,
+      'search': c.search_facets,
+      'titles': c.facet_titles,
+      'translated_fields': c.translated_fields,
+      'remove_field': c.remove_field }
+    %}
+    {% snippet 'snippets/search_form.html', type='dataset', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, facets=facets, placeholder=_('Search datasets...'), show_empty=request.params %}
+  {% endblock %}
+  {% block packages_list %}
+      {% if c.page.items %}
+        {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+      {% endif %}
+  {% endblock %}
   {% block page_pagination %}
-  {{ c.page.pager(q=c.q) }}
+    {{ c.page.pager(q=c.q) }}
   {% endblock %}
 {% endblock %}
 
 {% block secondary_content %}
   {{ super() }}
   {% for facet in c.facet_titles %}
-      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
   {% endfor %}
 {% endblock %}

@@ -17,8 +17,11 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-import ckan.lib.jinja_extensions as jinja_extensions
+import ckan.lib.render as render
+import ckan.lib.search as search
 import ckan.logic as logic
+import ckan.new_authz as new_authz
+import ckan.lib.jinja_extensions as jinja_extensions
 
 from ckan.common import _, ungettext
 
@@ -35,6 +38,11 @@ class _Helpers(object):
     templates have helper functions provided by extensions that have
     not been enabled. '''
     def __init__(self, helpers):
+        self.helpers = helpers
+        self._setup()
+
+    def _setup(self):
+        helpers = self.helpers
         functions = {}
         allowed = helpers.__allowed_functions__[:]
         # list of functions due to be deprecated
@@ -93,7 +101,7 @@ class _Helpers(object):
 
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
-    object
+    object.  This code should only need to be run once.
     """
 
     ######  Pylons monkey-patch
@@ -128,93 +136,7 @@ def load_environment(global_conf, app_conf):
                  templates=[])
 
     # Initialize config with the basic options
-
     config.init_app(global_conf, app_conf, package='ckan', paths=paths)
-
-    # load all CKAN plugins
-    p.load_all(config)
-
-    # Load the synchronous search plugin, unless already loaded or
-    # explicitly disabled
-    if not 'synchronous_search' in config.get('ckan.plugins',[]) and \
-            asbool(config.get('ckan.search.automatic_indexing', True)):
-        log.debug('Loading the synchronous search plugin')
-        p.load('synchronous_search')
-
-    for plugin in p.PluginImplementations(p.IConfigurer):
-        # must do update in place as this does not work:
-        # config = plugin.update_config(config)
-        plugin.update_config(config)
-
-    # This is set up before globals are initialized
-    site_id = os.environ.get('CKAN_SITE_ID')
-    if site_id:
-        config['ckan.site_id'] = site_id
-
-    site_url = config.get('ckan.site_url', '')
-    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
-    if config.get('ckan.site_id') is None:
-        if ':' in ckan_host:
-            ckan_host, port = ckan_host.split(':')
-        assert ckan_host, 'You need to configure ckan.site_url or ' \
-                          'ckan.site_id for SOLR search-index rebuild to work.'
-        config['ckan.site_id'] = ckan_host
-
-    # ensure that a favicon has been set
-    favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
-    config['ckan.favicon'] = favicon
-
-    # Init SOLR settings and check if the schema is compatible
-    #from ckan.lib.search import SolrSettings, check_solr_schema_version
-
-    # lib.search is imported here as we need the config enabled and parsed
-    import ckan.lib.search as search
-    search.SolrSettings.init(config.get('solr_url'),
-                             config.get('solr_user'),
-                             config.get('solr_password'))
-    search.check_solr_schema_version()
-
-    config['routes.map'] = routing.make_map()
-    config['routes.named_routes'] = routing.named_routes
-    config['pylons.app_globals'] = app_globals.app_globals
-    # initialise the globals
-    config['pylons.app_globals']._init()
-
-    # add helper functions
-    helpers = _Helpers(h)
-    config['pylons.h'] = helpers
-
-    ## redo template setup to use genshi.search_path
-    ## (so remove std template setup)
-    legacy_templates_path = os.path.join(root, 'templates_legacy')
-    jinja2_templates_path = os.path.join(root, 'templates')
-    if asbool(config.get('ckan.legacy_templates', 'no')):
-        # We want the new template path for extra snippets like the
-        # dataviewer and also for some testing stuff
-        template_paths = [legacy_templates_path, jinja2_templates_path]
-    else:
-        template_paths = [jinja2_templates_path, legacy_templates_path]
-
-    extra_template_paths = config.get('extra_template_paths', '')
-    if extra_template_paths:
-        # must be first for them to override defaults
-        template_paths = extra_template_paths.split(',') + template_paths
-    config['pylons.app_globals'].template_paths = template_paths
-
-    # Translator (i18n)
-    translator = Translator(pylons.translator)
-
-    def template_loaded(template):
-        translator.setup(template)
-
-    # Markdown ignores the logger config, so to get rid of excessive
-    # markdown debug messages in the log, set it to the level of the
-    # root logger.
-    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
-
-    # Create the Genshi TemplateLoader
-    config['pylons.app_globals'].genshi_loader = TemplateLoader(
-        template_paths, auto_reload=True, callback=template_loaded)
 
     #################################################################
     #                                                               #
@@ -297,6 +219,101 @@ def load_environment(global_conf, app_conf):
     #                                                               #
     #################################################################
 
+    # Setup the SQLAlchemy database engine
+    # Suppress a couple of sqlalchemy warnings
+    msgs = ['^Unicode type received non-unicode bind param value',
+            "^Did not recognize type 'BIGINT' of column 'size'",
+            "^Did not recognize type 'tsvector' of column 'search_vector'"
+            ]
+    for msg in msgs:
+        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
+
+    # load all CKAN plugins
+    p.load_all(config)
+
+
+def update_config():
+    ''' This code needs to be run when the config is changed to take those
+    changes into account. '''
+
+    for plugin in p.PluginImplementations(p.IConfigurer):
+        # must do update in place as this does not work:
+        # config = plugin.update_config(config)
+        plugin.update_config(config)
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # This is set up before globals are initialized
+    site_id = os.environ.get('CKAN_SITE_ID')
+    if site_id:
+        config['ckan.site_id'] = site_id
+
+    site_url = config.get('ckan.site_url', '')
+    ckan_host = config['ckan.host'] = urlparse(site_url).netloc
+    if config.get('ckan.site_id') is None:
+        if ':' in ckan_host:
+            ckan_host, port = ckan_host.split(':')
+        assert ckan_host, 'You need to configure ckan.site_url or ' \
+                          'ckan.site_id for SOLR search-index rebuild to work.'
+        config['ckan.site_id'] = ckan_host
+
+    # ensure that a favicon has been set
+    favicon = config.get('ckan.favicon', '/images/icons/ckan.ico')
+    config['ckan.favicon'] = favicon
+
+    # Init SOLR settings and check if the schema is compatible
+    #from ckan.lib.search import SolrSettings, check_solr_schema_version
+
+    # lib.search is imported here as we need the config enabled and parsed
+    search.SolrSettings.init(config.get('solr_url'),
+                             config.get('solr_user'),
+                             config.get('solr_password'))
+    search.check_solr_schema_version()
+
+    routes_map = routing.make_map()
+    config['routes.map'] = routes_map
+    # The RoutesMiddleware needs its mapper updating if it exists
+    if 'routes.middleware' in config:
+        config['routes.middleware'].mapper = routes_map
+    config['routes.named_routes'] = routing.named_routes
+    config['pylons.app_globals'] = app_globals.app_globals
+    # initialise the globals
+    config['pylons.app_globals']._init()
+
+    # add helper functions
+    helpers = _Helpers(h)
+    config['pylons.h'] = helpers
+
+    ## redo template setup to use genshi.search_path
+    ## (so remove std template setup)
+    legacy_templates_path = os.path.join(root, 'templates_legacy')
+    jinja2_templates_path = os.path.join(root, 'templates')
+    if asbool(config.get('ckan.legacy_templates', 'no')):
+        # We want the new template path for extra snippets like the
+        # dataviewer and also for some testing stuff
+        template_paths = [legacy_templates_path, jinja2_templates_path]
+    else:
+        template_paths = [jinja2_templates_path, legacy_templates_path]
+
+    extra_template_paths = config.get('extra_template_paths', '')
+    if extra_template_paths:
+        # must be first for them to override defaults
+        template_paths = extra_template_paths.split(',') + template_paths
+    config['pylons.app_globals'].template_paths = template_paths
+
+    # Translator (i18n)
+    translator = Translator(pylons.translator)
+
+    def template_loaded(template):
+        translator.setup(template)
+
+    # Markdown ignores the logger config, so to get rid of excessive
+    # markdown debug messages in the log, set it to the level of the
+    # root logger.
+    logging.getLogger("MARKDOWN").setLevel(logging.getLogger().level)
+
+    # Create the Genshi TemplateLoader
+    config['pylons.app_globals'].genshi_loader = TemplateLoader(
+        template_paths, auto_reload=True, callback=template_loaded)
 
     # Create Jinja2 environment
     env = jinja_extensions.Environment(
@@ -320,17 +337,7 @@ def load_environment(global_conf, app_conf):
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
 
-    # Setup the SQLAlchemy database engine
-    # Suppress a couple of sqlalchemy warnings
-    msgs = ['^Unicode type received non-unicode bind param value',
-            "^Did not recognize type 'BIGINT' of column 'size'",
-            "^Did not recognize type 'tsvector' of column 'search_vector'"
-            ]
-    for msg in msgs:
-        warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
-
     ckan_db = os.environ.get('CKAN_DB')
-
     if ckan_db:
         config['sqlalchemy.url'] = ckan_db
 
@@ -346,9 +353,16 @@ def load_environment(global_conf, app_conf):
     if not model.meta.engine:
         model.init_model(engine)
 
-
     for plugin in p.PluginImplementations(p.IConfigurable):
         plugin.configure(config)
+
+    # reset the template cache - we do this here so that when we load the
+    # environment it is clean
+    render.reset_template_info_cache()
+
+    # clear other caches
+    logic.clear_actions_cache()
+    new_authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
     try:
@@ -356,3 +370,9 @@ def load_environment(global_conf, app_conf):
     except sqlalchemy.exc.ProgrammingError:
         # The database is not initialised.  This is a bit dirty.
         pass
+    except sqlalchemy.exc.InternalError:
+        # The database is not initialised.  Travis hits this
+        pass
+    # if an extension or our code does not finish
+    # transaction properly db cli commands can fail
+    model.Session.remove()

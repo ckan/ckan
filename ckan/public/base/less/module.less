@@ -69,6 +69,12 @@
   border-top: 1px solid @moduleHeadingBorderColor;
 }
 
+.module-content .pagination {
+  margin-left: -25px;
+  margin-right: -25px;
+  margin-bottom: -20px;
+}
+
 .module .pagination > ul {
   .border-radius(0);
   .box-shadow(none);
@@ -146,7 +152,7 @@
 .module-grid {
   .unstyled;
   .media-grid;
-  .media-wide;
+  // .media-wide;
 }
 
 .module-item {
@@ -222,5 +228,23 @@
 .primary {
   .module:first-child {
     margin-top: 0;
+  }
+}
+
+.no-nav .module:last-child {
+  margin-top: 0;
+}
+
+.module-image {
+  float: left;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  margin-right: 15px;
+  img {
+    max-width: 50px;
+    max-height: 50px;
+    vertical-align: middle;
   }
 }

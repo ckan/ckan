@@ -84,6 +84,7 @@ def canada_extras():
         'Level of Government':'level_of_government',
         }
     license_mapping = {
+        # CS: bad_spelling ignore
         'http://geogratis.ca/geogratis/en/licence.jsp':'geogratis',
         'Crown Copyright':'canada-crown',
         }

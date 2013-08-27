@@ -17,12 +17,12 @@ class TestTextPreview(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        cls._original_config = config.copy()
-        config['ckan.plugins'] = 'text_preview'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
+        plugins.load('text_preview')
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         cls.p = previewplugin.TextPreview()
+        #cls.p.proxy_is_enabled = False
 
         # create test resource
         create_test_data.CreateTestData.create()
@@ -42,9 +42,7 @@ class TestTextPreview(tests.WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
-        plugins.reset()
+        plugins.unload('text_preview')
         create_test_data.CreateTestData.delete()
 
     def test_can_preview(self):
@@ -53,7 +51,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'format': 'jsonp'
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -61,7 +59,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -69,7 +67,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -77,7 +75,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert self.p.can_preview(data_dict)
+        assert self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -85,7 +83,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'on_same_domain': True
             }
         }
-        assert not self.p.can_preview(data_dict)
+        assert not self.p.can_preview(data_dict)['can_preview']
 
         data_dict = {
             'resource': {
@@ -93,7 +91,7 @@ class TestTextPreview(tests.WsgiAppCase):
                 'on_same_domain': False
             }
         }
-        assert not self.p.can_preview(data_dict)
+        assert not self.p.can_preview(data_dict)['can_preview']
 
     def test_js_included(self):
         res_id = self.resource['id']

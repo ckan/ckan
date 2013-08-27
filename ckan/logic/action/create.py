@@ -3,7 +3,7 @@
 import logging
 
 from pylons import config
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -152,10 +152,14 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    pkg = model_save.package_dict_save(data, context)
     admins = []
     if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
+        user_obj = model.User.by_name(user.decode('utf8'))
+        if user_obj:
+            admins = [user_obj]
+            data['creator_user_id'] = user_obj.id
+
+    pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
@@ -181,7 +185,7 @@ def package_create(context, data_dict):
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
-    log.debug('Created object %s' % str(pkg.name))
+    log.debug('Created object %s' % pkg.name)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -325,10 +329,12 @@ def related_create(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+                                        activity_dict)
     session.commit()
 
     context["related"] = related
@@ -548,11 +554,12 @@ def _group_or_org_create(context, data_dict, is_org=False):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -575,7 +582,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
-    log.debug('Created object %s' % str(group.name))
+    log.debug('Created object %s' % group.name)
     return model_dictize.group_dictize(group, context)
 
 
@@ -700,6 +707,7 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
+@logic.auth_audit_exempt
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
 
@@ -798,6 +806,7 @@ def user_create(context, data_dict):
         'model': model,
         'user': context['user'],
         'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     activity_dict = {
@@ -806,7 +815,7 @@ def user_create(context, data_dict):
             'activity_type': 'new user',
             }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -822,7 +831,10 @@ def user_create(context, data_dict):
 
     context['user_obj'] = user
     context['id'] = user.id
-    log.debug('Created user %s' % str(user.name))
+
+    model.Dashboard.get(user.id) #  Create dashboard for user.
+
+    log.debug('Created user {name}'.format(name=user.name))
     return user_dict
 
 ## Modifications for rest api
@@ -888,11 +900,11 @@ def vocabulary_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+    log.debug('Created Vocabulary %s' % vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
-def activity_create(context, activity_dict, ignore_auth=False):
+def activity_create(context, activity_dict, **kw):
     '''Create a new activity stream activity.
 
     You must be a sysadmin to create new activities.
@@ -914,7 +926,16 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
-    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+
+    # this action had a ignore_auth param which has been removed
+    # removed in 2.2
+    if 'ignore_auth' in kw:
+        raise Exception('Activity Stream calling parameters have changed '
+                        'ignore_auth must be passed in the context not as '
+                        'a param')
+
+    if not paste.deploy.converters.asbool(
+            config.get('ckan.activity_streams_enabled', 'true')):
         return
 
     model = context['model']
@@ -926,8 +947,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
     else:
         activity_dict['revision_id'] = None
 
-    if not ignore_auth:
-        _check_access('activity_create', context, activity_dict)
+    _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = _validate(activity_dict, schema, context)
@@ -954,7 +974,7 @@ def package_relationship_create_rest(context, data_dict):
     relationship_dict = _get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
-def tag_create(context, tag_dict):
+def tag_create(context, data_dict):
     '''Create a new vocabulary tag.
 
     You must be a sysadmin to create vocabulary tags.
@@ -977,14 +997,14 @@ def tag_create(context, tag_dict):
     '''
     model = context['model']
 
-    _check_access('tag_create', context, tag_dict)
+    _check_access('tag_create', context, data_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
-    data, errors = _validate(tag_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
-    tag = model_save.tag_dict_save(tag_dict, context)
+    tag = model_save.tag_dict_save(data_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1141,10 +1161,41 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
 def group_member_create(context, data_dict):
+    '''Make a user a member of a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be made member of the group
+    :type username: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('group_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict)
 
 def organization_member_create(context, data_dict):
+    '''Make a user a member of an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be made member of the
+        organization
+    :type username: string
+    :param role: role of the user in the organization. One of ``member``,
+        ``editor``, or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 
