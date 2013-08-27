@@ -1680,21 +1680,21 @@ class TestGroupOrgView(WsgiAppCase):
         res = cls.app.post('/api/action/organization_show',
                 params=self.org_dict)
         res_json = json.loads(res.body)
-        assert res['success'] = True
+        assert res['success'] is True
 
         res = cls.app.post('/api/action/group_show',
                 params=self.org_dict)
         res_json = json.loads(res.body)
-        assert res['success'] = True
+        assert res['success'] is True
 
     def test_2_view_group(self):
         res = cls.app.post('/api/action/group_show',
                 params=self.group_dict)
         res_json = json.loads(res.body)
-        assert res['success'] = True
+        assert res['success'] is True
 
         res = cls.app.post('/api/action/organization_show',
                 params=self.group_dict)
         res_json = json.loads(res.body)
-        assert res['success'] = True
+        assert res['success'] is True
 
