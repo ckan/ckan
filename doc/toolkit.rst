@@ -184,6 +184,18 @@ The following functions, classes and exceptions are provided by the toolkit.
   sysadmins are automatically allowed to run actions etc.
 
 
+**auth_allow_anonymous_access** decorator
+  This marks auth functions as allowing anonymous requests (non logged in
+  users). Note that this check is performed before calling the actual auth
+  function, which can still return False later on if for some reason access
+  is not authorized.
+
+
+**auth_disallow_anonymous_access** decorator
+  This marks auth functions as not allowing anonymous requests (ie requiring
+  a logged in user. This is the default behaviour for any auth function anyway.
+
+
 **get_or_bust** (*data_dict, keys*)
     Try and get values from dictionary and if they are not there
     raise a ValidationError.
