@@ -1677,24 +1677,24 @@ class TestGroupOrgView(WsgiAppCase):
         model.repo.rebuild_db()
 
     def test_1_view_org(self):
-        res = cls.app.post('/api/action/organization_show',
-                params=self.org_dict)
+        res = self.app.post('/api/action/organization_show',
+                params=self.org_id)
         res_json = json.loads(res.body)
         assert res['success'] is True
 
-        res = cls.app.post('/api/action/group_show',
-                params=self.org_dict)
+        res = self.app.post('/api/action/group_show',
+                params=self.org_id)
         res_json = json.loads(res.body)
-        assert res['success'] is True
+        assert res['success'] is False
 
     def test_2_view_group(self):
-        res = cls.app.post('/api/action/group_show',
-                params=self.group_dict)
+        res = self.app.post('/api/action/group_show',
+                params=self.group_id)
         res_json = json.loads(res.body)
         assert res['success'] is True
 
-        res = cls.app.post('/api/action/organization_show',
-                params=self.group_dict)
+        res = self.app.post('/api/action/organization_show',
+                params=self.group_id)
         res_json = json.loads(res.body)
-        assert res['success'] is True
+        assert res['success'] is False
 
