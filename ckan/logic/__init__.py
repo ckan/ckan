@@ -218,19 +218,10 @@ def check_access(action, context, data_dict=None):
                 context['auth_user_obj'] = model.User.by_name(context['user'])
 
     if action:
-        #if action != model.Action.READ and user in
-        # (model.PSEUDO_USER__VISITOR, ''):
-        #    # TODO Check the API key is valid at some point too!
-        #    log.debug('Valid API key needed to make changes')
-        #    raise NotAuthorized
         logic_authorization = new_authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
-    elif not user:
-        msg = _('No valid API key provided.')
-        log.debug(msg)
-        raise NotAuthorized(msg)
 
     log.debug('Access OK.')
     return True
@@ -477,6 +468,33 @@ def auth_audit_exempt(action):
     def wrapper(context, data_dict):
         return action(context, data_dict)
     wrapper.auth_audit_exempt = True
+    return wrapper
+
+def auth_allow_anonymous_access(action):
+    ''' Flag an auth function as not requiring a logged in user
+
+    This means that check_access won't automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context. (The
+    auth function can still return False if for some reason access is not
+    granted).
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = True
+    return wrapper
+
+def auth_disallow_anonymous_access(action):
+    ''' Flag an auth function as requiring a logged in user
+
+    This means that check_access will automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context, without
+    calling the actual auth function.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = False
     return wrapper
 
 class UnknownValidator(Exception):
