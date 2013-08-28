@@ -7,7 +7,7 @@
 
   {% block basic_fields %}
     {% set attrs = {'data-module': 'slug-preview-target'} %}
-    {{ form.input('title', label=_('Title'), id='field-title', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
+    {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
     {# Perhaps these should be moved into the controller? #}
     {% set prefix = h.url_for(controller='organization', action='read', id='') %}

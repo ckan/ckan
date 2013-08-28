@@ -1081,6 +1081,30 @@ Only used with the Google storage backend.
 .. todo:: Expand
 
 
+DataPusher Settings
+-------------------
+
+.. _datapusher.formats:
+
+datapusher.formats
+^^^^^^^^^^^^^^^^^^
+
+Example::
+  datapusher.formats = csv xls xlsx
+
+.. todo:: Expand
+
+.. _datapusher.url:
+
+datapusher.url
+^^^^^^^^^^^^^^
+
+Example::
+  datapusher.url = http://datapusher.ckan.org/
+
+.. todo:: Expand
+
+
 Activity Streams Settings
 -------------------------
 
