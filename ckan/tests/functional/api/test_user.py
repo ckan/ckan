@@ -63,9 +63,10 @@ class TestUserApi(ControllerTestCase):
             'email': 'testinganewuser@ckan.org',
             'password': 'random',
         }
-        res = self.app.post('/api/3/action/user_create', json.dumps(params))
+        res = self.app.post('/api/3/action/user_create', json.dumps(params),
+                expect_errors=True)
         res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
+        assert res_dict['success'] is False
 
 
 class TestCreateUser(PylonsTestCase):
