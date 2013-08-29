@@ -66,7 +66,7 @@ class AuthFunctions:
                     if not hasattr(v, 'auth_allow_anonymous_access'):
                         if auth_module_name == 'get':
                             v.auth_allow_anonymous_access = True
-                        elif auth_module_name in ['create', 'update', 'delete']:
+                        else:
                             v.auth_allow_anonymous_access = False
                     self._functions[key] = v
 

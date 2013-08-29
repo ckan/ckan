@@ -213,9 +213,9 @@ def check_access(action, context, data_dict=None):
 
     if not context.get('ignore_auth'):
         if not context.get('__auth_user_obj_checked'):
-            context['__auth_user_obj_checked'] = True
             if context.get('user') and not context.get('auth_user_obj'):
                 context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
 
     if action:
         logic_authorization = new_authz.is_authorized(action, context, data_dict)
@@ -303,7 +303,7 @@ def get_action(action):
                     # being side-effect free.
                     if action_module_name == 'get' and \
                        not hasattr(v, 'side_effect_free'):
-                        v.side_effect_free = True 
+                        v.side_effect_free = True
 
 
     # Then overwrite them with any specific ones in the plugins:
