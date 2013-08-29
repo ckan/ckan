@@ -753,16 +753,9 @@ CKAN plugin interfaces reference
 Plugins toolkit reference
 =========================
 
-As well as using the variables made available to them by implementing
-various plugin hooks, extensions will likely want to be able to use parts of
-the CKAN core library.  To allow this, CKAN provides a stable set of modules
-that extensions can use safe in the knowledge the interface will remain
-stable, backward-compatible and with clear deprecation guidelines as
-development of CKAN core progresses.  This interface is available in
-:doc:`toolkit`.
+See:
 
 .. toctree::
-   :hidden:
 
    toolkit
 

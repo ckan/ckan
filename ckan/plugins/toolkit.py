@@ -237,5 +237,11 @@ class _Toolkit(object):
                 return self.__class__.__bases__
             raise Exception('`%s` not found in plugins toolkit' % name)
 
+    def __dir__(self):
+        if not self._toolkit:
+            self._initialize()
+        return sorted(self._toolkit.keys())
+
+
 toolkit = _Toolkit()
 del _Toolkit
