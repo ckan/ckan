@@ -1,12 +1,13 @@
---------
-Tutorial
---------
+---------------------------
+Writing extensions tutorial
+---------------------------
 
 This tutorial will walk you through the process of creating a simple CKAN
 extension, and introduce the core concepts that CKAN extension developers need
-to know along the way. As an example, we'll use the ``example_iauthfunctions``
-extension that's packaged with CKAN. This is a simple CKAN extension that
-customizes some of CKAN's authorization rules.
+to know along the way. As an example, we'll use the
+:py:mod:`~ckanext.example_iauthfunctions` extension that's packaged with CKAN.
+This is a simple CKAN extension that customizes some of CKAN's authorization
+rules.
 
 
 Installing CKAN
@@ -94,9 +95,22 @@ with the following contents:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v1.py
 
-Our plugin is a normal Python class, named ``ExampleIAuthFunctionsPlugin`` in
-this example, that inherits from CKAN's
+Our plugin is a normal Python class, named
+:py:class:`~ckanext.example_iauthfunctions.plugin_v1.ExampleIAuthFunctionsPlugin`
+in this example, that inherits from CKAN's
 :py:class:`~ckan.plugins.core.SingletonPlugin` class.
+
+.. note::
+
+   Every CKAN plugin class must inherit from either
+   :py:class:`~ckan.plugins.core.Plugin`
+   or :py:class:`~ckan.plugins.core.SingletonPlugin`
+   If you inherit from ``SingletonPlugin`` then only one object instance of
+   your plugin class will be created when CKAN starts up, and whenever CKAN
+   calls one of your plugin class's methods the method will be called on this
+   single object instance. Most plugin classes should inherit from
+   ``SingletonPlugin``, only inherit from ``Plugin`` if you need multiple
+   instances of your class to be created.
 
 .. todo:: Improve the note about Plugin vs SingletonPlugin.
 
@@ -108,18 +122,6 @@ this example, that inherits from CKAN's
    And why might you inherit from Plugin/why might you need multiple instances
    of your class?
 
-.. note::
-
-   Every CKAN plugin class must inherit from either
-   :py:class:`~ckan.plugins.core.Plugin`
-   F
-   or :py:class:`~ckan.plugins.core.SingletonPlugin`
-   If you inherit from ``SingletonPlugin`` then only one object instance of
-   your plugin class will be created when CKAN starts up, and whenever CKAN
-   calls one of your plugin class's methods the method will be called on this
-   single object instance. Most plugin classes should inherit from
-   ``SingletonPlugin``, only inherit from ``Plugin`` if you need multiple
-   instances of your class to be created.
 
 
 .. _setup.py:
@@ -158,16 +160,11 @@ directory, and run ``python setup.py develop``:
    cd |virtualenv|/src/ckanext-iauthfunctions
    python setup.py develop
 
-.. todo::
-
-   Explain the difference between ``python setup.py develop``,
-   ``python setup.py install`` and ``pip install``.
-
 
 Enabling the plugin
 ===================
 
-An extension's plugins must be added to the :ref:`ckan.plugins` setting your
+An extension's plugins must be added to the :ref:`ckan.plugins` setting in your
 CKAN config file so that CKAN will call the plugins' methods.  The name that
 you gave to your plugin class in the :ref:`left-hand-side of the assignment in
 the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
@@ -195,7 +192,8 @@ Troubleshooting
 ``PluginNotFoundException``
 ---------------------------
 
-If CKAN crashes with a ``PluginNotFoundException`` like this::
+If CKAN crashes with a :py:exc:`~ckan.plugins.core.PluginNotFoundException`
+like this::
 
     ckan.plugins.core.PluginNotFoundException: example_iauthfunctions
 
@@ -216,8 +214,8 @@ If you get an ``ImportError`` from CKAN relating to your plugin, it's probably
 because the path to your plugin class in your ``setup.py`` file is wrong.
 
 
-Implementing the IAuthFunctions plugin interface
-================================================
+Implementing the :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin interface
+=====================================================================================
 
 .. topic:: Plugin interfaces
 
@@ -240,7 +238,7 @@ dictionary:
 .. topic:: Action functions and authorization functions
 
    At this point, it's necessary to take a short diversion to explain how
-   authorization is implemented in CKAN.
+   authorization works in CKAN.
 
    Every action that can be carried out using the CKAN web interface or API is
    implemented by an *action function* in one of the four files
@@ -280,22 +278,21 @@ file so that it looks like this:
 
    ``inherit=False`` or ``True`` or not at all?
 
-
-Our ``ExampleIAuthFunctionsPlugin`` class now calls
-:func:`~ckan.plugins.core.implements` to tell CKAN that it implements the
-:class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and provides an
-implementation of the interface's
-:func:`~ckan.plugins.interfaces.IAuthFunctions.get_auth_functions`
-method that overrides the default :func:`~ckan.logic.auth.create.group_create`
-function with a custom one. This custom function simply returns ``{'success':
-False}`` to refuse to let anyone create a new group.
+Our :py:class:`~ckanext.example_iauthfunctions.plugin_v2.ExampleIAuthFunctionsPlugin`
+class now calls :func:`~ckan.plugins.core.implements` to tell CKAN that it
+implements the :class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and
+provides an implementation of the interface's
+:func:`~ckan.plugins.interfaces.IAuthFunctions.get_auth_functions` method that
+overrides the default :func:`~ckan.logic.auth.create.group_create` function
+with a custom one. This custom function simply returns ``{'success': False}``
+to refuse to let anyone create a new group.
 
 If you now restart CKAN and reload the ``/group`` page, as long as you're not a
 sysadmin user you should see the ``Add Group`` button disappear. The CKAN web
 interface automatically hides buttons that the user is not authorized to use.
 Visiting ``/group/new``  directly will redirect you to the login page. If you
 try to call :func:`~ckan.logic.action.create.group_create` via the API, you'll
-receive an ``AuthorizationError`` from CKAN::
+receive an ``Authorization Error`` from CKAN::
 
     $ http 127.0.0.1:5000/api/3/action/group_create Authorization:*** name=my_group
     HTTP/1.0 403 Forbidden
@@ -346,10 +343,11 @@ edit ``plugin.py`` so that it looks like this:
 ``context``
 -----------
 
-The ``context`` parameter of our ``group_create()`` function is a dictionary
-that CKAN passes to all authorization and action functions containing some
-computed variables. Our function gets the name of the logged-in user from
-``context``:
+The ``context`` parameter of our
+:py:func:`~ckanext.example_iauthfunctions.plugin_v3.group_create()` function is
+a dictionary that CKAN passes to all authorization and action functions
+containing some computed variables. Our function gets the name of the logged-in
+user from ``context``:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get the user name of the logged-in user.
@@ -359,8 +357,9 @@ computed variables. Our function gets the name of the logged-in user from
 ``data_dict``
 -------------
 
-The ``data_dict`` parameter of our ``group_create()`` function is another
-dictionary that CKAN passes to all authorization and action functions.
+The ``data_dict`` parameter of our
+:py:func:`~ckanext.example_iauthfunctions.plugin_v3.group_create()` function is
+another dictionary that CKAN passes to all authorization and action functions.
 ``data_dict`` contains any data posted by the user to CKAN, eg. any fields
 they've completed in a web form they're submitting or any ``JSON`` fields
 they've posted to the API. If we inspect the contents of the ``data_dict``
@@ -506,12 +505,6 @@ for writing CKAN extensions, including:
   :doc:`plugin interfaces <plugin-interfaces>`
 * Using the :doc:`plugins toolkit <plugins-toolkit>`
 * Handling exceptions
-
-You should now read the :ref:`publishing extensions`,
-:ref:`testing extensions`, and :ref:`localizing extensions` sections below,
-and also the :doc:`best-practices`. For full documentation
-of the plugin interfaces and plugins toolkit available to extensions, see
-:doc:`plugin-interfaces`.
 
 
 Troubleshooting
