@@ -194,6 +194,35 @@ def flatten_to_string_key(dict):
 
 
 def check_access(action, context, data_dict=None):
+    '''Calls the authorization function for the provided action
+
+    This is the only function that should be called to determine whether a
+    user (or an anonymous request) is allowed to perform a particular action.
+
+    The function accepts a context object, which should contain a 'user' key
+    with the name of the user performing the action, and optionally a
+    dictionary with extra data to be passed to the authorization function.
+
+    For example:
+
+        check_access('package_update', context, data_dict)
+
+    If not already there, the function will add an `auth_user_obj` key to the
+    context object with the actual User object (in case it exists in the
+    database). This check is only performed once per context object.
+
+    The function returns True if access is granted and raises a NotAuthorized
+    exception otherwise.
+
+    :param action: name of the action function to check for authorization
+    :type action: string
+
+    :returns: True if access was granted
+    :rtype: boolean
+
+    :raises: :py:class:`ckan.logic.NotAuthorized`: if access is denied
+
+    '''
     action = new_authz.clean_action_name(action)
 
     # Auth Auditing.  We remove this call from the __auth_audit stack to show

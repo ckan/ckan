@@ -518,14 +518,59 @@ class IActions(Interface):
 
 
 class IAuthFunctions(Interface):
-    """
+    '''
     Allow customisation of default Authorization implementation
-    """
+
+    Extensions can provide authorization functions to override the default core
+    ones or provide auth functions for their own actions (All actions on the
+    logic layer should have their own auth function with the same name).
+
+    Auth functions have the following signature:
+
+        def action_name(context, data_dict)
+
+    The context object will contain a `model` that can be used to query the
+    database, a `user` containing the name of the user doing the request (or
+    their IP if it is an anonymous web request) and an `auth_user_obj`
+    containing the actual model.User object (or None if it is an anonymous
+    request).
+
+    Auth functions should return a dict as follows, depending on whether access
+    has been granted or not:
+
+        {'success': True}
+
+        {'success': False, msg: 'Reason for denying access'}
+
+    Look at the functions defined on ckan.logic.auth for examples.
+
+    Note that by default, all auth functions provided by extensions are assumed
+    to require a validated user or API key, otherwise a
+    :py:class:`ckan.logic.NotAuthorized`: exception will be raised. This check
+    will be performed *before* calling the actual auth function. If you want
+    to allow anonymous access to one of your actions, its auth function must
+    be decorated with the ``auth_allow_anonymous_access`` decorator, available
+    on the plugins toolkit.
+
+    For example:
+
+        import ckan.plugins as p
+
+        @p.toolkit.auth_allow_anonymous_access
+        def my_search_action(context, data_dict):
+            # Note that you can still return {'success': False} if for some
+            # reason access is denied.
+
+        def my_create_action(context, data_dict):
+            # Unless there is a logged in user or a valid API key provided
+            # NotAuthorized will be raised before reaching this function.
+
+    '''
     def get_auth_functions(self):
-        """
+        '''
         Returns a dict of all the authorization functions which the
         implementation overrides
-        """
+        '''
 
 
 class ITemplateHelpers(Interface):
