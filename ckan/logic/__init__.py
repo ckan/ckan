@@ -289,9 +289,12 @@ def get_action(action):
     For example ``get_action('package_create')`` will normally return the
     :py:func:`ckan.logic.action.create.package_create()` function.
 
+    For documentation of the available action functions, see
+    :ref:`api-reference`.
+
     You should always use ``get_action()`` instead of importing an action
     function directly, because :py:class:`~ckan.plugins.interfaces.IActions`
-    plugins can override action functions, causing ``get_action(``) to return a
+    plugins can override action functions, causing ``get_action()`` to return a
     plugin-provided function instead of the default one.
 
     Usage::
