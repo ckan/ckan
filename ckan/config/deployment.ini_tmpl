@@ -133,6 +133,9 @@ ckan.feeds.author_link =
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
 
+# 'Bucket' to use for file storage
+#ckan.storage.bucket = default
+
 ## Datapusher settings
 
 # Make sure you have set up the DataStore
