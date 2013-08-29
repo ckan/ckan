@@ -77,6 +77,13 @@ class _Toolkit(object):
     def __init__(self):
         self._toolkit = {}
 
+        # For some members in the the toolkit (e.g. that are exported from
+        # third-party libraries) we override their docstrings by putting our
+        # own docstrings into this dict. The Sphinx plugin that documents this
+        # plugins toolkit will use these docstring overrides instead of the
+        # object's actual docstring, when present.
+        self.docstring_overrides = {}
+
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
@@ -99,13 +106,59 @@ class _Toolkit(object):
 
         # imported functions
         t['_'] = common._
+        self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
+
+The Pylons ``_()`` function is a reference to the ``ugettext()`` function.
+Everywhere in your code where you want strings to be internationalized
+(made available for translation into different languages), wrap them in the
+``_()`` function, eg.::
+
+    msg = toolkit._("Hello")
+
+'''
         t['c'] = common.c
+        self.docstring_overrides['c'] = '''The Pylons template context object.
+
+This object is used to pass request-specific information to different parts of
+the code in a thread-safe way (so that variables from different requests being
+executed at the same time don't get confused with each other).
+
+Any attributes assigned to :py:attr:`~ckan.plugins.toolkit.c` are
+available throughout the template and application code, and are local to the
+current request.
+
+'''
         t['request'] = common.request
+        self.docstring_overrides['request'] = '''The Pylons request object.
+
+A new request object is created for each HTTP request. It has methods and
+attributes for getting things like the request headers, query-string variables,
+request body variables, cookies, the request URL, etc.
+
+'''
         t['render'] = base.render
         t['render_text'] = base.render_text
         t['asbool'] = converters.asbool
+        self.docstring_overrides['asbool'] = '''Convert a string from the
+config file into a boolean.
+
+For example: ``if toolkit.asbool(config.get('ckan.legacy_templates', False)):``
+
+'''
         t['asint'] = converters.asint
+        self.docstring_overrides['asint'] = '''Convert a string from the config
+file into an int.
+
+For example: ``bar = toolkit.asint(config.get('ckan.foo.bar', 0))``
+
+'''
         t['aslist'] = converters.aslist
+        self.docstring_overrides['aslist'] = '''Convert a string from the
+config file into a list.
+
+For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
+
+'''
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
@@ -123,6 +176,13 @@ class _Toolkit(object):
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
 
         t['response'] = pylons.response
+        self.docstring_overrides['response'] = '''The Pylons response object.
+
+Pylons uses this object to generate the HTTP response it returns to the web
+browser. It has attributes like the HTTP status code, the response headers,
+content type, cookies, etc.
+
+'''
         t['BaseController'] = base.BaseController
         t['abort'] = base.abort
         t['redirect_to'] = h.redirect_to

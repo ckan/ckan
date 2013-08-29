@@ -29,7 +29,7 @@ def setup(app):
     # called after each source file is read.
     app.connect('source-read', source_read)
 
-def format_function(name, function):
+def format_function(name, function, docstring=None):
     '''Return a Sphinx .. function:: directive for the given function.
 
     The directive includes the function's docstring if it has one.
@@ -40,6 +40,10 @@ def format_function(name, function):
 
     :param function: the function itself
     :type function: function
+
+    :param docstring: if given, use this instead of introspecting the function
+        to find its actual docstring
+    :type docstring: string
 
     :returns: a Sphinx .. function:: directive for the function
     :rtype: string
@@ -55,7 +59,7 @@ def format_function(name, function):
     # "(foo, bar=None, ...)"
     argstring = inspect.formatargspec(*inspect.getargspec(function))
 
-    docstring = inspect.getdoc(function)
+    docstring = docstring or inspect.getdoc(function)
     if docstring is None:
         docstring = ''
     else:
@@ -65,7 +69,7 @@ def format_function(name, function):
     return template.format(function=name, args=argstring, docstring=docstring)
 
 
-def format_class(name, class_):
+def format_class(name, class_, docstring=None):
     '''Return a Sphinx .. class:: directive for the given class.
 
     The directive includes the class's docstring if it has one.
@@ -77,6 +81,10 @@ def format_class(name, class_):
     :param class_: the class itself
     :type class_: class
 
+    :param docstring: if given, use this instead of introspecting the class
+        to find its actual docstring
+    :type docstring: string
+
     :returns: a Sphinx .. class:: directive for the class
     :rtype: string
 
@@ -87,7 +95,7 @@ def format_class(name, class_):
                 '{docstring}\n'
                 '\n')
 
-    docstring = inspect.getdoc(class_)
+    docstring = docstring or inspect.getdoc(class_)
     if docstring is None:
         docstring = ''
     else:
@@ -97,7 +105,7 @@ def format_class(name, class_):
     return template.format(cls=name, docstring=docstring)
 
 
-def format_object(name, object_):
+def format_object(name, object_, docstring=None):
     '''Return a Sphinx .. attribute:: directive for the given object.
 
     The directive includes the object's class's docstring if it has one.
@@ -109,6 +117,10 @@ def format_object(name, object_):
     :param object_: the object itself
     :type object_: object
 
+    :param docstring: if given, use this instead of introspecting the object
+        to find its actual docstring
+    :type docstring: string
+
     :returns: a Sphinx .. attribute:: directive for the object
     :rtype: string
 
@@ -119,7 +131,7 @@ def format_object(name, object_):
                 '{docstring}\n'
                 '\n')
 
-    docstring = inspect.getdoc(object_)
+    docstring = docstring or inspect.getdoc(object_)
     if docstring is None:
         docstring = ''
     else:
@@ -140,21 +152,26 @@ def source_read(app, docname, source):
     source_ = ''
     for name, thing in inspect.getmembers(toolkit):
 
+        # The plugins toolkit can override the docstrings of some of its
+        # members (e.g. things that are imported from third-party libraries)
+        # by putting custom docstrings in this docstring_overrides dict.
+        custom_docstring = toolkit.docstring_overrides.get(name)
+
         if inspect.isfunction(thing):
-            source_ += format_function(name, thing)
+            source_ += format_function(name, thing, docstring=custom_docstring)
         elif inspect.ismethod(thing):
             # We document plugins toolkit methods as if they're functions. This
             # is correct because the class ckan.plugins.toolkit._Toolkit
             # actually masquerades as a module ckan.plugins.toolkit, and you
             # call its methods as if they were functions.
-            source_ += format_function(name, thing)
+            source_ += format_function(name, thing, docstring=custom_docstring)
         elif inspect.isclass(thing):
-            source_ += format_class(name, thing)
+            source_ += format_class(name, thing, docstring=custom_docstring)
         elif isinstance(thing, types.ObjectType):
             # TODO: Custom docstrings for response, request and c
             # (don't use the Pylons ones)
             # (also for other stuff we import from other libs)
-            source_ += format_object(name, thing)
+            source_ += format_object(name, thing, docstring=custom_docstring)
 
         else:
             assert False, ("Someone added {name}:{thing} to the plugins "
