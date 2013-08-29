@@ -1,7 +1,7 @@
-"""
-Interfaces for plugins system
-"""
+'''A collection of interfaces that CKAN plugins can implement to customize and
+extend CKAN.
 
+'''
 __all__ = [
     'Interface',
     'IGenshiStreamFilter', 'IRoutes',
