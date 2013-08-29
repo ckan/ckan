@@ -4,6 +4,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 import sqlalchemy
@@ -64,6 +65,13 @@ def site_read(context,data_dict=None):
 def package_list(context, data_dict):
     '''Return a list of the names of the site's datasets (packages).
 
+    :param limit: if given, the list of datasets will be broken into pages of
+        at most ``limit`` datasets per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning packages from
+    :type offset: int
+
     :rtype: list of strings
 
     '''
@@ -72,6 +80,12 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
+    schema = context.get('schema', logic.schema.default_pagination_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+
     package_revision_table = model.package_revision_table
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
@@ -79,6 +93,14 @@ def package_list(context, data_dict):
     query = query.where(_and_(package_revision_table.c.state=='active',
         package_revision_table.c.current==True))
     query = query.order_by(col)
+
+    limit = data_dict.get('limit')
+    if limit:
+        query = query.limit(limit)
+
+    offset = data_dict.get('offset')
+    if offset:
+        query = query.offset(offset)
     return list(zip(*query.execute())[0])
 
 def current_package_list_with_resources(context, data_dict):
@@ -424,8 +446,8 @@ def group_list_authz(context, data_dict):
       (optional, default: False)
     :type am-member: boolean
 
-    :returns: the names of groups that the user is authorized to edit
-    :rtype: list of strings
+    :returns: list of dictized groups that the user is authorized to edit
+    :rtype: list of dicts
 
     '''
     model = context['model']
@@ -469,12 +491,8 @@ def group_list_authz(context, data_dict):
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    return [{'id': group.id,
-             'name': group.name,
-             'title': group.title,
-             'display_name': group.display_name,
-             'image_url': group.image_url,
-             'type': group.type} for group in groups]
+    group_list = model_dictize.group_list_dictize(groups, context)
+    return group_list
 
 def organization_list_for_user(context, data_dict):
     '''Return the list of organizations that the user is a member of.
@@ -483,8 +501,8 @@ def organization_list_for_user(context, data_dict):
       (optional, default: ``edit_group``)
     :type permission: string
 
-    :returns: the names of organizations the user is authorized to do specific permission
-    :rtype: list of strings
+    :returns: list of dictized organizations that the user is authorized to edit
+    :rtype: list of dicts
 
     '''
     model = context['model']
@@ -524,12 +542,8 @@ def organization_list_for_user(context, data_dict):
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
 
-    return [{'id': org.id,
-             'name': org.name,
-             'title': org.title,
-             'display_name': org.display_name,
-             'image_url': org.image_url,
-             'type': org.type} for org in orgs_q.all()]
+    orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
+    return orgs_list
 
 def group_revision_list(context, data_dict):
     '''Return a group's revisions.
@@ -755,19 +769,54 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
-    package_dict = model_dictize.package_dictize(pkg, context)
+    package_dict = None
+    use_cache = (context.get('use_cache', True)
+        and not 'revision_id' in context
+        and not 'revision_date' in context)
+    if use_cache:
+        try:
+            search_result = search.show(name_or_id)
+        except (search.SearchError, socket.error):
+            pass
+        else:
+            use_validated_cache = 'schema' not in context
+            if use_validated_cache and 'validated_data_dict' in search_result:
+                package_dict = json.loads(search_result['validated_data_dict'])
+                package_dict_validated = True
+            else:
+                package_dict = json.loads(search_result['data_dict'])
+                package_dict_validated = False
+            metadata_modified = pkg.metadata_modified.isoformat()
+            search_metadata_modified = search_result['metadata_modified']
+            # solr stores less precice datetime,
+            # truncate to 22 charactors to get good enough match
+            if metadata_modified[:22] != search_metadata_modified[:22]:
+                package_dict = None
+
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict_validated = False
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
+    for resource_dict in package_dict['resources']:
+        for item in plugins.PluginImplementations(plugins.IResourceController):
+            resource_dict = item.before_show(resource_dict)
 
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+    if not package_dict_validated:
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
+            if schema and context.get('validate', True):
+                package_dict, errors = _validate(package_dict, schema,
+                    context=context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
@@ -794,7 +843,12 @@ def resource_show(context, data_dict):
         raise NotFound
 
     _check_access('resource_show', context, data_dict)
-    return model_dictize.resource_dictize(resource, context)
+    resource_dict = model_dictize.resource_dictize(resource, context)
+
+    for item in plugins.PluginImplementations(plugins.IResourceController):
+        resource_dict = item.before_show(resource_dict)
+
+    return resource_dict
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
@@ -857,6 +911,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
     context['group'] = group
 
     if group is None:
+        raise NotFound
+    if is_org and not group.is_organization:
+        raise NotFound
+    if not is_org and group.is_organization:
         raise NotFound
 
     if is_org:
@@ -1556,8 +1614,11 @@ def resource_search(context, data_dict):
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
-    # TODO: should we check for user authentication first?
-    q = model.Session.query(model.Resource)
+    q = model.Session.query(model.Resource).join(model.ResourceGroup).join(model.Package)
+    q = q.filter(model.Package.state == 'active')
+    q = q.filter(model.Package.private == False)
+    q = q.filter(model.Resource.state == 'active')
+
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
 
@@ -2124,8 +2185,7 @@ def activity_detail_list(context, data_dict):
     # authorized to read.
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    activity_detail_objects = model.Session.query(
-        model.activity.ActivityDetail).filter_by(activity_id=activity_id).all()
+    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
     return model_dictize.activity_detail_list_dictize(activity_detail_objects, context)
 
 
@@ -2258,7 +2318,6 @@ def recently_changed_packages_activity_list_html(context, data_dict):
     extra_vars = {
         'controller': 'package',
         'action': 'activity',
-        'id': data_dict['id'],
         'offset': offset,
         }
     return activity_streams.activity_list_to_html(context, activity_stream,
@@ -2826,4 +2885,5 @@ def member_roles_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('member_roles_list', context, data_dict)
     return new_authz.roles_list()
