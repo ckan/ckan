@@ -9,7 +9,11 @@ __all__ = ['toolkit']
 
 
 class CkanVersionException(Exception):
-    ''' Exception raised if required ckan version is not available. '''
+    '''Exception raised by
+    :py:func:`~ckan.plugins.toolkit.requires_ckan_version` if the required CKAN
+    version is not available.
+
+    '''
     pass
 
 
@@ -142,25 +146,36 @@ class _Toolkit(object):
             raise Exception('Plugin toolkit error %s not matching' % errors)
 
     # wrappers
+    # Wrapper for the render_snippet function as it uses keywords rather than
+    # dict to pass data.
     @classmethod
     def _render_snippet(cls, template, data=None):
-        ''' helper for the render_snippet function as it uses keywords
-        rather than dict to pass data '''
+        '''Render a template snippet and return the output.
+
+        See :doc:`theming`.
+
+        '''
         data = data or {}
         return cls.base.render_snippet(template, **data)
 
     # new functions
     @classmethod
     def _add_template_directory(cls, config, relative_path):
-        ''' Function to aid adding extra template paths to the config.
-        The path is relative to the file calling this function. '''
+        '''Add a path to the :ref:`extra_template_paths` config setting.
+
+        The path is relative to the file calling this function.
+
+        '''
         cls._add_served_directory(config, relative_path,
                                   'extra_template_paths')
 
     @classmethod
     def _add_public_directory(cls, config, relative_path):
-        ''' Function to aid adding extra public paths to the config.
-        The path is relative to the file calling this function. '''
+        '''Add a path to the :ref:`extra_public_paths` config setting.
+
+        The path is relative to the file calling this function.
+
+        '''
         cls._add_served_directory(config, relative_path, 'extra_public_paths')
 
     @classmethod
@@ -182,6 +197,14 @@ class _Toolkit(object):
 
     @classmethod
     def _add_resource(cls, path, name):
+        '''Add a Fanstatic resource library to CKAN.
+
+        Fanstatic libraries are directories containing static resource files
+        (e.g. CSS, JavaScript or image files) that can be accessed from CKAN.
+
+        See :doc:`theming` for more details.
+
+        '''
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
         frame, filename, line_number, function_name, lines, index =\
@@ -201,7 +224,25 @@ class _Toolkit(object):
 
     @classmethod
     def _check_ckan_version(cls, min_version=None, max_version=None):
-        ''' Check that the ckan version is correct for the plugin. '''
+        '''Return ``True`` if the CKAN version is greater than or equal to
+        ``min_version`` and less than or equal to ``max_version``,
+        return ``False`` otherwise.
+
+        If no ``min_version`` is given, just check whether the CKAN version is
+        less than or equal to ``max_version``.
+
+        If no ``max_version`` is given, just check whether the CKAN version is
+        greater than or equal to ``min_version``.
+
+        :param min_version: the minimum acceptable CKAN version,
+            eg. ``'2.1'``
+        :type min_version: string
+
+        :param max_version: the maximum acceptable CKAN version,
+            eg. ``'2.3'``
+        :type max_version: string
+
+        '''
         current = cls._version_str_2_list(cls.ckan.__version__)
 
         if min_version:
@@ -216,7 +257,26 @@ class _Toolkit(object):
 
     @classmethod
     def _requires_ckan_version(cls, min_version, max_version=None):
-        ''' Check that the ckan version is correct for the plugin. '''
+        '''Raise :py:exc:`~ckan.plugins.toolkit.CkanVersionException` if the
+        CKAN version is not greater than or equal to ``min_version`` and
+        less then or equal to ``max_version``.
+
+        If no ``max_version`` is given, just check whether the CKAN version is
+        greater than or equal to ``min_version``.
+
+        Plugins can call this function if they require a certain CKAN version,
+        other versions of CKAN will crash if a user tries to use the plugin
+        with them.
+
+        :param min_version: the minimum acceptable CKAN version,
+            eg. ``'2.1'``
+        :type min_version: string
+
+        :param max_version: the maximum acceptable CKAN version,
+            eg. ``'2.3'``
+        :type max_version: string
+
+        '''
         if not cls._check_ckan_version(min_version=min_version,
                                        max_version=max_version):
             if not max_version:
