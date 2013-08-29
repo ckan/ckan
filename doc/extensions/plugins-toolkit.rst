@@ -1,6 +1,6 @@
----------------
-Plugins toolkit
----------------
+-------------------------
+Plugins toolkit reference
+-------------------------
 
 As well as using the variables made available to them by implementing plugin
 interfaces, plugins will likely want to be able to use parts of the CKAN core

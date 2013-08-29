@@ -462,7 +462,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:ref:`plugin interfaces reference`, etc.
+:doc:`extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 

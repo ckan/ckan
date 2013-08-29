@@ -8,11 +8,11 @@ __getattr__ behavior too. Autodoc can't handle it, so we have this custom
 Sphinx extension to automate documenting it instead.
 
 This extension plugs into the reading phase of the Sphinx build. It intercepts
-the 'toolkit' document (toolkit.rst) after Sphinx has read the reStructuredText
-source from file. It modifies the source, adding in Sphinx directives for
-everything in the plugins toolkit, and then the Sphinx build continues as
-normal (just as if the generated reStructuredText had been entered into
-toolkit.rst manually before running Sphinx).
+the 'toolkit' document (extensions/plugins-toolkit.rst) after Sphinx has read
+the reStructuredText source from file. It modifies the source, adding in Sphinx
+directives for everything in the plugins toolkit, and then the Sphinx build
+continues as normal (just as if the generated reStructuredText had been entered
+into plugins-toolkit.rst manually before running Sphinx).
 
 '''
 import types
@@ -142,11 +142,11 @@ def format_object(name, object_, docstring=None):
 
 
 def source_read(app, docname, source):
-    '''Transform the contents of toolkit.rst to contain reference docs.
+    '''Transform the contents of plugins-toolkit.rst to contain reference docs.
 
     '''
-    # We're only interested in the 'toolkit' doc (toolkit.rst).
-    if docname != 'toolkit':
+    # We're only interested in the 'plugins-toolkit' doc (plugins-toolkit.rst).
+    if docname != 'extensions/plugins-toolkit':
         return
 
     source_ = ''

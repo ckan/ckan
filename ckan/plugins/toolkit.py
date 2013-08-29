@@ -212,7 +212,7 @@ content type, cookies, etc.
     def _render_snippet(cls, template, data=None):
         '''Render a template snippet and return the output.
 
-        See :doc:`theming`.
+        See :doc:`/theming`.
 
         '''
         data = data or {}
@@ -262,7 +262,7 @@ content type, cookies, etc.
         Fanstatic libraries are directories containing static resource files
         (e.g. CSS, JavaScript or image files) that can be accessed from CKAN.
 
-        See :doc:`theming` for more details.
+        See :doc:`/theming` for more details.
 
         '''
         # we want the filename that of the function caller but they will

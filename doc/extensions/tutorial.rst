@@ -1,30 +1,3 @@
-=======================
-Writing CKAN extensions
-=======================
-
-CKAN can be modified and extended using extensions. Some **core extensions**
-come packaged with CKAN. Core extensions don't need to be installed before you
-can use them as they're installed when you install CKAN, they can simply be
-enabled by following the setup instructions in each extension's documentation
-(some core extensions are already enabled by default). For example, the
-:doc:`datastore extension <datastore>`, :doc:`multilingual extension
-<multilingual>`, and :doc:`stats extension <stats>` are all core extensions,
-and the :doc:`data viewer <data-viewer>` also uses core extensions to enable
-data previews for different file formats.
-
-**External extensions** are CKAN extensions that don't come packaged with
-CKAN, but must be downloaded and installed separately. A good place to find
-external extensions is the
-`list of extensions on the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
-Again, follow each extension's own documentation to install, setup and use the
-extension.
-
-This document covers everything you need to know to write your own CKAN
-extensions.
-
-
-.. _writing extensions tutorial:
-
 --------
 Tutorial
 --------
@@ -41,7 +14,7 @@ Installing CKAN
 
 Before you can start developing a CKAN extension, you'll need a working source
 install of CKAN on your system. If you don't have a CKAN source install
-already, follow the instructions in :doc:`install-from-source` before
+already, follow the instructions in :doc:`/install-from-source` before
 continuing.
 
 
@@ -119,7 +92,7 @@ Creating a plugin class
 Now create the file ``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``
 with the following contents:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v1.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v1.py
 
 Our plugin is a normal Python class, named ``ExampleIAuthFunctionsPlugin`` in
 this example, that inherits from CKAN's
@@ -169,7 +142,7 @@ the ``entry_points`` section like this::
 Installing the extension
 ========================
 
-When you :doc:`install CKAN <installing>`, you create a Python `virtual
+When you :doc:`install CKAN </installing>`, you create a Python `virtual
 environment <http://www.virtualenv.org>`_ in a directory on your system
 (|virtualenv| by default) and install the CKAN Python package and the other
 packages that CKAN depends on into this virtual environment.
@@ -249,7 +222,7 @@ Implementing the IAuthFunctions plugin interface
 .. topic:: Plugin interfaces
 
    CKAN provides a number of
-   :ref:`plugin interfaces <plugin interfaces reference>` that plugins must
+   :doc:`plugin interfaces <plugin-interfaces>` that plugins must
    implement to hook into CKAN and modify or extend it. Each plugin interface
    defines a number of methods that a plugin that implements the interface must
    provide. CKAN will call your plugin's implementations of these methods, to
@@ -301,7 +274,7 @@ function to decide whether to allow the action. Let's override this function
 and simply prevent anyone from creating new groups. Edit your ``plugin.py``
 file so that it looks like this:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v2.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v2.py
 
 .. todo::
 
@@ -367,7 +340,7 @@ edit ``plugin.py`` so that it looks like this:
    a ``curators`` group in your CKAN before editing your plugin to look like
    this. See :ref:`exception handling` below.
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
 
 
 ``context``
@@ -378,7 +351,7 @@ that CKAN passes to all authorization and action functions containing some
 computed variables. Our function gets the name of the logged-in user from
 ``context``:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get the user name of the logged-in user.
     :end-before: # Get a list of the members of the 'curators' group.
 
@@ -404,7 +377,7 @@ contains the details of the group the user wants to create::
 The plugins toolkit
 -------------------
 
-CKAN's :ref:`plugins toolkit <plugins toolkit>` is a Python module containing
+CKAN's :doc:`plugins toolkit <plugins-toolkit>` is a Python module containing
 core CKAN functions, classes and exceptions for use by CKAN extensions.
 
 The toolkit's :func:`~ckan.plugins.toolkit.get_action` function returns a CKAN
@@ -415,7 +388,7 @@ requests to the web interface or API. Our code uses
 :func:`~ckan.logic.action.get.member_list` action function, which it uses to
 get a list of the members of the ``curators`` group:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -433,14 +406,14 @@ convert user-provided data. Our code uses
 function, which it uses to convert the name of the logged-in user to their user
 ``id``:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
 Finally, we can test whether the logged-in user is a member of the ``curators``
 group, and allow or refuse the action:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin_v3.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
     :start-after: # Finally, we can test whether the user is a member of the curators group.
     :end-before: class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
 
@@ -483,7 +456,7 @@ crashing, we'll have to handle the exception that CKAN's
 list the members of a group that doesn't exist. Replace the ``member_list``
 line in your ``plugin.py`` file with these lines:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -510,7 +483,7 @@ We need to handle that exception as well, replace the
 ``convert_user_name_or_id_to_id`` line in your ``plugin.py`` file with these
 lines:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
@@ -520,7 +493,7 @@ We're done!
 
 Here's our final, working ``plugin.py`` module in full:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
 
 In working through this tutorial, you've covered all the key concepts needed
 for writing CKAN extensions, including:
@@ -530,15 +503,15 @@ for writing CKAN extensions, including:
 * Adding your plugin to your extension's ``setup.py`` file,
   and installing your extension
 * Making your plugin implement one of CKAN's
-  :ref:`plugin interfaces <plugin interfaces reference>`
-* Using the :ref:`plugins toolkit <plugins toolkit>`
+  :doc:`plugin interfaces <plugin-interfaces>`
+* Using the :doc:`plugins toolkit <plugins-toolkit>`
 * Handling exceptions
 
 You should now read the :ref:`publishing extensions`,
 :ref:`testing extensions`, and :ref:`localizing extensions` sections below,
-and also the :ref:`best practices for extensions`. For full documentation
+and also the :doc:`best-practices`. For full documentation
 of the plugin interfaces and plugins toolkit available to extensions, see
-:ref:`writing extensions reference`.
+:doc:`plugin-interfaces`.
 
 
 Troubleshooting
@@ -617,7 +590,7 @@ Testing extensions
 ==================
 
 CKAN extensions can have their own tests that are run using ``nosetests``
-in much the same way as running CKAN's own tests (see :doc:`test`).
+in much the same way as running CKAN's own tests (see :doc:`/test`).
 
 First, we need a CKAN config file to be used when running our tests.
 Create the file ``ckanext-iauthfunctions/test.ini`` with the following
@@ -632,7 +605,7 @@ your CKAN source directory, relative to your ``test.ini`` file).
 
 The ``test.ini`` file is a CKAN config file just like your |development.ini|
 and |production.ini| files, and it can contain any
-:doc:`CKAN config file settings <configuration>` that you want CKAN to use
+:doc:`CKAN config file settings </configuration>` that you want CKAN to use
 when running your tests, for example::
 
     [app:main]
@@ -648,7 +621,7 @@ Finally, create the file
 ``ckanext-iauthfunctions/ckanext/iauthfunctions/tests/test_iauthfunctions.py``
 with the following contents:
 
-.. literalinclude:: ../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
    :end-before: class TestExampleIAuthFunctionsPluginV3
 
 To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
@@ -691,78 +664,4 @@ Internationalizing and localizing extensions
    Show how to internationalize and localize the example extension.
 
 
-.. _best practices for extensions:
 
--------------------------------------
-Best practices for writing extensions
--------------------------------------
-
-Follow CKAN's coding standards
-==============================
-
-See :ref:`coding standards`.
-
-Use the plugins toolkit instead of importing CKAN
-=================================================
-
-Try to limit your extension to interacting with CKAN only through CKAN's
-:ref:`plugin interfaces <plugin interfaces reference>` and
-:ref:`plugins toolkit <plugins toolkit>`. It's a good idea to keep your
-extension code separate from CKAN as much as possible, so that internal changes
-in CKAN from one release to the next don't break your extension.
-
-
-Don't edit CKAN's database tables
-=================================
-
-An extension can create its own tables in the CKAN database, but it should
-write to core CKAN tables directly, add columns to core tables, or use foreign
-keys against core tables.
-
-
-.. _writing extensions reference:
-
-
-Use branches to support multiple versions of CKAN
-=================================================
-
-.. todo::
-
-   Explain the recommended approach for supporting different versions of CKAN
-   in an extension by using different branches.
-
-----------------------------------------------
-Reference documentation for writing extensions
-----------------------------------------------
-
-
-.. _plugin interfaces reference:
-
-CKAN plugin interfaces reference
-================================
-
-.. automodule:: ckan.plugins.core
-        :members:  SingletonPlugin, Plugin, implements
-
-.. automodule:: ckan.plugins.interfaces
-        :members:
-
-
-.. _plugins toolkit:
-
-Plugins toolkit reference
-=========================
-
-See:
-
-.. toctree::
-
-   toolkit
-
-
-Converter functions reference
-=============================
-
-.. automodule:: ckan.logic.converters
-   :members:
-   :undoc-members:
