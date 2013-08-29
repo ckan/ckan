@@ -10,7 +10,7 @@ def group_create(context, data_dict=None):
     # Get a list of the members of the 'curators' group.
     try:
         members = toolkit.get_action('member_list')(
-                data_dict={'id': 'curators', 'object_type': 'user'})
+            data_dict={'id': 'curators', 'object_type': 'user'})
     except toolkit.ObjectNotFound:
         # The curators group doesn't exist.
         return {'success': False,
@@ -23,7 +23,7 @@ def group_create(context, data_dict=None):
 
     # We have the logged-in user's user name, get their user id.
     convert_user_name_or_id_to_id = toolkit.get_converter(
-            'convert_user_name_or_id_to_id')
+        'convert_user_name_or_id_to_id')
     try:
         user_id = convert_user_name_or_id_to_id(user_name, context)
     except toolkit.Invalid:

@@ -9,7 +9,7 @@ def group_create(context, data_dict=None):
 
     # Get a list of the members of the 'curators' group.
     members = toolkit.get_action('member_list')(
-            data_dict={'id': 'curators', 'object_type': 'user'})
+        data_dict={'id': 'curators', 'object_type': 'user'})
 
     # 'members' is a list of (user_id, object_type, capacity) tuples, we're
     # only interested in the user_ids.
@@ -17,7 +17,7 @@ def group_create(context, data_dict=None):
 
     # We have the logged-in user's user name, get their user id.
     convert_user_name_or_id_to_id = toolkit.get_converter(
-            'convert_user_name_or_id_to_id')
+        'convert_user_name_or_id_to_id')
     user_id = convert_user_name_or_id_to_id(user_name, context)
 
     # Finally, we can test whether the user is a member of the curators group.

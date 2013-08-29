@@ -29,6 +29,7 @@ def setup(app):
     # called after each source file is read.
     app.connect('source-read', source_read)
 
+
 def format_function(name, function, docstring=None):
     '''Return a Sphinx .. function:: directive for the given function.
 
