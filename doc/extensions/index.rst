@@ -27,7 +27,6 @@ extensions.
 
    tutorial
    testing-extensions
-   publishing-extensions
    best-practices
    plugin-interfaces
    plugins-toolkit
