@@ -220,7 +220,7 @@ There are a few guidelines that CKAN code should follow regarding exceptions:
    types of exception the function may raise, so they know what exceptions they
    need to catch if they're going to call the function. Developers shouldn't
    have to read the source of all the functions that a function calls (and
-   the functions they call...) to find out what exceptions she needs to catch
+   the functions they call...) to find out what exceptions they needs to catch
    to call a function without crashing.
 
 .. todo::
