@@ -4,7 +4,7 @@ Testing extensions
 CKAN extensions can have their own tests that are run using ``nosetests``
 in much the same way as running CKAN's own tests (see :doc:`/test`).
 
-Continuing with our :doc:`example_iauthfunctions example extension <tutorial>`,
+Continuing with our :doc:`example_iauthfunctions extension <tutorial>`,
 first we need a CKAN config file to be used when running our tests.
 Create the file ``ckanext-iauthfunctions/test.ini`` with the following
 contents::
