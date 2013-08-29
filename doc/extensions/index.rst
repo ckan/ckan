@@ -31,3 +31,4 @@ extensions.
    plugin-interfaces
    plugins-toolkit
    converters
+   validators
