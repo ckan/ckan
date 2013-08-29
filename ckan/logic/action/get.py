@@ -914,6 +914,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     if group is None:
         raise NotFound
+    if is_org and not group.is_organization:
+        raise NotFound
+    if not is_org and group.is_organization:
+        raise NotFound
 
     if is_org:
         _check_access('organization_show',context, data_dict)

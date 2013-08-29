@@ -386,6 +386,9 @@ or to define a URL once and then link to it in multiple places, do::
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
 
+Use ``:py:`` to reference other Python or JavaScript functions, modules,
+classes, etc. See :ref:`Referencing other code objects`.
+
 
 .. _sphinx substitutions:
 

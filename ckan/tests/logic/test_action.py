@@ -1651,3 +1651,57 @@ class TestBulkActions(WsgiAppCase):
 
         res = self.app.get('/api/action/package_search?q=*:*')
         assert json.loads(res.body)['result']['count'] == 0
+
+
+class TestGroupOrgView(WsgiAppCase):
+
+    @classmethod
+    def setup_class(cls):
+        model.Session.add_all([
+            model.User(name=u'sysadmin', apikey=u'sysadmin',
+                       password=u'sysadmin', sysadmin=True),
+        ])
+        model.Session.commit()
+
+        org_dict = '%s=1' % json.dumps({
+            'name': 'org',
+        })
+        res = cls.app.post('/api/action/organization_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=org_dict)
+        cls.org_id = json.loads(res.body)['result']['id']
+
+        group_dict = '%s=1' % json.dumps({
+            'name': 'group',
+        })
+        res = cls.app.post('/api/action/group_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=group_dict)
+        cls.group_id = json.loads(res.body)['result']['id']
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_view_org(self):
+        res = self.app.get('/api/action/organization_show',
+                params={'id': self.org_id})
+        res_json = json.loads(res.body)
+        assert res_json['success'] is True
+
+        res = self.app.get('/api/action/group_show',
+                params={'id': self.org_id}, expect_errors=True)
+        res_json = json.loads(res.body)
+        assert res_json['success'] is False
+
+    def test_2_view_group(self):
+        res = self.app.get('/api/action/group_show',
+                params={'id': self.group_id})
+        res_json = json.loads(res.body)
+        assert res_json['success'] is True
+
+        res = self.app.get('/api/action/organization_show',
+                params={'id': self.group_id}, expect_errors=True)
+        res_json = json.loads(res.body)
+        assert res_json['success'] is False
+
