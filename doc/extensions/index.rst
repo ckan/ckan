@@ -26,6 +26,8 @@ extensions.
    :maxdepth: 2
 
    tutorial
+   testing-extensions
+   publishing-extensions
    best-practices
    plugin-interfaces
    plugins-toolkit
