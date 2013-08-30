@@ -169,9 +169,6 @@ def source_read(app, docname, source):
         elif inspect.isclass(thing):
             source_ += format_class(name, thing, docstring=custom_docstring)
         elif isinstance(thing, types.ObjectType):
-            # TODO: Custom docstrings for response, request and c
-            # (don't use the Pylons ones)
-            # (also for other stuff we import from other libs)
             source_ += format_object(name, thing, docstring=custom_docstring)
 
         else:
