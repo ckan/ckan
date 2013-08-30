@@ -843,12 +843,12 @@ def user_create(context, data_dict):
 def user_invite(context, data_dict):
     '''Invite a new user.
 
-    You must be authorized to create organization members.
+    You must be authorized to create group members.
 
-    :param email: the email of the user to be invited to the organization
+    :param email: the email of the user to be invited to the group
     :type email: string
-    :param organization_id: the id or name of the organization
-    :type organization_id: string
+    :param group_id: the id or name of the group
+    :type group_id: string
     :param role: role of the user in the group. One of ``member``, ``editor``,
         or ``admin``
     :type role: string
@@ -860,7 +860,7 @@ def user_invite(context, data_dict):
 
     user_invite_schema = {
         'email': [validators.not_empty, unicode],
-        'organization_id': [validators.not_empty],
+        'group_id': [validators.not_empty],
         'role': [validators.not_empty],
     }
     _, errors = _validate(data_dict, user_invite_schema, context)
@@ -878,10 +878,10 @@ def user_invite(context, data_dict):
             user = ckan.model.User.get(user_dict['id'])
             member_dict = {
                 'username': user.id,
-                'id': data_dict['organization_id'],
+                'id': data_dict['group_id'],
                 'role': data_dict['role']
             }
-            _get_action('organization_member_create')(context, member_dict)
+            _get_action('group_member_create')(context, member_dict)
             mailer.send_invite(user)
             return model_dictize.user_dictize(user, context)
         except ValidationError as e:

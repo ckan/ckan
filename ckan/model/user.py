@@ -45,6 +45,10 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return obj.filter_by(openid=openid).first()
 
     @classmethod
+    def by_email(cls, email):
+        return meta.Session.query(cls).filter_by(email=email).all()
+
+    @classmethod
     def get(cls, user_reference):
         # double slashes in an openid often get turned into single slashes
         # by browsers, so correct that for the openid lookup

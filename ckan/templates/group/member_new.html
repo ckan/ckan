@@ -19,6 +19,7 @@
       {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/user/autocomplete?q=?'} %}
       {{ form.input('username', id='field-username', label=_('User'), placeholder=_('Username'), value='', error='', classes=['control-medium'], attrs=format_attrs) }}
     {% endif %}
+    {{ form.input('email', label=_('Email'), value=user.email, classes=['control-medium']) }}
     {% set format_attrs = {'data-module': 'autocomplete'} %}
     {{ form.select('role', label=_('Role'), options=c.roles, selected=c.user_role, error='', attrs=format_attrs) }}
     <div class="form-actions">

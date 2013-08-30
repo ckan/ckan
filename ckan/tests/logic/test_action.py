@@ -571,7 +571,7 @@ class TestAction(WsgiAppCase):
         role = 'member'
         organization = model.Group.get(organization_name)
         params = {'email': email,
-                  'organization_id': organization.id,
+                  'group_id': organization.id,
                   'role': role}
         postparams = '%s=1' % json.dumps(params)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
@@ -616,7 +616,7 @@ class TestAction(WsgiAppCase):
         role = 'member'
         organization = model.Group.get(organization_name)
         params = {'email': email,
-                  'organization_id': organization.id,
+                  'group_id': organization.id,
                   'role': role}
         postparams = '%s=1' % json.dumps(params)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}

@@ -113,7 +113,8 @@ def user_create(context, data_dict=None):
         return {'success': True}
 
 def user_invite(context, data_dict=None):
-    return organization_member_create(context, data_dict)
+    context['id'] = context.get('group_id')
+    return group_member_create(context, data_dict)
 
 def _check_group_auth(context, data_dict):
     # FIXME This code is shared amoung other logic.auth files and should be
