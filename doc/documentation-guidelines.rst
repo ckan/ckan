@@ -54,7 +54,13 @@ Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
 install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
-terminal::
+terminal:
+
+.. versionchanged:: 2.1
+   In CKAN 2.0 and earlier the requirements file was called
+   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
+
+::
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
@@ -379,6 +385,9 @@ or to define a URL once and then link to it in multiple places, do::
     .. _a link: http://example.com/
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
+
+Use ``:py:`` to reference other Python or JavaScript functions, modules,
+classes, etc. See :ref:`Referencing other code objects`.
 
 
 .. _sphinx substitutions:
